@@ -17,7 +17,7 @@ body {
     width: 8in;
     height: 10.5in;
     margin: auto;
-    padding: 32px 32px 20px 32px;
+    padding: 24px 32px 20px 32px;
     background: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -50,6 +50,10 @@ body {
     border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-profile;
     
+}
+
+.name {
+    text-shadow: 1px 1px 1px #00000049;
 }
   
 .in-left-social {
@@ -98,9 +102,9 @@ body {
     border-radius: 15px;
     margin-bottom: 5px;
     font-size: 12px;
-    color: #FFF;
+    color: #000000;
     font-weight: bold;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 1px #FFFFFF;
 }
 
 .skill-bar::before {
