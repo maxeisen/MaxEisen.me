@@ -1,0 +1,123 @@
+html {
+    box-sizing: border-box;
+  }
+  *, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Ubuntu', sans-serif;
+    line-height: 1.5;
+    background: #F2F2F2;
+    color: #323232;
+}
+
+.inner-page {
+    max-width: 960px;
+    margin: 0px auto;
+    padding: 32px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.out-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 1px 1px;
+    grid-template-areas: "out-info-section out-experience-section out-experience-section" "out-info-section out-experience-section out-experience-section";
+}
+  
+.out-info-section { grid-area: out-info-section; }
+  
+.out-experience-section { grid-area: out-experience-section; }
+
+.in-left-grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 1px 1px;
+    grid-template-areas: "in-left-profile . . ." "in-left-social . . ." "in-left-skills . . .";
+}
+  
+.in-left-profile {
+    margin: 10px 20px 10px 20px;
+    padding-top: 15px;
+    text-align: center;
+    border-top: 3px solid rgb(0, 187, 162);
+    border-bottom: 3px solid rgb(0, 187, 162);
+    grid-area: in-left-profile;
+    
+}
+  
+.in-left-social {
+    margin: 5px 20px 10px 20px;
+    padding-top: 15px;
+    text-align: center;
+    border-bottom: 3px solid rgb(0, 187, 162);
+    grid-area: in-left-social;
+}
+  
+.in-left-skills {
+    margin: 10px 20px 10px 20px;
+    padding-top: 15px;
+    border-bottom: 3px solid rgb(0, 187, 162);
+    grid-area: in-left-skills;
+}
+
+.in-right-grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 1px 1px;
+    grid-template-areas: "in-right-experience" "in-right-education";
+}
+  
+.in-right-experience { grid-area: in-right-experience; }
+  
+.in-right-education { grid-area: in-right-education; }
+
+.job {
+    margin-top: 5px;
+}
+
+.job-title {
+    text-align: left;
+    font-size: 20px;
+    color: #818181;
+}
+
+.job-date {
+    text-align: left;
+    font-size: 15px;
+}
+
+.job-description {
+    font-size: 10px;
+    text-align: left;
+    color: #ababab;
+}
+
+
+
+h1 {
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+    font-size: 20px;
+}
+
+p {
+    color: #ababab;
+}
+
+a {
+    color: #000000;
+    text-decoration: none;
+}
+  
+a:hover {
+    color: #00bba2;
+}
