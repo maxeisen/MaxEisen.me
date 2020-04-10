@@ -46,8 +46,8 @@ body {
     margin: 10px 20px 10px 20px;
     padding-top: 15px;
     text-align: center;
-    border-top: 3px solid rgb(0, 187, 162);
-    border-bottom: 3px solid rgb(0, 187, 162);
+    border-top: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-profile;
     
 }
@@ -55,14 +55,14 @@ body {
 .in-left-social {
     margin: 5px 20px 10px 20px;
     text-align: center;
-    border-bottom: 3px solid rgb(0, 187, 162);
+    border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-social;
 }
   
 .in-left-skills {
     font-size: 14px;
     margin: 10px 20px 0 20px;
-    border-bottom: 3px solid rgb(0, 187, 162);
+    border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-skills;
 }
 
@@ -76,13 +76,14 @@ body {
   
 .in-right-experience {
     margin: 10px 20px 0px 20px;
-    border-top: 3px solid rgb(0, 187, 162);
-    border-bottom: 3px solid rgb(0, 187, 162);
+    border-top: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-right-experience;
 }
   
 .in-right-education {
-    border-bottom: 3px solid rgb(0, 187, 162);
+    margin: 10px 20px 0px 20px;
+    border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-right-education;
 }
 
