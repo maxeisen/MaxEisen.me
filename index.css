@@ -258,3 +258,21 @@ a {
 a:hover {
     color: #00bba2;
 }
+
+@media print {
+    body {
+        background: white;
+    }
+    .inner-page {
+        height: 100%;
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
+        box-shadow: none;
+    }
+    .in-left-skills, .in-left-hobbies {
+        pointer-events: none;
+    }
+    .footer {
+        display: none;
+    }
+}
