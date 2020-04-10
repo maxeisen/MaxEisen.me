@@ -60,6 +60,7 @@ body {
 }
   
 .in-left-skills {
+    font-size: 14px;
     margin: 10px 20px 0 20px;
     border-bottom: 3px solid rgb(0, 187, 162);
     grid-area: in-left-skills;
@@ -74,7 +75,7 @@ body {
 }
   
 .in-right-experience {
-    margin: 10px 20px 10px 20px;
+    margin: 10px 20px 0px 20px;
     border-top: 3px solid rgb(0, 187, 162);
     border-bottom: 3px solid rgb(0, 187, 162);
     grid-area: in-right-experience;
@@ -86,18 +87,20 @@ body {
 }
 
 .job {
-    line-height: 1.1
+    line-height: 1.25;
     margin-left: 5px;
     margin-top: 5px;
 }
 
 .job-title {
+    line-height: 0.8;
     text-align: left;
     font-size: 15px;
     color: #000000;
 }
 
 .job-date {
+    line-height: 0.8;
     text-align: left;
     font-size: 14px;
 }
@@ -110,6 +113,12 @@ body {
 
 .social-link {
     font-size: 14px;
+}
+
+.program-info {
+    text-align: left;
+    font-size: 15px;
+    color: #000000;
 }
 
 h1 {
