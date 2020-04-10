@@ -8,7 +8,7 @@ html {
 
 body {
     height: auto;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Nunito', sans-serif;
     line-height: 1.3;
     background: rgb(219, 219, 219);
 }
@@ -52,8 +52,24 @@ body {
     
 }
 
+.headshot {
+    width: 125px;
+    -webkit-transition: all .1s ease-in;
+	-moz-transition: all .1s ease-in;
+	-o-transition: all .1s ease-in;
+	-ms-transition: all .1s ease-in;
+	transition: all .1s ease-in;
+}
+
+.headshot:hover {
+    width: 135px;
+}
+
 .name {
+    font-size: 25px;
     text-shadow: 1px 1px 1px #00000049;
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
   
 .in-left-social {
@@ -99,12 +115,22 @@ body {
 .skill-bar {
     background-color: #EEE;
     padding: 2px;
-    border-radius: 15px;
+    border-radius: 8px;
     margin-bottom: 5px;
     font-size: 12px;
     color: #000000;
     font-weight: bold;
     text-shadow: 1px 1px 1px #FFFFFF;
+    -webkit-transition: all .1s ease-in;
+	-moz-transition: all .1s ease-in;
+	-o-transition: all .1s ease-in;
+	-ms-transition: all .1s ease-in;
+	transition: all .1s ease-in;
+}
+
+.skill-bar:hover {
+    border-radius: 30px;
+    font-size: 16px;
 }
 
 .skill-bar::before {
@@ -124,7 +150,7 @@ body {
 }
 
 .skill-bar.back::before {
-    background-color: rgba(0, 187, 162, 0.521);
+    background-color: rgba(0, 187, 162, 0.432);
 }
 
 .skill-bar.intermediate::before {
@@ -150,7 +176,6 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
-    gap: 1px 1px;
     grid-template-areas: "in-right-experience" "in-right-education";
 }
   
@@ -216,13 +241,18 @@ p {
 }
 
 a {
-    -webkit-transition: all .3s ease-in;
-	-moz-transition: all .3s ease-in;
-	-o-transition: all .3s ease-in;
-	-ms-transition: all .3s ease-in;
-	transition: all .3s ease-in;
-    color: #0e0088;
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+	-ms-transition: all .2s ease-in;
+	transition: all .2s ease-in;
+    color: #100197;
     text-decoration: none;
+}
+
+.inconspicuous {
+    color: black;
+    transition: none;
 }
   
 a:hover {
