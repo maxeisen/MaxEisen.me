@@ -124,7 +124,7 @@ header {
 }
 
 .skill-bar {
-    background-color: #EEE;
+    background-color: rgb(235, 229, 229);
     padding: 2px;
     border-radius: 8px;
     margin-bottom: 5px;
@@ -149,7 +149,6 @@ header {
 
 .skill-bar::before {
     content: attr(data-skill);
-    background-color: #f3b0ff;
     display: inline-block;
     padding: 1.5px 5px 2px 10px;
     border-radius: inherit;
@@ -157,10 +156,6 @@ header {
     -webkit-animation: load 2s 0s;
     -moz-animation: load 2s 0s;
     -o-animation: load 2s 0s;
-}
-  
-.skill-bar.front::before {
-    background-color: #ffcc33;
 }
 
 .skill-bar.back::before {
@@ -292,7 +287,7 @@ a:hover {
 	-ms-transition: all .2s ease-in;
     transition: all .2s ease-in;
     color: white;
-    text-shadow: 1px 1px 2px #000000;
+    text-shadow: 1px 1px 2px #00000075;
 }
 
 .footer:hover {
