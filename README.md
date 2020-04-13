@@ -3,6 +3,7 @@
 
 # Get to Know Max Eisen
 This is my personal website - currently a web version of my resume with some nice, interactive, responsive elements, but soon to be a cooler, more complex website.
-Initially just a fun project during COVID-19 quarantine, this turned into a great way to showcase past projects, work experience, and more.
+
+Initially just a fun project during COVID-19 self-isolation, this turned into a great way to showcase past projects, work experience, and more.
 
 Deployed to [maxeisen.me](https://maxeisen.me) - check it out!
