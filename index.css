@@ -25,10 +25,17 @@ header {
     transition: 0.2s;
 }
 
-header:hover {
-    line-height: 0.8;
-    font-size: 40px;
-    text-shadow: 2px 2px 4px #000000;
+.logical-and {
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+	-ms-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    color: white;
+}
+
+.logical-and:hover {
+    color: #00bba2;
 }
 
 .inner-page {
@@ -92,18 +99,18 @@ header:hover {
     grid-area: in-left-social;
 }
 
-/* .social-icon-compressed {
-    display: inline-block;
+img.social-icon {
+    width: 30px;
 }
-
-.social-link-compressed {
-    float: right;
-} */
 
 .social-link {
     font-size: 14px;
 }
-  
+
+.social-placeholder {
+    display: none;
+}
+
 .in-left-skills {
     font-size: 14px;
     margin: 5px 20px 0 20px;
@@ -359,7 +366,7 @@ a:hover {
 @media only screen and (max-width: 820px) {
     .inner-page {
         width: 4.5in;
-        height: 21in;
+        height: 19.7in;
         padding: 24px 23px 20px 23px;
     }
 
@@ -369,6 +376,21 @@ a:hover {
 
     .in-left-social {
         margin: 10px 20px 0px 20px;
+    }
+
+    img.social-icon {
+        float: left;
+        padding-right: 10px;
+    }
+
+    .social-link {
+        padding-right: 26px;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    .social-placeholder {
+        display: inline;
     }
 
     .headshot {
@@ -400,7 +422,7 @@ a:hover {
 @media only screen and (max-width: 460px) {
     .inner-page {
         width: 3.25in;
-        height: 23.8in;
+        height: 22.65in;
         padding: 24px 8px 20px 8px;
     }
 
