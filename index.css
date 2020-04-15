@@ -225,19 +225,47 @@ img.social-icon {
 .job {
     line-height: 1.25;
     margin-left: 5px;
-    margin-top: 5px;
+    margin-top: 22px;
 }
 
 .job-title {
     text-align: left;
     font-size: 15px;
     color: #000000;
+    margin: 7px 0 7px 0;
+}
+
+.qtma-title-full {
+    line-height: 1.1;
+    text-align: left;
+    font-size: 15px;
+    color: #000000;
+    margin: 7px 0 7px 0;
+}
+
+.qtma-title-compressed {
+    display: none;
+    line-height: 1.1;
+    text-align: left;
+    font-size: 15px;
+    color: #000000;
+    margin: 7px 0 7px 0;
+}
+
+.position {
+    display: inline-block;
+}
+
+a.company {
+    font-size: 15px;
+    float: right;
 }
 
 .job-date-location {
     line-height: 0.8;
     text-align: left;
     font-size: 14px;
+    margin: 7px 0 7px 0;
 }
 
 .date {
@@ -366,7 +394,7 @@ a:hover {
 @media only screen and (max-width: 820px) {
     .inner-page {
         width: 4.5in;
-        height: 19.7in;
+        height: 19.5in;
         padding: 24px 23px 20px 23px;
     }
 
@@ -400,7 +428,15 @@ a:hover {
     .headshot:hover {
         width: 120px;
     }
-    
+
+    .qtma-title-full {
+        display: none;
+    }
+
+    .qtma-title-compressed {
+        display: inline;
+    }
+
     .out-grid-container {
         grid-template-columns: auto;
         grid-template-areas: "out-info-section" "out-experience-section";
@@ -422,7 +458,7 @@ a:hover {
 @media only screen and (max-width: 460px) {
     .inner-page {
         width: 3.25in;
-        height: 22.65in;
+        height: 22.4in;
         padding: 24px 8px 20px 8px;
     }
 
