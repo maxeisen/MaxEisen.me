@@ -10,9 +10,7 @@ body {
     height: auto;
     font-family: 'Nunito', sans-serif;
     line-height: 1.3;
-    background: radial-gradient(rgb(248, 248, 248), rgb(31, 31, 31));
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background: rgb(31, 31, 31);
 }
 
 header {
