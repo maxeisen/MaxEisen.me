@@ -1,0 +1,306 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    height: auto;
+    font-family: 'Nunito', sans-serif;
+    line-height: 1.3;
+    background: rgb(31, 31, 31);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px;
+    font-size: 30px;
+    line-height: 1;
+    color: black;
+    transition: 0.2s;
+}
+
+.home-icon {
+    margin-top: 10px;
+    margin-left: 145px;
+    width: 75px;
+}
+
+header nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul li {
+    list-style: none;
+    margin-right: 20px;
+}
+
+header a {
+    color: white;
+}
+
+header a:hover {
+    color: white;
+    border-bottom: 2px solid rgb(0, 187, 162);
+    -webkit-animation: glow 1.4s ease-in-out infinite alternate;
+    -moz-animation: glow 1.4s ease-in-out infinite alternate;
+    animation: glow 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+      text-shadow: 0 0 0px #fff;
+    }
+    to {
+      text-shadow: 0 0 7px #01c0a7;
+    }
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto;
+    gap: 1px 1px;
+    grid-template-areas: "sidebar-section info-section info-section" "sidebar-section info-section info-section";
+}
+  
+.sidebar-section {
+    position: fixed;
+    width: 1fr;
+    border-radius: 10px;
+    align-items: center;
+    padding: 24px 32px 0 32px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 40px;
+    background: rgba(255, 255, 255, 0.144);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    grid-area: sidebar-section;
+}
+  
+.info-section {
+    height: auto;
+    width: 2fr;
+    border-radius: 10px;
+    padding: 24px 32px 20px 32px;
+    margin-right: 40px;
+    background: rgba(255, 255, 255, 0.144);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    grid-area: info-section;
+}
+
+.modal-text {
+    color: black;
+}
+
+.profile-name {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+
+.headshot {
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    width: 200px;
+    height: 200px;
+}
+
+.experience-subsection {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto auto;
+    gap: 1px 1px;
+    grid-template-areas: "experience-item experience-item" "experience-item experience-item" "experience-item experience-item";
+}
+
+.experience-item {
+    background-color: rgba(31, 31, 31, 0.8);
+    border: 1.25px solid rgb(138, 137, 137);
+    border-radius: 2.5px;
+    padding: 5px 30px 5px 30px;
+    margin: 20px 30px 20px 30px;
+    text-align: center;
+}
+
+.experience-item:hover {
+    background-color: rgba(110, 110, 110, 0.8);
+    cursor: pointer;
+}
+
+.experience-title {
+    text-align: center;
+    font-size: 25px;
+}
+
+.experience-position {
+    display: inline-block;
+}
+
+.experience-company {
+    float: right;
+}
+
+.experience-date-location {
+    text-align: left;
+    font-size: 20px;
+}
+
+.experience-date {
+    display: inline-block;
+}
+
+.experience-location {
+    color: gray;
+    float: right;
+}
+
+.degree-info {
+    text-align: left;
+    font-size: 15px;
+    color: #000000;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    font-size: 40px;
+}
+
+.section-title {
+    text-align: left;
+}
+
+h2 {
+    color: white;
+    text-align: center;
+    font-size: 20px;
+}
+
+p {
+    color: #e6e6e6;
+}
+
+a {
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+	-ms-transition: all .2s ease-in;
+	transition: all .2s ease-in;
+    color: #dfdfdf;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #00bba2;
+}
+
+img.social-icon {
+    -webkit-transition: all .1s ease-in;
+	-moz-transition: all .1s ease-in;
+	-o-transition: all .1s ease-in;
+    -ms-transition: all .1s ease-in;
+    transition: all .1s ease-in;
+    width: 50px;
+}
+
+img.social-icon:hover {
+    width: 60px;
+}
+
+.social-links {
+    color: rgb(173, 222, 255);
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.footer {
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+	-ms-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    color: white;
+    text-shadow: 1px 1px 2px #00000075;
+}
+
+.footer:hover {
+    color: #00bba2;
+}
+
+@media print {
+    body {
+        padding-top: 0px;
+        background: white;
+    }
+
+    header {
+        margin-top: 0;
+        color: black;
+        text-shadow: none;
+    }
+}
+
+@media only screen and (max-width: 1130px) {
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        grid-template-rows: auto;
+        gap: 1px 1px;
+        grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
+    }
+
+}
+
+@media only screen and (max-width: 1050px) {
+
+    header nav ul {
+        font-size: 20px;
+        line-height: 1.5;
+    }
+}
+
+@media only screen and (max-width: 820px) {
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto;
+        gap: 1px 1px;
+        grid-template-areas: "sidebar-section" "info-section";
+    }
+
+    .home-icon {
+        margin-left: 30px;
+        margin-right: 30px;
+        width: 75px;
+    }
+
+    .sidebar-section {
+        margin: 20px 50px 20px 50px;
+        position: relative;
+    }
+
+    .info-section {
+        margin: 20px 50px 20px 50px;
+        position: relative;
+    }
+}
+
+@media only screen and (max-width: 460px) {
+
+    .nav-bar {
+        text-align: center;
+    }
+}
