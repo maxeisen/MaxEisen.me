@@ -303,6 +303,14 @@ img.social-icon:hover {
         margin: 20px 50px 20px 50px;
         position: relative;
     }
+
+    .experience-subsection {
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto;
+        gap: 1px 1px;
+        grid-template-areas: "experience-item";
+    }
 }
 
 @media only screen and (max-width: 460px) {

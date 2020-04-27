@@ -23,6 +23,44 @@ header {
     transition: 0.2s;
 }
 
+.back-button {
+    position: fixed;
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+    -ms-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    font-size: 25px;
+    color: white;
+    margin-left: 10px;
+    margin-top: -5px;
+}
+
+.back-button:hover {
+    color: rgb(0, 187, 162);
+    font-size: 27.5px;
+}
+
+.back-button-mobile {
+    display: none;
+    position: absolute;
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+    -ms-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    font-size: 30px;
+    color: white;
+    margin-left: 10px;
+    margin-top: -5px;
+}
+
+.back-button-mobile:hover {
+    color: rgb(0, 187, 162);
+    font-size: 35px;
+}
+
+
 .logical-and {
     -webkit-transition: all .2s ease-in;
 	-moz-transition: all .2s ease-in;
@@ -358,6 +396,10 @@ a:hover {
 }
 
 @media print {
+    .back-button, .back-button-mobile, .footer {
+        display: none;
+    }
+
     body {
         padding-top: 0px;
         background: white;
@@ -383,8 +425,14 @@ a:hover {
     .easter-egg {
         animation: none;
     }
-    
-    .footer {
+}
+
+@media only screen and (max-width: 1020px) {
+    .back-button-mobile {
+        display: inline;
+    }
+
+    .back-button {
         display: none;
     }
 }
@@ -415,24 +463,12 @@ a:hover {
         line-height: 1.5;
     }
 
-    .social-placeholder {
-        display: inline;
-    }
-
     .headshot {
         width: 100px;
     }
 
     .headshot:hover {
         width: 120px;
-    }
-
-    .qtma-title-full {
-        display: none;
-    }
-
-    .qtma-title-compressed {
-        display: inline;
     }
 
     .out-grid-container {
@@ -446,6 +482,14 @@ a:hover {
 
     .in-left-hobbies {
         border-bottom: none;
+    }
+
+    .social-placeholder, .qtma-title-compressed {
+        display: inline;
+    }
+
+    .qtma-title-full {
+        display: none;
     }
 
     .job-date-location {
@@ -462,5 +506,19 @@ a:hover {
 
     .job-date-location {
         line-height: 1.3;
+    }
+}
+
+@media only screen and (max-width: 340px) {
+    header{
+        display: none;
+    }
+
+    .footer {
+        display: none;
+    }
+
+    .back-button-mobile{
+        display: none
     }
 }
