@@ -115,6 +115,8 @@ header a:hover {
     padding: 0;
     width: 200px;
     height: 200px;
+    -webkit-filter: drop-shadow(0px 4px 4px #222 );
+    filter: drop-shadow(0px 4px 4px #222);
 }
 
 .experience-subsection {
@@ -130,7 +132,7 @@ header a:hover {
     border: 1.25px solid rgb(138, 137, 137);
     border-radius: 2.5px;
     padding: 5px 30px 5px 30px;
-    margin: 20px 30px 20px 30px;
+    margin: 15px 20px 15px 20px;
     text-align: center;
 }
 

@@ -14,7 +14,7 @@
     }
     const exp2 = {
         position: "Product Manager",
-        company: "Queen's Tech and Media Association",
+        company: "Queen's Technology and Media Association",
         companyLink: "https://qtma.ca/",
         startDate: "April 2020",
         endDate: "Present",
@@ -105,7 +105,7 @@
         </div>
         <div class="experience-item" on:click={modal2}>
             <h2 class="experience-title"><div class="experience-position">{exp2.position}</div></h2>
-            <h2 class="experience-title">{exp2.company}</h2>
+            <h2 class="experience-title">QTMA</h2>
             <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}<b style="color:gray">-</b>{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
         </div>
         <div class="experience-item" on:click={modal3}>
@@ -116,7 +116,8 @@
         <div class="experience-item" on:click={modal4}>
             <h2 class="experience-title"><div class="experience-position">{exp4.position}</div></h2>
             <h2 class="experience-title">{exp4.company}</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp4.startDate}<b style="color:gray">-</b>{exp4.endDate}</div><div class="experience-location">{exp4.location}</div></h1>
+            <h1 class="experience-date-location"><div class="experience-date">{exp4.startDate}<b style="color:gray">-</b>{exp4.endDate}</div>
+            <div class="experience-location">{exp4.location}</div></h1>
         </div>
         <div class="experience-item" on:click={modal5}>
             <h2 class="experience-title"><div class="experience-position">{exp5.position}</div></h2>
