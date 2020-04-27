@@ -1,8 +1,19 @@
 <script>
+    import { getContext } from 'svelte';
+    import ExperienceModal from './ExperienceModal.svelte';
+
+    const { open } = getContext('simple-modal');
+
+    const modal1 = () => {
+        open(ExperienceModal, {
+            
+        });
+    };
 </script>
 
 <html lang="en">
-    <div id="projects">
-        <h1 class="section-title">Projects</h1>
+    <h1 class="section-title" id="projects">Projects</h1>
+    <div class="projects-subsection">
+    
     </div>
 </html>

@@ -45,6 +45,7 @@
     const exp5 = {
         position: "Software Developer",
         company: "QHacks",
+        companyLink: "https://qhacks.io/",
         startDate: "September 2019",
         endDate: "February 2020",
         location: "Kingston, ON",
@@ -54,6 +55,7 @@
     const exp6 = {
         position: "Technical Instructor",
         company: "UnderTheGUI Inc.",
+        companyLink: "https://underthegui.com/",
         startDate: "May",
         endDate: "August 2019",
         location: "Vancouver, BC",
@@ -96,7 +98,7 @@
 </script>
 
 <html lang="en">
-<h1 class="section-title" id="experience">Experience</h1>
+    <h1 class="section-title" id="experience">Experience</h1>
     <div class="experience-subsection">
         <div class="experience-item" on:click={modal1}>
             <h2 class="experience-title"><div class="experience-position">{exp1.position}</div></h2>
@@ -129,4 +131,5 @@
             <h2 class="experience-title">{exp6.company}</h2>
             <h1 class="experience-date-location"><div class="experience-date">{exp6.startDate}<b style="color:gray">-</b>{exp6.endDate}</div><div class="experience-location">{exp6.location}</div></h1>
         </div>
+    </div>
 </html>

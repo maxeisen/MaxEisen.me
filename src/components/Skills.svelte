@@ -2,7 +2,8 @@
 </script>
 
 <html lang="en">
-    <div id="skills">
-        <h1 class="section-title">Skills</h1>
+    <h1 class="section-title" id="skills">Skills</h1>
+    <div class="skills-subsection">
+    
     </div>
 </html>
