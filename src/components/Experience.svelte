@@ -97,39 +97,37 @@
     };
 </script>
 
-<html lang="en">
-    <h1 class="section-title" id="experience">Experience</h1>
-    <div class="experience-subsection">
-        <div class="experience-item" on:click={modal1}>
-            <h2 class="experience-title"><div class="experience-position">{exp1.position}</div></h2>
-            <h2 class="experience-title">{exp1.company}</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp1.startDate}<b style="color:gray">-</b>{exp1.endDate}</div><div class="experience-location">{exp1.location}</div></h1>
-        </div>
-        <div class="experience-item" on:click={modal2}>
-            <h2 class="experience-title"><div class="experience-position">{exp2.position}</div></h2>
-            <h2 class="experience-title">QTMA</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}<b style="color:gray">-</b>{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
-        </div>
-        <div class="experience-item" on:click={modal3}>
-            <h2 class="experience-title"><div class="experience-position">{exp3.position}</div></h2>
-            <h2 class="experience-title">{exp3.company}</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}<b style="color:gray">-</b>{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
-        </div>
-        <div class="experience-item" on:click={modal4}>
-            <h2 class="experience-title"><div class="experience-position">{exp4.position}</div></h2>
-            <h2 class="experience-title">{exp4.company}</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp4.startDate}<b style="color:gray">-</b>{exp4.endDate}</div>
-            <div class="experience-location">{exp4.location}</div></h1>
-        </div>
-        <div class="experience-item" on:click={modal5}>
-            <h2 class="experience-title"><div class="experience-position">{exp5.position}</div></h2>
-            <h2 class="experience-title">{exp5.company}</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp5.startDate}<b style="color:gray">-</b>{exp5.endDate}</div><div class="experience-location">{exp5.location}</div></h1>
-        </div>
-        <div class="experience-item" on:click={modal6}>
-            <h2 class="experience-title"><div class="experience-position">{exp6.position}</div></h2>
-            <h2 class="experience-title">{exp6.company}</h2>
-            <h1 class="experience-date-location"><div class="experience-date">{exp6.startDate}<b style="color:gray">-</b>{exp6.endDate}</div><div class="experience-location">{exp6.location}</div></h1>
-        </div>
+<h1 class="section-title" id="experience">Experience</h1>
+<div class="experience-subsection">
+    <div class="experience-item" on:click={modal1}>
+        <h2 class="experience-title"><div class="experience-position">{exp1.position}</div></h2>
+        <h2 class="experience-title">{exp1.company}</h2>
+        <h1 class="experience-date-location"><div class="experience-date">{exp1.startDate}<b style="color:gray">-</b>{exp1.endDate}</div><div class="experience-location">{exp1.location}</div></h1>
     </div>
-</html>
+    <div class="experience-item" on:click={modal2}>
+        <h2 class="experience-title"><div class="experience-position">{exp2.position}</div></h2>
+        <h2 class="experience-title">QTMA</h2>
+        <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}<b style="color:gray">-</b>{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
+    </div>
+    <div class="experience-item" on:click={modal3}>
+        <h2 class="experience-title"><div class="experience-position">{exp3.position}</div></h2>
+        <h2 class="experience-title">{exp3.company}</h2>
+        <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}<b style="color:gray">-</b>{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
+    </div>
+    <div class="experience-item" on:click={modal4}>
+        <h2 class="experience-title"><div class="experience-position">{exp4.position}</div></h2>
+        <h2 class="experience-title">{exp4.company}</h2>
+        <h1 class="experience-date-location"><div class="experience-date">{exp4.startDate}<b style="color:gray">-</b>{exp4.endDate}</div>
+        <div class="experience-location">{exp4.location}</div></h1>
+    </div>
+    <div class="experience-item" on:click={modal5}>
+        <h2 class="experience-title"><div class="experience-position">{exp5.position}</div></h2>
+        <h2 class="experience-title">{exp5.company}</h2>
+        <h1 class="experience-date-location"><div class="experience-date">{exp5.startDate}<b style="color:gray">-</b>{exp5.endDate}</div><div class="experience-location">{exp5.location}</div></h1>
+    </div>
+    <div class="experience-item" on:click={modal6}>
+        <h2 class="experience-title"><div class="experience-position">{exp6.position}</div></h2>
+        <h2 class="experience-title">{exp6.company}</h2>
+        <h1 class="experience-date-location"><div class="experience-date">{exp6.startDate}<b style="color:gray">-</b>{exp6.endDate}</div><div class="experience-location">{exp6.location}</div></h1>
+    </div>
+</div>

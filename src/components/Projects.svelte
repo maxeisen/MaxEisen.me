@@ -11,9 +11,7 @@
     };
 </script>
 
-<html lang="en">
-    <h1 class="section-title" id="projects">Projects</h1>
-    <div class="projects-subsection">
-    
-    </div>
-</html>
+<h1 class="section-title" id="projects">Projects</h1>
+<div class="projects-subsection">
+
+</div>
