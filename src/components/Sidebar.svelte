@@ -4,7 +4,7 @@
 
 <html lang="en">
     <h1 class="profile-name">Maxwell Eisen</h1>
-    <h2>Toronto, Ontario</h2>
+    <h2>Software Engineer</h2>
     <div class="social-links">
         <h2><a class="social-links" href="https://linkedin.com/in/maxeisen/" target="_blank">LinkedIn</a></h2>
         <h2><a class="social-links" href="https://github.com/maxeisen/" target="_blank">GitHub</a></h2>
