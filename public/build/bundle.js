@@ -1,1 +1,3777 @@
-var app=function(){"use strict";function e(){}const t=e=>e;function n(e,t){for(const n in t)e[n]=t[n];return e}function o(e){return e()}function i(){return Object.create(null)}function s(e){e.forEach(o)}function a(e){return"function"==typeof e}function r(e,t){return e!=e?t==t:e!==t||e&&"object"==typeof e||"function"==typeof e}function c(e,t,o,i){return e[1]&&i?n(o.ctx.slice(),e[1](i(t))):o.ctx}const l="undefined"!=typeof window;let p=l?()=>window.performance.now():()=>Date.now(),d=l?e=>requestAnimationFrame(e):e;const u=new Set;function h(e){u.forEach(t=>{t.c(e)||(u.delete(t),t.f())}),0!==u.size&&d(h)}function m(e,t){e.appendChild(t)}function g(e,t,n){e.insertBefore(t,n||null)}function f(e){e.parentNode.removeChild(e)}function y(e){return document.createElement(e)}function v(e){return document.createTextNode(e)}function b(){return v(" ")}function x(e,t,n,o){return e.addEventListener(t,n,o),()=>e.removeEventListener(t,n,o)}function k(e,t,n){null==n?e.removeAttribute(t):e.getAttribute(t)!==n&&e.setAttribute(t,n)}function $(e,t){t=""+t,e.data!==t&&(e.data=t)}function w(e,t,n,o){e.style.setProperty(t,n,o?"important":"")}class D{constructor(e,t=null){this.e=y("div"),this.a=t,this.u(e)}m(e,t=null){for(let n=0;n<this.n.length;n+=1)g(e,this.n[n],t);this.t=e}u(e){this.e.innerHTML=e,this.n=Array.from(this.e.childNodes)}p(e){this.d(),this.u(e),this.m(this.t,this.a)}d(){this.n.forEach(f)}}const C=new Set;let L,j=0;function _(e,t,n,o,i,s,a,r=0){const c=16.666/o;let l="{\n";for(let e=0;e<=1;e+=c){const o=t+(n-t)*s(e);l+=100*e+`%{${a(o,1-o)}}\n`}const p=l+`100% {${a(n,1-n)}}\n}`,d=`__svelte_${function(e){let t=5381,n=e.length;for(;n--;)t=(t<<5)-t^e.charCodeAt(n);return t>>>0}(p)}_${r}`,u=e.ownerDocument;C.add(u);const h=u.__svelte_stylesheet||(u.__svelte_stylesheet=u.head.appendChild(y("style")).sheet),m=u.__svelte_rules||(u.__svelte_rules={});m[d]||(m[d]=!0,h.insertRule(`@keyframes ${d} ${p}`,h.cssRules.length));const g=e.style.animation||"";return e.style.animation=`${g?g+", ":""}${d} ${o}ms linear ${i}ms 1 both`,j+=1,d}function M(e,t){const n=(e.style.animation||"").split(", "),o=n.filter(t?e=>e.indexOf(t)<0:e=>-1===e.indexOf("__svelte")),i=n.length-o.length;i&&(e.style.animation=o.join(", "),j-=i,j||d(()=>{j||(C.forEach(e=>{const t=e.__svelte_stylesheet;let n=t.cssRules.length;for(;n--;)t.deleteRule(n);e.__svelte_rules={}}),C.clear())}))}function T(e){L=e}function O(){if(!L)throw new Error("Function called outside component initialization");return L}function P(e,t){O().$$.context.set(e,t)}function E(e){return O().$$.context.get(e)}const B=[],A=[],q=[],S=[],W=Promise.resolve();let H=!1;function z(e){q.push(e)}let G=!1;const I=new Set;function Q(){if(!G){G=!0;do{for(let e=0;e<B.length;e+=1){const t=B[e];T(t),U(t.$$)}for(B.length=0;A.length;)A.pop()();for(let e=0;e<q.length;e+=1){const t=q[e];I.has(t)||(I.add(t),t())}q.length=0}while(B.length);for(;S.length;)S.pop()();H=!1,G=!1,I.clear()}}function U(e){if(null!==e.fragment){e.update(),s(e.before_update);const t=e.dirty;e.dirty=[-1],e.fragment&&e.fragment.p(e.ctx,t),e.after_update.forEach(z)}}let N;function R(e,t,n){e.dispatchEvent(function(e,t){const n=document.createEvent("CustomEvent");return n.initCustomEvent(e,!1,!1,t),n}(`${t?"intro":"outro"}${n}`))}const F=new Set;let K;function V(){K={r:0,c:[],p:K}}function Z(){K.r||s(K.c),K=K.p}function J(e,t){e&&e.i&&(F.delete(e),e.i(t))}function X(e,t,n,o){if(e&&e.o){if(F.has(e))return;F.add(e),K.c.push(()=>{F.delete(e),o&&(n&&e.d(1),o())}),e.o(t)}}const Y={duration:0};function ee(n,o,i,r){let c=o(n,i),l=r?0:1,m=null,g=null,f=null;function y(){f&&M(n,f)}function v(e,t){const n=e.b-l;return t*=Math.abs(n),{a:l,b:e.b,d:n,duration:t,start:e.start,end:e.start+t,group:e.group}}function b(o){const{delay:i=0,duration:a=300,easing:r=t,tick:b=e,css:x}=c||Y,k={start:p()+i,b:o};o||(k.group=K,K.r+=1),m?g=k:(x&&(y(),f=_(n,l,o,a,i,r,x)),o&&b(0,1),m=v(k,a),z(()=>R(n,o,"start")),function(e){let t;0===u.size&&d(h),new Promise(n=>{u.add(t={c:e,f:n})})}(e=>{if(g&&e>g.start&&(m=v(g,a),g=null,R(n,m.b,"start"),x&&(y(),f=_(n,l,m.b,m.duration,0,r,c.css))),m)if(e>=m.end)b(l=m.b,1-l),R(n,m.b,"end"),g||(m.b?y():--m.group.r||s(m.group.c)),m=null;else if(e>=m.start){const t=e-m.start;l=m.a+m.d*r(t/m.duration),b(l,1-l)}return!(!m&&!g)}))}return{run(e){a(c)?(N||(N=Promise.resolve(),N.then(()=>{N=null})),N).then(()=>{c=c(),b(e)}):b(e)},end(){y(),m=g=null}}}function te(e){e&&e.c()}function ne(e,t,n){const{fragment:i,on_mount:r,on_destroy:c,after_update:l}=e.$$;i&&i.m(t,n),z(()=>{const t=r.map(o).filter(a);c?c.push(...t):s(t),e.$$.on_mount=[]}),l.forEach(z)}function oe(e,t){const n=e.$$;null!==n.fragment&&(s(n.on_destroy),n.fragment&&n.fragment.d(t),n.on_destroy=n.fragment=null,n.ctx=[])}function ie(e,t){-1===e.$$.dirty[0]&&(B.push(e),H||(H=!0,W.then(Q)),e.$$.dirty.fill(0)),e.$$.dirty[t/31|0]|=1<<t%31}function se(t,n,o,a,r,c,l=[-1]){const p=L;T(t);const d=n.props||{},u=t.$$={fragment:null,ctx:null,props:c,update:e,not_equal:r,bound:i(),on_mount:[],on_destroy:[],before_update:[],after_update:[],context:new Map(p?p.$$.context:[]),callbacks:i(),dirty:l};let h=!1;if(u.ctx=o?o(t,d,(e,n,...o)=>{const i=o.length?o[0]:n;return u.ctx&&r(u.ctx[e],u.ctx[e]=i)&&(u.bound[e]&&u.bound[e](i),h&&ie(t,e)),n}):[],u.update(),h=!0,s(u.before_update),u.fragment=!!a&&a(u.ctx),n.target){if(n.hydrate){const e=function(e){return Array.from(e.childNodes)}(n.target);u.fragment&&u.fragment.l(e),e.forEach(f)}else u.fragment&&u.fragment.c();n.intro&&J(t.$$.fragment),ne(t,n.target,n.anchor),Q()}T(p)}class ae{$destroy(){oe(this,1),this.$destroy=e}$on(e,t){const n=this.$$.callbacks[e]||(this.$$.callbacks[e]=[]);return n.push(t),()=>{const e=n.indexOf(t);-1!==e&&n.splice(e,1)}}$set(){}}function re(t){let n,o,i,s,a,r,c,l,p,d,u,h;return{c(){n=y("html"),o=y("h1"),o.textContent="Maxwell Eisen",i=b(),s=y("h2"),s.innerHTML='CS <b style="color: #ababab;">@</b> Queen&#39;s University',a=b(),r=y("h2"),r.textContent="Toronto, ON",c=b(),l=y("div"),l.innerHTML='<h2><a class="social-links" href="https://linkedin.com/in/maxeisen/" target="_blank">LinkedIn</a></h2> \n        <h2><a class="social-links" href="https://github.com/maxeisen/" target="_blank">GitHub</a></h2> \n        <h2><a class="social-links" href="https://twitter.com/maxeisen/" target="_blank">Twitter</a></h2> \n        <h2><a class="social-links" href="mailto:max.eisen@queensu.ca" target="_blank">Email</a></h2>',p=b(),d=y("div"),u=y("img"),k(o,"class","profile-name"),w(s,"font-weight","300"),w(r,"font-weight","300"),k(l,"class","social-links"),k(u,"class","headshot"),u.src!==(h=ce)&&k(u,"src",h),k(u,"alt","Tightly cropped picture of Max"),k(d,"class","headshot"),k(n,"lang","en")},m(e,t){g(e,n,t),m(n,o),m(n,i),m(n,s),m(n,a),m(n,r),m(n,c),m(n,l),m(n,p),m(n,d),m(d,u)},p:e,i:e,o:e,d(e){e&&f(n)}}}let ce="./img/headshots/tight_headshot.png";class le extends ae{constructor(e){super(),se(this,e,null,re,r,{})}}function pe(t){let n,o,i;return{c(){n=y("h1"),n.textContent="My Name is Max Eisen",o=b(),i=y("div"),i.innerHTML='<p>I am a Computer Science student at <a class="intro-link svelte-aodkn2" href="https://www.queensu.ca/">Queen&#39;s University</a> with a fascination for technology.</p> \n    <p>I enjoy programming (especially the problem-solving aspects), web development, beta-testing, computational thinking, skiing, travelling, playing guitar, new tech, and just hanging out. I am also interested in automation, machine learning, UI/UX, and data analysis.</p> \n    <p>Feel free to explore my website, click on things for more information, and <a class="intro-link svelte-aodkn2" href="mailto:max.eisen@queensu.ca" target="_blank">email me</a> if you have any questions or comments.</p>',k(n,"class","section-title"),k(i,"class","intro-paragraph svelte-aodkn2")},m(e,t){g(e,n,t),g(e,o,t),g(e,i,t)},p:e,i:e,o:e,d(e){e&&f(n),e&&f(o),e&&f(i)}}}class de extends ae{constructor(e){super(),se(this,e,null,pe,r,{})}}function ue(t){let n,o,i,s,a,r,c,l,p,d,u,h,x,D,C,L,j;return{c(){n=y("div"),o=y("h1"),i=v(t[0]),s=b(),a=y("h2"),r=y("a"),c=v(t[1]),l=b(),p=y("h3"),d=v(t[3]),u=v("-"),h=v(t[4]),x=b(),D=y("h3"),C=v(t[5]),L=b(),j=y("p"),k(o,"class","modal-position svelte-dyj6m4"),k(r,"href",t[2]),k(r,"target","_blank"),k(a,"class","modal-company svelte-dyj6m4"),k(p,"class","modal-description svelte-dyj6m4"),w(p,"text-align","center"),k(D,"class","modal-description svelte-dyj6m4"),w(D,"text-align","center"),w(D,"color","#333333"),k(j,"class","modal-description svelte-dyj6m4"),k(n,"class","experience-modal svelte-dyj6m4")},m(e,f){g(e,n,f),m(n,o),m(o,i),m(n,s),m(n,a),m(a,r),m(r,c),m(n,l),m(n,p),m(p,d),m(p,u),m(p,h),m(n,x),m(n,D),m(D,C),m(n,L),m(n,j),j.innerHTML=t[6]},p(e,[t]){1&t&&$(i,e[0]),2&t&&$(c,e[1]),4&t&&k(r,"href",e[2]),8&t&&$(d,e[3]),16&t&&$(h,e[4]),32&t&&$(C,e[5]),64&t&&(j.innerHTML=e[6])},i:e,o:e,d(e){e&&f(n)}}}function he(e,t,n){let{position:o}=t,{company:i}=t,{companyLink:s}=t,{startDate:a}=t,{endDate:r}=t,{location:c}=t,{description:l}=t;return e.$set=e=>{"position"in e&&n(0,o=e.position),"company"in e&&n(1,i=e.company),"companyLink"in e&&n(2,s=e.companyLink),"startDate"in e&&n(3,a=e.startDate),"endDate"in e&&n(4,r=e.endDate),"location"in e&&n(5,c=e.location),"description"in e&&n(6,l=e.description)},[o,i,s,a,r,c,l]}class me extends ae{constructor(e){super(),se(this,e,he,ue,r,{position:0,company:1,companyLink:2,startDate:3,endDate:4,location:5,description:6})}}function ge(t){let n,o,i,a,r,c,l,p,d,u,h,v,$,w,D,C,L,j,_,M,T,O,P,E,B,A,q,S,W,H,z,G,I,Q,U,N,R,F,K,V,Z,J,X,Y,ee,te,ne,oe,ie,se,ae,re,ce,le,pe,de,ue,he,me,ge,fe,ye,ve,be,xe,ke,$e,we,De,Ce,Le,je,_e,Me,Te;return{c(){n=y("h1"),n.textContent="Experience",o=b(),i=y("div"),a=y("div"),r=y("h2"),c=y("div"),c.textContent=""+t[0].position,l=b(),p=y("h2"),p.textContent=""+t[0].company,d=b(),u=y("p"),u.textContent=""+t[0].shortDescription,h=b(),v=y("h1"),$=y("div"),$.textContent=`${t[0].startDate}-${t[0].endDate}`,w=y("div"),w.textContent=""+t[0].location,D=b(),C=y("div"),L=y("h2"),j=y("div"),j.textContent=""+t[1].position,_=b(),M=y("h2"),M.textContent="QTMA",T=b(),O=y("p"),O.textContent=""+t[1].shortDescription,P=b(),E=y("h1"),B=y("div"),B.textContent=`${t[1].startDate}-${t[1].endDate}`,A=y("div"),A.textContent=""+t[1].location,q=b(),S=y("div"),W=y("h2"),H=y("div"),H.textContent=""+t[2].position,z=b(),G=y("h2"),G.textContent=""+t[2].company,I=b(),Q=y("p"),Q.textContent=""+t[2].shortDescription,U=b(),N=y("h1"),R=y("div"),R.textContent=`${t[2].startDate}-${t[2].endDate}`,F=y("div"),F.textContent=""+t[2].location,K=b(),V=y("div"),Z=y("h2"),Z.innerHTML='<div class="experience-position svelte-bar5y9">CS Teaching Assistant</div>',J=b(),X=y("h2"),X.textContent=""+t[3].company,Y=b(),ee=y("p"),ee.textContent=""+t[3].shortDescription,te=b(),ne=y("h1"),oe=y("div"),oe.textContent="Sept. 2019-"+t[3].endDate,ie=b(),se=y("div"),se.textContent=""+t[3].location,ae=b(),re=y("div"),ce=y("h2"),le=y("div"),le.textContent=""+t[4].position,pe=b(),de=y("h2"),de.textContent=""+t[4].company,ue=b(),he=y("p"),he.textContent=""+t[4].shortDescription,me=b(),ge=y("h1"),fe=y("div"),fe.textContent="Sept. 2019-Feb. 2020",ye=y("div"),ye.textContent=""+t[4].location,ve=b(),be=y("div"),xe=y("h2"),ke=y("div"),ke.textContent=""+t[5].position,$e=b(),we=y("h2"),we.textContent=""+t[5].company,De=b(),Ce=y("p"),Ce.textContent=""+t[5].shortDescription,Le=b(),je=y("h1"),_e=y("div"),_e.textContent=`${t[5].startDate}-${t[5].endDate}`,Me=y("div"),Me.textContent=""+t[5].location,k(n,"class","section-title"),k(n,"id","experience"),k(c,"class","experience-position svelte-bar5y9"),k(r,"class","experience-title svelte-bar5y9"),k(p,"class","experience-company svelte-bar5y9"),k($,"class","experience-date svelte-bar5y9"),k(w,"class","experience-location svelte-bar5y9"),k(v,"class","experience-date-location svelte-bar5y9"),k(a,"class","experience-item"),k(j,"class","experience-position svelte-bar5y9"),k(L,"class","experience-title svelte-bar5y9"),k(M,"class","experience-company svelte-bar5y9"),k(B,"class","experience-date svelte-bar5y9"),k(A,"class","experience-location svelte-bar5y9"),k(E,"class","experience-date-location svelte-bar5y9"),k(C,"class","experience-item"),k(H,"class","experience-position svelte-bar5y9"),k(W,"class","experience-title svelte-bar5y9"),k(G,"class","experience-company svelte-bar5y9"),k(R,"class","experience-date svelte-bar5y9"),k(F,"class","experience-location svelte-bar5y9"),k(N,"class","experience-date-location svelte-bar5y9"),k(S,"class","experience-item"),k(Z,"class","experience-title svelte-bar5y9"),k(X,"class","experience-company svelte-bar5y9"),k(oe,"class","experience-date svelte-bar5y9"),k(se,"class","experience-location svelte-bar5y9"),k(ne,"class","experience-date-location svelte-bar5y9"),k(V,"class","experience-item"),k(le,"class","experience-position svelte-bar5y9"),k(ce,"class","experience-title svelte-bar5y9"),k(de,"class","experience-company svelte-bar5y9"),k(fe,"class","experience-date svelte-bar5y9"),k(ye,"class","experience-location svelte-bar5y9"),k(ge,"class","experience-date-location svelte-bar5y9"),k(re,"class","experience-item"),k(ke,"class","experience-position svelte-bar5y9"),k(xe,"class","experience-title svelte-bar5y9"),k(we,"class","experience-company svelte-bar5y9"),k(_e,"class","experience-date svelte-bar5y9"),k(Me,"class","experience-location svelte-bar5y9"),k(je,"class","experience-date-location svelte-bar5y9"),k(be,"class","experience-item"),k(i,"class","experience-subsection")},m(e,f,y){g(e,n,f),g(e,o,f),g(e,i,f),m(i,a),m(a,r),m(r,c),m(a,l),m(a,p),m(a,d),m(a,u),m(a,h),m(a,v),m(v,$),m(v,w),m(i,D),m(i,C),m(C,L),m(L,j),m(C,_),m(C,M),m(C,T),m(C,O),m(C,P),m(C,E),m(E,B),m(E,A),m(i,q),m(i,S),m(S,W),m(W,H),m(S,z),m(S,G),m(S,I),m(S,Q),m(S,U),m(S,N),m(N,R),m(N,F),m(i,K),m(i,V),m(V,Z),m(V,J),m(V,X),m(V,Y),m(V,ee),m(V,te),m(V,ne),m(ne,oe),m(ne,ie),m(ne,se),m(i,ae),m(i,re),m(re,ce),m(ce,le),m(re,pe),m(re,de),m(re,ue),m(re,he),m(re,me),m(re,ge),m(ge,fe),m(ge,ye),m(i,ve),m(i,be),m(be,xe),m(xe,ke),m(be,$e),m(be,we),m(be,De),m(be,Ce),m(be,Le),m(be,je),m(je,_e),m(je,Me),y&&s(Te),Te=[x(a,"click",t[6]),x(C,"click",t[7]),x(S,"click",t[8]),x(V,"click",t[9]),x(re,"click",t[10]),x(be,"click",t[11])]},p:e,i:e,o:e,d(e){e&&f(n),e&&f(o),e&&f(i),s(Te)}}}function fe(e){const t={position:"Technical Developer",company:"Jonah Group",companyLink:"https://www.jonahgroup.com/",startDate:"May 2020",endDate:"Present",location:"Toronto, ON",shortDescription:"Working with a fantastic team of developers to create large-scale software products for companies",longDescription:"<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of talented developers and engineers working to create great software</li></ul>"},n={position:"Product Manager",company:"Queen's Technology and Media Association",companyLink:"https://qtma.ca/",startDate:"April 2020",endDate:"Present",location:"Kingston, ON",shortDescription:"Managing a talented team of Queen's students to ideate, develop, and market a software product",longDescription:"<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>"},o={position:"Director of Technology",company:"TechTrainers",companyLink:"https://techtrainers.ca/",startDate:"May 2019",endDate:"Present",location:"Toronto, ON",shortDescription:"Creating a network of in-person and online quality tech help and tutoring around the GTA",longDescription:"<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li><li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li><li>Company was able to turn a profit in first month of operations</li></ul>"},i={position:"Computer Science Teaching Assistant",company:"Queen's University",companyLink:"https://cs.queensu.ca/",startDate:"September 2019",endDate:"April 2020",location:"Kingston, ON",shortDescription:"Worked as a teaching assistant for a Python programming course of over 250 students",longDescription:"<ul><li>Selected as one of 8 TAs for the specific Python programming course, having previously obtained an exceptional grade in the course</li><li>Assisted in the teaching and grading of the class with over 250 students</li><li>Held weekly office hours to guide students in completing assignments and reviewing for exams</li></ul>"},s={position:"Software Developer",company:"QHacks",companyLink:"https://qhacks.io/",startDate:"September 2019",endDate:"February 2020",location:"Kingston, ON",shortDescription:"Developed the website and other software for Queen's University's official MLH hackathon",longDescription:"<ul><li>Developed (React) and deployed (Gatsby) the official website for the 2020 MLH-affiliated hackathon, accessed by over 10,000 individuals</li><li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li><li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li></ul>"},a={position:"Technical Instructor",company:"UnderTheGUI Inc.",companyLink:"https://underthegui.com/",startDate:"May",endDate:"August 2019",location:"Vancouver, BC",shortDescription:"Taught and created course content for programming and engineering courses tailored to teens and young adults",longDescription:"<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses include: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>"},{open:r}=E("simple-modal");return[t,n,o,i,s,a,()=>{r(me,{position:t.position,company:t.company,companyLink:t.companyLink,startDate:t.startDate,endDate:t.endDate,location:t.location,description:t.longDescription})},()=>{r(me,{position:n.position,company:n.company,companyLink:n.companyLink,startDate:n.startDate,endDate:n.endDate,location:n.location,description:n.longDescription})},()=>{r(me,{position:o.position,company:o.company,companyLink:o.companyLink,startDate:o.startDate,endDate:o.endDate,location:o.location,description:o.longDescription})},()=>{r(me,{position:i.position,company:i.company,companyLink:i.companyLink,startDate:i.startDate,endDate:i.endDate,location:i.location,description:i.longDescription})},()=>{r(me,{position:s.position,company:s.company,companyLink:s.companyLink,startDate:s.startDate,endDate:s.endDate,location:s.location,description:s.longDescription})},()=>{r(me,{position:a.position,company:a.company,companyLink:a.companyLink,startDate:a.startDate,endDate:a.endDate,location:a.location,description:a.longDescription})}]}class ye extends ae{constructor(e){super(),se(this,e,fe,ge,r,{})}}function ve(t){let n,o,i;return{c(){n=y("h1"),n.textContent="Skills",o=b(),i=y("div"),k(n,"class","section-title"),k(n,"id","skills"),k(i,"class","skills-subsection")},m(e,t){g(e,n,t),g(e,o,t),g(e,i,t)},p:e,i:e,o:e,d(e){e&&f(n),e&&f(o),e&&f(i)}}}class be extends ae{constructor(e){super(),se(this,e,null,ve,r,{})}}function xe(t){let n,o,i,s,a,r,c,l,p,d,u,h,x,D,C,L,j,_,M,T,O;return{c(){n=y("div"),o=y("h1"),i=y("a"),s=v(t[0]),a=v(" ("),r=v(t[2]),c=v(")"),l=b(),p=y("h3"),d=v("Technologies: "),u=y("b"),h=v(t[1]),x=b(),D=y("p"),C=b(),L=y("img"),M=b(),T=y("a"),O=y("h2"),O.textContent="View Code",k(i,"href",t[5]),k(i,"target","_blank"),k(o,"class","modal-name svelte-16gw8ar"),k(u,"class","technologies svelte-16gw8ar"),k(p,"class","modal-description svelte-16gw8ar"),w(p,"text-align","center"),k(D,"class","modal-description svelte-16gw8ar"),k(L,"class","screenshot svelte-16gw8ar"),L.src!==(j=t[6])&&k(L,"src",j),k(L,"alt",_=t[0]+" screenshot 1"),k(O,"class","github-link svelte-16gw8ar"),k(T,"href",t[4]),k(T,"target","_blank"),k(n,"class","project-modal svelte-16gw8ar")},m(e,f){g(e,n,f),m(n,o),m(o,i),m(i,s),m(o,a),m(o,r),m(o,c),m(n,l),m(n,p),m(p,d),m(p,u),m(u,h),m(n,x),m(n,D),D.innerHTML=t[3],m(n,C),m(n,L),m(n,M),m(n,T),m(T,O)},p(e,[t]){1&t&&$(s,e[0]),32&t&&k(i,"href",e[5]),4&t&&$(r,e[2]),2&t&&$(h,e[1]),8&t&&(D.innerHTML=e[3]),64&t&&L.src!==(j=e[6])&&k(L,"src",j),1&t&&_!==(_=e[0]+" screenshot 1")&&k(L,"alt",_),16&t&&k(T,"href",e[4])},i:e,o:e,d(e){e&&f(n)}}}function ke(e,t,n){let{name:o}=t,{technologies:i}=t,{year:s}=t,{description:a}=t,{githubLink:r}=t,{projectLink:c}=t,{screenshot:l}=t;return e.$set=e=>{"name"in e&&n(0,o=e.name),"technologies"in e&&n(1,i=e.technologies),"year"in e&&n(2,s=e.year),"description"in e&&n(3,a=e.description),"githubLink"in e&&n(4,r=e.githubLink),"projectLink"in e&&n(5,c=e.projectLink),"screenshot"in e&&n(6,l=e.screenshot)},[o,i,s,a,r,c,l]}class $e extends ae{constructor(e){super(),se(this,e,ke,xe,r,{name:0,technologies:1,year:2,description:3,githubLink:4,projectLink:5,screenshot:6})}}function we(t){let n,o,i,a,r,c,l,p,d,u,h,$,w,C,L,j,_,M,T,O,P,E,B,A,q,S,W,H,z,G,I,Q,U,N,R,F,K,V,Z,J,X,Y,ee,te,ne,oe,ie,se,ae,re,ce,le=t[0].name+"",pe=t[0].emoji+"",de=t[1].name+"",ue=t[1].emoji+"",he=t[2].name+"",me=t[2].emoji+"",ge=t[3].name+"",fe=t[3].emoji+"";return{c(){n=y("h1"),n.textContent="Projects",o=b(),i=y("div"),a=y("div"),r=y("h2"),c=v(le),l=b(),d=b(),u=y("h2"),u.textContent=""+t[0].year,h=b(),$=y("h2"),$.textContent=""+t[0].technologies,w=b(),C=y("p"),C.textContent=""+t[0].shortDescription,L=b(),j=y("div"),_=y("h2"),M=v(de),T=b(),P=b(),E=y("h2"),E.textContent=""+t[1].year,B=b(),A=y("h2"),A.textContent=""+t[1].technologies,q=b(),S=y("p"),S.textContent=""+t[1].shortDescription,W=b(),H=y("div"),z=y("h2"),G=v(he),I=b(),U=b(),N=y("h2"),N.textContent=""+t[2].year,R=b(),F=y("h2"),F.textContent=""+t[2].technologies,K=b(),V=y("p"),V.textContent=""+t[2].shortDescription,Z=b(),J=y("div"),X=y("h2"),Y=v(ge),ee=b(),ne=b(),oe=y("h2"),oe.textContent=""+t[3].year,ie=b(),se=y("h2"),se.textContent=""+t[3].technologies,ae=b(),re=y("p"),re.textContent=""+t[3].shortDescription,k(n,"class","section-title"),k(n,"id","projects"),p=new D(pe,null),k(r,"class","project-name svelte-1b316dq"),k(u,"class","project-year svelte-1b316dq"),k($,"class","project-tech svelte-1b316dq"),k(a,"class","project-item"),O=new D(ue,null),k(_,"class","project-name svelte-1b316dq"),k(E,"class","project-year svelte-1b316dq"),k(A,"class","project-tech svelte-1b316dq"),k(j,"class","project-item"),Q=new D(me,null),k(z,"class","project-name svelte-1b316dq"),k(N,"class","project-year svelte-1b316dq"),k(F,"class","project-tech svelte-1b316dq"),k(H,"class","project-item"),te=new D(fe,null),k(X,"class","project-name svelte-1b316dq"),k(oe,"class","project-year svelte-1b316dq"),k(se,"class","project-tech svelte-1b316dq"),k(J,"class","project-item"),k(i,"class","project-subsection")},m(e,f,y){g(e,n,f),g(e,o,f),g(e,i,f),m(i,a),m(a,r),m(r,c),m(r,l),p.m(r),m(a,d),m(a,u),m(a,h),m(a,$),m(a,w),m(a,C),m(i,L),m(i,j),m(j,_),m(_,M),m(_,T),O.m(_),m(j,P),m(j,E),m(j,B),m(j,A),m(j,q),m(j,S),m(i,W),m(i,H),m(H,z),m(z,G),m(z,I),Q.m(z),m(H,U),m(H,N),m(H,R),m(H,F),m(H,K),m(H,V),m(i,Z),m(i,J),m(J,X),m(X,Y),m(X,ee),te.m(X),m(J,ne),m(J,oe),m(J,ie),m(J,se),m(J,ae),m(J,re),y&&s(ce),ce=[x(a,"click",t[4]),x(j,"click",t[5]),x(H,"click",t[6]),x(J,"click",t[7])]},p:e,i:e,o:e,d(e){e&&f(n),e&&f(o),e&&f(i),s(ce)}}}function De(e){const t={name:"Studii",emoji:"&#128218;",technologies:"React, Django, MongoDB",year:"2019/2020",shortDescription:"A collaborative study space for students, by students",longDescription:"<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by myself and my 7 other QTMA team members</li></ul>",githubLink:"https://github.com/maxeisen/studii_public",projectLink:"https://github.com/maxeisen/studii_public",screenshot:"./img/screenshots/studii.png"},n={name:"QHacks Website",emoji:"&#128187;",technologies:"React, Gatsby, MongoDB",year:"2019/2020",shortDescription:"The official website for Queen's University's 2020 MLH hackathon",longDescription:"<ul><li>The static website for the 2020 hackathon, developed with React and generated using Gatsby, as well as the dashboard with a MongoDB backend</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",githubLink:"https://github.com/maxeisen/qhacks-website/tree/dev-2020",projectLink:"https://qhacks.io",screenshot:"./img/screenshots/qhacks.png"},o={name:"Spotilizer",emoji:"&#127925;",technologies:"Python, Tkinter, Spotify Web API",year:"2019",shortDescription:"A customizable, data-centric Spotify visualizer built in Python",longDescription:"<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours at Queen's University during MLH's 2019 Local Hack Day</li></ul>",githubLink:"https://github.com/maxeisen/spotilizer",projectLink:"https://github.com/maxeisen/spotilizer",screenshot:"./img/screenshots/spotilizer.png"},i={name:"Glitch",emoji:"&#127918;",technologies:"Unity Game Engine, C#",year:"2018/2019",shortDescription:"A unique, monochromatic platformer game for observant minimalists",longDescription:"<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>The player will have to use this mechanic in order to complete the game's levels, allowing them to switch between the level’s two states and see certain elements that were not previously visible</li><li>Developed as a group project for CISC 226 - Game Design at Queen's University</li></ul>",githubLink:"https://github.com/maxeisen/Glitch",projectLink:"https://tamirarnesty.github.io/glitchGame/",screenshot:"./img/screenshots/glitch.png"},{open:s}=E("simple-modal");return[t,n,o,i,()=>{s($e,{name:t.name,technologies:t.technologies,year:t.year,description:t.longDescription,githubLink:t.githubLink,projectLink:t.projectLink,screenshot:t.screenshot})},()=>{s($e,{name:n.name,technologies:n.technologies,year:n.year,description:n.longDescription,githubLink:n.githubLink,projectLink:n.projectLink,screenshot:n.screenshot})},()=>{s($e,{name:o.name,technologies:o.technologies,year:o.year,description:o.longDescription,githubLink:o.githubLink,projectLink:o.projectLink,screenshot:o.screenshot})},()=>{s($e,{name:i.name,technologies:i.technologies,year:i.year,description:i.longDescription,githubLink:i.githubLink,projectLink:i.projectLink,screenshot:i.screenshot})}]}class Ce extends ae{constructor(e){super(),se(this,e,De,we,r,{})}}function Le(e,{delay:n=0,duration:o=400,easing:i=t}){const s=+getComputedStyle(e).opacity;return{delay:n,duration:o,easing:i,css:e=>"opacity: "+e*s}}function je(e){let t,o,i,r,c,l,p,d,u,h=e[0].closeButton&&_e(e);const v=[e[2]];var $=e[1];function w(e){let t={};for(let e=0;e<v.length;e+=1)t=n(t,v[e]);return{props:t}}if($)var D=new $(w());return{c(){t=y("div"),o=y("div"),i=y("div"),h&&h.c(),r=b(),c=y("div"),D&&te(D.$$.fragment),k(c,"class","content svelte-14x6udd"),k(c,"style",e[11]),k(i,"class","window svelte-14x6udd"),k(i,"style",e[10]),k(o,"class","window-wrap svelte-14x6udd"),k(t,"class","bg svelte-14x6udd"),k(t,"style",e[9])},m(n,l,p){g(n,t,l),m(t,o),m(o,i),h&&h.m(i,null),m(i,r),m(i,c),D&&ne(D,c,null),e[36](o),e[37](t),d=!0,p&&s(u),u=[x(i,"introstart",(function(){a(e[5])&&e[5].apply(this,arguments)})),x(i,"outrostart",(function(){a(e[6])&&e[6].apply(this,arguments)})),x(i,"introend",(function(){a(e[7])&&e[7].apply(this,arguments)})),x(i,"outroend",(function(){a(e[8])&&e[8].apply(this,arguments)})),x(t,"click",e[16])]},p(n,o){(e=n)[0].closeButton?h?h.p(e,o):(h=_e(e),h.c(),h.m(i,r)):h&&(h.d(1),h=null);const s=4&o[0]?function(e,t){const n={},o={},i={$$scope:1};let s=e.length;for(;s--;){const a=e[s],r=t[s];if(r){for(const e in a)e in r||(o[e]=1);for(const e in r)i[e]||(n[e]=r[e],i[e]=1);e[s]=r}else for(const e in a)i[e]=1}for(const e in o)e in n||(n[e]=void 0);return n}(v,[(a=e[2],"object"==typeof a&&null!==a?a:{})]):{};var a;if($!==($=e[1])){if(D){V();const e=D;X(e.$$.fragment,1,0,()=>{oe(e,1)}),Z()}$?(te((D=new $(w())).$$.fragment),J(D.$$.fragment,1),ne(D,c,null)):D=null}else $&&D.$set(s);(!d||2048&o[0])&&k(c,"style",e[11]),(!d||1024&o[0])&&k(i,"style",e[10]),(!d||512&o[0])&&k(t,"style",e[9])},i(n){d||(D&&J(D.$$.fragment,n),z(()=>{l||(l=ee(i,e[13],e[0].transitionWindowProps,!0)),l.run(1)}),z(()=>{p||(p=ee(t,e[12],e[0].transitionBgProps,!0)),p.run(1)}),d=!0)},o(n){D&&X(D.$$.fragment,n),l||(l=ee(i,e[13],e[0].transitionWindowProps,!1)),l.run(0),p||(p=ee(t,e[12],e[0].transitionBgProps,!1)),p.run(0),d=!1},d(n){n&&f(t),h&&h.d(),D&&oe(D),n&&l&&l.end(),e[36](null),e[37](null),n&&p&&p.end(),s(u)}}}function _e(t){let n,o;return{c(){n=y("button"),k(n,"class","close svelte-14x6udd")},m(e,i,s){g(e,n,i),s&&o(),o=x(n,"click",t[14])},p:e,d(e){e&&f(n),o()}}}function Me(e){let t,n,o,i,s=e[1]&&je(e);const a=e[35].default,r=function(e,t,n,o){if(e){const i=c(e,t,n,o);return e[0](i)}}(a,e,e[34],null);return{c(){t=y("div"),s&&s.c(),n=b(),r&&r.c(),k(t,"class","svelte-14x6udd")},m(a,c,l){g(a,t,c),s&&s.m(t,null),m(t,n),r&&r.m(t,null),o=!0,l&&i(),i=x(window,"keyup",e[15])},p(e,o){e[1]?s?(s.p(e,o),2&o[0]&&J(s,1)):(s=je(e),s.c(),J(s,1),s.m(t,n)):s&&(V(),X(s,1,1,()=>{s=null}),Z()),r&&r.p&&8&o[1]&&r.p(c(a,e,e[34],null),function(e,t,n,o){if(e[2]&&o){const i=e[2](o(n));if(void 0===t.dirty)return i;if("object"==typeof i){const e=[],n=Math.max(t.dirty.length,i.length);for(let o=0;o<n;o+=1)e[o]=t.dirty[o]|i[o];return e}return t.dirty|i}return t.dirty}(a,e[34],o,null))},i(e){o||(J(s),J(r,e),o=!0)},o(e){X(s),X(r,e),o=!1},d(e){e&&f(t),s&&s.d(),r&&r.d(e),i()}}}function Te(e,t,n){let{key:o="simple-modal"}=t,{closeButton:i=!0}=t,{closeOnEsc:s=!0}=t,{closeOnOuterClick:a=!0}=t,{styleBg:r={top:0,left:0}}=t,{styleWindow:c={}}=t,{styleContent:l={}}=t,{setContext:p=P}=t,{transitionBg:d=Le}=t,{transitionBgProps:u={duration:250}}=t,{transitionWindow:h=d}=t,{transitionWindowProps:m=u}=t;const g={closeButton:i,closeOnEsc:s,closeOnOuterClick:a,styleBg:r,styleWindow:c,styleContent:l,transitionBg:d,transitionBgProps:u,transitionWindow:h,transitionWindowProps:m};let f,y,v={...g},b=null,x=null;const k=e=>e.replace(/([a-zA-Z])(?=[A-Z])/g,"$1-").toLowerCase(),$=e=>Object.keys(e).reduce((t,n)=>`${t}; ${k(n)}: ${e[n]}`,""),w=()=>{};let D=w,C=w,L=w,j=w;const _=(e,t={},o={},i={})=>{n(1,b=e),n(2,x=t),n(0,v={...g,...o}),n(5,D=i.onOpen||w),n(6,C=i.onClose||w),n(7,L=i.onOpened||w),n(8,j=i.onClosed||w)},M=(e={})=>{n(6,C=e.onClose||C),n(8,j=e.onClosed||j),n(1,b=null),n(2,x=null)};p(o,{open:_,close:M});let T,O,E,B,q,{$$slots:S={},$$scope:W}=t;return e.$set=e=>{"key"in e&&n(17,o=e.key),"closeButton"in e&&n(18,i=e.closeButton),"closeOnEsc"in e&&n(19,s=e.closeOnEsc),"closeOnOuterClick"in e&&n(20,a=e.closeOnOuterClick),"styleBg"in e&&n(21,r=e.styleBg),"styleWindow"in e&&n(22,c=e.styleWindow),"styleContent"in e&&n(23,l=e.styleContent),"setContext"in e&&n(24,p=e.setContext),"transitionBg"in e&&n(25,d=e.transitionBg),"transitionBgProps"in e&&n(26,u=e.transitionBgProps),"transitionWindow"in e&&n(27,h=e.transitionWindow),"transitionWindowProps"in e&&n(28,m=e.transitionWindowProps),"$$scope"in e&&n(34,W=e.$$scope)},e.$$.update=()=>{1&e.$$.dirty[0]&&n(9,T=$(v.styleBg)),1&e.$$.dirty[0]&&n(10,O=$(v.styleWindow)),1&e.$$.dirty[0]&&n(11,E=$(v.styleContent)),1&e.$$.dirty[0]&&n(12,B=v.transitionBg),1&e.$$.dirty[0]&&n(13,q=v.transitionWindow)},[v,b,x,f,y,D,C,L,j,T,O,E,B,q,M,({key:e})=>{v.closeOnEsc&&b&&"Escape"===e&&(event.preventDefault(),M())},e=>{!v.closeOnOuterClick||e.target!==f&&e.target!==y||(e.preventDefault(),M())},o,i,s,a,r,c,l,p,d,u,h,m,g,k,$,w,_,W,S,function(e){A[e?"unshift":"push"](()=>{n(4,y=e)})},function(e){A[e?"unshift":"push"](()=>{n(3,f=e)})}]}class Oe extends ae{constructor(e){super(),se(this,e,Te,Me,r,{key:17,closeButton:18,closeOnEsc:19,closeOnOuterClick:20,styleBg:21,styleWindow:22,styleContent:23,setContext:24,transitionBg:25,transitionBgProps:26,transitionWindow:27,transitionWindowProps:28},[-1,-1])}}function Pe(t){let n,o,i,s,a,r,c,l,p,d,u,h,v,x,$,w,D,C,L,j,_,M;const T=new le({}),O=new de({}),P=new ye({}),E=new Ce({}),B=new be({});return{c(){n=y("html"),o=y("body"),i=y("header"),s=y("div"),a=y("a"),r=y("img"),l=b(),p=y("div"),p.innerHTML='<nav><ul><li><a href="#experience">Experience</a></li> \n                    <li><a href="#projects">Projects</a></li> \n                    <li><a href="#skills">Skills</a></li> \n                    <li><a href="#education">Education</a></li> \n                    <li><a href="/resume">Resume</a></li></ul></nav>',d=b(),u=y("div"),h=y("div"),te(T.$$.fragment),v=b(),x=y("div"),te(O.$$.fragment),$=b(),te(P.$$.fragment),w=b(),te(E.$$.fragment),D=b(),te(B.$$.fragment),C=b(),L=y("div"),L.innerHTML='<h1 class="section-title">Education</h1>',j=b(),_=y("a"),_.innerHTML='<h2 class="footer">Made at 🏠 by Max Eisen <b style="font-size:14px; color:#ababab">©2020</b></h2>',k(r,"class","home-icon"),k(r,"type","image/gif"),r.src!==(c=Be)&&k(r,"src",c),k(r,"alt","Animated gif of Max memoji"),k(a,"href","https://maxeisen.me"),k(p,"class","nav-bar"),k(h,"class","sidebar-section"),k(L,"id","education"),k(x,"class","info-section"),k(u,"class","grid-container"),k(_,"href","https://github.com/maxeisen/maxeisen.github.io/"),k(n,"lang","en")},m(e,t){g(e,n,t),m(n,o),m(o,i),m(i,s),m(s,a),m(a,r),m(i,l),m(i,p),m(o,d),m(o,u),m(u,h),ne(T,h,null),m(u,v),m(u,x),ne(O,x,null),m(x,$),ne(P,x,null),m(x,w),ne(E,x,null),m(x,D),ne(B,x,null),m(x,C),m(x,L),m(o,j),m(o,_),M=!0},p:e,i(e){M||(J(T.$$.fragment,e),J(O.$$.fragment,e),J(P.$$.fragment,e),J(E.$$.fragment,e),J(B.$$.fragment,e),M=!0)},o(e){X(T.$$.fragment,e),X(O.$$.fragment,e),X(P.$$.fragment,e),X(E.$$.fragment,e),X(B.$$.fragment,e),M=!1},d(e){e&&f(n),oe(T),oe(O),oe(P),oe(E),oe(B)}}}function Ee(e){let t;const n=new Oe({props:{$$slots:{default:[Pe]},$$scope:{ctx:e}}});return{c(){te(n.$$.fragment)},m(e,o){ne(n,e,o),t=!0},p(e,[t]){const o={};1&t&&(o.$$scope={dirty:t,ctx:e}),n.$set(o)},i(e){t||(J(n.$$.fragment,e),t=!0)},o(e){X(n.$$.fragment,e),t=!1},d(e){oe(n,e)}}}let Be="./img/headshots/memoji_cycle_large.gif";return new class extends ae{constructor(e){super(),se(this,e,null,Ee,r,{})}}({target:document.body,props:{name:"maxeisen.me"}})}();
+
+(function(l, r) { if (l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (window.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(window.document);
+var app = (function () {
+    'use strict';
+
+    function noop() { }
+    const identity = x => x;
+    function assign(tar, src) {
+        // @ts-ignore
+        for (const k in src)
+            tar[k] = src[k];
+        return tar;
+    }
+    function add_location(element, file, line, column, char) {
+        element.__svelte_meta = {
+            loc: { file, line, column, char }
+        };
+    }
+    function run(fn) {
+        return fn();
+    }
+    function blank_object() {
+        return Object.create(null);
+    }
+    function run_all(fns) {
+        fns.forEach(run);
+    }
+    function is_function(thing) {
+        return typeof thing === 'function';
+    }
+    function safe_not_equal(a, b) {
+        return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+    }
+    function create_slot(definition, ctx, $$scope, fn) {
+        if (definition) {
+            const slot_ctx = get_slot_context(definition, ctx, $$scope, fn);
+            return definition[0](slot_ctx);
+        }
+    }
+    function get_slot_context(definition, ctx, $$scope, fn) {
+        return definition[1] && fn
+            ? assign($$scope.ctx.slice(), definition[1](fn(ctx)))
+            : $$scope.ctx;
+    }
+    function get_slot_changes(definition, $$scope, dirty, fn) {
+        if (definition[2] && fn) {
+            const lets = definition[2](fn(dirty));
+            if ($$scope.dirty === undefined) {
+                return lets;
+            }
+            if (typeof lets === 'object') {
+                const merged = [];
+                const len = Math.max($$scope.dirty.length, lets.length);
+                for (let i = 0; i < len; i += 1) {
+                    merged[i] = $$scope.dirty[i] | lets[i];
+                }
+                return merged;
+            }
+            return $$scope.dirty | lets;
+        }
+        return $$scope.dirty;
+    }
+
+    const is_client = typeof window !== 'undefined';
+    let now = is_client
+        ? () => window.performance.now()
+        : () => Date.now();
+    let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
+
+    const tasks = new Set();
+    function run_tasks(now) {
+        tasks.forEach(task => {
+            if (!task.c(now)) {
+                tasks.delete(task);
+                task.f();
+            }
+        });
+        if (tasks.size !== 0)
+            raf(run_tasks);
+    }
+    /**
+     * Creates a new task that runs on each raf frame
+     * until it returns a falsy value or is aborted
+     */
+    function loop(callback) {
+        let task;
+        if (tasks.size === 0)
+            raf(run_tasks);
+        return {
+            promise: new Promise(fulfill => {
+                tasks.add(task = { c: callback, f: fulfill });
+            }),
+            abort() {
+                tasks.delete(task);
+            }
+        };
+    }
+
+    function append(target, node) {
+        target.appendChild(node);
+    }
+    function insert(target, node, anchor) {
+        target.insertBefore(node, anchor || null);
+    }
+    function detach(node) {
+        node.parentNode.removeChild(node);
+    }
+    function element(name) {
+        return document.createElement(name);
+    }
+    function text(data) {
+        return document.createTextNode(data);
+    }
+    function space() {
+        return text(' ');
+    }
+    function listen(node, event, handler, options) {
+        node.addEventListener(event, handler, options);
+        return () => node.removeEventListener(event, handler, options);
+    }
+    function attr(node, attribute, value) {
+        if (value == null)
+            node.removeAttribute(attribute);
+        else if (node.getAttribute(attribute) !== value)
+            node.setAttribute(attribute, value);
+    }
+    function children(element) {
+        return Array.from(element.childNodes);
+    }
+    function set_style(node, key, value, important) {
+        node.style.setProperty(key, value, important ? 'important' : '');
+    }
+    function custom_event(type, detail) {
+        const e = document.createEvent('CustomEvent');
+        e.initCustomEvent(type, false, false, detail);
+        return e;
+    }
+    class HtmlTag {
+        constructor(html, anchor = null) {
+            this.e = element('div');
+            this.a = anchor;
+            this.u(html);
+        }
+        m(target, anchor = null) {
+            for (let i = 0; i < this.n.length; i += 1) {
+                insert(target, this.n[i], anchor);
+            }
+            this.t = target;
+        }
+        u(html) {
+            this.e.innerHTML = html;
+            this.n = Array.from(this.e.childNodes);
+        }
+        p(html) {
+            this.d();
+            this.u(html);
+            this.m(this.t, this.a);
+        }
+        d() {
+            this.n.forEach(detach);
+        }
+    }
+
+    const active_docs = new Set();
+    let active = 0;
+    // https://github.com/darkskyapp/string-hash/blob/master/index.js
+    function hash(str) {
+        let hash = 5381;
+        let i = str.length;
+        while (i--)
+            hash = ((hash << 5) - hash) ^ str.charCodeAt(i);
+        return hash >>> 0;
+    }
+    function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+        const step = 16.666 / duration;
+        let keyframes = '{\n';
+        for (let p = 0; p <= 1; p += step) {
+            const t = a + (b - a) * ease(p);
+            keyframes += p * 100 + `%{${fn(t, 1 - t)}}\n`;
+        }
+        const rule = keyframes + `100% {${fn(b, 1 - b)}}\n}`;
+        const name = `__svelte_${hash(rule)}_${uid}`;
+        const doc = node.ownerDocument;
+        active_docs.add(doc);
+        const stylesheet = doc.__svelte_stylesheet || (doc.__svelte_stylesheet = doc.head.appendChild(element('style')).sheet);
+        const current_rules = doc.__svelte_rules || (doc.__svelte_rules = {});
+        if (!current_rules[name]) {
+            current_rules[name] = true;
+            stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+        }
+        const animation = node.style.animation || '';
+        node.style.animation = `${animation ? `${animation}, ` : ``}${name} ${duration}ms linear ${delay}ms 1 both`;
+        active += 1;
+        return name;
+    }
+    function delete_rule(node, name) {
+        const previous = (node.style.animation || '').split(', ');
+        const next = previous.filter(name
+            ? anim => anim.indexOf(name) < 0 // remove specific animation
+            : anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
+        );
+        const deleted = previous.length - next.length;
+        if (deleted) {
+            node.style.animation = next.join(', ');
+            active -= deleted;
+            if (!active)
+                clear_rules();
+        }
+    }
+    function clear_rules() {
+        raf(() => {
+            if (active)
+                return;
+            active_docs.forEach(doc => {
+                const stylesheet = doc.__svelte_stylesheet;
+                let i = stylesheet.cssRules.length;
+                while (i--)
+                    stylesheet.deleteRule(i);
+                doc.__svelte_rules = {};
+            });
+            active_docs.clear();
+        });
+    }
+
+    let current_component;
+    function set_current_component(component) {
+        current_component = component;
+    }
+    function get_current_component() {
+        if (!current_component)
+            throw new Error(`Function called outside component initialization`);
+        return current_component;
+    }
+    function setContext(key, context) {
+        get_current_component().$$.context.set(key, context);
+    }
+    function getContext(key) {
+        return get_current_component().$$.context.get(key);
+    }
+
+    const dirty_components = [];
+    const binding_callbacks = [];
+    const render_callbacks = [];
+    const flush_callbacks = [];
+    const resolved_promise = Promise.resolve();
+    let update_scheduled = false;
+    function schedule_update() {
+        if (!update_scheduled) {
+            update_scheduled = true;
+            resolved_promise.then(flush);
+        }
+    }
+    function add_render_callback(fn) {
+        render_callbacks.push(fn);
+    }
+    let flushing = false;
+    const seen_callbacks = new Set();
+    function flush() {
+        if (flushing)
+            return;
+        flushing = true;
+        do {
+            // first, call beforeUpdate functions
+            // and update components
+            for (let i = 0; i < dirty_components.length; i += 1) {
+                const component = dirty_components[i];
+                set_current_component(component);
+                update(component.$$);
+            }
+            dirty_components.length = 0;
+            while (binding_callbacks.length)
+                binding_callbacks.pop()();
+            // then, once components are updated, call
+            // afterUpdate functions. This may cause
+            // subsequent updates...
+            for (let i = 0; i < render_callbacks.length; i += 1) {
+                const callback = render_callbacks[i];
+                if (!seen_callbacks.has(callback)) {
+                    // ...so guard against infinite loops
+                    seen_callbacks.add(callback);
+                    callback();
+                }
+            }
+            render_callbacks.length = 0;
+        } while (dirty_components.length);
+        while (flush_callbacks.length) {
+            flush_callbacks.pop()();
+        }
+        update_scheduled = false;
+        flushing = false;
+        seen_callbacks.clear();
+    }
+    function update($$) {
+        if ($$.fragment !== null) {
+            $$.update();
+            run_all($$.before_update);
+            const dirty = $$.dirty;
+            $$.dirty = [-1];
+            $$.fragment && $$.fragment.p($$.ctx, dirty);
+            $$.after_update.forEach(add_render_callback);
+        }
+    }
+
+    let promise;
+    function wait() {
+        if (!promise) {
+            promise = Promise.resolve();
+            promise.then(() => {
+                promise = null;
+            });
+        }
+        return promise;
+    }
+    function dispatch(node, direction, kind) {
+        node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+    }
+    const outroing = new Set();
+    let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
+    function transition_in(block, local) {
+        if (block && block.i) {
+            outroing.delete(block);
+            block.i(local);
+        }
+    }
+    function transition_out(block, local, detach, callback) {
+        if (block && block.o) {
+            if (outroing.has(block))
+                return;
+            outroing.add(block);
+            outros.c.push(() => {
+                outroing.delete(block);
+                if (callback) {
+                    if (detach)
+                        block.d(1);
+                    callback();
+                }
+            });
+            block.o(local);
+        }
+    }
+    const null_transition = { duration: 0 };
+    function create_bidirectional_transition(node, fn, params, intro) {
+        let config = fn(node, params);
+        let t = intro ? 0 : 1;
+        let running_program = null;
+        let pending_program = null;
+        let animation_name = null;
+        function clear_animation() {
+            if (animation_name)
+                delete_rule(node, animation_name);
+        }
+        function init(program, duration) {
+            const d = program.b - t;
+            duration *= Math.abs(d);
+            return {
+                a: t,
+                b: program.b,
+                d,
+                duration,
+                start: program.start,
+                end: program.start + duration,
+                group: program.group
+            };
+        }
+        function go(b) {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            const program = {
+                start: now() + delay,
+                b
+            };
+            if (!b) {
+                // @ts-ignore todo: improve typings
+                program.group = outros;
+                outros.r += 1;
+            }
+            if (running_program) {
+                pending_program = program;
+            }
+            else {
+                // if this is an intro, and there's a delay, we need to do
+                // an initial tick and/or apply CSS animation immediately
+                if (css) {
+                    clear_animation();
+                    animation_name = create_rule(node, t, b, duration, delay, easing, css);
+                }
+                if (b)
+                    tick(0, 1);
+                running_program = init(program, duration);
+                add_render_callback(() => dispatch(node, b, 'start'));
+                loop(now => {
+                    if (pending_program && now > pending_program.start) {
+                        running_program = init(pending_program, duration);
+                        pending_program = null;
+                        dispatch(node, running_program.b, 'start');
+                        if (css) {
+                            clear_animation();
+                            animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
+                        }
+                    }
+                    if (running_program) {
+                        if (now >= running_program.end) {
+                            tick(t = running_program.b, 1 - t);
+                            dispatch(node, running_program.b, 'end');
+                            if (!pending_program) {
+                                // we're done
+                                if (running_program.b) {
+                                    // intro — we can tidy up immediately
+                                    clear_animation();
+                                }
+                                else {
+                                    // outro — needs to be coordinated
+                                    if (!--running_program.group.r)
+                                        run_all(running_program.group.c);
+                                }
+                            }
+                            running_program = null;
+                        }
+                        else if (now >= running_program.start) {
+                            const p = now - running_program.start;
+                            t = running_program.a + running_program.d * easing(p / running_program.duration);
+                            tick(t, 1 - t);
+                        }
+                    }
+                    return !!(running_program || pending_program);
+                });
+            }
+        }
+        return {
+            run(b) {
+                if (is_function(config)) {
+                    wait().then(() => {
+                        // @ts-ignore
+                        config = config();
+                        go(b);
+                    });
+                }
+                else {
+                    go(b);
+                }
+            },
+            end() {
+                clear_animation();
+                running_program = pending_program = null;
+            }
+        };
+    }
+
+    const globals = (typeof window !== 'undefined'
+        ? window
+        : typeof globalThis !== 'undefined'
+            ? globalThis
+            : global);
+
+    function get_spread_update(levels, updates) {
+        const update = {};
+        const to_null_out = {};
+        const accounted_for = { $$scope: 1 };
+        let i = levels.length;
+        while (i--) {
+            const o = levels[i];
+            const n = updates[i];
+            if (n) {
+                for (const key in o) {
+                    if (!(key in n))
+                        to_null_out[key] = 1;
+                }
+                for (const key in n) {
+                    if (!accounted_for[key]) {
+                        update[key] = n[key];
+                        accounted_for[key] = 1;
+                    }
+                }
+                levels[i] = n;
+            }
+            else {
+                for (const key in o) {
+                    accounted_for[key] = 1;
+                }
+            }
+        }
+        for (const key in to_null_out) {
+            if (!(key in update))
+                update[key] = undefined;
+        }
+        return update;
+    }
+    function get_spread_object(spread_props) {
+        return typeof spread_props === 'object' && spread_props !== null ? spread_props : {};
+    }
+    function create_component(block) {
+        block && block.c();
+    }
+    function mount_component(component, target, anchor) {
+        const { fragment, on_mount, on_destroy, after_update } = component.$$;
+        fragment && fragment.m(target, anchor);
+        // onMount happens before the initial afterUpdate
+        add_render_callback(() => {
+            const new_on_destroy = on_mount.map(run).filter(is_function);
+            if (on_destroy) {
+                on_destroy.push(...new_on_destroy);
+            }
+            else {
+                // Edge case - component was destroyed immediately,
+                // most likely as a result of a binding initialising
+                run_all(new_on_destroy);
+            }
+            component.$$.on_mount = [];
+        });
+        after_update.forEach(add_render_callback);
+    }
+    function destroy_component(component, detaching) {
+        const $$ = component.$$;
+        if ($$.fragment !== null) {
+            run_all($$.on_destroy);
+            $$.fragment && $$.fragment.d(detaching);
+            // TODO null out other refs, including component.$$ (but need to
+            // preserve final state?)
+            $$.on_destroy = $$.fragment = null;
+            $$.ctx = [];
+        }
+    }
+    function make_dirty(component, i) {
+        if (component.$$.dirty[0] === -1) {
+            dirty_components.push(component);
+            schedule_update();
+            component.$$.dirty.fill(0);
+        }
+        component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
+    }
+    function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+        const parent_component = current_component;
+        set_current_component(component);
+        const prop_values = options.props || {};
+        const $$ = component.$$ = {
+            fragment: null,
+            ctx: null,
+            // state
+            props,
+            update: noop,
+            not_equal,
+            bound: blank_object(),
+            // lifecycle
+            on_mount: [],
+            on_destroy: [],
+            before_update: [],
+            after_update: [],
+            context: new Map(parent_component ? parent_component.$$.context : []),
+            // everything else
+            callbacks: blank_object(),
+            dirty
+        };
+        let ready = false;
+        $$.ctx = instance
+            ? instance(component, prop_values, (i, ret, ...rest) => {
+                const value = rest.length ? rest[0] : ret;
+                if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
+                    if ($$.bound[i])
+                        $$.bound[i](value);
+                    if (ready)
+                        make_dirty(component, i);
+                }
+                return ret;
+            })
+            : [];
+        $$.update();
+        ready = true;
+        run_all($$.before_update);
+        // `false` as a special case of no DOM component
+        $$.fragment = create_fragment ? create_fragment($$.ctx) : false;
+        if (options.target) {
+            if (options.hydrate) {
+                const nodes = children(options.target);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.l(nodes);
+                nodes.forEach(detach);
+            }
+            else {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.c();
+            }
+            if (options.intro)
+                transition_in(component.$$.fragment);
+            mount_component(component, options.target, options.anchor);
+            flush();
+        }
+        set_current_component(parent_component);
+    }
+    class SvelteComponent {
+        $destroy() {
+            destroy_component(this, 1);
+            this.$destroy = noop;
+        }
+        $on(type, callback) {
+            const callbacks = (this.$$.callbacks[type] || (this.$$.callbacks[type] = []));
+            callbacks.push(callback);
+            return () => {
+                const index = callbacks.indexOf(callback);
+                if (index !== -1)
+                    callbacks.splice(index, 1);
+            };
+        }
+        $set() {
+            // overridden by instance, if it has props
+        }
+    }
+
+    function dispatch_dev(type, detail) {
+        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.21.0' }, detail)));
+    }
+    function append_dev(target, node) {
+        dispatch_dev("SvelteDOMInsert", { target, node });
+        append(target, node);
+    }
+    function insert_dev(target, node, anchor) {
+        dispatch_dev("SvelteDOMInsert", { target, node, anchor });
+        insert(target, node, anchor);
+    }
+    function detach_dev(node) {
+        dispatch_dev("SvelteDOMRemove", { node });
+        detach(node);
+    }
+    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
+        const modifiers = options === true ? ["capture"] : options ? Array.from(Object.keys(options)) : [];
+        if (has_prevent_default)
+            modifiers.push('preventDefault');
+        if (has_stop_propagation)
+            modifiers.push('stopPropagation');
+        dispatch_dev("SvelteDOMAddEventListener", { node, event, handler, modifiers });
+        const dispose = listen(node, event, handler, options);
+        return () => {
+            dispatch_dev("SvelteDOMRemoveEventListener", { node, event, handler, modifiers });
+            dispose();
+        };
+    }
+    function attr_dev(node, attribute, value) {
+        attr(node, attribute, value);
+        if (value == null)
+            dispatch_dev("SvelteDOMRemoveAttribute", { node, attribute });
+        else
+            dispatch_dev("SvelteDOMSetAttribute", { node, attribute, value });
+    }
+    function set_data_dev(text, data) {
+        data = '' + data;
+        if (text.data === data)
+            return;
+        dispatch_dev("SvelteDOMSetData", { node: text, data });
+        text.data = data;
+    }
+    function validate_slots(name, slot, keys) {
+        for (const slot_key of Object.keys(slot)) {
+            if (!~keys.indexOf(slot_key)) {
+                console.warn(`<${name}> received an unexpected slot "${slot_key}".`);
+            }
+        }
+    }
+    class SvelteComponentDev extends SvelteComponent {
+        constructor(options) {
+            if (!options || (!options.target && !options.$$inline)) {
+                throw new Error(`'target' is a required option`);
+            }
+            super();
+        }
+        $destroy() {
+            super.$destroy();
+            this.$destroy = () => {
+                console.warn(`Component was already destroyed`); // eslint-disable-line no-console
+            };
+        }
+        $capture_state() { }
+        $inject_state() { }
+    }
+
+    /* src/components/Sidebar.svelte generated by Svelte v3.21.0 */
+
+    const file = "src/components/Sidebar.svelte";
+
+    function create_fragment(ctx) {
+    	let html;
+    	let h1;
+    	let t1;
+    	let h20;
+    	let t2;
+    	let b;
+    	let t4;
+    	let t5;
+    	let h21;
+    	let t7;
+    	let div0;
+    	let h22;
+    	let a0;
+    	let t9;
+    	let h23;
+    	let a1;
+    	let t11;
+    	let h24;
+    	let a2;
+    	let t13;
+    	let h25;
+    	let a3;
+    	let t15;
+    	let div1;
+    	let img;
+    	let img_src_value;
+
+    	const block = {
+    		c: function create() {
+    			html = element("html");
+    			h1 = element("h1");
+    			h1.textContent = "Maxwell Eisen";
+    			t1 = space();
+    			h20 = element("h2");
+    			t2 = text("CS ");
+    			b = element("b");
+    			b.textContent = "@";
+    			t4 = text(" Queen's University");
+    			t5 = space();
+    			h21 = element("h2");
+    			h21.textContent = "Toronto, ON";
+    			t7 = space();
+    			div0 = element("div");
+    			h22 = element("h2");
+    			a0 = element("a");
+    			a0.textContent = "LinkedIn";
+    			t9 = space();
+    			h23 = element("h2");
+    			a1 = element("a");
+    			a1.textContent = "GitHub";
+    			t11 = space();
+    			h24 = element("h2");
+    			a2 = element("a");
+    			a2.textContent = "Twitter";
+    			t13 = space();
+    			h25 = element("h2");
+    			a3 = element("a");
+    			a3.textContent = "Email";
+    			t15 = space();
+    			div1 = element("div");
+    			img = element("img");
+    			attr_dev(h1, "class", "profile-name");
+    			add_location(h1, file, 5, 4, 98);
+    			set_style(b, "color", "#ababab");
+    			add_location(b, file, 6, 37, 179);
+    			set_style(h20, "font-weight", "300");
+    			add_location(h20, file, 6, 4, 146);
+    			set_style(h21, "font-weight", "300");
+    			add_location(h21, file, 7, 4, 240);
+    			attr_dev(a0, "class", "social-links");
+    			attr_dev(a0, "href", "https://linkedin.com/in/maxeisen/");
+    			attr_dev(a0, "target", "_blank");
+    			add_location(a0, file, 9, 12, 330);
+    			add_location(h22, file, 9, 8, 326);
+    			attr_dev(a1, "class", "social-links");
+    			attr_dev(a1, "href", "https://github.com/maxeisen/");
+    			attr_dev(a1, "target", "_blank");
+    			add_location(a1, file, 10, 12, 441);
+    			add_location(h23, file, 10, 8, 437);
+    			attr_dev(a2, "class", "social-links");
+    			attr_dev(a2, "href", "https://twitter.com/maxeisen/");
+    			attr_dev(a2, "target", "_blank");
+    			add_location(a2, file, 11, 12, 545);
+    			add_location(h24, file, 11, 8, 541);
+    			attr_dev(a3, "class", "social-links");
+    			attr_dev(a3, "href", "mailto:max.eisen@queensu.ca");
+    			attr_dev(a3, "target", "_blank");
+    			add_location(a3, file, 12, 12, 651);
+    			add_location(h25, file, 12, 8, 647);
+    			attr_dev(div0, "class", "social-links");
+    			add_location(div0, file, 8, 4, 291);
+    			attr_dev(img, "class", "headshot");
+    			if (img.src !== (img_src_value = /*headshot*/ ctx[0])) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", "Tightly cropped picture of Max");
+    			add_location(img, file, 16, 8, 788);
+    			attr_dev(div1, "class", "headshot");
+    			add_location(div1, file, 15, 4, 757);
+    			attr_dev(html, "lang", "en");
+    			add_location(html, file, 4, 0, 77);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, html, anchor);
+    			append_dev(html, h1);
+    			append_dev(html, t1);
+    			append_dev(html, h20);
+    			append_dev(h20, t2);
+    			append_dev(h20, b);
+    			append_dev(h20, t4);
+    			append_dev(html, t5);
+    			append_dev(html, h21);
+    			append_dev(html, t7);
+    			append_dev(html, div0);
+    			append_dev(div0, h22);
+    			append_dev(h22, a0);
+    			append_dev(div0, t9);
+    			append_dev(div0, h23);
+    			append_dev(h23, a1);
+    			append_dev(div0, t11);
+    			append_dev(div0, h24);
+    			append_dev(h24, a2);
+    			append_dev(div0, t13);
+    			append_dev(div0, h25);
+    			append_dev(h25, a3);
+    			append_dev(html, t15);
+    			append_dev(html, div1);
+    			append_dev(div1, img);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(html);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance($$self, $$props, $$invalidate) {
+    	let headshot = "./img/headshots/tight_headshot.png";
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Sidebar> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Sidebar", $$slots, []);
+    	$$self.$capture_state = () => ({ headshot });
+
+    	$$self.$inject_state = $$props => {
+    		if ("headshot" in $$props) $$invalidate(0, headshot = $$props.headshot);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [headshot];
+    }
+
+    class Sidebar extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance, create_fragment, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Sidebar",
+    			options,
+    			id: create_fragment.name
+    		});
+    	}
+    }
+
+    /* src/components/Intro.svelte generated by Svelte v3.21.0 */
+
+    const file$1 = "src/components/Intro.svelte";
+
+    function create_fragment$1(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+    	let p0;
+    	let t2;
+    	let a0;
+    	let t4;
+    	let t5;
+    	let p1;
+    	let t7;
+    	let p2;
+    	let t8;
+    	let a1;
+    	let t10;
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "My Name is Max Eisen";
+    			t1 = space();
+    			div = element("div");
+    			p0 = element("p");
+    			t2 = text("I am a Computer Science student at ");
+    			a0 = element("a");
+    			a0.textContent = "Queen's University";
+    			t4 = text(" with a fascination for technology.");
+    			t5 = space();
+    			p1 = element("p");
+    			p1.textContent = "I enjoy programming (especially the problem-solving aspects), web development, beta-testing, computational thinking, skiing, travelling, playing guitar, new tech, and just hanging out. I am also interested in automation, machine learning, UI/UX, and data analysis.";
+    			t7 = space();
+    			p2 = element("p");
+    			t8 = text("Feel free to explore my website, click on things for more information, and ");
+    			a1 = element("a");
+    			a1.textContent = "email me";
+    			t10 = text(" if you have any questions or comments.");
+    			attr_dev(h1, "class", "section-title");
+    			add_location(h1, file$1, 3, 0, 20);
+    			attr_dev(a0, "class", "intro-link svelte-aodkn2");
+    			attr_dev(a0, "href", "https://www.queensu.ca/");
+    			add_location(a0, file$1, 5, 42, 144);
+    			add_location(p0, file$1, 5, 4, 106);
+    			add_location(p1, file$1, 6, 4, 263);
+    			attr_dev(a1, "class", "intro-link svelte-aodkn2");
+    			attr_dev(a1, "href", "mailto:max.eisen@queensu.ca");
+    			attr_dev(a1, "target", "_blank");
+    			add_location(a1, file$1, 7, 82, 617);
+    			add_location(p2, file$1, 7, 4, 539);
+    			attr_dev(div, "class", "intro-paragraph svelte-aodkn2");
+    			add_location(div, file$1, 4, 0, 72);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+    			append_dev(div, p0);
+    			append_dev(p0, t2);
+    			append_dev(p0, a0);
+    			append_dev(p0, t4);
+    			append_dev(div, t5);
+    			append_dev(div, p1);
+    			append_dev(div, t7);
+    			append_dev(div, p2);
+    			append_dev(p2, t8);
+    			append_dev(p2, a1);
+    			append_dev(p2, t10);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$1.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$1($$self, $$props) {
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Intro> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Intro", $$slots, []);
+    	return [];
+    }
+
+    class Intro extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Intro",
+    			options,
+    			id: create_fragment$1.name
+    		});
+    	}
+    }
+
+    /* src/components/ExperienceModal.svelte generated by Svelte v3.21.0 */
+
+    const file$2 = "src/components/ExperienceModal.svelte";
+
+    function create_fragment$2(ctx) {
+    	let div;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let h2;
+    	let a;
+    	let t2;
+    	let t3;
+    	let h30;
+    	let t4;
+    	let t5;
+    	let t6;
+    	let t7;
+    	let h31;
+    	let t8;
+    	let t9;
+    	let p;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*position*/ ctx[0]);
+    			t1 = space();
+    			h2 = element("h2");
+    			a = element("a");
+    			t2 = text(/*company*/ ctx[1]);
+    			t3 = space();
+    			h30 = element("h3");
+    			t4 = text(/*startDate*/ ctx[3]);
+    			t5 = text("-");
+    			t6 = text(/*endDate*/ ctx[4]);
+    			t7 = space();
+    			h31 = element("h3");
+    			t8 = text(/*location*/ ctx[5]);
+    			t9 = space();
+    			p = element("p");
+    			attr_dev(h1, "class", "modal-position svelte-dyj6m4");
+    			add_location(h1, file$2, 11, 4, 235);
+    			attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			attr_dev(a, "target", "_blank");
+    			add_location(a, file$2, 12, 30, 308);
+    			attr_dev(h2, "class", "modal-company svelte-dyj6m4");
+    			add_location(h2, file$2, 12, 4, 282);
+    			attr_dev(h30, "class", "modal-description svelte-dyj6m4");
+    			set_style(h30, "text-align", "center");
+    			add_location(h30, file$2, 13, 4, 369);
+    			attr_dev(h31, "class", "modal-description svelte-dyj6m4");
+    			set_style(h31, "text-align", "center");
+    			set_style(h31, "color", "#333333");
+    			add_location(h31, file$2, 14, 4, 457);
+    			attr_dev(p, "class", "modal-description svelte-dyj6m4");
+    			add_location(p, file$2, 15, 4, 550);
+    			attr_dev(div, "class", "experience-modal svelte-dyj6m4");
+    			add_location(div, file$2, 10, 0, 200);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h1);
+    			append_dev(h1, t0);
+    			append_dev(div, t1);
+    			append_dev(div, h2);
+    			append_dev(h2, a);
+    			append_dev(a, t2);
+    			append_dev(div, t3);
+    			append_dev(div, h30);
+    			append_dev(h30, t4);
+    			append_dev(h30, t5);
+    			append_dev(h30, t6);
+    			append_dev(div, t7);
+    			append_dev(div, h31);
+    			append_dev(h31, t8);
+    			append_dev(div, t9);
+    			append_dev(div, p);
+    			p.innerHTML = /*description*/ ctx[6];
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*position*/ 1) set_data_dev(t0, /*position*/ ctx[0]);
+    			if (dirty & /*company*/ 2) set_data_dev(t2, /*company*/ ctx[1]);
+
+    			if (dirty & /*companyLink*/ 4) {
+    				attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			}
+
+    			if (dirty & /*startDate*/ 8) set_data_dev(t4, /*startDate*/ ctx[3]);
+    			if (dirty & /*endDate*/ 16) set_data_dev(t6, /*endDate*/ ctx[4]);
+    			if (dirty & /*location*/ 32) set_data_dev(t8, /*location*/ ctx[5]);
+    			if (dirty & /*description*/ 64) p.innerHTML = /*description*/ ctx[6];		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$2.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$2($$self, $$props, $$invalidate) {
+    	let { position } = $$props;
+    	let { company } = $$props;
+    	let { companyLink } = $$props;
+    	let { startDate } = $$props;
+    	let { endDate } = $$props;
+    	let { location } = $$props;
+    	let { description } = $$props;
+
+    	const writable_props = [
+    		"position",
+    		"company",
+    		"companyLink",
+    		"startDate",
+    		"endDate",
+    		"location",
+    		"description"
+    	];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ExperienceModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("ExperienceModal", $$slots, []);
+
+    	$$self.$set = $$props => {
+    		if ("position" in $$props) $$invalidate(0, position = $$props.position);
+    		if ("company" in $$props) $$invalidate(1, company = $$props.company);
+    		if ("companyLink" in $$props) $$invalidate(2, companyLink = $$props.companyLink);
+    		if ("startDate" in $$props) $$invalidate(3, startDate = $$props.startDate);
+    		if ("endDate" in $$props) $$invalidate(4, endDate = $$props.endDate);
+    		if ("location" in $$props) $$invalidate(5, location = $$props.location);
+    		if ("description" in $$props) $$invalidate(6, description = $$props.description);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		position,
+    		company,
+    		companyLink,
+    		startDate,
+    		endDate,
+    		location,
+    		description
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("position" in $$props) $$invalidate(0, position = $$props.position);
+    		if ("company" in $$props) $$invalidate(1, company = $$props.company);
+    		if ("companyLink" in $$props) $$invalidate(2, companyLink = $$props.companyLink);
+    		if ("startDate" in $$props) $$invalidate(3, startDate = $$props.startDate);
+    		if ("endDate" in $$props) $$invalidate(4, endDate = $$props.endDate);
+    		if ("location" in $$props) $$invalidate(5, location = $$props.location);
+    		if ("description" in $$props) $$invalidate(6, description = $$props.description);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [position, company, companyLink, startDate, endDate, location, description];
+    }
+
+    class ExperienceModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$2, create_fragment$2, safe_not_equal, {
+    			position: 0,
+    			company: 1,
+    			companyLink: 2,
+    			startDate: 3,
+    			endDate: 4,
+    			location: 5,
+    			description: 6
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ExperienceModal",
+    			options,
+    			id: create_fragment$2.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*position*/ ctx[0] === undefined && !("position" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'position'");
+    		}
+
+    		if (/*company*/ ctx[1] === undefined && !("company" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'company'");
+    		}
+
+    		if (/*companyLink*/ ctx[2] === undefined && !("companyLink" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'companyLink'");
+    		}
+
+    		if (/*startDate*/ ctx[3] === undefined && !("startDate" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'startDate'");
+    		}
+
+    		if (/*endDate*/ ctx[4] === undefined && !("endDate" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'endDate'");
+    		}
+
+    		if (/*location*/ ctx[5] === undefined && !("location" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'location'");
+    		}
+
+    		if (/*description*/ ctx[6] === undefined && !("description" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'description'");
+    		}
+    	}
+
+    	get position() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set position(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get company() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set company(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get companyLink() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set companyLink(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get startDate() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set startDate(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get endDate() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set endDate(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get location() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get description() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set description(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/Experience.svelte generated by Svelte v3.21.0 */
+    const file$3 = "src/components/Experience.svelte";
+
+    function create_fragment$3(ctx) {
+    	let h10;
+    	let t1;
+    	let div24;
+    	let div3;
+    	let h20;
+    	let div0;
+    	let t3;
+    	let h21;
+    	let t5;
+    	let p0;
+    	let t7;
+    	let h11;
+    	let div1;
+    	let div2;
+    	let t12;
+    	let div7;
+    	let h22;
+    	let div4;
+    	let t14;
+    	let h23;
+    	let t16;
+    	let p1;
+    	let t18;
+    	let h12;
+    	let div5;
+    	let div6;
+    	let t23;
+    	let div11;
+    	let h24;
+    	let div8;
+    	let t25;
+    	let h25;
+    	let t27;
+    	let p2;
+    	let t29;
+    	let h13;
+    	let div9;
+    	let div10;
+    	let t34;
+    	let div15;
+    	let h26;
+    	let div12;
+    	let t36;
+    	let h27;
+    	let t38;
+    	let p3;
+    	let t40;
+    	let h14;
+    	let div13;
+    	let t43;
+    	let div14;
+    	let t45;
+    	let div19;
+    	let h28;
+    	let div16;
+    	let t47;
+    	let h29;
+    	let t49;
+    	let p4;
+    	let t51;
+    	let h15;
+    	let div17;
+    	let div18;
+    	let t54;
+    	let div23;
+    	let h210;
+    	let div20;
+    	let t56;
+    	let h211;
+    	let t58;
+    	let p5;
+    	let t60;
+    	let h16;
+    	let div21;
+    	let div22;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			h10 = element("h1");
+    			h10.textContent = "Experience";
+    			t1 = space();
+    			div24 = element("div");
+    			div3 = element("div");
+    			h20 = element("h2");
+    			div0 = element("div");
+    			div0.textContent = `${/*exp1*/ ctx[0].position}`;
+    			t3 = space();
+    			h21 = element("h2");
+    			h21.textContent = `${/*exp1*/ ctx[0].company}`;
+    			t5 = space();
+    			p0 = element("p");
+    			p0.textContent = `${/*exp1*/ ctx[0].shortDescription}`;
+    			t7 = space();
+    			h11 = element("h1");
+    			div1 = element("div");
+    			div1.textContent = `${/*exp1*/ ctx[0].startDate}-${/*exp1*/ ctx[0].endDate}`;
+    			div2 = element("div");
+    			div2.textContent = `${/*exp1*/ ctx[0].location}`;
+    			t12 = space();
+    			div7 = element("div");
+    			h22 = element("h2");
+    			div4 = element("div");
+    			div4.textContent = `${/*exp2*/ ctx[1].position}`;
+    			t14 = space();
+    			h23 = element("h2");
+    			h23.textContent = "QTMA";
+    			t16 = space();
+    			p1 = element("p");
+    			p1.textContent = `${/*exp2*/ ctx[1].shortDescription}`;
+    			t18 = space();
+    			h12 = element("h1");
+    			div5 = element("div");
+    			div5.textContent = `${/*exp2*/ ctx[1].startDate}-${/*exp2*/ ctx[1].endDate}`;
+    			div6 = element("div");
+    			div6.textContent = `${/*exp2*/ ctx[1].location}`;
+    			t23 = space();
+    			div11 = element("div");
+    			h24 = element("h2");
+    			div8 = element("div");
+    			div8.textContent = `${/*exp3*/ ctx[2].position}`;
+    			t25 = space();
+    			h25 = element("h2");
+    			h25.textContent = `${/*exp3*/ ctx[2].company}`;
+    			t27 = space();
+    			p2 = element("p");
+    			p2.textContent = `${/*exp3*/ ctx[2].shortDescription}`;
+    			t29 = space();
+    			h13 = element("h1");
+    			div9 = element("div");
+    			div9.textContent = `${/*exp3*/ ctx[2].startDate}-${/*exp3*/ ctx[2].endDate}`;
+    			div10 = element("div");
+    			div10.textContent = `${/*exp3*/ ctx[2].location}`;
+    			t34 = space();
+    			div15 = element("div");
+    			h26 = element("h2");
+    			div12 = element("div");
+    			div12.textContent = "CS Teaching Assistant";
+    			t36 = space();
+    			h27 = element("h2");
+    			h27.textContent = `${/*exp4*/ ctx[3].company}`;
+    			t38 = space();
+    			p3 = element("p");
+    			p3.textContent = `${/*exp4*/ ctx[3].shortDescription}`;
+    			t40 = space();
+    			h14 = element("h1");
+    			div13 = element("div");
+    			div13.textContent = `Sept. 2019-${/*exp4*/ ctx[3].endDate}`;
+    			t43 = space();
+    			div14 = element("div");
+    			div14.textContent = `${/*exp4*/ ctx[3].location}`;
+    			t45 = space();
+    			div19 = element("div");
+    			h28 = element("h2");
+    			div16 = element("div");
+    			div16.textContent = `${/*exp5*/ ctx[4].position}`;
+    			t47 = space();
+    			h29 = element("h2");
+    			h29.textContent = `${/*exp5*/ ctx[4].company}`;
+    			t49 = space();
+    			p4 = element("p");
+    			p4.textContent = `${/*exp5*/ ctx[4].shortDescription}`;
+    			t51 = space();
+    			h15 = element("h1");
+    			div17 = element("div");
+    			div17.textContent = "Sept. 2019-Feb. 2020";
+    			div18 = element("div");
+    			div18.textContent = `${/*exp5*/ ctx[4].location}`;
+    			t54 = space();
+    			div23 = element("div");
+    			h210 = element("h2");
+    			div20 = element("div");
+    			div20.textContent = `${/*exp6*/ ctx[5].position}`;
+    			t56 = space();
+    			h211 = element("h2");
+    			h211.textContent = `${/*exp6*/ ctx[5].company}`;
+    			t58 = space();
+    			p5 = element("p");
+    			p5.textContent = `${/*exp6*/ ctx[5].shortDescription}`;
+    			t60 = space();
+    			h16 = element("h1");
+    			div21 = element("div");
+    			div21.textContent = `${/*exp6*/ ctx[5].startDate}-${/*exp6*/ ctx[5].endDate}`;
+    			div22 = element("div");
+    			div22.textContent = `${/*exp6*/ ctx[5].location}`;
+    			attr_dev(h10, "class", "section-title");
+    			attr_dev(h10, "id", "experience");
+    			add_location(h10, file$3, 99, 0, 6186);
+    			attr_dev(div0, "class", "experience-position svelte-bar5y9");
+    			add_location(div0, file$3, 102, 37, 6369);
+    			attr_dev(h20, "class", "experience-title svelte-bar5y9");
+    			add_location(h20, file$3, 102, 8, 6340);
+    			attr_dev(h21, "class", "experience-company svelte-bar5y9");
+    			add_location(h21, file$3, 103, 8, 6437);
+    			add_location(p0, file$3, 104, 8, 6496);
+    			attr_dev(div1, "class", "experience-date svelte-bar5y9");
+    			add_location(div1, file$3, 105, 45, 6572);
+    			attr_dev(div2, "class", "experience-location svelte-bar5y9");
+    			add_location(div2, file$3, 105, 111, 6638);
+    			attr_dev(h11, "class", "experience-date-location svelte-bar5y9");
+    			add_location(h11, file$3, 105, 8, 6535);
+    			attr_dev(div3, "class", "experience-item");
+    			add_location(div3, file$3, 101, 4, 6284);
+    			attr_dev(div4, "class", "experience-position svelte-bar5y9");
+    			add_location(div4, file$3, 108, 37, 6798);
+    			attr_dev(h22, "class", "experience-title svelte-bar5y9");
+    			add_location(h22, file$3, 108, 8, 6769);
+    			attr_dev(h23, "class", "experience-company svelte-bar5y9");
+    			add_location(h23, file$3, 109, 8, 6866);
+    			add_location(p1, file$3, 110, 8, 6915);
+    			attr_dev(div5, "class", "experience-date svelte-bar5y9");
+    			add_location(div5, file$3, 111, 45, 6991);
+    			attr_dev(div6, "class", "experience-location svelte-bar5y9");
+    			add_location(div6, file$3, 111, 111, 7057);
+    			attr_dev(h12, "class", "experience-date-location svelte-bar5y9");
+    			add_location(h12, file$3, 111, 8, 6954);
+    			attr_dev(div7, "class", "experience-item");
+    			add_location(div7, file$3, 107, 4, 6713);
+    			attr_dev(div8, "class", "experience-position svelte-bar5y9");
+    			add_location(div8, file$3, 114, 37, 7217);
+    			attr_dev(h24, "class", "experience-title svelte-bar5y9");
+    			add_location(h24, file$3, 114, 8, 7188);
+    			attr_dev(h25, "class", "experience-company svelte-bar5y9");
+    			add_location(h25, file$3, 115, 8, 7285);
+    			add_location(p2, file$3, 116, 8, 7344);
+    			attr_dev(div9, "class", "experience-date svelte-bar5y9");
+    			add_location(div9, file$3, 117, 45, 7420);
+    			attr_dev(div10, "class", "experience-location svelte-bar5y9");
+    			add_location(div10, file$3, 117, 111, 7486);
+    			attr_dev(h13, "class", "experience-date-location svelte-bar5y9");
+    			add_location(h13, file$3, 117, 8, 7383);
+    			attr_dev(div11, "class", "experience-item");
+    			add_location(div11, file$3, 113, 4, 7132);
+    			attr_dev(div12, "class", "experience-position svelte-bar5y9");
+    			add_location(div12, file$3, 120, 37, 7646);
+    			attr_dev(h26, "class", "experience-title svelte-bar5y9");
+    			add_location(h26, file$3, 120, 8, 7617);
+    			attr_dev(h27, "class", "experience-company svelte-bar5y9");
+    			add_location(h27, file$3, 121, 8, 7720);
+    			add_location(p3, file$3, 122, 8, 7779);
+    			attr_dev(div13, "class", "experience-date svelte-bar5y9");
+    			add_location(div13, file$3, 123, 45, 7855);
+    			attr_dev(div14, "class", "experience-location svelte-bar5y9");
+    			add_location(div14, file$3, 124, 8, 7924);
+    			attr_dev(h14, "class", "experience-date-location svelte-bar5y9");
+    			add_location(h14, file$3, 123, 8, 7818);
+    			attr_dev(div15, "class", "experience-item");
+    			add_location(div15, file$3, 119, 4, 7561);
+    			attr_dev(div16, "class", "experience-position svelte-bar5y9");
+    			add_location(div16, file$3, 127, 37, 8084);
+    			attr_dev(h28, "class", "experience-title svelte-bar5y9");
+    			add_location(h28, file$3, 127, 8, 8055);
+    			attr_dev(h29, "class", "experience-company svelte-bar5y9");
+    			add_location(h29, file$3, 128, 8, 8152);
+    			add_location(p4, file$3, 129, 8, 8211);
+    			attr_dev(div17, "class", "experience-date svelte-bar5y9");
+    			add_location(div17, file$3, 130, 45, 8287);
+    			attr_dev(div18, "class", "experience-location svelte-bar5y9");
+    			add_location(div18, file$3, 130, 100, 8342);
+    			attr_dev(h15, "class", "experience-date-location svelte-bar5y9");
+    			add_location(h15, file$3, 130, 8, 8250);
+    			attr_dev(div19, "class", "experience-item");
+    			add_location(div19, file$3, 126, 4, 7999);
+    			attr_dev(div20, "class", "experience-position svelte-bar5y9");
+    			add_location(div20, file$3, 133, 37, 8502);
+    			attr_dev(h210, "class", "experience-title svelte-bar5y9");
+    			add_location(h210, file$3, 133, 8, 8473);
+    			attr_dev(h211, "class", "experience-company svelte-bar5y9");
+    			add_location(h211, file$3, 134, 8, 8570);
+    			add_location(p5, file$3, 135, 8, 8629);
+    			attr_dev(div21, "class", "experience-date svelte-bar5y9");
+    			add_location(div21, file$3, 136, 45, 8705);
+    			attr_dev(div22, "class", "experience-location svelte-bar5y9");
+    			add_location(div22, file$3, 136, 111, 8771);
+    			attr_dev(h16, "class", "experience-date-location svelte-bar5y9");
+    			add_location(h16, file$3, 136, 8, 8668);
+    			attr_dev(div23, "class", "experience-item");
+    			add_location(div23, file$3, 132, 4, 8417);
+    			attr_dev(div24, "class", "experience-subsection");
+    			add_location(div24, file$3, 100, 0, 6244);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor, remount) {
+    			insert_dev(target, h10, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div24, anchor);
+    			append_dev(div24, div3);
+    			append_dev(div3, h20);
+    			append_dev(h20, div0);
+    			append_dev(div3, t3);
+    			append_dev(div3, h21);
+    			append_dev(div3, t5);
+    			append_dev(div3, p0);
+    			append_dev(div3, t7);
+    			append_dev(div3, h11);
+    			append_dev(h11, div1);
+    			append_dev(h11, div2);
+    			append_dev(div24, t12);
+    			append_dev(div24, div7);
+    			append_dev(div7, h22);
+    			append_dev(h22, div4);
+    			append_dev(div7, t14);
+    			append_dev(div7, h23);
+    			append_dev(div7, t16);
+    			append_dev(div7, p1);
+    			append_dev(div7, t18);
+    			append_dev(div7, h12);
+    			append_dev(h12, div5);
+    			append_dev(h12, div6);
+    			append_dev(div24, t23);
+    			append_dev(div24, div11);
+    			append_dev(div11, h24);
+    			append_dev(h24, div8);
+    			append_dev(div11, t25);
+    			append_dev(div11, h25);
+    			append_dev(div11, t27);
+    			append_dev(div11, p2);
+    			append_dev(div11, t29);
+    			append_dev(div11, h13);
+    			append_dev(h13, div9);
+    			append_dev(h13, div10);
+    			append_dev(div24, t34);
+    			append_dev(div24, div15);
+    			append_dev(div15, h26);
+    			append_dev(h26, div12);
+    			append_dev(div15, t36);
+    			append_dev(div15, h27);
+    			append_dev(div15, t38);
+    			append_dev(div15, p3);
+    			append_dev(div15, t40);
+    			append_dev(div15, h14);
+    			append_dev(h14, div13);
+    			append_dev(h14, t43);
+    			append_dev(h14, div14);
+    			append_dev(div24, t45);
+    			append_dev(div24, div19);
+    			append_dev(div19, h28);
+    			append_dev(h28, div16);
+    			append_dev(div19, t47);
+    			append_dev(div19, h29);
+    			append_dev(div19, t49);
+    			append_dev(div19, p4);
+    			append_dev(div19, t51);
+    			append_dev(div19, h15);
+    			append_dev(h15, div17);
+    			append_dev(h15, div18);
+    			append_dev(div24, t54);
+    			append_dev(div24, div23);
+    			append_dev(div23, h210);
+    			append_dev(h210, div20);
+    			append_dev(div23, t56);
+    			append_dev(div23, h211);
+    			append_dev(div23, t58);
+    			append_dev(div23, p5);
+    			append_dev(div23, t60);
+    			append_dev(div23, h16);
+    			append_dev(h16, div21);
+    			append_dev(h16, div22);
+    			if (remount) run_all(dispose);
+
+    			dispose = [
+    				listen_dev(div3, "click", /*modal1*/ ctx[6], false, false, false),
+    				listen_dev(div7, "click", /*modal2*/ ctx[7], false, false, false),
+    				listen_dev(div11, "click", /*modal3*/ ctx[8], false, false, false),
+    				listen_dev(div15, "click", /*modal4*/ ctx[9], false, false, false),
+    				listen_dev(div19, "click", /*modal5*/ ctx[10], false, false, false),
+    				listen_dev(div23, "click", /*modal6*/ ctx[11], false, false, false)
+    			];
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h10);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div24);
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$3.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$3($$self, $$props, $$invalidate) {
+    	const exp1 = {
+    		position: "Technical Developer",
+    		company: "Jonah Group",
+    		companyLink: "https://www.jonahgroup.com/",
+    		startDate: "May 2020",
+    		endDate: "Present",
+    		location: "Toronto, ON",
+    		shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
+    		longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of talented developers and engineers working to create great software</li></ul>`
+    	};
+
+    	const exp2 = {
+    		position: "Product Manager",
+    		company: "Queen's Technology and Media Association",
+    		companyLink: "https://qtma.ca/",
+    		startDate: "April 2020",
+    		endDate: "Present",
+    		location: "Kingston, ON",
+    		shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
+    		longDescription: `<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>`
+    	};
+
+    	const exp3 = {
+    		position: "Director of Technology",
+    		company: "TechTrainers",
+    		companyLink: "https://techtrainers.ca/",
+    		startDate: "May 2019",
+    		endDate: "Present",
+    		location: "Toronto, ON",
+    		shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
+    		longDescription: `<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li><li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li><li>Company was able to turn a profit in first month of operations</li></ul>`
+    	};
+
+    	const exp4 = {
+    		position: "Computer Science Teaching Assistant",
+    		company: "Queen's University",
+    		companyLink: "https://cs.queensu.ca/",
+    		startDate: "September 2019",
+    		endDate: "April 2020",
+    		location: "Kingston, ON",
+    		shortDescription: "Worked as a teaching assistant for a Python programming course of over 250 students",
+    		longDescription: `<ul><li>Selected as one of 8 TAs for the specific Python programming course, having previously obtained an exceptional grade in the course</li><li>Assisted in the teaching and grading of the class with over 250 students</li><li>Held weekly office hours to guide students in completing assignments and reviewing for exams</li></ul>`
+    	};
+
+    	const exp5 = {
+    		position: "Software Developer",
+    		company: "QHacks",
+    		companyLink: "https://qhacks.io/",
+    		startDate: "September 2019",
+    		endDate: "February 2020",
+    		location: "Kingston, ON",
+    		shortDescription: "Developed the website and other software for Queen's University's official MLH hackathon",
+    		longDescription: `<ul><li>Developed (React) and deployed (Gatsby) the official website for the 2020 MLH-affiliated hackathon, accessed by over 10,000 individuals</li><li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li><li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li></ul>`
+    	};
+
+    	const exp6 = {
+    		position: "Technical Instructor",
+    		company: "UnderTheGUI Inc.",
+    		companyLink: "https://underthegui.com/",
+    		startDate: "May",
+    		endDate: "August 2019",
+    		location: "Vancouver, BC",
+    		shortDescription: "Taught and created course content for programming and engineering courses tailored to teens and young adults",
+    		longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses include: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
+    	};
+
+    	const { open } = getContext("simple-modal");
+
+    	const modal1 = () => {
+    		open(ExperienceModal, {
+    			position: exp1.position,
+    			company: exp1.company,
+    			companyLink: exp1.companyLink,
+    			startDate: exp1.startDate,
+    			endDate: exp1.endDate,
+    			location: exp1.location,
+    			description: exp1.longDescription
+    		});
+    	};
+
+    	const modal2 = () => {
+    		open(ExperienceModal, {
+    			position: exp2.position,
+    			company: exp2.company,
+    			companyLink: exp2.companyLink,
+    			startDate: exp2.startDate,
+    			endDate: exp2.endDate,
+    			location: exp2.location,
+    			description: exp2.longDescription
+    		});
+    	};
+
+    	const modal3 = () => {
+    		open(ExperienceModal, {
+    			position: exp3.position,
+    			company: exp3.company,
+    			companyLink: exp3.companyLink,
+    			startDate: exp3.startDate,
+    			endDate: exp3.endDate,
+    			location: exp3.location,
+    			description: exp3.longDescription
+    		});
+    	};
+
+    	const modal4 = () => {
+    		open(ExperienceModal, {
+    			position: exp4.position,
+    			company: exp4.company,
+    			companyLink: exp4.companyLink,
+    			startDate: exp4.startDate,
+    			endDate: exp4.endDate,
+    			location: exp4.location,
+    			description: exp4.longDescription
+    		});
+    	};
+
+    	const modal5 = () => {
+    		open(ExperienceModal, {
+    			position: exp5.position,
+    			company: exp5.company,
+    			companyLink: exp5.companyLink,
+    			startDate: exp5.startDate,
+    			endDate: exp5.endDate,
+    			location: exp5.location,
+    			description: exp5.longDescription
+    		});
+    	};
+
+    	const modal6 = () => {
+    		open(ExperienceModal, {
+    			position: exp6.position,
+    			company: exp6.company,
+    			companyLink: exp6.companyLink,
+    			startDate: exp6.startDate,
+    			endDate: exp6.endDate,
+    			location: exp6.location,
+    			description: exp6.longDescription
+    		});
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Experience> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Experience", $$slots, []);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		ExperienceModal,
+    		exp1,
+    		exp2,
+    		exp3,
+    		exp4,
+    		exp5,
+    		exp6,
+    		open,
+    		modal1,
+    		modal2,
+    		modal3,
+    		modal4,
+    		modal5,
+    		modal6
+    	});
+
+    	return [
+    		exp1,
+    		exp2,
+    		exp3,
+    		exp4,
+    		exp5,
+    		exp6,
+    		modal1,
+    		modal2,
+    		modal3,
+    		modal4,
+    		modal5,
+    		modal6
+    	];
+    }
+
+    class Experience extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$3, create_fragment$3, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Experience",
+    			options,
+    			id: create_fragment$3.name
+    		});
+    	}
+    }
+
+    /* src/components/Skills.svelte generated by Svelte v3.21.0 */
+
+    const file$4 = "src/components/Skills.svelte";
+
+    function create_fragment$4(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Skills";
+    			t1 = space();
+    			div = element("div");
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "skills");
+    			add_location(h1, file$4, 3, 0, 20);
+    			attr_dev(div, "class", "skills-subsection");
+    			add_location(div, file$4, 4, 0, 70);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$4.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$4($$self, $$props) {
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Skills> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Skills", $$slots, []);
+    	return [];
+    }
+
+    class Skills extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$4, create_fragment$4, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Skills",
+    			options,
+    			id: create_fragment$4.name
+    		});
+    	}
+    }
+
+    /* src/components/ProjectModal.svelte generated by Svelte v3.21.0 */
+
+    const file$5 = "src/components/ProjectModal.svelte";
+
+    function create_fragment$5(ctx) {
+    	let div;
+    	let h1;
+    	let a0;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let t4;
+    	let h3;
+    	let t5;
+    	let b;
+    	let t6;
+    	let t7;
+    	let p;
+    	let t8;
+    	let img;
+    	let img_src_value;
+    	let img_alt_value;
+    	let t9;
+    	let a1;
+    	let h2;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h1 = element("h1");
+    			a0 = element("a");
+    			t0 = text(/*name*/ ctx[0]);
+    			t1 = text(" (");
+    			t2 = text(/*year*/ ctx[2]);
+    			t3 = text(")");
+    			t4 = space();
+    			h3 = element("h3");
+    			t5 = text("Technologies: ");
+    			b = element("b");
+    			t6 = text(/*technologies*/ ctx[1]);
+    			t7 = space();
+    			p = element("p");
+    			t8 = space();
+    			img = element("img");
+    			t9 = space();
+    			a1 = element("a");
+    			h2 = element("h2");
+    			h2.textContent = "View Code";
+    			attr_dev(a0, "href", /*projectLink*/ ctx[5]);
+    			attr_dev(a0, "target", "_blank");
+    			add_location(a0, file$5, 11, 27, 256);
+    			attr_dev(h1, "class", "modal-name svelte-16gw8ar");
+    			add_location(h1, file$5, 11, 4, 233);
+    			attr_dev(b, "class", "technologies svelte-16gw8ar");
+    			add_location(b, file$5, 12, 75, 394);
+    			attr_dev(h3, "class", "modal-description svelte-16gw8ar");
+    			set_style(h3, "text-align", "center");
+    			add_location(h3, file$5, 12, 4, 323);
+    			attr_dev(p, "class", "modal-description svelte-16gw8ar");
+    			add_location(p, file$5, 13, 4, 446);
+    			attr_dev(img, "class", "screenshot svelte-16gw8ar");
+    			if (img.src !== (img_src_value = /*screenshot*/ ctx[6])) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", img_alt_value = "" + (/*name*/ ctx[0] + " screenshot 1"));
+    			add_location(img, file$5, 14, 4, 503);
+    			attr_dev(h2, "class", "github-link svelte-16gw8ar");
+    			add_location(h2, file$5, 15, 41, 612);
+    			attr_dev(a1, "href", /*githubLink*/ ctx[4]);
+    			attr_dev(a1, "target", "_blank");
+    			add_location(a1, file$5, 15, 4, 575);
+    			attr_dev(div, "class", "project-modal svelte-16gw8ar");
+    			add_location(div, file$5, 10, 0, 201);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h1);
+    			append_dev(h1, a0);
+    			append_dev(a0, t0);
+    			append_dev(h1, t1);
+    			append_dev(h1, t2);
+    			append_dev(h1, t3);
+    			append_dev(div, t4);
+    			append_dev(div, h3);
+    			append_dev(h3, t5);
+    			append_dev(h3, b);
+    			append_dev(b, t6);
+    			append_dev(div, t7);
+    			append_dev(div, p);
+    			p.innerHTML = /*description*/ ctx[3];
+    			append_dev(div, t8);
+    			append_dev(div, img);
+    			append_dev(div, t9);
+    			append_dev(div, a1);
+    			append_dev(a1, h2);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*name*/ 1) set_data_dev(t0, /*name*/ ctx[0]);
+
+    			if (dirty & /*projectLink*/ 32) {
+    				attr_dev(a0, "href", /*projectLink*/ ctx[5]);
+    			}
+
+    			if (dirty & /*year*/ 4) set_data_dev(t2, /*year*/ ctx[2]);
+    			if (dirty & /*technologies*/ 2) set_data_dev(t6, /*technologies*/ ctx[1]);
+    			if (dirty & /*description*/ 8) p.innerHTML = /*description*/ ctx[3];
+    			if (dirty & /*screenshot*/ 64 && img.src !== (img_src_value = /*screenshot*/ ctx[6])) {
+    				attr_dev(img, "src", img_src_value);
+    			}
+
+    			if (dirty & /*name*/ 1 && img_alt_value !== (img_alt_value = "" + (/*name*/ ctx[0] + " screenshot 1"))) {
+    				attr_dev(img, "alt", img_alt_value);
+    			}
+
+    			if (dirty & /*githubLink*/ 16) {
+    				attr_dev(a1, "href", /*githubLink*/ ctx[4]);
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$5.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$5($$self, $$props, $$invalidate) {
+    	let { name } = $$props;
+    	let { technologies } = $$props;
+    	let { year } = $$props;
+    	let { description } = $$props;
+    	let { githubLink } = $$props;
+    	let { projectLink } = $$props;
+    	let { screenshot } = $$props;
+
+    	const writable_props = [
+    		"name",
+    		"technologies",
+    		"year",
+    		"description",
+    		"githubLink",
+    		"projectLink",
+    		"screenshot"
+    	];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ProjectModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("ProjectModal", $$slots, []);
+
+    	$$self.$set = $$props => {
+    		if ("name" in $$props) $$invalidate(0, name = $$props.name);
+    		if ("technologies" in $$props) $$invalidate(1, technologies = $$props.technologies);
+    		if ("year" in $$props) $$invalidate(2, year = $$props.year);
+    		if ("description" in $$props) $$invalidate(3, description = $$props.description);
+    		if ("githubLink" in $$props) $$invalidate(4, githubLink = $$props.githubLink);
+    		if ("projectLink" in $$props) $$invalidate(5, projectLink = $$props.projectLink);
+    		if ("screenshot" in $$props) $$invalidate(6, screenshot = $$props.screenshot);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		name,
+    		technologies,
+    		year,
+    		description,
+    		githubLink,
+    		projectLink,
+    		screenshot
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("name" in $$props) $$invalidate(0, name = $$props.name);
+    		if ("technologies" in $$props) $$invalidate(1, technologies = $$props.technologies);
+    		if ("year" in $$props) $$invalidate(2, year = $$props.year);
+    		if ("description" in $$props) $$invalidate(3, description = $$props.description);
+    		if ("githubLink" in $$props) $$invalidate(4, githubLink = $$props.githubLink);
+    		if ("projectLink" in $$props) $$invalidate(5, projectLink = $$props.projectLink);
+    		if ("screenshot" in $$props) $$invalidate(6, screenshot = $$props.screenshot);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [name, technologies, year, description, githubLink, projectLink, screenshot];
+    }
+
+    class ProjectModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$5, create_fragment$5, safe_not_equal, {
+    			name: 0,
+    			technologies: 1,
+    			year: 2,
+    			description: 3,
+    			githubLink: 4,
+    			projectLink: 5,
+    			screenshot: 6
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ProjectModal",
+    			options,
+    			id: create_fragment$5.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*name*/ ctx[0] === undefined && !("name" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'name'");
+    		}
+
+    		if (/*technologies*/ ctx[1] === undefined && !("technologies" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'technologies'");
+    		}
+
+    		if (/*year*/ ctx[2] === undefined && !("year" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'year'");
+    		}
+
+    		if (/*description*/ ctx[3] === undefined && !("description" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'description'");
+    		}
+
+    		if (/*githubLink*/ ctx[4] === undefined && !("githubLink" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'githubLink'");
+    		}
+
+    		if (/*projectLink*/ ctx[5] === undefined && !("projectLink" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'projectLink'");
+    		}
+
+    		if (/*screenshot*/ ctx[6] === undefined && !("screenshot" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'screenshot'");
+    		}
+    	}
+
+    	get name() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set name(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get technologies() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set technologies(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get year() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set year(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get description() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set description(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get githubLink() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set githubLink(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get projectLink() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set projectLink(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get screenshot() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set screenshot(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/Projects.svelte generated by Svelte v3.21.0 */
+    const file$6 = "src/components/Projects.svelte";
+
+    function create_fragment$6(ctx) {
+    	let h1;
+    	let t1;
+    	let div4;
+    	let div0;
+    	let h20;
+    	let t2_value = /*proj1*/ ctx[0].name + "";
+    	let t2;
+    	let t3;
+    	let html_tag;
+    	let raw0_value = /*proj1*/ ctx[0].emoji + "";
+    	let t4;
+    	let h21;
+    	let t6;
+    	let h22;
+    	let t8;
+    	let p0;
+    	let t10;
+    	let div1;
+    	let h23;
+    	let t11_value = /*proj2*/ ctx[1].name + "";
+    	let t11;
+    	let t12;
+    	let html_tag_1;
+    	let raw1_value = /*proj2*/ ctx[1].emoji + "";
+    	let t13;
+    	let h24;
+    	let t15;
+    	let h25;
+    	let t17;
+    	let p1;
+    	let t19;
+    	let div2;
+    	let h26;
+    	let t20_value = /*proj3*/ ctx[2].name + "";
+    	let t20;
+    	let t21;
+    	let html_tag_2;
+    	let raw2_value = /*proj3*/ ctx[2].emoji + "";
+    	let t22;
+    	let h27;
+    	let t24;
+    	let h28;
+    	let t26;
+    	let p2;
+    	let t28;
+    	let div3;
+    	let h29;
+    	let t29_value = /*proj4*/ ctx[3].name + "";
+    	let t29;
+    	let t30;
+    	let html_tag_3;
+    	let raw3_value = /*proj4*/ ctx[3].emoji + "";
+    	let t31;
+    	let h210;
+    	let t33;
+    	let h211;
+    	let t35;
+    	let p3;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Projects";
+    			t1 = space();
+    			div4 = element("div");
+    			div0 = element("div");
+    			h20 = element("h2");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			t4 = space();
+    			h21 = element("h2");
+    			h21.textContent = `${/*proj1*/ ctx[0].year}`;
+    			t6 = space();
+    			h22 = element("h2");
+    			h22.textContent = `${/*proj1*/ ctx[0].technologies}`;
+    			t8 = space();
+    			p0 = element("p");
+    			p0.textContent = `${/*proj1*/ ctx[0].shortDescription}`;
+    			t10 = space();
+    			div1 = element("div");
+    			h23 = element("h2");
+    			t11 = text(t11_value);
+    			t12 = space();
+    			t13 = space();
+    			h24 = element("h2");
+    			h24.textContent = `${/*proj2*/ ctx[1].year}`;
+    			t15 = space();
+    			h25 = element("h2");
+    			h25.textContent = `${/*proj2*/ ctx[1].technologies}`;
+    			t17 = space();
+    			p1 = element("p");
+    			p1.textContent = `${/*proj2*/ ctx[1].shortDescription}`;
+    			t19 = space();
+    			div2 = element("div");
+    			h26 = element("h2");
+    			t20 = text(t20_value);
+    			t21 = space();
+    			t22 = space();
+    			h27 = element("h2");
+    			h27.textContent = `${/*proj3*/ ctx[2].year}`;
+    			t24 = space();
+    			h28 = element("h2");
+    			h28.textContent = `${/*proj3*/ ctx[2].technologies}`;
+    			t26 = space();
+    			p2 = element("p");
+    			p2.textContent = `${/*proj3*/ ctx[2].shortDescription}`;
+    			t28 = space();
+    			div3 = element("div");
+    			h29 = element("h2");
+    			t29 = text(t29_value);
+    			t30 = space();
+    			t31 = space();
+    			h210 = element("h2");
+    			h210.textContent = `${/*proj4*/ ctx[3].year}`;
+    			t33 = space();
+    			h211 = element("h2");
+    			h211.textContent = `${/*proj4*/ ctx[3].technologies}`;
+    			t35 = space();
+    			p3 = element("p");
+    			p3.textContent = `${/*proj4*/ ctx[3].shortDescription}`;
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "projects");
+    			add_location(h1, file$6, 73, 0, 4586);
+    			html_tag = new HtmlTag(raw0_value, null);
+    			attr_dev(h20, "class", "project-name svelte-1b316dq");
+    			add_location(h20, file$6, 76, 8, 4730);
+    			attr_dev(h21, "class", "project-year svelte-1b316dq");
+    			add_location(h21, file$6, 77, 8, 4801);
+    			attr_dev(h22, "class", "project-tech svelte-1b316dq");
+    			add_location(h22, file$6, 78, 8, 4852);
+    			add_location(p0, file$6, 79, 8, 4911);
+    			attr_dev(div0, "class", "project-item");
+    			add_location(div0, file$6, 75, 4, 4677);
+    			html_tag_1 = new HtmlTag(raw1_value, null);
+    			attr_dev(h23, "class", "project-name svelte-1b316dq");
+    			add_location(h23, file$6, 82, 8, 5011);
+    			attr_dev(h24, "class", "project-year svelte-1b316dq");
+    			add_location(h24, file$6, 83, 8, 5082);
+    			attr_dev(h25, "class", "project-tech svelte-1b316dq");
+    			add_location(h25, file$6, 84, 8, 5133);
+    			add_location(p1, file$6, 85, 8, 5192);
+    			attr_dev(div1, "class", "project-item");
+    			add_location(div1, file$6, 81, 4, 4958);
+    			html_tag_2 = new HtmlTag(raw2_value, null);
+    			attr_dev(h26, "class", "project-name svelte-1b316dq");
+    			add_location(h26, file$6, 88, 8, 5292);
+    			attr_dev(h27, "class", "project-year svelte-1b316dq");
+    			add_location(h27, file$6, 89, 8, 5363);
+    			attr_dev(h28, "class", "project-tech svelte-1b316dq");
+    			add_location(h28, file$6, 90, 8, 5414);
+    			add_location(p2, file$6, 91, 8, 5473);
+    			attr_dev(div2, "class", "project-item");
+    			add_location(div2, file$6, 87, 4, 5239);
+    			html_tag_3 = new HtmlTag(raw3_value, null);
+    			attr_dev(h29, "class", "project-name svelte-1b316dq");
+    			add_location(h29, file$6, 94, 8, 5573);
+    			attr_dev(h210, "class", "project-year svelte-1b316dq");
+    			add_location(h210, file$6, 95, 8, 5644);
+    			attr_dev(h211, "class", "project-tech svelte-1b316dq");
+    			add_location(h211, file$6, 96, 8, 5695);
+    			add_location(p3, file$6, 97, 8, 5754);
+    			attr_dev(div3, "class", "project-item");
+    			add_location(div3, file$6, 93, 4, 5520);
+    			attr_dev(div4, "class", "project-subsection");
+    			add_location(div4, file$6, 74, 0, 4640);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor, remount) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div4, anchor);
+    			append_dev(div4, div0);
+    			append_dev(div0, h20);
+    			append_dev(h20, t2);
+    			append_dev(h20, t3);
+    			html_tag.m(h20);
+    			append_dev(div0, t4);
+    			append_dev(div0, h21);
+    			append_dev(div0, t6);
+    			append_dev(div0, h22);
+    			append_dev(div0, t8);
+    			append_dev(div0, p0);
+    			append_dev(div4, t10);
+    			append_dev(div4, div1);
+    			append_dev(div1, h23);
+    			append_dev(h23, t11);
+    			append_dev(h23, t12);
+    			html_tag_1.m(h23);
+    			append_dev(div1, t13);
+    			append_dev(div1, h24);
+    			append_dev(div1, t15);
+    			append_dev(div1, h25);
+    			append_dev(div1, t17);
+    			append_dev(div1, p1);
+    			append_dev(div4, t19);
+    			append_dev(div4, div2);
+    			append_dev(div2, h26);
+    			append_dev(h26, t20);
+    			append_dev(h26, t21);
+    			html_tag_2.m(h26);
+    			append_dev(div2, t22);
+    			append_dev(div2, h27);
+    			append_dev(div2, t24);
+    			append_dev(div2, h28);
+    			append_dev(div2, t26);
+    			append_dev(div2, p2);
+    			append_dev(div4, t28);
+    			append_dev(div4, div3);
+    			append_dev(div3, h29);
+    			append_dev(h29, t29);
+    			append_dev(h29, t30);
+    			html_tag_3.m(h29);
+    			append_dev(div3, t31);
+    			append_dev(div3, h210);
+    			append_dev(div3, t33);
+    			append_dev(div3, h211);
+    			append_dev(div3, t35);
+    			append_dev(div3, p3);
+    			if (remount) run_all(dispose);
+
+    			dispose = [
+    				listen_dev(div0, "click", /*modal1*/ ctx[4], false, false, false),
+    				listen_dev(div1, "click", /*modal2*/ ctx[5], false, false, false),
+    				listen_dev(div2, "click", /*modal3*/ ctx[6], false, false, false),
+    				listen_dev(div3, "click", /*modal4*/ ctx[7], false, false, false)
+    			];
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div4);
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$6.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$6($$self, $$props, $$invalidate) {
+    	const proj1 = {
+    		name: "Studii",
+    		emoji: "&#128218;",
+    		technologies: "React, Django, MongoDB",
+    		year: "2019/2020",
+    		shortDescription: "A collaborative study space for students, by students",
+    		longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by myself and my 7 other QTMA team members</li></ul>",
+    		githubLink: "https://github.com/maxeisen/studii_public",
+    		projectLink: "https://github.com/maxeisen/studii_public",
+    		screenshot: "./img/screenshots/studii.png"
+    	};
+
+    	const proj2 = {
+    		name: "QHacks Website",
+    		emoji: "&#128187;",
+    		technologies: "React, Gatsby, MongoDB",
+    		year: "2019/2020",
+    		shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
+    		longDescription: "<ul><li>The static website for the 2020 hackathon, developed with React and generated using Gatsby, as well as the dashboard with a MongoDB backend</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
+    		githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
+    		projectLink: "https://qhacks.io",
+    		screenshot: "./img/screenshots/qhacks.png"
+    	};
+
+    	const proj3 = {
+    		name: "Spotilizer",
+    		emoji: "&#127925;",
+    		technologies: "Python, Tkinter, Spotify Web API",
+    		year: "2019",
+    		shortDescription: "A customizable, data-centric Spotify visualizer built in Python",
+    		longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
+    		githubLink: "https://github.com/maxeisen/spotilizer",
+    		projectLink: "https://github.com/maxeisen/spotilizer",
+    		screenshot: "./img/screenshots/spotilizer.png"
+    	};
+
+    	const proj4 = {
+    		name: "Glitch",
+    		emoji: "&#127918;",
+    		technologies: "Unity Game Engine, C#",
+    		year: "2018/2019",
+    		shortDescription: "A unique, monochromatic platformer game for observant minimalists",
+    		longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>The player will have to use this mechanic in order to complete the game's levels, allowing them to switch between the level’s two states and see certain elements that were not previously visible</li><li>Developed as a group project for CISC 226 - Game Design at Queen's University</li></ul>",
+    		githubLink: "https://github.com/maxeisen/Glitch",
+    		projectLink: "https://tamirarnesty.github.io/glitchGame/",
+    		screenshot: "./img/screenshots/glitch.png"
+    	};
+
+    	const { open } = getContext("simple-modal");
+
+    	const modal1 = () => {
+    		open(ProjectModal, {
+    			name: proj1.name,
+    			technologies: proj1.technologies,
+    			year: proj1.year,
+    			description: proj1.longDescription,
+    			githubLink: proj1.githubLink,
+    			projectLink: proj1.projectLink,
+    			screenshot: proj1.screenshot
+    		});
+    	};
+
+    	const modal2 = () => {
+    		open(ProjectModal, {
+    			name: proj2.name,
+    			technologies: proj2.technologies,
+    			year: proj2.year,
+    			description: proj2.longDescription,
+    			githubLink: proj2.githubLink,
+    			projectLink: proj2.projectLink,
+    			screenshot: proj2.screenshot
+    		});
+    	};
+
+    	const modal3 = () => {
+    		open(ProjectModal, {
+    			name: proj3.name,
+    			technologies: proj3.technologies,
+    			year: proj3.year,
+    			description: proj3.longDescription,
+    			githubLink: proj3.githubLink,
+    			projectLink: proj3.projectLink,
+    			screenshot: proj3.screenshot
+    		});
+    	};
+
+    	const modal4 = () => {
+    		open(ProjectModal, {
+    			name: proj4.name,
+    			technologies: proj4.technologies,
+    			year: proj4.year,
+    			description: proj4.longDescription,
+    			githubLink: proj4.githubLink,
+    			projectLink: proj4.projectLink,
+    			screenshot: proj4.screenshot
+    		});
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Projects> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Projects", $$slots, []);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		ProjectModal,
+    		proj1,
+    		proj2,
+    		proj3,
+    		proj4,
+    		open,
+    		modal1,
+    		modal2,
+    		modal3,
+    		modal4
+    	});
+
+    	return [proj1, proj2, proj3, proj4, modal1, modal2, modal3, modal4];
+    }
+
+    class Projects extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$6, create_fragment$6, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Projects",
+    			options,
+    			id: create_fragment$6.name
+    		});
+    	}
+    }
+
+    function fade(node, { delay = 0, duration = 400, easing = identity }) {
+        const o = +getComputedStyle(node).opacity;
+        return {
+            delay,
+            duration,
+            easing,
+            css: t => `opacity: ${t * o}`
+        };
+    }
+
+    /* node_modules/svelte-simple-modal/src/Modal.svelte generated by Svelte v3.21.0 */
+
+    const { Object: Object_1 } = globals;
+    const file$7 = "node_modules/svelte-simple-modal/src/Modal.svelte";
+
+    // (214:2) {#if Component}
+    function create_if_block(ctx) {
+    	let div3;
+    	let div2;
+    	let div1;
+    	let t;
+    	let div0;
+    	let div1_transition;
+    	let div3_transition;
+    	let current;
+    	let dispose;
+    	let if_block = /*state*/ ctx[0].closeButton && create_if_block_1(ctx);
+    	const switch_instance_spread_levels = [/*props*/ ctx[2]];
+    	var switch_value = /*Component*/ ctx[1];
+
+    	function switch_props(ctx) {
+    		let switch_instance_props = {};
+
+    		for (let i = 0; i < switch_instance_spread_levels.length; i += 1) {
+    			switch_instance_props = assign(switch_instance_props, switch_instance_spread_levels[i]);
+    		}
+
+    		return {
+    			props: switch_instance_props,
+    			$$inline: true
+    		};
+    	}
+
+    	if (switch_value) {
+    		var switch_instance = new switch_value(switch_props());
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div3 = element("div");
+    			div2 = element("div");
+    			div1 = element("div");
+    			if (if_block) if_block.c();
+    			t = space();
+    			div0 = element("div");
+    			if (switch_instance) create_component(switch_instance.$$.fragment);
+    			attr_dev(div0, "class", "content svelte-fnsfcv");
+    			attr_dev(div0, "style", /*cssContent*/ ctx[11]);
+    			add_location(div0, file$7, 234, 10, 5425);
+    			attr_dev(div1, "class", "window svelte-fnsfcv");
+    			attr_dev(div1, "style", /*cssWindow*/ ctx[10]);
+    			add_location(div1, file$7, 222, 8, 5028);
+    			attr_dev(div2, "class", "window-wrap svelte-fnsfcv");
+    			add_location(div2, file$7, 221, 6, 4977);
+    			attr_dev(div3, "class", "bg svelte-fnsfcv");
+    			attr_dev(div3, "style", /*cssBg*/ ctx[9]);
+    			add_location(div3, file$7, 214, 4, 4797);
+    		},
+    		m: function mount(target, anchor, remount) {
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, div2);
+    			append_dev(div2, div1);
+    			if (if_block) if_block.m(div1, null);
+    			append_dev(div1, t);
+    			append_dev(div1, div0);
+
+    			if (switch_instance) {
+    				mount_component(switch_instance, div0, null);
+    			}
+
+    			/*div2_binding*/ ctx[36](div2);
+    			/*div3_binding*/ ctx[37](div3);
+    			current = true;
+    			if (remount) run_all(dispose);
+
+    			dispose = [
+    				listen_dev(
+    					div1,
+    					"introstart",
+    					function () {
+    						if (is_function(/*onOpen*/ ctx[5])) /*onOpen*/ ctx[5].apply(this, arguments);
+    					},
+    					false,
+    					false,
+    					false
+    				),
+    				listen_dev(
+    					div1,
+    					"outrostart",
+    					function () {
+    						if (is_function(/*onClose*/ ctx[6])) /*onClose*/ ctx[6].apply(this, arguments);
+    					},
+    					false,
+    					false,
+    					false
+    				),
+    				listen_dev(
+    					div1,
+    					"introend",
+    					function () {
+    						if (is_function(/*onOpened*/ ctx[7])) /*onOpened*/ ctx[7].apply(this, arguments);
+    					},
+    					false,
+    					false,
+    					false
+    				),
+    				listen_dev(
+    					div1,
+    					"outroend",
+    					function () {
+    						if (is_function(/*onClosed*/ ctx[8])) /*onClosed*/ ctx[8].apply(this, arguments);
+    					},
+    					false,
+    					false,
+    					false
+    				),
+    				listen_dev(div3, "click", /*handleOuterClick*/ ctx[16], false, false, false)
+    			];
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+
+    			if (/*state*/ ctx[0].closeButton) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_1(ctx);
+    					if_block.c();
+    					if_block.m(div1, t);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			const switch_instance_changes = (dirty[0] & /*props*/ 4)
+    			? get_spread_update(switch_instance_spread_levels, [get_spread_object(/*props*/ ctx[2])])
+    			: {};
+
+    			if (switch_value !== (switch_value = /*Component*/ ctx[1])) {
+    				if (switch_instance) {
+    					group_outros();
+    					const old_component = switch_instance;
+
+    					transition_out(old_component.$$.fragment, 1, 0, () => {
+    						destroy_component(old_component, 1);
+    					});
+
+    					check_outros();
+    				}
+
+    				if (switch_value) {
+    					switch_instance = new switch_value(switch_props());
+    					create_component(switch_instance.$$.fragment);
+    					transition_in(switch_instance.$$.fragment, 1);
+    					mount_component(switch_instance, div0, null);
+    				} else {
+    					switch_instance = null;
+    				}
+    			} else if (switch_value) {
+    				switch_instance.$set(switch_instance_changes);
+    			}
+
+    			if (!current || dirty[0] & /*cssContent*/ 2048) {
+    				attr_dev(div0, "style", /*cssContent*/ ctx[11]);
+    			}
+
+    			if (!current || dirty[0] & /*cssWindow*/ 1024) {
+    				attr_dev(div1, "style", /*cssWindow*/ ctx[10]);
+    			}
+
+    			if (!current || dirty[0] & /*cssBg*/ 512) {
+    				attr_dev(div3, "style", /*cssBg*/ ctx[9]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			if (switch_instance) transition_in(switch_instance.$$.fragment, local);
+
+    			add_render_callback(() => {
+    				if (!div1_transition) div1_transition = create_bidirectional_transition(div1, /*currentTransitionWindow*/ ctx[13], /*state*/ ctx[0].transitionWindowProps, true);
+    				div1_transition.run(1);
+    			});
+
+    			add_render_callback(() => {
+    				if (!div3_transition) div3_transition = create_bidirectional_transition(div3, /*currentTransitionBg*/ ctx[12], /*state*/ ctx[0].transitionBgProps, true);
+    				div3_transition.run(1);
+    			});
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			if (switch_instance) transition_out(switch_instance.$$.fragment, local);
+    			if (!div1_transition) div1_transition = create_bidirectional_transition(div1, /*currentTransitionWindow*/ ctx[13], /*state*/ ctx[0].transitionWindowProps, false);
+    			div1_transition.run(0);
+    			if (!div3_transition) div3_transition = create_bidirectional_transition(div3, /*currentTransitionBg*/ ctx[12], /*state*/ ctx[0].transitionBgProps, false);
+    			div3_transition.run(0);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div3);
+    			if (if_block) if_block.d();
+    			if (switch_instance) destroy_component(switch_instance);
+    			if (detaching && div1_transition) div1_transition.end();
+    			/*div2_binding*/ ctx[36](null);
+    			/*div3_binding*/ ctx[37](null);
+    			if (detaching && div3_transition) div3_transition.end();
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block.name,
+    		type: "if",
+    		source: "(214:2) {#if Component}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (232:10) {#if state.closeButton}
+    function create_if_block_1(ctx) {
+    	let button;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			button = element("button");
+    			attr_dev(button, "class", "close svelte-fnsfcv");
+    			add_location(button, file$7, 232, 12, 5350);
+    		},
+    		m: function mount(target, anchor, remount) {
+    			insert_dev(target, button, anchor);
+    			if (remount) dispose();
+    			dispose = listen_dev(button, "click", /*close*/ ctx[14], false, false, false);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(button);
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(232:10) {#if state.closeButton}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$7(ctx) {
+    	let div;
+    	let t;
+    	let current;
+    	let dispose;
+    	let if_block = /*Component*/ ctx[1] && create_if_block(ctx);
+    	const default_slot_template = /*$$slots*/ ctx[35].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[34], null);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			if (if_block) if_block.c();
+    			t = space();
+    			if (default_slot) default_slot.c();
+    			attr_dev(div, "class", "svelte-fnsfcv");
+    			add_location(div, file$7, 212, 0, 4769);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor, remount) {
+    			insert_dev(target, div, anchor);
+    			if (if_block) if_block.m(div, null);
+    			append_dev(div, t);
+
+    			if (default_slot) {
+    				default_slot.m(div, null);
+    			}
+
+    			current = true;
+    			if (remount) dispose();
+    			dispose = listen_dev(window, "keyup", /*handleKeyup*/ ctx[15], false, false, false);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*Component*/ ctx[1]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+
+    					if (dirty[0] & /*Component*/ 2) {
+    						transition_in(if_block, 1);
+    					}
+    				} else {
+    					if_block = create_if_block(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(div, t);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			if (default_slot) {
+    				if (default_slot.p && dirty[1] & /*$$scope*/ 8) {
+    					default_slot.p(get_slot_context(default_slot_template, ctx, /*$$scope*/ ctx[34], null), get_slot_changes(default_slot_template, /*$$scope*/ ctx[34], dirty, null));
+    				}
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			transition_in(default_slot, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			transition_out(default_slot, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			if (if_block) if_block.d();
+    			if (default_slot) default_slot.d(detaching);
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$7.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$7($$self, $$props, $$invalidate) {
+    	let { key = "simple-modal" } = $$props;
+    	let { closeButton = true } = $$props;
+    	let { closeOnEsc = true } = $$props;
+    	let { closeOnOuterClick = true } = $$props;
+    	let { styleBg = { top: 0, left: 0 } } = $$props;
+    	let { styleWindow = {} } = $$props;
+    	let { styleContent = {} } = $$props;
+    	let { setContext: setContext$1 = setContext } = $$props;
+    	let { transitionBg = fade } = $$props;
+    	let { transitionBgProps = { duration: 250 } } = $$props;
+    	let { transitionWindow = transitionBg } = $$props;
+    	let { transitionWindowProps = transitionBgProps } = $$props;
+
+    	const defaultState = {
+    		closeButton,
+    		closeOnEsc,
+    		closeOnOuterClick,
+    		styleBg,
+    		styleWindow,
+    		styleContent,
+    		transitionBg,
+    		transitionBgProps,
+    		transitionWindow,
+    		transitionWindowProps
+    	};
+
+    	let state = { ...defaultState };
+    	let Component = null;
+    	let props = null;
+    	let background;
+    	let wrap;
+    	const camelCaseToDash = str => str.replace(/([a-zA-Z])(?=[A-Z])/g, "$1-").toLowerCase();
+    	const toCssString = props => Object.keys(props).reduce((str, key) => `${str}; ${camelCaseToDash(key)}: ${props[key]}`, "");
+
+    	const toVoid = () => {
+    		
+    	};
+
+    	let onOpen = toVoid;
+    	let onClose = toVoid;
+    	let onOpened = toVoid;
+    	let onClosed = toVoid;
+
+    	const open = (NewComponent, newProps = {}, options = {}, callback = {}) => {
+    		$$invalidate(1, Component = NewComponent);
+    		$$invalidate(2, props = newProps);
+    		$$invalidate(0, state = { ...defaultState, ...options });
+    		$$invalidate(5, onOpen = callback.onOpen || toVoid);
+    		$$invalidate(6, onClose = callback.onClose || toVoid);
+    		$$invalidate(7, onOpened = callback.onOpened || toVoid);
+    		$$invalidate(8, onClosed = callback.onClosed || toVoid);
+    	};
+
+    	const close = (callback = {}) => {
+    		$$invalidate(6, onClose = callback.onClose || onClose);
+    		$$invalidate(8, onClosed = callback.onClosed || onClosed);
+    		$$invalidate(1, Component = null);
+    		$$invalidate(2, props = null);
+    	};
+
+    	const handleKeyup = ({ key }) => {
+    		if (state.closeOnEsc && Component && key === "Escape") {
+    			event.preventDefault();
+    			close();
+    		}
+    	};
+
+    	const handleOuterClick = event => {
+    		if (state.closeOnOuterClick && (event.target === background || event.target === wrap)) {
+    			event.preventDefault();
+    			close();
+    		}
+    	};
+
+    	setContext$1(key, { open, close });
+
+    	const writable_props = [
+    		"key",
+    		"closeButton",
+    		"closeOnEsc",
+    		"closeOnOuterClick",
+    		"styleBg",
+    		"styleWindow",
+    		"styleContent",
+    		"setContext",
+    		"transitionBg",
+    		"transitionBgProps",
+    		"transitionWindow",
+    		"transitionWindowProps"
+    	];
+
+    	Object_1.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Modal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Modal", $$slots, ['default']);
+
+    	function div2_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			$$invalidate(4, wrap = $$value);
+    		});
+    	}
+
+    	function div3_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			$$invalidate(3, background = $$value);
+    		});
+    	}
+
+    	$$self.$set = $$props => {
+    		if ("key" in $$props) $$invalidate(17, key = $$props.key);
+    		if ("closeButton" in $$props) $$invalidate(18, closeButton = $$props.closeButton);
+    		if ("closeOnEsc" in $$props) $$invalidate(19, closeOnEsc = $$props.closeOnEsc);
+    		if ("closeOnOuterClick" in $$props) $$invalidate(20, closeOnOuterClick = $$props.closeOnOuterClick);
+    		if ("styleBg" in $$props) $$invalidate(21, styleBg = $$props.styleBg);
+    		if ("styleWindow" in $$props) $$invalidate(22, styleWindow = $$props.styleWindow);
+    		if ("styleContent" in $$props) $$invalidate(23, styleContent = $$props.styleContent);
+    		if ("setContext" in $$props) $$invalidate(24, setContext$1 = $$props.setContext);
+    		if ("transitionBg" in $$props) $$invalidate(25, transitionBg = $$props.transitionBg);
+    		if ("transitionBgProps" in $$props) $$invalidate(26, transitionBgProps = $$props.transitionBgProps);
+    		if ("transitionWindow" in $$props) $$invalidate(27, transitionWindow = $$props.transitionWindow);
+    		if ("transitionWindowProps" in $$props) $$invalidate(28, transitionWindowProps = $$props.transitionWindowProps);
+    		if ("$$scope" in $$props) $$invalidate(34, $$scope = $$props.$$scope);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		baseSetContext: setContext,
+    		fade,
+    		key,
+    		closeButton,
+    		closeOnEsc,
+    		closeOnOuterClick,
+    		styleBg,
+    		styleWindow,
+    		styleContent,
+    		setContext: setContext$1,
+    		transitionBg,
+    		transitionBgProps,
+    		transitionWindow,
+    		transitionWindowProps,
+    		defaultState,
+    		state,
+    		Component,
+    		props,
+    		background,
+    		wrap,
+    		camelCaseToDash,
+    		toCssString,
+    		toVoid,
+    		onOpen,
+    		onClose,
+    		onOpened,
+    		onClosed,
+    		open,
+    		close,
+    		handleKeyup,
+    		handleOuterClick,
+    		cssBg,
+    		cssWindow,
+    		cssContent,
+    		currentTransitionBg,
+    		currentTransitionWindow
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(17, key = $$props.key);
+    		if ("closeButton" in $$props) $$invalidate(18, closeButton = $$props.closeButton);
+    		if ("closeOnEsc" in $$props) $$invalidate(19, closeOnEsc = $$props.closeOnEsc);
+    		if ("closeOnOuterClick" in $$props) $$invalidate(20, closeOnOuterClick = $$props.closeOnOuterClick);
+    		if ("styleBg" in $$props) $$invalidate(21, styleBg = $$props.styleBg);
+    		if ("styleWindow" in $$props) $$invalidate(22, styleWindow = $$props.styleWindow);
+    		if ("styleContent" in $$props) $$invalidate(23, styleContent = $$props.styleContent);
+    		if ("setContext" in $$props) $$invalidate(24, setContext$1 = $$props.setContext);
+    		if ("transitionBg" in $$props) $$invalidate(25, transitionBg = $$props.transitionBg);
+    		if ("transitionBgProps" in $$props) $$invalidate(26, transitionBgProps = $$props.transitionBgProps);
+    		if ("transitionWindow" in $$props) $$invalidate(27, transitionWindow = $$props.transitionWindow);
+    		if ("transitionWindowProps" in $$props) $$invalidate(28, transitionWindowProps = $$props.transitionWindowProps);
+    		if ("state" in $$props) $$invalidate(0, state = $$props.state);
+    		if ("Component" in $$props) $$invalidate(1, Component = $$props.Component);
+    		if ("props" in $$props) $$invalidate(2, props = $$props.props);
+    		if ("background" in $$props) $$invalidate(3, background = $$props.background);
+    		if ("wrap" in $$props) $$invalidate(4, wrap = $$props.wrap);
+    		if ("onOpen" in $$props) $$invalidate(5, onOpen = $$props.onOpen);
+    		if ("onClose" in $$props) $$invalidate(6, onClose = $$props.onClose);
+    		if ("onOpened" in $$props) $$invalidate(7, onOpened = $$props.onOpened);
+    		if ("onClosed" in $$props) $$invalidate(8, onClosed = $$props.onClosed);
+    		if ("cssBg" in $$props) $$invalidate(9, cssBg = $$props.cssBg);
+    		if ("cssWindow" in $$props) $$invalidate(10, cssWindow = $$props.cssWindow);
+    		if ("cssContent" in $$props) $$invalidate(11, cssContent = $$props.cssContent);
+    		if ("currentTransitionBg" in $$props) $$invalidate(12, currentTransitionBg = $$props.currentTransitionBg);
+    		if ("currentTransitionWindow" in $$props) $$invalidate(13, currentTransitionWindow = $$props.currentTransitionWindow);
+    	};
+
+    	let cssBg;
+    	let cssWindow;
+    	let cssContent;
+    	let currentTransitionBg;
+    	let currentTransitionWindow;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(9, cssBg = toCssString(state.styleBg));
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(10, cssWindow = toCssString(state.styleWindow));
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(11, cssContent = toCssString(state.styleContent));
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(12, currentTransitionBg = state.transitionBg);
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(13, currentTransitionWindow = state.transitionWindow);
+    		}
+    	};
+
+    	return [
+    		state,
+    		Component,
+    		props,
+    		background,
+    		wrap,
+    		onOpen,
+    		onClose,
+    		onOpened,
+    		onClosed,
+    		cssBg,
+    		cssWindow,
+    		cssContent,
+    		currentTransitionBg,
+    		currentTransitionWindow,
+    		close,
+    		handleKeyup,
+    		handleOuterClick,
+    		key,
+    		closeButton,
+    		closeOnEsc,
+    		closeOnOuterClick,
+    		styleBg,
+    		styleWindow,
+    		styleContent,
+    		setContext$1,
+    		transitionBg,
+    		transitionBgProps,
+    		transitionWindow,
+    		transitionWindowProps,
+    		defaultState,
+    		camelCaseToDash,
+    		toCssString,
+    		toVoid,
+    		open,
+    		$$scope,
+    		$$slots,
+    		div2_binding,
+    		div3_binding
+    	];
+    }
+
+    class Modal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(
+    			this,
+    			options,
+    			instance$7,
+    			create_fragment$7,
+    			safe_not_equal,
+    			{
+    				key: 17,
+    				closeButton: 18,
+    				closeOnEsc: 19,
+    				closeOnOuterClick: 20,
+    				styleBg: 21,
+    				styleWindow: 22,
+    				styleContent: 23,
+    				setContext: 24,
+    				transitionBg: 25,
+    				transitionBgProps: 26,
+    				transitionWindow: 27,
+    				transitionWindowProps: 28
+    			},
+    			[-1, -1]
+    		);
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Modal",
+    			options,
+    			id: create_fragment$7.name
+    		});
+    	}
+
+    	get key() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get closeButton() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set closeButton(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get closeOnEsc() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set closeOnEsc(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get closeOnOuterClick() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set closeOnOuterClick(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get styleBg() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set styleBg(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get styleWindow() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set styleWindow(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get styleContent() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set styleContent(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get setContext() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set setContext(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionBg() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionBg(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionBgProps() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionBgProps(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionWindow() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionWindow(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionWindowProps() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionWindowProps(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/App.svelte generated by Svelte v3.21.0 */
+    const file$8 = "src/App.svelte";
+
+    // (12:0) <Modal>
+    function create_default_slot(ctx) {
+    	let html;
+    	let body;
+    	let header;
+    	let div0;
+    	let a0;
+    	let img;
+    	let img_src_value;
+    	let t0;
+    	let div1;
+    	let nav;
+    	let ul;
+    	let li0;
+    	let a1;
+    	let t2;
+    	let li1;
+    	let a2;
+    	let t4;
+    	let li2;
+    	let a3;
+    	let t6;
+    	let li3;
+    	let a4;
+    	let t8;
+    	let li4;
+    	let a5;
+    	let t10;
+    	let div5;
+    	let div2;
+    	let t11;
+    	let div4;
+    	let t12;
+    	let t13;
+    	let t14;
+    	let t15;
+    	let div3;
+    	let h1;
+    	let t17;
+    	let a6;
+    	let h2;
+    	let t18;
+    	let b;
+    	let current;
+    	const sidebar = new Sidebar({ $$inline: true });
+    	const intro = new Intro({ $$inline: true });
+    	const experience = new Experience({ $$inline: true });
+    	const projects = new Projects({ $$inline: true });
+    	const skills = new Skills({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			html = element("html");
+    			body = element("body");
+    			header = element("header");
+    			div0 = element("div");
+    			a0 = element("a");
+    			img = element("img");
+    			t0 = space();
+    			div1 = element("div");
+    			nav = element("nav");
+    			ul = element("ul");
+    			li0 = element("li");
+    			a1 = element("a");
+    			a1.textContent = "Experience";
+    			t2 = space();
+    			li1 = element("li");
+    			a2 = element("a");
+    			a2.textContent = "Projects";
+    			t4 = space();
+    			li2 = element("li");
+    			a3 = element("a");
+    			a3.textContent = "Skills";
+    			t6 = space();
+    			li3 = element("li");
+    			a4 = element("a");
+    			a4.textContent = "Education";
+    			t8 = space();
+    			li4 = element("li");
+    			a5 = element("a");
+    			a5.textContent = "Resume";
+    			t10 = space();
+    			div5 = element("div");
+    			div2 = element("div");
+    			create_component(sidebar.$$.fragment);
+    			t11 = space();
+    			div4 = element("div");
+    			create_component(intro.$$.fragment);
+    			t12 = space();
+    			create_component(experience.$$.fragment);
+    			t13 = space();
+    			create_component(projects.$$.fragment);
+    			t14 = space();
+    			create_component(skills.$$.fragment);
+    			t15 = space();
+    			div3 = element("div");
+    			h1 = element("h1");
+    			h1.textContent = "Education";
+    			t17 = space();
+    			a6 = element("a");
+    			h2 = element("h2");
+    			t18 = text("Made at 🏠 by Max Eisen ");
+    			b = element("b");
+    			b.textContent = "©2020";
+    			attr_dev(img, "class", "home-icon");
+    			attr_dev(img, "type", "image/gif");
+    			if (img.src !== (img_src_value = /*memoji*/ ctx[0])) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", "Animated gif of Max memoji");
+    			add_location(img, file$8, 18, 42, 486);
+    			attr_dev(a0, "href", "https://maxeisen.me");
+    			add_location(a0, file$8, 18, 12, 456);
+    			add_location(div0, file$8, 17, 8, 438);
+    			attr_dev(a1, "href", "#experience");
+    			add_location(a1, file$8, 23, 24, 686);
+    			add_location(li0, file$8, 23, 20, 682);
+    			attr_dev(a2, "href", "#projects");
+    			add_location(a2, file$8, 24, 24, 752);
+    			add_location(li1, file$8, 24, 20, 748);
+    			attr_dev(a3, "href", "#skills");
+    			add_location(a3, file$8, 25, 24, 814);
+    			add_location(li2, file$8, 25, 20, 810);
+    			attr_dev(a4, "href", "#education");
+    			add_location(a4, file$8, 26, 24, 872);
+    			add_location(li3, file$8, 26, 20, 868);
+    			attr_dev(a5, "href", "/resume");
+    			add_location(a5, file$8, 27, 24, 936);
+    			add_location(li4, file$8, 27, 20, 932);
+    			add_location(ul, file$8, 22, 16, 657);
+    			add_location(nav, file$8, 21, 12, 635);
+    			attr_dev(div1, "class", "nav-bar");
+    			add_location(div1, file$8, 20, 8, 601);
+    			add_location(header, file$8, 16, 4, 421);
+    			attr_dev(div2, "class", "sidebar-section");
+    			add_location(div2, file$8, 35, 8, 1083);
+    			attr_dev(h1, "class", "section-title");
+    			add_location(h1, file$8, 49, 16, 1315);
+    			attr_dev(div3, "id", "education");
+    			add_location(div3, file$8, 48, 12, 1278);
+    			attr_dev(div4, "class", "info-section");
+    			add_location(div4, file$8, 39, 8, 1151);
+    			attr_dev(div5, "class", "grid-container");
+    			add_location(div5, file$8, 33, 4, 1045);
+    			set_style(b, "font-size", "14px");
+    			set_style(b, "color", "#ababab");
+    			add_location(b, file$8, 55, 112, 1515);
+    			attr_dev(h2, "class", "footer");
+    			add_location(h2, file$8, 55, 62, 1465);
+    			attr_dev(a6, "href", "https://github.com/maxeisen/maxeisen.github.io/");
+    			add_location(a6, file$8, 55, 4, 1407);
+    			add_location(body, file$8, 14, 0, 409);
+    			attr_dev(html, "lang", "en");
+    			add_location(html, file$8, 12, 0, 391);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, html, anchor);
+    			append_dev(html, body);
+    			append_dev(body, header);
+    			append_dev(header, div0);
+    			append_dev(div0, a0);
+    			append_dev(a0, img);
+    			append_dev(header, t0);
+    			append_dev(header, div1);
+    			append_dev(div1, nav);
+    			append_dev(nav, ul);
+    			append_dev(ul, li0);
+    			append_dev(li0, a1);
+    			append_dev(ul, t2);
+    			append_dev(ul, li1);
+    			append_dev(li1, a2);
+    			append_dev(ul, t4);
+    			append_dev(ul, li2);
+    			append_dev(li2, a3);
+    			append_dev(ul, t6);
+    			append_dev(ul, li3);
+    			append_dev(li3, a4);
+    			append_dev(ul, t8);
+    			append_dev(ul, li4);
+    			append_dev(li4, a5);
+    			append_dev(body, t10);
+    			append_dev(body, div5);
+    			append_dev(div5, div2);
+    			mount_component(sidebar, div2, null);
+    			append_dev(div5, t11);
+    			append_dev(div5, div4);
+    			mount_component(intro, div4, null);
+    			append_dev(div4, t12);
+    			mount_component(experience, div4, null);
+    			append_dev(div4, t13);
+    			mount_component(projects, div4, null);
+    			append_dev(div4, t14);
+    			mount_component(skills, div4, null);
+    			append_dev(div4, t15);
+    			append_dev(div4, div3);
+    			append_dev(div3, h1);
+    			append_dev(body, t17);
+    			append_dev(body, a6);
+    			append_dev(a6, h2);
+    			append_dev(h2, t18);
+    			append_dev(h2, b);
+    			current = true;
+    		},
+    		p: noop,
+    		i: function intro$1(local) {
+    			if (current) return;
+    			transition_in(sidebar.$$.fragment, local);
+    			transition_in(intro.$$.fragment, local);
+    			transition_in(experience.$$.fragment, local);
+    			transition_in(projects.$$.fragment, local);
+    			transition_in(skills.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(sidebar.$$.fragment, local);
+    			transition_out(intro.$$.fragment, local);
+    			transition_out(experience.$$.fragment, local);
+    			transition_out(projects.$$.fragment, local);
+    			transition_out(skills.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(html);
+    			destroy_component(sidebar);
+    			destroy_component(intro);
+    			destroy_component(experience);
+    			destroy_component(projects);
+    			destroy_component(skills);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot.name,
+    		type: "slot",
+    		source: "(12:0) <Modal>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$8(ctx) {
+    	let current;
+
+    	const modal = new Modal({
+    			props: {
+    				$$slots: { default: [create_default_slot] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(modal.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(modal, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const modal_changes = {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				modal_changes.$$scope = { dirty, ctx };
+    			}
+
+    			modal.$set(modal_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(modal.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(modal.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(modal, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$8.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$8($$self, $$props, $$invalidate) {
+    	let memoji = "./img/headshots/memoji_cycle_large.gif";
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<App> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("App", $$slots, []);
+
+    	$$self.$capture_state = () => ({
+    		Sidebar,
+    		Intro,
+    		Experience,
+    		Skills,
+    		Projects,
+    		Modal,
+    		memoji
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("memoji" in $$props) $$invalidate(0, memoji = $$props.memoji);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [memoji];
+    }
+
+    class App extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$8, create_fragment$8, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "App",
+    			options,
+    			id: create_fragment$8.name
+    		});
+    	}
+    }
+
+    const app = new App({
+    	target: document.body,
+    	props: {
+    		name: 'maxeisen.me'
+    	}
+    });
+
+    return app;
+
+}());
