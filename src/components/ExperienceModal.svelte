@@ -8,14 +8,44 @@
     export let description;
 </script>
 
-<div class="modal-text">
-    <h1 class="modal-text">{position}</h1>
-    <a href={companyLink} target="_blank"><h2 class="modal-text">{company}</h2></a>
-    <h3 class="modal-text">{startDate}-{endDate}</h3>
-    <h3 class="modal-text">{location}</h3>
-    <p class="modal-text">{@html description}</p>
+<div class="experience-modal">
+    <h1 class="modal-position">{position}</h1>
+    <h2 class="modal-company"><a href={companyLink} target="_blank">{company}</a></h2>
+    <h3 class="modal-description" style="text-align: center">{startDate}-{endDate}</h3>
+    <h3 class="modal-description" style="text-align: center; color: #333333">{location}</h3>
+    <p class="modal-description">{@html description}</p>
 </div>
 
 <style>
-    
+    .experience-modal {
+        color: black;
+    }
+
+    .modal-position {
+        font-size: 35px;
+        margin: 15px 15px 10px 15px;
+        color: black;
+    }
+
+    .modal-company {
+        -webkit-transition: all .2s ease-in;
+        -moz-transition: all .2s ease-in;
+        -o-transition: all .2s ease-in;
+        -ms-transition: all .2s ease-in;
+        transition: all .2s ease-in;
+        color: rgb(0, 49, 82);
+        font-size: 25px;
+        margin-top: 5px;
+    }
+
+    .modal-company:hover {
+        font-size: 25px;
+        margin-top: 5px;
+    }
+
+    .modal-description {
+        margin: 10px auto 10px auto;
+        color: black;
+        line-height: 1.4;
+    }
 </style>

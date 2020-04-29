@@ -16,14 +16,14 @@
 
     <header>
         <div>
-            <img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji"/>
+            <a href="https://maxeisen.me"><img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji"/></a>
         </div>
         <div class="nav-bar">
             <nav>
                 <ul>
                     <li><a href="#experience">Experience</a></li>
-                    <li><a href="#skills">Skills</a></li>
                     <li><a href="#projects">Projects</a></li>
+                    <li><a href="#skills">Skills</a></li>
                     <li><a href="#education">Education</a></li>
                     <li><a href="/resume">Resume</a></li>
                 </ul>
@@ -42,9 +42,9 @@
 
 			<Experience/>
 
-			<Skills/>
-
             <Projects/>
+
+            <Skills/>
 
             <div id="education">
                 <h1 class="section-title">Education</h1>

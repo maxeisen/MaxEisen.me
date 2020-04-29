@@ -8,7 +8,7 @@ html {
 
 body {
     height: auto;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
     line-height: 1.3;
     background: rgb(31, 31, 31);
 }
@@ -123,7 +123,7 @@ header {
 }
 
 .headshot:hover {
-    width: 145px;
+    transform: scale(1.15);
     filter: brightness(1.05);
 }
   
@@ -151,6 +151,14 @@ img.social-icon {
     font-size: 14px;
     margin: 5px 20px 0 20px;
     padding-bottom: 10px;
+    border-bottom: 2px solid rgb(0, 187, 162);
+    grid-area: in-left-skills;
+}
+
+.skills-print {
+    display: none;
+    font-size: 14px;
+    margin: 5px 20px 0 20px;
     border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-skills;
 }
@@ -200,7 +208,7 @@ img.social-icon {
 
 .skill-bar:hover {
     border-radius: 30px;
-    font-size: 14px;
+    transform: scale(1.15);
     filter: brightness(1.05);
 }
 
@@ -357,7 +365,7 @@ a {
 	-o-transition: all .2s ease-in;
 	-ms-transition: all .2s ease-in;
 	transition: all .2s ease-in;
-    color: #100194;
+    color: #003e77;
     text-decoration: none;
 }
 
@@ -403,12 +411,17 @@ a:hover {
     body {
         padding-top: 0px;
         background: white;
+        font-size: smaller;
     }
 
     header {
         margin-top: 0;
         color: black;
         text-shadow: none;
+    }
+
+    .logical-and {
+        color: black;
     }
 
     .inner-page {
@@ -418,7 +431,15 @@ a:hover {
         box-shadow: none;
     }
 
-    .in-left-skills, .in-left-hobbies {
+    .in-left-skills {
+        display: none;
+    }
+
+    .skills-print {
+        display: inline;
+    }
+
+    .in-left-hobbies {
         pointer-events: none;
     }
 
@@ -440,7 +461,7 @@ a:hover {
 @media only screen and (max-width: 820px) {
     .inner-page {
         width: 4.5in;
-        height: 19.5in;
+        height: 19.65in;
         padding: 24px 23px 20px 23px;
     }
 
@@ -500,7 +521,7 @@ a:hover {
 @media only screen and (max-width: 460px) {
     .inner-page {
         width: 3.25in;
-        height: 22.4in;
+        height: 22.5in;
         padding: 24px 8px 20px 8px;
     }
 

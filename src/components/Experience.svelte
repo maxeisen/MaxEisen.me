@@ -9,8 +9,8 @@
         startDate: "May 2020",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Working with a fantastic team of developers to create great web apps",
-        longDescription: `<ul><li>Working with a fantastic team of developers to create great web apps</li></ul>`
+        shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
+        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of talented developers and engineers working to create great software</li></ul>`
     }
     const exp2 = {
         position: "Product Manager",
@@ -20,27 +20,27 @@
         endDate: "Present",
         location: "Kingston, ON",
         shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
-        longDescription: `<ul><li>Managing a team of developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches throughout the school year</li></ul>`
+        longDescription: `<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>`
     }
     const exp3 = {
-        position: "Co-Founder, Lead Trainer",
+        position: "Director of Technology",
         company: "TechTrainers",
         companyLink: "https://techtrainers.ca/",
         startDate: "May 2019",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Providing quality tech help and tutoring around the GTA",
-        longDescription: `<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across the Greater Toronto Area</li><li>Company was able to turn a profit in first month</li></ul>`
+        shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
+        longDescription: `<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li><li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li><li>Company was able to turn a profit in first month of operations</li></ul>`
     }
     const exp4 = {
-        position: "CS Teaching Assistant",
+        position: "Computer Science Teaching Assistant",
         company: "Queen's University",
         companyLink: "https://cs.queensu.ca/",
         startDate: "September 2019",
         endDate: "April 2020",
         location: "Kingston, ON",
         shortDescription: "Worked as a teaching assistant for a Python programming course of over 250 students",
-        longDescription: `<ul><li>Selected as one of 8 TAs for the specific Python programming course, having previously obtained an exceptional grade</li><li>Assisted in the teaching and grading of the class with over 250 students</li></ul>`
+        longDescription: `<ul><li>Selected as one of 8 TAs for the specific Python programming course, having previously obtained an exceptional grade in the course</li><li>Assisted in the teaching and grading of the class with over 250 students</li><li>Held weekly office hours to guide students in completing assignments and reviewing for exams</li></ul>`
     }
     const exp5 = {
         position: "Software Developer",
@@ -50,7 +50,7 @@
         endDate: "February 2020",
         location: "Kingston, ON",
         shortDescription: "Developed the website and other software for Queen's University's official MLH hackathon",
-        longDescription: `<ul><li>Used React (JavaScript library) to develop frontend of the website for the MLH-affiliated hackathon</li><li>Worked on digital dashboard for use by 700+ individuals in time leading up to and during event</li></ul>`
+        longDescription: `<ul><li>Developed (React) and deployed (Gatsby) the official website for the 2020 MLH-affiliated hackathon, accessed by over 10,000 individuals</li><li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li><li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li></ul>`
     }
     const exp6 = {
         position: "Technical Instructor",
@@ -59,8 +59,8 @@
         startDate: "May",
         endDate: "August 2019",
         location: "Vancouver, BC",
-        shortDescription: "Taught and created course content for programming and engineering courses",
-        longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li></ul>`
+        shortDescription: "Taught and created course content for programming and engineering courses tailored to teens and young adults",
+        longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses include: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
     }
 
     const { open } = getContext('simple-modal');
@@ -101,33 +101,75 @@
 <div class="experience-subsection">
     <div class="experience-item" on:click={modal1}>
         <h2 class="experience-title"><div class="experience-position">{exp1.position}</div></h2>
-        <h2 class="experience-title">{exp1.company}</h2>
-        <h1 class="experience-date-location"><div class="experience-date">{exp1.startDate}<b style="color:gray">-</b>{exp1.endDate}</div><div class="experience-location">{exp1.location}</div></h1>
+        <h2 class="experience-company">{exp1.company}</h2>
+        <p>{exp1.shortDescription}</p>
+        <h1 class="experience-date-location"><div class="experience-date">{exp1.startDate}-{exp1.endDate}</div><div class="experience-location">{exp1.location}</div></h1>
     </div>
     <div class="experience-item" on:click={modal2}>
         <h2 class="experience-title"><div class="experience-position">{exp2.position}</div></h2>
-        <h2 class="experience-title">QTMA</h2>
-        <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}<b style="color:gray">-</b>{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
+        <h2 class="experience-company">QTMA</h2>
+        <p>{exp2.shortDescription}</p>
+        <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}-{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
     </div>
     <div class="experience-item" on:click={modal3}>
         <h2 class="experience-title"><div class="experience-position">{exp3.position}</div></h2>
-        <h2 class="experience-title">{exp3.company}</h2>
-        <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}<b style="color:gray">-</b>{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
+        <h2 class="experience-company">{exp3.company}</h2>
+        <p>{exp3.shortDescription}</p>
+        <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}-{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
     </div>
     <div class="experience-item" on:click={modal4}>
-        <h2 class="experience-title"><div class="experience-position">{exp4.position}</div></h2>
-        <h2 class="experience-title">{exp4.company}</h2>
-        <h1 class="experience-date-location"><div class="experience-date">{exp4.startDate}<b style="color:gray">-</b>{exp4.endDate}</div>
+        <h2 class="experience-title"><div class="experience-position">CS Teaching Assistant</div></h2>
+        <h2 class="experience-company">{exp4.company}</h2>
+        <p>{exp4.shortDescription}</p>
+        <h1 class="experience-date-location"><div class="experience-date">Sept. 2019-{exp4.endDate}</div>
         <div class="experience-location">{exp4.location}</div></h1>
     </div>
     <div class="experience-item" on:click={modal5}>
         <h2 class="experience-title"><div class="experience-position">{exp5.position}</div></h2>
-        <h2 class="experience-title">{exp5.company}</h2>
-        <h1 class="experience-date-location"><div class="experience-date">{exp5.startDate}<b style="color:gray">-</b>{exp5.endDate}</div><div class="experience-location">{exp5.location}</div></h1>
+        <h2 class="experience-company">{exp5.company}</h2>
+        <p>{exp5.shortDescription}</p>
+        <h1 class="experience-date-location"><div class="experience-date">Sept. 2019-Feb. 2020</div><div class="experience-location">{exp5.location}</div></h1>
     </div>
     <div class="experience-item" on:click={modal6}>
         <h2 class="experience-title"><div class="experience-position">{exp6.position}</div></h2>
-        <h2 class="experience-title">{exp6.company}</h2>
-        <h1 class="experience-date-location"><div class="experience-date">{exp6.startDate}<b style="color:gray">-</b>{exp6.endDate}</div><div class="experience-location">{exp6.location}</div></h1>
+        <h2 class="experience-company">{exp6.company}</h2>
+        <p>{exp6.shortDescription}</p>
+        <h1 class="experience-date-location"><div class="experience-date">{exp6.startDate}-{exp6.endDate}</div><div class="experience-location">{exp6.location}</div></h1>
     </div>
 </div>
+
+<style>
+    .experience-title {
+        margin: 8px auto 5px auto;
+        text-align: center;
+        font-size: 25px;
+    }
+
+    .experience-position {
+        display: inline-block;
+    }
+
+    .experience-company {
+        margin: 8px auto 5px auto;
+        text-align: center;
+        font-size: 22px;
+        color: rgb(202, 202, 202);
+        font-weight: 300;
+    }
+
+    .experience-date-location {
+        font-weight: 300;
+        text-align: left;
+        font-size: 15px;
+    }
+
+    .experience-date {
+        color: rgb(173, 173, 173);
+        display: inline-block;
+    }
+
+    .experience-location {
+        color: rgb(173, 173, 173);
+        float: right;
+    }
+</style>

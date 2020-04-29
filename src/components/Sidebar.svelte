@@ -4,12 +4,13 @@
 
 <html lang="en">
     <h1 class="profile-name">Maxwell Eisen</h1>
-    <h2>CS <b style="color: gray">@</b> Queen's University</h2>
-    <h2>Toronto, ON</h2>
+    <h2 style="font-weight: 300;">CS <b style="color: #ababab;">@</b> Queen's University</h2>
+    <h2 style="font-weight: 300;">Toronto, ON</h2>
     <div class="social-links">
         <h2><a class="social-links" href="https://linkedin.com/in/maxeisen/" target="_blank">LinkedIn</a></h2>
         <h2><a class="social-links" href="https://github.com/maxeisen/" target="_blank">GitHub</a></h2>
         <h2><a class="social-links" href="https://twitter.com/maxeisen/" target="_blank">Twitter</a></h2>
+        <h2><a class="social-links" href="mailto:max.eisen@queensu.ca" target="_blank">Email</a></h2>
     </div>
 
     <div class="headshot">
