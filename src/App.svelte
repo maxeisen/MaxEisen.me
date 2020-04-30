@@ -2,8 +2,9 @@
 	import Sidebar from './components/Sidebar.svelte';
 	import Intro from './components/Intro.svelte';
 	import Experience from './components/Experience.svelte';
+    import Projects from './components/Projects.svelte';
 	import Skills from './components/Skills.svelte';
-	import Projects from './components/Projects.svelte';
+    import Education from './components/Education.svelte';
   	import Modal from 'svelte-simple-modal';
 
 	let memoji = "./img/headshots/memoji_cycle_large.gif";
@@ -25,7 +26,7 @@
                     <li><a href="#projects">Projects</a></li>
                     <li><a href="#skills">Skills</a></li>
                     <li><a href="#education">Education</a></li>
-                    <li><a href="/resume">Resume</a></li>
+                    <li><a href="/resume"><b>Resume</b></a></li>
                 </ul>
             </nav>
         </div>
@@ -46,9 +47,7 @@
 
             <Skills/>
 
-            <div id="education">
-                <h1 class="section-title">Education</h1>
-            </div>
+            <Education/>
         </div>
 
     </div>

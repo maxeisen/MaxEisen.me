@@ -1,0 +1,65 @@
+<script>
+    export let school;
+    export let degree;
+    export let major;
+    export let years;
+    export let committees;
+</script>
+
+<div class="education-modal">
+    <h1 class="modal-school">{school}</h1>
+    <h2 class="modal-degree">{@html degree}</h2>
+    <h3 class="modal-major" style="text-align: center">{@html major}</h3>
+    <h3 class="modal-years" style="text-align: center; color: #333333">{years}</h3>
+    <p class="modal-committees"><b>Committees: </b>{committees}</p>
+</div>
+
+<style>
+    .education-modal {
+        color: black;
+    }
+
+    .modal-school {
+        font-size: 35px;
+        margin: 15px auto 5px auto;
+        color: black;
+    }
+
+    .modal-degree {
+        -webkit-transition: all .2s ease-in;
+        -moz-transition: all .2s ease-in;
+        -o-transition: all .2s ease-in;
+        -ms-transition: all .2s ease-in;
+        transition: all .2s ease-in;
+        color: black;
+        font-size: 25px;
+        margin: 0px auto 5px auto;
+
+    }
+
+    .modal-degree:hover {
+        font-size: 25px;
+        margin-top: 5px;
+    }
+
+    .modal-major {
+        font-size: 20px;
+        margin: 0 auto 0 auto;
+        color: black;
+        line-height: 1.4;
+    }
+
+    .modal-years {
+        margin: 10px auto 10px auto;
+        color: rgb(63, 63, 63);
+        line-height: 1.4;
+    }
+
+    .modal-committees {
+        font-size: 15px;
+        text-align: center;
+        margin: 10px auto 10px auto;
+        color: black;
+        line-height: 1.4;
+    }
+</style>
