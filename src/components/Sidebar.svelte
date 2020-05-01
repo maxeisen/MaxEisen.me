@@ -62,4 +62,8 @@
         margin-left: auto;
         margin-right: auto;
     }
+
+    a:hover {
+    color: #00bba2;
+}
 </style>
