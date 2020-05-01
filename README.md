@@ -30,5 +30,5 @@ npm run start
 ## Versions
 <ul>
   <li>V1 (web resume) built in plain HTML and CSS</li>
-  <li>V2 (portfolio website) built using Svelte JS framework - CSS and HTML ported over</li>
+  <li>V2 (portfolio website) built using Svelte JS framework - old HTML and CSS files ported over</li>
 </ul>
