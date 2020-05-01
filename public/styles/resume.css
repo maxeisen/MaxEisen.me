@@ -10,12 +10,14 @@ body {
     height: auto;
     font-family: 'Inter', sans-serif;
     line-height: 1.3;
-    background: rgb(31, 31, 31);
+    background-image: url("../img/backgrounds/topo-bg.png");
+    background-repeat: repeat;
+    background-attachment: fixed;
 }
 
 header {
     margin: 20px;
-    font-size: 30px;
+    font-size: 28px;
     line-height: 1;
     text-align: center;
     color: white;
@@ -200,6 +202,7 @@ img.social-icon {
     display: none;
     font-size: 14px;
     margin: 5px 20px 0 20px;
+    padding-bottom: 0;
     border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-skills;
 }
@@ -346,6 +349,11 @@ a.company {
     float: right;
 }
 
+a.company-long {
+    font-size: 13px;
+    float: right;
+}
+
 .job-date-location {
     line-height: 0.8;
     text-align: left;
@@ -462,7 +470,7 @@ a.company {
 @media only screen and (max-width: 820px) {
     .inner-page {
         width: 4.5in;
-        height: 19.65in;
+        height: 19.9in;
         padding: 24px 23px 20px 23px;
     }
 
@@ -522,7 +530,7 @@ a.company {
 @media only screen and (max-width: 460px) {
     .inner-page {
         width: 3.25in;
-        height: 22.5in;
+        height: 22.7in;
         padding: 24px 8px 20px 8px;
     }
 

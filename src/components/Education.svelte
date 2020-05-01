@@ -21,11 +21,13 @@
 </script>
 
 <h1 class="section-title" id="education">Education</h1>
-    <div class="education-item" on:click={educationModal}>
-        <h2 class="school-name">{education.school}</h2>
-        <h2 class="degree-info">Bachelor of Computing (Honours)</h2>
-        <h2 class="major-info">Computer Science</h2>
-        <h2 class="degree-years">{education.years}</h2>
+    <div class="education-subsection">
+        <div class="education-item" on:click={educationModal}>
+            <h2 class="school-name">{education.school}</h2>
+            <h2 class="degree-info">Bachelor of Computing (Honours)</h2>
+            <h2 class="major-info">Computer Science</h2>
+            <h2 class="degree-years">{education.years}</h2>
+        </div>
     </div>
 
 <style>

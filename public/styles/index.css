@@ -12,8 +12,9 @@ body {
     font-family: 'Inter', sans-serif;
     font-weight: 300;
     line-height: 1.3;
-    background: rgb(31, 31, 31);
-    background-repeat: no-repeat;
+    /* background: rgb(31, 31, 31); */
+    background-image: url("../img/backgrounds/topo-bg.png");
+    background-repeat: repeat;
     background-attachment: fixed;
 }
 
@@ -67,7 +68,7 @@ a:hover {
     -ms-transition: all 0.1s ease-in;
     transition: all 0.1s ease-in;
     margin-top: 10px;
-    margin-left: 175px;
+    margin-left: 180px;
     width: 75px;
 }
 
@@ -116,8 +117,8 @@ header a:hover {
 .grid-container {
     display: grid;
     grid-template-columns: 0.75fr 2fr;
-    grid-template-rows: 1fr;
-    gap: 1px 1px;
+    grid-template-rows: auto;
+    gap: 1px;
     grid-template-areas: "sidebar-section info-section info-section" "sidebar-section info-section info-section";
 }
   
@@ -130,52 +131,30 @@ header a:hover {
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 60px;
-    background: rgba(255, 255, 255, 0.144);
+    background: rgba(114, 114, 114, 0.281);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     grid-area: sidebar-section;
 }
   
-.info-section {
+.info-section-main {
     height: auto;
     width: 2fr;
-    border-radius: 10px;
-    padding: 24px 32px 20px 32px;
-    margin-right: 60px;
-    background: rgba(255, 255, 255, 0.144);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     grid-area: info-section;
 }
 
-.headshot {
-    -webkit-transition: all 0.1s ease-in;
-	-moz-transition: all 0.1s ease-in;
-	-o-transition: all 0.1s ease-in;
-    -ms-transition: all 0.1s ease-in;
-    transition: all 0.1s ease-in;
-    align-self: center;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0;
-    width: 200px;
-    height: 200px;
-    -webkit-filter: drop-shadow(0px 4px 4px #222);
-    filter: drop-shadow(0px 4px 4px #222);
-}
-
-.headshot:hover {
-    filter: brightness(1.02);
-    width: 220px;
-    height: 220px;
-}
-
-.social-links {
-    color: rgb(173, 222, 255);
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+.info-section-inner {
+    border-radius: 10px;
+    padding: 24px 32px 20px 32px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 60px;
+    background: rgba(114, 114, 114, 0.281);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
+    margin-top: 20px;
+    margin-bottom: 10px;
     text-align: left;
 }
 
@@ -183,6 +162,7 @@ header a:hover {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto auto;
+    margin-bottom: 15px;
     gap: 1px 1px;
     grid-template-areas: "experience-item experience-item experience-item";
 }
@@ -217,6 +197,7 @@ header a:hover {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
+    margin-bottom: 15px;
     gap: 1px 1px;
     grid-template-areas: "project-item project-item";
 }
@@ -247,12 +228,16 @@ header a:hover {
     transform: scale(0.95)
 }
 
+.education-subsection {
+    margin: auto auto 40px auto;
+}
+
 .education-item {
     background-color: rgba(31, 31, 31, 0.8);
     border: 1.25px solid rgb(138, 137, 137);
     border-radius: 10px;
     padding: 10px 30px 10px 30px;
-    margin: 15px 20px 15px 20px;
+    margin: 20px 100px 15px 100px;
     text-align: center;
     -webkit-transition: all .1s ease-in;
     -moz-transition: all .1s ease-in;
@@ -269,7 +254,13 @@ header a:hover {
     box-shadow: 0 0 0 2px #00bba2;
 }
 
+.skills-subsection {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .footer {
+    margin-right: 60px;
     -webkit-transition: all .2s ease-in;
 	-moz-transition: all .2s ease-in;
 	-o-transition: all .2s ease-in;
@@ -328,6 +319,14 @@ header a:hover {
         grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
     }
 
+    .info-section-main {
+        max-width: 100%;
+    }
+
+    .footer {
+        max-width: 100%;
+    }
+
     .experience-subsection {
         grid-template-columns: auto;
         grid-template-rows: auto;
@@ -340,13 +339,18 @@ header a:hover {
         grid-template-areas: "project-item";
     }
 
+    .education-item {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
     header nav ul {
         font-size: 20px;
         line-height: 1.5;
     }
 }
 
-@media only screen and (max-width: 850px) {
+@media only screen and (max-width: 860px) {
     .grid-container {
         grid-template-columns: auto;
         grid-template-rows: auto;
@@ -360,12 +364,18 @@ header a:hover {
     }
 
     .sidebar-section {
-        margin: 20px 50px 20px 50px;
+        min-width: 50%;
+        margin: 20px auto 20px auto;
         position: relative;
     }
 
-    .info-section {
-        margin: 20px 50px 20px 50px;
+    .info-section-inner {
+        margin: 20px auto 20px auto;
+        position: relative;
+    }
+
+    .footer {
+        margin: 20px auto 20px auto;
         position: relative;
     }
 
@@ -376,24 +386,29 @@ header a:hover {
     }
 }
 
-@media only screen and (max-width: 850px) {
+@media only screen and (max-width: 620px) {
     .experience-subsection {
         grid-template-columns: auto;
+        grid-template-rows: auto;
         grid-template-areas: "experience-item";
     }
 }
 
 @media only screen and (max-width: 460px) {
     .sidebar-section {
+        min-width: 50%;
         margin-left: auto;
         margin-right: auto;
     }
     
-    .info-section {
+    .info-section-main {
         margin-left: auto;
         margin-right: auto;
-        padding-left: 25px;
-        padding-right: 25px;
+    }
+
+    .footer {
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .experience-item {
@@ -402,6 +417,11 @@ header a:hover {
     }
 
     .project-item {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .education-item {
         margin-left: auto;
         margin-right: auto;
     }

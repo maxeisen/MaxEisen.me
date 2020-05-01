@@ -10,7 +10,7 @@
         endDate: "Present",
         location: "Toronto, ON",
         shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
-        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of talented developers and engineers working to create great software</li></ul>`
+        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of skilled developers and engineers working to create great software</li></ul>`
     }
     const exp2 = {
         position: "Product Manager",
@@ -50,7 +50,7 @@
         endDate: "February 2020",
         location: "Kingston, ON",
         shortDescription: "Developed the website and other software for Queen's University's official MLH hackathon",
-        longDescription: `<ul><li>Developed (React) and deployed (Gatsby) the official website for the 2020 MLH-affiliated hackathon, accessed by over 10,000 individuals</li><li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li><li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li></ul>`
+        longDescription: `<ul><li>Developed and deployed the official website for the 2020 MLH-affiliated hackathon using React and Gatsby (accessed by over 10,000 individuals)</li><li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li><li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li></ul>`
     }
     const exp6 = {
         position: "Technical Instructor",
