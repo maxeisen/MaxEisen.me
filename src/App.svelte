@@ -14,7 +14,7 @@
     <body>
         <header>
             <div>
-                <a href="https://maxeisen.me"><img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji"/></a>
+                <a href="/#"><img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji"/></a>
             </div>
             <div class="nav-bar">
                 <nav>
