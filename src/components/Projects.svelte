@@ -10,7 +10,7 @@
         shortDescription: "A collaborative study space for students, by students",
         longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by myself and my 7 other QTMA team members</li></ul>",
         githubLink: "https://github.com/maxeisen/studii_public",
-        projectLink: "https://github.com/maxeisen/studii_public",
+        projectLink: "https://qtma.ca/studii.html",
         screenshot: "./img/screenshots/studii.png",
     }
     const proj2 = {

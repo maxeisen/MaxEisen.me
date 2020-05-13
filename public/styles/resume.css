@@ -10,7 +10,8 @@ body {
     height: auto;
     font-family: 'Inter', sans-serif;
     line-height: 1.3;
-    background-image: url("../img/backgrounds/topo-bg.png");
+    background-image: url("../img/backgrounds/prism-bg.png");
+    background-color: #222222;
     background-repeat: repeat;
     background-attachment: fixed;
 }
@@ -23,6 +24,12 @@ header {
     color: white;
     text-shadow: 1px 1px 2px #000000;
     transition: 0.2s;
+}
+
+.tagline {
+    font-size:16px;
+    font-family:'Source Code Pro';
+    font-weight:300;
 }
 
 
@@ -66,8 +73,16 @@ a:hover {
     color: #00bba2;
 }
 
-.back-button {
+.top-buttons {
     position: fixed;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.back-button {
+    position: inline;
+    float: left;
     -webkit-transition: all .2s ease-in;
 	-moz-transition: all .2s ease-in;
 	-o-transition: all .2s ease-in;
@@ -75,13 +90,13 @@ a:hover {
     transition: all .2s ease-in;
     font-size: 25px;
     color: white;
-    margin-left: 10px;
-    margin-top: -5px;
+    margin-left: 12px;
+    margin-top: -3px;
 }
 
 .back-button:hover {
     color: rgb(0, 187, 162);
-    font-size: 27.5px;
+    transform: scale(1.05);
 }
 
 .back-button-mobile {
@@ -94,15 +109,29 @@ a:hover {
     transition: all .2s ease-in;
     font-size: 30px;
     color: white;
-    margin-left: 10px;
+    margin-left: 12px;
     margin-top: -5px;
 }
 
-.back-button-mobile:hover {
-    color: rgb(0, 187, 162);
-    font-size: 35px;
+.print-button {
+    position: inline;
+    float: right;
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+    -ms-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    font-size: 25px;
+    color: white;
+    margin-right: 12px;
+    margin-top: -3px;
 }
 
+.print-button:hover {
+    cursor: pointer;
+    color: rgb(0, 187, 162);
+    transform: scale(1.05);
+}
 
 .logical-and {
     -webkit-transition: all .2s ease-in;
@@ -157,17 +186,13 @@ a:hover {
 }
 
 .headshot {
-    width: 125px;
+    width: 144px;
+    border-radius: 10px;
     -webkit-transition: all .1s ease-in;
 	-moz-transition: all .1s ease-in;
 	-o-transition: all .1s ease-in;
 	-ms-transition: all .1s ease-in;
 	transition: all .1s ease-in;
-}
-
-.headshot:hover {
-    transform: scale(1.15);
-    filter: brightness(1.05);
 }
   
 .in-left-social {
@@ -413,7 +438,7 @@ a.company-long {
 }
 
 @media print {
-    .back-button, .back-button-mobile, .footer {
+    .back-button, .back-button-mobile, .print-button, .footer {
         display: none;
     }
 
@@ -462,7 +487,7 @@ a.company-long {
         display: inline;
     }
 
-    .back-button {
+    .back-button, .print-button {
         display: none;
     }
 }
@@ -495,10 +520,6 @@ a.company-long {
 
     .headshot {
         width: 100px;
-    }
-
-    .headshot:hover {
-        width: 120px;
     }
 
     .out-grid-container {
@@ -540,15 +561,12 @@ a.company-long {
 }
 
 @media only screen and (max-width: 340px) {
-    header{
-        display: none;
+    header {
+        margin: 20px;
+        font-size: 28px;
     }
 
-    .footer {
+    .footer, .tagline, .back-button-mobile{
         display: none;
-    }
-
-    .back-button-mobile{
-        display: none
     }
 }

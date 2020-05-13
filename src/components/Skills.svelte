@@ -87,10 +87,16 @@
 
     @media only screen and (max-width: 470px) {
         ul {
-        font-size: 15px;
+        text-align: center;
+        font-size: 18px;
         -webkit-column-count: 2;
         -moz-column-count: 2;
         column-count: 2;
+        margin-left: -2em;
         }
+
+        ul li::before {
+        display: none;
+    }
     }
 </style>

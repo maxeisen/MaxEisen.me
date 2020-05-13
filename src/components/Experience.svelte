@@ -10,7 +10,7 @@
         endDate: "Present",
         location: "Toronto, ON",
         shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
-        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of skilled developers and engineers working to create great software</li></ul>`
+        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of several skilled developers and engineers to work on a decision engine to be implemented for client companies</li></ul>`
     }
     const exp2 = {
         position: "Product Manager",
