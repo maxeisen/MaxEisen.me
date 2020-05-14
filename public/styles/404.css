@@ -1,0 +1,52 @@
+html, body {
+    height: 100%;
+}
+
+html {
+    display: table;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.3;
+    background-image: url("../img/backgrounds/prism-bg.png");
+    background-color: #222222;
+    background-repeat: repeat;
+    background-attachment: fixed;
+}
+
+.back-button {
+    -webkit-transition: all .2s ease-in;
+	-moz-transition: all .2s ease-in;
+	-o-transition: all .2s ease-in;
+    -ms-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    font-size: 25px;
+    color: white;
+}
+
+.back-button:hover {
+    color: rgb(0, 187, 162);
+    transform: scale(1.05);
+}
+
+h1, h2 {
+    color: white;
+}
+
+h1.bruh {
+    font-size: 10px;
+}
+
+a {
+    text-decoration: none;
+}

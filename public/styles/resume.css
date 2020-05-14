@@ -11,7 +11,7 @@ body {
     font-family: 'Inter', sans-serif;
     line-height: 1.3;
     background-image: url("../img/backgrounds/prism-bg.png");
-    background-color: #222222;
+    background-color: #222;
     background-repeat: repeat;
     background-attachment: fixed;
 }
@@ -22,16 +22,15 @@ header {
     line-height: 1;
     text-align: center;
     color: white;
-    text-shadow: 1px 1px 2px #000000;
+    text-shadow: 1px 1px 2px black;
     transition: 0.2s;
 }
 
 .tagline {
     font-size: 16px;
-    font-family: 'Source Code Pro';
+    font-family: 'Source Code Pro', sans-serif;
     font-weight: 300;
 }
-
 
 h1 {
     text-align: center;
@@ -182,7 +181,6 @@ a:hover {
     text-align: center;
     border-top: 2px solid rgb(0, 187, 162);
     grid-area: in-left-profile;
-    
 }
 
 .headshot {
