@@ -17,6 +17,7 @@
     "svelte-simple-modal": "^0.4.0"
   },
   "dependencies": {
-    "sirv-cli": "^0.4.4"
+    "sirv-cli": "^0.4.4",
+    "svelte-icons": "^2.1.0"
   }
 }

@@ -27,9 +27,9 @@ header {
 }
 
 .tagline {
-    font-size:16px;
-    font-family:'Source Code Pro';
-    font-weight:300;
+    font-size: 16px;
+    font-family: 'Source Code Pro';
+    font-weight: 300;
 }
 
 
@@ -187,12 +187,9 @@ a:hover {
 
 .headshot {
     width: 144px;
-    border-radius: 10px;
-    -webkit-transition: all .1s ease-in;
-	-moz-transition: all .1s ease-in;
-	-o-transition: all .1s ease-in;
-	-ms-transition: all .1s ease-in;
-	transition: all .1s ease-in;
+    border-radius: 60px;
+    -webkit-filter: drop-shadow(0 0 4px #222);
+    filter: drop-shadow(0 0 4px #222);
 }
   
 .in-left-social {
@@ -315,6 +312,13 @@ img.social-icon {
     grid-area: in-left-hobbies;
 }
 
+.right-title {
+    font-size: 17px;
+    color: black;
+    border-bottom: 2px solid rgb(0, 187, 162);
+    padding: 0 0 12px 0;
+}
+
 .in-right-grid-container {
     display: grid;
     grid-template-columns: 1fr;
@@ -407,6 +411,12 @@ a.company-long {
     color: #000000;
 }
 
+.relevant-courses {
+    text-align: center;
+    color: black;
+    font-size: 14px
+}
+
 .easter-egg {
     color: black;
     -webkit-animation: glow 1s ease-in-out infinite alternate;
@@ -480,6 +490,10 @@ a.company-long {
     .easter-egg {
         animation: none;
     }
+
+    li, .relevant-courses {
+        font-size: 90%;
+    }
 }
 
 @media only screen and (max-width: 1020px) {
@@ -495,8 +509,8 @@ a.company-long {
 @media only screen and (max-width: 820px) {
     .inner-page {
         width: 4.5in;
-        height: 19.9in;
-        padding: 24px 23px 20px 23px;
+        height: auto;
+        padding: 24px 23px 30px 23px;
     }
 
     .in-left-profile {
@@ -551,8 +565,8 @@ a.company-long {
 @media only screen and (max-width: 460px) {
     .inner-page {
         width: 3.25in;
-        height: 22.7in;
-        padding: 24px 8px 20px 8px;
+        height: auto;
+        padding: 24px 8px 30px 8px;
     }
 
     .job-date-location {

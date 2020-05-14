@@ -9,7 +9,7 @@ Deployed to [maxeisen.me](https://maxeisen.me) - check it out!
 To install and work on the website locally:
 
 ```bash
-git clone https://github.com/maxeisen/maxeisen.github.io.git MaxEisen.me
+git clone https://github.com/maxeisen/MaxEisen.me.git
 cd MaxEisen.me
 npm install
 ```

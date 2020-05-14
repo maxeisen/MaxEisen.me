@@ -1,15 +1,19 @@
 <script>
     let headshot = "./img/headshots/tight_headshot.png";
+    import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte'
+    import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte'
+    import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte'
+    import MailIcon from 'svelte-icons/io/IoIosMail.svelte'
 </script>
 
 <h1>Maxwell Eisen</h1>
 <h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
-    <h2><a class="social-links" href="https://linkedin.com/in/maxeisen/" target="_blank">LinkedIn</a></h2>
-    <h2><a class="social-links" href="https://github.com/maxeisen/" target="_blank">GitHub</a></h2>
-    <h2><a class="social-links" href="https://twitter.com/maxeisen/" target="_blank">Twitter</a></h2>
-    <h2><a class="social-links" href="mailto:max.eisen@queensu.ca" target="_blank">Email</a></h2>
+    <a class="social-links" href="https://linkedin.com/in/maxeisen/" target="_blank"><LinkedInLogo /></a>
+    <a class="social-links" href="https://github.com/maxeisen/" target="_blank"><GitHubLogo /></a>
+    <a class="social-links" href="https://twitter.com/maxeisen/" target="_blank"><TwitterLogo /></a>
+    <a class="social-links" href="mailto:max.eisen@queensu.ca" target="_blank"><MailIcon /></a>
 </div>
 
 <div class="headshot">
@@ -31,39 +35,34 @@
     }
 
     .headshot {
-        -webkit-transition: all 0.1s ease-in;
-        -moz-transition: all 0.1s ease-in;
-        -o-transition: all 0.1s ease-in;
-        -ms-transition: all 0.1s ease-in;
-        transition: all 0.1s ease-in;
         align-self: center;
         margin-left: auto;
         margin-right: auto;
-        padding: 0;
+        padding-top: 0;
         width: 200px;
         height: 200px;
         -webkit-filter: drop-shadow(2px -2px 2px #222);
         filter: drop-shadow(2px -2px 2px #222);
     }
 
-    .headshot:hover {
-        filter: brightness(1.02);
-        width: 220px;
-        height: 220px;
-    }
-
     .social-links-container {
-        margin-top: 30px;
+        display: flex;
+        margin: auto;
+        padding-top: 10px;
+        padding-bottom: 25px;
+        color: #addeff;
+        justify-content: center;
     }
 
     .social-links {
-        color: rgb(173, 222, 255);
-        text-align: center;
-        margin-left: auto;
-        margin-right: auto;
+        color: #addeff;
+        margin-left: 8px;
+        margin-right: 8px;
+        width: 40px;
+        height: 40px;
     }
 
     a:hover {
-    color: #00bba2;
-}
+        color: #00bba2;
+    }
 </style>

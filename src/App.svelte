@@ -40,7 +40,7 @@
                     <Education/>
                     <Skills/>
                 </div>
-                <a href="https://github.com/maxeisen/maxeisen.github.io/"><h2 class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:#ababab">&copy;2020</b></h2></a>
+                <a href="https://github.com/maxeisen/MaxEisen.me/"><h2 class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:#ababab">&copy;2020</b></h2></a>
             </div>
         </div>
     </body>
