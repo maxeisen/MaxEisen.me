@@ -44,9 +44,16 @@ h1, h2 {
 }
 
 h1.bruh {
+    color: rgb(110, 110, 110);
     font-size: 10px;
 }
 
 a {
     text-decoration: none;
+}
+
+@media only screen and (max-width: 610px) {
+    h1.bruh {
+        font-size: 4px;
+    }
 }
