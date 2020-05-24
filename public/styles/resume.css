@@ -206,6 +206,10 @@ img.social-icon {
     font-size: 14px;
 }
 
+.website-link {
+    display: none;
+}
+
 .social-placeholder {
     display: none;
 }
@@ -450,6 +454,10 @@ a.company-long {
         display: none;
     }
 
+    .website-link {
+        display: block;
+    }
+
     body {
         padding-top: 0px;
         background: white;
@@ -471,6 +479,19 @@ a.company-long {
         margin: 0 0 0 0;
         padding: 0 0 0 0;
         box-shadow: none;
+    }
+
+    .in-left-social {
+        margin-top: 16px;
+        padding-bottom: 16px;
+    }
+
+    .social-link {
+        font-size: 12px;
+    }
+
+    img.social-icon {
+        width: 24px;
     }
 
     .in-left-skills {
@@ -513,6 +534,10 @@ a.company-long {
 
     .in-left-profile {
         padding-top: 15px;
+    }
+
+    .headshot {
+        border-radius: 40px;
     }
 
     .in-left-social {
