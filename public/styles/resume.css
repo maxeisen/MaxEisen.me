@@ -82,30 +82,27 @@ a:hover {
 .back-button {
     position: inline;
     float: left;
-    -webkit-transition: all .2s ease-in;
-	-moz-transition: all .2s ease-in;
-	-o-transition: all .2s ease-in;
-    -ms-transition: all .2s ease-in;
-    transition: all .2s ease-in;
+    -webkit-transition: all 0s ease-in;
+	-moz-transition: all 0s ease-in;
+	-o-transition: all 0s ease-in;
+    -ms-transition: all 0s ease-in;
+    transition: all 0s ease-in;
     font-size: 25px;
+    font-weight: 400;
     color: white;
     margin-left: 12px;
     margin-top: -3px;
 }
 
 .back-button:hover {
-    color: rgb(0, 187, 162);
-    transform: scale(1.05);
+    -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
+    -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
+    animation: hoverGlow 1s ease-in-out infinite alternate;
 }
 
 .back-button-mobile {
     display: none;
     position: absolute;
-    -webkit-transition: all .2s ease-in;
-	-moz-transition: all .2s ease-in;
-	-o-transition: all .2s ease-in;
-    -ms-transition: all .2s ease-in;
-    transition: all .2s ease-in;
     font-size: 30px;
     color: white;
     margin-left: 12px;
@@ -115,12 +112,13 @@ a:hover {
 .print-button {
     position: inline;
     float: right;
-    -webkit-transition: all .2s ease-in;
-	-moz-transition: all .2s ease-in;
-	-o-transition: all .2s ease-in;
-    -ms-transition: all .2s ease-in;
-    transition: all .2s ease-in;
+    -webkit-transition: all 0s ease-in;
+	-moz-transition: all 0s ease-in;
+	-o-transition: all 0s ease-in;
+    -ms-transition: all 0s ease-in;
+    transition: all 0s ease-in;
     font-size: 25px;
+    font-weight: 400;
     color: white;
     margin-right: 12px;
     margin-top: -3px;
@@ -128,8 +126,18 @@ a:hover {
 
 .print-button:hover {
     cursor: pointer;
-    color: rgb(0, 187, 162);
-    transform: scale(1.05);
+    -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
+    -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
+    animation: hoverGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes hoverGlow {
+    from {
+      text-shadow: 0 0 0 #fff;
+    }
+    to {
+      text-shadow: 0 0 7px #01c0a7;
+    }
 }
 
 .logical-and {
@@ -421,12 +429,12 @@ a.company-long {
 
 .easter-egg {
     color: black;
-    -webkit-animation: glow 1s ease-in-out infinite alternate;
-    -moz-animation: glow 1s ease-in-out infinite alternate;
-    animation: glow 1s ease-in-out infinite alternate;
+    -webkit-animation: constantGlow 1s ease-in-out infinite alternate;
+    -moz-animation: constantGlow 1s ease-in-out infinite alternate;
+    animation: constantGlow 1s ease-in-out infinite alternate;
 }
 
-@keyframes glow {
+@keyframes constantGlow {
     from {
       text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #00bba22f, 0 0 5px #00bba22f, 0 0 6px #00bba22f, 0 0 7px #00bba22f, 0 0 8px #00bba22f;
     }

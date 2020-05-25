@@ -23,7 +23,7 @@
                         <li><a href="#projects">Projects</a></li>
                         <li><a href="#education">Education</a></li>
                         <li><a href="#skills">Skills</a></li>
-                        <li><a href="/resume"><b>Resume</b></a></li>
+                        <li><a rel="prefetch" href="/resume"><b>Resume</b></a></li>
                     </ul>
                 </nav>
             </div>
