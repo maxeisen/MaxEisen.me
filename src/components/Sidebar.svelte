@@ -17,7 +17,7 @@
 </div>
 
 <div class="headshot">
-    <img class="headshot" src={headshot} alt="Tightly cropped picture of Max"/>
+    <img class="headshot" src={headshot} alt="Empty background headshot"/>
 </div>
 
 <style>
