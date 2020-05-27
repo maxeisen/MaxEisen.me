@@ -17,7 +17,7 @@
 </div>
 
 <div class="headshot">
-    <img class="headshot" src={headshot} alt="Empty background headshot"/>
+    <img class="headshot" src={headshot} alt="No background headshot of Max"/>
 </div>
 
 <style>
