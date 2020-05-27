@@ -6,7 +6,7 @@
     import Education from './components/Education.svelte';
     import Skills from './components/Skills.svelte';
   	import Modal from 'svelte-simple-modal';
-	let memoji = "./img/headshots/memoji_cycle_large.gif";
+    let memoji = "./img/headshots/memoji_cycle_large.gif";
 </script>
 
 <Modal>
