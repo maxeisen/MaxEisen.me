@@ -2,11 +2,11 @@
 	import Sidebar from './components/Sidebar.svelte';
 	import Intro from './components/Intro.svelte';
 	import Experience from './components/Experience.svelte';
-    import Projects from './components/Projects.svelte';
-    import Education from './components/Education.svelte';
-    import Skills from './components/Skills.svelte';
+    	import Projects from './components/Projects.svelte';
+    	import Education from './components/Education.svelte';
+    	import Skills from './components/Skills.svelte';
   	import Modal from 'svelte-simple-modal';
-    let memoji = "./img/headshots/memoji_cycle_large.gif";
+    	let memoji = "./img/headshots/memoji_cycle_large.gif";
 </script>
 
 <Modal>
