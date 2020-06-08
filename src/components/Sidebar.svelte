@@ -1,5 +1,5 @@
 <script>
-    let headshot = "./img/headshots/tight_headshot.png";
+    let headshot = "./img/headshots/current_headshot.png";
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte'
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte'
     import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte'
@@ -17,7 +17,7 @@
 </div>
 
 <div class="headshot">
-    <img class="headshot" src={headshot} alt="No background headshot of Max"/>
+    <img class="headshot" src={headshot} alt="Current headshot"/>
 </div>
 
 <style>

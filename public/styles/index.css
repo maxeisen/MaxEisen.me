@@ -253,6 +253,10 @@ header a:hover {
     box-shadow: 0 0 0 2px #00bba2;
 }
 
+.education-item:active {
+    transform: scale(0.95)
+}
+
 .skills-subsection {
     margin-left: auto;
     margin-right: auto;
