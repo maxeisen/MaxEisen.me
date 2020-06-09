@@ -1477,38 +1477,40 @@ var app = (function () {
     			t11 = space();
     			div1 = element("div");
     			img = element("img");
-    			add_location(h1, file$5, 8, 0, 340);
+    			add_location(h1, file$5, 8, 0, 347);
     			set_style(b, "color", "#ababab");
     			set_style(b, "font-weight", "300");
-    			add_location(b, file$5, 9, 22, 385);
+    			add_location(b, file$5, 9, 22, 392);
     			attr_dev(h20, "class", "status svelte-1ah570u");
-    			add_location(h20, file$5, 9, 0, 363);
+    			add_location(h20, file$5, 9, 0, 370);
     			attr_dev(h21, "class", "location svelte-1ah570u");
-    			add_location(h21, file$5, 10, 0, 459);
+    			add_location(h21, file$5, 10, 0, 466);
     			attr_dev(a0, "class", "social-links svelte-1ah570u");
     			attr_dev(a0, "href", "https://linkedin.com/in/maxeisen/");
     			attr_dev(a0, "target", "_blank");
-    			add_location(a0, file$5, 12, 4, 538);
+    			add_location(a0, file$5, 12, 4, 545);
     			attr_dev(a1, "class", "social-links svelte-1ah570u");
     			attr_dev(a1, "href", "https://github.com/maxeisen/");
     			attr_dev(a1, "target", "_blank");
-    			add_location(a1, file$5, 13, 4, 644);
+    			add_location(a1, file$5, 13, 4, 651);
     			attr_dev(a2, "class", "social-links svelte-1ah570u");
     			attr_dev(a2, "href", "https://twitter.com/maxeisen/");
     			attr_dev(a2, "target", "_blank");
-    			add_location(a2, file$5, 14, 4, 743);
+    			add_location(a2, file$5, 14, 4, 750);
     			attr_dev(a3, "class", "social-links svelte-1ah570u");
     			attr_dev(a3, "href", "mailto:max.eisen@queensu.ca");
     			attr_dev(a3, "target", "_blank");
-    			add_location(a3, file$5, 15, 4, 844);
+    			add_location(a3, file$5, 15, 4, 851);
     			attr_dev(div0, "class", "social-links-container svelte-1ah570u");
-    			add_location(div0, file$5, 11, 0, 497);
+    			add_location(div0, file$5, 11, 0, 504);
     			attr_dev(img, "class", "headshot svelte-1ah570u");
-    			if (img.src !== (img_src_value = /*headshot*/ ctx[0])) attr_dev(img, "src", img_src_value);
+    			if (img.src !== (img_src_value = /*currentHeadshot*/ ctx[0])) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "Current headshot");
-    			add_location(img, file$5, 19, 4, 971);
+    			attr_dev(img, "onmouseover", "headshotHover(this);");
+    			attr_dev(img, "onmouseout", "headshotUnhover(this);");
+    			add_location(img, file$5, 19, 4, 978);
     			attr_dev(div1, "class", "headshot svelte-1ah570u");
-    			add_location(div1, file$5, 18, 0, 944);
+    			add_location(div1, file$5, 18, 0, 951);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -1585,7 +1587,7 @@ var app = (function () {
     }
 
     function instance$5($$self, $$props, $$invalidate) {
-    	let headshot = "./img/headshots/current_headshot.png";
+    	let currentHeadshot = "./img/headshots/current_headshot.png";
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -1596,7 +1598,7 @@ var app = (function () {
     	validate_slots("Sidebar", $$slots, []);
 
     	$$self.$capture_state = () => ({
-    		headshot,
+    		currentHeadshot,
     		LinkedInLogo: IoLogoLinkedin,
     		GitHubLogo: IoLogoGithub,
     		TwitterLogo: IoLogoTwitter,
@@ -1604,14 +1606,14 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("headshot" in $$props) $$invalidate(0, headshot = $$props.headshot);
+    		if ("currentHeadshot" in $$props) $$invalidate(0, currentHeadshot = $$props.currentHeadshot);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [headshot];
+    	return [currentHeadshot];
     }
 
     class Sidebar extends SvelteComponentDev {
@@ -5049,10 +5051,7 @@ var app = (function () {
     }
 
     const app = new App({
-    	target: document.body,
-    	props: {
-    		name: 'maxeisen.me'
-    	}
+    	target: document.body
     });
 
     return app;
