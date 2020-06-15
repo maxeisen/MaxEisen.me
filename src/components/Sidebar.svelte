@@ -4,9 +4,19 @@
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte'
     import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte'
     import MailIcon from 'svelte-icons/io/IoIosMail.svelte'
+
+    import Annotation from 'svelte-rough-notation';
+    import { onMount } from 'svelte';
+
+    let visible = false;
+    onMount(() => {
+        setTimeout(() => {
+            visible = true;
+        }, 1000);
+    });
 </script>
 
-<h1>Maxwell Eisen</h1>
+<h1><Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.1)">Maxwell Eisen</Annotation></h1>
 <h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
