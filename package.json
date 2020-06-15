@@ -21,7 +21,4 @@
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.0"
   }
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  }
 }
