@@ -1,6 +1,3 @@
-<script>
-</script>
-
 <h1 class="section-title" id="skills">Skills</h1>
 <div class="skills-subsection">
     <ul>
@@ -14,12 +11,12 @@
         <li>C#</li>
         <li>C</li>
         <li>PHP</li>
-        <li>Gatsby</li>
-        <li>Django</li>
         <li>React</li>
-        <li>NodeJS</li>
-        <li>Git</li>
+        <li>Spring</li>
+        <li>Gatsby</li>
+        <li>Spring</li>
         <li>Svelte</li>
+        <li>Git</li>
     </ul>
 </div>
 

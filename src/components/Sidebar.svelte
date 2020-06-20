@@ -1,9 +1,10 @@
 <script>
-    let currentHeadshot = "./img/headshots/current_headshot.png";
-    import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte'
-    import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte'
-    import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte'
-    import MailIcon from 'svelte-icons/io/IoIosMail.svelte'
+    let statusHeadshot = './img/headshots/status_headshot.png';
+    let cleanHeadshot = './img/headshots/clean_headshot.png';
+    import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
+    import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
+    import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte';
+    import MailIcon from 'svelte-icons/io/IoIosMail.svelte';
 
     import Annotation from 'svelte-rough-notation';
     import { onMount } from 'svelte';
@@ -27,7 +28,7 @@
 </div>
 
 <div class="headshot">
-    <img class="headshot" src={currentHeadshot} alt="Current headshot" onmouseover="headshotHover(this);" onmouseout="headshotUnhover(this);"/>
+    <img class="headshot" src={statusHeadshot} alt="Current headshot" onmouseover="attributeChange(this, 'src', '{cleanHeadshot}');" onmouseout="attributeChange(this, 'src', '{statusHeadshot}');"/>
 </div>
 
 <style>

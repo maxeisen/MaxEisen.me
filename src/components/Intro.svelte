@@ -1,7 +1,7 @@
 <script>
-    import Annotation from "svelte-rough-notation";
-    import { annotationGroup } from "rough-notation";
-    import { onMount } from "svelte";
+    import Annotation from 'svelte-rough-notation';
+    import { annotationGroup } from 'rough-notation';
+    import { onMount } from 'svelte';
 
     let introDescriptors = [];
     onMount(() => {
