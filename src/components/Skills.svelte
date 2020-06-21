@@ -2,21 +2,21 @@
 <div class="skills-subsection">
     <ul>
         <li>Python</li>
+        <li>Java</li>
+        <li>JavaScript</li>
         <li>HTML5</li>
         <li>CSS3</li>
-        <li>JavaScript</li>
-        <li>Java</li>
         <li>SQL</li>
         <li>C++</li>
         <li>C#</li>
-        <li>C</li>
-        <li>PHP</li>
         <li>React</li>
-        <li>Spring</li>
+        <li>Svelte</li>
         <li>Gatsby</li>
         <li>Spring</li>
-        <li>Svelte</li>
+        <li>Node</li>
         <li>Git</li>
+        <li>AWS</li>
+        <li>Unity</li>
     </ul>
 </div>
 

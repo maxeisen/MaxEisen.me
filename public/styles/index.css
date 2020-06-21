@@ -13,7 +13,7 @@ body {
     font-weight: 300;
     line-height: 1.3;
     background-image: url("../img/backgrounds/prism-bg.png");
-    background-color: #222;
+    background-color: rgb(8,8,8);
     background-repeat: repeat;
     background-attachment: fixed;
 }
@@ -72,7 +72,13 @@ a:hover {
 }
 
 .home-icon:hover {
-    transform: scale(1.3);
+    transform: scale(1.2);
+    -webkit-filter: drop-shadow(0 0 2px #00bba2);
+    filter: drop-shadow(0 0 75px #00ebcb);
+}
+
+.home-icon:active {
+    transform: scale(0.95);
 }
 
 header nav ul {
@@ -94,7 +100,7 @@ header a {
 	-o-transition: all 0s ease-in;
     -ms-transition: all 0s ease-in;
     transition: all 0s ease-in;
-    color: white;
+    color: #cccccc;
 }
 
 header a:hover {
@@ -167,7 +173,7 @@ header a:hover {
 }
 
 .experience-item {
-    background-color: rgba(31, 31, 31, 0.8);
+    background-color: rgba(25, 25, 25, 0.8);
     border: 1.25px solid rgb(138, 137, 137);
     border-radius: 10px;
     padding: 10px 30px 10px 30px;
@@ -189,7 +195,7 @@ header a:hover {
 }
 
 .experience-item:active {
-    transform: scale(0.95)
+    transform: scale(0.95);
 }
 
 .project-subsection {
@@ -202,7 +208,7 @@ header a:hover {
 }
 
 .project-item {
-    background-color: rgba(31, 31, 31, 0.8);
+    background-color: rgba(25, 25, 25, 0.8);
     border: 1.25px solid rgb(138, 137, 137);
     border-radius: 10px;
     padding: 10px 30px 10px 30px;
@@ -232,7 +238,7 @@ header a:hover {
 }
 
 .education-item {
-    background-color: rgba(31, 31, 31, 0.8);
+    background-color: rgba(25, 25, 25, 0.8);
     border: 1.25px solid rgb(138, 137, 137);
     border-radius: 10px;
     padding: 10px 30px 10px 30px;
@@ -398,6 +404,10 @@ header a:hover {
 }
 
 @media only screen and (max-width: 460px) {
+    header nav ul li {
+        padding-right: 30px;
+    }
+
     .sidebar-section {
         min-width: 50%;
         margin-left: auto;

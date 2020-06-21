@@ -17,7 +17,7 @@
     });
 </script>
 
-<h1><Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.1)">Maxwell Eisen</Annotation></h1>
+<Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.23)"><h1>Maxwell Eisen</h1></Annotation>
 <h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
@@ -52,8 +52,8 @@
         padding-top: 0;
         width: 200px;
         height: 200px;
-        -webkit-filter: drop-shadow(2px -2px 2px #222);
-        filter: drop-shadow(2px -2px 2px #222);
+        -webkit-filter: drop-shadow(2px -2px 5px #222);
+        filter: drop-shadow(2px -2px 5px #222);
     }
 
     .social-links-container {

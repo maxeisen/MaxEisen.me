@@ -7,13 +7,12 @@
     import Skills from './components/Skills.svelte';
   	import Modal from 'svelte-simple-modal';
     let memoji = './img/additional/memoji_cycle_large.gif';
-    let memojiStill = './img/additional/memoji_thumbs_up.png';
 </script>
 
 <Modal>
     <header>
         <div>
-            <a href="/#"><img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji" onmouseover="attributeChange(this, 'src', '{memojiStill}');" onmouseout="attributeChange(this, 'src', '{memoji}');"/></a>
+            <a href="/#"><img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji"/></a>
         </div>
         <div class="nav-bar">
             <nav>
