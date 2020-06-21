@@ -372,6 +372,10 @@ header a:hover {
         width: 75px;
     }
 
+    .home-icon:hover {
+        filter: none;
+    }
+
     .sidebar-section {
         min-width: 50%;
         margin: 20px auto 20px auto;

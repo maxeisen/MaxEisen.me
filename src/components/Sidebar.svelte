@@ -17,7 +17,7 @@
     });
 </script>
 
-<Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.23)"><h1>Maxwell Eisen</h1></Annotation>
+<h1><Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.23)">Maxwell Eisen</Annotation></h1>
 <h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
