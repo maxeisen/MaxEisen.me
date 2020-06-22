@@ -1,6 +1,5 @@
-
-<img src="https://github.com/maxeisen/MaxEisen.me/blob/master/public/img/additional/memoji_cycle_large.gif" width="100">
-
+<img src="https://github.com/maxeisen/MaxEisen.me/blob/master/public/img/additional/memoji_cycle_large.gif" alt="Max Eisen memoji cycle" width="100">
+  
 # Get to Know Max Eisen
 This is my personal website - previously a web version of my resume with some nice, interactive, responsive elements, and now a cooler, more complex website showcasing personal projects, professional experience, and more.
 
