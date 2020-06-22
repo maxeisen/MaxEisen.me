@@ -1,10 +1,13 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/29ebb303-9e97-44b6-82da-f68a0dee3963/deploy-status)](https://app.netlify.com/sites/maxeisen/deploys)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6c10e2469ebf468c8c24fe25b6d94649)](https://www.codacy.com/manual/maxeisen/MaxEisen.me?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=maxeisen/MaxEisen.me&amp;utm_campaign=Badge_Grade)
+
+<img src="https://github.com/maxeisen/MaxEisen.me/blob/master/public/img/additional/memoji_cycle_large.gif" width="100">
 
 # Get to Know Max Eisen
 This is my personal website - previously a web version of my resume with some nice, interactive, responsive elements, and now a cooler, more complex website showcasing personal projects, professional experience, and more.
 
 Deployed to [maxeisen.me](https://maxeisen.me) - check it out!
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/29ebb303-9e97-44b6-82da-f68a0dee3963/deploy-status)](https://app.netlify.com/sites/maxeisen/deploys)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6c10e2469ebf468c8c24fe25b6d94649)](https://www.codacy.com/manual/maxeisen/MaxEisen.me?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=maxeisen/MaxEisen.me&amp;utm_campaign=Badge_Grade)
 
 ## Development
 To install and work on the website locally:
