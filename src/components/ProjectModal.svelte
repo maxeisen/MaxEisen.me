@@ -12,7 +12,7 @@
     <h1 class="modal-name"><a href={projectLink} target="_blank">{name}</a> ({year})</h1>
     <h3 class="modal-description" style="text-align: center">Technologies: <b class="technologies">{technologies}</b></h3>
     <p class="modal-description">{@html description}</p>
-    <img class="screenshot" src={screenshot} alt="{name} screenshot 1">
+    <img class="screenshot" src={screenshot} alt="{name} screenshot">
     <a href={githubLink} target="_blank"><h2 class="github-link">View Code</h2></a>
 </div>
 

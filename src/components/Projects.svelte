@@ -3,7 +3,7 @@
     import ProjectModal from './ProjectModal.svelte';
 
     const proj1 = {
-        name:"Studii",
+        name: "Studii",
         emoji: "&#128218;",
         technologies: "React, Django, MongoDB",
         year: "2019/2020",
@@ -11,10 +11,10 @@
         longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by myself and my 7 other QTMA team members</li></ul>",
         githubLink: "https://github.com/maxeisen/studii_public",
         projectLink: "https://qtma.ca/studii.html",
-        screenshot: "./img/screenshots/studii.png",
-    }
+        screenshot: "./img/screenshots/studii.jpg",
+    };
     const proj2 = {
-        name:"QHacks Website",
+        name: "QHacks Website",
         emoji: "&#128187;",
         technologies: "React, Gatsby, MongoDB",
         year: "2019/2020",
@@ -22,21 +22,21 @@
         longDescription: "<ul><li>The static website for the 2020 hackathon, developed with React and generated using Gatsby, as well as the dashboard with a MongoDB backend</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
         projectLink: "https://qhacks.io",
-        screenshot: "./img/screenshots/qhacks.png",
-    }
+        screenshot: "./img/screenshots/qhacks.jpg",
+    };
     const proj3 = {
-        name:"Spotilizer",
+        name: "Spotilizer",
         emoji: "&#127925;",
         technologies: "Python, Tkinter, Spotify Web API",
         year: "2019",
         shortDescription: "A customizable, data-centric Spotify visualizer built in Python",
-        longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
+        longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
         githubLink: "https://github.com/maxeisen/spotilizer",
         projectLink: "https://github.com/maxeisen/spotilizer",
-        screenshot: "./img/screenshots/spotilizer.png",
-    }
+        screenshot: "./img/screenshots/spotilizer.jpg",
+    };
     const proj4 = {
-        name:"Glitch",
+        name: "Glitch",
         emoji: "&#127918;",
         technologies: "Unity Game Engine, C#",
         year: "2018/2019",
@@ -44,8 +44,8 @@
         longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>The player will have to use this mechanic in order to complete the game's levels, allowing them to switch between the level’s two states and see certain elements that were not previously visible</li><li>Developed as a group project for CISC 226 - Game Design at Queen's University</li></ul>",
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
-        screenshot: "./img/screenshots/glitch.png",
-    }
+        screenshot: "./img/screenshots/glitch.jpg",
+    };
 
     const { open } = getContext('simple-modal');
 

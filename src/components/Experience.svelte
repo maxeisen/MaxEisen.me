@@ -7,11 +7,11 @@
         company: "Jonah Group",
         companyLink: "https://www.jonahgroup.com/",
         startDate: "May 2020",
-        endDate: "Present",
+        endDate: "September 2020",
         location: "Toronto, ON",
         shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
-        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Part of a team of several skilled developers and engineers to work on a decision engine to be implemented for client companies</li></ul>`
-    }
+        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Full stack software engineer in a team of several skilled developers and engineers working on a decision engine to be implemented for client companies</li></ul>`
+    };
     const exp2 = {
         position: "Product Manager",
         company: "Queen's Technology and Media Association",
@@ -21,7 +21,7 @@
         location: "Kingston, ON",
         shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
         longDescription: `<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>`
-    }
+    };
     const exp3 = {
         position: "Director of Technology",
         company: "TechTrainers",
@@ -31,7 +31,7 @@
         location: "Toronto, ON",
         shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
         longDescription: `<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li><li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li><li>Company was able to turn a profit in first month of operations</li></ul>`
-    }
+    };
     const exp4 = {
         position: "Computer Science Teaching Assistant",
         company: "Queen's University",
@@ -41,7 +41,7 @@
         location: "Kingston, ON",
         shortDescription: "Worked as a teaching assistant for a Python programming course of over 250 students",
         longDescription: `<ul><li>Selected as one of 8 TAs for the specific Python programming course, having previously obtained an exceptional grade in the course</li><li>Assisted in the teaching and grading of the class with over 250 students</li><li>Held weekly office hours to guide students in completing assignments and reviewing for exams</li></ul>`
-    }
+    };
     const exp5 = {
         position: "Software Developer",
         company: "QHacks",
@@ -51,7 +51,7 @@
         location: "Kingston, ON",
         shortDescription: "Developed the website and other software for Queen's University's official MLH hackathon",
         longDescription: `<ul><li>Developed and deployed the official website for the 2020 MLH-affiliated hackathon using React and Gatsby (accessed by over 10,000 individuals)</li><li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li><li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li></ul>`
-    }
+    };
     const exp6 = {
         position: "Technical Instructor",
         company: "UnderTheGUI Inc.",
@@ -61,7 +61,7 @@
         location: "Vancouver, BC",
         shortDescription: "Taught and created course content for programming and engineering courses tailored to teens and young adults",
         longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses include: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
-    }
+    };
 
     const { open } = getContext('simple-modal');
 

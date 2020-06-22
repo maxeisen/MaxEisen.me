@@ -8,7 +8,7 @@
         major: "Computer Science (<a href=\"http://www.cips.ca/\" target=\"_blank\">CIPS</a> Accredited)",
         years: "2017 - 2021",
         committees: "QTMA, QHacks, TEDxQueensU, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
-    }
+    };
 
     const { open } = getContext('simple-modal');
 
@@ -17,7 +17,6 @@
             school: education.school, degree: education.degree, major: education.major, years: education.years, committees: education.committees
         });
     };
-
 </script>
 
 <h1 class="section-title" id="education">Education</h1>
