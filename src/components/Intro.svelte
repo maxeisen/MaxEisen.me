@@ -9,7 +9,7 @@
         let ids = annotationGroup(introDescriptors);
         setTimeout(() => {
             ids.show();
-        }, 4000);
+        }, 2000);
     });
 
     const { open } = getContext('simple-modal');
