@@ -41,7 +41,7 @@
         technologies: "Unity Game Engine, C#",
         year: "2018/2019",
         shortDescription: "A unique, monochromatic platformer game for observant minimalists",
-        longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>The player will have to use this mechanic in order to complete the game's levels, allowing them to switch between the level’s two states and see certain elements that were not previously visible</li><li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li></ul>",
+        longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li></ul>",
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
         screenshot: "./img/screenshots/glitch.jpg",
@@ -91,7 +91,7 @@
         <h2 class="project-tech">{proj3.technologies}</h2>
         <p>{proj3.shortDescription}</p>
     </div>
-    <div class="project-item" tabindex="0" tyle="background-image: url({proj4.screenshot})" on:click={modal4}>
+    <div class="project-item" tabindex="0" style="background-image: url({proj4.screenshot})" on:click={modal4}>
         <h2 class="project-name">{proj4.name} {@html proj4.emoji}</h2>
         <h2 class="project-year">{proj4.year}</h2>
         <h2 class="project-tech">{proj4.technologies}</h2>

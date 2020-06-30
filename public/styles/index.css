@@ -205,7 +205,7 @@ header a:hover {
 }
 
 .project-item {
-    box-shadow: inset 0 0 0 1000px rgba(25,25,25,0.95);
+    box-shadow: inset 0 0 0 1000px rgba(25, 25, 25, 0.92);
     background-repeat: no-repeat;
     background-size: 105%;
     background-position: center;
