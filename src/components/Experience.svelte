@@ -60,7 +60,7 @@
         endDate: "August 2019",
         location: "Vancouver, BC",
         shortDescription: "Taught and created course content for programming and engineering courses tailored to teens and young adults",
-        longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses include: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
+        longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses included: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
     };
 
     const { open } = getContext('simple-modal');
@@ -99,38 +99,38 @@
 
 <h1 class="section-title" id="experience">Experience</h1>
 <div class="experience-subsection">
-    <div class="experience-item" on:click={modal1}>
+    <div class="experience-item" tabindex="0" on:click={modal1}>
         <h2 class="experience-title"><div class="experience-position">{exp1.position}</div></h2>
         <h2 class="experience-company">{exp1.company}</h2>
         <p>{exp1.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp1.startDate}-{exp1.endDate}</div><div class="experience-location">{exp1.location}</div></h1>
     </div>
-    <div class="experience-item" on:click={modal2}>
+    <div class="experience-item" tabindex="0" on:click={modal2}>
         <h2 class="experience-title"><div class="experience-position">{exp2.position}</div></h2>
         <h2 class="experience-company">QTMA</h2>
         <p>{exp2.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}-{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
     </div>
-    <div class="experience-item" on:click={modal3}>
+    <div class="experience-item" tabindex="0" on:click={modal3}>
         <h2 class="experience-title"><div class="experience-position">{exp3.position}</div></h2>
         <h2 class="experience-company">{exp3.company}</h2>
         <p>{exp3.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}-{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
     </div>
-    <div class="experience-item" on:click={modal4}>
+    <div class="experience-item" tabindex="0" on:click={modal4}>
         <h2 class="experience-title"><div class="experience-position">CS Teaching Assistant</div></h2>
         <h2 class="experience-company">{exp4.company}</h2>
         <p>{exp4.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">Sept. 2019-{exp4.endDate}</div>
         <div class="experience-location">{exp4.location}</div></h1>
     </div>
-    <div class="experience-item" on:click={modal5}>
+    <div class="experience-item" tabindex="0" on:click={modal5}>
         <h2 class="experience-title"><div class="experience-position">{exp5.position}</div></h2>
         <h2 class="experience-company">{exp5.company}</h2>
         <p>{exp5.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">Sept. 2019-Feb. 2020</div><div class="experience-location">{exp5.location}</div></h1>
     </div>
-    <div class="experience-item" on:click={modal6}>
+    <div class="experience-item" tabindex="0" on:click={modal6}>
         <h2 class="experience-title"><div class="experience-position">{exp6.position}</div></h2>
         <h2 class="experience-company">{exp6.company}</h2>
         <p>{exp6.shortDescription}</p>

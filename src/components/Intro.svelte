@@ -62,22 +62,21 @@
     };    
 </script>
 
-<h1 class="section-title-intro">My Name is Max Eisen...</h1>
+<h1 class="section-title-intro">Max Eisen</h1>
 <div class="intro-paragraph">
-    <p class="title-extension">and I am a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
+    <p class="title-extension">is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
     student at <a class="intro-link" href="https://www.queensu.ca/" target="_blank">Queen's University</a> with a fascination for technology.</p>
 
-    <p>I am also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>
-    who enjoys programming, software and web development, leading teams, beta testing, automation, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" target="_blank">iOS app reviewing</a>.
-    In my free time, I am usually <activity on:click={skiingModal}>skiing</activity>, <activity on:click={hikingModal}>hiking</activity>, <activity on:click={travellingModal}>travelling</activity>, <activity on:click={guitarModal}>playing guitar</activity>, or <activity on:click={techModal}>messing around with technology</activity>.</p>
+    <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
+    he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" target="_blank">iOS app reviewing</a>.
+    In his free time, he is usually <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, <activity tabindex="0" on:click={guitarModal}>playing guitar</activity>, or <activity tabindex="0" on:click={techModal}>messing around with technology</activity>.</p>
 
-    <p>When I'm away from my computer, I am a
-    <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
-    who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, I strive to communicate
+    <p>He is a <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
+    who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, he strives to communicate
     <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
     <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
     
-    <p>Feel free to explore my website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" target="_blank">email me</a> if you have any questions or comments.</p>
+    <p>Please explore and enjoy this portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" target="_blank">email Max</a> if you have any questions or comments.</p>
 </div>
 
 <style>
@@ -124,5 +123,15 @@
 
     .intro-link:hover {
         color: #00bba2;
+    }
+
+    @media only screen and (max-width: 460px) {
+        .section-title-intro {
+            font-size: 36px;
+        }
+
+        .intro-paragraph {
+        font-size: 14px;
+        }
     }
 </style>

@@ -21,7 +21,7 @@
 
 <h1 class="section-title" id="education">Education</h1>
     <div class="education-subsection">
-        <div class="education-item" on:click={educationModal}>
+        <div class="education-item" tabindex="0" on:click={educationModal}>
             <h2 class="school-name">{education.school}</h2>
             <h2 class="degree-info">Bachelor of Computing (Honours)</h2>
             <h2 class="major-info">Computer Science</h2>

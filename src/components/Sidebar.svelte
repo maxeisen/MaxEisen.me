@@ -21,10 +21,10 @@
 <h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
-    <a class="social-links" href="https://linkedin.com/in/maxeisen/" target="_blank"><LinkedInLogo /></a>
-    <a class="social-links" href="https://github.com/maxeisen/" target="_blank"><GitHubLogo /></a>
-    <a class="social-links" href="https://twitter.com/maxeisen/" target="_blank"><TwitterLogo /></a>
-    <a class="social-links" href="mailto:max.eisen@queensu.ca" target="_blank"><MailIcon /></a>
+    <a class="social-link" href="https://linkedin.com/in/maxeisen/" target="_blank"><LinkedInLogo /></a>
+    <a class="social-link" href="https://github.com/maxeisen/" target="_blank"><GitHubLogo /></a>
+    <a class="social-link" href="https://twitter.com/maxeisen/" target="_blank"><TwitterLogo /></a>
+    <a class="social-link" href="mailto:max.eisen@queensu.ca" target="_blank"><MailIcon /></a>
 </div>
 
 <div class="headshot">
@@ -65,7 +65,7 @@
         justify-content: center;
     }
 
-    .social-links {
+    .social-link {
         color: #addeff;
         margin-left: 8px;
         margin-right: 8px;

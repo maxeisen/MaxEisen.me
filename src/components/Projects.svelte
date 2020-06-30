@@ -8,7 +8,7 @@
         technologies: "React, Django, MongoDB",
         year: "2019/2020",
         shortDescription: "A collaborative study space for students, by students",
-        longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by myself and my 7 other QTMA team members</li></ul>",
+        longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li></ul>",
         githubLink: "https://github.com/maxeisen/studii_public",
         projectLink: "https://qtma.ca/studii.html",
         screenshot: "./img/screenshots/studii.jpg",
@@ -19,7 +19,7 @@
         technologies: "React, Gatsby, MongoDB",
         year: "2019/2020",
         shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
-        longDescription: "<ul><li>The static website for the 2020 hackathon, developed with React and generated using Gatsby, as well as the dashboard with a MongoDB backend</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
+        longDescription: "<ul><li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
         projectLink: "https://qhacks.io",
         screenshot: "./img/screenshots/qhacks.jpg",
@@ -41,7 +41,7 @@
         technologies: "Unity Game Engine, C#",
         year: "2018/2019",
         shortDescription: "A unique, monochromatic platformer game for observant minimalists",
-        longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>The player will have to use this mechanic in order to complete the game's levels, allowing them to switch between the level’s two states and see certain elements that were not previously visible</li><li>Developed as a group project for CISC 226 - Game Design at Queen's University</li></ul>",
+        longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>The player will have to use this mechanic in order to complete the game's levels, allowing them to switch between the level’s two states and see certain elements that were not previously visible</li><li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li></ul>",
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
         screenshot: "./img/screenshots/glitch.jpg",
@@ -73,25 +73,25 @@
 
 <h1 class="section-title" id="projects">Projects</h1>
 <div class="project-subsection">
-    <div class="project-item" on:click={modal1}>
+    <div class="project-item" tabindex="0" style="background-image: url({proj1.screenshot})" on:click={modal1}>
         <h2 class="project-name">{proj1.name} {@html proj1.emoji}</h2>
         <h2 class="project-year">{proj1.year}</h2>
         <h2 class="project-tech">{proj1.technologies}</h2>
         <p>{proj1.shortDescription}</p>
     </div>
-    <div class="project-item" on:click={modal2}>
+    <div class="project-item" tabindex="0" style="background-image: url({proj2.screenshot})" on:click={modal2}>
         <h2 class="project-name">{proj2.name} {@html proj2.emoji}</h2>
         <h2 class="project-year">{proj2.year}</h2>
         <h2 class="project-tech">{proj2.technologies}</h2>
         <p>{proj2.shortDescription}</p>
     </div>
-    <div class="project-item" on:click={modal3}>
+    <div class="project-item" tabindex="0" style="background-image: url({proj3.screenshot})" on:click={modal3}>
         <h2 class="project-name">{proj3.name} {@html proj3.emoji}</h2>
         <h2 class="project-year">{proj3.year}</h2>
         <h2 class="project-tech">{proj3.technologies}</h2>
         <p>{proj3.shortDescription}</p>
     </div>
-    <div class="project-item" on:click={modal4}>
+    <div class="project-item" tabindex="0" tyle="background-image: url({proj4.screenshot})" on:click={modal4}>
         <h2 class="project-name">{proj4.name} {@html proj4.emoji}</h2>
         <h2 class="project-year">{proj4.year}</h2>
         <h2 class="project-tech">{proj4.technologies}</h2>

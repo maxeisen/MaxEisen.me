@@ -125,6 +125,21 @@ a:hover {
     margin-top: -3px;
 }
 
+.print-button-container {
+    position: inline;
+    float: right;
+    -webkit-transition: all 0s ease-in;
+	-moz-transition: all 0s ease-in;
+	-o-transition: all 0s ease-in;
+    -ms-transition: all 0s ease-in;
+    transition: all 0s ease-in;
+    font-size: 25px;
+    font-weight: 400;
+    color: #cccccc;
+    margin-right: 12px;
+    margin-top: -3px;
+}
+
 .print-button:hover {
     color: white;
     cursor: pointer;

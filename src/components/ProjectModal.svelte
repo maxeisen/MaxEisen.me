@@ -1,4 +1,7 @@
 <script>
+    import OpenLogo from 'svelte-icons/io/IoMdOpen.svelte'
+    import CodeLogo from 'svelte-icons/io/IoIosCode.svelte'
+
     export let name;
     export let technologies;
     export let year;
@@ -9,11 +12,14 @@
 </script>
 
 <div class="project-modal">
-    <h1 class="modal-name"><a href={projectLink} target="_blank">{name}</a> ({year})</h1>
-    <h3 class="modal-description" style="text-align: center">Technologies: <b class="technologies">{technologies}</b></h3>
+    <h1 class="modal-name">{name} ({year})</h1>
+    <h3 class="modal-description" style="text-align: center">Developed with: <b class="technologies">{technologies}</b></h3>
     <p class="modal-description">{@html description}</p>
     <img class="screenshot" src={screenshot} alt="{name} screenshot">
-    <a href={githubLink} target="_blank"><h2 class="github-link">View Code</h2></a>
+    <div class="project-links-container">
+        <a class="project-link" href={projectLink} target="_blank"><OpenLogo /></a>
+        <a class="project-link" href={githubLink} target="_blank"><CodeLogo /></a>
+    </div>
 </div>
 
 <style>
@@ -51,19 +57,27 @@
         margin: 20px auto 0 auto;
     }
 
-    .github-link {
+    .project-links-container {
+        display: flex;
+        margin: auto;
+        padding-top: 20px;
+        padding-top: 10px;
+        justify-content: center;
+    }
+
+    .project-link {
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
         -ms-transition: all .2s ease-in;
         transition: all .2s ease-in;
         color: rgb(0, 49, 82);
-        font-size: 25px;
-        margin: 20px auto 10px auto;
+        width: 30px;
+        height: 30px;
+        margin: 0 10px 0 10px;
     }
 
-    .github-link:hover {
+    .project-link:hover {
         color: #01c0a7;
-        font-size: 25px;
     }
 </style>
