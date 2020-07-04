@@ -401,6 +401,10 @@ header a:hover {
 }
 
 @media only screen and (max-width: 620px) {
+    .project-item {
+        background-size: 200%;
+    }
+
     .experience-subsection {
         grid-template-columns: auto;
         grid-template-rows: auto;
