@@ -17,18 +17,19 @@
     });
 </script>
 
-<h1><Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.23)">Maxwell Eisen</Annotation></h1>
+<h1><Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.23)">Max Eisen</Annotation></h1>
 <h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
-    <a class="social-link" href="https://linkedin.com/in/maxeisen/" target="_blank"><LinkedInLogo /></a>
-    <a class="social-link" href="https://github.com/maxeisen/" target="_blank"><GitHubLogo /></a>
-    <a class="social-link" href="https://twitter.com/maxeisen/" target="_blank"><TwitterLogo /></a>
+    <a class="social-link linkedin-link" href="https://linkedin.com/in/maxeisen/" target="_blank"><LinkedInLogo /></a>
+    <a class="social-link github-link" href="https://github.com/maxeisen/" target="_blank"><GitHubLogo /></a>
+    <a class="social-link twitter-link" href="https://twitter.com/maxeisen/" target="_blank"><TwitterLogo /></a>
     <a class="social-link" href="mailto:max.eisen@queensu.ca" target="_blank"><MailIcon /></a>
 </div>
 
 <div class="headshot">
     <img class="headshot" src={statusHeadshot} alt="Current headshot" onmouseover="attributeChange(this, 'src', '{cleanHeadshot}');" onmouseout="attributeChange(this, 'src', '{statusHeadshot}');"/>
+    <img class="headshot lower-headshot" src={cleanHeadshot} alt="Clean headshot"/>
 </div>
 
 <style>
@@ -56,6 +57,10 @@
         filter: drop-shadow(2px -2px 5px #222);
     }
 
+    .lower-headshot {
+        opacity: 0;
+    }
+
     .social-links-container {
         display: flex;
         margin: auto;
@@ -71,6 +76,18 @@
         margin-right: 8px;
         width: 40px;
         height: 40px;
+    }
+
+    .linkedin-link:hover {
+        color: #0077b5;
+    }
+
+    .github-link:hover {
+        color: #4078c0;
+    }
+
+    .twitter-link:hover {
+        color: #1da1f2;
     }
 
     a:hover {

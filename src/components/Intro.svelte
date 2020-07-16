@@ -4,6 +4,13 @@
     import { onMount, getContext } from 'svelte';
     import ActivityModal from './ActivityModal.svelte';
 
+    let visible = false;
+    onMount(() => {
+        setTimeout(() => {
+            visible = true;
+        }, 1000);
+    });
+
     let introDescriptors = [];
     onMount(() => {
         let ids = annotationGroup(introDescriptors);
@@ -62,10 +69,10 @@
     };    
 </script>
 
-<h1 class="section-title-intro">Max Eisen</h1>
+<h1 class="section-title-intro">Who is Max?</h1>
 <div class="intro-paragraph">
-    <p class="title-extension">is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
-    student at <a class="intro-link" href="https://www.queensu.ca/" target="_blank">Queen's University</a> with a fascination for technology.</p>
+    <p class="title-extension">Max is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
+    student at <a class="intro-link" href="https://www.queensu.ca/" target="_blank">Queen's University</a>, with a fascination for all technology.</p>
 
     <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
     he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" target="_blank">iOS app reviewing</a>.
@@ -81,9 +88,8 @@
 
 <style>
     .section-title-intro {
-        margin-top: 20px;
-        padding-bottom: 0;
-        margin-bottom: 0;
+        margin-top: 10px;
+        margin-bottom: 10px;
         text-align: left;
     }
 
@@ -131,7 +137,7 @@
         }
 
         .intro-paragraph {
-        font-size: 14px;
+        font-size: 16px;
         }
     }
 </style>

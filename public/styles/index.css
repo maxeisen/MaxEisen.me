@@ -386,6 +386,7 @@ header a:hover {
     .info-section-inner {
         margin: 20px auto 20px auto;
         position: relative;
+        background-color: rgb(0, 0, 0, 0);
     }
 
     .footer {
