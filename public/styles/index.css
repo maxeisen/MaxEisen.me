@@ -38,12 +38,7 @@ header {
 }
 
 header nav ul {
-    -webkit-transition: background-color 0.2s ease-in;
-	-moz-transition: background-color 0.2s ease-in;
-	-o-transition: background-color 0.2s ease-in;
-    -ms-transition: background-color 0.2s ease-in;
-    transition: background-color 0.2s ease-in;
-    background-color: rgba(114, 114, 114, 0.281);
+    background-color: rgba(18, 18, 18, 0.8);
     border-radius: 10px;
     display: flex;
     flex-wrap: wrap;

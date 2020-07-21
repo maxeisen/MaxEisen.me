@@ -800,50 +800,51 @@ var app = (function () {
     			b.textContent = "Resume";
     			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
     			attr_dev(source0, "type", "video/webm");
-    			add_location(source0, file, 19, 20, 794);
+    			add_location(source0, file, 19, 20, 839);
     			if (source1.src !== (source1_src_value = "./img/additional/memoji_cycle.mp4")) attr_dev(source1, "src", source1_src_value);
     			attr_dev(source1, "type", "video/mp4");
-    			add_location(source1, file, 20, 20, 885);
+    			add_location(source1, file, 20, 20, 928);
     			attr_dev(video, "class", "home-icon");
+    			attr_dev(video, "poster", "./img/additional/memoji_cycle_small.gif");
     			video.autoplay = true;
     			video.loop = true;
     			video.muted = true;
     			video.playsInline = true;
-    			add_location(video, file, 18, 16, 713);
+    			add_location(video, file, 18, 16, 709);
     			attr_dev(a0, "href", "/#");
-    			add_location(a0, file, 17, 12, 682);
-    			add_location(div0, file, 16, 8, 663);
+    			add_location(a0, file, 17, 12, 678);
+    			add_location(div0, file, 16, 8, 659);
     			attr_dev(a1, "href", "#experience");
-    			add_location(a1, file, 27, 42, 1159);
+    			add_location(a1, file, 27, 42, 1200);
     			attr_dev(li0, "id", "nav-bar-item");
-    			add_location(li0, file, 27, 20, 1137);
+    			add_location(li0, file, 27, 20, 1178);
     			attr_dev(a2, "href", "#projects");
-    			add_location(a2, file, 28, 42, 1244);
+    			add_location(a2, file, 28, 42, 1285);
     			attr_dev(li1, "id", "nav-bar-item");
-    			add_location(li1, file, 28, 20, 1222);
+    			add_location(li1, file, 28, 20, 1263);
     			attr_dev(a3, "href", "#education");
-    			add_location(a3, file, 29, 42, 1325);
+    			add_location(a3, file, 29, 42, 1366);
     			attr_dev(li2, "id", "nav-bar-item");
-    			add_location(li2, file, 29, 20, 1303);
+    			add_location(li2, file, 29, 20, 1344);
     			attr_dev(a4, "href", "#skills");
-    			add_location(a4, file, 30, 42, 1408);
+    			add_location(a4, file, 30, 42, 1449);
     			attr_dev(li3, "id", "nav-bar-item");
-    			add_location(li3, file, 30, 20, 1386);
-    			add_location(b, file, 31, 60, 1503);
+    			add_location(li3, file, 30, 20, 1427);
+    			add_location(b, file, 31, 60, 1544);
     			attr_dev(a5, "href", "/resume");
-    			add_location(a5, file, 31, 42, 1485);
+    			add_location(a5, file, 31, 42, 1526);
     			attr_dev(li4, "id", "nav-bar-item");
-    			add_location(li4, file, 31, 20, 1463);
+    			add_location(li4, file, 31, 20, 1504);
     			attr_dev(ul, "id", "nav-bar-list");
-    			add_location(ul, file, 26, 16, 1093);
-    			add_location(nav, file, 25, 12, 1070);
+    			add_location(ul, file, 26, 16, 1134);
+    			add_location(nav, file, 25, 12, 1111);
     			attr_dev(div1, "class", "nav-bar");
     			attr_dev(div1, "id", "nav-bar");
-    			add_location(div1, file, 24, 8, 1022);
+    			add_location(div1, file, 24, 8, 1063);
     			attr_dev(header, "id", "header");
-    			add_location(header, file, 15, 4, 633);
+    			add_location(header, file, 15, 4, 629);
     			attr_dev(div2, "class", "header-container");
-    			add_location(div2, file, 14, 0, 597);
+    			add_location(div2, file, 14, 0, 593);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -898,10 +899,10 @@ var app = (function () {
     function scrollFunction() {
     	if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
     		document.getElementById("nav-bar").style.fontSize = "20px";
-    		document.getElementById("nav-bar-list").style.backgroundColor = "rgb(18, 18, 18, 0.8)";
+    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.8)";
     	} else {
     		document.getElementById("nav-bar").style.fontSize = "30px";
-    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(114, 114, 114, 0.281)";
+    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.6)";
     	}
     }
 
