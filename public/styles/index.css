@@ -18,16 +18,58 @@ body {
     background-attachment: fixed;
 }
 
+div.header-container {
+    z-index: 999;
+    position: sticky;
+    position: -webkit-sticky;
+    top: 20px;
+}
+
 header {
     width: 95.5%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 20px;
+    margin: 0 20px 30px 20px;
     font-size: 30px;
     line-height: 1;
     color: black;
     transition: 0.2s;
+}
+
+header nav ul {
+    background-color: rgb(18, 18, 18, 0.6);
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: 0;
+    padding: 20px 0 20px 20px;
+}
+
+header nav ul li {
+    list-style: none;
+    margin-right: 20px;
+}
+
+header a {
+    -webkit-transition: all 0.2s ease-in;
+	-moz-transition: all 0.2s ease-in;
+	-o-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+    color: #cccccc;
+}
+
+header a:hover {
+    color: white;
+    -webkit-animation: glow 1s ease-in-out infinite alternate;
+    -moz-animation: glow 1s ease-in-out infinite alternate;
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+.nav-bar {
+    margin-top: 20px;
 }
 
 h1 {
@@ -68,7 +110,7 @@ a:hover {
     transition: all 0.1s ease-in;
     margin-top: 10px;
     margin-left: 180px;
-    width: 75px;
+    width: 85px;
 }
 
 .home-icon:hover {
@@ -77,35 +119,6 @@ a:hover {
 
 .home-icon:active {
     transform: scale(0.95);
-}
-
-header nav ul {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    margin: 0;
-    padding: 0;
-}
-
-header nav ul li {
-    list-style: none;
-    margin-right: 20px;
-}
-
-header a {
-    -webkit-transition: all 0s ease-in;
-	-moz-transition: all 0s ease-in;
-	-o-transition: all 0s ease-in;
-    -ms-transition: all 0s ease-in;
-    transition: all 0s ease-in;
-    color: #cccccc;
-}
-
-header a:hover {
-    color: white;
-    -webkit-animation: glow 1s ease-in-out infinite alternate;
-    -moz-animation: glow 1s ease-in-out infinite alternate;
-    animation: glow 1s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
@@ -365,6 +378,14 @@ header a:hover {
 }
 
 @media only screen and (max-width: 860px) {
+    div.header-container {
+        position: relative;
+    }
+
+    header nav ul {
+        background-color: rgb(18, 18, 18, 0);
+    }
+
     .grid-container {
         grid-template-columns: auto;
         grid-template-rows: auto;

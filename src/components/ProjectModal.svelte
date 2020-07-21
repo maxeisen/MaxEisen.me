@@ -17,8 +17,8 @@
     <p class="modal-description">{@html description}</p>
     <img class="screenshot" src={screenshot} alt="{name} screenshot">
     <div class="project-links-container">
-        <a class="project-link" href={projectLink} target="_blank"><OpenLogo /></a>
-        <a class="project-link" href={githubLink} target="_blank"><CodeLogo /></a>
+        <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>
+        <a class="project-link" href={githubLink} rel="noreferrer" target="_blank"><CodeLogo /></a>
     </div>
 </div>
 

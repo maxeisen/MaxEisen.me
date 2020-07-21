@@ -11,7 +11,7 @@
         longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li></ul>",
         githubLink: "https://github.com/maxeisen/studii_public",
         projectLink: "https://qtma.ca/studii.html",
-        screenshot: "./img/screenshots/studii.jpg",
+        screenshot: "./img/screenshots/studii.webp",
     };
     const proj2 = {
         name: "QHacks Website",
@@ -22,7 +22,7 @@
         longDescription: "<ul><li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
         projectLink: "https://qhacks.io",
-        screenshot: "./img/screenshots/qhacks.jpg",
+        screenshot: "./img/screenshots/qhacks.webp",
     };
     const proj3 = {
         name: "Spotilizer",
@@ -30,10 +30,10 @@
         technologies: "Python, Tkinter, Spotify Web API",
         year: "2019",
         shortDescription: "A customizable, data-centric Spotify visualizer built in Python",
-        longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
+        longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
         githubLink: "https://github.com/maxeisen/spotilizer",
         projectLink: "https://github.com/maxeisen/spotilizer",
-        screenshot: "./img/screenshots/spotilizer.jpg",
+        screenshot: "./img/screenshots/spotilizer.webp",
     };
     const proj4 = {
         name: "Glitch",
@@ -44,7 +44,7 @@
         longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li></ul>",
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
-        screenshot: "./img/screenshots/glitch.jpg",
+        screenshot: "./img/screenshots/glitch.webp",
     };
 
     const { open } = getContext('simple-modal');

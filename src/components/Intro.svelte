@@ -22,23 +22,23 @@
     const { open } = getContext('simple-modal');
 
     const skiing = {
-        image: "./img/activities/skiing.jpg",
+        image: "./img/activities/skiing.webp",
         description: "Whistler, BC (2018)"
     };
     const hiking = {
-        image: "./img/activities/hiking.jpg",
+        image: "./img/activities/hiking.webp",
         description: "Lake Country, BC (2016)"
     };
     const travelling = {
-        image: "./img/activities/travelling.jpg",
+        image: "./img/activities/travelling.webp",
         description: "Cartagena, Colombia (2019)"
     };
     const guitar = {
-        image: "./img/activities/guitar.jpg",
-        description: "Playing <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" target=\"_blank\">'Helplessly Hoping' by CSN</a> (2020)"
+        image: "./img/activities/guitar.webp",
+        description: "Playing <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a> (2020)"
     };
     const tech = {
-        image: "./img/activities/tech.jpg",
+        image: "./img/activities/tech.webp",
         description: "My first computer repair - replacing a busted HDD (2010)",
     };
 
@@ -72,10 +72,10 @@
 <h1 class="section-title-intro">Who is Max?</h1>
 <div class="intro-paragraph">
     <p class="title-extension">Max is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
-    student at <a class="intro-link" href="https://www.queensu.ca/" target="_blank">Queen's University</a>, with a fascination for all technology.</p>
+    student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>, with a fascination for all technology.</p>
 
     <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
-    he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" target="_blank">iOS app reviewing</a>.
+    he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" rel="noreferrer" target="_blank">iOS app reviewing</a>.
     In his free time, he is usually <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, <activity tabindex="0" on:click={guitarModal}>playing guitar</activity>, or <activity tabindex="0" on:click={techModal}>messing around with technology</activity>.</p>
 
     <p>He is a <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
@@ -83,7 +83,7 @@
     <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
     <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
     
-    <p>Please explore and enjoy this portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" target="_blank">email Max</a> if you have any questions or comments.</p>
+    <p>Please explore and enjoy this portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email Max</a> if you have any questions or comments.</p>
 </div>
 
 <style>

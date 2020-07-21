@@ -1,31 +1,17 @@
 <script>
+    import MenuBar from './components/MenuBar.svelte';
     import Sidebar from './components/Sidebar.svelte';
     import Intro from './components/Intro.svelte';
     import Experience from './components/Experience.svelte';
     import Projects from './components/Projects.svelte';
     import Education from './components/Education.svelte';
     import Skills from './components/Skills.svelte';
-  	import Modal from 'svelte-simple-modal';
-    let memoji = './img/additional/memoji_cycle_large.gif';
+    import Footer from './components/Skills.svelte';
+    import Modal from 'svelte-simple-modal';
 </script>
 
 <Modal>
-    <header>
-        <div>
-            <a href="/#"><img class="home-icon" type="image/gif" src={memoji} alt="Animated gif of Max memoji"/></a>
-        </div>
-        <div class="nav-bar">
-            <nav>
-                <ul>
-                    <li><a href="#experience">Experience</a></li>
-                    <li><a href="#projects">Projects</a></li>
-                    <li><a href="#education">Education</a></li>
-                    <li><a href="#skills">Skills</a></li>
-                    <li><a href="/resume"><b>Resume</b></a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <MenuBar/>
     <div class="grid-container">
         <div class="sidebar-section">
             <Sidebar/>
@@ -38,7 +24,7 @@
                 <Education/>
                 <Skills/>
             </div>
-                <h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:#ababab">&copy;2020</b></a></h2>
+                <h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/" rel="noreferrer" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:#ababab">&copy;2020</b></a></h2>
         </div>
     </div>
 </Modal>

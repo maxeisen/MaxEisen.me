@@ -4,8 +4,8 @@
 
     const education = {
         school: "Queen's University",
-        degree: "Bachelor of Computing (<a href=\"https://www.queensu.ca/admission/programs/computing\" target=\"_blank\">BCmpH</a>)",
-        major: "Computer Science (<a href=\"http://www.cips.ca/\" target=\"_blank\">CIPS</a> Accredited)",
+        degree: "Bachelor of Computing (<a href=\"https://www.queensu.ca/admission/programs/computing\" rel=\"noreferrer\" target=\"_blank\">BCmpH</a>)",
+        major: "Computer Science (<a href=\"http://www.cips.ca/\" rel=\"noreferrer\" target=\"_blank\">CIPS</a> Accredited)",
         years: "2017 - 2021",
         committees: "QTMA, QHacks, TEDxQueensU, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
     };
