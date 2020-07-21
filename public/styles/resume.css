@@ -10,7 +10,7 @@ body {
     height: auto;
     font-family: 'Inter', sans-serif;
     line-height: 1.3;
-    background-image: url("../img/backgrounds/prism-bg.png");
+    background-image: url("../img/backgrounds/prism-bg.webp");
     background-color: rgb(18, 18, 18);
     background-repeat: repeat;
     background-attachment: fixed;

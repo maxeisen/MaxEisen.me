@@ -7,7 +7,7 @@
         }
         else {
             document.getElementById("nav-bar").style.fontSize = "30px";
-            document.getElementById("nav-bar-list").style.backgroundColor = "rgb(18, 18, 18, 0.6)";
+            document.getElementById("nav-bar-list").style.backgroundColor = "rgba(114, 114, 114, 0.281)";
         }
     }
 </script>
