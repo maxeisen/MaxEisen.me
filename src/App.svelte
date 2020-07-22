@@ -1,4 +1,5 @@
 <script>
+    import Background from './components/Background.svelte';
     import MenuBar from './components/MenuBar.svelte';
     import Sidebar from './components/Sidebar.svelte';
     import Intro from './components/Intro.svelte';
@@ -10,6 +11,7 @@
     import Modal from 'svelte-simple-modal';
 </script>
 
+<Background/>
 <Modal>
     <MenuBar/>
     <div class="grid-container">
