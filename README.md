@@ -3,7 +3,7 @@
     <img src="https://github.com/maxeisen/MaxEisen.me/blob/master/public/img/additional/memoji_cycle_large.gif" align="center" alt="Max Eisen memoji cycle" width="100">
   </a>
   <h1 align="center">Get to Know Max Eisen</h1>
-  <h3 align="center"><b>Deployed to <a href="https://maxeisen.me" target="_blank">maxeisen.me</a> - check it out!</b></h3>
+  <h3 align="center"><b>Deployed to <a href="https://maxeisen.me" target="_blank">MaxEisen.me</a> - check it out!</b></h3>
 </p>
 <p align="center">
   <a href="https://app.netlify.com/sites/maxeisen/deploys" rel="noreferrer" target="_blank">
