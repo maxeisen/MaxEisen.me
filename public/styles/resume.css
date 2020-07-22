@@ -438,7 +438,7 @@ img.social-icon {
 }
 
 .social-link {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .website-link {
@@ -464,6 +464,10 @@ img.social-icon {
     padding-bottom: 0;
     border-bottom: 2px solid rgb(0, 187, 162);
     grid-area: in-left-skills;
+}
+
+.skills-print-category {
+    color: #a9a9a9;
 }
 
 @keyframes load{
@@ -531,11 +535,15 @@ img.social-icon {
 }
 
 .skill-bar.intermediate::before {
-    width: calc(75% - 10px);
+    width: calc(80% - 10px);
 }
 
 .skill-bar.advanced::before {
-    width: calc(90% - 10px);
+    width: calc(85% - 10px);
+}
+
+.skill-bar.near-expert::before {
+    width: calc(95% - 10px);
 }
 
 .skill-bar.expert::before {
@@ -685,8 +693,17 @@ a.company-long {
 }
 
 @media print {
-    .back-button, .back-button-mobile, .print-button, .footer {
+    .inner-page {
+        font-size: 95%;
+    }
+
+    .background, .back-button, .back-button-mobile, .print-button, .footer {
         display: none;
+    }
+
+    .tagline {
+        margin-top: 0;
+        font-size: 13px;
     }
 
     .website-link {
@@ -701,6 +718,7 @@ a.company-long {
 
     header {
         margin-top: 0;
+        margin-bottom: 10px;
         color: black;
         text-shadow: none;
     }
@@ -718,7 +736,7 @@ a.company-long {
 
     .in-left-social {
         margin-top: 16px;
-        padding-bottom: 16px;
+        padding-bottom: 12px;
     }
 
     .social-link {
@@ -734,7 +752,7 @@ a.company-long {
     }
 
     .skills-print {
-        display: inline;
+        display: block;
     }
 
     .in-left-hobbies {
@@ -743,6 +761,7 @@ a.company-long {
 
     .easter-egg {
         animation: none;
+        text-shadow: none;
     }
 
     li, .relevant-courses {
