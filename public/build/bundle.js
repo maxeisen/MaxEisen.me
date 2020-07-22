@@ -779,27 +779,27 @@ var app = (function () {
     			span8 = element("span");
     			t8 = space();
     			span9 = element("span");
-    			attr_dev(span0, "class", "svelte-1z0vm1e");
+    			attr_dev(span0, "class", "svelte-1yeygs8");
     			add_location(span0, file, 1, 4, 30);
-    			attr_dev(span1, "class", "svelte-1z0vm1e");
+    			attr_dev(span1, "class", "svelte-1yeygs8");
     			add_location(span1, file, 2, 4, 49);
-    			attr_dev(span2, "class", "svelte-1z0vm1e");
+    			attr_dev(span2, "class", "svelte-1yeygs8");
     			add_location(span2, file, 3, 4, 68);
-    			attr_dev(span3, "class", "svelte-1z0vm1e");
+    			attr_dev(span3, "class", "svelte-1yeygs8");
     			add_location(span3, file, 4, 4, 87);
-    			attr_dev(span4, "class", "svelte-1z0vm1e");
+    			attr_dev(span4, "class", "svelte-1yeygs8");
     			add_location(span4, file, 5, 4, 106);
-    			attr_dev(span5, "class", "svelte-1z0vm1e");
+    			attr_dev(span5, "class", "svelte-1yeygs8");
     			add_location(span5, file, 6, 4, 125);
-    			attr_dev(span6, "class", "svelte-1z0vm1e");
+    			attr_dev(span6, "class", "svelte-1yeygs8");
     			add_location(span6, file, 7, 4, 144);
-    			attr_dev(span7, "class", "svelte-1z0vm1e");
+    			attr_dev(span7, "class", "svelte-1yeygs8");
     			add_location(span7, file, 8, 4, 163);
-    			attr_dev(span8, "class", "svelte-1z0vm1e");
+    			attr_dev(span8, "class", "svelte-1yeygs8");
     			add_location(span8, file, 9, 4, 182);
-    			attr_dev(span9, "class", "svelte-1z0vm1e");
+    			attr_dev(span9, "class", "svelte-1yeygs8");
     			add_location(span9, file, 10, 4, 201);
-    			attr_dev(div, "class", "background svelte-1z0vm1e");
+    			attr_dev(div, "class", "background svelte-1yeygs8");
     			add_location(div, file, 0, 0, 0);
     		},
     		l: function claim(nodes) {
@@ -938,7 +938,7 @@ var app = (function () {
     			li4 = element("li");
     			a5 = element("a");
     			b = element("b");
-    			b.textContent = "Resume";
+    			b.textContent = "Résumé";
     			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
     			attr_dev(source0, "type", "video/webm");
     			add_location(source0, file$1, 19, 20, 839);
