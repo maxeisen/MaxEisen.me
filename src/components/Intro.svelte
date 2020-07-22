@@ -72,7 +72,7 @@
 <h1 class="section-title-intro">Who is Max?</h1>
 <div class="intro-paragraph">
     <p class="title-extension">Max is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
-    student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>, with a fascination for all technology.</p>
+    student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a> with a fascination for all technology.</p>
 
     <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
     he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" rel="noreferrer" target="_blank">iOS app reviewing</a>.
