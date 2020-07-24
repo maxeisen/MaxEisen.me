@@ -18,7 +18,7 @@ body {
 }
 
 div.header-container {
-    z-index: 9999;
+    z-index: 2;
     position: sticky;
     position: -webkit-sticky;
     top: 20px;
@@ -68,7 +68,16 @@ header a:hover {
 }
 
 .nav-bar {
+    margin-right: 20px;
     margin-top: 20px;
+}
+
+.nav-bar-list {
+    -webkit-transition: background-color 0.2s ease-in;
+	-moz-transition: background-color 0.2s ease-in;
+	-o-transition: background-color 0.2s ease-in;
+    -ms-transition: background-color 0.2s ease-in;
+    transition: background-color 0.2s ease-in;
 }
 
 h1 {
@@ -152,7 +161,7 @@ a:hover {
 }
   
 .info-section-main {
-    z-index: 999;
+    z-index: 1;
     height: auto;
     width: 2fr;
     grid-area: info-section;
@@ -384,6 +393,10 @@ a:hover {
 
     header nav ul {
         background-color: rgb(18, 18, 18, 0);
+    }
+
+    header nav ul li {
+        padding-right: 0;
     }
 
     .grid-container {

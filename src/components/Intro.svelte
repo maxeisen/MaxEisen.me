@@ -69,21 +69,23 @@
     };    
 </script>
 
-<h1 class="section-title-intro">Who is Max?</h1>
-<div class="intro-paragraph">
-    <p class="title-extension">Max is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
-    student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a> with a fascination for all technology.</p>
+<div class="intro-container">
+    <h1 class="section-title-intro">Who is Max?</h1>
+    <div class="intro-paragraph">
+        <p class="title-extension">Max is a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
+        student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a> with a fascination for all technology.</p>
 
-    <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
-    he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" rel="noreferrer" target="_blank">iOS app reviewing</a>.
-    In his free time, he is usually <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, <activity tabindex="0" on:click={guitarModal}>playing guitar</activity>, or <activity tabindex="0" on:click={techModal}>messing around with technology</activity>.</p>
+        <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
+        he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" rel="noreferrer" target="_blank">iOS app reviewing</a>.
+        In his free time, he is usually <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, <activity tabindex="0" on:click={guitarModal}>playing guitar</activity>, or <activity tabindex="0" on:click={techModal}>messing around with technology</activity>.</p>
 
-    <p>He is a <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
-    who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, he strives to communicate
-    <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
-    <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
-    
-    <p>Please explore and enjoy this portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email Max</a> if you have any questions or comments.</p>
+        <p>He is a <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
+        who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, he strives to communicate
+        <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
+        <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
+        
+        <p>Please explore and enjoy this portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email Max</a> if you have any questions or comments.</p>
+    </div>
 </div>
 
 <style>
@@ -132,12 +134,19 @@
     }
 
     @media only screen and (max-width: 460px) {
+        .intro-container {
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(114, 114, 114, 0.35);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .section-title-intro {
             font-size: 36px;
         }
 
         .intro-paragraph {
-        font-size: 16px;
+            font-size: 16px;
         }
     }
 </style>

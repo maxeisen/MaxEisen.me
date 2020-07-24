@@ -941,51 +941,52 @@ var app = (function () {
     			b.textContent = "Résumé";
     			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
     			attr_dev(source0, "type", "video/webm");
-    			add_location(source0, file$1, 19, 20, 839);
+    			add_location(source0, file$1, 22, 20, 977);
     			if (source1.src !== (source1_src_value = "./img/additional/memoji_cycle.mp4")) attr_dev(source1, "src", source1_src_value);
     			attr_dev(source1, "type", "video/mp4");
-    			add_location(source1, file$1, 20, 20, 928);
+    			add_location(source1, file$1, 23, 20, 1066);
     			attr_dev(video, "class", "home-icon");
     			attr_dev(video, "poster", "./img/additional/memoji_cycle_small.gif");
     			video.autoplay = true;
     			video.loop = true;
     			video.muted = true;
     			video.playsInline = true;
-    			add_location(video, file$1, 18, 16, 709);
+    			add_location(video, file$1, 21, 16, 847);
     			attr_dev(a0, "href", "/#");
-    			add_location(a0, file$1, 17, 12, 678);
-    			add_location(div0, file$1, 16, 8, 659);
+    			add_location(a0, file$1, 20, 12, 816);
+    			add_location(div0, file$1, 19, 8, 797);
     			attr_dev(a1, "href", "#experience");
-    			add_location(a1, file$1, 27, 42, 1200);
+    			add_location(a1, file$1, 30, 42, 1359);
     			attr_dev(li0, "id", "nav-bar-item");
-    			add_location(li0, file$1, 27, 20, 1178);
+    			add_location(li0, file$1, 30, 20, 1337);
     			attr_dev(a2, "href", "#projects");
-    			add_location(a2, file$1, 28, 42, 1285);
+    			add_location(a2, file$1, 31, 42, 1444);
     			attr_dev(li1, "id", "nav-bar-item");
-    			add_location(li1, file$1, 28, 20, 1263);
+    			add_location(li1, file$1, 31, 20, 1422);
     			attr_dev(a3, "href", "#education");
-    			add_location(a3, file$1, 29, 42, 1366);
+    			add_location(a3, file$1, 32, 42, 1525);
     			attr_dev(li2, "id", "nav-bar-item");
-    			add_location(li2, file$1, 29, 20, 1344);
+    			add_location(li2, file$1, 32, 20, 1503);
     			attr_dev(a4, "href", "#skills");
-    			add_location(a4, file$1, 30, 42, 1449);
+    			add_location(a4, file$1, 33, 42, 1608);
     			attr_dev(li3, "id", "nav-bar-item");
-    			add_location(li3, file$1, 30, 20, 1427);
-    			add_location(b, file$1, 31, 60, 1544);
+    			add_location(li3, file$1, 33, 20, 1586);
+    			add_location(b, file$1, 34, 60, 1703);
     			attr_dev(a5, "href", "/resume");
-    			add_location(a5, file$1, 31, 42, 1526);
+    			add_location(a5, file$1, 34, 42, 1685);
     			attr_dev(li4, "id", "nav-bar-item");
-    			add_location(li4, file$1, 31, 20, 1504);
+    			add_location(li4, file$1, 34, 20, 1663);
+    			attr_dev(ul, "class", "nav-bar-list");
     			attr_dev(ul, "id", "nav-bar-list");
-    			add_location(ul, file$1, 26, 16, 1134);
-    			add_location(nav, file$1, 25, 12, 1111);
+    			add_location(ul, file$1, 29, 16, 1272);
+    			add_location(nav, file$1, 28, 12, 1249);
     			attr_dev(div1, "class", "nav-bar");
     			attr_dev(div1, "id", "nav-bar");
-    			add_location(div1, file$1, 24, 8, 1063);
+    			add_location(div1, file$1, 27, 8, 1201);
     			attr_dev(header, "id", "header");
-    			add_location(header, file$1, 15, 4, 629);
+    			add_location(header, file$1, 18, 4, 767);
     			attr_dev(div2, "class", "header-container");
-    			add_location(div2, file$1, 14, 0, 593);
+    			add_location(div2, file$1, 17, 0, 731);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -1037,20 +1038,24 @@ var app = (function () {
     	return block;
     }
 
-    function scrollFunction() {
-    	if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-    		document.getElementById("nav-bar").style.fontSize = "20px";
-    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.8)";
-    	} else {
-    		document.getElementById("nav-bar").style.fontSize = "30px";
-    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.6)";
-    	}
-    }
-
     function instance$1($$self, $$props, $$invalidate) {
+    	var screenSize = window.matchMedia("(min-width: 860px)");
+
     	window.onscroll = function () {
     		scrollFunction();
     	};
+
+    	function scrollFunction() {
+    		if (screenSize.matches) {
+    			if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
+    				document.getElementById("nav-bar").style.fontSize = "20px";
+    				document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.8)";
+    			} else {
+    				document.getElementById("nav-bar").style.fontSize = "30px";
+    				document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";
+    			}
+    		}
+    	}
 
     	const writable_props = [];
 
@@ -1060,7 +1065,16 @@ var app = (function () {
 
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("MenuBar", $$slots, []);
-    	$$self.$capture_state = () => ({ scrollFunction });
+    	$$self.$capture_state = () => ({ screenSize, scrollFunction });
+
+    	$$self.$inject_state = $$props => {
+    		if ("screenSize" in $$props) screenSize = $$props.screenSize;
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
     	return [];
     }
 
@@ -2713,7 +2727,7 @@ var app = (function () {
     /* src\components\Intro.svelte generated by Svelte v3.24.0 */
     const file$a = "src\\components\\Intro.svelte";
 
-    // (74:40) <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">
+    // (75:44) <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">
     function create_default_slot_4(ctx) {
     	let descriptor;
 
@@ -2721,8 +2735,8 @@ var app = (function () {
     		c: function create() {
     			descriptor = element("descriptor");
     			descriptor.textContent = "Computer Science";
-    			attr_dev(descriptor, "class", "svelte-17ywdvd");
-    			add_location(descriptor, file$a, 73, 156, 2330);
+    			attr_dev(descriptor, "class", "svelte-1j2d4nn");
+    			add_location(descriptor, file$a, 74, 160, 2372);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, descriptor, anchor);
@@ -2736,14 +2750,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_4.name,
     		type: "slot",
-    		source: "(74:40) <Annotation bind:this={introDescriptors[0]} type=\\\"box\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"0.8\\\">",
+    		source: "(75:44) <Annotation bind:this={introDescriptors[0]} type=\\\"box\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"0.8\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (77:26) <Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">
+    // (78:30) <Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">
     function create_default_slot_3(ctx) {
     	let t;
 
@@ -2763,14 +2777,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_3.name,
     		type: "slot",
-    		source: "(77:26) <Annotation bind:this={introDescriptors[1]} type=\\\"box\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"0.8\\\">",
+    		source: "(78:30) <Annotation bind:this={introDescriptors[1]} type=\\\"box\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"0.8\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (81:27) <Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">
+    // (82:31) <Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">
     function create_default_slot_2(ctx) {
     	let t;
 
@@ -2790,14 +2804,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_2.name,
     		type: "slot",
-    		source: "(81:27) <Annotation bind:this={introDescriptors[2]} type=\\\"circle\\\" padding={5} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"0.8\\\">",
+    		source: "(82:31) <Annotation bind:this={introDescriptors[2]} type=\\\"circle\\\" padding={5} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"0.8\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (83:4) <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">
+    // (84:8) <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">
     function create_default_slot_1(ctx) {
     	let t;
 
@@ -2817,14 +2831,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_1.name,
     		type: "slot",
-    		source: "(83:4) <Annotation bind:this={introDescriptors[3]} type=\\\"underline\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"1\\\">",
+    		source: "(84:8) <Annotation bind:this={introDescriptors[3]} type=\\\"underline\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"1\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (84:4) <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">
+    // (85:8) <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">
     function create_default_slot$5(ctx) {
     	let t;
 
@@ -2844,7 +2858,7 @@ var app = (function () {
     		block,
     		id: create_default_slot$5.name,
     		type: "slot",
-    		source: "(84:4) <Annotation bind:this={introDescriptors[4]} type=\\\"underline\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"1\\\">",
+    		source: "(85:8) <Annotation bind:this={introDescriptors[4]} type=\\\"underline\\\" padding={2} color=\\\"rgba(0, 187, 162, 0.5)\\\" strokeWidth=\\\"1\\\">",
     		ctx
     	});
 
@@ -2852,9 +2866,10 @@ var app = (function () {
     }
 
     function create_fragment$a(ctx) {
+    	let div1;
     	let h1;
     	let t1;
-    	let div;
+    	let div0;
     	let p0;
     	let t2;
     	let annotation0;
@@ -2960,14 +2975,15 @@ var app = (function () {
 
     	const block = {
     		c: function create() {
+    			div1 = element("div");
     			h1 = element("h1");
     			h1.textContent = "Who is Max?";
     			t1 = space();
-    			div = element("div");
+    			div0 = element("div");
     			p0 = element("p");
     			t2 = text("Max is a ");
     			create_component(annotation0.$$.fragment);
-    			t3 = text("\n    student at ");
+    			t3 = text("\n        student at ");
     			a0 = element("a");
     			a0.textContent = "Queen's University";
     			t5 = text(" with a fascination for all technology.");
@@ -2976,10 +2992,10 @@ var app = (function () {
     			t7 = text("Also a ");
     			descriptor0 = element("descriptor");
     			create_component(annotation1.$$.fragment);
-    			t8 = text(",\n    he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and ");
+    			t8 = text(",\n        he is experienced in software and web development, hardware repair, leading teams, UI/UX design, and ");
     			a1 = element("a");
     			a1.textContent = "iOS app reviewing";
-    			t10 = text(".\n    In his free time, he is usually ");
+    			t10 = text(".\n        In his free time, he is usually ");
     			activity0 = element("activity");
     			activity0.textContent = "skiing";
     			t12 = text(", ");
@@ -3000,9 +3016,9 @@ var app = (function () {
     			t22 = text("He is a ");
     			descriptor1 = element("descriptor");
     			create_component(annotation2.$$.fragment);
-    			t23 = text("\n    who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, he strives to communicate\n    ");
+    			t23 = text("\n        who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, he strives to communicate\n        ");
     			create_component(annotation3.$$.fragment);
-    			t24 = text(" and\n    ");
+    			t24 = text(" and\n        ");
     			create_component(annotation4.$$.fragment);
     			t25 = text(".");
     			t26 = space();
@@ -3011,65 +3027,68 @@ var app = (function () {
     			a2 = element("a");
     			a2.textContent = "email Max";
     			t29 = text(" if you have any questions or comments.");
-    			attr_dev(h1, "class", "section-title-intro svelte-17ywdvd");
-    			add_location(h1, file$a, 71, 0, 2095);
-    			attr_dev(a0, "class", "intro-link svelte-17ywdvd");
+    			attr_dev(h1, "class", "section-title-intro svelte-1j2d4nn");
+    			add_location(h1, file$a, 72, 4, 2129);
+    			attr_dev(a0, "class", "intro-link svelte-1j2d4nn");
     			attr_dev(a0, "href", "https://www.queensu.ca/");
     			attr_dev(a0, "rel", "noreferrer");
     			attr_dev(a0, "target", "_blank");
-    			add_location(a0, file$a, 74, 15, 2400);
-    			attr_dev(p0, "class", "title-extension svelte-17ywdvd");
-    			add_location(p0, file$a, 73, 4, 2178);
-    			attr_dev(descriptor0, "class", "svelte-17ywdvd");
-    			add_location(descriptor0, file$a, 76, 14, 2567);
-    			attr_dev(a1, "class", "intro-link svelte-17ywdvd");
+    			add_location(a0, file$a, 75, 19, 2446);
+    			attr_dev(p0, "class", "title-extension svelte-1j2d4nn");
+    			add_location(p0, file$a, 74, 8, 2220);
+    			attr_dev(descriptor0, "class", "svelte-1j2d4nn");
+    			add_location(descriptor0, file$a, 77, 18, 2617);
+    			attr_dev(a1, "class", "intro-link svelte-1j2d4nn");
     			attr_dev(a1, "href", "https://www.youtube.com/user/AppStoreReviewers/videos");
     			attr_dev(a1, "rel", "noreferrer");
     			attr_dev(a1, "target", "_blank");
-    			add_location(a1, file$a, 77, 105, 2849);
+    			add_location(a1, file$a, 78, 109, 2903);
     			attr_dev(activity0, "tabindex", "0");
-    			attr_dev(activity0, "class", "svelte-17ywdvd");
-    			add_location(activity0, file$a, 78, 36, 3024);
+    			attr_dev(activity0, "class", "svelte-1j2d4nn");
+    			add_location(activity0, file$a, 79, 40, 3082);
     			attr_dev(activity1, "tabindex", "0");
-    			attr_dev(activity1, "class", "svelte-17ywdvd");
-    			add_location(activity1, file$a, 78, 101, 3089);
+    			attr_dev(activity1, "class", "svelte-1j2d4nn");
+    			add_location(activity1, file$a, 79, 105, 3147);
     			attr_dev(activity2, "tabindex", "0");
-    			attr_dev(activity2, "class", "svelte-17ywdvd");
-    			add_location(activity2, file$a, 78, 166, 3154);
+    			attr_dev(activity2, "class", "svelte-1j2d4nn");
+    			add_location(activity2, file$a, 79, 170, 3212);
     			attr_dev(activity3, "tabindex", "0");
-    			attr_dev(activity3, "class", "svelte-17ywdvd");
-    			add_location(activity3, file$a, 78, 239, 3227);
+    			attr_dev(activity3, "class", "svelte-1j2d4nn");
+    			add_location(activity3, file$a, 79, 243, 3285);
     			attr_dev(activity4, "tabindex", "0");
-    			attr_dev(activity4, "class", "svelte-17ywdvd");
-    			add_location(activity4, file$a, 78, 315, 3303);
-    			add_location(p1, file$a, 76, 4, 2557);
-    			attr_dev(descriptor1, "class", "svelte-17ywdvd");
-    			add_location(descriptor1, file$a, 80, 15, 3410);
-    			add_location(p2, file$a, 80, 4, 3399);
-    			attr_dev(a2, "class", "intro-link svelte-17ywdvd");
+    			attr_dev(activity4, "class", "svelte-1j2d4nn");
+    			add_location(activity4, file$a, 79, 319, 3361);
+    			add_location(p1, file$a, 77, 8, 2607);
+    			attr_dev(descriptor1, "class", "svelte-1j2d4nn");
+    			add_location(descriptor1, file$a, 81, 19, 3472);
+    			add_location(p2, file$a, 81, 8, 3461);
+    			attr_dev(a2, "class", "intro-link svelte-1j2d4nn");
     			attr_dev(a2, "href", "mailto:max.eisen@queensu.ca");
     			attr_dev(a2, "rel", "noreferrer");
     			attr_dev(a2, "target", "_blank");
-    			add_location(a2, file$a, 85, 98, 4136);
-    			add_location(p3, file$a, 85, 4, 4042);
-    			attr_dev(div, "class", "intro-paragraph svelte-17ywdvd");
-    			add_location(div, file$a, 72, 0, 2144);
+    			add_location(a2, file$a, 86, 102, 4218);
+    			add_location(p3, file$a, 86, 8, 4124);
+    			attr_dev(div0, "class", "intro-paragraph svelte-1j2d4nn");
+    			add_location(div0, file$a, 73, 4, 2182);
+    			attr_dev(div1, "class", "intro-container svelte-1j2d4nn");
+    			add_location(div1, file$a, 71, 0, 2095);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, h1, anchor);
-    			insert_dev(target, t1, anchor);
-    			insert_dev(target, div, anchor);
-    			append_dev(div, p0);
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, h1);
+    			append_dev(div1, t1);
+    			append_dev(div1, div0);
+    			append_dev(div0, p0);
     			append_dev(p0, t2);
     			mount_component(annotation0, p0, null);
     			append_dev(p0, t3);
     			append_dev(p0, a0);
     			append_dev(p0, t5);
-    			append_dev(div, t6);
-    			append_dev(div, p1);
+    			append_dev(div0, t6);
+    			append_dev(div0, p1);
     			append_dev(p1, t7);
     			append_dev(p1, descriptor0);
     			mount_component(annotation1, descriptor0, null);
@@ -3086,8 +3105,8 @@ var app = (function () {
     			append_dev(p1, t18);
     			append_dev(p1, activity4);
     			append_dev(p1, t20);
-    			append_dev(div, t21);
-    			append_dev(div, p2);
+    			append_dev(div0, t21);
+    			append_dev(div0, p2);
     			append_dev(p2, t22);
     			append_dev(p2, descriptor1);
     			mount_component(annotation2, descriptor1, null);
@@ -3096,8 +3115,8 @@ var app = (function () {
     			append_dev(p2, t24);
     			mount_component(annotation4, p2, null);
     			append_dev(p2, t25);
-    			append_dev(div, t26);
-    			append_dev(div, p3);
+    			append_dev(div0, t26);
+    			append_dev(div0, p3);
     			append_dev(p3, t27);
     			append_dev(p3, a2);
     			append_dev(p3, t29);
@@ -3170,9 +3189,7 @@ var app = (function () {
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(h1);
-    			if (detaching) detach_dev(t1);
-    			if (detaching) detach_dev(div);
+    			if (detaching) detach_dev(div1);
     			/*annotation0_binding*/ ctx[6](null);
     			destroy_component(annotation0);
     			/*annotation1_binding*/ ctx[7](null);
