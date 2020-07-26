@@ -14,12 +14,12 @@
 <div class="project-modal">
     <h1 class="modal-name">{name} ({year})</h1>
     <h3 class="modal-description" style="text-align: center">Developed with: <b class="technologies">{technologies}</b></h3>
-    <p class="modal-description">{@html description}</p>
-    <img class="screenshot" src={screenshot} alt="{name} screenshot">
     <div class="project-links-container">
         <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>
         <a class="project-link" href={githubLink} rel="noreferrer" target="_blank"><CodeLogo /></a>
     </div>
+    <p class="modal-description">{@html description}</p>
+    <img class="screenshot" src={screenshot} alt="{name} screenshot">
 </div>
 
 <style>
