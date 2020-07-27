@@ -4578,18 +4578,18 @@ var app = (function () {
     	let b;
     	let t6;
     	let t7;
-    	let p;
-    	let t8;
-    	let img;
-    	let img_src_value;
-    	let img_alt_value;
-    	let t9;
     	let div0;
     	let a0;
     	let openlogo;
-    	let t10;
+    	let t8;
     	let a1;
     	let codelogo;
+    	let t9;
+    	let p;
+    	let t10;
+    	let img;
+    	let img_src_value;
+    	let img_alt_value;
     	let current;
     	openlogo = new IoMdOpen({ $$inline: true });
     	codelogo = new IoIosCode({ $$inline: true });
@@ -4608,16 +4608,16 @@ var app = (function () {
     			b = element("b");
     			t6 = text(/*technologies*/ ctx[1]);
     			t7 = space();
-    			p = element("p");
-    			t8 = space();
-    			img = element("img");
-    			t9 = space();
     			div0 = element("div");
     			a0 = element("a");
     			create_component(openlogo.$$.fragment);
-    			t10 = space();
+    			t8 = space();
     			a1 = element("a");
     			create_component(codelogo.$$.fragment);
+    			t9 = space();
+    			p = element("p");
+    			t10 = space();
+    			img = element("img");
     			attr_dev(h1, "class", "modal-name svelte-tdibzl");
     			add_location(h1, file$f, 14, 4, 353);
     			attr_dev(b, "class", "technologies svelte-tdibzl");
@@ -4625,24 +4625,24 @@ var app = (function () {
     			attr_dev(h3, "class", "modal-description svelte-tdibzl");
     			set_style(h3, "text-align", "center");
     			add_location(h3, file$f, 15, 4, 401);
-    			attr_dev(p, "class", "modal-description svelte-tdibzl");
-    			add_location(p, file$f, 16, 4, 526);
-    			attr_dev(img, "class", "screenshot svelte-tdibzl");
-    			if (img.src !== (img_src_value = /*screenshot*/ ctx[6])) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "alt", img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"));
-    			add_location(img, file$f, 17, 4, 583);
     			attr_dev(a0, "class", "project-link svelte-tdibzl");
     			attr_dev(a0, "href", /*projectLink*/ ctx[5]);
     			attr_dev(a0, "rel", "noreferrer");
     			attr_dev(a0, "target", "_blank");
-    			add_location(a0, file$f, 19, 8, 699);
+    			add_location(a0, file$f, 17, 8, 572);
     			attr_dev(a1, "class", "project-link svelte-tdibzl");
     			attr_dev(a1, "href", /*githubLink*/ ctx[4]);
     			attr_dev(a1, "rel", "noreferrer");
     			attr_dev(a1, "target", "_blank");
-    			add_location(a1, file$f, 20, 8, 800);
+    			add_location(a1, file$f, 18, 8, 673);
     			attr_dev(div0, "class", "project-links-container svelte-tdibzl");
-    			add_location(div0, file$f, 18, 4, 653);
+    			add_location(div0, file$f, 16, 4, 526);
+    			attr_dev(p, "class", "modal-description svelte-tdibzl");
+    			add_location(p, file$f, 20, 4, 780);
+    			attr_dev(img, "class", "screenshot svelte-tdibzl");
+    			if (img.src !== (img_src_value = /*screenshot*/ ctx[6])) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"));
+    			add_location(img, file$f, 21, 4, 837);
     			attr_dev(div1, "class", "project-modal svelte-tdibzl");
     			add_location(div1, file$f, 13, 0, 321);
     		},
@@ -4662,31 +4662,23 @@ var app = (function () {
     			append_dev(h3, b);
     			append_dev(b, t6);
     			append_dev(div1, t7);
-    			append_dev(div1, p);
-    			p.innerHTML = /*description*/ ctx[3];
-    			append_dev(div1, t8);
-    			append_dev(div1, img);
-    			append_dev(div1, t9);
     			append_dev(div1, div0);
     			append_dev(div0, a0);
     			mount_component(openlogo, a0, null);
-    			append_dev(div0, t10);
+    			append_dev(div0, t8);
     			append_dev(div0, a1);
     			mount_component(codelogo, a1, null);
+    			append_dev(div1, t9);
+    			append_dev(div1, p);
+    			p.innerHTML = /*description*/ ctx[3];
+    			append_dev(div1, t10);
+    			append_dev(div1, img);
     			current = true;
     		},
     		p: function update(ctx, [dirty]) {
     			if (!current || dirty & /*name*/ 1) set_data_dev(t0, /*name*/ ctx[0]);
     			if (!current || dirty & /*year*/ 4) set_data_dev(t2, /*year*/ ctx[2]);
     			if (!current || dirty & /*technologies*/ 2) set_data_dev(t6, /*technologies*/ ctx[1]);
-    			if (!current || dirty & /*description*/ 8) p.innerHTML = /*description*/ ctx[3];
-    			if (!current || dirty & /*screenshot*/ 64 && img.src !== (img_src_value = /*screenshot*/ ctx[6])) {
-    				attr_dev(img, "src", img_src_value);
-    			}
-
-    			if (!current || dirty & /*name*/ 1 && img_alt_value !== (img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"))) {
-    				attr_dev(img, "alt", img_alt_value);
-    			}
 
     			if (!current || dirty & /*projectLink*/ 32) {
     				attr_dev(a0, "href", /*projectLink*/ ctx[5]);
@@ -4694,6 +4686,15 @@ var app = (function () {
 
     			if (!current || dirty & /*githubLink*/ 16) {
     				attr_dev(a1, "href", /*githubLink*/ ctx[4]);
+    			}
+
+    			if (!current || dirty & /*description*/ 8) p.innerHTML = /*description*/ ctx[3];
+    			if (!current || dirty & /*screenshot*/ 64 && img.src !== (img_src_value = /*screenshot*/ ctx[6])) {
+    				attr_dev(img, "src", img_src_value);
+    			}
+
+    			if (!current || dirty & /*name*/ 1 && img_alt_value !== (img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"))) {
+    				attr_dev(img, "alt", img_alt_value);
     			}
     		},
     		i: function intro(local) {
