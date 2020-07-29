@@ -11,7 +11,6 @@
     import Modal from 'svelte-simple-modal';
 </script>
 
-<Background/>
 <Modal>
     <MenuBar/>
     <div class="grid-container">
