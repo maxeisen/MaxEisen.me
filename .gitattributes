@@ -1,1 +1,5 @@
 *.svelte linguist-language=JavaScript
+public/build/*.css linguist-vendored
+public/build/*.js linguist-vendored
+public/build/*.css.map linguist-vendored
+public/build/*.js.map linguist-vendored
