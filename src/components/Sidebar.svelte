@@ -1,5 +1,4 @@
 <script>
-    let statusHeadshot = './img/headshots/status_headshot.webp';
     let cleanHeadshot = './img/headshots/clean_headshot.webp';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
@@ -54,10 +53,6 @@
         height: 200px;
         -webkit-filter: drop-shadow(2px -2px 5px #222);
         filter: drop-shadow(2px -2px 5px #222);
-    }
-
-    .lower-headshot {
-        opacity: 0;
     }
 
     .social-links-container {
