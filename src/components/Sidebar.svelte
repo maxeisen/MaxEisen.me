@@ -28,8 +28,7 @@
 </div>
 
 <div class="headshot">
-    <img class="headshot" src={statusHeadshot} alt="Current headshot" onmouseover="attributeChange(this, 'src', '{cleanHeadshot}');" onmouseout="attributeChange(this, 'src', '{statusHeadshot}');"/>
-    <img class="headshot lower-headshot" src={cleanHeadshot} alt="Clean headshot"/>
+    <img class="headshot" src={cleanHeadshot} alt="Current headshot"/>
 </div>
 
 <style>

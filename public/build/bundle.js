@@ -2321,17 +2321,12 @@ var app = (function () {
     	let mailicon;
     	let t10;
     	let div1;
-    	let img0;
-    	let img0_src_value;
-    	let img0_onmouseover_value;
-    	let img0_onmouseout_value;
-    	let t11;
-    	let img1;
-    	let img1_src_value;
+    	let img;
+    	let img_src_value;
     	let current;
 
     	function annotation_visible_binding(value) {
-    		/*annotation_visible_binding*/ ctx[3].call(null, value);
+    		/*annotation_visible_binding*/ ctx[2].call(null, value);
     	}
 
     	let annotation_props = {
@@ -2380,9 +2375,7 @@ var app = (function () {
     			create_component(mailicon.$$.fragment);
     			t10 = space();
     			div1 = element("div");
-    			img0 = element("img");
-    			t11 = space();
-    			img1 = element("img");
+    			img = element("img");
     			add_location(h1, file$8, 19, 0, 631);
     			set_style(b, "color", "#ababab");
     			set_style(b, "font-weight", "300");
@@ -2413,16 +2406,10 @@ var app = (function () {
     			add_location(a3, file$8, 26, 4, 1305);
     			attr_dev(div0, "class", "social-links-container svelte-1g3elbt");
     			add_location(div0, file$8, 22, 0, 871);
-    			attr_dev(img0, "class", "headshot svelte-1g3elbt");
-    			if (img0.src !== (img0_src_value = /*statusHeadshot*/ ctx[1])) attr_dev(img0, "src", img0_src_value);
-    			attr_dev(img0, "alt", "Current headshot");
-    			attr_dev(img0, "onmouseover", img0_onmouseover_value = "attributeChange(this, 'src', '" + /*cleanHeadshot*/ ctx[2] + "');");
-    			attr_dev(img0, "onmouseout", img0_onmouseout_value = "attributeChange(this, 'src', '" + /*statusHeadshot*/ ctx[1] + "');");
-    			add_location(img0, file$8, 30, 4, 1448);
-    			attr_dev(img1, "class", "headshot lower-headshot svelte-1g3elbt");
-    			if (img1.src !== (img1_src_value = /*cleanHeadshot*/ ctx[2])) attr_dev(img1, "src", img1_src_value);
-    			attr_dev(img1, "alt", "Clean headshot");
-    			add_location(img1, file$8, 31, 4, 1646);
+    			attr_dev(img, "class", "headshot svelte-1g3elbt");
+    			if (img.src !== (img_src_value = /*cleanHeadshot*/ ctx[1])) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", "Current headshot");
+    			add_location(img, file$8, 30, 4, 1448);
     			attr_dev(div1, "class", "headshot svelte-1g3elbt");
     			add_location(div1, file$8, 29, 0, 1421);
     		},
@@ -2454,9 +2441,7 @@ var app = (function () {
     			mount_component(mailicon, a3, null);
     			insert_dev(target, t10, anchor);
     			insert_dev(target, div1, anchor);
-    			append_dev(div1, img0);
-    			append_dev(div1, t11);
-    			append_dev(div1, img1);
+    			append_dev(div1, img);
     			current = true;
     		},
     		p: function update(ctx, [dirty]) {
@@ -2561,8 +2546,8 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("statusHeadshot" in $$props) $$invalidate(1, statusHeadshot = $$props.statusHeadshot);
-    		if ("cleanHeadshot" in $$props) $$invalidate(2, cleanHeadshot = $$props.cleanHeadshot);
+    		if ("statusHeadshot" in $$props) statusHeadshot = $$props.statusHeadshot;
+    		if ("cleanHeadshot" in $$props) $$invalidate(1, cleanHeadshot = $$props.cleanHeadshot);
     		if ("visible" in $$props) $$invalidate(0, visible = $$props.visible);
     	};
 
@@ -2570,7 +2555,7 @@ var app = (function () {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [visible, statusHeadshot, cleanHeadshot, annotation_visible_binding];
+    	return [visible, cleanHeadshot, annotation_visible_binding];
     }
 
     class Sidebar extends SvelteComponentDev {
