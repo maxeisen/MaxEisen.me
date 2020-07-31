@@ -1,5 +1,6 @@
 <script>
-    let cleanHeadshot = './img/headshots/clean_headshot.webp';
+    let cleanHeadshotW = './img/headshots/clean_headshot.webp';
+    let cleanHeadshotP = './img/headshots/clean_headshot.png';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
     import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte';
@@ -27,7 +28,11 @@
 </div>
 
 <div class="headshot">
-    <img class="headshot" src={cleanHeadshot} alt="Current headshot"/>
+    <picture>
+        <source srcset={cleanHeadshotW} type="image/webp">
+        <source srcset={cleanHeadshotP} type="image/png">
+        <img class="headshot" src={cleanHeadshotW} alt="Current headshot"/>
+    </picture>
 </div>
 
 <style>

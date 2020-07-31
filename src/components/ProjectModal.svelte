@@ -19,7 +19,11 @@
         <a class="project-link" href={githubLink} rel="noreferrer" target="_blank"><CodeLogo /></a>
     </div>
     <p class="modal-description">{@html description}</p>
-    <img class="screenshot" src={screenshot} alt="{name} screenshot">
+    <picture>
+        <source srcset="{screenshot}.webp" type="image/webp">
+        <source srcset="{screenshot}.jpg" type="image/jpeg">
+        <img class="screenshot" src="{screenshot}.webp" alt="{name} screenshot">
+    </picture>
 </div>
 
 <style>

@@ -11,7 +11,7 @@
         longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li></ul>",
         githubLink: "https://github.com/maxeisen/studii_public",
         projectLink: "https://qtma.ca/studii.html",
-        screenshot: "./img/screenshots/studii.webp",
+        screenshot: "./img/screenshots/studii",
     };
     const proj2 = {
         name: "QHacks Website",
@@ -22,7 +22,7 @@
         longDescription: "<ul><li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
         projectLink: "https://qhacks.io",
-        screenshot: "./img/screenshots/qhacks.webp",
+        screenshot: "./img/screenshots/qhacks",
     };
     const proj3 = {
         name: "Spotilizer",
@@ -33,7 +33,7 @@
         longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
         githubLink: "https://github.com/maxeisen/spotilizer",
         projectLink: "https://github.com/maxeisen/spotilizer",
-        screenshot: "./img/screenshots/spotilizer.webp",
+        screenshot: "./img/screenshots/spotilizer",
     };
     const proj4 = {
         name: "Glitch",
@@ -44,7 +44,7 @@
         longDescription: "<ul><li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li><li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li></ul>",
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
-        screenshot: "./img/screenshots/glitch.webp",
+        screenshot: "./img/screenshots/glitch",
     };
 
     const { open } = getContext('simple-modal');
@@ -73,25 +73,25 @@
 
 <h1 class="section-title" id="projects">Projects</h1>
 <div class="project-subsection">
-    <div class="project-item" tabindex="0" style="background-image: url({proj1.screenshot})" on:click={modal1}>
+    <div class="project-item" tabindex="0" style="background-image: url('{proj1.screenshot}.webp')" on:click={modal1}>
         <h2 class="project-name">{proj1.name} {@html proj1.emoji}</h2>
         <h2 class="project-year">{proj1.year}</h2>
         <h2 class="project-tech">{proj1.technologies}</h2>
         <p>{proj1.shortDescription}</p>
     </div>
-    <div class="project-item" tabindex="0" style="background-image: url({proj2.screenshot})" on:click={modal2}>
+    <div class="project-item" tabindex="0" style="background-image: url('{proj2.screenshot}.webp')" on:click={modal2}>
         <h2 class="project-name">{proj2.name} {@html proj2.emoji}</h2>
         <h2 class="project-year">{proj2.year}</h2>
         <h2 class="project-tech">{proj2.technologies}</h2>
         <p>{proj2.shortDescription}</p>
     </div>
-    <div class="project-item" tabindex="0" style="background-image: url({proj3.screenshot})" on:click={modal3}>
+    <div class="project-item" tabindex="0" style="background-image: url('{proj3.screenshot}.webp')" on:click={modal3}>
         <h2 class="project-name">{proj3.name} {@html proj3.emoji}</h2>
         <h2 class="project-year">{proj3.year}</h2>
         <h2 class="project-tech">{proj3.technologies}</h2>
         <p>{proj3.shortDescription}</p>
     </div>
-    <div class="project-item" tabindex="0" style="background-image: url({proj4.screenshot})" on:click={modal4}>
+    <div class="project-item" tabindex="0" style="background-image: url('{proj4.screenshot}.webp')" on:click={modal4}>
         <h2 class="project-name">{proj4.name} {@html proj4.emoji}</h2>
         <h2 class="project-year">{proj4.year}</h2>
         <h2 class="project-tech">{proj4.technologies}</h2>
