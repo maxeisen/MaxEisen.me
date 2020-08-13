@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- DESIGNED AND DEVELOPED BY
+███╗   ███╗ █████╗ ██╗  ██╗    ███████╗██╗███████╗███████╗███╗   ██╗
+████╗ ████║██╔══██╗╚██╗██╔╝    ██╔════╝██║██╔════╝██╔════╝████╗  ██║
+██╔████╔██║███████║ ╚███╔╝     █████╗  ██║███████╗█████╗  ██╔██╗ ██║
+██║╚██╔╝██║██╔══██║ ██╔██╗     ██╔══╝  ██║╚════██║██╔══╝  ██║╚██╗██║
+██║ ╚═╝ ██║██║  ██║██╔╝ ██╗    ███████╗██║███████║███████╗██║ ╚████║
+╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝
+https://github.com/maxeisen/
+-->
+<html lang="en">
+
+<head>
+    <title>Zoom Auto-Mute (ENIN 140 Assignment 2) - MaxEisen.me</title>
+    <meta charset="UTF-8">
+    <link href="/styles/resume.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,600|Source+Code+Pro:300,400,600&display=swap" rel="stylesheet">\
+</head>
+
+<style>
+    body {
+        background: radial-gradient(#0e2e55, #4e230a);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+        background-color: #00071a;
+        background-repeat: repeat;
+        background-attachment: fixed;
+    }
+
+    h1 {
+        padding-top: 20px; 
+        color: white;
+        font-size: 44px;
+    }
+
+    h1.title {
+        padding-top: 5px;
+    }
+
+    h2 {
+        color: white;
+        font-size: 32px;
+    }
+
+    h3 {
+        color: white;
+        font-size: 20px;
+        padding-left: 100px;
+        padding-right: 100px;
+    }
+
+    a {
+        font-size: smaller;
+        color: lightgray;
+    }
+    
+    p, ol, ul, li {
+        color: #e9e9e9;
+        line-height: 1.8;
+    }
+
+    ol li {
+        font-size: 18px;
+    }
+
+    ul li {
+        font-size: 14px;
+    }
+
+    ul.selling-points {
+        width: 70%;
+        margin: auto;
+    }
+
+    ul.selling-points li {
+        font-size: 16px;
+    }
+
+    img {
+        width: 40%;
+        transition: ease 0.5s;
+    }
+
+    img.mockup:hover {
+        width: 50%;
+    }
+
+    img.top-logo {
+        display: block;
+        width: 30%;
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .landing-container {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        background-color: rgba(255,255,255,0.2);
+        border-radius: 30px;
+        padding: 15px;
+    }
+
+
+</style>
+
+<body>
+
+    <img class="top-logo" src="./img/zoom-auto-mute/zoom-auto-mute_logo.png" alt="Zoom Auto-Mute logo" />
+    <h1 class="title">A Solution to Zoom Fatigue</h1>
+
+    <div class="landing-container">
+
+        <h2>Zoom Fatigue is real!</h2>
+
+        <p>
+            <ol>
+                <li>Research shows that video calls require more focus than a typical face-to-face chat 
+                    <ul>
+                        <li>Quirks of virtual meetings cause users to give more focus to them than they would to a face-to-face meeting</li>
+                        <li>“People feel like they have to make more emotional effort to appear interested, and in the absence of many non-verbal cues, the intense focus on words and sustained eye contact is exhausting.” </li>
+                    </ul>
+                </li>
+                <li>Calls are majorly subject to the inconsistencies and flaws of users’ internet connectivity
+                    <ul><li>Internet dropouts can result in choppy audio and video, inability to get a message across, and for other users in a call this can make things very awkward and uncomfortable</li></ul>
+                </li>
+                <li>Users generally do not enjoy seeing their own face, up close and in a clear window
+                    <ul>
+                        <li>One user compared this to sitting in a real-life meeting and being forced to have a mirror in front of your face</li>
+                        <li>Many users find themselves obsessing over their own appearance, and finding their own face to be a major distraction in a Zoom meeting</li>
+                    </ul>
+                </li>
+                <li>Users often forget to mute and unmute themselves as needed, or suffer through others forgetting to mute or unmute themselves
+                    <ul><li>We’ve all experienced this, whether it was a case of you speaking for 10 seconds before being told “you’re on mute” and having to repeat yourself after unmuting, or having to hear someone else screaming to someone else in their house because they forgot to mute their microphone</li></ul>
+                </li>
+                <li>Delays on phone or conferencing systems of 1.2 seconds made people perceive the responder as less friendly or focused <a  rel="noreferrer" target="_blank" href="https://bbc.com/worklife/article/20200421-why-zoom-video-chats-are-so-exhausting">(source)</a>
+                    <ul><li>The delay for one’s audio to reach the dedicated Zoom server, and then be transferred to other participants’ own computers can cause a very uncomfortable pause between a question and an answer on a Zoom call, causing many to feel that there is tension between attendees of a Zoom meeting</li></ul>
+                </li>
+            </ol>
+        </p>
+
+        <h2>How can these issues be solved?</h2>
+
+        <img src="./img/zoom-auto-mute/solution_brainstorming.png" alt="Solution brainstorming" />
+        <h3>After some brainstorming, I came to the conclusion that many of these issues have basic, manual solutions, or are somewhat unavoidable, but one simple additional feature could effectively solve one of these issues, while helping to ease all the rest...</h3>
+
+        <h1><img src="./img/zoom-auto-mute/zoom-auto-mute_logo.png" alt="Zoom Auto-Mute logo" /></h1>
+        <h3 style= "text-align: left">With the addition of a smart "auto-mute" feature, any attendees in a Zoom call who are not presently engaged in conversation will have their video and audio temporarily switched off, effectively:</h3>
+        <ul class="selling-points">
+            <li>Making users more comfortable that their face is only being seen and voice is only being heard when <i>they</i> want it to be</li>
+            <li>Shifting full focus over to the attendees who are currently presenting</li>
+            <li>Eliminating the need for a meeting host to manually mute users with distracting background noise</li>
+            <li>Giving all users a break to gather their thoughts when they are not currently speaking or presenting</li>
+        </ul>
+
+        <h2>Zoom Auto-Mute will help take your meetings from this...</h2>
+        <img class="mockup" src="./img/zoom-auto-mute/normal_call.png" alt="Average Zoom call" />
+        <h2>to this</h2>
+        <img class="mockup" src="./img/zoom-auto-mute/2-way_conversation.png" alt="2-way conversation" />
+        <h3>and will help shift the focus over to the active speaker, eliminating cross-talk and background noise from users</h3>
+        <img class="mockup" src="./img/zoom-auto-mute/single_speaker.png" alt="Single speaker" />
+
+
+    </div>
+    <h2 class="footer"><a href="https://maxeisen.me" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px;color:#ababab">&copy;2020</b></a></h2>
+</body>
