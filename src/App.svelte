@@ -6,7 +6,7 @@
     import Projects from './components/Projects.svelte';
     import Education from './components/Education.svelte';
     import Skills from './components/Skills.svelte';
-    import Footer from './components/Skills.svelte';
+    import Footer from './components/Footer.svelte';
     import Modal from 'svelte-simple-modal';
 </script>
 
@@ -24,7 +24,7 @@
                 <Education/>
                 <Skills/>
             </div>
-                <h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/" rel="noreferrer" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:#ababab">&copy;2020</b></a></h2>
+                <Footer/>
         </div>
     </div>
 </Modal>
