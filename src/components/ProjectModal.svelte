@@ -15,7 +15,9 @@
     <h1 class="modal-name">{name} ({year})</h1>
     <h3 class="modal-description" style="text-align: center">Developed with: <b class="technologies">{technologies}</b></h3>
     <div class="project-links-container">
-        <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>
+        {#if projectLink}
+            <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>
+        {/if}
         <a class="project-link" href={githubLink} rel="noreferrer" target="_blank"><CodeLogo /></a>
     </div>
     <p class="modal-description">{@html description}</p>

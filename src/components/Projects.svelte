@@ -32,7 +32,6 @@
         shortDescription: "A customizable, data-centric Spotify visualizer built in Python",
         longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
         githubLink: "https://github.com/maxeisen/spotilizer",
-        projectLink: "https://github.com/maxeisen/spotilizer",
         screenshot: "./img/screenshots/spotilizer",
     };
     const proj4 = {

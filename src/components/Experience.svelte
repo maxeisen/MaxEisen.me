@@ -37,10 +37,10 @@
         company: "Queen's University",
         companyLink: "https://cs.queensu.ca/",
         startDate: "September 2019",
-        endDate: "April 2020",
+        endDate: "Present",
         location: "Kingston, ON",
-        shortDescription: "Worked as a teaching assistant for a Python programming course of over 250 students",
-        longDescription: `<ul><li>Selected as one of 8 TAs for the specific Python programming course, having previously obtained an exceptional grade in the course</li><li>Assisted in the teaching and grading of the class with over 250 students</li><li>Held weekly office hours to guide students in completing assignments and reviewing for exams</li></ul>`
+        shortDescription: "Assisting in the teaching of Fundamentals of Software Development (Agile Methodologies)",
+        longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
     };
     const exp5 = {
         position: "Software Developer",
