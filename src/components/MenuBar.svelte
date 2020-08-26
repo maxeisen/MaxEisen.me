@@ -18,7 +18,7 @@
 <div class="header-container">
     <header id="header">
         <div>
-            <a href="/#">
+            <a href="/#" aria-label="Home">
                 <video class="home-icon" poster="./img/additional/memoji_cycle_small.gif" autoplay loop muted playsinline>  
                     <source src='./img/additional/memoji_cycle.webm' type="video/webm">
                     <source src='./img/additional/memoji_cycle.mp4' type="video/mp4">
