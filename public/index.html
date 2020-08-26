@@ -29,7 +29,8 @@ https://github.com/maxeisen/
     <meta property="og:title" content="Max Eisen"/>
     <meta property="og:description" content="Get to know Max Eisen - ambitious and driven Computer Science student and Software Engineer living in Toronto, ON"/>
     <link rel=canonical href="https://maxeisen.me"/>
-    <link href="../img/additional/apple_touch_icon.png" rel="apple-touch-icon">
+    <link rel='manifest' href='/manifest.json'>
+    <link href="../img/icons/site-icons/apple_touch_icon.png" rel="apple-touch-icon">
 	<link defer rel="stylesheet" href="/styles/index.css">
     <link defer rel="stylesheet" href="/build/bundle.css">
     <link rel="prefetch alternate stylesheet" title="Maxwell Eisen Resume" href="/styles/resume.css">
@@ -62,6 +63,11 @@ https://github.com/maxeisen/
         }
     </style>
 
-	<script defer src="/build/bundle.js"></script>
+    <script defer src="/build/bundle.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
 </head>
 </html>

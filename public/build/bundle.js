@@ -2924,7 +2924,7 @@ var app = (function () {
     			t25 = text(".");
     			t26 = space();
     			p3 = element("p");
-    			t27 = text("Please explore and enjoy this portfolio website, click on things for more information, and ");
+    			t27 = text("Please explore and enjoy my portfolio website, click on things for more information, and ");
     			a2 = element("a");
     			a2.textContent = "email me";
     			t29 = text(" if you have any questions or comments.");
@@ -2967,7 +2967,7 @@ var app = (function () {
     			attr_dev(a2, "href", "mailto:max.eisen@queensu.ca");
     			attr_dev(a2, "rel", "noreferrer");
     			attr_dev(a2, "target", "_blank");
-    			add_location(a2, file$9, 87, 102, 4277);
+    			add_location(a2, file$9, 87, 100, 4275);
     			add_location(p3, file$9, 87, 8, 4183);
     			attr_dev(div0, "class", "intro-paragraph svelte-1j2d4nn");
     			add_location(div0, file$9, 74, 4, 2243);
@@ -3724,7 +3724,7 @@ var app = (function () {
     			div11 = element("div");
     			h24 = element("h2");
     			div8 = element("div");
-    			div8.textContent = `${/*exp3*/ ctx[2].position}`;
+    			div8.textContent = "CS Teaching Assistant";
     			t25 = space();
     			h25 = element("h2");
     			h25.textContent = `${/*exp3*/ ctx[2].company}`;
@@ -3741,7 +3741,7 @@ var app = (function () {
     			div15 = element("div");
     			h26 = element("h2");
     			div12 = element("div");
-    			div12.textContent = "CS Teaching Assistant";
+    			div12.textContent = `${/*exp4*/ ctx[3].position}`;
     			t36 = space();
     			h27 = element("h2");
     			h27.textContent = `${/*exp4*/ ctx[3].company}`;
@@ -3791,105 +3791,105 @@ var app = (function () {
     			div22.textContent = `${/*exp6*/ ctx[5].location}`;
     			attr_dev(h10, "class", "section-title");
     			attr_dev(h10, "id", "experience");
-    			add_location(h10, file$b, 99, 0, 6281);
+    			add_location(h10, file$b, 99, 0, 6294);
     			attr_dev(div0, "class", "experience-position svelte-bar5y9");
-    			add_location(div0, file$b, 102, 37, 6477);
+    			add_location(div0, file$b, 102, 37, 6490);
     			attr_dev(h20, "class", "experience-title svelte-bar5y9");
-    			add_location(h20, file$b, 102, 8, 6448);
+    			add_location(h20, file$b, 102, 8, 6461);
     			attr_dev(h21, "class", "experience-company svelte-bar5y9");
-    			add_location(h21, file$b, 103, 8, 6545);
-    			add_location(p0, file$b, 104, 8, 6604);
+    			add_location(h21, file$b, 103, 8, 6558);
+    			add_location(p0, file$b, 104, 8, 6617);
     			attr_dev(div1, "class", "experience-date svelte-bar5y9");
-    			add_location(div1, file$b, 105, 45, 6680);
+    			add_location(div1, file$b, 105, 45, 6693);
     			attr_dev(div2, "class", "experience-location svelte-bar5y9");
-    			add_location(div2, file$b, 105, 111, 6746);
+    			add_location(div2, file$b, 105, 111, 6759);
     			attr_dev(h11, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h11, file$b, 105, 8, 6643);
+    			add_location(h11, file$b, 105, 8, 6656);
     			attr_dev(div3, "class", "experience-item");
     			attr_dev(div3, "tabindex", "0");
-    			add_location(div3, file$b, 101, 4, 6379);
+    			add_location(div3, file$b, 101, 4, 6392);
     			attr_dev(div4, "class", "experience-position svelte-bar5y9");
-    			add_location(div4, file$b, 108, 37, 6919);
+    			add_location(div4, file$b, 108, 37, 6932);
     			attr_dev(h22, "class", "experience-title svelte-bar5y9");
-    			add_location(h22, file$b, 108, 8, 6890);
+    			add_location(h22, file$b, 108, 8, 6903);
     			attr_dev(h23, "class", "experience-company svelte-bar5y9");
-    			add_location(h23, file$b, 109, 8, 6987);
-    			add_location(p1, file$b, 110, 8, 7036);
+    			add_location(h23, file$b, 109, 8, 7000);
+    			add_location(p1, file$b, 110, 8, 7049);
     			attr_dev(div5, "class", "experience-date svelte-bar5y9");
-    			add_location(div5, file$b, 111, 45, 7112);
+    			add_location(div5, file$b, 111, 45, 7125);
     			attr_dev(div6, "class", "experience-location svelte-bar5y9");
-    			add_location(div6, file$b, 111, 111, 7178);
+    			add_location(div6, file$b, 111, 111, 7191);
     			attr_dev(h12, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h12, file$b, 111, 8, 7075);
+    			add_location(h12, file$b, 111, 8, 7088);
     			attr_dev(div7, "class", "experience-item");
     			attr_dev(div7, "tabindex", "0");
-    			add_location(div7, file$b, 107, 4, 6821);
+    			add_location(div7, file$b, 107, 4, 6834);
     			attr_dev(div8, "class", "experience-position svelte-bar5y9");
-    			add_location(div8, file$b, 114, 37, 7351);
+    			add_location(div8, file$b, 114, 37, 7364);
     			attr_dev(h24, "class", "experience-title svelte-bar5y9");
-    			add_location(h24, file$b, 114, 8, 7322);
+    			add_location(h24, file$b, 114, 8, 7335);
     			attr_dev(h25, "class", "experience-company svelte-bar5y9");
-    			add_location(h25, file$b, 115, 8, 7419);
-    			add_location(p2, file$b, 116, 8, 7478);
+    			add_location(h25, file$b, 115, 8, 7438);
+    			add_location(p2, file$b, 116, 8, 7497);
     			attr_dev(div9, "class", "experience-date svelte-bar5y9");
-    			add_location(div9, file$b, 117, 45, 7554);
+    			add_location(div9, file$b, 117, 45, 7573);
     			attr_dev(div10, "class", "experience-location svelte-bar5y9");
-    			add_location(div10, file$b, 117, 111, 7620);
+    			add_location(div10, file$b, 117, 111, 7639);
     			attr_dev(h13, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h13, file$b, 117, 8, 7517);
+    			add_location(h13, file$b, 117, 8, 7536);
     			attr_dev(div11, "class", "experience-item");
     			attr_dev(div11, "tabindex", "0");
-    			add_location(div11, file$b, 113, 4, 7253);
+    			add_location(div11, file$b, 113, 4, 7266);
     			attr_dev(div12, "class", "experience-position svelte-bar5y9");
-    			add_location(div12, file$b, 120, 37, 7793);
+    			add_location(div12, file$b, 120, 37, 7812);
     			attr_dev(h26, "class", "experience-title svelte-bar5y9");
-    			add_location(h26, file$b, 120, 8, 7764);
+    			add_location(h26, file$b, 120, 8, 7783);
     			attr_dev(h27, "class", "experience-company svelte-bar5y9");
-    			add_location(h27, file$b, 121, 8, 7867);
-    			add_location(p3, file$b, 122, 8, 7926);
+    			add_location(h27, file$b, 121, 8, 7880);
+    			add_location(p3, file$b, 122, 8, 7939);
     			attr_dev(div13, "class", "experience-date svelte-bar5y9");
-    			add_location(div13, file$b, 123, 45, 8002);
+    			add_location(div13, file$b, 123, 45, 8015);
     			attr_dev(div14, "class", "experience-location svelte-bar5y9");
-    			add_location(div14, file$b, 124, 8, 8071);
+    			add_location(div14, file$b, 124, 8, 8084);
     			attr_dev(h14, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h14, file$b, 123, 8, 7965);
+    			add_location(h14, file$b, 123, 8, 7978);
     			attr_dev(div15, "class", "experience-item");
     			attr_dev(div15, "tabindex", "0");
-    			add_location(div15, file$b, 119, 4, 7695);
+    			add_location(div15, file$b, 119, 4, 7714);
     			attr_dev(div16, "class", "experience-position svelte-bar5y9");
-    			add_location(div16, file$b, 127, 37, 8244);
+    			add_location(div16, file$b, 127, 37, 8257);
     			attr_dev(h28, "class", "experience-title svelte-bar5y9");
-    			add_location(h28, file$b, 127, 8, 8215);
+    			add_location(h28, file$b, 127, 8, 8228);
     			attr_dev(h29, "class", "experience-company svelte-bar5y9");
-    			add_location(h29, file$b, 128, 8, 8312);
-    			add_location(p4, file$b, 129, 8, 8371);
+    			add_location(h29, file$b, 128, 8, 8325);
+    			add_location(p4, file$b, 129, 8, 8384);
     			attr_dev(div17, "class", "experience-date svelte-bar5y9");
-    			add_location(div17, file$b, 130, 45, 8447);
+    			add_location(div17, file$b, 130, 45, 8460);
     			attr_dev(div18, "class", "experience-location svelte-bar5y9");
-    			add_location(div18, file$b, 130, 100, 8502);
+    			add_location(div18, file$b, 130, 100, 8515);
     			attr_dev(h15, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h15, file$b, 130, 8, 8410);
+    			add_location(h15, file$b, 130, 8, 8423);
     			attr_dev(div19, "class", "experience-item");
     			attr_dev(div19, "tabindex", "0");
-    			add_location(div19, file$b, 126, 4, 8146);
+    			add_location(div19, file$b, 126, 4, 8159);
     			attr_dev(div20, "class", "experience-position svelte-bar5y9");
-    			add_location(div20, file$b, 133, 37, 8675);
+    			add_location(div20, file$b, 133, 37, 8688);
     			attr_dev(h210, "class", "experience-title svelte-bar5y9");
-    			add_location(h210, file$b, 133, 8, 8646);
+    			add_location(h210, file$b, 133, 8, 8659);
     			attr_dev(h211, "class", "experience-company svelte-bar5y9");
-    			add_location(h211, file$b, 134, 8, 8743);
-    			add_location(p5, file$b, 135, 8, 8802);
+    			add_location(h211, file$b, 134, 8, 8756);
+    			add_location(p5, file$b, 135, 8, 8815);
     			attr_dev(div21, "class", "experience-date svelte-bar5y9");
-    			add_location(div21, file$b, 136, 45, 8878);
+    			add_location(div21, file$b, 136, 45, 8891);
     			attr_dev(div22, "class", "experience-location svelte-bar5y9");
-    			add_location(div22, file$b, 136, 111, 8944);
+    			add_location(div22, file$b, 136, 111, 8957);
     			attr_dev(h16, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h16, file$b, 136, 8, 8841);
+    			add_location(h16, file$b, 136, 8, 8854);
     			attr_dev(div23, "class", "experience-item");
     			attr_dev(div23, "tabindex", "0");
-    			add_location(div23, file$b, 132, 4, 8577);
+    			add_location(div23, file$b, 132, 4, 8590);
     			attr_dev(div24, "class", "experience-subsection");
-    			add_location(div24, file$b, 100, 0, 6339);
+    			add_location(div24, file$b, 100, 0, 6352);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -4027,6 +4027,17 @@ var app = (function () {
     	};
 
     	const exp3 = {
+    		position: "Computer Science Teaching Assistant",
+    		company: "Queen's University",
+    		companyLink: "https://cs.queensu.ca/",
+    		startDate: "September 2019",
+    		endDate: "Present",
+    		location: "Kingston, ON",
+    		shortDescription: "Assisting in the teaching of Fundamentals of Agile Software Development",
+    		longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development (Agile Methodologies) in C++, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
+    	};
+
+    	const exp4 = {
     		position: "Director of Technology",
     		company: "TechTrainers",
     		companyLink: "https://techtrainers.ca/",
@@ -4035,17 +4046,6 @@ var app = (function () {
     		location: "Toronto, ON",
     		shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
     		longDescription: `<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li><li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li><li>Company was able to turn a profit in first month of operations</li></ul>`
-    	};
-
-    	const exp4 = {
-    		position: "Computer Science Teaching Assistant",
-    		company: "Queen's University",
-    		companyLink: "https://cs.queensu.ca/",
-    		startDate: "September 2019",
-    		endDate: "Present",
-    		location: "Kingston, ON",
-    		shortDescription: "Assisting in the teaching of Fundamentals of Software Development (Agile Methodologies)",
-    		longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
     	};
 
     	const exp5 = {

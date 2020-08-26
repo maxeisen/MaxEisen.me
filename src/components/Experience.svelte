@@ -23,6 +23,16 @@
         longDescription: `<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>`
     };
     const exp3 = {
+        position: "Computer Science Teaching Assistant",
+        company: "Queen's University",
+        companyLink: "https://cs.queensu.ca/",
+        startDate: "September 2019",
+        endDate: "Present",
+        location: "Kingston, ON",
+        shortDescription: "Assisting in the teaching of Fundamentals of Agile Software Development",
+        longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development (Agile Methodologies) in C++, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
+    };
+    const exp4 = {
         position: "Director of Technology",
         company: "TechTrainers",
         companyLink: "https://techtrainers.ca/",
@@ -31,16 +41,6 @@
         location: "Toronto, ON",
         shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
         longDescription: `<ul><li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li><li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li><li>Company was able to turn a profit in first month of operations</li></ul>`
-    };
-    const exp4 = {
-        position: "Computer Science Teaching Assistant",
-        company: "Queen's University",
-        companyLink: "https://cs.queensu.ca/",
-        startDate: "September 2019",
-        endDate: "Present",
-        location: "Kingston, ON",
-        shortDescription: "Assisting in the teaching of Fundamentals of Software Development (Agile Methodologies)",
-        longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
     };
     const exp5 = {
         position: "Software Developer",
@@ -112,13 +112,13 @@
         <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}-{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
     </div>
     <div class="experience-item" tabindex="0" on:click={modal3}>
-        <h2 class="experience-title"><div class="experience-position">{exp3.position}</div></h2>
+        <h2 class="experience-title"><div class="experience-position">CS Teaching Assistant</div></h2>
         <h2 class="experience-company">{exp3.company}</h2>
         <p>{exp3.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}-{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
     </div>
     <div class="experience-item" tabindex="0" on:click={modal4}>
-        <h2 class="experience-title"><div class="experience-position">CS Teaching Assistant</div></h2>
+        <h2 class="experience-title"><div class="experience-position">{exp4.position}</div></h2>
         <h2 class="experience-company">{exp4.company}</h2>
         <p>{exp4.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">Sept. 2019-{exp4.endDate}</div>
