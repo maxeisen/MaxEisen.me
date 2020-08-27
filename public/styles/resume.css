@@ -123,6 +123,7 @@ a:hover {
     display: none;
     position: absolute;
     font-size: 30px;
+    font-weight: 400;
     color: white;
     margin-left: 12px;
     margin-top: -5px;
