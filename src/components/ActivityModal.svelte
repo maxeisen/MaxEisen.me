@@ -11,6 +11,7 @@
     {#if audio}
         <audio class="activity-audio" controls>
             <source src={audio} type="audio/mpeg">
+            <track kind="captions">
             Your browser does not support the audio element.
         </audio>
     {/if}

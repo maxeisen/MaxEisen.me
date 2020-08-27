@@ -22,6 +22,11 @@ body {
     background-attachment: fixed;
 }
 
+pwa-update::part(offlineToast), pwa-update::part(updateToast) {
+    background: rgba(114, 114, 114, 0.85);
+    z-index: 9999;
+}
+
 @keyframes gradient {
 	0% {
 		background-position: 0% 50%;
