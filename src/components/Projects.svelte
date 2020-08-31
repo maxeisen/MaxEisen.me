@@ -1,6 +1,6 @@
 <script>
     import { getContext } from 'svelte';
-    import ProjectModal from './ProjectModal.svelte';
+    import ProjectModal from './modals/ProjectModal.svelte';
 
     const proj1 = {
         name: "Studii",

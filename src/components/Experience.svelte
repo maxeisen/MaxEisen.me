@@ -1,6 +1,6 @@
 <script>
     import { getContext } from 'svelte';
-    import ExperienceModal from './ExperienceModal.svelte';
+    import ExperienceModal from './modals/ExperienceModal.svelte';
 
     const exp1 = {
         position: "Technical Developer",

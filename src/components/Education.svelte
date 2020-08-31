@@ -1,6 +1,6 @@
 <script>
     import { getContext } from 'svelte';
-    import EducationModal from './EducationModal.svelte';
+    import EducationModal from './modals/EducationModal.svelte';
 
     const education = {
         school: "Queen's University",

@@ -2,7 +2,7 @@
     import Annotation from 'svelte-rough-notation';
     import { annotationGroup } from 'rough-notation';
     import { onMount, getContext } from 'svelte';
-    import ActivityModal from './ActivityModal.svelte';
+    import ActivityModal from './modals/ActivityModal.svelte';
 
     let visible = false;
     onMount(() => {
