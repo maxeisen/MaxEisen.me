@@ -6,7 +6,7 @@
         position: "Technical Developer",
         company: "Jonah Group",
         companyLink: "https://www.jonahgroup.com/",
-        startDate: "May 2020",
+        startDate: "May",
         endDate: "September 2020",
         location: "Toronto, ON",
         shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
