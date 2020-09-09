@@ -59,7 +59,7 @@
         startDate: "May",
         endDate: "August 2019",
         location: "Vancouver, BC",
-        shortDescription: "Taught and created course content for programming and engineering courses tailored to teens and young adults",
+        shortDescription: "Created and taught content for programming and engineering courses tailored to teens and young adults",
         longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses included: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
     };
 
