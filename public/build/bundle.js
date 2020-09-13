@@ -917,7 +917,7 @@ var app = (function () {
     		if (screenSize.matches) {
     			if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
     				document.getElementById("nav-bar").style.fontSize = "20px";
-    				document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.8)";
+    				document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
     			} else {
     				document.getElementById("nav-bar").style.fontSize = "30px";
     				document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";
@@ -2915,6 +2915,8 @@ var app = (function () {
     	let t27;
     	let a2;
     	let t29;
+    	let a3;
+    	let t31;
     	let current;
     	let mounted;
     	let dispose;
@@ -3032,7 +3034,10 @@ var app = (function () {
     			t27 = text("Please explore and enjoy my portfolio website, click on things for more information, and ");
     			a2 = element("a");
     			a2.textContent = "email me";
-    			t29 = text(" if you have any questions or comments.");
+    			t29 = text(" if you have any questions or comments.\n        If you are recruiting, check out and download (print to PDF) my ");
+    			a3 = element("a");
+    			a3.textContent = "resume";
+    			t31 = text(".");
     			attr_dev(h1, "class", "section-title-intro svelte-1j2d4nn");
     			add_location(h1, file$9, 73, 4, 2197);
     			attr_dev(a0, "class", "intro-link svelte-1j2d4nn");
@@ -3073,6 +3078,9 @@ var app = (function () {
     			attr_dev(a2, "rel", "noreferrer");
     			attr_dev(a2, "target", "_blank");
     			add_location(a2, file$9, 87, 100, 4282);
+    			attr_dev(a3, "class", "intro-link svelte-1j2d4nn");
+    			attr_dev(a3, "href", "/resume");
+    			add_location(a3, file$9, 88, 72, 4496);
     			add_location(p3, file$9, 87, 8, 4190);
     			attr_dev(div0, "class", "intro-paragraph svelte-1j2d4nn");
     			add_location(div0, file$9, 74, 4, 2250);
@@ -3126,6 +3134,8 @@ var app = (function () {
     			append_dev(p3, t27);
     			append_dev(p3, a2);
     			append_dev(p3, t29);
+    			append_dev(p3, a3);
+    			append_dev(p3, t31);
     			current = true;
 
     			if (!mounted) {
@@ -3796,7 +3806,7 @@ var app = (function () {
     			div0.textContent = `${/*exp1*/ ctx[0].position}`;
     			t3 = space();
     			h21 = element("h2");
-    			h21.textContent = `${/*exp1*/ ctx[0].company}`;
+    			h21.textContent = "QTMA";
     			t5 = space();
     			p0 = element("p");
     			p0.textContent = `${/*exp1*/ ctx[0].shortDescription}`;
@@ -3810,10 +3820,10 @@ var app = (function () {
     			div7 = element("div");
     			h22 = element("h2");
     			div4 = element("div");
-    			div4.textContent = `${/*exp2*/ ctx[1].position}`;
+    			div4.textContent = "CS Teaching Assistant";
     			t14 = space();
     			h23 = element("h2");
-    			h23.textContent = "QTMA";
+    			h23.textContent = `${/*exp2*/ ctx[1].company}`;
     			t16 = space();
     			p1 = element("p");
     			p1.textContent = `${/*exp2*/ ctx[1].shortDescription}`;
@@ -3827,7 +3837,7 @@ var app = (function () {
     			div11 = element("div");
     			h24 = element("h2");
     			div8 = element("div");
-    			div8.textContent = "CS Teaching Assistant";
+    			div8.textContent = `${/*exp3*/ ctx[2].position}`;
     			t25 = space();
     			h25 = element("h2");
     			h25.textContent = `${/*exp3*/ ctx[2].company}`;
@@ -3894,105 +3904,105 @@ var app = (function () {
     			div22.textContent = `${/*exp6*/ ctx[5].location}`;
     			attr_dev(h10, "class", "section-title");
     			attr_dev(h10, "id", "experience");
-    			add_location(h10, file$b, 99, 0, 6301);
+    			add_location(h10, file$b, 99, 0, 6278);
     			attr_dev(div0, "class", "experience-position svelte-bar5y9");
-    			add_location(div0, file$b, 102, 37, 6497);
+    			add_location(div0, file$b, 102, 37, 6474);
     			attr_dev(h20, "class", "experience-title svelte-bar5y9");
-    			add_location(h20, file$b, 102, 8, 6468);
+    			add_location(h20, file$b, 102, 8, 6445);
     			attr_dev(h21, "class", "experience-company svelte-bar5y9");
-    			add_location(h21, file$b, 103, 8, 6565);
-    			add_location(p0, file$b, 104, 8, 6624);
+    			add_location(h21, file$b, 103, 8, 6542);
+    			add_location(p0, file$b, 104, 8, 6591);
     			attr_dev(div1, "class", "experience-date svelte-bar5y9");
-    			add_location(div1, file$b, 105, 45, 6700);
+    			add_location(div1, file$b, 105, 45, 6667);
     			attr_dev(div2, "class", "experience-location svelte-bar5y9");
-    			add_location(div2, file$b, 105, 111, 6766);
+    			add_location(div2, file$b, 105, 111, 6733);
     			attr_dev(h11, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h11, file$b, 105, 8, 6663);
+    			add_location(h11, file$b, 105, 8, 6630);
     			attr_dev(div3, "class", "experience-item");
     			attr_dev(div3, "tabindex", "0");
-    			add_location(div3, file$b, 101, 4, 6399);
+    			add_location(div3, file$b, 101, 4, 6376);
     			attr_dev(div4, "class", "experience-position svelte-bar5y9");
-    			add_location(div4, file$b, 108, 37, 6939);
+    			add_location(div4, file$b, 108, 37, 6906);
     			attr_dev(h22, "class", "experience-title svelte-bar5y9");
-    			add_location(h22, file$b, 108, 8, 6910);
+    			add_location(h22, file$b, 108, 8, 6877);
     			attr_dev(h23, "class", "experience-company svelte-bar5y9");
-    			add_location(h23, file$b, 109, 8, 7007);
-    			add_location(p1, file$b, 110, 8, 7056);
+    			add_location(h23, file$b, 109, 8, 6980);
+    			add_location(p1, file$b, 110, 8, 7039);
     			attr_dev(div5, "class", "experience-date svelte-bar5y9");
-    			add_location(div5, file$b, 111, 45, 7132);
+    			add_location(div5, file$b, 111, 45, 7115);
     			attr_dev(div6, "class", "experience-location svelte-bar5y9");
-    			add_location(div6, file$b, 111, 111, 7198);
+    			add_location(div6, file$b, 111, 111, 7181);
     			attr_dev(h12, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h12, file$b, 111, 8, 7095);
+    			add_location(h12, file$b, 111, 8, 7078);
     			attr_dev(div7, "class", "experience-item");
     			attr_dev(div7, "tabindex", "0");
-    			add_location(div7, file$b, 107, 4, 6841);
+    			add_location(div7, file$b, 107, 4, 6808);
     			attr_dev(div8, "class", "experience-position svelte-bar5y9");
-    			add_location(div8, file$b, 114, 37, 7371);
+    			add_location(div8, file$b, 114, 37, 7354);
     			attr_dev(h24, "class", "experience-title svelte-bar5y9");
-    			add_location(h24, file$b, 114, 8, 7342);
+    			add_location(h24, file$b, 114, 8, 7325);
     			attr_dev(h25, "class", "experience-company svelte-bar5y9");
-    			add_location(h25, file$b, 115, 8, 7445);
-    			add_location(p2, file$b, 116, 8, 7504);
+    			add_location(h25, file$b, 115, 8, 7422);
+    			add_location(p2, file$b, 116, 8, 7481);
     			attr_dev(div9, "class", "experience-date svelte-bar5y9");
-    			add_location(div9, file$b, 117, 45, 7580);
+    			add_location(div9, file$b, 117, 45, 7557);
     			attr_dev(div10, "class", "experience-location svelte-bar5y9");
-    			add_location(div10, file$b, 117, 111, 7646);
+    			add_location(div10, file$b, 117, 111, 7623);
     			attr_dev(h13, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h13, file$b, 117, 8, 7543);
+    			add_location(h13, file$b, 117, 8, 7520);
     			attr_dev(div11, "class", "experience-item");
     			attr_dev(div11, "tabindex", "0");
-    			add_location(div11, file$b, 113, 4, 7273);
+    			add_location(div11, file$b, 113, 4, 7256);
     			attr_dev(div12, "class", "experience-position svelte-bar5y9");
-    			add_location(div12, file$b, 120, 37, 7819);
+    			add_location(div12, file$b, 120, 37, 7796);
     			attr_dev(h26, "class", "experience-title svelte-bar5y9");
-    			add_location(h26, file$b, 120, 8, 7790);
+    			add_location(h26, file$b, 120, 8, 7767);
     			attr_dev(h27, "class", "experience-company svelte-bar5y9");
-    			add_location(h27, file$b, 121, 8, 7887);
-    			add_location(p3, file$b, 122, 8, 7946);
+    			add_location(h27, file$b, 121, 8, 7864);
+    			add_location(p3, file$b, 122, 8, 7923);
     			attr_dev(div13, "class", "experience-date svelte-bar5y9");
-    			add_location(div13, file$b, 123, 45, 8022);
+    			add_location(div13, file$b, 123, 45, 7999);
     			attr_dev(div14, "class", "experience-location svelte-bar5y9");
-    			add_location(div14, file$b, 124, 8, 8091);
+    			add_location(div14, file$b, 124, 8, 8068);
     			attr_dev(h14, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h14, file$b, 123, 8, 7985);
+    			add_location(h14, file$b, 123, 8, 7962);
     			attr_dev(div15, "class", "experience-item");
     			attr_dev(div15, "tabindex", "0");
-    			add_location(div15, file$b, 119, 4, 7721);
+    			add_location(div15, file$b, 119, 4, 7698);
     			attr_dev(div16, "class", "experience-position svelte-bar5y9");
-    			add_location(div16, file$b, 127, 37, 8264);
+    			add_location(div16, file$b, 127, 37, 8241);
     			attr_dev(h28, "class", "experience-title svelte-bar5y9");
-    			add_location(h28, file$b, 127, 8, 8235);
+    			add_location(h28, file$b, 127, 8, 8212);
     			attr_dev(h29, "class", "experience-company svelte-bar5y9");
-    			add_location(h29, file$b, 128, 8, 8332);
-    			add_location(p4, file$b, 129, 8, 8391);
+    			add_location(h29, file$b, 128, 8, 8309);
+    			add_location(p4, file$b, 129, 8, 8368);
     			attr_dev(div17, "class", "experience-date svelte-bar5y9");
-    			add_location(div17, file$b, 130, 45, 8467);
+    			add_location(div17, file$b, 130, 45, 8444);
     			attr_dev(div18, "class", "experience-location svelte-bar5y9");
-    			add_location(div18, file$b, 130, 100, 8522);
+    			add_location(div18, file$b, 130, 100, 8499);
     			attr_dev(h15, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h15, file$b, 130, 8, 8430);
+    			add_location(h15, file$b, 130, 8, 8407);
     			attr_dev(div19, "class", "experience-item");
     			attr_dev(div19, "tabindex", "0");
-    			add_location(div19, file$b, 126, 4, 8166);
+    			add_location(div19, file$b, 126, 4, 8143);
     			attr_dev(div20, "class", "experience-position svelte-bar5y9");
-    			add_location(div20, file$b, 133, 37, 8695);
+    			add_location(div20, file$b, 133, 37, 8672);
     			attr_dev(h210, "class", "experience-title svelte-bar5y9");
-    			add_location(h210, file$b, 133, 8, 8666);
+    			add_location(h210, file$b, 133, 8, 8643);
     			attr_dev(h211, "class", "experience-company svelte-bar5y9");
-    			add_location(h211, file$b, 134, 8, 8763);
-    			add_location(p5, file$b, 135, 8, 8822);
+    			add_location(h211, file$b, 134, 8, 8740);
+    			add_location(p5, file$b, 135, 8, 8799);
     			attr_dev(div21, "class", "experience-date svelte-bar5y9");
-    			add_location(div21, file$b, 136, 45, 8898);
+    			add_location(div21, file$b, 136, 45, 8875);
     			attr_dev(div22, "class", "experience-location svelte-bar5y9");
-    			add_location(div22, file$b, 136, 111, 8964);
+    			add_location(div22, file$b, 136, 111, 8941);
     			attr_dev(h16, "class", "experience-date-location svelte-bar5y9");
-    			add_location(h16, file$b, 136, 8, 8861);
+    			add_location(h16, file$b, 136, 8, 8838);
     			attr_dev(div23, "class", "experience-item");
     			attr_dev(div23, "tabindex", "0");
-    			add_location(div23, file$b, 132, 4, 8597);
+    			add_location(div23, file$b, 132, 4, 8574);
     			attr_dev(div24, "class", "experience-subsection");
-    			add_location(div24, file$b, 100, 0, 6359);
+    			add_location(div24, file$b, 100, 0, 6336);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -4112,17 +4122,6 @@ var app = (function () {
 
     function instance$b($$self, $$props, $$invalidate) {
     	const exp1 = {
-    		position: "Technical Developer",
-    		company: "Jonah Group",
-    		companyLink: "https://www.jonahgroup.com/",
-    		startDate: "May 2020",
-    		endDate: "September 2020",
-    		location: "Toronto, ON",
-    		shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
-    		longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Full stack software engineer in a team of several skilled developers and engineers working on a decision engine to be implemented for client companies</li></ul>`
-    	};
-
-    	const exp2 = {
     		position: "Product Manager",
     		company: "Queen's Technology and Media Association",
     		companyLink: "https://qtma.ca/",
@@ -4133,7 +4132,7 @@ var app = (function () {
     		longDescription: `<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>`
     	};
 
-    	const exp3 = {
+    	const exp2 = {
     		position: "Computer Science Teaching Assistant",
     		company: "Queen's University",
     		companyLink: "https://cs.queensu.ca/",
@@ -4142,6 +4141,17 @@ var app = (function () {
     		location: "Kingston, ON",
     		shortDescription: "Assisting in the teaching of Fundamentals of Agile Software Development",
     		longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development (Agile Methodologies) in C++, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
+    	};
+
+    	const exp3 = {
+    		position: "Technical Developer",
+    		company: "Jonah Group",
+    		companyLink: "https://www.jonahgroup.com/",
+    		startDate: "May",
+    		endDate: "September 2020",
+    		location: "Toronto, ON",
+    		shortDescription: "Worked with a fantastic team of developers to create large-scale software products for companies",
+    		longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Full stack software engineer in a team of several skilled developers and engineers working on a decision engine to be implemented for client companies</li></ul>`
     	};
 
     	const exp4 = {
@@ -4173,7 +4183,7 @@ var app = (function () {
     		startDate: "May",
     		endDate: "August 2019",
     		location: "Vancouver, BC",
-    		shortDescription: "Taught and created course content for programming and engineering courses tailored to teens and young adults",
+    		shortDescription: "Developed and taught programming and engineering courses tailored to teens and young adults",
     		longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses included: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
     	};
 
@@ -5010,7 +5020,7 @@ var app = (function () {
     function create_fragment$f(ctx) {
     	let h1;
     	let t1;
-    	let div4;
+    	let div6;
     	let div0;
     	let h20;
     	let t2_value = /*proj1*/ ctx[0].name + "";
@@ -5066,6 +5076,34 @@ var app = (function () {
     	let h211;
     	let t35;
     	let p3;
+    	let t37;
+    	let div4;
+    	let h212;
+    	let t38_value = /*proj5*/ ctx[4].name + "";
+    	let t38;
+    	let t39;
+    	let html_tag_4;
+    	let raw4_value = /*proj5*/ ctx[4].emoji + "";
+    	let t40;
+    	let h213;
+    	let t42;
+    	let h214;
+    	let t44;
+    	let p4;
+    	let t46;
+    	let div5;
+    	let h215;
+    	let t47_value = /*proj6*/ ctx[5].name + "";
+    	let t47;
+    	let t48;
+    	let html_tag_5;
+    	let raw5_value = /*proj6*/ ctx[5].emoji + "";
+    	let t49;
+    	let h216;
+    	let t51;
+    	let h217;
+    	let t53;
+    	let p5;
     	let mounted;
     	let dispose;
 
@@ -5074,7 +5112,7 @@ var app = (function () {
     			h1 = element("h1");
     			h1.textContent = "Projects";
     			t1 = space();
-    			div4 = element("div");
+    			div6 = element("div");
     			div0 = element("div");
     			h20 = element("h2");
     			t2 = text(t2_value);
@@ -5130,59 +5168,111 @@ var app = (function () {
     			t35 = space();
     			p3 = element("p");
     			p3.textContent = `${/*proj4*/ ctx[3].shortDescription}`;
+    			t37 = space();
+    			div4 = element("div");
+    			h212 = element("h2");
+    			t38 = text(t38_value);
+    			t39 = space();
+    			t40 = space();
+    			h213 = element("h2");
+    			h213.textContent = `${/*proj5*/ ctx[4].year}`;
+    			t42 = space();
+    			h214 = element("h2");
+    			h214.textContent = `${/*proj5*/ ctx[4].technologies}`;
+    			t44 = space();
+    			p4 = element("p");
+    			p4.textContent = `${/*proj5*/ ctx[4].shortDescription}`;
+    			t46 = space();
+    			div5 = element("div");
+    			h215 = element("h2");
+    			t47 = text(t47_value);
+    			t48 = space();
+    			t49 = space();
+    			h216 = element("h2");
+    			h216.textContent = `${/*proj6*/ ctx[5].year}`;
+    			t51 = space();
+    			h217 = element("h2");
+    			h217.textContent = `${/*proj6*/ ctx[5].technologies}`;
+    			t53 = space();
+    			p5 = element("p");
+    			p5.textContent = `${/*proj6*/ ctx[5].shortDescription}`;
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "projects");
-    			add_location(h1, file$f, 72, 0, 4357);
+    			add_location(h1, file$f, 102, 0, 6243);
     			html_tag = new HtmlTag(null);
     			attr_dev(h20, "class", "project-name svelte-1b316dq");
-    			add_location(h20, file$f, 75, 8, 4571);
+    			add_location(h20, file$f, 105, 8, 6457);
     			attr_dev(h21, "class", "project-year svelte-1b316dq");
-    			add_location(h21, file$f, 76, 8, 4642);
+    			add_location(h21, file$f, 106, 8, 6528);
     			attr_dev(h22, "class", "project-tech svelte-1b316dq");
-    			add_location(h22, file$f, 77, 8, 4693);
-    			add_location(p0, file$f, 78, 8, 4752);
+    			add_location(h22, file$f, 107, 8, 6579);
+    			add_location(p0, file$f, 108, 8, 6638);
     			attr_dev(div0, "class", "project-item");
     			attr_dev(div0, "tabindex", "0");
     			set_style(div0, "background-image", "url('" + /*proj1*/ ctx[0].screenshot + ".webp')");
-    			add_location(div0, file$f, 74, 4, 4448);
+    			add_location(div0, file$f, 104, 4, 6334);
     			html_tag_1 = new HtmlTag(null);
     			attr_dev(h23, "class", "project-name svelte-1b316dq");
-    			add_location(h23, file$f, 81, 8, 4922);
+    			add_location(h23, file$f, 111, 8, 6808);
     			attr_dev(h24, "class", "project-year svelte-1b316dq");
-    			add_location(h24, file$f, 82, 8, 4993);
+    			add_location(h24, file$f, 112, 8, 6879);
     			attr_dev(h25, "class", "project-tech svelte-1b316dq");
-    			add_location(h25, file$f, 83, 8, 5044);
-    			add_location(p1, file$f, 84, 8, 5103);
+    			add_location(h25, file$f, 113, 8, 6930);
+    			add_location(p1, file$f, 114, 8, 6989);
     			attr_dev(div1, "class", "project-item");
     			attr_dev(div1, "tabindex", "0");
     			set_style(div1, "background-image", "url('" + /*proj2*/ ctx[1].screenshot + ".webp')");
-    			add_location(div1, file$f, 80, 4, 4799);
+    			add_location(div1, file$f, 110, 4, 6685);
     			html_tag_2 = new HtmlTag(null);
     			attr_dev(h26, "class", "project-name svelte-1b316dq");
-    			add_location(h26, file$f, 87, 8, 5273);
+    			add_location(h26, file$f, 117, 8, 7159);
     			attr_dev(h27, "class", "project-year svelte-1b316dq");
-    			add_location(h27, file$f, 88, 8, 5344);
+    			add_location(h27, file$f, 118, 8, 7230);
     			attr_dev(h28, "class", "project-tech svelte-1b316dq");
-    			add_location(h28, file$f, 89, 8, 5395);
-    			add_location(p2, file$f, 90, 8, 5454);
+    			add_location(h28, file$f, 119, 8, 7281);
+    			add_location(p2, file$f, 120, 8, 7340);
     			attr_dev(div2, "class", "project-item");
     			attr_dev(div2, "tabindex", "0");
     			set_style(div2, "background-image", "url('" + /*proj3*/ ctx[2].screenshot + ".webp')");
-    			add_location(div2, file$f, 86, 4, 5150);
+    			add_location(div2, file$f, 116, 4, 7036);
     			html_tag_3 = new HtmlTag(null);
     			attr_dev(h29, "class", "project-name svelte-1b316dq");
-    			add_location(h29, file$f, 93, 8, 5624);
+    			add_location(h29, file$f, 123, 8, 7510);
     			attr_dev(h210, "class", "project-year svelte-1b316dq");
-    			add_location(h210, file$f, 94, 8, 5695);
+    			add_location(h210, file$f, 124, 8, 7581);
     			attr_dev(h211, "class", "project-tech svelte-1b316dq");
-    			add_location(h211, file$f, 95, 8, 5746);
-    			add_location(p3, file$f, 96, 8, 5805);
+    			add_location(h211, file$f, 125, 8, 7632);
+    			add_location(p3, file$f, 126, 8, 7691);
     			attr_dev(div3, "class", "project-item");
     			attr_dev(div3, "tabindex", "0");
     			set_style(div3, "background-image", "url('" + /*proj4*/ ctx[3].screenshot + ".webp')");
-    			add_location(div3, file$f, 92, 4, 5501);
-    			attr_dev(div4, "class", "project-subsection");
-    			add_location(div4, file$f, 73, 0, 4411);
+    			add_location(div3, file$f, 122, 4, 7387);
+    			html_tag_4 = new HtmlTag(null);
+    			attr_dev(h212, "class", "project-name svelte-1b316dq");
+    			add_location(h212, file$f, 129, 8, 7861);
+    			attr_dev(h213, "class", "project-year svelte-1b316dq");
+    			add_location(h213, file$f, 130, 8, 7932);
+    			attr_dev(h214, "class", "project-tech svelte-1b316dq");
+    			add_location(h214, file$f, 131, 8, 7983);
+    			add_location(p4, file$f, 132, 8, 8042);
+    			attr_dev(div4, "class", "project-item");
+    			attr_dev(div4, "tabindex", "0");
+    			set_style(div4, "background-image", "url('" + /*proj5*/ ctx[4].screenshot + ".webp')");
+    			add_location(div4, file$f, 128, 4, 7738);
+    			html_tag_5 = new HtmlTag(null);
+    			attr_dev(h215, "class", "project-name svelte-1b316dq");
+    			add_location(h215, file$f, 135, 8, 8212);
+    			attr_dev(h216, "class", "project-year svelte-1b316dq");
+    			add_location(h216, file$f, 136, 8, 8283);
+    			attr_dev(h217, "class", "project-tech svelte-1b316dq");
+    			add_location(h217, file$f, 137, 8, 8334);
+    			add_location(p5, file$f, 138, 8, 8393);
+    			attr_dev(div5, "class", "project-item");
+    			attr_dev(div5, "tabindex", "0");
+    			set_style(div5, "background-image", "url('" + /*proj6*/ ctx[5].screenshot + ".webp')");
+    			add_location(div5, file$f, 134, 4, 8089);
+    			attr_dev(div6, "class", "project-subsection");
+    			add_location(div6, file$f, 103, 0, 6297);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -5190,8 +5280,8 @@ var app = (function () {
     		m: function mount(target, anchor) {
     			insert_dev(target, h1, anchor);
     			insert_dev(target, t1, anchor);
-    			insert_dev(target, div4, anchor);
-    			append_dev(div4, div0);
+    			insert_dev(target, div6, anchor);
+    			append_dev(div6, div0);
     			append_dev(div0, h20);
     			append_dev(h20, t2);
     			append_dev(h20, t3);
@@ -5202,8 +5292,8 @@ var app = (function () {
     			append_dev(div0, h22);
     			append_dev(div0, t8);
     			append_dev(div0, p0);
-    			append_dev(div4, t10);
-    			append_dev(div4, div1);
+    			append_dev(div6, t10);
+    			append_dev(div6, div1);
     			append_dev(div1, h23);
     			append_dev(h23, t11);
     			append_dev(h23, t12);
@@ -5214,8 +5304,8 @@ var app = (function () {
     			append_dev(div1, h25);
     			append_dev(div1, t17);
     			append_dev(div1, p1);
-    			append_dev(div4, t19);
-    			append_dev(div4, div2);
+    			append_dev(div6, t19);
+    			append_dev(div6, div2);
     			append_dev(div2, h26);
     			append_dev(h26, t20);
     			append_dev(h26, t21);
@@ -5226,8 +5316,8 @@ var app = (function () {
     			append_dev(div2, h28);
     			append_dev(div2, t26);
     			append_dev(div2, p2);
-    			append_dev(div4, t28);
-    			append_dev(div4, div3);
+    			append_dev(div6, t28);
+    			append_dev(div6, div3);
     			append_dev(div3, h29);
     			append_dev(h29, t29);
     			append_dev(h29, t30);
@@ -5238,13 +5328,39 @@ var app = (function () {
     			append_dev(div3, h211);
     			append_dev(div3, t35);
     			append_dev(div3, p3);
+    			append_dev(div6, t37);
+    			append_dev(div6, div4);
+    			append_dev(div4, h212);
+    			append_dev(h212, t38);
+    			append_dev(h212, t39);
+    			html_tag_4.m(raw4_value, h212);
+    			append_dev(div4, t40);
+    			append_dev(div4, h213);
+    			append_dev(div4, t42);
+    			append_dev(div4, h214);
+    			append_dev(div4, t44);
+    			append_dev(div4, p4);
+    			append_dev(div6, t46);
+    			append_dev(div6, div5);
+    			append_dev(div5, h215);
+    			append_dev(h215, t47);
+    			append_dev(h215, t48);
+    			html_tag_5.m(raw5_value, h215);
+    			append_dev(div5, t49);
+    			append_dev(div5, h216);
+    			append_dev(div5, t51);
+    			append_dev(div5, h217);
+    			append_dev(div5, t53);
+    			append_dev(div5, p5);
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(div0, "click", /*modal1*/ ctx[4], false, false, false),
-    					listen_dev(div1, "click", /*modal2*/ ctx[5], false, false, false),
-    					listen_dev(div2, "click", /*modal3*/ ctx[6], false, false, false),
-    					listen_dev(div3, "click", /*modal4*/ ctx[7], false, false, false)
+    					listen_dev(div0, "click", /*modal1*/ ctx[6], false, false, false),
+    					listen_dev(div1, "click", /*modal2*/ ctx[7], false, false, false),
+    					listen_dev(div2, "click", /*modal3*/ ctx[8], false, false, false),
+    					listen_dev(div3, "click", /*modal4*/ ctx[9], false, false, false),
+    					listen_dev(div4, "click", /*modal5*/ ctx[10], false, false, false),
+    					listen_dev(div5, "click", /*modal6*/ ctx[11], false, false, false)
     				];
 
     				mounted = true;
@@ -5256,7 +5372,7 @@ var app = (function () {
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(h1);
     			if (detaching) detach_dev(t1);
-    			if (detaching) detach_dev(div4);
+    			if (detaching) detach_dev(div6);
     			mounted = false;
     			run_all(dispose);
     		}
@@ -5275,19 +5391,30 @@ var app = (function () {
 
     function instance$f($$self, $$props, $$invalidate) {
     	const proj1 = {
+    		name: "MaxEisen.me",
+    		emoji: "&#128587;",
+    		technologies: "Svelte, Netlify",
+    		year: "2020",
+    		shortDescription: "My personal portfolio website (the one you're currently on) built from scratch",
+    		longDescription: "<ul><li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li><li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li></ul>",
+    		githubLink: "https://github.com/maxeisen/MaxEisen.me",
+    		screenshot: "./img/screenshots/maxeisenme"
+    	};
+
+    	const proj2 = {
     		name: "Studii",
     		emoji: "&#128218;",
     		technologies: "React, Django, MongoDB",
     		year: "2019/2020",
-    		shortDescription: "A collaborative study space for students, by students",
+    		shortDescription: "A collaborative, all-in-one study space made for students, by students",
     		longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li></ul>",
     		githubLink: "https://github.com/maxeisen/studii_public",
     		projectLink: "https://qtma.ca/studii.html",
     		screenshot: "./img/screenshots/studii"
     	};
 
-    	const proj2 = {
-    		name: "QHacks Website",
+    	const proj3 = {
+    		name: "QHacks",
     		emoji: "&#128187;",
     		technologies: "React, Gatsby, MongoDB",
     		year: "2019/2020",
@@ -5298,18 +5425,18 @@ var app = (function () {
     		screenshot: "./img/screenshots/qhacks"
     	};
 
-    	const proj3 = {
+    	const proj4 = {
     		name: "Spotilizer",
     		emoji: "&#127925;",
     		technologies: "Python, Tkinter, Spotify Web API",
     		year: "2019",
-    		shortDescription: "A customizable, data-centric Spotify visualizer built in Python",
+    		shortDescription: "A customizable, data-centric Spotify music visualizer built in Python",
     		longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
     		githubLink: "https://github.com/maxeisen/spotilizer",
     		screenshot: "./img/screenshots/spotilizer"
     	};
 
-    	const proj4 = {
+    	const proj5 = {
     		name: "Glitch",
     		emoji: "&#127918;",
     		technologies: "Unity Game Engine, C#",
@@ -5319,6 +5446,17 @@ var app = (function () {
     		githubLink: "https://github.com/maxeisen/Glitch",
     		projectLink: "https://tamirarnesty.github.io/glitchGame/",
     		screenshot: "./img/screenshots/glitch"
+    	};
+
+    	const proj6 = {
+    		name: "TicTacToe",
+    		emoji: "&#10060;",
+    		technologies: "Python",
+    		year: "2017",
+    		shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+    		longDescription: "<ul><li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li><li>Developed in under an hour on a long flight, without access to any online resources</li><li>Initially written in Python 2 and ported to Python 3</li></ul>",
+    		githubLink: "https://github.com/maxeisen/TicTacToe",
+    		screenshot: "./img/screenshots/tictactoe"
     	};
 
     	const { open } = getContext("simple-modal");
@@ -5371,6 +5509,30 @@ var app = (function () {
     		});
     	};
 
+    	const modal5 = () => {
+    		open(ProjectModal, {
+    			name: proj5.name,
+    			technologies: proj5.technologies,
+    			year: proj5.year,
+    			description: proj5.longDescription,
+    			githubLink: proj5.githubLink,
+    			projectLink: proj5.projectLink,
+    			screenshot: proj5.screenshot
+    		});
+    	};
+
+    	const modal6 = () => {
+    		open(ProjectModal, {
+    			name: proj6.name,
+    			technologies: proj6.technologies,
+    			year: proj6.year,
+    			description: proj6.longDescription,
+    			githubLink: proj6.githubLink,
+    			projectLink: proj6.projectLink,
+    			screenshot: proj6.screenshot
+    		});
+    	};
+
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -5387,14 +5549,31 @@ var app = (function () {
     		proj2,
     		proj3,
     		proj4,
+    		proj5,
+    		proj6,
     		open,
     		modal1,
     		modal2,
     		modal3,
-    		modal4
+    		modal4,
+    		modal5,
+    		modal6
     	});
 
-    	return [proj1, proj2, proj3, proj4, modal1, modal2, modal3, modal4];
+    	return [
+    		proj1,
+    		proj2,
+    		proj3,
+    		proj4,
+    		proj5,
+    		proj6,
+    		modal1,
+    		modal2,
+    		modal3,
+    		modal4,
+    		modal5,
+    		modal6
+    	];
     }
 
     class Projects extends SvelteComponentDev {

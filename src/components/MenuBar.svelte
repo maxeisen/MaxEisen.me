@@ -5,7 +5,7 @@
         if (screenSize.matches) {
             if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
                 document.getElementById("nav-bar").style.fontSize = "20px";
-                document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.8)";
+                document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
             }
             else {
                 document.getElementById("nav-bar").style.fontSize = "30px";

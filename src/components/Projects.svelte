@@ -3,18 +3,28 @@
     import ProjectModal from './modals/ProjectModal.svelte';
 
     const proj1 = {
+        name: "MaxEisen.me",
+        emoji: "&#128587;",
+        technologies: "Svelte, Netlify",
+        year: "2020",
+        shortDescription: "My personal portfolio website (the one you're currently on) built from scratch",
+        longDescription: "<ul><li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li><li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li></ul>",
+        githubLink: "https://github.com/maxeisen/MaxEisen.me",
+        screenshot: "./img/screenshots/maxeisenme",
+    };
+    const proj2 = {
         name: "Studii",
         emoji: "&#128218;",
         technologies: "React, Django, MongoDB",
         year: "2019/2020",
-        shortDescription: "A collaborative study space for students, by students",
+        shortDescription: "A collaborative, all-in-one study space made for students, by students",
         longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li></ul>",
         githubLink: "https://github.com/maxeisen/studii_public",
         projectLink: "https://qtma.ca/studii.html",
         screenshot: "./img/screenshots/studii",
     };
-    const proj2 = {
-        name: "QHacks Website",
+    const proj3 = {
+        name: "QHacks",
         emoji: "&#128187;",
         technologies: "React, Gatsby, MongoDB",
         year: "2019/2020",
@@ -24,17 +34,17 @@
         projectLink: "https://qhacks.io",
         screenshot: "./img/screenshots/qhacks",
     };
-    const proj3 = {
+    const proj4 = {
         name: "Spotilizer",
         emoji: "&#127925;",
         technologies: "Python, Tkinter, Spotify Web API",
         year: "2019",
-        shortDescription: "A customizable, data-centric Spotify visualizer built in Python",
+        shortDescription: "A customizable, data-centric Spotify music visualizer built in Python",
         longDescription: "<ul><li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li><li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li></ul>",
         githubLink: "https://github.com/maxeisen/spotilizer",
         screenshot: "./img/screenshots/spotilizer",
     };
-    const proj4 = {
+    const proj5 = {
         name: "Glitch",
         emoji: "&#127918;",
         technologies: "Unity Game Engine, C#",
@@ -44,6 +54,16 @@
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
         screenshot: "./img/screenshots/glitch",
+    };
+    const proj6 = {
+        name: "TicTacToe",
+        emoji: "&#10060;",
+        technologies: "Python",
+        year: "2017",
+        shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+        longDescription: "<ul><li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li><li>Developed in under an hour on a long flight, without access to any online resources</li><li>Initially written in Python 2 and ported to Python 3</li></ul>",
+        githubLink: "https://github.com/maxeisen/TicTacToe",
+        screenshot: "./img/screenshots/tictactoe",
     };
 
     const { open } = getContext('simple-modal');
@@ -66,6 +86,16 @@
     const modal4 = () => {
         open(ProjectModal, {
             name: proj4.name, technologies: proj4.technologies, year: proj4.year, description: proj4.longDescription, githubLink: proj4.githubLink, projectLink: proj4.projectLink, screenshot: proj4.screenshot
+        });
+    };
+    const modal5 = () => {
+        open(ProjectModal, {
+            name: proj5.name, technologies: proj5.technologies, year: proj5.year, description: proj5.longDescription, githubLink: proj5.githubLink, projectLink: proj5.projectLink, screenshot: proj5.screenshot
+        });
+    };
+    const modal6 = () => {
+        open(ProjectModal, {
+            name: proj6.name, technologies: proj6.technologies, year: proj6.year, description: proj6.longDescription, githubLink: proj6.githubLink, projectLink: proj6.projectLink, screenshot: proj6.screenshot
         });
     };
 </script>
@@ -95,6 +125,18 @@
         <h2 class="project-year">{proj4.year}</h2>
         <h2 class="project-tech">{proj4.technologies}</h2>
         <p>{proj4.shortDescription}</p>
+    </div>
+    <div class="project-item" tabindex="0" style="background-image: url('{proj5.screenshot}.webp')" on:click={modal5}>
+        <h2 class="project-name">{proj5.name} {@html proj5.emoji}</h2>
+        <h2 class="project-year">{proj5.year}</h2>
+        <h2 class="project-tech">{proj5.technologies}</h2>
+        <p>{proj5.shortDescription}</p>
+    </div>
+    <div class="project-item" tabindex="0" style="background-image: url('{proj6.screenshot}.webp')" on:click={modal6}>
+        <h2 class="project-name">{proj6.name} {@html proj6.emoji}</h2>
+        <h2 class="project-year">{proj6.year}</h2>
+        <h2 class="project-tech">{proj6.technologies}</h2>
+        <p>{proj6.shortDescription}</p>
     </div>
 </div>
 

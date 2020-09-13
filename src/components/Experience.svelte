@@ -3,16 +3,6 @@
     import ExperienceModal from './modals/ExperienceModal.svelte';
 
     const exp1 = {
-        position: "Technical Developer",
-        company: "Jonah Group",
-        companyLink: "https://www.jonahgroup.com/",
-        startDate: "May",
-        endDate: "September 2020",
-        location: "Toronto, ON",
-        shortDescription: "Working with a fantastic team of developers to create large-scale software products for companies",
-        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Full stack software engineer in a team of several skilled developers and engineers working on a decision engine to be implemented for client companies</li></ul>`
-    };
-    const exp2 = {
         position: "Product Manager",
         company: "Queen's Technology and Media Association",
         companyLink: "https://qtma.ca/",
@@ -22,7 +12,7 @@
         shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
         longDescription: `<ul><li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li><li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li></ul>`
     };
-    const exp3 = {
+    const exp2 = {
         position: "Computer Science Teaching Assistant",
         company: "Queen's University",
         companyLink: "https://cs.queensu.ca/",
@@ -31,6 +21,16 @@
         location: "Kingston, ON",
         shortDescription: "Assisting in the teaching of Fundamentals of Agile Software Development",
         longDescription: `<ul><li>Selected as one of 8 TAs for CISC 320 - Fundamentals of Software Development (Agile Methodologies) in C++, having previously obtained an exceptional grade in the course</li><li>Holding weekly office hours to guide students in completing assignments and projects</li><li>Previously assisted in the teaching and grading of a 250-student Python course</li></ul>`
+    };
+    const exp3 = {
+        position: "Technical Developer",
+        company: "Jonah Group",
+        companyLink: "https://www.jonahgroup.com/",
+        startDate: "May",
+        endDate: "September 2020",
+        location: "Toronto, ON",
+        shortDescription: "Worked with a fantastic team of developers to create large-scale software products for companies",
+        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Full stack software engineer in a team of several skilled developers and engineers working on a decision engine to be implemented for client companies</li></ul>`
     };
     const exp4 = {
         position: "Director of Technology",
@@ -59,7 +59,7 @@
         startDate: "May",
         endDate: "August 2019",
         location: "Vancouver, BC",
-        shortDescription: "Created and taught content for programming and engineering courses tailored to teens and young adults",
+        shortDescription: "Developed and taught programming and engineering courses tailored to teens and young adults",
         longDescription: `<ul><li>Instructed and evaluated 50 individual students through 6-week summer program revolving around early introduction to engineering and programming concepts</li><li>Courses included: Python Game Development, Fundamentals of Engineering, and Arduino C++ Programming</li><li>Created custom course content for organization for use in future years</li></ul>`
     };
 
@@ -101,18 +101,18 @@
 <div class="experience-subsection">
     <div class="experience-item" tabindex="0" on:click={modal1}>
         <h2 class="experience-title"><div class="experience-position">{exp1.position}</div></h2>
-        <h2 class="experience-company">{exp1.company}</h2>
+        <h2 class="experience-company">QTMA</h2>
         <p>{exp1.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp1.startDate}-{exp1.endDate}</div><div class="experience-location">{exp1.location}</div></h1>
     </div>
     <div class="experience-item" tabindex="0" on:click={modal2}>
-        <h2 class="experience-title"><div class="experience-position">{exp2.position}</div></h2>
-        <h2 class="experience-company">QTMA</h2>
+        <h2 class="experience-title"><div class="experience-position">CS Teaching Assistant</div></h2>
+        <h2 class="experience-company">{exp2.company}</h2>
         <p>{exp2.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp2.startDate}-{exp2.endDate}</div><div class="experience-location">{exp2.location}</div></h1>
     </div>
     <div class="experience-item" tabindex="0" on:click={modal3}>
-        <h2 class="experience-title"><div class="experience-position">CS Teaching Assistant</div></h2>
+        <h2 class="experience-title"><div class="experience-position">{exp3.position}</div></h2>
         <h2 class="experience-company">{exp3.company}</h2>
         <p>{exp3.shortDescription}</p>
         <h1 class="experience-date-location"><div class="experience-date">{exp3.startDate}-{exp3.endDate}</div><div class="experience-location">{exp3.location}</div></h1>
