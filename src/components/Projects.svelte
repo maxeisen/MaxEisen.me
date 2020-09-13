@@ -31,7 +31,7 @@
         shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
         longDescription: "<ul><li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
-        projectLink: "https://qhacks.io",
+        projectLink: "https://2020.qhacks.io",
         screenshot: "./img/screenshots/qhacks",
     };
     const proj4 = {
