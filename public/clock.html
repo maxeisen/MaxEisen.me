@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- DESIGNED AND DEVELOPED BY
+███╗   ███╗ █████╗ ██╗  ██╗    ███████╗██╗███████╗███████╗███╗   ██╗
+████╗ ████║██╔══██╗╚██╗██╔╝    ██╔════╝██║██╔════╝██╔════╝████╗  ██║
+██╔████╔██║███████║ ╚███╔╝     █████╗  ██║███████╗█████╗  ██╔██╗ ██║
+██║╚██╔╝██║██╔══██║ ██╔██╗     ██╔══╝  ██║╚════██║██╔══╝  ██║╚██╗██║
+██║ ╚═╝ ██║██║  ██║██╔╝ ██╗    ███████╗██║███████║███████╗██║ ╚████║
+╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝
+https://github.com/maxeisen/
+-->
+<html lang="en">
+
+<head>
+    <title>Clock | MaxEisen.me</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="Max Eisen">
+    <meta name="viewport" content="width=device-width"/>
+    <link href="https://fonts.googleapis.com/css?family=Courier+Prime:700" rel="stylesheet">
+</head>
+
+<body>
+    <div id="clock"></div>
+    <div class="back-button"><a href="/" target="_self"><h1 class="back-button">🏠</h1></a></div>
+</body>
+
+<script>
+    var clock = document.querySelector('#clock');
+
+    var renderTime = function () {
+        var today = new Date();
+        currentTime = today.toLocaleString(navigator.language || 'en-US', {hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true});
+        clock.textContent = currentTime;
+        hexTime = today.toTimeString().slice(0,8).replace(/\D/g, "");
+        document.body.style.backgroundColor = `#${hexTime}`;
+        hexTimeReverse = hexTime.split("").reverse().join("");
+        document.getElementById('clock').style.color = `#${hexTimeReverse}`;
+    };
+
+    renderTime();
+    setInterval(renderTime, 1000);
+</script>
+
+<style>
+    body {
+        font-family: "Courier Prime", monospace;
+        -webkit-transition: all 1s ease;
+        -moz-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        transition: all 1s ease;
+    }
+
+    #clock {
+        -webkit-transition: all 1s ease;
+        -moz-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        transition: all 1s ease;
+        font-size: 130px;
+        color: white;
+        position: absolute; 
+        top: 60%;
+        left: 50%;
+    }
+
+    .back-button {
+        position: inline;
+        float: left;
+        -webkit-transition: all 0.2s ease;
+        -moz-transition: all 0.2s ease;
+        -o-transition: all 0.2s ease;
+        -ms-transition: all 0.2s ease;
+        transition: all 0.2s ease;
+        font-size: 35px;
+        font-weight: 400;
+        margin-left: 10px;
+        margin-top: 3px;
+        opacity: 0.3;
+    }
+    
+    .back-button:hover {
+        opacity: 0.9;
+        -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
+        -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
+        animation: hoverGlow 1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes hoverGlow {
+        from {
+          text-shadow: 0 0 0 #fff;
+        }
+        to {
+          text-shadow: 0 0 7px #01c0a7;
+        }
+    }
+</style>

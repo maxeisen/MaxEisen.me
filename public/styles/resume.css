@@ -100,11 +100,11 @@ a:hover {
 .back-button {
     position: inline;
     float: left;
-    -webkit-transition: all 0s ease-in;
-	-moz-transition: all 0s ease-in;
-	-o-transition: all 0s ease-in;
-    -ms-transition: all 0s ease-in;
-    transition: all 0s ease-in;
+    -webkit-transition: all 0.2s ease-in;
+	-moz-transition: all 0.2s ease-in;
+	-o-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
     font-size: 25px;
     font-weight: 400;
     color: #cccccc;
@@ -132,11 +132,11 @@ a:hover {
 .print-button {
     position: inline;
     float: right;
-    -webkit-transition: all 0s ease-in;
-	-moz-transition: all 0s ease-in;
-	-o-transition: all 0s ease-in;
-    -ms-transition: all 0s ease-in;
-    transition: all 0s ease-in;
+    -webkit-transition: all 0.2s ease-in;
+	-moz-transition: all 0.2s ease-in;
+	-o-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
     font-size: 25px;
     font-weight: 400;
     color: #cccccc;
@@ -147,11 +147,11 @@ a:hover {
 .print-button-container {
     position: inline;
     float: right;
-    -webkit-transition: all 0s ease-in;
-	-moz-transition: all 0s ease-in;
-	-o-transition: all 0s ease-in;
-    -ms-transition: all 0s ease-in;
-    transition: all 0s ease-in;
+    -webkit-transition: all 0.2s ease-in;
+	-moz-transition: all 0.2s ease-in;
+	-o-transition: all 0.2s ease-in;
+    -ms-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
     font-size: 25px;
     font-weight: 400;
     color: #cccccc;
