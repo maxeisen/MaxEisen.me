@@ -30,7 +30,7 @@
         endDate: "September 2020",
         location: "Toronto, ON",
         shortDescription: "Worked with a fantastic team of developers to create large-scale software products for companies",
-        longDescription: `<ul><li>Using a wide variety of technologies and languages in my summer internship to build custom, high-performance software for companies</li><li>Full stack software engineer in a team of several skilled developers and engineers working on a decision engine to be implemented for client companies</li></ul>`
+        longDescription: `<ul><li>Used React, Spring Boot, and Postgres in my summer internship to build custom, high-performance software for companies</li><li>Full stack developer on an agile team, developing a decision engine to be implemented for client companies</li></ul>`
     };
     const exp4 = {
         position: "Director of Technology",
