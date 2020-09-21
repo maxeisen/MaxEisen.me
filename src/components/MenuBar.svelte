@@ -32,7 +32,7 @@
                     <li id="nav-bar-item"><a href="#projects">Projects</a></li>
                     <li id="nav-bar-item"><a href="#education">Education</a></li>
                     <li id="nav-bar-item"><a href="#skills">Skills</a></li>
-                    <li id="nav-bar-item"><a href="/resume"><b>Résumé</b></a></li>
+                    <li id="nav-bar-item"><a href="/resume"><b>Resume</b></a></li>
                 </ul>
             </nav>
         </div>

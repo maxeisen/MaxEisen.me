@@ -57,10 +57,14 @@ https://github.com/maxeisen/
         -ms-transition: all 1s ease;
         transition: all 1s ease;
         font-size: 130px;
-        color: white;
-        position: absolute; 
-        top: 60%;
+        position: absolute;
+        top: 50%;
         left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        text-align: center;
+        -webkit-text-stroke-color: white; /* Will override color (regardless of order) */
+        -webkit-text-stroke-width: 1px;
+        text-shadow: 0px 20px 6px rgba(0,0,0,0.2);
     }
 
     .back-button {
@@ -93,4 +97,11 @@ https://github.com/maxeisen/
           text-shadow: 0 0 7px #01c0a7;
         }
     }
+
+    @media only screen and (max-width: 580px) {
+        #clock {
+            font-size: 80px;
+        }
+    }
+
 </style>
