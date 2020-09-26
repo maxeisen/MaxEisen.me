@@ -21,6 +21,10 @@
 
     const { open } = getContext('simple-modal');
 
+    const appstorereviewers = {
+        video: "./media/video/appstorereviewers_compilation",
+        description: "My old YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> - reviewing iOS apps before iOS was called iOS (78,000 viewers strong)"
+    };
     const skiing = {
         image: "./img/activities/skiing.webp",
         description: "Whistler, BC"
@@ -33,9 +37,9 @@
         image: "./img/activities/travelling.webp",
         description: "Cartagena, Colombia"
     };
-    const guitar = {
+    const music = {
         image: "./img/activities/guitar.webp",
-        audio: "./audio/helplessly_hoping-max_eisen.mp3",
+        audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
         description: "Covering <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a> - listen above!"
     };
     const tech = {
@@ -43,6 +47,11 @@
         description: "My first computer repair - replacing a busted HDD",
     };
 
+    const appstorereviewersModal = () => {
+        open(ActivityModal, {
+            video: appstorereviewers.video, description: appstorereviewers.description
+        });
+    };
     const skiingModal = () => {
         open(ActivityModal, {
             image: skiing.image, description: skiing.description
@@ -58,9 +67,9 @@
             image: travelling.image, description: travelling.description
         });
     };
-    const guitarModal = () => {
+    const musicModal = () => {
         open(ActivityModal, {
-            image: guitar.image, audio: guitar.audio, description: guitar.description
+            image: music.image, audio: music.audio, description: music.description
         });
     };
     const techModal = () => {
@@ -77,8 +86,9 @@
         student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a> with a fascination for all technology.</p>
 
         <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
-        I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <a class="intro-link" href="https://www.youtube.com/user/AppStoreReviewers/videos" rel="noreferrer" target="_blank">iOS app reviewing</a>.
-        In my free time, I am usually <activity tabindex="0" on:click={guitarModal}>playing guitar</activity>, <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, or <activity tabindex="0" on:click={techModal}>messing around with technology</activity>.</p>
+        I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
+        In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>play music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
+        <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>mess around with technology</activity>.</p>
 
         <p>I am a <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
         who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, I strive to communicate
@@ -87,9 +97,9 @@
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
-        <p>Check out my most recent project - a cool <a class="intro-link" href="/clock">clock</a> that changes colour with the time.</p>
+        <p>Check out my <a class="intro-link" href="/clock">most recent project</a> - a very simple clock that changes colour with the time.</p>
         
-        <p>If you are recruiting, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>If you are <Annotation bind:this={introDescriptors[5]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>
 </div>
 

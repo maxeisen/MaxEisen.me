@@ -1,6 +1,7 @@
 <script>
     export let image;
     export let audio;
+    export let video;
     export let description;
 </script>
 
@@ -14,6 +15,14 @@
             <track kind="captions">
             Your browser does not support the audio element.
         </audio>
+    {/if}
+    {#if video}
+        <video class="activity-video" controls>
+            <source src="{video}.webm" type="video/webm">
+            <source src="{video}.mp4" type="video/mp4">
+            <track kind="captions">
+            Your browser does not support the video element.
+        </video>
     {/if}
         <h3 class="activity-description" style="text-align: center">{@html description}</h3>
 </div>
@@ -32,13 +41,19 @@
         margin: 20px auto 0 auto;
     }
 
-    .activity-audio {
+    .activity-audio, .activity-video {
         margin: 20px auto 0 auto;
+    }
+
+    .activity-video {
+        width: 85%;
     }
 
     .activity-description {
         font-weight: 300;
         margin: 10px auto 10px auto;
+        padding-left: 20px;
+        padding-right: 20px;
         color: black;
         line-height: 1.4;
     }
