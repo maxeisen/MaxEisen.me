@@ -5,7 +5,7 @@
     const proj1 = {
         name: "MaxEisen.me",
         emoji: "&#128587;",
-        technologies: "Svelte, Netlify",
+        technologies: "Svelte, Netlify, HTML5, CSS3",
         year: "2020",
         shortDescription: "My personal portfolio website (the one you're currently on) built from scratch",
         longDescription: "<ul><li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li><li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li></ul>",
@@ -15,7 +15,7 @@
     const proj2 = {
         name: "Studii",
         emoji: "&#128218;",
-        technologies: "React, Django, MongoDB",
+        technologies: "React, Django, MongoDB, HTML5, CSS3",
         year: "2019/2020",
         shortDescription: "A collaborative, all-in-one study space made for students, by students",
         longDescription: "<ul><li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li><li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li></ul>",
@@ -26,7 +26,7 @@
     const proj3 = {
         name: "QHacks",
         emoji: "&#128187;",
-        technologies: "React, Gatsby, MongoDB",
+        technologies: "React, Gatsby, MongoDB, HTML5, CSS3",
         year: "2019/2020",
         shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
         longDescription: "<ul><li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li><li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li></ul>",
