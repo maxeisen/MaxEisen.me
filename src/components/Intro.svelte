@@ -83,23 +83,26 @@
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
         <p class="title-extension">I am a <Annotation bind:this={introDescriptors[0]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8"><descriptor>Computer Science</descriptor></Annotation>
-        student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a> with a fascination for all technology.</p>
+        student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a> with a
+        <Annotation bind:this={introDescriptors[1]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">creative</Annotation> and
+        <Annotation bind:this={introDescriptors[2]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">curious</Annotation> mind,
+        and a fascination for all technology.</p>
 
-        <p>Also a <descriptor><Annotation bind:this={introDescriptors[1]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
+        <p>Also a <descriptor><Annotation bind:this={introDescriptors[3]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
         I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
         In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>play music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
         <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>mess around with technology</activity>.</p>
 
-        <p>I am a <descriptor><Annotation bind:this={introDescriptors[2]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
+        <p>I am a <descriptor><Annotation bind:this={introDescriptors[4]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
         who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, I strive to communicate
-        <Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
-        <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
+        <Annotation bind:this={introDescriptors[5]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
+        <Annotation bind:this={introDescriptors[6]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
         <p>Check out my <a class="intro-link" href="/clock">most recent project</a> - a very simple clock that changes colour with the time.</p>
         
-        <p>If you are <Annotation bind:this={introDescriptors[5]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>If you are <Annotation bind:this={introDescriptors[7]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>
 </div>
 
