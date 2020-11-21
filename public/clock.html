@@ -21,10 +21,12 @@ https://github.com/maxeisen/
 <body>
     <div id="clock"></div>
     <div class="back-button"><a href="/" target="_self"><h1 class="back-button">🏠</h1></a></div>
+    <div id="fact"></div>
 </body>
 
 <script>
     var clock = document.querySelector('#clock');
+    var fact = document.querySelector('#fact');
 
     var renderTime = function () {
         var today = new Date();
@@ -36,8 +38,18 @@ https://github.com/maxeisen/
         document.getElementById('clock').style.color = `#${hexTimeReverse}`;
     };
 
+    var renderFact = function () {
+        var today = new Date();
+        currentDay = today.toLocaleString(navigator.language || 'en-US', {month: 'numeric', day: 'numeric'});
+        fetch(`http://numbersapi.com/${currentDay}/date`)
+            .then(response => response.text())
+            .then(data => fact.textContent = data);
+    }
+
     renderTime();
     setInterval(renderTime, 1000);
+    renderFact();
+    setInterval(renderFact, 3600000);
 </script>
 
 <style>
@@ -58,13 +70,31 @@ https://github.com/maxeisen/
         transition: all 1s ease;
         font-size: 130px;
         position: absolute;
-        top: 50%;
+        top: 40%;
         left: 50%;
         transform: translateX(-50%) translateY(-50%);
         text-align: center;
-        -webkit-text-stroke-color: white; /* Will override color (regardless of order) */
+        -webkit-text-stroke-color: #cccccc;
         -webkit-text-stroke-width: 1px;
         text-shadow: 0px 20px 6px rgba(0,0,0,0.2);
+    }
+    
+    #fact {
+        -webkit-transition: all 1s ease;
+        -moz-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        transition: all 1s ease;
+        font-size: 40px;
+        color: rgb(226, 226, 226);
+        position: absolute;
+        top: 70%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        text-align: center;
+        -webkit-text-stroke-color: #444444;
+        -webkit-text-stroke-width: 0.4px;
+        text-shadow: 0px 5px 5px rgba(0,0,0,0.6);
     }
 
     .back-button {
