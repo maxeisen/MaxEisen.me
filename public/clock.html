@@ -15,18 +15,22 @@ https://github.com/maxeisen/
     <meta charset="UTF-8">
     <meta name="author" content="Max Eisen">
     <meta name="viewport" content="width=device-width"/>
-    <link href="https://fonts.googleapis.com/css?family=Courier+Prime:700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Courier+Prime:700|" rel="stylesheet">
 </head>
 
 <body>
     <div id="clock"></div>
     <div class="back-button"><a href="/" target="_self"><h1 class="back-button">🏠</h1></a></div>
-    <div id="fact"></div>
+    <div class="weather-container">
+        <div class="weather-icon-container"><img id="weather-icon" alt="Current weather conditions icon"/></div>
+        <div id="weather-text"></div>
+    </div>
 </body>
 
 <script>
     var clock = document.querySelector('#clock');
-    var fact = document.querySelector('#fact');
+    var weatherText = document.querySelector('#weather-text');
+    var weatherIcon = document.querySelector('#weather-icon');
 
     var renderTime = function () {
         var today = new Date();
@@ -38,23 +42,63 @@ https://github.com/maxeisen/
         document.getElementById('clock').style.color = `#${hexTimeReverse}`;
     };
 
-    var renderFact = function () {
-        var today = new Date();
-        currentDay = today.toLocaleString(navigator.language || 'en-US', {month: 'numeric', day: 'numeric'});
-        fetch(`http://numbersapi.com/${currentDay}/date`)
-            .then(response => response.text())
-            .then(data => fact.textContent = data);
+    function getWeather() {
+        if (navigator.geolocation)
+            navigator.geolocation.getCurrentPosition(retrieveWeather);
+        else
+            x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+
+    function retrieveWeather(position) {
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=543fd5692917a948ea77c34db1450364`)
+            .then(response => response.json())
+            .then(data => renderWeather(data));
+    }
+
+    function renderWeather(data) {
+        var cityName = data.name;
+        var currentTemp = Math.round(data.main.temp - 273.1)
+        var iconCode = data.weather[0].icon;
+        weatherText.textContent = `The temperature in ${cityName} is ${currentTemp}° celsius.`;
+        weatherIcon.setAttribute('src', `http://openweathermap.org/img/wn/${iconCode}.png`);
     }
 
     renderTime();
     setInterval(renderTime, 1000);
-    renderFact();
-    setInterval(renderFact, 3600000);
+    getWeather();
+    setInterval(getWeather, 3600000);
 </script>
 
 <style>
+    @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/inter/v2/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/inter/v2/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/inter/v2/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2) format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+</style>
+
+<style>
     body {
-        font-family: "Courier Prime", monospace;
+        font-family: 'Inter', sans-serif;
         -webkit-transition: all 1s ease;
         -moz-transition: all 1s ease;
         -o-transition: all 1s ease;
@@ -63,6 +107,7 @@ https://github.com/maxeisen/
     }
 
     #clock {
+        font-family: "Courier Prime", monospace;
         -webkit-transition: all 1s ease;
         -moz-transition: all 1s ease;
         -o-transition: all 1s ease;
@@ -78,23 +123,46 @@ https://github.com/maxeisen/
         -webkit-text-stroke-width: 1px;
         text-shadow: 0px 20px 6px rgba(0,0,0,0.2);
     }
-    
-    #fact {
-        -webkit-transition: all 1s ease;
-        -moz-transition: all 1s ease;
-        -o-transition: all 1s ease;
-        -ms-transition: all 1s ease;
-        transition: all 1s ease;
-        font-size: 40px;
-        color: rgb(226, 226, 226);
+
+    .weather-container {
+        overflow: auto;
         position: absolute;
         top: 70%;
         left: 50%;
         transform: translateX(-50%) translateY(-50%);
         text-align: center;
-        -webkit-text-stroke-color: #444444;
+    }
+    
+    #weather-text {
+        -webkit-transition: all 1s ease;
+        -moz-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        transition: all 1s ease;
+        margin-left: 60px;
+        font-size: 35px;
+        color: rgb(226, 226, 226);
+        -webkit-text-stroke-color: #383838;
         -webkit-text-stroke-width: 0.4px;
-        text-shadow: 0px 5px 5px rgba(0,0,0,0.6);
+    }
+
+    .weather-icon-container {
+        float: left;
+    }
+
+    .weather-icon-container img {
+        display: block;
+    }
+
+    #weather-icon {
+        -webkit-transition: all 1s ease;
+        -moz-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        transition: all 1s ease;
+        width: 45px;
+        -webkit-filter: drop-shadow(2px -2px 5px #222);
+        filter: drop-shadow(2px -2px 5px #222);
     }
 
     .back-button {
@@ -131,6 +199,18 @@ https://github.com/maxeisen/
     @media only screen and (max-width: 580px) {
         #clock {
             font-size: 80px;
+        }
+
+        #weather-text {
+            margin: 0;
+        }
+
+        .weather-icon-container {
+            float: none;
+        }
+
+        .weather-icon-container img {
+            display: inline;
         }
     }
 

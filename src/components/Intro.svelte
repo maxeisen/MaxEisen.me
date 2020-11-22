@@ -100,7 +100,7 @@
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
-        <p>Check out my <a class="intro-link" href="/clock">most recent project</a> - a very simple clock that changes colour with the time and displays facts about the current date.</p>
+        <p>Check out my <a class="intro-link" href="/clock">most recent project</a> - a very simple clock that changes colour with the time and displays the current weather.</p>
         
         <p>If you are <Annotation bind:this={introDescriptors[7]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>

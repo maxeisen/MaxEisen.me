@@ -3275,7 +3275,7 @@ var app = (function () {
     			t33 = text("Check out my ");
     			a2 = element("a");
     			a2.textContent = "most recent project";
-    			t35 = text(" - a very simple clock that changes colour with the time.");
+    			t35 = text(" - a very simple clock that changes colour with the time and displays the current weather.");
     			t36 = space();
     			p5 = element("p");
     			t37 = text("If you are ");
@@ -3329,8 +3329,8 @@ var app = (function () {
     			add_location(p4, file$9, 102, 8, 5243);
     			attr_dev(a3, "class", "intro-link svelte-1j2d4nn");
     			attr_dev(a3, "href", "/resume");
-    			add_location(a3, file$9, 104, 183, 5572);
-    			add_location(p5, file$9, 104, 8, 5397);
+    			add_location(a3, file$9, 104, 183, 5605);
+    			add_location(p5, file$9, 104, 8, 5430);
     			attr_dev(div0, "class", "intro-paragraph svelte-1j2d4nn");
     			add_location(div0, file$9, 83, 4, 2774);
     			attr_dev(div1, "class", "intro-container svelte-1j2d4nn");
