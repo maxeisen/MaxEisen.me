@@ -58,7 +58,7 @@ https://github.com/maxeisen/
     }
 
     function retrieveWeather(position) {
-        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.lat}&lon=${position.long}&appid=543fd5692917a948ea77c34db1450364`)
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.lat}&lon=${position.long}&appid=543fd5692917a948ea77c34db1450364`) // Yes, I realize this is bad practice
             .then(response => response.json())
             .then(data => renderWeather(data));
     }
