@@ -67,8 +67,10 @@ https://github.com/maxeisen/
         var cityName = data.name;
         var currentTemp = Math.round(data.main.temp - 273.1)
         var iconCode = data.weather[0].icon;
+        var description = data.weather[0].description;
         weatherText.textContent = `The temperature in ${cityName} is ${currentTemp}°C`;
         weatherIcon.setAttribute('src', `https://openweathermap.org/img/wn/${iconCode}.png`);
+        weatherIcon.setAttribute('alt', description);
     }
 
     renderTime();
