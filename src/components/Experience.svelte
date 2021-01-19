@@ -129,7 +129,7 @@
     const exp6 = {
         modalFunction: modal6,
         shortPosition: "Software Developer",
-        position: "Software Developer/Technical Coordinator",
+        position: "Software Developer, Technical Coordinator",
         company: "QHacks",
         companyLink: "https://qhacks.io/",
         shortDate: "Sept. 2019-Feb. 2020",
