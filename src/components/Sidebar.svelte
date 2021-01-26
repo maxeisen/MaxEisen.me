@@ -29,9 +29,9 @@
 
 <div class="headshot">
     <picture>
-        <source srcset={cleanHeadshotW} type="image/webp">
-        <source srcset={cleanHeadshotP} type="image/png">
-        <img class="headshot" src={cleanHeadshotW} alt="Current headshot"/>
+        <source class="headshot" srcset={cleanHeadshotW} type="image/webp">
+        <source class="headshot" srcset={cleanHeadshotP} type="image/png">
+        <img class="headshot" width="200px" height="200px" src={cleanHeadshotW} alt="Current headshot"/>
     </picture>
 </div>
 
