@@ -27,15 +27,15 @@
     };
     const skiing = {
         image: "./img/activities/skiing.webp",
-        description: "Whistler, BC"
+        description: "Skiing in Whistler, BC"
     };
     const hiking = {
         image: "./img/activities/hiking.webp",
-        description: "Lake Country, BC"
+        description: "Hiking in Lake Country, BC"
     };
     const travelling = {
         image: "./img/activities/travelling.webp",
-        description: "Cartagena, Colombia"
+        description: "Travelling in Cartagena, Colombia"
     };
     const music = {
         image: "./img/activities/guitar.webp",
@@ -43,8 +43,8 @@
         description: "Covering <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a> - listen above!"
     };
     const tech = {
-        image: "./img/activities/tech.webp",
-        description: "My first computer repair - replacing a busted HDD",
+        image: "./img/activities/frc.webp",
+        description: "Leading my high school robotics team at the 2016 FIRST Robotics Competition",
     };
 
     const appstorereviewersModal = () => {
@@ -91,7 +91,7 @@
         <p>Also a <descriptor><Annotation bind:this={introDescriptors[3]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
         I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
         In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>play music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
-        <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>mess around with technology</activity>.</p>
+        <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
 
         <p>I am a <descriptor><Annotation bind:this={introDescriptors[4]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
         who loves to work with, and be around others. Whether with a project team, a customer, a supervisor, or friends, I strive to communicate
