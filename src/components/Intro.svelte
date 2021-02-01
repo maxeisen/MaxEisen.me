@@ -16,7 +16,7 @@
         let ids = annotationGroup(introDescriptors);
         setTimeout(() => {
             ids.show();
-        }, 2000);
+        }, 1500);
     });
 
     const { open } = getContext('simple-modal');
@@ -89,17 +89,15 @@
 
         <p>Also a <descriptor><Annotation bind:this={introDescriptors[2]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
         I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
-        In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>record music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
+        As a <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable professional</Annotation></descriptor>,
+        I enjoy working with teams and being around like-minded people. No matter the role, I strive to communicate effectively and confidently.</p>
+        
+        <p>In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>record music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
         <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
-
-        <p>I am a <descriptor><Annotation bind:this={introDescriptors[3]} type="circle" padding={5} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable person</Annotation></descriptor>
-        who enjoys working with a team and being around like-minded people. No matter the role, I strive to communicate
-        <Annotation bind:this={introDescriptors[4]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">effectively</Annotation> and
-        <Annotation bind:this={introDescriptors[5]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">confidently</Annotation>.</p>
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
-        <p>If you are <Annotation bind:this={introDescriptors[6]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>If you are <Annotation bind:this={introDescriptors[4]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>
 </div>
 
