@@ -22,6 +22,23 @@ body {
     background-attachment: fixed;
 }
 
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgba(114, 114, 114, 0.281);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #00bba2;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #01aa99;
+}
+
 pwa-update::part(offlineToast), pwa-update::part(updateToast) {
     background: rgba(114, 114, 114, 0.85);
     z-index: 9999;
@@ -61,7 +78,7 @@ header {
 }
 
 header nav ul {
-    border-radius: 10px;
+    border-radius: 20px;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -172,7 +189,7 @@ a:hover {
 .sidebar-section {
     position: fixed;
     width: 1fr;
-    border-radius: 10px;
+    border-radius: 25px;
     align-items: center;
     padding: 24px 32px 0 32px;
     margin-top: auto;
@@ -191,7 +208,7 @@ a:hover {
 }
 
 .info-section-inner {
-    border-radius: 10px;
+    border-radius: 25px;
     padding: 24px 32px 20px 32px;
     margin-top: auto;
     margin-bottom: auto;
@@ -218,7 +235,7 @@ a:hover {
 .experience-item {
     background-color: rgba(25, 25, 25, 0.8);
     border: 1.25px solid rgb(138, 137, 137);
-    border-radius: 10px;
+    border-radius: 20px;
     padding: 10px 30px 10px 30px;
     margin: 15px 20px 15px 20px;
     text-align: center;
@@ -255,7 +272,7 @@ a:hover {
     background-size: 105%;
     background-position: center;
     border: 1.25px solid rgb(138, 137, 137);
-    border-radius: 10px;
+    border-radius: 20px;
     padding: 10px 30px 10px 30px;
     margin: 15px 20px 15px 20px;
     text-align: center;
@@ -287,7 +304,7 @@ a:hover {
     max-width: 50%;
     background-color: rgba(25, 25, 25, 0.8);
     border: 1.25px solid rgb(138, 137, 137);
-    border-radius: 10px;
+    border-radius: 20px;
     padding: 10px 30px 10px 30px;
     margin: 20px auto 15px auto;
     text-align: center;

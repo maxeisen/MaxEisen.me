@@ -149,7 +149,7 @@
     @media only screen and (max-width: 460px) {
         .intro-container {
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 20px;
             background: rgba(114, 114, 114, 0.35);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
