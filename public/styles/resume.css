@@ -44,10 +44,25 @@ header {
     transition: 0.2s;
 }
 
-.tagline {
+.tagline, .developer-note {
     font-size: 16px;
     font-family: 'Source Code Pro', sans-serif;
     font-weight: 300;
+}
+
+.developer-note {
+    margin: 10px auto 10px auto;
+    text-align: center;
+}
+
+.resume {
+    width: 8in;
+    height: 10.6in;
+    margin: auto;
+    border-radius: 10px;
+    padding: 24px 32px 20px 32px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
@@ -187,16 +202,6 @@ a:hover {
 
 .logical-and:hover {
     color: #00bba2;
-}
-
-.inner-page {
-    width: 8in;
-    height: 10.5in;
-    margin: auto;
-    border-radius: 10px;
-    padding: 24px 32px 20px 32px;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .out-grid-container {
@@ -516,6 +521,11 @@ a.company-long {
         font-size: 13px;
     }
 
+    .developer-note {
+        margin: 20px auto 0 auto;
+        font-size: 12px;
+    }
+
     .website-link {
         display: block;
     }
@@ -537,7 +547,7 @@ a.company-long {
         color: black;
     }
 
-    .inner-page {
+    .resume {
         height: 100%;
         margin: 0 0 0 0;
         padding: 0 0 0 0;
@@ -594,7 +604,11 @@ a.company-long {
         font-size: 14px;
     }
 
-    .inner-page {
+    .developer-note {
+        display: none;
+    }
+
+    .resume {
         width: 4.5in;
         height: auto;
         padding: 24px 23px 30px 23px;
@@ -654,7 +668,7 @@ a.company-long {
 }
 
 @media only screen and (max-width: 460px) {
-    .inner-page {
+    .resume {
         width: 3.25in;
         height: auto;
         padding: 24px 8px 30px 8px;
