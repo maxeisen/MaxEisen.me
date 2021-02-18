@@ -22,42 +22,6 @@ body {
     background-attachment: fixed;
 }
 
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background: rgba(114, 114, 114, 0.281);
-}
-
-::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: #00bba2;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #01aa99;
-}
-
-pwa-update::part(offlineToast), pwa-update::part(updateToast) {
-    background: rgba(114, 114, 114, 0.85);
-    z-index: 9999;
-}
-
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-    }
-    
-	50% {
-		background-position: 100% 50%;
-    }
-    
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
 div.header-container {
     z-index: 2;
     position: sticky;
@@ -118,6 +82,42 @@ header a:hover {
 	-o-transition: background-color 0.2s ease-in;
     -ms-transition: background-color 0.2s ease-in;
     transition: background-color 0.2s ease-in;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgba(114, 114, 114, 0.281);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #00bba2;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #01aa99;
+}
+
+pwa-update::part(offlineToast), pwa-update::part(updateToast) {
+    background: rgba(114, 114, 114, 0.85);
+    z-index: 9999;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+    }
+    
+	50% {
+		background-position: 100% 50%;
+    }
+    
+	100% {
+		background-position: 0% 50%;
+	}
 }
 
 h1 {
