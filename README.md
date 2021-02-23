@@ -40,7 +40,7 @@ npm run start
 ```
 
 ## Website Quality
-MaxEisen.me has been developed and tested for optimal performance, accessibility, best practices, and SEO using Google's Lighthouse evaluation tool. It's also a <a href="https://web.dev/progressive-web-apps/" rel="noreferrer" target="_blank">PWA</a>!.
+MaxEisen.me has been developed and tested for optimal performance, accessibility, best practices, and SEO using Google's Lighthouse evaluation tool. It's also a <a href="https://web.dev/progressive-web-apps/" rel="noreferrer" target="_blank">PWA</a>!
 
 <img src="https://github.com/maxeisen/MaxEisen.me/blob/master/public/img/additional/lighthouse_score.png" align="center" alt="MaxEisen.me Lighthouse score" width="100%">
 
