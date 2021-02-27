@@ -1,0 +1,11 @@
+:root {
+    --main-green: #00bba2;
+    --background-one: #002723;
+    --background-two: #00071a;
+}
+
+[data-theme="light"] {
+    --main-green: #05dfc2;
+    --background-one: #00756a;
+    --background-two: #00258a;
+}

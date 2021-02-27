@@ -133,7 +133,7 @@
     }
 
     activity:hover {
-        color: #00bba2;
+        color: var(--main-green);
         cursor: pointer;
     }
 
