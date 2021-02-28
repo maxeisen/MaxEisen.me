@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark-theme">
+<html lang="en">
 <!-- DESIGNED AND DEVELOPED BY
 ███╗   ███╗ █████╗ ██╗  ██╗    ███████╗██╗███████╗███████╗███╗   ██╗
 ████╗ ████║██╔══██╗╚██╗██╔╝    ██╔════╝██║██╔════╝██╔════╝████╗  ██║
@@ -38,6 +38,10 @@ https://github.com/maxeisen/
     <link defer rel="stylesheet" href="/build/bundle.css">
     <link rel="prefetch alternate stylesheet" title="Maxwell Eisen Resume" href="/styles/resume.css">
     <link rel="next" href="resume.html">
+
+    <label id="theme-switch" class="theme-switch" for="checkbox_theme">
+        <input id="theme-switch" type="checkbox" id="checkbox_theme" onclick=switchTheme(this)>
+    </label>
 
     <style>
         @font-face {
@@ -79,22 +83,40 @@ https://github.com/maxeisen/
     </script>
 
     <script>
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
-            setTheme('light-theme');
-        else
-            setTheme('dark-theme');
-
-        function setTheme(theme) {
-            localStorage.setItem('theme', theme);
-            document.documentElement.className = theme;
+        var themeToggle = document.getElementById("#theme-switch")
+        function detectColorScheme(){
+            var theme="dark";
+        
+            if (localStorage.getItem("theme")) {
+                if (localStorage.getItem("theme") == "dark")
+                    var theme = "dark";
+            }
+            else if (window.matchMedia("(prefers-color-scheme: light)").matches)
+                var theme = "light";
+            else if (!window.matchMedia)
+                return false;
         }
 
-        function toggleTheme() {
-        if (localStorage.getItem('theme') === 'dark-theme')
-            setTheme('light-theme');
-        else
-            setTheme('dark-theme');
+        function switchTheme(e) {
+            if (e.target.checked) {
+                localStorage.setItem('theme', 'light');
+                document.documentElement.setAttribute('data-theme', 'light');
+                toggleSwitch.checked = true;
+            }
+            else {
+                localStorage.setItem('theme', 'dark');
+                document.documentElement.setAttribute('data-theme', 'dark');
+                toggleSwitch.checked = false;
+            }    
         }
+
+        if (document.documentElement.getAttribute("data-theme") == "dark")
+            toggleSwitch.checked = false;
+
+        if (theme=="dark")
+                document.documentElement.setAttribute("data-theme", "dark");
+
+        detectColorScheme();
     </script>
 
     <script defer src="/build/bundle.js"></script>
