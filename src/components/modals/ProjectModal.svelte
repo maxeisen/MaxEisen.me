@@ -42,7 +42,7 @@
         color: rgb(0, 49, 82);
         font-size: 35px;
         margin: 15px 15px 10px 15px;
-        color: black;
+        color: var(--modal-title-colour);
     }
 
     .technologies {
@@ -51,7 +51,7 @@
 
     .modal-description {
         margin: 10px auto 10px auto;
-        color: black;
+        color: var(--modal-text-colour);
         line-height: 1.4;
     }
 
@@ -77,13 +77,13 @@
         -o-transition: all .2s ease-in;
         -ms-transition: all .2s ease-in;
         transition: all .2s ease-in;
-        color: rgb(0, 49, 82);
+        color: var(--modal-link-colour);
         width: 30px;
         height: 30px;
         margin: 0 10px 0 10px;
     }
 
     .project-link:hover {
-        color: #01c0a7;
+        color: var(--link-hover-colour);
     }
 </style>

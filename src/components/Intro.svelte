@@ -83,13 +83,13 @@
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
         <p class="title-extension">I am a Computer Science student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>
-        with a <Annotation bind:this={introDescriptors[0]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">creative</Annotation> and
-        <Annotation bind:this={introDescriptors[1]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="1">curious</Annotation> mind,
+        with a <Annotation bind:this={introDescriptors[0]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">creative</Annotation> and
+        <Annotation bind:this={introDescriptors[1]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">curious</Annotation> mind,
         and a fascination for all technology.</p>
 
-        <p>Also a <descriptor><Annotation bind:this={introDescriptors[2]} type="box" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
+        <p>Also a <descriptor><Annotation bind:this={introDescriptors[2]} type="box" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
         I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
-        As a <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="rgba(0, 187, 162, 0.5)" strokeWidth="0.8">sociable professional</Annotation></descriptor>,
+        As a <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">sociable professional</Annotation></descriptor>,
         I enjoy working with teams and being around like-minded people. No matter the role, I strive to communicate effectively and confidently.</p>
         
         <p>In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>record music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
@@ -97,7 +97,7 @@
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
-        <p>If you are <Annotation bind:this={introDescriptors[4]} type="highlight" color="rgba(0, 187, 162, 0.15)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>If you are <Annotation bind:this={introDescriptors[4]} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>
 </div>
 
@@ -124,7 +124,7 @@
     }
 
     activity {
-        color: rgb(173, 222, 255);
+        color: var(--intro-link-colour);
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
@@ -139,21 +139,14 @@
 
     .intro-link {
         font-weight: 400;
-        color: rgb(173, 222, 255);
+        color: var(--intro-link-colour);
     }
 
     .intro-link:hover {
-        color: #00bba2;
+        color: var(--link-hover-colour);
     }
 
     @media only screen and (max-width: 460px) {
-        .intro-container {
-            padding: 20px;
-            border-radius: 20px;
-            background: rgba(114, 114, 114, 0.35);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .section-title-intro {
             font-size: 36px;
         }

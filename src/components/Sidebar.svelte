@@ -17,8 +17,8 @@
     });
 </script>
 
-<h1><Annotation bind:visible type="highlight" color="rgba(0, 187, 162, 0.23)">Max Eisen</Annotation></h1>
-<h2 class="status">CS <b style="color: #ababab; font-weight: 300">@</b> Queen's University</h2>
+<h1><Annotation bind:visible type="highlight" color="var(--intro-highlight-colour)">Max Eisen</Annotation></h1>
+<h2 class="status">CS <b style="color: var(--paragraph-colour); font-weight: 300">@</b> Queen's University</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
     <a class="social-link linkedin-link" aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a>
@@ -56,8 +56,8 @@
         padding-top: 0;
         width: 200px;
         height: 200px;
-        -webkit-filter: drop-shadow(2px -2px 5px #222);
-        filter: drop-shadow(2px -2px 5px #222);
+        -webkit-filter: var(--headshot-drop-shadow);
+        filter: var(--headshot-drop-shadow);
     }
 
     .social-links-container {
@@ -65,12 +65,12 @@
         margin: auto;
         padding-top: 10px;
         padding-bottom: 25px;
-        color: #addeff;
+        color: var(--intro-link-colour);
         justify-content: center;
     }
 
     .social-link {
-        color: #addeff;
+        color: var(--intro-link-colour);
         margin-left: 8px;
         margin-right: 8px;
         width: 40px;
@@ -90,6 +90,6 @@
     }
 
     a:hover {
-        color: #00bba2;
+        color: var(--link-hover-colour);
     }
 </style>

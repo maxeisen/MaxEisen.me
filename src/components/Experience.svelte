@@ -190,7 +190,7 @@
         margin: 8px auto 5px auto;
         text-align: center;
         font-size: 22px;
-        color: rgb(202, 202, 202);
+        color: var(--item-subtitle);
         font-weight: 300;
     }
 
@@ -201,12 +201,12 @@
     }
 
     .experience-date {
-        color: rgb(173, 173, 173);
+        color: var(--item-small-text);
         display: inline-block;
     }
 
     .experience-location {
-        color: rgb(173, 173, 173);
+        color: var(--item-small-text);
         float: right;
     }
 </style>

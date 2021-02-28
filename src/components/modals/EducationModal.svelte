@@ -10,7 +10,7 @@
     <h1 class="modal-school">{school}</h1>
     <h2 class="modal-degree">{@html degree}</h2>
     <h3 class="modal-major" style="text-align: center">{@html major}</h3>
-    <h3 class="modal-years" style="text-align: center; color: #333333">{years}</h3>
+    <h3 class="modal-years" style="text-align: center;">{years}</h3>
     <p class="modal-committees"><b>Committees: </b>{committees}</p>
 </div>
 
@@ -22,7 +22,7 @@
     .modal-school {
         font-size: 35px;
         margin: 15px auto 5px auto;
-        color: black;
+        color: var(--modal-title-colour);
     }
 
     .modal-degree {
@@ -31,7 +31,7 @@
         -o-transition: all .2s ease-in;
         -ms-transition: all .2s ease-in;
         transition: all .2s ease-in;
-        color: black;
+        color: var(--modal-title-colour);
         font-size: 25px;
         margin: 0px auto 5px auto;
 
@@ -45,13 +45,13 @@
     .modal-major {
         font-size: 20px;
         margin: 0 auto 0 auto;
-        color: black;
+        color: var(--modal-title-colour);
         line-height: 1.4;
     }
 
     .modal-years {
         margin: 10px auto 10px auto;
-        color: rgb(63, 63, 63);
+        color: var(--modal-subtitle-colour);
         line-height: 1.4;
     }
 
@@ -59,7 +59,7 @@
         font-size: 15px;
         text-align: center;
         margin: 10px auto 10px auto;
-        color: black;
+        color: var(--modal-text-colour);
         line-height: 1.4;
     }
 </style>

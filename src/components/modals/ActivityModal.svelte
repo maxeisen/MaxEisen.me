@@ -54,7 +54,7 @@
         margin: 10px auto 10px auto;
         padding-left: 20px;
         padding-right: 20px;
-        color: black;
+        color: var(--modal-title-colour);
         line-height: 1.4;
     }
 </style>

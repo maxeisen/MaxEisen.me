@@ -35,7 +35,7 @@ header {
     margin: 0 20px 30px 20px;
     font-size: 30px;
     line-height: 1;
-    color: black;
+    color: var(--nav-background);
     transition: 0.2s;
 }
 
@@ -59,11 +59,11 @@ header a {
 	-o-transition: all 0.2s ease-in;
     -ms-transition: all 0.2s ease-in;
     transition: all 0.2s ease-in;
-    color: #cccccc;
+    color: var(--nav-link);
 }
 
 header a:hover {
-    color: white;
+    color: var(--nav-link-hover);
     -webkit-animation: glow 1s ease-in-out infinite alternate;
     -moz-animation: glow 1s ease-in-out infinite alternate;
     animation: glow 1s ease-in-out infinite alternate;
@@ -119,19 +119,19 @@ pwa-update::part(offlineToast), pwa-update::part(updateToast) {
 }
 
 h1 {
-    color: white;
+    color: var(--header-colour);
     text-align: center;
     font-size: 40px;
 }
 
 h2 {
-    color: white;
+    color: var(--header-colour);
     text-align: center;
     font-size: 20px;
 }
 
 p {
-    color: #e6e6e6;
+    color: var(--paragraph-colour);
 }
 
 a {
@@ -140,12 +140,12 @@ a {
 	-o-transition: all .2s ease-in;
 	-ms-transition: all .2s ease-in;
     transition: all .2s ease-in;
-    color: rgb(0, 49, 82);
+    color: var(--modal-link-colour);
     text-decoration: none;
 }
 
 a:hover {
-    color: #00bba2;
+    color: var(--link-hover-colour);
 }
 
 .home-icon {
@@ -172,7 +172,7 @@ a:hover {
       text-shadow: 0 0 0 #fff;
     }
     to {
-      text-shadow: 0 0 7px #01c0a7;
+      text-shadow: 0 0 7px var(--main-green);
     }
 }
 
@@ -193,8 +193,8 @@ a:hover {
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 60px;
-    background: rgba(114, 114, 114, 0.281);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--inner-background);
+    box-shadow: var(--inner-box-shadow);
     grid-area: sidebar-section;
 }
   
@@ -211,8 +211,8 @@ a:hover {
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 60px;
-    background: rgba(114, 114, 114, 0.281);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--inner-background);
+    box-shadow: var(--inner-box-shadow);
 }
 
 .section-title {
@@ -231,8 +231,8 @@ a:hover {
 }
 
 .experience-item {
-    background-color: rgba(25, 25, 25, 0.8);
-    border: 1.25px solid rgb(138, 137, 137);
+    background-color: var(--item-background);
+    border: var(--item-border);
     border-radius: 20px;
     padding: 10px 30px 10px 30px;
     margin: 15px 20px 15px 20px;
@@ -246,9 +246,9 @@ a:hover {
 
 .experience-item:hover {
     transform: scale(1.02);
-    background-color: rgba(35, 35, 35, 0.8);
+    background-color: var(--item-hover-background);
     cursor: pointer;
-    border-color: #00bba2;
+    border-color: var(--main-green);
 }
 
 .experience-item:active {
@@ -265,11 +265,11 @@ a:hover {
 }
 
 .project-item {
-    box-shadow: inset 0 0 0 1000px rgba(25, 25, 25, 0.92);
+    box-shadow: var(--project-item-box-shadow);
     background-repeat: no-repeat;
     background-size: 105%;
     background-position: center;
-    border: 1.25px solid rgb(138, 137, 137);
+    border: var(--item-border);
     border-radius: 20px;
     padding: 10px 30px 10px 30px;
     margin: 15px 20px 15px 20px;
@@ -283,11 +283,11 @@ a:hover {
 }
 
 .project-item:hover {
-    box-shadow: inset 0 0 0 1000px rgba(35, 35, 35, 0.85);
-    filter: grayscale(10%);
+    box-shadow: var(--project-item-hover-box-shadow);
+    filter: grayscale(0%);
     transform: scale(1.02);
     cursor: pointer;
-    border-color: #00bba2;
+    border-color: var(--main-green);
 }
 
 .project-item:active {
@@ -300,8 +300,8 @@ a:hover {
 
 .education-item {
     max-width: 50%;
-    background-color: rgba(25, 25, 25, 0.8);
-    border: 1.25px solid rgb(138, 137, 137);
+    background-color: var(--item-background);
+    border: var(--item-border);
     border-radius: 20px;
     padding: 10px 30px 10px 30px;
     margin: 20px auto 15px auto;
@@ -315,13 +315,24 @@ a:hover {
 
 .education-item:hover {
     transform: scale(1.02);
-    background-color: rgba(35, 35, 35, 0.8);
+    background-color: var(--item-hover-background);
     cursor: pointer;
-    border-color: #00bba2;
+    border-color: var(--main-green);
 }
 
 .education-item:active {
     transform: scale(0.95)
+}
+
+div.window.svelte-fnsfcv {
+    background: var(--modal-background);
+    color: #00bba2;
+    box-shadow: var(--modal-box-shadow);
+    border: var(--item-border);
+}
+
+button.close.svelte-fnsfcv {
+    cursor: pointer;
 }
 
 .skills-subsection {
@@ -336,25 +347,11 @@ a:hover {
 	-o-transition: all .2s ease-in;
 	-ms-transition: all .2s ease-in;
     transition: all .2s ease-in;
-    color: white;
-    text-shadow: 1px 1px 2px #00000075;
+    color: var(--header-colour);
 }
 
 .footer:hover {
-    color: #00bba2;
-}
-
-@media print {
-    body {
-        padding-top: 0;
-        background: white;
-    }
-
-    header {
-        margin-top: 0;
-        color: black;
-        text-shadow: none;
-    }
+    color: var(--main-green);
 }
 
 @media only screen and (max-width: 1540px) {
@@ -430,7 +427,7 @@ a:hover {
     }
 
     header nav ul {
-        background-color: rgb(18, 18, 18, 0);
+        background-color: var(--nav-background-mobile);
     }
 
     header nav ul li {
@@ -458,7 +455,7 @@ a:hover {
     .info-section-inner {
         margin: 20px auto 20px auto;
         position: relative;
-        background-color: rgb(0, 0, 0, 0);
+        background-color: var(--inner-background);
     }
 
     .footer {

@@ -16,7 +16,7 @@
     {:else}
         <h3 class="modal-description" style="text-align: center">{startDate}</h3>
     {/if}
-    <h3 class="modal-description" style="text-align: center; color: #333333">{location}</h3>
+    <h3 class="modal-description" style="text-align: center;">{location}</h3>
     <p class="modal-description">{@html description}</p>
 </div>
 
@@ -28,7 +28,7 @@
     .modal-position {
         font-size: 35px;
         margin: 15px 15px 10px 15px;
-        color: black;
+        color: var(--modal-title-colour);
     }
 
     .modal-company {
@@ -37,7 +37,7 @@
         -o-transition: all .2s ease-in;
         -ms-transition: all .2s ease-in;
         transition: all .2s ease-in;
-        color: rgb(0, 49, 82);
+        color: var(--modal-link-colour);
         font-size: 25px;
         margin-top: 5px;
     }
@@ -49,7 +49,7 @@
 
     .modal-description {
         margin: 10px auto 10px auto;
-        color: black;
+        color: var(--modal-text-colour);
         line-height: 1.4;
     }
 </style>

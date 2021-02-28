@@ -23,7 +23,7 @@
 <style>
     ul {
         text-align: left;
-        color: white;
+        color: var(--paragraph-colour);
         font-size: 20px;
         list-style: none;
         -webkit-column-count: 4;
@@ -38,14 +38,14 @@
         -ms-transition: all .1s ease-in;
         transition: all .1s ease-in;
         content: "\2022";
-        color: rgb(153, 153, 153);
+        color: var(--skill-bullet-colour);
         display: inline-block;
         width: 1em;
         margin-left: -0.5em;
     }
 
     ul li:hover::before {
-        color: rgb(0, 187, 162);
+        color: var(--main-green);
     }
 
     @media only screen and (max-width: 1270px) {

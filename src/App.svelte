@@ -8,9 +8,6 @@
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
     import Modal from 'svelte-simple-modal';
-
-    document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark'); //add this
 </script>
 
 <Modal>

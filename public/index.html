@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-theme">
 <!-- DESIGNED AND DEVELOPED BY
 ███╗   ███╗ █████╗ ██╗  ██╗    ███████╗██╗███████╗███████╗███╗   ██╗
 ████╗ ████║██╔══██╗╚██╗██╔╝    ██╔════╝██║██╔════╝██╔════╝████╗  ██║
@@ -76,6 +76,25 @@ https://github.com/maxeisen/
         import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
         const el = document.createElement('pwa-update');
         document.body.appendChild(el);
+    </script>
+
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+            setTheme('light-theme');
+        else
+            setTheme('dark-theme');
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.className = theme;
+        }
+
+        function toggleTheme() {
+        if (localStorage.getItem('theme') === 'dark-theme')
+            setTheme('light-theme');
+        else
+            setTheme('dark-theme');
+        }
     </script>
 
     <script defer src="/build/bundle.js"></script>
