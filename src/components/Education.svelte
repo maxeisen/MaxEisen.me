@@ -40,14 +40,14 @@
         font-size: 20px;
         font-weight: 300;
         margin: 5px auto 5px auto;
-        color: rgb(231, 230, 230);
+        color: var(--item-subtitle);
     }
 
     .major-info {
         margin: 5px auto 5px auto;
         text-align: center;
         font-size: 18px;
-        color: rgb(173, 173, 173);
+        color: var(--item-small-text);
         font-weight: 300;
     }
 
@@ -55,6 +55,6 @@
         font-size: 16px;
         font-weight: 300;
         margin: 5px auto 5px auto;
-        color: rgb(194, 194, 194);
+        color: var(--item-small-text);
     }
 </style>

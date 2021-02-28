@@ -8,7 +8,7 @@
 ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝
 https://github.com/maxeisen/
 -->
-<html lang="en">
+<html lang="en" class="dark-theme">
 <head>
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163680623-1"></script>
@@ -17,6 +17,22 @@ https://github.com/maxeisen/
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'UA-163680623-1');
+    </script>
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+            setTheme('light-theme');
+        else
+            setTheme('dark-theme');
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.className = theme;
+        }
+        function toggleTheme() {
+        if (localStorage.getItem('theme') === 'dark-theme')
+            setTheme('light-theme');
+        else
+            setTheme('dark-theme');
+        }
     </script>
     <title>Resume | MaxEisen.me</title>
     <meta charset="UTF-8">
