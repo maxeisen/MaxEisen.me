@@ -331,6 +331,7 @@ button.close.svelte-fnsfcv {
 	-ms-transition: all .2s ease-in;
     transition: all .2s ease-in;
     color: var(--header-colour);
+    text-shadow: -0.3px -0.3px 0 var(--footer-outline), 0.3px -0.3px 0 var(--footer-outline), -0.3px 0.3px 0 var(--footer-outline), 0.3px 0.3px 0 var(--footer-outline);
 }
 
 .footer:hover {
