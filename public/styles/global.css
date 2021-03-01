@@ -1,4 +1,4 @@
-.dark-theme {
+[data-theme="dark"] {
     /*main theme colours*/
     --main-green: #00bba2;
     --background-one: #002723;
@@ -41,9 +41,8 @@
     --headshot-drop-shadow: drop-shadow(2px -2px 5px #222);
 }
 
-.light-theme {
-    /*light theme colours*/
-    --main-green: hsl(172, 100%, 25%);
+[data-theme="light"] {
+    --main-green: #00806f;
     --background-one: #006d62;
     --background-two: #001858;
 

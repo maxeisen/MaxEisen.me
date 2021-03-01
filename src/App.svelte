@@ -1,4 +1,5 @@
 <script>
+    // import ThemeToggle from './components/ThemeToggle.svelte'
     import MenuBar from './components/MenuBar.svelte';
     import Sidebar from './components/Sidebar.svelte';
     import Intro from './components/Intro.svelte';
@@ -11,6 +12,7 @@
 </script>
 
 <Modal>
+    <!-- <ThemeToggle on:change="{toggleTheme()}"/> -->
     <MenuBar/>
     <div class="grid-container">
         <div class="sidebar-section">

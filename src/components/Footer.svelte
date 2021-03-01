@@ -1,1 +1,1 @@
-<h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/" rel="noreferrer" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:#ababab;">&copy;2021</b></a></h2>
+<h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/" rel="noreferrer" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px; color:var(--header-colour);">&copy;2021</b></a></h2>

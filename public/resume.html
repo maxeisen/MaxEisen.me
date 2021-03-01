@@ -8,7 +8,7 @@
 ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝
 https://github.com/maxeisen/
 -->
-<html lang="en" class="dark-theme">
+<html lang="en" data-theme="dark">
 <head>
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163680623-1"></script>
@@ -19,19 +19,22 @@ https://github.com/maxeisen/
         gtag('config', 'UA-163680623-1');
     </script>
     <script>
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
-            setTheme('light-theme');
+        var theme;
+        if (localStorage.getItem("theme"))
+            theme = localStorage.getItem("theme");
         else
-            setTheme('dark-theme');
+            theme = (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+        setTheme(theme)
+        
         function setTheme(theme) {
-            localStorage.setItem('theme', theme);
-            document.documentElement.className = theme;
+            localStorage.setItem("theme", theme);
+            document.documentElement.setAttribute("data-theme", theme);
         }
+
         function toggleTheme() {
-        if (localStorage.getItem('theme') === 'dark-theme')
-            setTheme('light-theme');
-        else
-            setTheme('dark-theme');
+            var newTheme = document.documentElement.getAttribute("data-theme") == "dark" ? "light" : "dark";
+            console.log("Activating ".concat(newTheme.concat(" mode...")));
+            setTheme(newTheme);
         }
     </script>
     <title>Resume | MaxEisen.me</title>
@@ -175,5 +178,5 @@ https://github.com/maxeisen/
         </div>
         <h4 class="developer-note">This resume was made using only HTML and CSS.</h4>
     </div>
-    <h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/blob/master/public/resume.html" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px;color:#ababab">&copy;2021</b></a></h2>
+    <h2 class="footer"><a href="https://github.com/maxeisen/MaxEisen.me/blob/master/public/resume.html" class="footer">Made at &#127968; by Max Eisen <b style="font-size:14px;color:var(--footer-colour)">&copy;2021</b></a></h2>
 </body>
