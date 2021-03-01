@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <!-- DESIGNED AND DEVELOPED BY
 ███╗   ███╗ █████╗ ██╗  ██╗    ███████╗██╗███████╗███████╗███╗   ██╗
 ████╗ ████║██╔══██╗╚██╗██╔╝    ██╔════╝██║██╔════╝██╔════╝████╗  ██║
@@ -80,14 +80,19 @@ https://github.com/maxeisen/
 
     <script>
         var theme;
-        console.log(themeSwitch)
         if (localStorage.getItem("theme")) {
             theme = localStorage.getItem("theme");
-            console.log(theme);
         }
         else
             theme = (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
         setTheme(theme)
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        if (event.matches)
+            setTheme("dark");
+        else
+            setTheme("light");
+        })
         
         function setTheme(theme) {
             localStorage.setItem("theme", theme);
@@ -109,8 +114,4 @@ https://github.com/maxeisen/
         </div>
     </noscript>
 </head>
-<label class="toggle-control">
-    <input type="checkbox" checked="checked">
-    <span class="control"></span>
-</label>  
 </html>

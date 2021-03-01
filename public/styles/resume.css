@@ -4,7 +4,6 @@
     --background-one: #002723;
     --background-two: #00071a;
     --footer-colour: white;
-    --footer-outline: black;
 }
 
 [data-theme="light"] {
@@ -13,7 +12,6 @@
     --background-one: #006d62;
     --background-two: #001858;
     --footer-colour: black;
-    --footer-outline: white;
 }
 
 html {
@@ -518,7 +516,6 @@ a.company-long {
     margin-bottom: 20px;
     transition: all .2s ease-in;
     color: var(--footer-colour);
-    text-shadow: -0.3px -0.3px 0 var(--footer-outline), 0.3px -0.3px 0 var(--footer-outline), -0.3px 0.3px 0 var(--footer-outline), 0.3px 0.3px 0 var(--footer-outline);
 }
 
 .footer:hover {

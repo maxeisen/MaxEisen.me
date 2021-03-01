@@ -1,5 +1,5 @@
-<label class="toggle-control" id="theme-toggle">
-    <input type="checkbox" checked="checked">
+<label class="toggle-control">
+    <input type="checkbox" checked="checked" id="theme-toggle">
     <span class="control"></span>
 </label>
 

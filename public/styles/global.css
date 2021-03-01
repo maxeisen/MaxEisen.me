@@ -39,8 +39,6 @@
     --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6);
 
     --headshot-drop-shadow: drop-shadow(2px -2px 5px #222);
-
-    --foot-outline: black;
 }
 
 [data-theme="light"] {
@@ -83,6 +81,4 @@
     --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0);
 
     --headshot-drop-shadow: drop-shadow(2px -2px 5px rgba(34, 34, 34, 0.25));
-
-    --footer-outline: white;
 }
