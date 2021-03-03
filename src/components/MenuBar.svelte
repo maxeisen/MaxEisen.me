@@ -19,7 +19,7 @@
     <header id="header">
         <div>
             <a href="/#" aria-label="Home" onclick=toggleTheme()>
-                <video class="home-icon" poster="./img/additional/memoji_cycle_small.gif" autoplay loop muted playsinline>  
+                <video class="home-icon" poster="./img/additional/memoji_cycle_small.gif" style="pointer-events: none;" autoplay loop muted playsinline>  
                     <source id="icon-video-webm" src='./img/additional/memoji_cycle.webm' type="video/webm">
                     <source id="icon-video-mp4" src='./img/additional/memoji_cycle.mp4' type="video/mp4">
                 </video>
