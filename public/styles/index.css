@@ -82,10 +82,6 @@ header a:hover {
     transition: background-color 0.2s ease-in;
 }
 
-video::-webkit-media-controls-overlay-play-button {
-    display: none;
-}
-
 pwa-update::part(offlineToast), pwa-update::part(updateToast) {
     background: rgba(114, 114, 114, 0.85);
     z-index: 9999;
@@ -152,6 +148,29 @@ a:hover {
 
 .home-icon:active {
     transform: scale(0.95);
+}
+
+.home-icon-mobile {
+    -webkit-transition: all 0.1s ease-in;
+	-moz-transition: all 0.1s ease-in;
+	-o-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+    margin: 10px 30px 0px 30px;
+    width: 75px;
+    display: none;
+}
+
+.home-icon-mobile:hover {
+    transform: scale(1.2);
+}
+
+.home-icon-mobile:active {
+    transform: scale(0.95);
+}
+
+video::-webkit-media-controls-overlay-play-button {
+    display: none;
 }
 
 @keyframes glow {
@@ -472,6 +491,14 @@ button.close.svelte-fnsfcv {
 @media only screen and (max-width: 460px) {
     header nav ul li {
         padding-right: 30px;
+    }
+
+    .home-icon {
+        display: none;
+    }
+    
+    .home-icon-mobile {
+        display: inline;
     }
 
     .sidebar-section {
