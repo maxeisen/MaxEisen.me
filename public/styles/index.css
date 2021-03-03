@@ -82,6 +82,10 @@ header a:hover {
     transition: background-color 0.2s ease-in;
 }
 
+video::-webkit-media-controls-overlay-play-button {
+    display: none;
+}
+
 pwa-update::part(offlineToast), pwa-update::part(updateToast) {
     background: rgba(114, 114, 114, 0.85);
     z-index: 9999;
