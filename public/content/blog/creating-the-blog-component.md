@@ -108,4 +108,4 @@ My favourite thing about coding has always been, and still is problem solving, a
 
 Down the road, I'm sure I'll be giving my site a complete overhaul anyway, using some cool new frontend framework, server-side rendering, proper routing, and more!
 
-For now, this'll do ✌
+For now, this'll do ✌️

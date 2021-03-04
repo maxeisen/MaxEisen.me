@@ -5,11 +5,13 @@
     export let author;
     export let date;
     export let content;
+
+    var postContent = "Loading..."
     
     fetch(`../content/blog/${content}.md`)
         .then(content => content.text())
         .then(data => {
-            content = data;
+            postContent = data;
             }
         );
 </script>
@@ -20,8 +22,8 @@
         <h3 class="blog-author" style="text-align: center">Author: <b class="author-name">{author}</b></h3>
         <h3 class="blog-date" style="text-align: center">{date}</h3>
     </div>
-    <div class="blog-content">{@html marked(content)}</div>
-    <h2 class="signature"><b style="font-weight: 300">~</b>{author.split(" ")[0]}</h2>
+    <div class="blog-content">{@html marked(postContent)}</div>
+    <h2 class="signature"><b style="font-weight: 300">-</b>{author.split(" ")[0]}</h2>
 </div>
 
 <style>
@@ -39,6 +41,7 @@
         top: -18px;
         background: var(--modal-background);
         border-bottom: 1.5px dotted var(--paragraph-colour);
+        opacity: 0.99;
     }
 
     .blog-title {
