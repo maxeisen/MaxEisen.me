@@ -122,7 +122,7 @@ ul {
 
 ul li::before {
     content: "\2022";
-    color: rgb(0, 187, 162);
+    color: var(--main-green);
     display: inline-block;
     width: 1em;
     margin-left: -1em;
@@ -265,7 +265,7 @@ a:hover {
     margin: 10px 20px 0px 20px;
     padding-top: 25px;
     text-align: center;
-    border-top: 2px solid rgb(0, 187, 162);
+    border-top: 2px solid var(--main-green);
     grid-area: in-left-profile;
 }
 
@@ -280,7 +280,7 @@ a:hover {
     line-height: 0.7;
     margin: 0px 20px 0px 20px;
     text-align: center;
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid var(--main-green);
     grid-area: in-left-social;
 }
 
@@ -304,7 +304,7 @@ img.social-icon {
     font-size: 14px;
     margin: 5px 20px 0 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid var(--main-green);
     grid-area: in-left-skills;
 }
 
@@ -313,7 +313,7 @@ img.social-icon {
     font-size: 14px;
     margin: 5px 20px 0 20px;
     padding-bottom: 0;
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid var(--main-green);
     grid-area: in-left-skills;
 }
 
@@ -404,14 +404,14 @@ img.social-icon {
 .in-left-hobbies {
     font-size: 14px;
     margin: 5px 20px 0 20px;
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid var(--main-green);
     grid-area: in-left-hobbies;
 }
 
 .right-title {
     font-size: 17px;
     color: black;
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid var(--main-green);
     padding: 0 0 12px 0;
 }
 
@@ -424,14 +424,14 @@ img.social-icon {
   
 .in-right-experience {
     margin: 10px 20px 0px 20px;
-    border-top: 2px solid rgb(0, 187, 162);
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-top: 2px solid var(--main-green);
+    border-bottom: 2px solid var(--main-green);
     grid-area: in-right-experience;
 }
   
 .in-right-education {
     margin: 0px 20px 0px 20px;
-    border-bottom: 2px solid rgb(0, 187, 162);
+    border-bottom: 2px solid var(--main-green);
     grid-area: in-right-education;
 }
 
@@ -544,6 +544,10 @@ a.company-long {
 }
 
 @media print {
+    :root {
+        --main-green: #00bba2;
+    }
+    
     .inner-page {
         font-size: 95%;
     }
