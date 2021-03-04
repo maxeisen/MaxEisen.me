@@ -46,6 +46,7 @@ MaxEisen.me has been developed and tested for optimal performance, accessibility
 
 ## Versions
 <ul>
-  <li>V1 (web resume) built in plain HTML and CSS</li>
-  <li>V2 (portfolio website) built using Svelte JS framework - old HTML and CSS files ported over</li>
+  <li>V1 (web resume) - built in plain HTML and CSS</li>
+  <li>V2 (portfolio website) - built using Svelte JS framework - old HTML and CSS files ported over</li>
+  <li>V3 (blog and themes) - custom blogging system developed to keep my thought process through coding projects, document my life, travel, etc. and light mode!</li>
 </ul>
