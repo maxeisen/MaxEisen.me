@@ -167,6 +167,29 @@ a:hover {
     transform: scale(0.95);
 }
 
+.home-icon-mobile {
+    -webkit-transition: all 0.1s ease-in;
+	-moz-transition: all 0.1s ease-in;
+	-o-transition: all 0.1s ease-in;
+    -ms-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+    margin: 10px 30px 0px 30px;
+    width: 75px;
+    display: none;
+}
+
+.home-icon-mobile:hover {
+    transform: scale(1.2);
+}
+
+.home-icon-mobile:active {
+    transform: scale(0.95);
+}
+
+video::-webkit-media-controls-overlay-play-button {
+    display: none;
+}
+
 @keyframes glow {
     from {
       text-shadow: 0 0 0 #fff;
@@ -508,6 +531,14 @@ button.close.svelte-fnsfcv {
         padding-right: 30px;
     }
 
+    .home-icon {
+        display: none;
+    }
+
+    .home-icon-mobile {
+        display: inline;
+    }
+
     .sidebar-section {
         min-width: 50%;
         margin-left: auto;
@@ -528,16 +559,9 @@ button.close.svelte-fnsfcv {
         margin-right: auto;
     }
 
-    .experience-item {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .project-item {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
+    .experience-item,
+    .project-item,
+    .blog-item,
     .education-item {
         margin-left: auto;
         margin-right: auto;
