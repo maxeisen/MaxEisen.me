@@ -786,6 +786,9 @@ var app = (function () {
     	let t8;
     	let li4;
     	let a5;
+    	let t10;
+    	let li5;
+    	let a6;
     	let b;
 
     	const block = {
@@ -811,14 +814,18 @@ var app = (function () {
     			t4 = space();
     			li2 = element("li");
     			a3 = element("a");
-    			a3.textContent = "Education";
+    			a3.textContent = "Blog";
     			t6 = space();
     			li3 = element("li");
     			a4 = element("a");
-    			a4.textContent = "Skills";
+    			a4.textContent = "Education";
     			t8 = space();
     			li4 = element("li");
     			a5 = element("a");
+    			a5.textContent = "Skills";
+    			t10 = space();
+    			li5 = element("li");
+    			a6 = element("a");
     			b = element("b");
     			b.textContent = "Resume";
     			attr_dev(source0, "id", "icon-video-webm");
@@ -849,19 +856,23 @@ var app = (function () {
     			add_location(a2, file, 31, 42, 1525);
     			attr_dev(li1, "id", "nav-bar-item");
     			add_location(li1, file, 31, 20, 1503);
-    			attr_dev(a3, "href", "#education");
+    			attr_dev(a3, "href", "#blog");
     			add_location(a3, file, 32, 42, 1606);
     			attr_dev(li2, "id", "nav-bar-item");
     			add_location(li2, file, 32, 20, 1584);
-    			attr_dev(a4, "href", "#skills");
-    			add_location(a4, file, 33, 42, 1689);
+    			attr_dev(a4, "href", "#education");
+    			add_location(a4, file, 33, 42, 1679);
     			attr_dev(li3, "id", "nav-bar-item");
-    			add_location(li3, file, 33, 20, 1667);
-    			add_location(b, file, 34, 60, 1784);
-    			attr_dev(a5, "href", "/resume");
-    			add_location(a5, file, 34, 42, 1766);
+    			add_location(li3, file, 33, 20, 1657);
+    			attr_dev(a5, "href", "#skills");
+    			add_location(a5, file, 34, 42, 1762);
     			attr_dev(li4, "id", "nav-bar-item");
-    			add_location(li4, file, 34, 20, 1744);
+    			add_location(li4, file, 34, 20, 1740);
+    			add_location(b, file, 35, 60, 1857);
+    			attr_dev(a6, "href", "/resume");
+    			add_location(a6, file, 35, 42, 1839);
+    			attr_dev(li5, "id", "nav-bar-item");
+    			add_location(li5, file, 35, 20, 1817);
     			attr_dev(ul, "class", "nav-bar-list");
     			attr_dev(ul, "id", "nav-bar-list");
     			add_location(ul, file, 29, 16, 1353);
@@ -903,7 +914,10 @@ var app = (function () {
     			append_dev(ul, t8);
     			append_dev(ul, li4);
     			append_dev(li4, a5);
-    			append_dev(a5, b);
+    			append_dev(ul, t10);
+    			append_dev(ul, li5);
+    			append_dev(li5, a6);
+    			append_dev(a6, b);
     		},
     		p: noop,
     		i: noop,
@@ -3567,9 +3581,3953 @@ var app = (function () {
     	}
     }
 
+    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+    function createCommonjsModule(fn, module) {
+    	return module = { exports: {} }, fn(module, module.exports), module.exports;
+    }
+
+    var strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+
+    var token = '%[a-f0-9]{2}';
+    var singleMatcher = new RegExp(token, 'gi');
+    var multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+    function decodeComponents(components, split) {
+    	try {
+    		// Try to decode the entire string first
+    		return decodeURIComponent(components.join(''));
+    	} catch (err) {
+    		// Do nothing
+    	}
+
+    	if (components.length === 1) {
+    		return components;
+    	}
+
+    	split = split || 1;
+
+    	// Split the array in 2 parts
+    	var left = components.slice(0, split);
+    	var right = components.slice(split);
+
+    	return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+    }
+
+    function decode(input) {
+    	try {
+    		return decodeURIComponent(input);
+    	} catch (err) {
+    		var tokens = input.match(singleMatcher);
+
+    		for (var i = 1; i < tokens.length; i++) {
+    			input = decodeComponents(tokens, i).join('');
+
+    			tokens = input.match(singleMatcher);
+    		}
+
+    		return input;
+    	}
+    }
+
+    function customDecodeURIComponent(input) {
+    	// Keep track of all the replacements and prefill the map with the `BOM`
+    	var replaceMap = {
+    		'%FE%FF': '\uFFFD\uFFFD',
+    		'%FF%FE': '\uFFFD\uFFFD'
+    	};
+
+    	var match = multiMatcher.exec(input);
+    	while (match) {
+    		try {
+    			// Decode as big chunks as possible
+    			replaceMap[match[0]] = decodeURIComponent(match[0]);
+    		} catch (err) {
+    			var result = decode(match[0]);
+
+    			if (result !== match[0]) {
+    				replaceMap[match[0]] = result;
+    			}
+    		}
+
+    		match = multiMatcher.exec(input);
+    	}
+
+    	// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+    	replaceMap['%C2'] = '\uFFFD';
+
+    	var entries = Object.keys(replaceMap);
+
+    	for (var i = 0; i < entries.length; i++) {
+    		// Replace all decoded components
+    		var key = entries[i];
+    		input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+    	}
+
+    	return input;
+    }
+
+    var decodeUriComponent = function (encodedURI) {
+    	if (typeof encodedURI !== 'string') {
+    		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+    	}
+
+    	try {
+    		encodedURI = encodedURI.replace(/\+/g, ' ');
+
+    		// Try the built in decoder first
+    		return decodeURIComponent(encodedURI);
+    	} catch (err) {
+    		// Fallback to a more advanced decoder
+    		return customDecodeURIComponent(encodedURI);
+    	}
+    };
+
+    var splitOnFirst = (string, separator) => {
+    	if (!(typeof string === 'string' && typeof separator === 'string')) {
+    		throw new TypeError('Expected the arguments to be of type `string`');
+    	}
+
+    	if (separator === '') {
+    		return [string];
+    	}
+
+    	const separatorIndex = string.indexOf(separator);
+
+    	if (separatorIndex === -1) {
+    		return [string];
+    	}
+
+    	return [
+    		string.slice(0, separatorIndex),
+    		string.slice(separatorIndex + separator.length)
+    	];
+    };
+
+    var filterObj = function (obj, predicate) {
+    	var ret = {};
+    	var keys = Object.keys(obj);
+    	var isArr = Array.isArray(predicate);
+
+    	for (var i = 0; i < keys.length; i++) {
+    		var key = keys[i];
+    		var val = obj[key];
+
+    		if (isArr ? predicate.indexOf(key) !== -1 : predicate(key, val, obj)) {
+    			ret[key] = val;
+    		}
+    	}
+
+    	return ret;
+    };
+
+    var queryString = createCommonjsModule(function (module, exports) {
+
+
+
+
+
+    const isNullOrUndefined = value => value === null || value === undefined;
+
+    function encoderForArrayFormat(options) {
+    	switch (options.arrayFormat) {
+    		case 'index':
+    			return key => (result, value) => {
+    				const index = result.length;
+
+    				if (
+    					value === undefined ||
+    					(options.skipNull && value === null) ||
+    					(options.skipEmptyString && value === '')
+    				) {
+    					return result;
+    				}
+
+    				if (value === null) {
+    					return [...result, [encode(key, options), '[', index, ']'].join('')];
+    				}
+
+    				return [
+    					...result,
+    					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join('')
+    				];
+    			};
+
+    		case 'bracket':
+    			return key => (result, value) => {
+    				if (
+    					value === undefined ||
+    					(options.skipNull && value === null) ||
+    					(options.skipEmptyString && value === '')
+    				) {
+    					return result;
+    				}
+
+    				if (value === null) {
+    					return [...result, [encode(key, options), '[]'].join('')];
+    				}
+
+    				return [...result, [encode(key, options), '[]=', encode(value, options)].join('')];
+    			};
+
+    		case 'comma':
+    		case 'separator':
+    			return key => (result, value) => {
+    				if (value === null || value === undefined || value.length === 0) {
+    					return result;
+    				}
+
+    				if (result.length === 0) {
+    					return [[encode(key, options), '=', encode(value, options)].join('')];
+    				}
+
+    				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
+    			};
+
+    		default:
+    			return key => (result, value) => {
+    				if (
+    					value === undefined ||
+    					(options.skipNull && value === null) ||
+    					(options.skipEmptyString && value === '')
+    				) {
+    					return result;
+    				}
+
+    				if (value === null) {
+    					return [...result, encode(key, options)];
+    				}
+
+    				return [...result, [encode(key, options), '=', encode(value, options)].join('')];
+    			};
+    	}
+    }
+
+    function parserForArrayFormat(options) {
+    	let result;
+
+    	switch (options.arrayFormat) {
+    		case 'index':
+    			return (key, value, accumulator) => {
+    				result = /\[(\d*)\]$/.exec(key);
+
+    				key = key.replace(/\[\d*\]$/, '');
+
+    				if (!result) {
+    					accumulator[key] = value;
+    					return;
+    				}
+
+    				if (accumulator[key] === undefined) {
+    					accumulator[key] = {};
+    				}
+
+    				accumulator[key][result[1]] = value;
+    			};
+
+    		case 'bracket':
+    			return (key, value, accumulator) => {
+    				result = /(\[\])$/.exec(key);
+    				key = key.replace(/\[\]$/, '');
+
+    				if (!result) {
+    					accumulator[key] = value;
+    					return;
+    				}
+
+    				if (accumulator[key] === undefined) {
+    					accumulator[key] = [value];
+    					return;
+    				}
+
+    				accumulator[key] = [].concat(accumulator[key], value);
+    			};
+
+    		case 'comma':
+    		case 'separator':
+    			return (key, value, accumulator) => {
+    				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+    				const isEncodedArray = (typeof value === 'string' && !isArray && decode(value, options).includes(options.arrayFormatSeparator));
+    				value = isEncodedArray ? decode(value, options) : value;
+    				const newValue = isArray || isEncodedArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : value === null ? value : decode(value, options);
+    				accumulator[key] = newValue;
+    			};
+
+    		default:
+    			return (key, value, accumulator) => {
+    				if (accumulator[key] === undefined) {
+    					accumulator[key] = value;
+    					return;
+    				}
+
+    				accumulator[key] = [].concat(accumulator[key], value);
+    			};
+    	}
+    }
+
+    function validateArrayFormatSeparator(value) {
+    	if (typeof value !== 'string' || value.length !== 1) {
+    		throw new TypeError('arrayFormatSeparator must be single character string');
+    	}
+    }
+
+    function encode(value, options) {
+    	if (options.encode) {
+    		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+    	}
+
+    	return value;
+    }
+
+    function decode(value, options) {
+    	if (options.decode) {
+    		return decodeUriComponent(value);
+    	}
+
+    	return value;
+    }
+
+    function keysSorter(input) {
+    	if (Array.isArray(input)) {
+    		return input.sort();
+    	}
+
+    	if (typeof input === 'object') {
+    		return keysSorter(Object.keys(input))
+    			.sort((a, b) => Number(a) - Number(b))
+    			.map(key => input[key]);
+    	}
+
+    	return input;
+    }
+
+    function removeHash(input) {
+    	const hashStart = input.indexOf('#');
+    	if (hashStart !== -1) {
+    		input = input.slice(0, hashStart);
+    	}
+
+    	return input;
+    }
+
+    function getHash(url) {
+    	let hash = '';
+    	const hashStart = url.indexOf('#');
+    	if (hashStart !== -1) {
+    		hash = url.slice(hashStart);
+    	}
+
+    	return hash;
+    }
+
+    function extract(input) {
+    	input = removeHash(input);
+    	const queryStart = input.indexOf('?');
+    	if (queryStart === -1) {
+    		return '';
+    	}
+
+    	return input.slice(queryStart + 1);
+    }
+
+    function parseValue(value, options) {
+    	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+    		value = Number(value);
+    	} else if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+    		value = value.toLowerCase() === 'true';
+    	}
+
+    	return value;
+    }
+
+    function parse(query, options) {
+    	options = Object.assign({
+    		decode: true,
+    		sort: true,
+    		arrayFormat: 'none',
+    		arrayFormatSeparator: ',',
+    		parseNumbers: false,
+    		parseBooleans: false
+    	}, options);
+
+    	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+    	const formatter = parserForArrayFormat(options);
+
+    	// Create an object with no prototype
+    	const ret = Object.create(null);
+
+    	if (typeof query !== 'string') {
+    		return ret;
+    	}
+
+    	query = query.trim().replace(/^[?#&]/, '');
+
+    	if (!query) {
+    		return ret;
+    	}
+
+    	for (const param of query.split('&')) {
+    		if (param === '') {
+    			continue;
+    		}
+
+    		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
+
+    		// Missing `=` should be `null`:
+    		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+    		value = value === undefined ? null : ['comma', 'separator'].includes(options.arrayFormat) ? value : decode(value, options);
+    		formatter(decode(key, options), value, ret);
+    	}
+
+    	for (const key of Object.keys(ret)) {
+    		const value = ret[key];
+    		if (typeof value === 'object' && value !== null) {
+    			for (const k of Object.keys(value)) {
+    				value[k] = parseValue(value[k], options);
+    			}
+    		} else {
+    			ret[key] = parseValue(value, options);
+    		}
+    	}
+
+    	if (options.sort === false) {
+    		return ret;
+    	}
+
+    	return (options.sort === true ? Object.keys(ret).sort() : Object.keys(ret).sort(options.sort)).reduce((result, key) => {
+    		const value = ret[key];
+    		if (Boolean(value) && typeof value === 'object' && !Array.isArray(value)) {
+    			// Sort object keys, not values
+    			result[key] = keysSorter(value);
+    		} else {
+    			result[key] = value;
+    		}
+
+    		return result;
+    	}, Object.create(null));
+    }
+
+    exports.extract = extract;
+    exports.parse = parse;
+
+    exports.stringify = (object, options) => {
+    	if (!object) {
+    		return '';
+    	}
+
+    	options = Object.assign({
+    		encode: true,
+    		strict: true,
+    		arrayFormat: 'none',
+    		arrayFormatSeparator: ','
+    	}, options);
+
+    	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+    	const shouldFilter = key => (
+    		(options.skipNull && isNullOrUndefined(object[key])) ||
+    		(options.skipEmptyString && object[key] === '')
+    	);
+
+    	const formatter = encoderForArrayFormat(options);
+
+    	const objectCopy = {};
+
+    	for (const key of Object.keys(object)) {
+    		if (!shouldFilter(key)) {
+    			objectCopy[key] = object[key];
+    		}
+    	}
+
+    	const keys = Object.keys(objectCopy);
+
+    	if (options.sort !== false) {
+    		keys.sort(options.sort);
+    	}
+
+    	return keys.map(key => {
+    		const value = object[key];
+
+    		if (value === undefined) {
+    			return '';
+    		}
+
+    		if (value === null) {
+    			return encode(key, options);
+    		}
+
+    		if (Array.isArray(value)) {
+    			return value
+    				.reduce(formatter(key), [])
+    				.join('&');
+    		}
+
+    		return encode(key, options) + '=' + encode(value, options);
+    	}).filter(x => x.length > 0).join('&');
+    };
+
+    exports.parseUrl = (url, options) => {
+    	options = Object.assign({
+    		decode: true
+    	}, options);
+
+    	const [url_, hash] = splitOnFirst(url, '#');
+
+    	return Object.assign(
+    		{
+    			url: url_.split('?')[0] || '',
+    			query: parse(extract(url), options)
+    		},
+    		options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}
+    	);
+    };
+
+    exports.stringifyUrl = (object, options) => {
+    	options = Object.assign({
+    		encode: true,
+    		strict: true
+    	}, options);
+
+    	const url = removeHash(object.url).split('?')[0] || '';
+    	const queryFromUrl = exports.extract(object.url);
+    	const parsedQueryFromUrl = exports.parse(queryFromUrl, {sort: false});
+
+    	const query = Object.assign(parsedQueryFromUrl, object.query);
+    	let queryString = exports.stringify(query, options);
+    	if (queryString) {
+    		queryString = `?${queryString}`;
+    	}
+
+    	let hash = getHash(object.url);
+    	if (object.fragmentIdentifier) {
+    		hash = `#${encode(object.fragmentIdentifier, options)}`;
+    	}
+
+    	return `${url}${queryString}${hash}`;
+    };
+
+    exports.pick = (input, filter, options) => {
+    	options = Object.assign({
+    		parseFragmentIdentifier: true
+    	}, options);
+
+    	const {url, query, fragmentIdentifier} = exports.parseUrl(input, options);
+    	return exports.stringifyUrl({
+    		url,
+    		query: filterObj(query, filter),
+    		fragmentIdentifier
+    	}, options);
+    };
+
+    exports.exclude = (input, filter, options) => {
+    	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+    	return exports.pick(input, exclusionFilter, options);
+    };
+    });
+    var queryString_1 = queryString.extract;
+    var queryString_2 = queryString.parse;
+    var queryString_3 = queryString.stringify;
+    var queryString_4 = queryString.parseUrl;
+    var queryString_5 = queryString.stringifyUrl;
+    var queryString_6 = queryString.pick;
+    var queryString_7 = queryString.exclude;
+
+    var marked = createCommonjsModule(function (module, exports) {
+    /**
+     * marked - a markdown parser
+     * Copyright (c) 2011-2021, Christopher Jeffrey. (MIT Licensed)
+     * https://github.com/markedjs/marked
+     */
+
+    /**
+     * DO NOT EDIT THIS FILE
+     * The code in this file is generated from files in ./src/
+     */
+
+    (function (global, factory) {
+       module.exports = factory() ;
+    }(commonjsGlobal, (function () {
+      function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+
+      function _createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) _defineProperties(Constructor, staticProps);
+        return Constructor;
+      }
+
+      function _unsupportedIterableToArray(o, minLen) {
+        if (!o) return;
+        if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+        var n = Object.prototype.toString.call(o).slice(8, -1);
+        if (n === "Object" && o.constructor) n = o.constructor.name;
+        if (n === "Map" || n === "Set") return Array.from(o);
+        if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+      }
+
+      function _arrayLikeToArray(arr, len) {
+        if (len == null || len > arr.length) len = arr.length;
+
+        for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+        return arr2;
+      }
+
+      function _createForOfIteratorHelperLoose(o, allowArrayLike) {
+        var it;
+
+        if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+          if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+            if (it) o = it;
+            var i = 0;
+            return function () {
+              if (i >= o.length) return {
+                done: true
+              };
+              return {
+                done: false,
+                value: o[i++]
+              };
+            };
+          }
+
+          throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+
+        it = o[Symbol.iterator]();
+        return it.next.bind(it);
+      }
+
+      function createCommonjsModule(fn) {
+        var module = { exports: {} };
+      	return fn(module, module.exports), module.exports;
+      }
+
+      var defaults = createCommonjsModule(function (module) {
+        function getDefaults() {
+          return {
+            baseUrl: null,
+            breaks: false,
+            gfm: true,
+            headerIds: true,
+            headerPrefix: '',
+            highlight: null,
+            langPrefix: 'language-',
+            mangle: true,
+            pedantic: false,
+            renderer: null,
+            sanitize: false,
+            sanitizer: null,
+            silent: false,
+            smartLists: false,
+            smartypants: false,
+            tokenizer: null,
+            walkTokens: null,
+            xhtml: false
+          };
+        }
+
+        function changeDefaults(newDefaults) {
+          module.exports.defaults = newDefaults;
+        }
+
+        module.exports = {
+          defaults: getDefaults(),
+          getDefaults: getDefaults,
+          changeDefaults: changeDefaults
+        };
+      });
+
+      /**
+       * Helpers
+       */
+      var escapeTest = /[&<>"']/;
+      var escapeReplace = /[&<>"']/g;
+      var escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
+      var escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g;
+      var escapeReplacements = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+
+      var getEscapeReplacement = function getEscapeReplacement(ch) {
+        return escapeReplacements[ch];
+      };
+
+      function escape(html, encode) {
+        if (encode) {
+          if (escapeTest.test(html)) {
+            return html.replace(escapeReplace, getEscapeReplacement);
+          }
+        } else {
+          if (escapeTestNoEncode.test(html)) {
+            return html.replace(escapeReplaceNoEncode, getEscapeReplacement);
+          }
+        }
+
+        return html;
+      }
+
+      var unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
+
+      function unescape(html) {
+        // explicitly match decimal, hex, and named HTML entities
+        return html.replace(unescapeTest, function (_, n) {
+          n = n.toLowerCase();
+          if (n === 'colon') return ':';
+
+          if (n.charAt(0) === '#') {
+            return n.charAt(1) === 'x' ? String.fromCharCode(parseInt(n.substring(2), 16)) : String.fromCharCode(+n.substring(1));
+          }
+
+          return '';
+        });
+      }
+
+      var caret = /(^|[^\[])\^/g;
+
+      function edit(regex, opt) {
+        regex = regex.source || regex;
+        opt = opt || '';
+        var obj = {
+          replace: function replace(name, val) {
+            val = val.source || val;
+            val = val.replace(caret, '$1');
+            regex = regex.replace(name, val);
+            return obj;
+          },
+          getRegex: function getRegex() {
+            return new RegExp(regex, opt);
+          }
+        };
+        return obj;
+      }
+
+      var nonWordAndColonTest = /[^\w:]/g;
+      var originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
+
+      function cleanUrl(sanitize, base, href) {
+        if (sanitize) {
+          var prot;
+
+          try {
+            prot = decodeURIComponent(unescape(href)).replace(nonWordAndColonTest, '').toLowerCase();
+          } catch (e) {
+            return null;
+          }
+
+          if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0 || prot.indexOf('data:') === 0) {
+            return null;
+          }
+        }
+
+        if (base && !originIndependentUrl.test(href)) {
+          href = resolveUrl(base, href);
+        }
+
+        try {
+          href = encodeURI(href).replace(/%25/g, '%');
+        } catch (e) {
+          return null;
+        }
+
+        return href;
+      }
+
+      var baseUrls = {};
+      var justDomain = /^[^:]+:\/*[^/]*$/;
+      var protocol = /^([^:]+:)[\s\S]*$/;
+      var domain = /^([^:]+:\/*[^/]*)[\s\S]*$/;
+
+      function resolveUrl(base, href) {
+        if (!baseUrls[' ' + base]) {
+          // we can ignore everything in base after the last slash of its path component,
+          // but we might need to add _that_
+          // https://tools.ietf.org/html/rfc3986#section-3
+          if (justDomain.test(base)) {
+            baseUrls[' ' + base] = base + '/';
+          } else {
+            baseUrls[' ' + base] = rtrim(base, '/', true);
+          }
+        }
+
+        base = baseUrls[' ' + base];
+        var relativeBase = base.indexOf(':') === -1;
+
+        if (href.substring(0, 2) === '//') {
+          if (relativeBase) {
+            return href;
+          }
+
+          return base.replace(protocol, '$1') + href;
+        } else if (href.charAt(0) === '/') {
+          if (relativeBase) {
+            return href;
+          }
+
+          return base.replace(domain, '$1') + href;
+        } else {
+          return base + href;
+        }
+      }
+
+      var noopTest = {
+        exec: function noopTest() {}
+      };
+
+      function merge(obj) {
+        var i = 1,
+            target,
+            key;
+
+        for (; i < arguments.length; i++) {
+          target = arguments[i];
+
+          for (key in target) {
+            if (Object.prototype.hasOwnProperty.call(target, key)) {
+              obj[key] = target[key];
+            }
+          }
+        }
+
+        return obj;
+      }
+
+      function splitCells(tableRow, count) {
+        // ensure that every cell-delimiting pipe has a space
+        // before it to distinguish it from an escaped pipe
+        var row = tableRow.replace(/\|/g, function (match, offset, str) {
+          var escaped = false,
+              curr = offset;
+
+          while (--curr >= 0 && str[curr] === '\\') {
+            escaped = !escaped;
+          }
+
+          if (escaped) {
+            // odd number of slashes means | is escaped
+            // so we leave it alone
+            return '|';
+          } else {
+            // add space before unescaped |
+            return ' |';
+          }
+        }),
+            cells = row.split(/ \|/);
+        var i = 0;
+
+        if (cells.length > count) {
+          cells.splice(count);
+        } else {
+          while (cells.length < count) {
+            cells.push('');
+          }
+        }
+
+        for (; i < cells.length; i++) {
+          // leading or trailing whitespace is ignored per the gfm spec
+          cells[i] = cells[i].trim().replace(/\\\|/g, '|');
+        }
+
+        return cells;
+      } // Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
+      // /c*$/ is vulnerable to REDOS.
+      // invert: Remove suffix of non-c chars instead. Default falsey.
+
+
+      function rtrim(str, c, invert) {
+        var l = str.length;
+
+        if (l === 0) {
+          return '';
+        } // Length of suffix matching the invert condition.
+
+
+        var suffLen = 0; // Step left until we fail to match the invert condition.
+
+        while (suffLen < l) {
+          var currChar = str.charAt(l - suffLen - 1);
+
+          if (currChar === c && !invert) {
+            suffLen++;
+          } else if (currChar !== c && invert) {
+            suffLen++;
+          } else {
+            break;
+          }
+        }
+
+        return str.substr(0, l - suffLen);
+      }
+
+      function findClosingBracket(str, b) {
+        if (str.indexOf(b[1]) === -1) {
+          return -1;
+        }
+
+        var l = str.length;
+        var level = 0,
+            i = 0;
+
+        for (; i < l; i++) {
+          if (str[i] === '\\') {
+            i++;
+          } else if (str[i] === b[0]) {
+            level++;
+          } else if (str[i] === b[1]) {
+            level--;
+
+            if (level < 0) {
+              return i;
+            }
+          }
+        }
+
+        return -1;
+      }
+
+      function checkSanitizeDeprecation(opt) {
+        if (opt && opt.sanitize && !opt.silent) {
+          console.warn('marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options');
+        }
+      } // copied from https://stackoverflow.com/a/5450113/806777
+
+
+      function repeatString(pattern, count) {
+        if (count < 1) {
+          return '';
+        }
+
+        var result = '';
+
+        while (count > 1) {
+          if (count & 1) {
+            result += pattern;
+          }
+
+          count >>= 1;
+          pattern += pattern;
+        }
+
+        return result + pattern;
+      }
+
+      var helpers = {
+        escape: escape,
+        unescape: unescape,
+        edit: edit,
+        cleanUrl: cleanUrl,
+        resolveUrl: resolveUrl,
+        noopTest: noopTest,
+        merge: merge,
+        splitCells: splitCells,
+        rtrim: rtrim,
+        findClosingBracket: findClosingBracket,
+        checkSanitizeDeprecation: checkSanitizeDeprecation,
+        repeatString: repeatString
+      };
+
+      var defaults$1 = defaults.defaults;
+      var rtrim$1 = helpers.rtrim,
+          splitCells$1 = helpers.splitCells,
+          _escape = helpers.escape,
+          findClosingBracket$1 = helpers.findClosingBracket;
+
+      function outputLink(cap, link, raw) {
+        var href = link.href;
+        var title = link.title ? _escape(link.title) : null;
+        var text = cap[1].replace(/\\([\[\]])/g, '$1');
+
+        if (cap[0].charAt(0) !== '!') {
+          return {
+            type: 'link',
+            raw: raw,
+            href: href,
+            title: title,
+            text: text
+          };
+        } else {
+          return {
+            type: 'image',
+            raw: raw,
+            href: href,
+            title: title,
+            text: _escape(text)
+          };
+        }
+      }
+
+      function indentCodeCompensation(raw, text) {
+        var matchIndentToCode = raw.match(/^(\s+)(?:```)/);
+
+        if (matchIndentToCode === null) {
+          return text;
+        }
+
+        var indentToCode = matchIndentToCode[1];
+        return text.split('\n').map(function (node) {
+          var matchIndentInNode = node.match(/^\s+/);
+
+          if (matchIndentInNode === null) {
+            return node;
+          }
+
+          var indentInNode = matchIndentInNode[0];
+
+          if (indentInNode.length >= indentToCode.length) {
+            return node.slice(indentToCode.length);
+          }
+
+          return node;
+        }).join('\n');
+      }
+      /**
+       * Tokenizer
+       */
+
+
+      var Tokenizer_1 = /*#__PURE__*/function () {
+        function Tokenizer(options) {
+          this.options = options || defaults$1;
+        }
+
+        var _proto = Tokenizer.prototype;
+
+        _proto.space = function space(src) {
+          var cap = this.rules.block.newline.exec(src);
+
+          if (cap) {
+            if (cap[0].length > 1) {
+              return {
+                type: 'space',
+                raw: cap[0]
+              };
+            }
+
+            return {
+              raw: '\n'
+            };
+          }
+        };
+
+        _proto.code = function code(src) {
+          var cap = this.rules.block.code.exec(src);
+
+          if (cap) {
+            var text = cap[0].replace(/^ {1,4}/gm, '');
+            return {
+              type: 'code',
+              raw: cap[0],
+              codeBlockStyle: 'indented',
+              text: !this.options.pedantic ? rtrim$1(text, '\n') : text
+            };
+          }
+        };
+
+        _proto.fences = function fences(src) {
+          var cap = this.rules.block.fences.exec(src);
+
+          if (cap) {
+            var raw = cap[0];
+            var text = indentCodeCompensation(raw, cap[3] || '');
+            return {
+              type: 'code',
+              raw: raw,
+              lang: cap[2] ? cap[2].trim() : cap[2],
+              text: text
+            };
+          }
+        };
+
+        _proto.heading = function heading(src) {
+          var cap = this.rules.block.heading.exec(src);
+
+          if (cap) {
+            var text = cap[2].trim(); // remove trailing #s
+
+            if (/#$/.test(text)) {
+              var trimmed = rtrim$1(text, '#');
+
+              if (this.options.pedantic) {
+                text = trimmed.trim();
+              } else if (!trimmed || / $/.test(trimmed)) {
+                // CommonMark requires space before trailing #s
+                text = trimmed.trim();
+              }
+            }
+
+            return {
+              type: 'heading',
+              raw: cap[0],
+              depth: cap[1].length,
+              text: text
+            };
+          }
+        };
+
+        _proto.nptable = function nptable(src) {
+          var cap = this.rules.block.nptable.exec(src);
+
+          if (cap) {
+            var item = {
+              type: 'table',
+              header: splitCells$1(cap[1].replace(/^ *| *\| *$/g, '')),
+              align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
+              cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : [],
+              raw: cap[0]
+            };
+
+            if (item.header.length === item.align.length) {
+              var l = item.align.length;
+              var i;
+
+              for (i = 0; i < l; i++) {
+                if (/^ *-+: *$/.test(item.align[i])) {
+                  item.align[i] = 'right';
+                } else if (/^ *:-+: *$/.test(item.align[i])) {
+                  item.align[i] = 'center';
+                } else if (/^ *:-+ *$/.test(item.align[i])) {
+                  item.align[i] = 'left';
+                } else {
+                  item.align[i] = null;
+                }
+              }
+
+              l = item.cells.length;
+
+              for (i = 0; i < l; i++) {
+                item.cells[i] = splitCells$1(item.cells[i], item.header.length);
+              }
+
+              return item;
+            }
+          }
+        };
+
+        _proto.hr = function hr(src) {
+          var cap = this.rules.block.hr.exec(src);
+
+          if (cap) {
+            return {
+              type: 'hr',
+              raw: cap[0]
+            };
+          }
+        };
+
+        _proto.blockquote = function blockquote(src) {
+          var cap = this.rules.block.blockquote.exec(src);
+
+          if (cap) {
+            var text = cap[0].replace(/^ *> ?/gm, '');
+            return {
+              type: 'blockquote',
+              raw: cap[0],
+              text: text
+            };
+          }
+        };
+
+        _proto.list = function list(src) {
+          var cap = this.rules.block.list.exec(src);
+
+          if (cap) {
+            var raw = cap[0];
+            var bull = cap[2];
+            var isordered = bull.length > 1;
+            var list = {
+              type: 'list',
+              raw: raw,
+              ordered: isordered,
+              start: isordered ? +bull.slice(0, -1) : '',
+              loose: false,
+              items: []
+            }; // Get each top-level item.
+
+            var itemMatch = cap[0].match(this.rules.block.item);
+            var next = false,
+                item,
+                space,
+                bcurr,
+                bnext,
+                addBack,
+                loose,
+                istask,
+                ischecked,
+                endMatch;
+            var l = itemMatch.length;
+            bcurr = this.rules.block.listItemStart.exec(itemMatch[0]);
+
+            for (var i = 0; i < l; i++) {
+              item = itemMatch[i];
+              raw = item;
+
+              if (!this.options.pedantic) {
+                // Determine if current item contains the end of the list
+                endMatch = item.match(new RegExp('\\n\\s*\\n {0,' + (bcurr[0].length - 1) + '}\\S'));
+
+                if (endMatch) {
+                  addBack = item.length - endMatch.index + itemMatch.slice(i + 1).join('\n').length;
+                  list.raw = list.raw.substring(0, list.raw.length - addBack);
+                  item = item.substring(0, endMatch.index);
+                  raw = item;
+                  l = i + 1;
+                }
+              } // Determine whether the next list item belongs here.
+              // Backpedal if it does not belong in this list.
+
+
+              if (i !== l - 1) {
+                bnext = this.rules.block.listItemStart.exec(itemMatch[i + 1]);
+
+                if (!this.options.pedantic ? bnext[1].length >= bcurr[0].length || bnext[1].length > 3 : bnext[1].length > bcurr[1].length) {
+                  // nested list or continuation
+                  itemMatch.splice(i, 2, itemMatch[i] + (!this.options.pedantic && bnext[1].length < bcurr[0].length && !itemMatch[i].match(/\n$/) ? '' : '\n') + itemMatch[i + 1]);
+                  i--;
+                  l--;
+                  continue;
+                } else if ( // different bullet style
+                !this.options.pedantic || this.options.smartLists ? bnext[2][bnext[2].length - 1] !== bull[bull.length - 1] : isordered === (bnext[2].length === 1)) {
+                  addBack = itemMatch.slice(i + 1).join('\n').length;
+                  list.raw = list.raw.substring(0, list.raw.length - addBack);
+                  i = l - 1;
+                }
+
+                bcurr = bnext;
+              } // Remove the list item's bullet
+              // so it is seen as the next token.
+
+
+              space = item.length;
+              item = item.replace(/^ *([*+-]|\d+[.)]) ?/, ''); // Outdent whatever the
+              // list item contains. Hacky.
+
+              if (~item.indexOf('\n ')) {
+                space -= item.length;
+                item = !this.options.pedantic ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '') : item.replace(/^ {1,4}/gm, '');
+              } // trim item newlines at end
+
+
+              item = rtrim$1(item, '\n');
+
+              if (i !== l - 1) {
+                raw = raw + '\n';
+              } // Determine whether item is loose or not.
+              // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
+              // for discount behavior.
+
+
+              loose = next || /\n\n(?!\s*$)/.test(raw);
+
+              if (i !== l - 1) {
+                next = raw.slice(-2) === '\n\n';
+                if (!loose) loose = next;
+              }
+
+              if (loose) {
+                list.loose = true;
+              } // Check for task list items
+
+
+              if (this.options.gfm) {
+                istask = /^\[[ xX]\] /.test(item);
+                ischecked = undefined;
+
+                if (istask) {
+                  ischecked = item[1] !== ' ';
+                  item = item.replace(/^\[[ xX]\] +/, '');
+                }
+              }
+
+              list.items.push({
+                type: 'list_item',
+                raw: raw,
+                task: istask,
+                checked: ischecked,
+                loose: loose,
+                text: item
+              });
+            }
+
+            return list;
+          }
+        };
+
+        _proto.html = function html(src) {
+          var cap = this.rules.block.html.exec(src);
+
+          if (cap) {
+            return {
+              type: this.options.sanitize ? 'paragraph' : 'html',
+              raw: cap[0],
+              pre: !this.options.sanitizer && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
+              text: this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : _escape(cap[0]) : cap[0]
+            };
+          }
+        };
+
+        _proto.def = function def(src) {
+          var cap = this.rules.block.def.exec(src);
+
+          if (cap) {
+            if (cap[3]) cap[3] = cap[3].substring(1, cap[3].length - 1);
+            var tag = cap[1].toLowerCase().replace(/\s+/g, ' ');
+            return {
+              tag: tag,
+              raw: cap[0],
+              href: cap[2],
+              title: cap[3]
+            };
+          }
+        };
+
+        _proto.table = function table(src) {
+          var cap = this.rules.block.table.exec(src);
+
+          if (cap) {
+            var item = {
+              type: 'table',
+              header: splitCells$1(cap[1].replace(/^ *| *\| *$/g, '')),
+              align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
+              cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
+            };
+
+            if (item.header.length === item.align.length) {
+              item.raw = cap[0];
+              var l = item.align.length;
+              var i;
+
+              for (i = 0; i < l; i++) {
+                if (/^ *-+: *$/.test(item.align[i])) {
+                  item.align[i] = 'right';
+                } else if (/^ *:-+: *$/.test(item.align[i])) {
+                  item.align[i] = 'center';
+                } else if (/^ *:-+ *$/.test(item.align[i])) {
+                  item.align[i] = 'left';
+                } else {
+                  item.align[i] = null;
+                }
+              }
+
+              l = item.cells.length;
+
+              for (i = 0; i < l; i++) {
+                item.cells[i] = splitCells$1(item.cells[i].replace(/^ *\| *| *\| *$/g, ''), item.header.length);
+              }
+
+              return item;
+            }
+          }
+        };
+
+        _proto.lheading = function lheading(src) {
+          var cap = this.rules.block.lheading.exec(src);
+
+          if (cap) {
+            return {
+              type: 'heading',
+              raw: cap[0],
+              depth: cap[2].charAt(0) === '=' ? 1 : 2,
+              text: cap[1]
+            };
+          }
+        };
+
+        _proto.paragraph = function paragraph(src) {
+          var cap = this.rules.block.paragraph.exec(src);
+
+          if (cap) {
+            return {
+              type: 'paragraph',
+              raw: cap[0],
+              text: cap[1].charAt(cap[1].length - 1) === '\n' ? cap[1].slice(0, -1) : cap[1]
+            };
+          }
+        };
+
+        _proto.text = function text(src) {
+          var cap = this.rules.block.text.exec(src);
+
+          if (cap) {
+            return {
+              type: 'text',
+              raw: cap[0],
+              text: cap[0]
+            };
+          }
+        };
+
+        _proto.escape = function escape(src) {
+          var cap = this.rules.inline.escape.exec(src);
+
+          if (cap) {
+            return {
+              type: 'escape',
+              raw: cap[0],
+              text: _escape(cap[1])
+            };
+          }
+        };
+
+        _proto.tag = function tag(src, inLink, inRawBlock) {
+          var cap = this.rules.inline.tag.exec(src);
+
+          if (cap) {
+            if (!inLink && /^<a /i.test(cap[0])) {
+              inLink = true;
+            } else if (inLink && /^<\/a>/i.test(cap[0])) {
+              inLink = false;
+            }
+
+            if (!inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+              inRawBlock = true;
+            } else if (inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+              inRawBlock = false;
+            }
+
+            return {
+              type: this.options.sanitize ? 'text' : 'html',
+              raw: cap[0],
+              inLink: inLink,
+              inRawBlock: inRawBlock,
+              text: this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : _escape(cap[0]) : cap[0]
+            };
+          }
+        };
+
+        _proto.link = function link(src) {
+          var cap = this.rules.inline.link.exec(src);
+
+          if (cap) {
+            var trimmedUrl = cap[2].trim();
+
+            if (!this.options.pedantic && /^</.test(trimmedUrl)) {
+              // commonmark requires matching angle brackets
+              if (!/>$/.test(trimmedUrl)) {
+                return;
+              } // ending angle bracket cannot be escaped
+
+
+              var rtrimSlash = rtrim$1(trimmedUrl.slice(0, -1), '\\');
+
+              if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
+                return;
+              }
+            } else {
+              // find closing parenthesis
+              var lastParenIndex = findClosingBracket$1(cap[2], '()');
+
+              if (lastParenIndex > -1) {
+                var start = cap[0].indexOf('!') === 0 ? 5 : 4;
+                var linkLen = start + cap[1].length + lastParenIndex;
+                cap[2] = cap[2].substring(0, lastParenIndex);
+                cap[0] = cap[0].substring(0, linkLen).trim();
+                cap[3] = '';
+              }
+            }
+
+            var href = cap[2];
+            var title = '';
+
+            if (this.options.pedantic) {
+              // split pedantic href and title
+              var link = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href);
+
+              if (link) {
+                href = link[1];
+                title = link[3];
+              }
+            } else {
+              title = cap[3] ? cap[3].slice(1, -1) : '';
+            }
+
+            href = href.trim();
+
+            if (/^</.test(href)) {
+              if (this.options.pedantic && !/>$/.test(trimmedUrl)) {
+                // pedantic allows starting angle bracket without ending angle bracket
+                href = href.slice(1);
+              } else {
+                href = href.slice(1, -1);
+              }
+            }
+
+            return outputLink(cap, {
+              href: href ? href.replace(this.rules.inline._escapes, '$1') : href,
+              title: title ? title.replace(this.rules.inline._escapes, '$1') : title
+            }, cap[0]);
+          }
+        };
+
+        _proto.reflink = function reflink(src, links) {
+          var cap;
+
+          if ((cap = this.rules.inline.reflink.exec(src)) || (cap = this.rules.inline.nolink.exec(src))) {
+            var link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
+            link = links[link.toLowerCase()];
+
+            if (!link || !link.href) {
+              var text = cap[0].charAt(0);
+              return {
+                type: 'text',
+                raw: text,
+                text: text
+              };
+            }
+
+            return outputLink(cap, link, cap[0]);
+          }
+        };
+
+        _proto.emStrong = function emStrong(src, maskedSrc, prevChar) {
+          if (prevChar === void 0) {
+            prevChar = '';
+          }
+
+          var match = this.rules.inline.emStrong.lDelim.exec(src);
+          if (!match) return;
+          if (match[3] && prevChar.match(/(?:[0-9A-Za-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05D0-\u05EA\u05EF-\u05F2\u0620-\u064A\u0660-\u0669\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08C7\u0904-\u0939\u093D\u0950\u0958-\u0961\u0966-\u096F\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A66-\u0A6F\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AE6-\u0AEF\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B66-\u0B6F\u0B71-\u0B77\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0BE6-\u0BF2\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C60\u0C61\u0C66-\u0C6F\u0C78-\u0C7E\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CE6-\u0CEF\u0CF1\u0CF2\u0D04-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D58-\u0D61\u0D66-\u0D78\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DE6-\u0DEF\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F-\u1049\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A16\u1A20-\u1A54\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B50-\u1B59\u1B83-\u1BA0\u1BAE-\u1BE5\u1C00-\u1C23\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2150-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\u9FFC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7CA\uA7F5-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA830-\uA835\uA840-\uA873\uA882-\uA8B3\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD\uA8FE\uA900-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF-\uA9D9\uA9E0-\uA9E4\uA9E6-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA50-\uAA59\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABE2\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD23\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC03-\uDC37\uDC52-\uDC6F\uDC83-\uDCAF\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD03-\uDD26\uDD36-\uDD3F\uDD44\uDD47\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDD0-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDEF0-\uDEF9\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE50-\uDE59\uDE80-\uDEAA\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF30-\uDF3B]|\uD806[\uDC00-\uDC2B\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD2F\uDD3F\uDD41\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD0\uDDE1\uDDE3\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE89\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD89\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF2\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF50\uDF93-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD838[\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDD\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])/)) return; // _ can't be between two alphanumerics. \p{L}\p{N} includes non-english alphabet/numbers as well
+
+          var nextChar = match[1] || match[2] || '';
+
+          if (!nextChar || nextChar && (prevChar === '' || this.rules.inline.punctuation.exec(prevChar))) {
+            var lLength = match[0].length - 1;
+            var rDelim,
+                rLength,
+                delimTotal = lLength,
+                midDelimTotal = 0;
+            var endReg = match[0][0] === '*' ? this.rules.inline.emStrong.rDelimAst : this.rules.inline.emStrong.rDelimUnd;
+            endReg.lastIndex = 0;
+            maskedSrc = maskedSrc.slice(-1 * src.length + lLength); // Bump maskedSrc to same section of string as src (move to lexer?)
+
+            while ((match = endReg.exec(maskedSrc)) != null) {
+              rDelim = match[1] || match[2] || match[3] || match[4] || match[5] || match[6];
+              if (!rDelim) continue; // matched the first alternative in rules.js (skip the * in __abc*abc__)
+
+              rLength = rDelim.length;
+
+              if (match[3] || match[4]) {
+                // found another Left Delim
+                delimTotal += rLength;
+                continue;
+              } else if (match[5] || match[6]) {
+                // either Left or Right Delim
+                if (lLength % 3 && !((lLength + rLength) % 3)) {
+                  midDelimTotal += rLength;
+                  continue; // CommonMark Emphasis Rules 9-10
+                }
+              }
+
+              delimTotal -= rLength;
+              if (delimTotal > 0) continue; // Haven't found enough closing delimiters
+              // If this is the last rDelimiter, remove extra characters. *a*** -> *a*
+
+              if (delimTotal + midDelimTotal - rLength <= 0 && !maskedSrc.slice(endReg.lastIndex).match(endReg)) {
+                rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
+              }
+
+              if (Math.min(lLength, rLength) % 2) {
+                return {
+                  type: 'em',
+                  raw: src.slice(0, lLength + match.index + rLength + 1),
+                  text: src.slice(1, lLength + match.index + rLength)
+                };
+              }
+
+              if (Math.min(lLength, rLength) % 2 === 0) {
+                return {
+                  type: 'strong',
+                  raw: src.slice(0, lLength + match.index + rLength + 1),
+                  text: src.slice(2, lLength + match.index + rLength - 1)
+                };
+              }
+            }
+          }
+        };
+
+        _proto.codespan = function codespan(src) {
+          var cap = this.rules.inline.code.exec(src);
+
+          if (cap) {
+            var text = cap[2].replace(/\n/g, ' ');
+            var hasNonSpaceChars = /[^ ]/.test(text);
+            var hasSpaceCharsOnBothEnds = /^ /.test(text) && / $/.test(text);
+
+            if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
+              text = text.substring(1, text.length - 1);
+            }
+
+            text = _escape(text, true);
+            return {
+              type: 'codespan',
+              raw: cap[0],
+              text: text
+            };
+          }
+        };
+
+        _proto.br = function br(src) {
+          var cap = this.rules.inline.br.exec(src);
+
+          if (cap) {
+            return {
+              type: 'br',
+              raw: cap[0]
+            };
+          }
+        };
+
+        _proto.del = function del(src) {
+          var cap = this.rules.inline.del.exec(src);
+
+          if (cap) {
+            return {
+              type: 'del',
+              raw: cap[0],
+              text: cap[2]
+            };
+          }
+        };
+
+        _proto.autolink = function autolink(src, mangle) {
+          var cap = this.rules.inline.autolink.exec(src);
+
+          if (cap) {
+            var text, href;
+
+            if (cap[2] === '@') {
+              text = _escape(this.options.mangle ? mangle(cap[1]) : cap[1]);
+              href = 'mailto:' + text;
+            } else {
+              text = _escape(cap[1]);
+              href = text;
+            }
+
+            return {
+              type: 'link',
+              raw: cap[0],
+              text: text,
+              href: href,
+              tokens: [{
+                type: 'text',
+                raw: text,
+                text: text
+              }]
+            };
+          }
+        };
+
+        _proto.url = function url(src, mangle) {
+          var cap;
+
+          if (cap = this.rules.inline.url.exec(src)) {
+            var text, href;
+
+            if (cap[2] === '@') {
+              text = _escape(this.options.mangle ? mangle(cap[0]) : cap[0]);
+              href = 'mailto:' + text;
+            } else {
+              // do extended autolink path validation
+              var prevCapZero;
+
+              do {
+                prevCapZero = cap[0];
+                cap[0] = this.rules.inline._backpedal.exec(cap[0])[0];
+              } while (prevCapZero !== cap[0]);
+
+              text = _escape(cap[0]);
+
+              if (cap[1] === 'www.') {
+                href = 'http://' + text;
+              } else {
+                href = text;
+              }
+            }
+
+            return {
+              type: 'link',
+              raw: cap[0],
+              text: text,
+              href: href,
+              tokens: [{
+                type: 'text',
+                raw: text,
+                text: text
+              }]
+            };
+          }
+        };
+
+        _proto.inlineText = function inlineText(src, inRawBlock, smartypants) {
+          var cap = this.rules.inline.text.exec(src);
+
+          if (cap) {
+            var text;
+
+            if (inRawBlock) {
+              text = this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : _escape(cap[0]) : cap[0];
+            } else {
+              text = _escape(this.options.smartypants ? smartypants(cap[0]) : cap[0]);
+            }
+
+            return {
+              type: 'text',
+              raw: cap[0],
+              text: text
+            };
+          }
+        };
+
+        return Tokenizer;
+      }();
+
+      var noopTest$1 = helpers.noopTest,
+          edit$1 = helpers.edit,
+          merge$1 = helpers.merge;
+      /**
+       * Block-Level Grammar
+       */
+
+      var block = {
+        newline: /^(?: *(?:\n|$))+/,
+        code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
+        fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?:\n+|$)|$)/,
+        hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
+        heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,
+        blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
+        list: /^( {0,3})(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?! {0,3}bull )\n*|\s*$)/,
+        html: '^ {0,3}(?:' // optional indentation
+        + '<(script|pre|style)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
+        + '|comment[^\\n]*(\\n+|$)' // (2)
+        + '|<\\?[\\s\\S]*?(?:\\?>\\n*|$)' // (3)
+        + '|<![A-Z][\\s\\S]*?(?:>\\n*|$)' // (4)
+        + '|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)' // (5)
+        + '|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:\\n{2,}|$)' // (6)
+        + '|<(?!script|pre|style)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:\\n{2,}|$)' // (7) open tag
+        + '|</(?!script|pre|style)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:\\n{2,}|$)' // (7) closing tag
+        + ')',
+        def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
+        nptable: noopTest$1,
+        table: noopTest$1,
+        lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
+        // regex template, placeholders will be replaced according to different paragraph
+        // interruption rules of commonmark and the original markdown spec:
+        _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html| +\n)[^\n]+)*)/,
+        text: /^[^\n]+/
+      };
+      block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
+      block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
+      block.def = edit$1(block.def).replace('label', block._label).replace('title', block._title).getRegex();
+      block.bullet = /(?:[*+-]|\d{1,9}[.)])/;
+      block.item = /^( *)(bull) ?[^\n]*(?:\n(?! *bull ?)[^\n]*)*/;
+      block.item = edit$1(block.item, 'gm').replace(/bull/g, block.bullet).getRegex();
+      block.listItemStart = edit$1(/^( *)(bull) */).replace('bull', block.bullet).getRegex();
+      block.list = edit$1(block.list).replace(/bull/g, block.bullet).replace('hr', '\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))').replace('def', '\\n+(?=' + block.def.source + ')').getRegex();
+      block._tag = 'address|article|aside|base|basefont|blockquote|body|caption' + '|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption' + '|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe' + '|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option' + '|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr' + '|track|ul';
+      block._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
+      block.html = edit$1(block.html, 'i').replace('comment', block._comment).replace('tag', block._tag).replace('attribute', / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+      block.paragraph = edit$1(block._paragraph).replace('hr', block.hr).replace('heading', ' {0,3}#{1,6} ').replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+      .replace('blockquote', ' {0,3}>').replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n').replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+      .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)').replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
+      .getRegex();
+      block.blockquote = edit$1(block.blockquote).replace('paragraph', block.paragraph).getRegex();
+      /**
+       * Normal Block Grammar
+       */
+
+      block.normal = merge$1({}, block);
+      /**
+       * GFM Block Grammar
+       */
+
+      block.gfm = merge$1({}, block.normal, {
+        nptable: '^ *([^|\\n ].*\\|.*)\\n' // Header
+        + ' {0,3}([-:]+ *\\|[-| :]*)' // Align
+        + '(?:\\n((?:(?!\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)',
+        // Cells
+        table: '^ *\\|(.+)\\n' // Header
+        + ' {0,3}\\|?( *[-:]+[-| :]*)' // Align
+        + '(?:\\n *((?:(?!\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)' // Cells
+
+      });
+      block.gfm.nptable = edit$1(block.gfm.nptable).replace('hr', block.hr).replace('heading', ' {0,3}#{1,6} ').replace('blockquote', ' {0,3}>').replace('code', ' {4}[^\\n]').replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n').replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+      .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)').replace('tag', block._tag) // tables can be interrupted by type (6) html blocks
+      .getRegex();
+      block.gfm.table = edit$1(block.gfm.table).replace('hr', block.hr).replace('heading', ' {0,3}#{1,6} ').replace('blockquote', ' {0,3}>').replace('code', ' {4}[^\\n]').replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n').replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+      .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)').replace('tag', block._tag) // tables can be interrupted by type (6) html blocks
+      .getRegex();
+      /**
+       * Pedantic grammar (original John Gruber's loose markdown specification)
+       */
+
+      block.pedantic = merge$1({}, block.normal, {
+        html: edit$1('^ *(?:comment *(?:\\n|\\s*$)' + '|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)' // closed tag
+        + '|<tag(?:"[^"]*"|\'[^\']*\'|\\s[^\'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))').replace('comment', block._comment).replace(/tag/g, '(?!(?:' + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub' + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)' + '\\b)\\w+(?!:|[^\\w\\s@]*@)\\b').getRegex(),
+        def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
+        heading: /^(#{1,6})(.*)(?:\n+|$)/,
+        fences: noopTest$1,
+        // fences not supported
+        paragraph: edit$1(block.normal._paragraph).replace('hr', block.hr).replace('heading', ' *#{1,6} *[^\n]').replace('lheading', block.lheading).replace('blockquote', ' {0,3}>').replace('|fences', '').replace('|list', '').replace('|html', '').getRegex()
+      });
+      /**
+       * Inline-Level Grammar
+       */
+
+      var inline = {
+        escape: /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,
+        autolink: /^<(scheme:[^\s\x00-\x1f<>]*|email)>/,
+        url: noopTest$1,
+        tag: '^comment' + '|^</[a-zA-Z][\\w:-]*\\s*>' // self-closing tag
+        + '|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>' // open tag
+        + '|^<\\?[\\s\\S]*?\\?>' // processing instruction, e.g. <?php ?>
+        + '|^<![a-zA-Z]+\\s[\\s\\S]*?>' // declaration, e.g. <!DOCTYPE html>
+        + '|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>',
+        // CDATA section
+        link: /^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,
+        reflink: /^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,
+        nolink: /^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,
+        reflinkSearch: 'reflink|nolink(?!\\()',
+        emStrong: {
+          lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
+          //        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.
+          //        () Skip other delimiter (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
+          rDelimAst: /\_\_[^_]*?\*[^_]*?\_\_|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+          rDelimUnd: /\*\*[^*]*?\_[^*]*?\*\*|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
+
+        },
+        code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
+        br: /^( {2,}|\\)\n(?!\s*$)/,
+        del: noopTest$1,
+        text: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,
+        punctuation: /^([\spunctuation])/
+      }; // list of punctuation marks from CommonMark spec
+      // without * and _ to handle the different emphasis markers * and _
+
+      inline._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~';
+      inline.punctuation = edit$1(inline.punctuation).replace(/punctuation/g, inline._punctuation).getRegex(); // sequences em should skip over [title](link), `code`, <html>
+
+      inline.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
+      inline.escapedEmSt = /\\\*|\\_/g;
+      inline._comment = edit$1(block._comment).replace('(?:-->|$)', '-->').getRegex();
+      inline.emStrong.lDelim = edit$1(inline.emStrong.lDelim).replace(/punct/g, inline._punctuation).getRegex();
+      inline.emStrong.rDelimAst = edit$1(inline.emStrong.rDelimAst, 'g').replace(/punct/g, inline._punctuation).getRegex();
+      inline.emStrong.rDelimUnd = edit$1(inline.emStrong.rDelimUnd, 'g').replace(/punct/g, inline._punctuation).getRegex();
+      inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
+      inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
+      inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
+      inline.autolink = edit$1(inline.autolink).replace('scheme', inline._scheme).replace('email', inline._email).getRegex();
+      inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
+      inline.tag = edit$1(inline.tag).replace('comment', inline._comment).replace('attribute', inline._attribute).getRegex();
+      inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+      inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
+      inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
+      inline.link = edit$1(inline.link).replace('label', inline._label).replace('href', inline._href).replace('title', inline._title).getRegex();
+      inline.reflink = edit$1(inline.reflink).replace('label', inline._label).getRegex();
+      inline.reflinkSearch = edit$1(inline.reflinkSearch, 'g').replace('reflink', inline.reflink).replace('nolink', inline.nolink).getRegex();
+      /**
+       * Normal Inline Grammar
+       */
+
+      inline.normal = merge$1({}, inline);
+      /**
+       * Pedantic Inline Grammar
+       */
+
+      inline.pedantic = merge$1({}, inline.normal, {
+        strong: {
+          start: /^__|\*\*/,
+          middle: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
+          endAst: /\*\*(?!\*)/g,
+          endUnd: /__(?!_)/g
+        },
+        em: {
+          start: /^_|\*/,
+          middle: /^()\*(?=\S)([\s\S]*?\S)\*(?!\*)|^_(?=\S)([\s\S]*?\S)_(?!_)/,
+          endAst: /\*(?!\*)/g,
+          endUnd: /_(?!_)/g
+        },
+        link: edit$1(/^!?\[(label)\]\((.*?)\)/).replace('label', inline._label).getRegex(),
+        reflink: edit$1(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace('label', inline._label).getRegex()
+      });
+      /**
+       * GFM Inline Grammar
+       */
+
+      inline.gfm = merge$1({}, inline.normal, {
+        escape: edit$1(inline.escape).replace('])', '~|])').getRegex(),
+        _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
+        url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
+        _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
+        del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
+        text: /^([`~]+|[^`~])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
+      });
+      inline.gfm.url = edit$1(inline.gfm.url, 'i').replace('email', inline.gfm._extended_email).getRegex();
+      /**
+       * GFM + Line Breaks Inline Grammar
+       */
+
+      inline.breaks = merge$1({}, inline.gfm, {
+        br: edit$1(inline.br).replace('{2,}', '*').getRegex(),
+        text: edit$1(inline.gfm.text).replace('\\b_', '\\b_| {2,}\\n').replace(/\{2,\}/g, '*').getRegex()
+      });
+      var rules = {
+        block: block,
+        inline: inline
+      };
+
+      var defaults$2 = defaults.defaults;
+      var block$1 = rules.block,
+          inline$1 = rules.inline;
+      var repeatString$1 = helpers.repeatString;
+      /**
+       * smartypants text replacement
+       */
+
+      function smartypants(text) {
+        return text // em-dashes
+        .replace(/---/g, "\u2014") // en-dashes
+        .replace(/--/g, "\u2013") // opening singles
+        .replace(/(^|[-\u2014/(\[{"\s])'/g, "$1\u2018") // closing singles & apostrophes
+        .replace(/'/g, "\u2019") // opening doubles
+        .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, "$1\u201C") // closing doubles
+        .replace(/"/g, "\u201D") // ellipses
+        .replace(/\.{3}/g, "\u2026");
+      }
+      /**
+       * mangle email addresses
+       */
+
+
+      function mangle(text) {
+        var out = '',
+            i,
+            ch;
+        var l = text.length;
+
+        for (i = 0; i < l; i++) {
+          ch = text.charCodeAt(i);
+
+          if (Math.random() > 0.5) {
+            ch = 'x' + ch.toString(16);
+          }
+
+          out += '&#' + ch + ';';
+        }
+
+        return out;
+      }
+      /**
+       * Block Lexer
+       */
+
+
+      var Lexer_1 = /*#__PURE__*/function () {
+        function Lexer(options) {
+          this.tokens = [];
+          this.tokens.links = Object.create(null);
+          this.options = options || defaults$2;
+          this.options.tokenizer = this.options.tokenizer || new Tokenizer_1();
+          this.tokenizer = this.options.tokenizer;
+          this.tokenizer.options = this.options;
+          var rules = {
+            block: block$1.normal,
+            inline: inline$1.normal
+          };
+
+          if (this.options.pedantic) {
+            rules.block = block$1.pedantic;
+            rules.inline = inline$1.pedantic;
+          } else if (this.options.gfm) {
+            rules.block = block$1.gfm;
+
+            if (this.options.breaks) {
+              rules.inline = inline$1.breaks;
+            } else {
+              rules.inline = inline$1.gfm;
+            }
+          }
+
+          this.tokenizer.rules = rules;
+        }
+        /**
+         * Expose Rules
+         */
+
+
+        /**
+         * Static Lex Method
+         */
+        Lexer.lex = function lex(src, options) {
+          var lexer = new Lexer(options);
+          return lexer.lex(src);
+        }
+        /**
+         * Static Lex Inline Method
+         */
+        ;
+
+        Lexer.lexInline = function lexInline(src, options) {
+          var lexer = new Lexer(options);
+          return lexer.inlineTokens(src);
+        }
+        /**
+         * Preprocessing
+         */
+        ;
+
+        var _proto = Lexer.prototype;
+
+        _proto.lex = function lex(src) {
+          src = src.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
+          this.blockTokens(src, this.tokens, true);
+          this.inline(this.tokens);
+          return this.tokens;
+        }
+        /**
+         * Lexing
+         */
+        ;
+
+        _proto.blockTokens = function blockTokens(src, tokens, top) {
+          if (tokens === void 0) {
+            tokens = [];
+          }
+
+          if (top === void 0) {
+            top = true;
+          }
+
+          if (this.options.pedantic) {
+            src = src.replace(/^ +$/gm, '');
+          }
+
+          var token, i, l, lastToken;
+
+          while (src) {
+            // newline
+            if (token = this.tokenizer.space(src)) {
+              src = src.substring(token.raw.length);
+
+              if (token.type) {
+                tokens.push(token);
+              }
+
+              continue;
+            } // code
+
+
+            if (token = this.tokenizer.code(src)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1]; // An indented code block cannot interrupt a paragraph.
+
+              if (lastToken && lastToken.type === 'paragraph') {
+                lastToken.raw += '\n' + token.raw;
+                lastToken.text += '\n' + token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // fences
+
+
+            if (token = this.tokenizer.fences(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // heading
+
+
+            if (token = this.tokenizer.heading(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // table no leading pipe (gfm)
+
+
+            if (token = this.tokenizer.nptable(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // hr
+
+
+            if (token = this.tokenizer.hr(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // blockquote
+
+
+            if (token = this.tokenizer.blockquote(src)) {
+              src = src.substring(token.raw.length);
+              token.tokens = this.blockTokens(token.text, [], top);
+              tokens.push(token);
+              continue;
+            } // list
+
+
+            if (token = this.tokenizer.list(src)) {
+              src = src.substring(token.raw.length);
+              l = token.items.length;
+
+              for (i = 0; i < l; i++) {
+                token.items[i].tokens = this.blockTokens(token.items[i].text, [], false);
+              }
+
+              tokens.push(token);
+              continue;
+            } // html
+
+
+            if (token = this.tokenizer.html(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // def
+
+
+            if (top && (token = this.tokenizer.def(src))) {
+              src = src.substring(token.raw.length);
+
+              if (!this.tokens.links[token.tag]) {
+                this.tokens.links[token.tag] = {
+                  href: token.href,
+                  title: token.title
+                };
+              }
+
+              continue;
+            } // table (gfm)
+
+
+            if (token = this.tokenizer.table(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // lheading
+
+
+            if (token = this.tokenizer.lheading(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // top-level paragraph
+
+
+            if (top && (token = this.tokenizer.paragraph(src))) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // text
+
+
+            if (token = this.tokenizer.text(src)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && lastToken.type === 'text') {
+                lastToken.raw += '\n' + token.raw;
+                lastToken.text += '\n' + token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            }
+
+            if (src) {
+              var errMsg = 'Infinite loop on byte: ' + src.charCodeAt(0);
+
+              if (this.options.silent) {
+                console.error(errMsg);
+                break;
+              } else {
+                throw new Error(errMsg);
+              }
+            }
+          }
+
+          return tokens;
+        };
+
+        _proto.inline = function inline(tokens) {
+          var i, j, k, l2, row, token;
+          var l = tokens.length;
+
+          for (i = 0; i < l; i++) {
+            token = tokens[i];
+
+            switch (token.type) {
+              case 'paragraph':
+              case 'text':
+              case 'heading':
+                {
+                  token.tokens = [];
+                  this.inlineTokens(token.text, token.tokens);
+                  break;
+                }
+
+              case 'table':
+                {
+                  token.tokens = {
+                    header: [],
+                    cells: []
+                  }; // header
+
+                  l2 = token.header.length;
+
+                  for (j = 0; j < l2; j++) {
+                    token.tokens.header[j] = [];
+                    this.inlineTokens(token.header[j], token.tokens.header[j]);
+                  } // cells
+
+
+                  l2 = token.cells.length;
+
+                  for (j = 0; j < l2; j++) {
+                    row = token.cells[j];
+                    token.tokens.cells[j] = [];
+
+                    for (k = 0; k < row.length; k++) {
+                      token.tokens.cells[j][k] = [];
+                      this.inlineTokens(row[k], token.tokens.cells[j][k]);
+                    }
+                  }
+
+                  break;
+                }
+
+              case 'blockquote':
+                {
+                  this.inline(token.tokens);
+                  break;
+                }
+
+              case 'list':
+                {
+                  l2 = token.items.length;
+
+                  for (j = 0; j < l2; j++) {
+                    this.inline(token.items[j].tokens);
+                  }
+
+                  break;
+                }
+            }
+          }
+
+          return tokens;
+        }
+        /**
+         * Lexing/Compiling
+         */
+        ;
+
+        _proto.inlineTokens = function inlineTokens(src, tokens, inLink, inRawBlock) {
+          if (tokens === void 0) {
+            tokens = [];
+          }
+
+          if (inLink === void 0) {
+            inLink = false;
+          }
+
+          if (inRawBlock === void 0) {
+            inRawBlock = false;
+          }
+
+          var token, lastToken; // String with links masked to avoid interference with em and strong
+
+          var maskedSrc = src;
+          var match;
+          var keepPrevChar, prevChar; // Mask out reflinks
+
+          if (this.tokens.links) {
+            var links = Object.keys(this.tokens.links);
+
+            if (links.length > 0) {
+              while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(maskedSrc)) != null) {
+                if (links.includes(match[0].slice(match[0].lastIndexOf('[') + 1, -1))) {
+                  maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString$1('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
+                }
+              }
+            }
+          } // Mask out other blocks
+
+
+          while ((match = this.tokenizer.rules.inline.blockSkip.exec(maskedSrc)) != null) {
+            maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString$1('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
+          } // Mask out escaped em & strong delimiters
+
+
+          while ((match = this.tokenizer.rules.inline.escapedEmSt.exec(maskedSrc)) != null) {
+            maskedSrc = maskedSrc.slice(0, match.index) + '++' + maskedSrc.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);
+          }
+
+          while (src) {
+            if (!keepPrevChar) {
+              prevChar = '';
+            }
+
+            keepPrevChar = false; // escape
+
+            if (token = this.tokenizer.escape(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // tag
+
+
+            if (token = this.tokenizer.tag(src, inLink, inRawBlock)) {
+              src = src.substring(token.raw.length);
+              inLink = token.inLink;
+              inRawBlock = token.inRawBlock;
+              var _lastToken = tokens[tokens.length - 1];
+
+              if (_lastToken && token.type === 'text' && _lastToken.type === 'text') {
+                _lastToken.raw += token.raw;
+                _lastToken.text += token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // link
+
+
+            if (token = this.tokenizer.link(src)) {
+              src = src.substring(token.raw.length);
+
+              if (token.type === 'link') {
+                token.tokens = this.inlineTokens(token.text, [], true, inRawBlock);
+              }
+
+              tokens.push(token);
+              continue;
+            } // reflink, nolink
+
+
+            if (token = this.tokenizer.reflink(src, this.tokens.links)) {
+              src = src.substring(token.raw.length);
+              var _lastToken2 = tokens[tokens.length - 1];
+
+              if (token.type === 'link') {
+                token.tokens = this.inlineTokens(token.text, [], true, inRawBlock);
+                tokens.push(token);
+              } else if (_lastToken2 && token.type === 'text' && _lastToken2.type === 'text') {
+                _lastToken2.raw += token.raw;
+                _lastToken2.text += token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // em & strong
+
+
+            if (token = this.tokenizer.emStrong(src, maskedSrc, prevChar)) {
+              src = src.substring(token.raw.length);
+              token.tokens = this.inlineTokens(token.text, [], inLink, inRawBlock);
+              tokens.push(token);
+              continue;
+            } // code
+
+
+            if (token = this.tokenizer.codespan(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // br
+
+
+            if (token = this.tokenizer.br(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // del (gfm)
+
+
+            if (token = this.tokenizer.del(src)) {
+              src = src.substring(token.raw.length);
+              token.tokens = this.inlineTokens(token.text, [], inLink, inRawBlock);
+              tokens.push(token);
+              continue;
+            } // autolink
+
+
+            if (token = this.tokenizer.autolink(src, mangle)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // url (gfm)
+
+
+            if (!inLink && (token = this.tokenizer.url(src, mangle))) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // text
+
+
+            if (token = this.tokenizer.inlineText(src, inRawBlock, smartypants)) {
+              src = src.substring(token.raw.length);
+
+              if (token.raw.slice(-1) !== '_') {
+                // Track prevChar before string of ____ started
+                prevChar = token.raw.slice(-1);
+              }
+
+              keepPrevChar = true;
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && lastToken.type === 'text') {
+                lastToken.raw += token.raw;
+                lastToken.text += token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            }
+
+            if (src) {
+              var errMsg = 'Infinite loop on byte: ' + src.charCodeAt(0);
+
+              if (this.options.silent) {
+                console.error(errMsg);
+                break;
+              } else {
+                throw new Error(errMsg);
+              }
+            }
+          }
+
+          return tokens;
+        };
+
+        _createClass(Lexer, null, [{
+          key: "rules",
+          get: function get() {
+            return {
+              block: block$1,
+              inline: inline$1
+            };
+          }
+        }]);
+
+        return Lexer;
+      }();
+
+      var defaults$3 = defaults.defaults;
+      var cleanUrl$1 = helpers.cleanUrl,
+          escape$1 = helpers.escape;
+      /**
+       * Renderer
+       */
+
+      var Renderer_1 = /*#__PURE__*/function () {
+        function Renderer(options) {
+          this.options = options || defaults$3;
+        }
+
+        var _proto = Renderer.prototype;
+
+        _proto.code = function code(_code, infostring, escaped) {
+          var lang = (infostring || '').match(/\S*/)[0];
+
+          if (this.options.highlight) {
+            var out = this.options.highlight(_code, lang);
+
+            if (out != null && out !== _code) {
+              escaped = true;
+              _code = out;
+            }
+          }
+
+          _code = _code.replace(/\n$/, '') + '\n';
+
+          if (!lang) {
+            return '<pre><code>' + (escaped ? _code : escape$1(_code, true)) + '</code></pre>\n';
+          }
+
+          return '<pre><code class="' + this.options.langPrefix + escape$1(lang, true) + '">' + (escaped ? _code : escape$1(_code, true)) + '</code></pre>\n';
+        };
+
+        _proto.blockquote = function blockquote(quote) {
+          return '<blockquote>\n' + quote + '</blockquote>\n';
+        };
+
+        _proto.html = function html(_html) {
+          return _html;
+        };
+
+        _proto.heading = function heading(text, level, raw, slugger) {
+          if (this.options.headerIds) {
+            return '<h' + level + ' id="' + this.options.headerPrefix + slugger.slug(raw) + '">' + text + '</h' + level + '>\n';
+          } // ignore IDs
+
+
+          return '<h' + level + '>' + text + '</h' + level + '>\n';
+        };
+
+        _proto.hr = function hr() {
+          return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
+        };
+
+        _proto.list = function list(body, ordered, start) {
+          var type = ordered ? 'ol' : 'ul',
+              startatt = ordered && start !== 1 ? ' start="' + start + '"' : '';
+          return '<' + type + startatt + '>\n' + body + '</' + type + '>\n';
+        };
+
+        _proto.listitem = function listitem(text) {
+          return '<li>' + text + '</li>\n';
+        };
+
+        _proto.checkbox = function checkbox(checked) {
+          return '<input ' + (checked ? 'checked="" ' : '') + 'disabled="" type="checkbox"' + (this.options.xhtml ? ' /' : '') + '> ';
+        };
+
+        _proto.paragraph = function paragraph(text) {
+          return '<p>' + text + '</p>\n';
+        };
+
+        _proto.table = function table(header, body) {
+          if (body) body = '<tbody>' + body + '</tbody>';
+          return '<table>\n' + '<thead>\n' + header + '</thead>\n' + body + '</table>\n';
+        };
+
+        _proto.tablerow = function tablerow(content) {
+          return '<tr>\n' + content + '</tr>\n';
+        };
+
+        _proto.tablecell = function tablecell(content, flags) {
+          var type = flags.header ? 'th' : 'td';
+          var tag = flags.align ? '<' + type + ' align="' + flags.align + '">' : '<' + type + '>';
+          return tag + content + '</' + type + '>\n';
+        } // span level renderer
+        ;
+
+        _proto.strong = function strong(text) {
+          return '<strong>' + text + '</strong>';
+        };
+
+        _proto.em = function em(text) {
+          return '<em>' + text + '</em>';
+        };
+
+        _proto.codespan = function codespan(text) {
+          return '<code>' + text + '</code>';
+        };
+
+        _proto.br = function br() {
+          return this.options.xhtml ? '<br/>' : '<br>';
+        };
+
+        _proto.del = function del(text) {
+          return '<del>' + text + '</del>';
+        };
+
+        _proto.link = function link(href, title, text) {
+          href = cleanUrl$1(this.options.sanitize, this.options.baseUrl, href);
+
+          if (href === null) {
+            return text;
+          }
+
+          var out = '<a href="' + escape$1(href) + '"';
+
+          if (title) {
+            out += ' title="' + title + '"';
+          }
+
+          out += '>' + text + '</a>';
+          return out;
+        };
+
+        _proto.image = function image(href, title, text) {
+          href = cleanUrl$1(this.options.sanitize, this.options.baseUrl, href);
+
+          if (href === null) {
+            return text;
+          }
+
+          var out = '<img src="' + href + '" alt="' + text + '"';
+
+          if (title) {
+            out += ' title="' + title + '"';
+          }
+
+          out += this.options.xhtml ? '/>' : '>';
+          return out;
+        };
+
+        _proto.text = function text(_text) {
+          return _text;
+        };
+
+        return Renderer;
+      }();
+
+      /**
+       * TextRenderer
+       * returns only the textual part of the token
+       */
+      var TextRenderer_1 = /*#__PURE__*/function () {
+        function TextRenderer() {}
+
+        var _proto = TextRenderer.prototype;
+
+        // no need for block level renderers
+        _proto.strong = function strong(text) {
+          return text;
+        };
+
+        _proto.em = function em(text) {
+          return text;
+        };
+
+        _proto.codespan = function codespan(text) {
+          return text;
+        };
+
+        _proto.del = function del(text) {
+          return text;
+        };
+
+        _proto.html = function html(text) {
+          return text;
+        };
+
+        _proto.text = function text(_text) {
+          return _text;
+        };
+
+        _proto.link = function link(href, title, text) {
+          return '' + text;
+        };
+
+        _proto.image = function image(href, title, text) {
+          return '' + text;
+        };
+
+        _proto.br = function br() {
+          return '';
+        };
+
+        return TextRenderer;
+      }();
+
+      /**
+       * Slugger generates header id
+       */
+      var Slugger_1 = /*#__PURE__*/function () {
+        function Slugger() {
+          this.seen = {};
+        }
+
+        var _proto = Slugger.prototype;
+
+        _proto.serialize = function serialize(value) {
+          return value.toLowerCase().trim() // remove html tags
+          .replace(/<[!\/a-z].*?>/ig, '') // remove unwanted chars
+          .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g, '').replace(/\s/g, '-');
+        }
+        /**
+         * Finds the next safe (unique) slug to use
+         */
+        ;
+
+        _proto.getNextSafeSlug = function getNextSafeSlug(originalSlug, isDryRun) {
+          var slug = originalSlug;
+          var occurenceAccumulator = 0;
+
+          if (this.seen.hasOwnProperty(slug)) {
+            occurenceAccumulator = this.seen[originalSlug];
+
+            do {
+              occurenceAccumulator++;
+              slug = originalSlug + '-' + occurenceAccumulator;
+            } while (this.seen.hasOwnProperty(slug));
+          }
+
+          if (!isDryRun) {
+            this.seen[originalSlug] = occurenceAccumulator;
+            this.seen[slug] = 0;
+          }
+
+          return slug;
+        }
+        /**
+         * Convert string to unique id
+         * @param {object} options
+         * @param {boolean} options.dryrun Generates the next unique slug without updating the internal accumulator.
+         */
+        ;
+
+        _proto.slug = function slug(value, options) {
+          if (options === void 0) {
+            options = {};
+          }
+
+          var slug = this.serialize(value);
+          return this.getNextSafeSlug(slug, options.dryrun);
+        };
+
+        return Slugger;
+      }();
+
+      var defaults$4 = defaults.defaults;
+      var unescape$1 = helpers.unescape;
+      /**
+       * Parsing & Compiling
+       */
+
+      var Parser_1 = /*#__PURE__*/function () {
+        function Parser(options) {
+          this.options = options || defaults$4;
+          this.options.renderer = this.options.renderer || new Renderer_1();
+          this.renderer = this.options.renderer;
+          this.renderer.options = this.options;
+          this.textRenderer = new TextRenderer_1();
+          this.slugger = new Slugger_1();
+        }
+        /**
+         * Static Parse Method
+         */
+
+
+        Parser.parse = function parse(tokens, options) {
+          var parser = new Parser(options);
+          return parser.parse(tokens);
+        }
+        /**
+         * Static Parse Inline Method
+         */
+        ;
+
+        Parser.parseInline = function parseInline(tokens, options) {
+          var parser = new Parser(options);
+          return parser.parseInline(tokens);
+        }
+        /**
+         * Parse Loop
+         */
+        ;
+
+        var _proto = Parser.prototype;
+
+        _proto.parse = function parse(tokens, top) {
+          if (top === void 0) {
+            top = true;
+          }
+
+          var out = '',
+              i,
+              j,
+              k,
+              l2,
+              l3,
+              row,
+              cell,
+              header,
+              body,
+              token,
+              ordered,
+              start,
+              loose,
+              itemBody,
+              item,
+              checked,
+              task,
+              checkbox;
+          var l = tokens.length;
+
+          for (i = 0; i < l; i++) {
+            token = tokens[i];
+
+            switch (token.type) {
+              case 'space':
+                {
+                  continue;
+                }
+
+              case 'hr':
+                {
+                  out += this.renderer.hr();
+                  continue;
+                }
+
+              case 'heading':
+                {
+                  out += this.renderer.heading(this.parseInline(token.tokens), token.depth, unescape$1(this.parseInline(token.tokens, this.textRenderer)), this.slugger);
+                  continue;
+                }
+
+              case 'code':
+                {
+                  out += this.renderer.code(token.text, token.lang, token.escaped);
+                  continue;
+                }
+
+              case 'table':
+                {
+                  header = ''; // header
+
+                  cell = '';
+                  l2 = token.header.length;
+
+                  for (j = 0; j < l2; j++) {
+                    cell += this.renderer.tablecell(this.parseInline(token.tokens.header[j]), {
+                      header: true,
+                      align: token.align[j]
+                    });
+                  }
+
+                  header += this.renderer.tablerow(cell);
+                  body = '';
+                  l2 = token.cells.length;
+
+                  for (j = 0; j < l2; j++) {
+                    row = token.tokens.cells[j];
+                    cell = '';
+                    l3 = row.length;
+
+                    for (k = 0; k < l3; k++) {
+                      cell += this.renderer.tablecell(this.parseInline(row[k]), {
+                        header: false,
+                        align: token.align[k]
+                      });
+                    }
+
+                    body += this.renderer.tablerow(cell);
+                  }
+
+                  out += this.renderer.table(header, body);
+                  continue;
+                }
+
+              case 'blockquote':
+                {
+                  body = this.parse(token.tokens);
+                  out += this.renderer.blockquote(body);
+                  continue;
+                }
+
+              case 'list':
+                {
+                  ordered = token.ordered;
+                  start = token.start;
+                  loose = token.loose;
+                  l2 = token.items.length;
+                  body = '';
+
+                  for (j = 0; j < l2; j++) {
+                    item = token.items[j];
+                    checked = item.checked;
+                    task = item.task;
+                    itemBody = '';
+
+                    if (item.task) {
+                      checkbox = this.renderer.checkbox(checked);
+
+                      if (loose) {
+                        if (item.tokens.length > 0 && item.tokens[0].type === 'text') {
+                          item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
+
+                          if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
+                            item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
+                          }
+                        } else {
+                          item.tokens.unshift({
+                            type: 'text',
+                            text: checkbox
+                          });
+                        }
+                      } else {
+                        itemBody += checkbox;
+                      }
+                    }
+
+                    itemBody += this.parse(item.tokens, loose);
+                    body += this.renderer.listitem(itemBody, task, checked);
+                  }
+
+                  out += this.renderer.list(body, ordered, start);
+                  continue;
+                }
+
+              case 'html':
+                {
+                  // TODO parse inline content if parameter markdown=1
+                  out += this.renderer.html(token.text);
+                  continue;
+                }
+
+              case 'paragraph':
+                {
+                  out += this.renderer.paragraph(this.parseInline(token.tokens));
+                  continue;
+                }
+
+              case 'text':
+                {
+                  body = token.tokens ? this.parseInline(token.tokens) : token.text;
+
+                  while (i + 1 < l && tokens[i + 1].type === 'text') {
+                    token = tokens[++i];
+                    body += '\n' + (token.tokens ? this.parseInline(token.tokens) : token.text);
+                  }
+
+                  out += top ? this.renderer.paragraph(body) : body;
+                  continue;
+                }
+
+              default:
+                {
+                  var errMsg = 'Token with "' + token.type + '" type was not found.';
+
+                  if (this.options.silent) {
+                    console.error(errMsg);
+                    return;
+                  } else {
+                    throw new Error(errMsg);
+                  }
+                }
+            }
+          }
+
+          return out;
+        }
+        /**
+         * Parse Inline Tokens
+         */
+        ;
+
+        _proto.parseInline = function parseInline(tokens, renderer) {
+          renderer = renderer || this.renderer;
+          var out = '',
+              i,
+              token;
+          var l = tokens.length;
+
+          for (i = 0; i < l; i++) {
+            token = tokens[i];
+
+            switch (token.type) {
+              case 'escape':
+                {
+                  out += renderer.text(token.text);
+                  break;
+                }
+
+              case 'html':
+                {
+                  out += renderer.html(token.text);
+                  break;
+                }
+
+              case 'link':
+                {
+                  out += renderer.link(token.href, token.title, this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'image':
+                {
+                  out += renderer.image(token.href, token.title, token.text);
+                  break;
+                }
+
+              case 'strong':
+                {
+                  out += renderer.strong(this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'em':
+                {
+                  out += renderer.em(this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'codespan':
+                {
+                  out += renderer.codespan(token.text);
+                  break;
+                }
+
+              case 'br':
+                {
+                  out += renderer.br();
+                  break;
+                }
+
+              case 'del':
+                {
+                  out += renderer.del(this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'text':
+                {
+                  out += renderer.text(token.text);
+                  break;
+                }
+
+              default:
+                {
+                  var errMsg = 'Token with "' + token.type + '" type was not found.';
+
+                  if (this.options.silent) {
+                    console.error(errMsg);
+                    return;
+                  } else {
+                    throw new Error(errMsg);
+                  }
+                }
+            }
+          }
+
+          return out;
+        };
+
+        return Parser;
+      }();
+
+      var merge$2 = helpers.merge,
+          checkSanitizeDeprecation$1 = helpers.checkSanitizeDeprecation,
+          escape$2 = helpers.escape;
+      var getDefaults = defaults.getDefaults,
+          changeDefaults = defaults.changeDefaults,
+          defaults$5 = defaults.defaults;
+      /**
+       * Marked
+       */
+
+      function marked(src, opt, callback) {
+        // throw error in case of non string input
+        if (typeof src === 'undefined' || src === null) {
+          throw new Error('marked(): input parameter is undefined or null');
+        }
+
+        if (typeof src !== 'string') {
+          throw new Error('marked(): input parameter is of type ' + Object.prototype.toString.call(src) + ', string expected');
+        }
+
+        if (typeof opt === 'function') {
+          callback = opt;
+          opt = null;
+        }
+
+        opt = merge$2({}, marked.defaults, opt || {});
+        checkSanitizeDeprecation$1(opt);
+
+        if (callback) {
+          var highlight = opt.highlight;
+          var tokens;
+
+          try {
+            tokens = Lexer_1.lex(src, opt);
+          } catch (e) {
+            return callback(e);
+          }
+
+          var done = function done(err) {
+            var out;
+
+            if (!err) {
+              try {
+                out = Parser_1.parse(tokens, opt);
+              } catch (e) {
+                err = e;
+              }
+            }
+
+            opt.highlight = highlight;
+            return err ? callback(err) : callback(null, out);
+          };
+
+          if (!highlight || highlight.length < 3) {
+            return done();
+          }
+
+          delete opt.highlight;
+          if (!tokens.length) return done();
+          var pending = 0;
+          marked.walkTokens(tokens, function (token) {
+            if (token.type === 'code') {
+              pending++;
+              setTimeout(function () {
+                highlight(token.text, token.lang, function (err, code) {
+                  if (err) {
+                    return done(err);
+                  }
+
+                  if (code != null && code !== token.text) {
+                    token.text = code;
+                    token.escaped = true;
+                  }
+
+                  pending--;
+
+                  if (pending === 0) {
+                    done();
+                  }
+                });
+              }, 0);
+            }
+          });
+
+          if (pending === 0) {
+            done();
+          }
+
+          return;
+        }
+
+        try {
+          var _tokens = Lexer_1.lex(src, opt);
+
+          if (opt.walkTokens) {
+            marked.walkTokens(_tokens, opt.walkTokens);
+          }
+
+          return Parser_1.parse(_tokens, opt);
+        } catch (e) {
+          e.message += '\nPlease report this to https://github.com/markedjs/marked.';
+
+          if (opt.silent) {
+            return '<p>An error occurred:</p><pre>' + escape$2(e.message + '', true) + '</pre>';
+          }
+
+          throw e;
+        }
+      }
+      /**
+       * Options
+       */
+
+
+      marked.options = marked.setOptions = function (opt) {
+        merge$2(marked.defaults, opt);
+        changeDefaults(marked.defaults);
+        return marked;
+      };
+
+      marked.getDefaults = getDefaults;
+      marked.defaults = defaults$5;
+      /**
+       * Use Extension
+       */
+
+      marked.use = function (extension) {
+        var opts = merge$2({}, extension);
+
+        if (extension.renderer) {
+          (function () {
+            var renderer = marked.defaults.renderer || new Renderer_1();
+
+            var _loop = function _loop(prop) {
+              var prevRenderer = renderer[prop];
+
+              renderer[prop] = function () {
+                for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+                  args[_key] = arguments[_key];
+                }
+
+                var ret = extension.renderer[prop].apply(renderer, args);
+
+                if (ret === false) {
+                  ret = prevRenderer.apply(renderer, args);
+                }
+
+                return ret;
+              };
+            };
+
+            for (var prop in extension.renderer) {
+              _loop(prop);
+            }
+
+            opts.renderer = renderer;
+          })();
+        }
+
+        if (extension.tokenizer) {
+          (function () {
+            var tokenizer = marked.defaults.tokenizer || new Tokenizer_1();
+
+            var _loop2 = function _loop2(prop) {
+              var prevTokenizer = tokenizer[prop];
+
+              tokenizer[prop] = function () {
+                for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                  args[_key2] = arguments[_key2];
+                }
+
+                var ret = extension.tokenizer[prop].apply(tokenizer, args);
+
+                if (ret === false) {
+                  ret = prevTokenizer.apply(tokenizer, args);
+                }
+
+                return ret;
+              };
+            };
+
+            for (var prop in extension.tokenizer) {
+              _loop2(prop);
+            }
+
+            opts.tokenizer = tokenizer;
+          })();
+        }
+
+        if (extension.walkTokens) {
+          var walkTokens = marked.defaults.walkTokens;
+
+          opts.walkTokens = function (token) {
+            extension.walkTokens(token);
+
+            if (walkTokens) {
+              walkTokens(token);
+            }
+          };
+        }
+
+        marked.setOptions(opts);
+      };
+      /**
+       * Run callback for every token
+       */
+
+
+      marked.walkTokens = function (tokens, callback) {
+        for (var _iterator = _createForOfIteratorHelperLoose(tokens), _step; !(_step = _iterator()).done;) {
+          var token = _step.value;
+          callback(token);
+
+          switch (token.type) {
+            case 'table':
+              {
+                for (var _iterator2 = _createForOfIteratorHelperLoose(token.tokens.header), _step2; !(_step2 = _iterator2()).done;) {
+                  var cell = _step2.value;
+                  marked.walkTokens(cell, callback);
+                }
+
+                for (var _iterator3 = _createForOfIteratorHelperLoose(token.tokens.cells), _step3; !(_step3 = _iterator3()).done;) {
+                  var row = _step3.value;
+
+                  for (var _iterator4 = _createForOfIteratorHelperLoose(row), _step4; !(_step4 = _iterator4()).done;) {
+                    var _cell = _step4.value;
+                    marked.walkTokens(_cell, callback);
+                  }
+                }
+
+                break;
+              }
+
+            case 'list':
+              {
+                marked.walkTokens(token.items, callback);
+                break;
+              }
+
+            default:
+              {
+                if (token.tokens) {
+                  marked.walkTokens(token.tokens, callback);
+                }
+              }
+          }
+        }
+      };
+      /**
+       * Parse Inline
+       */
+
+
+      marked.parseInline = function (src, opt) {
+        // throw error in case of non string input
+        if (typeof src === 'undefined' || src === null) {
+          throw new Error('marked.parseInline(): input parameter is undefined or null');
+        }
+
+        if (typeof src !== 'string') {
+          throw new Error('marked.parseInline(): input parameter is of type ' + Object.prototype.toString.call(src) + ', string expected');
+        }
+
+        opt = merge$2({}, marked.defaults, opt || {});
+        checkSanitizeDeprecation$1(opt);
+
+        try {
+          var tokens = Lexer_1.lexInline(src, opt);
+
+          if (opt.walkTokens) {
+            marked.walkTokens(tokens, opt.walkTokens);
+          }
+
+          return Parser_1.parseInline(tokens, opt);
+        } catch (e) {
+          e.message += '\nPlease report this to https://github.com/markedjs/marked.';
+
+          if (opt.silent) {
+            return '<p>An error occurred:</p><pre>' + escape$2(e.message + '', true) + '</pre>';
+          }
+
+          throw e;
+        }
+      };
+      /**
+       * Expose
+       */
+
+
+      marked.Parser = Parser_1;
+      marked.parser = Parser_1.parse;
+      marked.Renderer = Renderer_1;
+      marked.TextRenderer = TextRenderer_1;
+      marked.Lexer = Lexer_1;
+      marked.lexer = Lexer_1.lex;
+      marked.Tokenizer = Tokenizer_1;
+      marked.Slugger = Slugger_1;
+      marked.parse = marked;
+      var marked_1 = marked;
+
+      return marked_1;
+
+    })));
+    });
+
+    /* src\components\modals\BlogPostModal.svelte generated by Svelte v3.24.1 */
+    const file$a = "src\\components\\modals\\BlogPostModal.svelte";
+
+    function create_fragment$a(ctx) {
+    	let div2;
+    	let div0;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let h30;
+    	let t2;
+    	let b0;
+    	let t3;
+    	let t4;
+    	let h31;
+    	let t5;
+    	let t6;
+    	let div1;
+    	let raw_value = marked(/*content*/ ctx[0]) + "";
+    	let t7;
+    	let h2;
+    	let b1;
+    	let t9_value = /*author*/ ctx[2].split(" ")[0] + "";
+    	let t9;
+
+    	const block = {
+    		c: function create() {
+    			div2 = element("div");
+    			div0 = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*title*/ ctx[1]);
+    			t1 = space();
+    			h30 = element("h3");
+    			t2 = text("Author: ");
+    			b0 = element("b");
+    			t3 = text(/*author*/ ctx[2]);
+    			t4 = space();
+    			h31 = element("h3");
+    			t5 = text(/*date*/ ctx[3]);
+    			t6 = space();
+    			div1 = element("div");
+    			t7 = space();
+    			h2 = element("h2");
+    			b1 = element("b");
+    			b1.textContent = "~";
+    			t9 = text(t9_value);
+    			attr_dev(h1, "class", "blog-title svelte-1kujcy6");
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$a, 18, 8, 373);
+    			attr_dev(b0, "class", "author-name svelte-1kujcy6");
+    			add_location(b0, file$a, 19, 67, 503);
+    			attr_dev(h30, "class", "blog-author svelte-1kujcy6");
+    			set_style(h30, "text-align", "center");
+    			add_location(h30, file$a, 19, 8, 444);
+    			attr_dev(h31, "class", "blog-date svelte-1kujcy6");
+    			set_style(h31, "text-align", "center");
+    			add_location(h31, file$a, 20, 8, 552);
+    			attr_dev(div0, "class", "blog-header svelte-1kujcy6");
+    			add_location(div0, file$a, 17, 4, 339);
+    			attr_dev(div1, "class", "markdown");
+    			add_location(div1, file$a, 22, 4, 628);
+    			set_style(b1, "font-weight", "300");
+    			add_location(b1, file$a, 23, 26, 706);
+    			attr_dev(h2, "class", "signature svelte-1kujcy6");
+    			add_location(h2, file$a, 23, 4, 684);
+    			attr_dev(div2, "class", "blog-modal svelte-1kujcy6");
+    			add_location(div2, file$a, 16, 0, 310);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div2, anchor);
+    			append_dev(div2, div0);
+    			append_dev(div0, h1);
+    			append_dev(h1, t0);
+    			append_dev(div0, t1);
+    			append_dev(div0, h30);
+    			append_dev(h30, t2);
+    			append_dev(h30, b0);
+    			append_dev(b0, t3);
+    			append_dev(div0, t4);
+    			append_dev(div0, h31);
+    			append_dev(h31, t5);
+    			append_dev(div2, t6);
+    			append_dev(div2, div1);
+    			div1.innerHTML = raw_value;
+    			append_dev(div2, t7);
+    			append_dev(div2, h2);
+    			append_dev(h2, b1);
+    			append_dev(h2, t9);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*title*/ 2) set_data_dev(t0, /*title*/ ctx[1]);
+    			if (dirty & /*author*/ 4) set_data_dev(t3, /*author*/ ctx[2]);
+    			if (dirty & /*date*/ 8) set_data_dev(t5, /*date*/ ctx[3]);
+    			if (dirty & /*content*/ 1 && raw_value !== (raw_value = marked(/*content*/ ctx[0]) + "")) div1.innerHTML = raw_value;			if (dirty & /*author*/ 4 && t9_value !== (t9_value = /*author*/ ctx[2].split(" ")[0] + "")) set_data_dev(t9, t9_value);
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$a.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$a($$self, $$props, $$invalidate) {
+    	let { title } = $$props;
+    	let { author } = $$props;
+    	let { date } = $$props;
+    	let { content } = $$props;
+
+    	fetch(`../content/blog/${content}.md`).then(content => content.text()).then(data => {
+    		$$invalidate(0, content = data);
+    	});
+
+    	const writable_props = ["title", "author", "date", "content"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<BlogPostModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("BlogPostModal", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("title" in $$props) $$invalidate(1, title = $$props.title);
+    		if ("author" in $$props) $$invalidate(2, author = $$props.author);
+    		if ("date" in $$props) $$invalidate(3, date = $$props.date);
+    		if ("content" in $$props) $$invalidate(0, content = $$props.content);
+    	};
+
+    	$$self.$capture_state = () => ({ marked, title, author, date, content });
+
+    	$$self.$inject_state = $$props => {
+    		if ("title" in $$props) $$invalidate(1, title = $$props.title);
+    		if ("author" in $$props) $$invalidate(2, author = $$props.author);
+    		if ("date" in $$props) $$invalidate(3, date = $$props.date);
+    		if ("content" in $$props) $$invalidate(0, content = $$props.content);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [content, title, author, date];
+    }
+
+    class BlogPostModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$a, create_fragment$a, safe_not_equal, { title: 1, author: 2, date: 3, content: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "BlogPostModal",
+    			options,
+    			id: create_fragment$a.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*title*/ ctx[1] === undefined && !("title" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'title'");
+    		}
+
+    		if (/*author*/ ctx[2] === undefined && !("author" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'author'");
+    		}
+
+    		if (/*date*/ ctx[3] === undefined && !("date" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'date'");
+    		}
+
+    		if (/*content*/ ctx[0] === undefined && !("content" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'content'");
+    		}
+    	}
+
+    	get title() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set title(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get author() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set author(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get date() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set date(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get content() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set content(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src\components\modals\CloseButton.svelte generated by Svelte v3.24.1 */
+
+    const file$b = "src\\components\\modals\\CloseButton.svelte";
+
+    function create_fragment$b(ctx) {
+    	let button;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			button = element("button");
+    			button.textContent = "Custom Close Button";
+    			add_location(button, file$b, 4, 0, 45);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, button, anchor);
+
+    			if (!mounted) {
+    				dispose = listen_dev(
+    					button,
+    					"click",
+    					function () {
+    						if (is_function(/*onClose*/ ctx[0])) /*onClose*/ ctx[0].apply(this, arguments);
+    					},
+    					false,
+    					false,
+    					false
+    				);
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, [dirty]) {
+    			ctx = new_ctx;
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(button);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$b.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$b($$self, $$props, $$invalidate) {
+    	let { onClose } = $$props;
+    	const writable_props = ["onClose"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<CloseButton> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("CloseButton", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("onClose" in $$props) $$invalidate(0, onClose = $$props.onClose);
+    	};
+
+    	$$self.$capture_state = () => ({ onClose });
+
+    	$$self.$inject_state = $$props => {
+    		if ("onClose" in $$props) $$invalidate(0, onClose = $$props.onClose);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [onClose];
+    }
+
+    class CloseButton extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$b, create_fragment$b, safe_not_equal, { onClose: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "CloseButton",
+    			options,
+    			id: create_fragment$b.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*onClose*/ ctx[0] === undefined && !("onClose" in props)) {
+    			console.warn("<CloseButton> was created without expected prop 'onClose'");
+    		}
+    	}
+
+    	get onClose() {
+    		throw new Error("<CloseButton>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set onClose(value) {
+    		throw new Error("<CloseButton>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    const blogPosts = 
+    [
+        {
+            postId: 0,
+            title: "Creating the Blog Component",
+            author: "Max Eisen",
+            date: "March 3, 2021",
+            description: "How I created this blog component on my site from scratch (it was a pain).",
+            content: "creating-the-blog-component"
+        },
+    ];
+
+    /* src\components\Blog.svelte generated by Svelte v3.24.1 */
+    const file$c = "src\\components\\Blog.svelte";
+
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[4] = list[i];
+    	return child_ctx;
+    }
+
+    // (52:4) {#each blogPosts as post}
+    function create_each_block(ctx) {
+    	let div;
+    	let h20;
+    	let t0_value = /*post*/ ctx[4].title + "";
+    	let t0;
+    	let t1;
+    	let h21;
+    	let t2_value = /*post*/ ctx[4].date + "";
+    	let t2;
+    	let t3;
+    	let h22;
+    	let t4_value = /*post*/ ctx[4].description + "";
+    	let t4;
+    	let t5;
+    	let mounted;
+    	let dispose;
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[1](/*post*/ ctx[4], ...args);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h20 = element("h2");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			h21 = element("h2");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			h22 = element("h2");
+    			t4 = text(t4_value);
+    			t5 = space();
+    			attr_dev(h20, "class", "blog-name svelte-1ejqdqo");
+    			add_location(h20, file$c, 53, 12, 1903);
+    			attr_dev(h21, "class", "blog-date svelte-1ejqdqo");
+    			add_location(h21, file$c, 54, 12, 1955);
+    			attr_dev(h22, "class", "blog-description svelte-1ejqdqo");
+    			add_location(h22, file$c, 55, 12, 2006);
+    			attr_dev(div, "class", "blog-item");
+    			attr_dev(div, "tabindex", "0");
+    			add_location(div, file$c, 52, 8, 1760);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h20);
+    			append_dev(h20, t0);
+    			append_dev(div, t1);
+    			append_dev(div, h21);
+    			append_dev(h21, t2);
+    			append_dev(div, t3);
+    			append_dev(div, h22);
+    			append_dev(h22, t4);
+    			append_dev(div, t5);
+
+    			if (!mounted) {
+    				dispose = listen_dev(div, "click", click_handler, false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(52:4) {#each blogPosts as post}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$c(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+    	let each_value = blogPosts;
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Blog";
+    			t1 = space();
+    			div = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "blog");
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$c, 49, 0, 1620);
+    			attr_dev(div, "class", "blog-subsection");
+    			add_location(div, file$c, 50, 0, 1692);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*blogPostModal, blogPosts*/ 1) {
+    				each_value = blogPosts;
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$c.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$c($$self, $$props, $$invalidate) {
+    	const userQuery = queryString.parse(window.location.search);
+
+    	blogPosts.sort(function (a, b) {
+    		return b.postId - a.postId;
+    	});
+
+    	const { open } = getContext("simple-modal");
+
+    	const blogPostModal = (postId, title, author, date, content) => {
+    		open(
+    			BlogPostModal,
+    			{ title, author, date, content },
+    			{
+    				closeButton: CloseButton,
+    				styleWindow: {
+    					width: "900px",
+    					padding: "5px",
+    					maxHeight: "92.5%"
+    				}
+    			},
+    			{
+    				onOpen: () => {
+    					window.history.replaceState({}, title + " | MaxEisen.me", "/?blog=true&postId=" + postId);
+    					document.title = title + " | MaxEisen.me";
+    				},
+    				onClose: () => {
+    					window.history.replaceState({}, "Get to Know Max Eisen | MaxEisen.me", "/");
+    					document.title = "Get to Know Max Eisen | MaxEisen.me";
+    				}
+    			}
+    		);
+    	};
+
+    	onMount(async () => {
+    		if (userQuery.blog == "true") {
+    			if (userQuery.postId) {
+    				const blogPost = blogPosts[userQuery.postId];
+    				blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.content);
+    			}
+    		}
+    	});
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Blog> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Blog", $$slots, []);
+    	const click_handler = post => blogPostModal(post.postId, post.title, post.author, post.date, post.content);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		onMount,
+    		qs: queryString,
+    		BlogPostModal,
+    		CloseButton,
+    		blogPosts,
+    		userQuery,
+    		open,
+    		blogPostModal
+    	});
+
+    	return [blogPostModal, click_handler];
+    }
+
+    class Blog extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$c, create_fragment$c, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Blog",
+    			options,
+    			id: create_fragment$c.name
+    		});
+    	}
+    }
+
     /* src\components\modals\ExperienceModal.svelte generated by Svelte v3.24.1 */
 
-    const file$a = "src\\components\\modals\\ExperienceModal.svelte";
+    const file$d = "src\\components\\modals\\ExperienceModal.svelte";
 
     // (16:4) {:else}
     function create_else_block(ctx) {
@@ -3580,9 +7538,9 @@ var app = (function () {
     		c: function create() {
     			h3 = element("h3");
     			t = text(/*startDate*/ ctx[3]);
-    			attr_dev(h3, "class", "modal-description svelte-xvin75");
+    			attr_dev(h3, "class", "modal-description svelte-1uko5iu");
     			set_style(h3, "text-align", "center");
-    			add_location(h3, file$a, 16, 8, 512);
+    			add_location(h3, file$d, 16, 8, 618);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h3, anchor);
@@ -3620,9 +7578,9 @@ var app = (function () {
     			t0 = text(/*startDate*/ ctx[3]);
     			t1 = text("-");
     			t2 = text(/*endDate*/ ctx[4]);
-    			attr_dev(h3, "class", "modal-description svelte-xvin75");
+    			attr_dev(h3, "class", "modal-description svelte-1uko5iu");
     			set_style(h3, "text-align", "center");
-    			add_location(h3, file$a, 14, 8, 408);
+    			add_location(h3, file$d, 14, 8, 514);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h3, anchor);
@@ -3650,7 +7608,7 @@ var app = (function () {
     	return block;
     }
 
-    function create_fragment$a(ctx) {
+    function create_fragment$d(ctx) {
     	let div;
     	let h1;
     	let t0;
@@ -3659,10 +7617,11 @@ var app = (function () {
     	let a;
     	let t2;
     	let t3;
-    	let t4;
-    	let h3;
+    	let b;
     	let t5;
     	let t6;
+    	let t7;
+    	let t8;
     	let p;
 
     	function select_block_type(ctx, dirty) {
@@ -3683,27 +7642,31 @@ var app = (function () {
     			a = element("a");
     			t2 = text(/*company*/ ctx[1]);
     			t3 = space();
+    			b = element("b");
+    			b.textContent = "in";
+    			t5 = space();
+    			t6 = text(/*location*/ ctx[5]);
+    			t7 = space();
     			if_block.c();
-    			t4 = space();
-    			h3 = element("h3");
-    			t5 = text(/*location*/ ctx[5]);
-    			t6 = space();
+    			t8 = space();
     			p = element("p");
-    			attr_dev(h1, "class", "modal-position svelte-xvin75");
-    			add_location(h1, file$a, 11, 4, 235);
+    			attr_dev(h1, "class", "modal-position svelte-1uko5iu");
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$d, 11, 4, 235);
     			attr_dev(a, "href", /*companyLink*/ ctx[2]);
     			attr_dev(a, "rel", "noreferrer");
     			attr_dev(a, "target", "_blank");
-    			add_location(a, file$a, 12, 30, 308);
-    			attr_dev(h2, "class", "modal-company svelte-xvin75");
-    			add_location(h2, file$a, 12, 4, 282);
-    			attr_dev(h3, "class", "modal-description svelte-xvin75");
-    			set_style(h3, "text-align", "center");
-    			add_location(h3, file$a, 18, 4, 600);
-    			attr_dev(p, "class", "modal-description svelte-xvin75");
-    			add_location(p, file$a, 19, 4, 678);
-    			attr_dev(div, "class", "experience-modal svelte-xvin75");
-    			add_location(div, file$a, 10, 0, 200);
+    			attr_dev(a, "class", "svelte-1uko5iu");
+    			add_location(a, file$d, 12, 30, 336);
+    			set_style(b, "color", "var(--paragraph-colour)");
+    			set_style(b, "font-weight", "300");
+    			add_location(b, file$d, 12, 99, 405);
+    			attr_dev(h2, "class", "modal-company svelte-1uko5iu");
+    			add_location(h2, file$d, 12, 4, 310);
+    			attr_dev(p, "class", "modal-description svelte-1uko5iu");
+    			add_location(p, file$d, 18, 4, 706);
+    			attr_dev(div, "class", "experience-modal svelte-1uko5iu");
+    			add_location(div, file$d, 10, 0, 200);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3716,12 +7679,13 @@ var app = (function () {
     			append_dev(div, h2);
     			append_dev(h2, a);
     			append_dev(a, t2);
-    			append_dev(div, t3);
+    			append_dev(a, t3);
+    			append_dev(h2, b);
+    			append_dev(h2, t5);
+    			append_dev(h2, t6);
+    			append_dev(div, t7);
     			if_block.m(div, null);
-    			append_dev(div, t4);
-    			append_dev(div, h3);
-    			append_dev(h3, t5);
-    			append_dev(div, t6);
+    			append_dev(div, t8);
     			append_dev(div, p);
     			p.innerHTML = /*description*/ ctx[6];
     		},
@@ -3733,6 +7697,8 @@ var app = (function () {
     				attr_dev(a, "href", /*companyLink*/ ctx[2]);
     			}
 
+    			if (dirty & /*location*/ 32) set_data_dev(t6, /*location*/ ctx[5]);
+
     			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
     				if_block.p(ctx, dirty);
     			} else {
@@ -3741,11 +7707,10 @@ var app = (function () {
 
     				if (if_block) {
     					if_block.c();
-    					if_block.m(div, t4);
+    					if_block.m(div, t8);
     				}
     			}
 
-    			if (dirty & /*location*/ 32) set_data_dev(t5, /*location*/ ctx[5]);
     			if (dirty & /*description*/ 64) p.innerHTML = /*description*/ ctx[6];		},
     		i: noop,
     		o: noop,
@@ -3757,7 +7722,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$a.name,
+    		id: create_fragment$d.name,
     		type: "component",
     		source: "",
     		ctx
@@ -3766,7 +7731,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$a($$self, $$props, $$invalidate) {
+    function instance$d($$self, $$props, $$invalidate) {
     	let { position } = $$props;
     	let { company } = $$props;
     	let { companyLink } = $$props;
@@ -3833,7 +7798,7 @@ var app = (function () {
     	constructor(options) {
     		super(options);
 
-    		init(this, options, instance$a, create_fragment$a, safe_not_equal, {
+    		init(this, options, instance$d, create_fragment$d, safe_not_equal, {
     			position: 0,
     			company: 1,
     			companyLink: 2,
@@ -3847,7 +7812,7 @@ var app = (function () {
     			component: this,
     			tagName: "ExperienceModal",
     			options,
-    			id: create_fragment$a.name
+    			id: create_fragment$d.name
     		});
 
     		const { ctx } = this.$$;
@@ -3939,20 +7904,127 @@ var app = (function () {
     	}
     }
 
-    /* src\components\Experience.svelte generated by Svelte v3.24.1 */
-    const file$b = "src\\components\\Experience.svelte";
+    const experience = 
+    [
+        {
+            shortPosition: "Software Engineer",
+            position: "Software Development Engineer",
+            shortCompany: "Publicis Sapient",
+            company: "Publicis Sapient",
+            companyLink: "https://www.publicissapient.com/",
+            shortDate: "June 2021",
+            startDate: "Starting June 2021",
+            location: "Toronto, ON",
+            shortDescription: "Working as a software consultant and engineer to create digital experiences for companies around the globe",
+            longDescription:
+            `<ul>
+            <li>Consulting with client companies to determine requirements for large-scale digital transformation projects</li>
+            <li>Collaborating with a team to design, develop, and engineer these projects for launch</li>
+            <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
+        </ul>`
+        },
+        {
+            position: "Product Manager",
+            shortCompany: "QTMA",
+            company: "Queen's Technology and Media Association",
+            companyLink: "https://qtma.ca/",
+            shortDate: "April 2020-Present",
+            startDate: "April 2020",
+            endDate: "Present",
+            location: "Kingston, ON",
+            shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
+            longDescription:
+            `<ul>
+            <li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li>
+            <li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
+        </ul>`
+        },
+        {
+            shortPosition: "CS Teaching Assistant",
+            position: "Computer Science Teaching Assistant",
+            shortCompany: "Queen's University",
+            company: "Queen's University",
+            shortDate: "Sept. 2019-Present",
+            companyLink: "https://cs.queensu.ca/",
+            startDate: "September 2019",
+            endDate: "Present",
+            location: "Kingston, ON",
+            shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
+            longDescription:
+            `<ul>
+            <li>Selected as one of 3 TAs to assist in teaching and grading of CMPE 212 - Object-Oriented Programming in Java, having previously obtained an exceptional grade in the course</li>
+            <li>Holding weekly office hours to guide students in completing assignments and projects</li>
+            <li>Previously assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, and a 250-student Python course</li>
+        </ul>`
+        },
+        {
+            shortPosition: "Technical Developer",
+            position: "Technical Developer Co-op",
+            shortCompany: "Jonah Group",
+            company: "Jonah Group",
+            companyLink: "https://www.jonahgroup.com/",
+            shortDate: "May-Sept. 2020",
+            startDate: "May",
+            endDate: "September 2020",
+            location: "Toronto, ON",
+            shortDescription: "Worked with a fantastic team of developers to create large-scale software products for companies",
+            longDescription:
+            `<ul>
+            <li>Used React, Spring Boot, and Postgres in my summer internship to build custom, high-performance software for companies</li>
+            <li>Full stack developer on an agile team, developing a decision engine to be implemented for client companies</li>
+        </ul>`
+        },
+        {
+            shortPosition: "Director of Technology",
+            position: "Founder, Director of Technology",
+            shortCompany: "TechTrainers",
+            company: "TechTrainers",
+            companyLink: "https://techtrainers.ca/",
+            shortDate: "May 2019-Jan. 2021",
+            startDate: "May 2019",
+            endDate: "January 2021",
+            location: "Toronto, ON",
+            shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
+            longDescription:
+            `<ul>
+            <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>
+            <li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li>
+            <li>Company was able to turn a profit in first month of operations</li>
+        </ul>`
+        },
+        {
+            shortPosition: "Software Developer",
+            position: "Software Developer, Technical Coordinator",
+            company: "QHacks",
+            companyLink: "https://qhacks.io/",
+            shortDate: "Sept. 2019-Feb. 2020",
+            startDate: "September 2019",
+            endDate: "February 2020",
+            location: "Kingston, ON",
+            shortDescription: "Developed the website and other software for Queen's University's official MLH hackathon",
+            longDescription:
+            `<ul>
+            <li>Developed and deployed the official website for the 2020 MLH-affiliated hackathon using React and Gatsby (accessed by over 10,000 individuals)</li>
+            <li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li>
+            <li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li>
+        </ul>`
+        }
+    ];
 
-    function get_each_context(ctx, list, i) {
+    /* src\components\Experience.svelte generated by Svelte v3.24.1 */
+    const file$e = "src\\components\\Experience.svelte";
+
+    function get_each_context$1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[14] = list[i];
+    	child_ctx[3] = list[i];
     	return child_ctx;
     }
 
-    // (164:12) {:else}
+    // (23:12) {:else}
     function create_else_block_1(ctx) {
     	let h2;
     	let div;
-    	let t_value = /*exp*/ ctx[14].position + "";
+    	let t_value = /*exp*/ ctx[3].position + "";
     	let t;
 
     	const block = {
@@ -3961,9 +8033,9 @@ var app = (function () {
     			div = element("div");
     			t = text(t_value);
     			attr_dev(div, "class", "experience-position svelte-1y5zmi7");
-    			add_location(div, file$b, 164, 45, 8290);
+    			add_location(div, file$e, 23, 45, 1146);
     			attr_dev(h2, "class", "experience-title svelte-1y5zmi7");
-    			add_location(h2, file$b, 164, 16, 8261);
+    			add_location(h2, file$e, 23, 16, 1117);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h2, anchor);
@@ -3980,18 +8052,18 @@ var app = (function () {
     		block,
     		id: create_else_block_1.name,
     		type: "else",
-    		source: "(164:12) {:else}",
+    		source: "(23:12) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (162:12) {#if exp.shortPosition}
+    // (21:12) {#if exp.shortPosition}
     function create_if_block_1$1(ctx) {
     	let h2;
     	let div;
-    	let t_value = /*exp*/ ctx[14].shortPosition + "";
+    	let t_value = /*exp*/ ctx[3].shortPosition + "";
     	let t;
 
     	const block = {
@@ -4000,9 +8072,9 @@ var app = (function () {
     			div = element("div");
     			t = text(t_value);
     			attr_dev(div, "class", "experience-position svelte-1y5zmi7");
-    			add_location(div, file$b, 162, 45, 8159);
+    			add_location(div, file$e, 21, 45, 1015);
     			attr_dev(h2, "class", "experience-title svelte-1y5zmi7");
-    			add_location(h2, file$b, 162, 16, 8130);
+    			add_location(h2, file$e, 21, 16, 986);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h2, anchor);
@@ -4019,17 +8091,17 @@ var app = (function () {
     		block,
     		id: create_if_block_1$1.name,
     		type: "if",
-    		source: "(162:12) {#if exp.shortPosition}",
+    		source: "(21:12) {#if exp.shortPosition}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (169:12) {:else}
+    // (28:12) {:else}
     function create_else_block$1(ctx) {
     	let h2;
-    	let t_value = /*exp*/ ctx[14].company + "";
+    	let t_value = /*exp*/ ctx[3].company + "";
     	let t;
 
     	const block = {
@@ -4037,7 +8109,7 @@ var app = (function () {
     			h2 = element("h2");
     			t = text(t_value);
     			attr_dev(h2, "class", "experience-company svelte-1y5zmi7");
-    			add_location(h2, file$b, 169, 16, 8514);
+    			add_location(h2, file$e, 28, 16, 1370);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h2, anchor);
@@ -4053,17 +8125,17 @@ var app = (function () {
     		block,
     		id: create_else_block$1.name,
     		type: "else",
-    		source: "(169:12) {:else}",
+    		source: "(28:12) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (167:12) {#if exp.shortCompany}
+    // (26:12) {#if exp.shortCompany}
     function create_if_block$3(ctx) {
     	let h2;
-    	let t_value = /*exp*/ ctx[14].shortCompany + "";
+    	let t_value = /*exp*/ ctx[3].shortCompany + "";
     	let t;
 
     	const block = {
@@ -4071,7 +8143,7 @@ var app = (function () {
     			h2 = element("h2");
     			t = text(t_value);
     			attr_dev(h2, "class", "experience-company svelte-1y5zmi7");
-    			add_location(h2, file$b, 167, 16, 8421);
+    			add_location(h2, file$e, 26, 16, 1277);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h2, anchor);
@@ -4087,35 +8159,35 @@ var app = (function () {
     		block,
     		id: create_if_block$3.name,
     		type: "if",
-    		source: "(167:12) {#if exp.shortCompany}",
+    		source: "(26:12) {#if exp.shortCompany}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (160:4) {#each experiences as exp}
-    function create_each_block(ctx) {
+    // (18:4) {#each experience as exp}
+    function create_each_block$1(ctx) {
     	let div2;
     	let t0;
     	let t1;
     	let p;
-    	let t2_value = /*exp*/ ctx[14].shortDescription + "";
+    	let t2_value = /*exp*/ ctx[3].shortDescription + "";
     	let t2;
     	let t3;
     	let h1;
     	let div0;
-    	let t4_value = /*exp*/ ctx[14].shortDate + "";
+    	let t4_value = /*exp*/ ctx[3].shortDate + "";
     	let t4;
     	let div1;
-    	let t5_value = /*exp*/ ctx[14].location + "";
+    	let t5_value = /*exp*/ ctx[3].location + "";
     	let t5;
     	let t6;
     	let mounted;
     	let dispose;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*exp*/ ctx[14].shortPosition) return create_if_block_1$1;
+    		if (/*exp*/ ctx[3].shortPosition) return create_if_block_1$1;
     		return create_else_block_1;
     	}
 
@@ -4123,12 +8195,16 @@ var app = (function () {
     	let if_block0 = current_block_type(ctx);
 
     	function select_block_type_1(ctx, dirty) {
-    		if (/*exp*/ ctx[14].shortCompany) return create_if_block$3;
+    		if (/*exp*/ ctx[3].shortCompany) return create_if_block$3;
     		return create_else_block$1;
     	}
 
     	let current_block_type_1 = select_block_type_1(ctx);
     	let if_block1 = current_block_type_1(ctx);
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[1](/*exp*/ ctx[3], ...args);
+    	}
 
     	const block = {
     		c: function create() {
@@ -4146,16 +8222,16 @@ var app = (function () {
     			div1 = element("div");
     			t5 = text(t5_value);
     			t6 = space();
-    			add_location(p, file$b, 171, 12, 8596);
+    			add_location(p, file$e, 30, 12, 1452);
     			attr_dev(div0, "class", "experience-date svelte-1y5zmi7");
-    			add_location(div0, file$b, 172, 49, 8676);
+    			add_location(div0, file$e, 31, 49, 1532);
     			attr_dev(div1, "class", "experience-location svelte-1y5zmi7");
-    			add_location(div1, file$b, 172, 99, 8726);
+    			add_location(div1, file$e, 31, 99, 1582);
     			attr_dev(h1, "class", "experience-date-location svelte-1y5zmi7");
-    			add_location(h1, file$b, 172, 12, 8639);
+    			add_location(h1, file$e, 31, 12, 1495);
     			attr_dev(div2, "class", "experience-item");
     			attr_dev(div2, "tabindex", "0");
-    			add_location(div2, file$b, 160, 2, 8004);
+    			add_location(div2, file$e, 18, 2, 740);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div2, anchor);
@@ -4174,7 +8250,7 @@ var app = (function () {
     			append_dev(div2, t6);
 
     			if (!mounted) {
-    				dispose = listen_dev(div2, "click", /*exp*/ ctx[14].modalFunction, false, false, false);
+    				dispose = listen_dev(div2, "click", click_handler, false, false, false);
     				mounted = true;
     			}
     		},
@@ -4194,25 +8270,25 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_each_block.name,
+    		id: create_each_block$1.name,
     		type: "each",
-    		source: "(160:4) {#each experiences as exp}",
+    		source: "(18:4) {#each experience as exp}",
     		ctx
     	});
 
     	return block;
     }
 
-    function create_fragment$b(ctx) {
+    function create_fragment$e(ctx) {
     	let h1;
     	let t1;
     	let div;
-    	let each_value = /*experiences*/ ctx[0];
+    	let each_value = experience;
     	validate_each_argument(each_value);
     	let each_blocks = [];
 
     	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
     	}
 
     	const block = {
@@ -4228,9 +8304,10 @@ var app = (function () {
 
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "experience");
-    			add_location(h1, file$b, 157, 0, 7874);
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$e, 15, 0, 585);
     			attr_dev(div, "class", "experience-subsection");
-    			add_location(div, file$b, 158, 0, 7933);
+    			add_location(div, file$e, 16, 0, 670);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -4245,18 +8322,18 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*experiences*/ 1) {
-    				each_value = /*experiences*/ ctx[0];
+    			if (dirty & /*experienceModal, experience*/ 1) {
+    				each_value = experience;
     				validate_each_argument(each_value);
     				let i;
 
     				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context(ctx, each_value, i);
+    					const child_ctx = get_each_context$1(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
     					} else {
-    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i] = create_each_block$1(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div, null);
     					}
@@ -4281,7 +8358,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$b.name,
+    		id: create_fragment$e.name,
     		type: "component",
     		source: "",
     		ctx
@@ -4290,197 +8367,21 @@ var app = (function () {
     	return block;
     }
 
-    function instance$b($$self, $$props, $$invalidate) {
+    function instance$e($$self, $$props, $$invalidate) {
     	const { open } = getContext("simple-modal");
 
-    	const modal1 = () => {
+    	const experienceModal = (position, company, companyLink, startDate, endDate, location, description) => {
     		open(ExperienceModal, {
-    			position: exp1.position,
-    			company: exp1.company,
-    			companyLink: exp1.companyLink,
-    			startDate: exp1.startDate,
-    			endDate: exp1.endDate,
-    			location: exp1.location,
-    			description: exp1.longDescription
+    			position,
+    			company,
+    			companyLink,
+    			startDate,
+    			endDate,
+    			location,
+    			description
     		});
     	};
 
-    	const modal2 = () => {
-    		open(ExperienceModal, {
-    			position: exp2.position,
-    			company: exp2.company,
-    			companyLink: exp2.companyLink,
-    			startDate: exp2.startDate,
-    			endDate: exp2.endDate,
-    			location: exp2.location,
-    			description: exp2.longDescription
-    		});
-    	};
-
-    	const modal3 = () => {
-    		open(ExperienceModal, {
-    			position: exp3.position,
-    			company: exp3.company,
-    			companyLink: exp3.companyLink,
-    			startDate: exp3.startDate,
-    			endDate: exp3.endDate,
-    			location: exp3.location,
-    			description: exp3.longDescription
-    		});
-    	};
-
-    	const modal4 = () => {
-    		open(ExperienceModal, {
-    			position: exp4.position,
-    			company: exp4.company,
-    			companyLink: exp4.companyLink,
-    			startDate: exp4.startDate,
-    			endDate: exp4.endDate,
-    			location: exp4.location,
-    			description: exp4.longDescription
-    		});
-    	};
-
-    	const modal5 = () => {
-    		open(ExperienceModal, {
-    			position: exp5.position,
-    			company: exp5.company,
-    			companyLink: exp5.companyLink,
-    			startDate: exp5.startDate,
-    			endDate: exp5.endDate,
-    			location: exp5.location,
-    			description: exp5.longDescription
-    		});
-    	};
-
-    	const modal6 = () => {
-    		open(ExperienceModal, {
-    			position: exp6.position,
-    			company: exp6.company,
-    			companyLink: exp6.companyLink,
-    			startDate: exp6.startDate,
-    			endDate: exp6.endDate,
-    			location: exp6.location,
-    			description: exp6.longDescription
-    		});
-    	};
-
-    	const exp1 = {
-    		modalFunction: modal1,
-    		shortPosition: "Software Engineer",
-    		position: "Software Development Engineer",
-    		shortCompany: "Publicis Sapient",
-    		company: "Publicis Sapient",
-    		companyLink: "https://www.publicissapient.com/",
-    		shortDate: "June 2021",
-    		startDate: "Starting June 2021",
-    		location: "Toronto, ON",
-    		shortDescription: "Working as a software consultant and engineer to create digital experiences for companies around the globe",
-    		longDescription: `<ul>
-            <li>Consulting with client companies to determine requirements for large-scale digital transformation projects</li>
-            <li>Collaborating with a team to design, develop, and engineer these projects for launch</li>
-            <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
-        </ul>`
-    	};
-
-    	const exp2 = {
-    		modalFunction: modal2,
-    		position: "Product Manager",
-    		shortCompany: "QTMA",
-    		company: "Queen's Technology and Media Association",
-    		companyLink: "https://qtma.ca/",
-    		shortDate: "April 2020-Present",
-    		startDate: "April 2020",
-    		endDate: "Present",
-    		location: "Kingston, ON",
-    		shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
-    		longDescription: `<ul>
-            <li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li>
-            <li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
-        </ul>`
-    	};
-
-    	const exp3 = {
-    		modalFunction: modal3,
-    		shortPosition: "CS Teaching Assistant",
-    		position: "Computer Science Teaching Assistant",
-    		shortCompany: "Queen's University",
-    		company: "Queen's University",
-    		shortDate: "Sept. 2019-Present",
-    		companyLink: "https://cs.queensu.ca/",
-    		startDate: "September 2019",
-    		endDate: "Present",
-    		location: "Kingston, ON",
-    		shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
-    		longDescription: `<ul>
-            <li>Selected as one of 3 TAs to assist in teaching and grading of CMPE 212 - Object-Oriented Programming in Java, having previously obtained an exceptional grade in the course</li>
-            <li>Holding weekly office hours to guide students in completing assignments and projects</li>
-            <li>Previously assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, and a 250-student Python course</li>
-        </ul>`
-    	};
-
-    	const exp4 = {
-    		modalFunction: modal4,
-    		shortPosition: "Technical Developer",
-    		position: "Technical Developer Co-op",
-    		shortCompany: "Jonah Group",
-    		company: "Jonah Group",
-    		companyLink: "https://www.jonahgroup.com/",
-    		shortDate: "May-Sept. 2020",
-    		startDate: "May",
-    		endDate: "September 2020",
-    		location: "Toronto, ON",
-    		shortDescription: "Worked with a fantastic team of developers to create large-scale software products for companies",
-    		longDescription: `<ul>
-            <li>Used React, Spring Boot, and Postgres in my summer internship to build custom, high-performance software for companies</li>
-            <li>Full stack developer on an agile team, developing a decision engine to be implemented for client companies</li>
-        </ul>`
-    	};
-
-    	const exp5 = {
-    		modalFunction: modal5,
-    		shortPosition: "Director of Technology",
-    		position: "Founder, Director of Technology",
-    		shortCompany: "TechTrainers",
-    		company: "TechTrainers",
-    		companyLink: "https://techtrainers.ca/",
-    		shortDate: "May 2019-Jan. 2021",
-    		startDate: "May 2019",
-    		endDate: "January 2021",
-    		location: "Toronto, ON",
-    		shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
-    		longDescription: `<ul>
-            <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>
-            <li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li>
-            <li>Company was able to turn a profit in first month of operations</li>
-        </ul>`
-    	};
-
-    	const exp6 = {
-    		modalFunction: modal6,
-    		shortPosition: "Software Developer",
-    		position: "Software Developer, Technical Coordinator",
-    		company: "QHacks",
-    		companyLink: "https://qhacks.io/",
-    		shortDate: "Sept. 2019-Feb. 2020",
-    		startDate: "September 2019",
-    		endDate: "February 2020",
-    		location: "Kingston, ON",
-    		shortDescription: "Developed the website and other software for Queen's University's official MLH hackathon",
-    		longDescription: `<ul>
-            <li>Developed and deployed the official website for the 2020 MLH-affiliated hackathon using React and Gatsby (accessed by over 10,000 individuals)</li>
-            <li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li>
-            <li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li>
-        </ul>`
-    	};
-
-    	var experiences = [];
-    	experiences.push(exp1);
-    	experiences.push(exp2);
-    	experiences.push(exp3);
-    	experiences.push(exp4);
-    	experiences.push(exp5);
-    	experiences.push(exp6);
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -4489,53 +8390,35 @@ var app = (function () {
 
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("Experience", $$slots, []);
+    	const click_handler = exp => experienceModal(exp.position, exp.company, exp.companyLink, exp.startDate, exp.endDate, exp.location, exp.longDescription);
 
     	$$self.$capture_state = () => ({
     		getContext,
     		ExperienceModal,
+    		experience,
     		open,
-    		modal1,
-    		modal2,
-    		modal3,
-    		modal4,
-    		modal5,
-    		modal6,
-    		exp1,
-    		exp2,
-    		exp3,
-    		exp4,
-    		exp5,
-    		exp6,
-    		experiences
+    		experienceModal
     	});
 
-    	$$self.$inject_state = $$props => {
-    		if ("experiences" in $$props) $$invalidate(0, experiences = $$props.experiences);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
-    	return [experiences];
+    	return [experienceModal, click_handler];
     }
 
     class Experience extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$b, create_fragment$b, safe_not_equal, {});
+    		init(this, options, instance$e, create_fragment$e, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "Experience",
     			options,
-    			id: create_fragment$b.name
+    			id: create_fragment$e.name
     		});
     	}
     }
 
     /* node_modules\svelte-icons\io\IoMdOpen.svelte generated by Svelte v3.24.1 */
-    const file$c = "node_modules\\svelte-icons\\io\\IoMdOpen.svelte";
+    const file$f = "node_modules\\svelte-icons\\io\\IoMdOpen.svelte";
 
     // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
     function create_default_slot$6(ctx) {
@@ -4545,7 +8428,7 @@ var app = (function () {
     		c: function create() {
     			path = svg_element("path");
     			attr_dev(path, "d", "M405.34 405.332H106.66V106.668H240V64H106.66C83.191 64 64 83.197 64 106.668v298.664C64 428.803 83.191 448 106.66 448h298.68c23.469 0 42.66-19.197 42.66-42.668V272h-42.66v133.332zM288 64v42.668h87.474L159.999 322.133l29.866 29.866 215.476-215.47V224H448V64H288z");
-    			add_location(path, file$c, 4, 10, 153);
+    			add_location(path, file$f, 4, 10, 153);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, path, anchor);
@@ -4566,7 +8449,7 @@ var app = (function () {
     	return block;
     }
 
-    function create_fragment$c(ctx) {
+    function create_fragment$f(ctx) {
     	let iconbase;
     	let current;
     	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
@@ -4620,7 +8503,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$c.name,
+    		id: create_fragment$f.name,
     		type: "component",
     		source: "",
     		ctx
@@ -4629,7 +8512,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$c($$self, $$props, $$invalidate) {
+    function instance$f($$self, $$props, $$invalidate) {
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("IoMdOpen", $$slots, []);
 
@@ -4654,19 +8537,19 @@ var app = (function () {
     class IoMdOpen extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$c, create_fragment$c, safe_not_equal, {});
+    		init(this, options, instance$f, create_fragment$f, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "IoMdOpen",
     			options,
-    			id: create_fragment$c.name
+    			id: create_fragment$f.name
     		});
     	}
     }
 
     /* node_modules\svelte-icons\io\IoIosCode.svelte generated by Svelte v3.24.1 */
-    const file$d = "node_modules\\svelte-icons\\io\\IoIosCode.svelte";
+    const file$g = "node_modules\\svelte-icons\\io\\IoIosCode.svelte";
 
     // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
     function create_default_slot$7(ctx) {
@@ -4676,7 +8559,7 @@ var app = (function () {
     		c: function create() {
     			path = svg_element("path");
     			attr_dev(path, "d", "M332 142.7c-1.2-1.1-2.7-1.7-4.1-1.7s-3 .6-4.1 1.7L310 155.9c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l95.8 91.5-95.8 91.5c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l13.8 13.2c1.2 1.1 2.6 1.7 4.1 1.7 1.5 0 3-.6 4.1-1.7l114.2-109c1.2-1.1 1.9-2.7 1.9-4.3 0-1.6-.7-3.2-1.9-4.3L332 142.7zM204 160.2c0-1.6-.7-3.2-1.9-4.3l-13.8-13.2c-1.2-1.1-2.7-1.7-4.1-1.7s-3 .6-4.1 1.7l-114.2 109c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l114.2 109c1.2 1.1 2.7 1.7 4.1 1.7 1.5 0 3-.6 4.1-1.7l13.8-13.2c1.2-1.1 1.9-2.7 1.9-4.3 0-1.6-.7-3.2-1.9-4.3L106.3 256l95.8-91.5c1.2-1.1 1.9-2.7 1.9-4.3z");
-    			add_location(path, file$d, 4, 10, 153);
+    			add_location(path, file$g, 4, 10, 153);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, path, anchor);
@@ -4697,7 +8580,7 @@ var app = (function () {
     	return block;
     }
 
-    function create_fragment$d(ctx) {
+    function create_fragment$g(ctx) {
     	let iconbase;
     	let current;
     	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
@@ -4751,7 +8634,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$d.name,
+    		id: create_fragment$g.name,
     		type: "component",
     		source: "",
     		ctx
@@ -4760,7 +8643,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$d($$self, $$props, $$invalidate) {
+    function instance$g($$self, $$props, $$invalidate) {
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("IoIosCode", $$slots, []);
 
@@ -4785,19 +8668,19 @@ var app = (function () {
     class IoIosCode extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$d, create_fragment$d, safe_not_equal, {});
+    		init(this, options, instance$g, create_fragment$g, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "IoIosCode",
     			options,
-    			id: create_fragment$d.name
+    			id: create_fragment$g.name
     		});
     	}
     }
 
     /* src\components\modals\ProjectModal.svelte generated by Svelte v3.24.1 */
-    const file$e = "src\\components\\modals\\ProjectModal.svelte";
+    const file$h = "src\\components\\modals\\ProjectModal.svelte";
 
     // (18:8) {#if projectLink}
     function create_if_block$4(ctx) {
@@ -4814,7 +8697,7 @@ var app = (function () {
     			attr_dev(a, "href", /*projectLink*/ ctx[5]);
     			attr_dev(a, "rel", "noreferrer");
     			attr_dev(a, "target", "_blank");
-    			add_location(a, file$e, 18, 12, 602);
+    			add_location(a, file$h, 18, 12, 633);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -4852,7 +8735,7 @@ var app = (function () {
     	return block;
     }
 
-    function create_fragment$e(ctx) {
+    function create_fragment$h(ctx) {
     	let div1;
     	let h1;
     	let t0;
@@ -4915,34 +8798,35 @@ var app = (function () {
     			t12 = space();
     			img = element("img");
     			attr_dev(h1, "class", "modal-name svelte-18eo4k3");
-    			add_location(h1, file$e, 14, 4, 353);
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$h, 14, 4, 355);
     			attr_dev(b, "class", "technologies svelte-18eo4k3");
-    			add_location(b, file$e, 15, 77, 474);
+    			add_location(b, file$h, 15, 78, 505);
     			attr_dev(h3, "class", "modal-description svelte-18eo4k3");
     			set_style(h3, "text-align", "center");
-    			add_location(h3, file$e, 15, 4, 401);
+    			add_location(h3, file$h, 15, 4, 431);
     			attr_dev(a, "class", "project-link svelte-18eo4k3");
     			attr_dev(a, "href", /*githubLink*/ ctx[4]);
     			attr_dev(a, "rel", "noreferrer");
     			attr_dev(a, "target", "_blank");
-    			add_location(a, file$e, 20, 8, 717);
+    			add_location(a, file$h, 20, 8, 748);
     			attr_dev(div0, "class", "project-links-container svelte-18eo4k3");
-    			add_location(div0, file$e, 16, 4, 526);
+    			add_location(div0, file$h, 16, 4, 557);
     			attr_dev(p, "class", "modal-description svelte-18eo4k3");
-    			add_location(p, file$e, 22, 4, 824);
+    			add_location(p, file$h, 22, 4, 855);
     			attr_dev(source0, "srcset", source0_srcset_value = "" + (/*screenshot*/ ctx[6] + ".webp"));
     			attr_dev(source0, "type", "image/webp");
-    			add_location(source0, file$e, 24, 8, 899);
+    			add_location(source0, file$h, 24, 8, 930);
     			attr_dev(source1, "srcset", source1_srcset_value = "" + (/*screenshot*/ ctx[6] + ".jpg"));
     			attr_dev(source1, "type", "image/jpeg");
-    			add_location(source1, file$e, 25, 8, 961);
+    			add_location(source1, file$h, 25, 8, 992);
     			attr_dev(img, "class", "screenshot svelte-18eo4k3");
     			if (img.src !== (img_src_value = "" + (/*screenshot*/ ctx[6] + ".webp"))) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"));
-    			add_location(img, file$e, 26, 8, 1022);
-    			add_location(picture, file$e, 23, 4, 881);
+    			add_location(img, file$h, 26, 8, 1053);
+    			add_location(picture, file$h, 23, 4, 912);
     			attr_dev(div1, "class", "project-modal svelte-18eo4k3");
-    			add_location(div1, file$e, 13, 0, 321);
+    			add_location(div1, file$h, 13, 0, 323);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -5046,7 +8930,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$e.name,
+    		id: create_fragment$h.name,
     		type: "component",
     		source: "",
     		ctx
@@ -5055,7 +8939,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$e($$self, $$props, $$invalidate) {
+    function instance$h($$self, $$props, $$invalidate) {
     	let { name } = $$props;
     	let { technologies } = $$props;
     	let { year } = $$props;
@@ -5124,7 +9008,7 @@ var app = (function () {
     	constructor(options) {
     		super(options);
 
-    		init(this, options, instance$e, create_fragment$e, safe_not_equal, {
+    		init(this, options, instance$h, create_fragment$h, safe_not_equal, {
     			name: 0,
     			technologies: 1,
     			year: 2,
@@ -5138,7 +9022,7 @@ var app = (function () {
     			component: this,
     			tagName: "ProjectModal",
     			options,
-    			id: create_fragment$e.name
+    			id: create_fragment$h.name
     		});
 
     		const { ctx } = this.$$;
@@ -5230,39 +9114,135 @@ var app = (function () {
     	}
     }
 
-    /* src\components\Projects.svelte generated by Svelte v3.24.1 */
-    const file$f = "src\\components\\Projects.svelte";
+    const projects = 
+    [
+        {
+            name: "MaxEisen.me",
+            emoji: "&#128587;",
+            technologies: "Svelte, Netlify, HTML5, CSS3",
+            year: "2020",
+            shortDescription: "My personal portfolio website (the one you're currently on)",
+            longDescription:
+            `<ul>
+            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/MaxEisen.me",
+            screenshot: "./img/screenshots/maxeisenme",
+        },
+        {
+            name: "Studii",
+            emoji: "&#128218;",
+            technologies: "React, Django, MongoDB, HTML5, CSS3",
+            year: "2019/2020",
+            shortDescription: "A collaborative, all-in-one study space made for students, by students",
+            longDescription:
+            `<ul>
+            <li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li>
+            <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/studii_public",
+            projectLink: "https://qtma.ca/studii.html",
+            screenshot: "./img/screenshots/studii",
+        },
+        {
+            name: "QHacks",
+            emoji: "&#128187;",
+            technologies: "React, Gatsby, MongoDB, HTML5, CSS3",
+            year: "2019/2020",
+            shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
+            longDescription:
+            `<ul>
+            <li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li>
+            <li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
+            projectLink: "https://2020.qhacks.io",
+            screenshot: "./img/screenshots/qhacks",
+        },
+        {
+            name: "Spotilizer",
+            emoji: "&#127925;",
+            technologies: "Python, Tkinter, Spotify Web API",
+            year: "2019",
+            shortDescription: "A customizable, data-centric Spotify music visualizer built in Python",
+            longDescription:
+            `<ul>
+            <li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li>
+            <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/spotilizer",
+            screenshot: "./img/screenshots/spotilizer",
+        },
+        {
+            name: "Glitch",
+            emoji: "&#127918;",
+            technologies: "Unity Game Engine, C#",
+            year: "2018/2019",
+            shortDescription: "A unique, monochromatic platformer game for observant minimalists",
+            longDescription:
+            `<ul>
+            <li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li>
+            <li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/Glitch",
+            projectLink: "https://tamirarnesty.github.io/glitchGame/",
+            screenshot: "./img/screenshots/glitch",
+        },
+        {
+            name: "TicTacToe",
+            emoji: "&#10060;",
+            technologies: "Python",
+            year: "2017",
+            shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+            longDescription:
+            `<ul>
+            <li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li>
+            <li>Developed in under an hour on a long flight, without access to any online resources</li>
+            <li>Initially written in Python 2 and ported to Python 3</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/TicTacToe",
+            screenshot: "./img/screenshots/tictactoe",
+        }
+    ];
 
-    function get_each_context$1(ctx, list, i) {
+    /* src\components\Projects.svelte generated by Svelte v3.24.1 */
+    const file$i = "src\\components\\Projects.svelte";
+
+    function get_each_context$2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[14] = list[i];
+    	child_ctx[3] = list[i];
     	return child_ctx;
     }
 
-    // (145:4) {#each projects as proj}
-    function create_each_block$1(ctx) {
+    // (18:4) {#each projects as proj}
+    function create_each_block$2(ctx) {
     	let div;
     	let h20;
-    	let t0_value = /*proj*/ ctx[14].name + "";
+    	let t0_value = /*proj*/ ctx[3].name + "";
     	let t0;
     	let t1;
     	let html_tag;
-    	let raw_value = /*proj*/ ctx[14].emoji + "";
+    	let raw_value = /*proj*/ ctx[3].emoji + "";
     	let t2;
     	let h21;
-    	let t3_value = /*proj*/ ctx[14].year + "";
+    	let t3_value = /*proj*/ ctx[3].year + "";
     	let t3;
     	let t4;
     	let h22;
-    	let t5_value = /*proj*/ ctx[14].technologies + "";
+    	let t5_value = /*proj*/ ctx[3].technologies + "";
     	let t5;
     	let t6;
     	let p;
-    	let t7_value = /*proj*/ ctx[14].shortDescription + "";
+    	let t7_value = /*proj*/ ctx[3].shortDescription + "";
     	let t7;
     	let t8;
     	let mounted;
     	let dispose;
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[1](/*proj*/ ctx[3], ...args);
+    	}
 
     	const block = {
     		c: function create() {
@@ -5282,16 +9262,16 @@ var app = (function () {
     			t8 = space();
     			html_tag = new HtmlTag(null);
     			attr_dev(h20, "class", "project-name svelte-1145ne2");
-    			add_location(h20, file$f, 146, 12, 7191);
+    			add_location(h20, file$i, 20, 12, 972);
     			attr_dev(h21, "class", "project-year svelte-1145ne2");
-    			add_location(h21, file$f, 147, 12, 7264);
+    			add_location(h21, file$i, 21, 12, 1045);
     			attr_dev(h22, "class", "project-tech svelte-1145ne2");
-    			add_location(h22, file$f, 148, 12, 7318);
-    			add_location(p, file$f, 149, 12, 7380);
+    			add_location(h22, file$i, 22, 12, 1099);
+    			add_location(p, file$i, 23, 12, 1161);
     			attr_dev(div, "class", "project-item");
     			attr_dev(div, "tabindex", "0");
-    			set_style(div, "background-image", "url('" + /*proj*/ ctx[14].screenshot + ".webp')");
-    			add_location(div, file$f, 145, 8, 7053);
+    			set_style(div, "background-image", "url('" + /*proj*/ ctx[3].screenshot + ".webp')");
+    			add_location(div, file$i, 18, 8, 711);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -5311,7 +9291,7 @@ var app = (function () {
     			append_dev(div, t8);
 
     			if (!mounted) {
-    				dispose = listen_dev(div, "click", /*proj*/ ctx[14].modalFunction, false, false, false);
+    				dispose = listen_dev(div, "click", click_handler, false, false, false);
     				mounted = true;
     			}
     		},
@@ -5327,25 +9307,25 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_each_block$1.name,
+    		id: create_each_block$2.name,
     		type: "each",
-    		source: "(145:4) {#each projects as proj}",
+    		source: "(18:4) {#each projects as proj}",
     		ctx
     	});
 
     	return block;
     }
 
-    function create_fragment$f(ctx) {
+    function create_fragment$i(ctx) {
     	let h1;
     	let t1;
     	let div;
-    	let each_value = /*projects*/ ctx[0];
+    	let each_value = projects;
     	validate_each_argument(each_value);
     	let each_blocks = [];
 
     	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
     	}
 
     	const block = {
@@ -5361,9 +9341,10 @@ var app = (function () {
 
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "projects");
-    			add_location(h1, file$f, 142, 0, 6929);
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$i, 15, 0, 561);
     			attr_dev(div, "class", "project-subsection");
-    			add_location(div, file$f, 143, 0, 6983);
+    			add_location(div, file$i, 16, 0, 641);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -5378,18 +9359,18 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*projects*/ 1) {
-    				each_value = /*projects*/ ctx[0];
+    			if (dirty & /*projects, projectModal*/ 1) {
+    				each_value = projects;
     				validate_each_argument(each_value);
     				let i;
 
     				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$1(ctx, each_value, i);
+    					const child_ctx = get_each_context$2(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
     					} else {
-    						each_blocks[i] = create_each_block$1(child_ctx);
+    						each_blocks[i] = create_each_block$2(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div, null);
     					}
@@ -5414,7 +9395,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$f.name,
+    		id: create_fragment$i.name,
     		type: "component",
     		source: "",
     		ctx
@@ -5423,182 +9404,21 @@ var app = (function () {
     	return block;
     }
 
-    function instance$f($$self, $$props, $$invalidate) {
+    function instance$i($$self, $$props, $$invalidate) {
     	const { open } = getContext("simple-modal");
 
-    	const modal1 = () => {
+    	const projectModal = (name, technologies, year, description, githubLink, projectLink, screenshot) => {
     		open(ProjectModal, {
-    			name: proj1.name,
-    			technologies: proj1.technologies,
-    			year: proj1.year,
-    			description: proj1.longDescription,
-    			githubLink: proj1.githubLink,
-    			projectLink: proj1.projectLink,
-    			screenshot: proj1.screenshot
+    			name,
+    			technologies,
+    			year,
+    			description,
+    			githubLink,
+    			projectLink,
+    			screenshot
     		});
     	};
 
-    	const modal2 = () => {
-    		open(ProjectModal, {
-    			name: proj2.name,
-    			technologies: proj2.technologies,
-    			year: proj2.year,
-    			description: proj2.longDescription,
-    			githubLink: proj2.githubLink,
-    			projectLink: proj2.projectLink,
-    			screenshot: proj2.screenshot
-    		});
-    	};
-
-    	const modal3 = () => {
-    		open(ProjectModal, {
-    			name: proj3.name,
-    			technologies: proj3.technologies,
-    			year: proj3.year,
-    			description: proj3.longDescription,
-    			githubLink: proj3.githubLink,
-    			projectLink: proj3.projectLink,
-    			screenshot: proj3.screenshot
-    		});
-    	};
-
-    	const modal4 = () => {
-    		open(ProjectModal, {
-    			name: proj4.name,
-    			technologies: proj4.technologies,
-    			year: proj4.year,
-    			description: proj4.longDescription,
-    			githubLink: proj4.githubLink,
-    			projectLink: proj4.projectLink,
-    			screenshot: proj4.screenshot
-    		});
-    	};
-
-    	const modal5 = () => {
-    		open(ProjectModal, {
-    			name: proj5.name,
-    			technologies: proj5.technologies,
-    			year: proj5.year,
-    			description: proj5.longDescription,
-    			githubLink: proj5.githubLink,
-    			projectLink: proj5.projectLink,
-    			screenshot: proj5.screenshot
-    		});
-    	};
-
-    	const modal6 = () => {
-    		open(ProjectModal, {
-    			name: proj6.name,
-    			technologies: proj6.technologies,
-    			year: proj6.year,
-    			description: proj6.longDescription,
-    			githubLink: proj6.githubLink,
-    			projectLink: proj6.projectLink,
-    			screenshot: proj6.screenshot
-    		});
-    	};
-
-    	const proj1 = {
-    		modalFunction: modal1,
-    		name: "MaxEisen.me",
-    		emoji: "&#128587;",
-    		technologies: "Svelte, Netlify, HTML5, CSS3",
-    		year: "2020",
-    		shortDescription: "My personal portfolio website (the one you're currently on) built from scratch",
-    		longDescription: `<ul>
-            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
-            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
-        </ul>`,
-    		githubLink: "https://github.com/maxeisen/MaxEisen.me",
-    		screenshot: "./img/screenshots/maxeisenme"
-    	};
-
-    	const proj2 = {
-    		modalFunction: modal2,
-    		name: "Studii",
-    		emoji: "&#128218;",
-    		technologies: "React, Django, MongoDB, HTML5, CSS3",
-    		year: "2019/2020",
-    		shortDescription: "A collaborative, all-in-one study space made for students, by students",
-    		longDescription: `<ul>
-            <li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li>
-            <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>
-        </ul>`,
-    		githubLink: "https://github.com/maxeisen/studii_public",
-    		projectLink: "https://qtma.ca/studii.html",
-    		screenshot: "./img/screenshots/studii"
-    	};
-
-    	const proj3 = {
-    		modalFunction: modal3,
-    		name: "QHacks",
-    		emoji: "&#128187;",
-    		technologies: "React, Gatsby, MongoDB, HTML5, CSS3",
-    		year: "2019/2020",
-    		shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
-    		longDescription: `<ul>
-            <li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li>
-            <li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li>
-        </ul>`,
-    		githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
-    		projectLink: "https://2020.qhacks.io",
-    		screenshot: "./img/screenshots/qhacks"
-    	};
-
-    	const proj4 = {
-    		modalFunction: modal4,
-    		name: "Spotilizer",
-    		emoji: "&#127925;",
-    		technologies: "Python, Tkinter, Spotify Web API",
-    		year: "2019",
-    		shortDescription: "A customizable, data-centric Spotify music visualizer built in Python",
-    		longDescription: `<ul>
-            <li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li>
-            <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>
-        </ul>`,
-    		githubLink: "https://github.com/maxeisen/spotilizer",
-    		screenshot: "./img/screenshots/spotilizer"
-    	};
-
-    	const proj5 = {
-    		modalFunction: modal5,
-    		name: "Glitch",
-    		emoji: "&#127918;",
-    		technologies: "Unity Game Engine, C#",
-    		year: "2018/2019",
-    		shortDescription: "A unique, monochromatic platformer game for observant minimalists",
-    		longDescription: `<ul>
-            <li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li>
-            <li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li>
-        </ul>`,
-    		githubLink: "https://github.com/maxeisen/Glitch",
-    		projectLink: "https://tamirarnesty.github.io/glitchGame/",
-    		screenshot: "./img/screenshots/glitch"
-    	};
-
-    	const proj6 = {
-    		modalFunction: modal6,
-    		name: "TicTacToe",
-    		emoji: "&#10060;",
-    		technologies: "Python",
-    		year: "2017",
-    		shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
-    		longDescription: `<ul>
-            <li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li>
-            <li>Developed in under an hour on a long flight, without access to any online resources</li>
-            <li>Initially written in Python 2 and ported to Python 3</li>
-        </ul>`,
-    		githubLink: "https://github.com/maxeisen/TicTacToe",
-    		screenshot: "./img/screenshots/tictactoe"
-    	};
-
-    	var projects = [];
-    	projects.push(proj1);
-    	projects.push(proj2);
-    	projects.push(proj3);
-    	projects.push(proj4);
-    	projects.push(proj5);
-    	projects.push(proj6);
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -5607,56 +9427,38 @@ var app = (function () {
 
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("Projects", $$slots, []);
+    	const click_handler = proj => projectModal(proj.name, proj.technologies, proj.year, proj.longDescription, proj.githubLink, proj.projectLink, proj.screenshot);
 
     	$$self.$capture_state = () => ({
     		getContext,
     		ProjectModal,
+    		projects,
     		open,
-    		modal1,
-    		modal2,
-    		modal3,
-    		modal4,
-    		modal5,
-    		modal6,
-    		proj1,
-    		proj2,
-    		proj3,
-    		proj4,
-    		proj5,
-    		proj6,
-    		projects
+    		projectModal
     	});
 
-    	$$self.$inject_state = $$props => {
-    		if ("projects" in $$props) $$invalidate(0, projects = $$props.projects);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
-    	return [projects];
+    	return [projectModal, click_handler];
     }
 
     class Projects extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$f, create_fragment$f, safe_not_equal, {});
+    		init(this, options, instance$i, create_fragment$i, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "Projects",
     			options,
-    			id: create_fragment$f.name
+    			id: create_fragment$i.name
     		});
     	}
     }
 
     /* src\components\modals\EducationModal.svelte generated by Svelte v3.24.1 */
 
-    const file$g = "src\\components\\modals\\EducationModal.svelte";
+    const file$j = "src\\components\\modals\\EducationModal.svelte";
 
-    function create_fragment$g(ctx) {
+    function create_fragment$j(ctx) {
     	let div;
     	let h1;
     	let t0;
@@ -5690,20 +9492,22 @@ var app = (function () {
     			b.textContent = "Committees: ";
     			t7 = text(/*committees*/ ctx[4]);
     			attr_dev(h1, "class", "modal-school svelte-143p4hy");
-    			add_location(h1, file$g, 9, 4, 171);
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$j, 9, 4, 171);
     			attr_dev(h2, "class", "modal-degree svelte-143p4hy");
-    			add_location(h2, file$g, 10, 4, 214);
+    			set_style(h2, "text-align", "center");
+    			add_location(h2, file$j, 10, 4, 242);
     			attr_dev(h30, "class", "modal-major svelte-143p4hy");
     			set_style(h30, "text-align", "center");
-    			add_location(h30, file$g, 11, 4, 263);
+    			add_location(h30, file$j, 11, 4, 319);
     			attr_dev(h31, "class", "modal-years svelte-143p4hy");
     			set_style(h31, "text-align", "center");
-    			add_location(h31, file$g, 12, 4, 337);
-    			add_location(b, file$g, 13, 32, 434);
+    			add_location(h31, file$j, 12, 4, 394);
+    			add_location(b, file$j, 13, 32, 491);
     			attr_dev(p, "class", "modal-committees svelte-143p4hy");
-    			add_location(p, file$g, 13, 4, 406);
+    			add_location(p, file$j, 13, 4, 463);
     			attr_dev(div, "class", "education-modal svelte-143p4hy");
-    			add_location(div, file$g, 8, 0, 137);
+    			add_location(div, file$j, 8, 0, 137);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -5740,7 +9544,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$g.name,
+    		id: create_fragment$j.name,
     		type: "component",
     		source: "",
     		ctx
@@ -5749,7 +9553,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$g($$self, $$props, $$invalidate) {
+    function instance$j($$self, $$props, $$invalidate) {
     	let { school } = $$props;
     	let { degree } = $$props;
     	let { major } = $$props;
@@ -5793,7 +9597,7 @@ var app = (function () {
     	constructor(options) {
     		super(options);
 
-    		init(this, options, instance$g, create_fragment$g, safe_not_equal, {
+    		init(this, options, instance$j, create_fragment$j, safe_not_equal, {
     			school: 0,
     			degree: 1,
     			major: 2,
@@ -5805,7 +9609,7 @@ var app = (function () {
     			component: this,
     			tagName: "EducationModal",
     			options,
-    			id: create_fragment$g.name
+    			id: create_fragment$j.name
     		});
 
     		const { ctx } = this.$$;
@@ -5873,10 +9677,23 @@ var app = (function () {
     	}
     }
 
-    /* src\components\Education.svelte generated by Svelte v3.24.1 */
-    const file$h = "src\\components\\Education.svelte";
+    const education = 
+    [
+        {
+            school: "Queen's University",
+            degreeShort: "Bachelor of Computing, Honours",
+            degreeLong: "Bachelor of Computing, Honours (<a href=\"https://www.queensu.ca/admission/programs/computing\" rel=\"noreferrer\" target=\"_blank\">BCmpH</a>)",
+            majorShort: "Computer Science",
+            majorLong: "Computer Science (<a href=\"http://www.cips.ca/\" rel=\"noreferrer\" target=\"_blank\">CIPS</a> Accredited)",
+            years: "2017 - 2021",
+            committees: "QTMA, QHacks, TEDxQueensU, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
+        }
+    ];
 
-    function create_fragment$h(ctx) {
+    /* src\components\Education.svelte generated by Svelte v3.24.1 */
+    const file$k = "src\\components\\Education.svelte";
+
+    function create_fragment$k(ctx) {
     	let h1;
     	let t1;
     	let div1;
@@ -5899,32 +9716,33 @@ var app = (function () {
     			div1 = element("div");
     			div0 = element("div");
     			h20 = element("h2");
-    			h20.textContent = `${/*education*/ ctx[0].school}`;
+    			h20.textContent = `${education[0].school}`;
     			t3 = space();
     			h21 = element("h2");
-    			h21.textContent = "Bachelor of Computing (Honours)";
+    			h21.textContent = `${education[0].degreeShort}`;
     			t5 = space();
     			h22 = element("h2");
-    			h22.textContent = "Computer Science";
+    			h22.textContent = `${education[0].majorShort}`;
     			t7 = space();
     			h23 = element("h2");
-    			h23.textContent = `${/*education*/ ctx[0].years}`;
+    			h23.textContent = `${education[0].years}`;
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "education");
-    			add_location(h1, file$h, 21, 0, 909);
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$k, 14, 0, 464);
     			attr_dev(h20, "class", "school-name svelte-ouixgn");
-    			add_location(h20, file$h, 24, 12, 1092);
+    			add_location(h20, file$k, 18, 8, 786);
     			attr_dev(h21, "class", "degree-info svelte-ouixgn");
-    			add_location(h21, file$h, 25, 12, 1152);
+    			add_location(h21, file$k, 19, 8, 845);
     			attr_dev(h22, "class", "major-info svelte-ouixgn");
-    			add_location(h22, file$h, 26, 12, 1225);
+    			add_location(h22, file$k, 20, 8, 909);
     			attr_dev(h23, "class", "degree-years svelte-ouixgn");
-    			add_location(h23, file$h, 27, 12, 1282);
+    			add_location(h23, file$k, 21, 8, 971);
     			attr_dev(div0, "class", "education-item");
     			attr_dev(div0, "tabindex", "0");
-    			add_location(div0, file$h, 23, 8, 1012);
+    			add_location(div0, file$k, 16, 4, 585);
     			attr_dev(div1, "class", "education-subsection");
-    			add_location(div1, file$h, 22, 4, 969);
+    			add_location(div1, file$k, 15, 0, 546);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -5943,7 +9761,7 @@ var app = (function () {
     			append_dev(div0, h23);
 
     			if (!mounted) {
-    				dispose = listen_dev(div0, "click", /*educationModal*/ ctx[1], false, false, false);
+    				dispose = listen_dev(div0, "click", /*click_handler*/ ctx[1], false, false, false);
     				mounted = true;
     			}
     		},
@@ -5961,7 +9779,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$h.name,
+    		id: create_fragment$k.name,
     		type: "component",
     		source: "",
     		ctx
@@ -5970,25 +9788,11 @@ var app = (function () {
     	return block;
     }
 
-    function instance$h($$self, $$props, $$invalidate) {
-    	const education = {
-    		school: "Queen's University",
-    		degree: "Bachelor of Computing (<a href=\"https://www.queensu.ca/admission/programs/computing\" rel=\"noreferrer\" target=\"_blank\">BCmpH</a>)",
-    		major: "Computer Science (<a href=\"http://www.cips.ca/\" rel=\"noreferrer\" target=\"_blank\">CIPS</a> Accredited)",
-    		years: "2017 - 2021",
-    		committees: "QTMA, QHacks, TEDxQueensU, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
-    	};
-
+    function instance$k($$self, $$props, $$invalidate) {
     	const { open } = getContext("simple-modal");
 
-    	const educationModal = () => {
-    		open(EducationModal, {
-    			school: education.school,
-    			degree: education.degree,
-    			major: education.major,
-    			years: education.years,
-    			committees: education.committees
-    		});
+    	const educationModal = (school, degree, major, years, committees) => {
+    		open(EducationModal, { school, degree, major, years, committees });
     	};
 
     	const writable_props = [];
@@ -5999,6 +9803,7 @@ var app = (function () {
 
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("Education", $$slots, []);
+    	const click_handler = () => educationModal(education[0].school, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].committees);
 
     	$$self.$capture_state = () => ({
     		getContext,
@@ -6008,28 +9813,28 @@ var app = (function () {
     		educationModal
     	});
 
-    	return [education, educationModal];
+    	return [educationModal, click_handler];
     }
 
     class Education extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$h, create_fragment$h, safe_not_equal, {});
+    		init(this, options, instance$k, create_fragment$k, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "Education",
     			options,
-    			id: create_fragment$h.name
+    			id: create_fragment$k.name
     		});
     	}
     }
 
     /* src\components\Skills.svelte generated by Svelte v3.24.1 */
 
-    const file$i = "src\\components\\Skills.svelte";
+    const file$l = "src\\components\\Skills.svelte";
 
-    function create_fragment$i(ctx) {
+    function create_fragment$l(ctx) {
     	let h1;
     	let t1;
     	let div;
@@ -6122,43 +9927,44 @@ var app = (function () {
     			li15.textContent = "Unity";
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "skills");
-    			add_location(h1, file$i, 0, 0, 0);
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$l, 0, 0, 0);
     			attr_dev(li0, "class", "svelte-1vlexz");
-    			add_location(li0, file$i, 3, 8, 99);
+    			add_location(li0, file$l, 3, 8, 125);
     			attr_dev(li1, "class", "svelte-1vlexz");
-    			add_location(li1, file$i, 4, 8, 123);
+    			add_location(li1, file$l, 4, 8, 149);
     			attr_dev(li2, "class", "svelte-1vlexz");
-    			add_location(li2, file$i, 5, 8, 145);
+    			add_location(li2, file$l, 5, 8, 171);
     			attr_dev(li3, "class", "svelte-1vlexz");
-    			add_location(li3, file$i, 6, 8, 173);
+    			add_location(li3, file$l, 6, 8, 199);
     			attr_dev(li4, "class", "svelte-1vlexz");
-    			add_location(li4, file$i, 7, 8, 196);
+    			add_location(li4, file$l, 7, 8, 222);
     			attr_dev(li5, "class", "svelte-1vlexz");
-    			add_location(li5, file$i, 8, 8, 218);
+    			add_location(li5, file$l, 8, 8, 244);
     			attr_dev(li6, "class", "svelte-1vlexz");
-    			add_location(li6, file$i, 9, 8, 239);
+    			add_location(li6, file$l, 9, 8, 265);
     			attr_dev(li7, "class", "svelte-1vlexz");
-    			add_location(li7, file$i, 10, 8, 260);
+    			add_location(li7, file$l, 10, 8, 286);
     			attr_dev(li8, "class", "svelte-1vlexz");
-    			add_location(li8, file$i, 11, 8, 280);
+    			add_location(li8, file$l, 11, 8, 306);
     			attr_dev(li9, "class", "svelte-1vlexz");
-    			add_location(li9, file$i, 12, 8, 303);
+    			add_location(li9, file$l, 12, 8, 329);
     			attr_dev(li10, "class", "svelte-1vlexz");
-    			add_location(li10, file$i, 13, 8, 327);
+    			add_location(li10, file$l, 13, 8, 353);
     			attr_dev(li11, "class", "svelte-1vlexz");
-    			add_location(li11, file$i, 14, 8, 351);
+    			add_location(li11, file$l, 14, 8, 377);
     			attr_dev(li12, "class", "svelte-1vlexz");
-    			add_location(li12, file$i, 15, 8, 375);
+    			add_location(li12, file$l, 15, 8, 401);
     			attr_dev(li13, "class", "svelte-1vlexz");
-    			add_location(li13, file$i, 16, 8, 397);
+    			add_location(li13, file$l, 16, 8, 423);
     			attr_dev(li14, "class", "svelte-1vlexz");
-    			add_location(li14, file$i, 17, 8, 418);
+    			add_location(li14, file$l, 17, 8, 444);
     			attr_dev(li15, "class", "svelte-1vlexz");
-    			add_location(li15, file$i, 18, 8, 439);
+    			add_location(li15, file$l, 18, 8, 465);
     			attr_dev(ul, "class", "svelte-1vlexz");
-    			add_location(ul, file$i, 2, 4, 86);
+    			add_location(ul, file$l, 2, 4, 112);
     			attr_dev(div, "class", "skills-subsection");
-    			add_location(div, file$i, 1, 0, 50);
+    			add_location(div, file$l, 1, 0, 76);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -6212,7 +10018,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$i.name,
+    		id: create_fragment$l.name,
     		type: "component",
     		source: "",
     		ctx
@@ -6221,7 +10027,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$i($$self, $$props) {
+    function instance$l($$self, $$props) {
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -6236,22 +10042,22 @@ var app = (function () {
     class Skills extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$i, create_fragment$i, safe_not_equal, {});
+    		init(this, options, instance$l, create_fragment$l, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "Skills",
     			options,
-    			id: create_fragment$i.name
+    			id: create_fragment$l.name
     		});
     	}
     }
 
     /* src\components\Footer.svelte generated by Svelte v3.24.1 */
 
-    const file$j = "src\\components\\Footer.svelte";
+    const file$m = "src\\components\\Footer.svelte";
 
-    function create_fragment$j(ctx) {
+    function create_fragment$m(ctx) {
     	let h2;
     	let a;
     	let t0;
@@ -6266,13 +10072,13 @@ var app = (function () {
     			b.textContent = "©2021";
     			set_style(b, "font-size", "14px");
     			set_style(b, "color", "var(--header-colour)");
-    			add_location(b, file$j, 0, 133, 133);
+    			add_location(b, file$m, 0, 133, 133);
     			attr_dev(a, "href", "https://github.com/maxeisen/MaxEisen.me/");
     			attr_dev(a, "rel", "noreferrer");
     			attr_dev(a, "class", "footer");
-    			add_location(a, file$j, 0, 19, 19);
+    			add_location(a, file$m, 0, 19, 19);
     			attr_dev(h2, "class", "footer");
-    			add_location(h2, file$j, 0, 0, 0);
+    			add_location(h2, file$m, 0, 0, 0);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -6293,7 +10099,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$j.name,
+    		id: create_fragment$m.name,
     		type: "component",
     		source: "",
     		ctx
@@ -6302,7 +10108,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$j($$self, $$props) {
+    function instance$m($$self, $$props) {
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -6317,13 +10123,13 @@ var app = (function () {
     class Footer extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$j, create_fragment$j, safe_not_equal, {});
+    		init(this, options, instance$m, create_fragment$m, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "Footer",
     			options,
-    			id: create_fragment$j.name
+    			id: create_fragment$m.name
     		});
     	}
     }
@@ -6341,7 +10147,7 @@ var app = (function () {
     /* node_modules\svelte-simple-modal\src\Modal.svelte generated by Svelte v3.24.1 */
 
     const { Object: Object_1 } = globals;
-    const file$k = "node_modules\\svelte-simple-modal\\src\\Modal.svelte";
+    const file$n = "node_modules\\svelte-simple-modal\\src\\Modal.svelte";
 
     // (213:0) {#if Component}
     function create_if_block$5(ctx) {
@@ -6388,15 +10194,15 @@ var app = (function () {
     			if (switch_instance) create_component(switch_instance.$$.fragment);
     			attr_dev(div0, "class", "content svelte-fnsfcv");
     			attr_dev(div0, "style", /*cssContent*/ ctx[11]);
-    			add_location(div0, file$k, 233, 8, 5379);
+    			add_location(div0, file$n, 233, 8, 5379);
     			attr_dev(div1, "class", "window svelte-fnsfcv");
     			attr_dev(div1, "style", /*cssWindow*/ ctx[10]);
-    			add_location(div1, file$k, 221, 6, 5006);
+    			add_location(div1, file$n, 221, 6, 5006);
     			attr_dev(div2, "class", "window-wrap svelte-fnsfcv");
-    			add_location(div2, file$k, 220, 4, 4957);
+    			add_location(div2, file$n, 220, 4, 4957);
     			attr_dev(div3, "class", "bg svelte-fnsfcv");
     			attr_dev(div3, "style", /*cssBg*/ ctx[9]);
-    			add_location(div3, file$k, 213, 2, 4791);
+    			add_location(div3, file$n, 213, 2, 4791);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div3, anchor);
@@ -6576,7 +10382,7 @@ var app = (function () {
     		c: function create() {
     			button = element("button");
     			attr_dev(button, "class", "close svelte-fnsfcv");
-    			add_location(button, file$k, 231, 10, 5308);
+    			add_location(button, file$n, 231, 10, 5308);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, button, anchor);
@@ -6605,7 +10411,7 @@ var app = (function () {
     	return block;
     }
 
-    function create_fragment$k(ctx) {
+    function create_fragment$n(ctx) {
     	let t;
     	let current;
     	let mounted;
@@ -6690,7 +10496,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$k.name,
+    		id: create_fragment$n.name,
     		type: "component",
     		source: "",
     		ctx
@@ -6699,7 +10505,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$k($$self, $$props, $$invalidate) {
+    function instance$n($$self, $$props, $$invalidate) {
     	let { key = "simple-modal" } = $$props;
     	let { closeButton = true } = $$props;
     	let { closeOnEsc = true } = $$props;
@@ -6972,8 +10778,8 @@ var app = (function () {
     		init(
     			this,
     			options,
-    			instance$k,
-    			create_fragment$k,
+    			instance$n,
+    			create_fragment$n,
     			safe_not_equal,
     			{
     				key: 17,
@@ -6996,7 +10802,7 @@ var app = (function () {
     			component: this,
     			tagName: "Modal",
     			options,
-    			id: create_fragment$k.name
+    			id: create_fragment$n.name
     		});
     	}
 
@@ -7098,9 +10904,9 @@ var app = (function () {
     }
 
     /* src\App.svelte generated by Svelte v3.24.1 */
-    const file$l = "src\\App.svelte";
+    const file$o = "src\\App.svelte";
 
-    // (14:0) <Modal>
+    // (15:0) <Modal>
     function create_default_slot$8(ctx) {
     	let menubar;
     	let t0;
@@ -7116,10 +10922,12 @@ var app = (function () {
     	let t3;
     	let projects;
     	let t4;
-    	let education;
+    	let blog;
     	let t5;
-    	let skills;
+    	let education;
     	let t6;
+    	let skills;
+    	let t7;
     	let footer;
     	let current;
     	menubar = new MenuBar({ $$inline: true });
@@ -7127,6 +10935,7 @@ var app = (function () {
     	intro = new Intro({ $$inline: true });
     	experience = new Experience({ $$inline: true });
     	projects = new Projects({ $$inline: true });
+    	blog = new Blog({ $$inline: true });
     	education = new Education({ $$inline: true });
     	skills = new Skills({ $$inline: true });
     	footer = new Footer({ $$inline: true });
@@ -7147,19 +10956,21 @@ var app = (function () {
     			t3 = space();
     			create_component(projects.$$.fragment);
     			t4 = space();
-    			create_component(education.$$.fragment);
+    			create_component(blog.$$.fragment);
     			t5 = space();
-    			create_component(skills.$$.fragment);
+    			create_component(education.$$.fragment);
     			t6 = space();
+    			create_component(skills.$$.fragment);
+    			t7 = space();
     			create_component(footer.$$.fragment);
     			attr_dev(div0, "class", "sidebar-section");
-    			add_location(div0, file$l, 17, 8, 711);
+    			add_location(div0, file$o, 18, 8, 761);
     			attr_dev(div1, "class", "info-section-inner");
-    			add_location(div1, file$l, 21, 12, 835);
+    			add_location(div1, file$o, 22, 12, 885);
     			attr_dev(div2, "class", "info-section-main");
-    			add_location(div2, file$l, 20, 8, 790);
+    			add_location(div2, file$o, 21, 8, 840);
     			attr_dev(div3, "class", "grid-container");
-    			add_location(div3, file$l, 16, 4, 673);
+    			add_location(div3, file$o, 17, 4, 723);
     		},
     		m: function mount(target, anchor) {
     			mount_component(menubar, target, anchor);
@@ -7176,10 +10987,12 @@ var app = (function () {
     			append_dev(div1, t3);
     			mount_component(projects, div1, null);
     			append_dev(div1, t4);
-    			mount_component(education, div1, null);
+    			mount_component(blog, div1, null);
     			append_dev(div1, t5);
+    			mount_component(education, div1, null);
+    			append_dev(div1, t6);
     			mount_component(skills, div1, null);
-    			append_dev(div2, t6);
+    			append_dev(div2, t7);
     			mount_component(footer, div2, null);
     			current = true;
     		},
@@ -7190,6 +11003,7 @@ var app = (function () {
     			transition_in(intro.$$.fragment, local);
     			transition_in(experience.$$.fragment, local);
     			transition_in(projects.$$.fragment, local);
+    			transition_in(blog.$$.fragment, local);
     			transition_in(education.$$.fragment, local);
     			transition_in(skills.$$.fragment, local);
     			transition_in(footer.$$.fragment, local);
@@ -7201,6 +11015,7 @@ var app = (function () {
     			transition_out(intro.$$.fragment, local);
     			transition_out(experience.$$.fragment, local);
     			transition_out(projects.$$.fragment, local);
+    			transition_out(blog.$$.fragment, local);
     			transition_out(education.$$.fragment, local);
     			transition_out(skills.$$.fragment, local);
     			transition_out(footer.$$.fragment, local);
@@ -7214,6 +11029,7 @@ var app = (function () {
     			destroy_component(intro);
     			destroy_component(experience);
     			destroy_component(projects);
+    			destroy_component(blog);
     			destroy_component(education);
     			destroy_component(skills);
     			destroy_component(footer);
@@ -7224,14 +11040,14 @@ var app = (function () {
     		block,
     		id: create_default_slot$8.name,
     		type: "slot",
-    		source: "(14:0) <Modal>",
+    		source: "(15:0) <Modal>",
     		ctx
     	});
 
     	return block;
     }
 
-    function create_fragment$l(ctx) {
+    function create_fragment$o(ctx) {
     	let modal;
     	let current;
 
@@ -7279,7 +11095,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_fragment$l.name,
+    		id: create_fragment$o.name,
     		type: "component",
     		source: "",
     		ctx
@@ -7288,7 +11104,7 @@ var app = (function () {
     	return block;
     }
 
-    function instance$l($$self, $$props, $$invalidate) {
+    function instance$o($$self, $$props, $$invalidate) {
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
@@ -7302,6 +11118,7 @@ var app = (function () {
     		MenuBar,
     		Sidebar,
     		Intro,
+    		Blog,
     		Experience,
     		Projects,
     		Education,
@@ -7316,13 +11133,13 @@ var app = (function () {
     class App extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$l, create_fragment$l, safe_not_equal, {});
+    		init(this, options, instance$o, create_fragment$o, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
     			tagName: "App",
     			options,
-    			id: create_fragment$l.name
+    			id: create_fragment$o.name
     		});
     	}
     }

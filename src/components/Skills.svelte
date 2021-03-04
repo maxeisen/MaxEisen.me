@@ -1,4 +1,4 @@
-<h1 class="section-title" id="skills">Skills</h1>
+<h1 class="section-title" id="skills" style="text-align: left;">Skills</h1>
 <div class="skills-subsection">
     <ul>
         <li>Python</li>
