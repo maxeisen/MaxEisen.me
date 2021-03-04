@@ -20,7 +20,7 @@
         <h3 class="blog-author" style="text-align: center">Author: <b class="author-name">{author}</b></h3>
         <h3 class="blog-date" style="text-align: center">{date}</h3>
     </div>
-    <div class="markdown">{@html marked(content)}</div>
+    <div class="blog-content">{@html marked(content)}</div>
     <h2 class="signature"><b style="font-weight: 300">~</b>{author.split(" ")[0]}</h2>
 </div>
 
@@ -68,6 +68,10 @@
         margin: 8px auto 8px auto;
         color: var(--modal-text-colour);
         line-height: 1.4;
+    }
+
+    .blog-content {
+        line-height: 2.0;
     }
 
     .signature {

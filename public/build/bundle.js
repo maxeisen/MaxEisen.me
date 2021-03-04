@@ -6970,26 +6970,26 @@ var app = (function () {
     			b1 = element("b");
     			b1.textContent = "~";
     			t9 = text(t9_value);
-    			attr_dev(h1, "class", "blog-title svelte-1kujcy6");
+    			attr_dev(h1, "class", "blog-title svelte-rivipd");
     			set_style(h1, "text-align", "center");
     			add_location(h1, file$a, 18, 8, 391);
-    			attr_dev(b0, "class", "author-name svelte-1kujcy6");
+    			attr_dev(b0, "class", "author-name svelte-rivipd");
     			add_location(b0, file$a, 19, 67, 522);
-    			attr_dev(h30, "class", "blog-author svelte-1kujcy6");
+    			attr_dev(h30, "class", "blog-author svelte-rivipd");
     			set_style(h30, "text-align", "center");
     			add_location(h30, file$a, 19, 8, 463);
-    			attr_dev(h31, "class", "blog-date svelte-1kujcy6");
+    			attr_dev(h31, "class", "blog-date svelte-rivipd");
     			set_style(h31, "text-align", "center");
     			add_location(h31, file$a, 20, 8, 572);
-    			attr_dev(div0, "class", "blog-header svelte-1kujcy6");
+    			attr_dev(div0, "class", "blog-header svelte-rivipd");
     			add_location(div0, file$a, 17, 4, 356);
-    			attr_dev(div1, "class", "markdown");
+    			attr_dev(div1, "class", "blog-content svelte-rivipd");
     			add_location(div1, file$a, 22, 4, 650);
     			set_style(b1, "font-weight", "300");
-    			add_location(b1, file$a, 23, 26, 729);
-    			attr_dev(h2, "class", "signature svelte-1kujcy6");
-    			add_location(h2, file$a, 23, 4, 707);
-    			attr_dev(div2, "class", "blog-modal svelte-1kujcy6");
+    			add_location(b1, file$a, 23, 26, 733);
+    			attr_dev(h2, "class", "signature svelte-rivipd");
+    			add_location(h2, file$a, 23, 4, 711);
+    			attr_dev(div2, "class", "blog-modal svelte-rivipd");
     			add_location(div2, file$a, 16, 0, 326);
     		},
     		l: function claim(nodes) {
