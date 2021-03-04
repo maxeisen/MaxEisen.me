@@ -1,33 +1,27 @@
 <script>
     import { getContext } from 'svelte';
     import EducationModal from './modals/EducationModal.svelte';
-
-    const education = {
-        school: "Queen's University",
-        degree: "Bachelor of Computing (<a href=\"https://www.queensu.ca/admission/programs/computing\" rel=\"noreferrer\" target=\"_blank\">BCmpH</a>)",
-        major: "Computer Science (<a href=\"http://www.cips.ca/\" rel=\"noreferrer\" target=\"_blank\">CIPS</a> Accredited)",
-        years: "2017 - 2021",
-        committees: "QTMA, QHacks, TEDxQueensU, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
-    };
+    import { education } from '../../public/content/education.js';
 
     const { open } = getContext('simple-modal');
 
-    const educationModal = () => {
+    const educationModal = (school, degree, major, years, committees) => {
         open(EducationModal, {
-            school: education.school, degree: education.degree, major: education.major, years: education.years, committees: education.committees
+            school: school, degree: degree, major: major, years: years, committees: committees
         });
     };
 </script>
 
-<h1 class="section-title" id="education">Education</h1>
-    <div class="education-subsection">
-        <div class="education-item" tabindex="0" on:click={educationModal}>
-            <h2 class="school-name">{education.school}</h2>
-            <h2 class="degree-info">Bachelor of Computing (Honours)</h2>
-            <h2 class="major-info">Computer Science</h2>
-            <h2 class="degree-years">{education.years}</h2>
-        </div>
+<h1 class="section-title" id="education" style="text-align: left;">Education</h1>
+<div class="education-subsection">
+    <div class="education-item" tabindex="0"
+    on:click={() => educationModal(education[0].school, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].committees)}>
+        <h2 class="school-name">{education[0].school}</h2>
+        <h2 class="degree-info">{education[0].degreeShort}</h2>
+        <h2 class="major-info">{education[0].majorShort}</h2>
+        <h2 class="degree-years">{education[0].years}</h2>
     </div>
+</div>
 
 <style>
     .school-name {

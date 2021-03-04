@@ -8,6 +8,8 @@
     --nav-link-hover: white;
     --nav-background: black;
     --nav-background-mobile: rgba(18, 18, 18, 0);
+    --scrollbar-thumb: rgba(114, 114, 114, 0.4);
+    --scrollbar-thumb-hover: rgba(114, 114, 114, 0.1);
 
     --header-colour: white;
     --paragraph-colour: #e6e6e6;
@@ -50,6 +52,8 @@
     --nav-link-hover: #dadada;
     --nav-background: #c7c7c7;
     --nav-background-mobile: rgba(18, 18, 18, 0);
+    --scrollbar-thumb: rgba(114, 114, 114, 0.8);
+    --scrollbar-thumb-hover: rgba(114, 114, 114, 0.4);
 
     --header-colour: black;
     --paragraph-colour: #1a1919;

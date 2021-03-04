@@ -17,6 +17,9 @@
     "svelte-simple-modal": "^0.4.2"
   },
   "dependencies": {
+    "file-system": "^2.2.2",
+    "marked": "^2.0.1",
+    "query-string": "^6.14.1",
     "sirv-cli": "^0.4.6",
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.4"

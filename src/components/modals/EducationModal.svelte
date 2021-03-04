@@ -7,9 +7,9 @@
 </script>
 
 <div class="education-modal">
-    <h1 class="modal-school">{school}</h1>
-    <h2 class="modal-degree">{@html degree}</h2>
-    <h3 class="modal-major" style="text-align: center">{@html major}</h3>
+    <h1 class="modal-school" style="text-align: center;">{school}</h1>
+    <h2 class="modal-degree" style="text-align: center;">{@html degree}</h2>
+    <h3 class="modal-major" style="text-align: center;">{@html major}</h3>
     <h3 class="modal-years" style="text-align: center;">{years}</h3>
     <p class="modal-committees"><b>Committees: </b>{committees}</p>
 </div>

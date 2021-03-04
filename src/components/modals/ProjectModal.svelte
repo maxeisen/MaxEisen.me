@@ -1,6 +1,6 @@
 <script>
-    import OpenLogo from 'svelte-icons/io/IoMdOpen.svelte'
-    import CodeLogo from 'svelte-icons/io/IoIosCode.svelte'
+    import OpenLogo from 'svelte-icons/io/IoMdOpen.svelte';
+    import CodeLogo from 'svelte-icons/io/IoIosCode.svelte';
 
     export let name;
     export let technologies;
@@ -12,8 +12,8 @@
 </script>
 
 <div class="project-modal">
-    <h1 class="modal-name">{name} ({year})</h1>
-    <h3 class="modal-description" style="text-align: center">Developed with: <b class="technologies">{technologies}</b></h3>
+    <h1 class="modal-name" style="text-align: center;">{name} ({year})</h1>
+    <h3 class="modal-description" style="text-align: center;">Developed with: <b class="technologies">{technologies}</b></h3>
     <div class="project-links-container">
         {#if projectLink}
             <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>

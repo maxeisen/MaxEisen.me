@@ -3,6 +3,7 @@
     import MenuBar from './components/MenuBar.svelte';
     import Sidebar from './components/Sidebar.svelte';
     import Intro from './components/Intro.svelte';
+    import Blog from './components/Blog.svelte';
     import Experience from './components/Experience.svelte';
     import Projects from './components/Projects.svelte';
     import Education from './components/Education.svelte';
@@ -23,6 +24,7 @@
                 <Intro/>
                 <Experience/>
                 <Projects/>
+                <Blog/>
                 <Education/>
                 <Skills/>
             </div>
