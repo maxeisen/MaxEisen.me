@@ -1,21 +1,23 @@
 [data-theme="dark"] {
-    /*main theme colours*/
     --main-green: #00bba2;
+    --main-green-translucent: rgba(0, 187, 162, 0.3);
     --background-one: #002723;
     --background-two: #00071a;
     --footer-colour: white;
     --scrollbar-thumb: rgba(114, 114, 114, 0.4);
-    --scrollbar-thumb-hover: rgba(114, 114, 114, 0.1);
+    --scrollbar-thumb-hover: rgb(114, 114, 114);
+    --scrollbar-track: black;
 }
 
 [data-theme="light"] {
-    /*light theme colours*/
     --main-green: hsl(172, 100%, 25%);
+    --main-green-translucent: rgba(0, 128, 111, 0.3);
     --background-one: #006d62;
     --background-two: #001858;
     --footer-colour: black;
     --scrollbar-thumb: rgba(114, 114, 114, 0.8);
-    --scrollbar-thumb-hover: rgba(114, 114, 114, 0.4);
+    --scrollbar-thumb-hover: rgb(114, 114, 114);
+    --scrollbar-track: #c7c7c7;
 }
 
 html {
@@ -45,7 +47,8 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--scrollbar-track);
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -55,6 +58,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
+}
+
+::selection {
+    background: var(--main-green-translucent);
 }
 
 @keyframes gradient {

@@ -1,15 +1,15 @@
 [data-theme="dark"] {
-    /*main theme colours*/
     --main-green: #00bba2;
     --background-one: #002723;
     --background-two: #00071a;
+    --main-green-translucent: rgba(0, 187, 162, 0.3);
 
     --nav-link: #cccccc;
     --nav-link-hover: white;
     --nav-background: black;
     --nav-background-mobile: rgba(18, 18, 18, 0);
     --scrollbar-thumb: rgba(114, 114, 114, 0.4);
-    --scrollbar-thumb-hover: rgba(114, 114, 114, 0.1);
+    --scrollbar-thumb-hover: rgba(114, 114, 114);
 
     --header-colour: white;
     --paragraph-colour: #e6e6e6;
@@ -47,13 +47,14 @@
     --main-green: #00806f;
     --background-one: #006d62;
     --background-two: #001858;
+    --main-green-translucent: rgba(0, 128, 111, 0.3);
 
     --nav-link: #ffffff;
     --nav-link-hover: #dadada;
     --nav-background: #c7c7c7;
     --nav-background-mobile: rgba(18, 18, 18, 0);
     --scrollbar-thumb: rgba(114, 114, 114, 0.8);
-    --scrollbar-thumb-hover: rgba(114, 114, 114, 0.4);
+    --scrollbar-thumb-hover: rgba(114, 114, 114);
 
     --header-colour: black;
     --paragraph-colour: #1a1919;

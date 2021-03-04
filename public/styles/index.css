@@ -38,6 +38,10 @@ body {
     background: var(--scrollbar-thumb-hover);
 }
 
+::selection {
+    background: var(--main-green-translucent);
+}
+
 div.header-container {
     z-index: 2;
     position: sticky;
