@@ -43,7 +43,7 @@ I could reuse a lot of the CSS I used to style the other items on my site for th
 
 Colours and whatnot would stay the same as the rest of the site, changing based on the recently implemented theme toggle feature.
 
-I ended up implementing a header inside the blog post modals that would stick at the top of the modal until a certain point. This would keep the reader aware of what they're reading about until they're a good chunk into it.
+I ended up implementing a header inside the blog post modals that would stick at the top of the modal while scrolling. This would give the reader context as to what the hell they're reading at any point.
 
 ## Formatting
 I knew I wanted to use a Markdown pre-processor to convert the blog posts to HTML that could be displayed nicely, matching the global style of my site.

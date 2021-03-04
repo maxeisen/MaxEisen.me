@@ -32,6 +32,8 @@
         text-align: left;
         max-height: 80vh;
         padding: 0 30px 30px 30px;
+        overflow-wrap: anywhere;
+        overflow-x: hidden;
     }
 
     .blog-header {
@@ -78,14 +80,26 @@
     }
 
     .signature {
-        padding: 30px 0 30px;
-        
+        padding-top: 30px;
+    }
+
+    @media only screen and (max-width: 620px) {
+        .blog-modal {
+            font-size: smaller;
+        }
+        .blog-content {
+            line-height: 1.8;
+        }
     }
     
     @media only screen and (max-width: 460px) {
         .blog-modal {
             padding: 5px;
-            overflow-wrap: anywhere;
+            overflow-x: hidden;
+        }
+
+        .blog-header {
+            position: relative;
         }
     }
 </style>

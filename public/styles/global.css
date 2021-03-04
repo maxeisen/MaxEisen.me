@@ -81,7 +81,7 @@
     --modal-title-colour: var(--header-colour);
     --modal-subtitle-colour: #333333;
     --modal-text-colour: var(--paragraph-colour);
-    --modal-link-colour: #003152;
+    --modal-link-colour: #004574;
     --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0);
 
     --headshot-drop-shadow: drop-shadow(2px -2px 5px rgba(34, 34, 34, 0.25));

@@ -25,7 +25,8 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--nav-background);
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -369,8 +370,6 @@ div.window.svelte-fnsfcv {
 
 button.close.svelte-fnsfcv {
     cursor: pointer;
-    margin-top: 5px;
-    margin-right: 5px;
 }
 
 .skills-subsection {
