@@ -43,8 +43,6 @@ I could reuse a lot of the CSS I used to style the other items on my site for th
 
 Colours and whatnot would stay the same as the rest of the site, changing based on the recently implemented theme toggle feature.
 
-I ended up implementing a header inside the blog post modals that would stick at the top of the modal while scrolling. This would give the reader context as to what the hell they're reading at any point.
-
 ## Formatting
 I knew I wanted to use a Markdown pre-processor to convert the blog posts to HTML that could be displayed nicely, matching the global style of my site.
 
@@ -87,6 +85,11 @@ This allowed me to check if a visiting user was coming to see a specific blog po
 From there, I was able to write some simple JavaScript in an `onMount` handler to create the correct blog post modal containing the blog post (identified by `postId`, sourced from a separate file on instantiation).
 
 That was it!
+
+# Post-Development Additions
+* **Sticky Header**: After initial implementation, I ended up adding a header inside the blog post modals that would stick to the top of the modal while scrolling. This will give the reader context as to what the hell they're reading at any point. A bit of styling using `position: sticky` and this was pretty straightforward.
+* **Applause Button**: I decided I wanted visitors to be able to "react" to blog posts in a way, also helping me measure the success of my posts (in a nicer way than just checking Google Analytics for visits to "/?blog=true..."), so I used the beautifully simple [applause-button module](http://applause-button.com/) to serve this purpose. I downloaded the required files and added them to my `public` directory, while styling the button with some CSS in the `BlogPostModal` Svelte file. Also a fantastic, easy, addition!
+
 
 # Challenges and Downsides
 This project was certainly challenging in many ways. From finding a way to make these blog posts "shareable"-ish, to the classic challenges that any frontend developer faces while trying to style things (like centering a `div` 😠).
