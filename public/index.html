@@ -72,12 +72,18 @@ https://github.com/maxeisen/
         }
     </script>
 
+    <!-- PWA builder -->
     <script type="module">
         import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
         const el = document.createElement('pwa-update');
         document.body.appendChild(el);
     </script>
 
+    <!-- applause button for blog -->
+    <script type="module" defer src="/modules/applause-button/applause-button.min.js"></script>
+    <link defer rel="stylesheet" href="/modules/applause-button/applause-button.min.css">
+
+    <!-- theme switch logic -->
     <script>
         var theme;
         if (localStorage.getItem("theme")) {

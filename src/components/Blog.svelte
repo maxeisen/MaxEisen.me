@@ -15,7 +15,7 @@
     const blogPostModal = (postId, title, author, date, content) => {
         open(BlogPostModal,
         {
-            title: title, author: author, date: date, content: content
+            id: postId, title: title, author: author, date: date, content: content
         },
         {
             closeButton: CloseButton,

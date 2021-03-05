@@ -1,11 +1,13 @@
 <script>
     import marked from 'marked';
 
+    export let id;
     export let title;
     export let author;
     export let date;
     export let content;
 
+    const postUrl = `https://maxeisen.me/blog/${id}`; // fake URL for storing claps
     var postContent = "Loading..."
     
     fetch(`../content/blog/${content}.md`)
@@ -23,7 +25,10 @@
         <h3 class="blog-date" style="text-align: center">{date}</h3>
     </div>
     <div class="blog-content">{@html marked(postContent)}</div>
-    <h2 class="signature"><b style="font-weight: 300">-</b>{author.split(" ")[0]}</h2>
+    <div class="blog-footer">
+        <h2 class="signature"><b style="font-weight: 300">-</b>{author.split(" ")[0]}</h2>
+        <applause-button url={postUrl} multiclap="true" color="var(--main-green)"/>
+    </div>
 </div>
 
 <style>
@@ -79,8 +84,20 @@
         line-height: 2.0;
     }
 
-    .signature {
+    .blog-footer {
+        display: flex;
+        justify-content: space-between;
         padding-top: 30px;
+    }
+
+    .signature {
+        text-shadow: 2px 2px 8px var(--nav-background);
+    }
+
+    applause-button {
+        width: 65px;
+        height: 65px;
+        right: 3%;
     }
 
     @media only screen and (max-width: 620px) {
@@ -100,6 +117,11 @@
 
         .blog-header {
             position: relative;
+        }
+
+        applause-button {
+            width: 55px;
+            height: 55px;
         }
     }
 </style>
