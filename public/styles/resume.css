@@ -572,10 +572,6 @@ a.company-long {
         font-size: 95%;
     }
 
-    .background, .back-button, .back-button-mobile, .print-button, .footer, .developer-note-web {
-        display: none;
-    }
-
     .tagline {
         margin-top: 0;
         font-size: 13px;
