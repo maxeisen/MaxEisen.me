@@ -2350,6 +2350,7 @@ var app = (function () {
     			attr_dev(source1, "type", "image/png");
     			add_location(source1, file$7, 32, 8, 1677);
     			attr_dev(img, "class", "headshot svelte-1ja6dz5");
+    			attr_dev(img, "id", "headshot");
     			attr_dev(img, "width", "200px");
     			attr_dev(img, "height", "200px");
     			if (img.src !== (img_src_value = /*cleanHeadshotW*/ ctx[1])) attr_dev(img, "src", img_src_value);
@@ -7326,12 +7327,22 @@ var app = (function () {
     const blogPosts = 
     [
         {
+            published: true,
             postId: 0,
             title: "Creating the Blog Component",
             author: "Max Eisen",
             date: "March 3, 2021",
             description: "How I created this blog component on my site from scratch (it was a pain).",
             content: "creating-the-blog-component"
+        },
+        {
+            published: false,
+            postId: 1,
+            title: "My Major Design Influences",
+            author: "Max Eisen",
+            date: "March 7, 2021",
+            description: "Take a peek into what things have had the biggest influence on my sense of design.",
+            content: "major-design-influences"
         },
     ];
 
@@ -7344,8 +7355,8 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (54:4) {#each blogPosts as post}
-    function create_each_block(ctx) {
+    // (55:8) {#if post.published == true}
+    function create_if_block$2(ctx) {
     	let div;
     	let h20;
     	let t0_value = /*post*/ ctx[4].title + "";
@@ -7379,14 +7390,14 @@ var app = (function () {
     			t4 = text(t4_value);
     			t5 = space();
     			attr_dev(h20, "class", "blog-name svelte-1ejqdqo");
-    			add_location(h20, file$c, 55, 12, 2085);
+    			add_location(h20, file$c, 56, 16, 2164);
     			attr_dev(h21, "class", "blog-date svelte-1ejqdqo");
-    			add_location(h21, file$c, 56, 12, 2138);
+    			add_location(h21, file$c, 57, 16, 2221);
     			attr_dev(h22, "class", "blog-description svelte-1ejqdqo");
-    			add_location(h22, file$c, 57, 12, 2190);
+    			add_location(h22, file$c, 58, 16, 2277);
     			attr_dev(div, "class", "blog-item");
     			attr_dev(div, "tabindex", "0");
-    			add_location(div, file$c, 54, 8, 1941);
+    			add_location(div, file$c, 55, 12, 2016);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -7412,6 +7423,40 @@ var app = (function () {
     			if (detaching) detach_dev(div);
     			mounted = false;
     			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$2.name,
+    		type: "if",
+    		source: "(55:8) {#if post.published == true}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (54:4) {#each blogPosts as post}
+    function create_each_block(ctx) {
+    	let if_block_anchor;
+    	let if_block = /*post*/ ctx[4].published == true && create_if_block$2(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*post*/ ctx[4].published == true) if_block.p(ctx, dirty);
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
     		}
     	};
 
@@ -7452,9 +7497,9 @@ var app = (function () {
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "blog");
     			set_style(h1, "text-align", "left");
-    			add_location(h1, file$c, 51, 0, 1798);
+    			add_location(h1, file$c, 51, 0, 1831);
     			attr_dev(div, "class", "blog-subsection");
-    			add_location(div, file$c, 52, 0, 1871);
+    			add_location(div, file$c, 52, 0, 1904);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7553,7 +7598,10 @@ var app = (function () {
     	onMount(async () => {
     		if (userQuery.blog == "true") {
     			if (userQuery.postId) {
-    				const blogPost = blogPosts[userQuery.postId];
+    				var blogPost = blogPosts.find(post => {
+    					return post.postId == userQuery.postId;
+    				});
+
     				blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.content);
     			}
     		}
@@ -7639,7 +7687,7 @@ var app = (function () {
     }
 
     // (14:4) {#if endDate}
-    function create_if_block$2(ctx) {
+    function create_if_block$3(ctx) {
     	let h3;
     	let t0;
     	let t1;
@@ -7672,7 +7720,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$2.name,
+    		id: create_if_block$3.name,
     		type: "if",
     		source: "(14:4) {#if endDate}",
     		ctx
@@ -7698,7 +7746,7 @@ var app = (function () {
     	let p;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*endDate*/ ctx[4]) return create_if_block$2;
+    		if (/*endDate*/ ctx[4]) return create_if_block$3;
     		return create_else_block;
     	}
 
@@ -8206,7 +8254,7 @@ var app = (function () {
     }
 
     // (26:12) {#if exp.shortCompany}
-    function create_if_block$3(ctx) {
+    function create_if_block$4(ctx) {
     	let h2;
     	let t_value = /*exp*/ ctx[3].shortCompany + "";
     	let t;
@@ -8230,7 +8278,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$3.name,
+    		id: create_if_block$4.name,
     		type: "if",
     		source: "(26:12) {#if exp.shortCompany}",
     		ctx
@@ -8268,7 +8316,7 @@ var app = (function () {
     	let if_block0 = current_block_type(ctx);
 
     	function select_block_type_1(ctx, dirty) {
-    		if (/*exp*/ ctx[3].shortCompany) return create_if_block$3;
+    		if (/*exp*/ ctx[3].shortCompany) return create_if_block$4;
     		return create_else_block$1;
     	}
 
@@ -8756,7 +8804,7 @@ var app = (function () {
     const file$h = "src\\components\\modals\\ProjectModal.svelte";
 
     // (18:8) {#if projectLink}
-    function create_if_block$4(ctx) {
+    function create_if_block$5(ctx) {
     	let a;
     	let openlogo;
     	let current;
@@ -8799,7 +8847,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$4.name,
+    		id: create_if_block$5.name,
     		type: "if",
     		source: "(18:8) {#if projectLink}",
     		ctx
@@ -8839,7 +8887,7 @@ var app = (function () {
     	let img_src_value;
     	let img_alt_value;
     	let current;
-    	let if_block = /*projectLink*/ ctx[5] && create_if_block$4(ctx);
+    	let if_block = /*projectLink*/ ctx[5] && create_if_block$5(ctx);
     	codelogo = new IoIosCode({ $$inline: true });
 
     	const block = {
@@ -8947,7 +8995,7 @@ var app = (function () {
     						transition_in(if_block, 1);
     					}
     				} else {
-    					if_block = create_if_block$4(ctx);
+    					if_block = create_if_block$5(ctx);
     					if_block.c();
     					transition_in(if_block, 1);
     					if_block.m(div0, t8);
@@ -10223,7 +10271,7 @@ var app = (function () {
     const file$n = "node_modules\\svelte-simple-modal\\src\\Modal.svelte";
 
     // (213:0) {#if Component}
-    function create_if_block$5(ctx) {
+    function create_if_block$6(ctx) {
     	let div3;
     	let div2;
     	let div1;
@@ -10436,7 +10484,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$5.name,
+    		id: create_if_block$6.name,
     		type: "if",
     		source: "(213:0) {#if Component}",
     		ctx
@@ -10489,7 +10537,7 @@ var app = (function () {
     	let current;
     	let mounted;
     	let dispose;
-    	let if_block = /*Component*/ ctx[1] && create_if_block$5(ctx);
+    	let if_block = /*Component*/ ctx[1] && create_if_block$6(ctx);
     	const default_slot_template = /*$$slots*/ ctx[30].default;
     	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[29], null);
 
@@ -10526,7 +10574,7 @@ var app = (function () {
     						transition_in(if_block, 1);
     					}
     				} else {
-    					if_block = create_if_block$5(ctx);
+    					if_block = create_if_block$6(ctx);
     					if_block.c();
     					transition_in(if_block, 1);
     					if_block.m(t.parentNode, t);
