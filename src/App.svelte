@@ -22,9 +22,9 @@
         <div class="info-section-main">
             <div class="info-section-inner">
                 <Intro/>
-                <Blog/>
                 <Experience/>
                 <Projects/>
+                <Blog/>
                 <Education/>
                 <Skills/>
             </div>
