@@ -40,9 +40,12 @@
     };
 
     onMount(async () => {
+        console.log('ye, ye');
         if (userQuery.blog == 'true') {
+            var ogProps = Array.from(document.getElementsByTagName('meta')).slice(0,4);
             if (userQuery.postId) {
                 var blogPost = blogPosts.find(post => {return post.postId==userQuery.postId});
+                attributeChange(ogProps[2], 'content', blogPost.title);
                 blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.content)
             }
         }
