@@ -31,7 +31,7 @@
     <picture>
         <source class="headshot" srcset={cleanHeadshotW} type="image/webp">
         <source class="headshot" srcset={cleanHeadshotP} type="image/png">
-        <img class="headshot" width="200px" height="200px" src={cleanHeadshotW} alt="Current headshot"/>
+        <img class="headshot" id="headshot" width="200px" height="200px" src={cleanHeadshotW} alt="Current headshot"/>
     </picture>
 </div>
 

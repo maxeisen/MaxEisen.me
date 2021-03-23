@@ -1,4 +1,4 @@
-# Foreword
+## Foreword
 This week, I decided to add some functionality to my site to make it more... interesting.
 
 I started with an implementation of a theme switcher (click the memoji icon at the top left to try it out), and some UI/UX improvements to make it easier to navigate and cleaner to look at.
@@ -7,9 +7,9 @@ Why did I make these changes? Well, I wanted to shape my site up a bit with the 
 
 So, with that out of the way, let's talk about how I developed this component today.
 
-# Thought Process
+## Thought Process
 
-## Developing a "Routing" System (Not Really Though)
+### Developing a "Routing" System (Not Really Though)
 I had wanted to start blogging for a while, but in a more private and custom environment than, say, Medium or DEV. I had been inspired by many others' dev portfolios to try to host my blog on my own site. With that said, I liked the simplicity of my website's stack and architecture, and didn't want to change that too much.
 
 So, trying to stick with the use of modals to display the lengthier details of things on my site (specifically, the [svelte-simple-modal package](https://www.npmjs.com/package/svelte-simple-modal)), I decided that I'd try to think through a way to display blog posts written in Markdown in a similar way, using these modals.
@@ -20,12 +20,12 @@ I then thought of ways I could implement a sort of ID and routing system that wo
 
 So instead, I broke the technical challenges down into two parts - the "creation" of these direct URLs, and the parsing of these same URLs.
 
-### "Creating" URLs
+#### "Creating" URLs
 It occurred to me that if I wanted to make these blog posts "shareable", then they would definitely need unique URLs. Without routing, I knew this would be a hacky solution, but maybe I could make it kind of *clean* hacky. I didn't really do too much pre-planning for this part because I didn't know what would be possible and how I would create these routes without actually creating them. It would come down to some research.
 
 We'll get back to this...
 
-### Parsing URLs
+#### Parsing URLs
 Going off the assumption that these URLs *would* exist at some point, I skipped ahead and started thinking of ways to have these specific URLs call up modals with specific blog posts.
 
 I knew I could programmatically load up a modal containing pretty much whatever I wanted, but didn't know how I could make a specific URL do this, especially without actually *routing* to a different page.
@@ -34,23 +34,23 @@ So I thought maybe I could use URL query parameters paired with some simple code
 
 Simple enough!
 
-# Implementation
+## Implementation
 
-## Style
+### Style
 The style wasn't going to be too crazy or difficult to implement. I thought of how I'd want blog post "items" to look on my site's main page, and I figured with my jobs and projects being in rows of either two or three items (on a full-sized desktop), these blog post previews would look good as full width items - one per line.
 
 I could reuse a lot of the CSS I used to style the other items on my site for this, just changing the grids to have one column instead of two or three.
 
 Colours and whatnot would stay the same as the rest of the site, changing based on the recently implemented theme toggle feature.
 
-## Formatting
+### Formatting
 I knew I wanted to use a Markdown pre-processor to convert the blog posts to HTML that could be displayed nicely, matching the global style of my site.
 
 Using [Marked](https://marked.js.org/), this was pretty simple. I'd load the blog post "meta data" into the modal component, where it would then fetch the Markdown blog post file (like this one), converting it to text, then HTML using Marked, and then using Svelte's `@html` tag to display the converted Markdown as HTML, taking on my defined styles. After some messing around, I got this to work nicely.
 
 Sweet!
 
-## "Creating" URLs
+### "Creating" URLs
 Now came the challenge of actually making the "routes" for these blog posts.
 
 After researching for a while, it occurred to me that I *could* just change the extended part of the URL (after the '/'), as well as the title of the page (more for the look of it) at the instantiation of the blog post modal.
@@ -70,7 +70,7 @@ In order to run these commands when a modal was opened and closed, I used the sv
 
 This seemed to work!
 
-## Parsing URLs
+### Parsing URLs
 Since I now had unique URLs for my blog posts, I decided to use the [query-string package](https://www.npmjs.com/package/query-string) to help open the correct blog post modal when a user visited a certain post's URL. This package would allow me to check the URL's query parameters to select which blog post to open. Using `queryString.parse(window.location.search)`, I could break down the queries in the URL like so (using the current post as an example):
 
 ```javascript
@@ -86,11 +86,11 @@ From there, I was able to write some simple JavaScript in an `onMount` handler t
 
 That was it!
 
-# Post-Development Additions
+## Post-Development Additions
   * **Sticky Header**: After initial implementation, I ended up adding a header inside the blog post modals that would stick to the top of the modal while scrolling. This will give the reader context as to what the hell they're reading at any point. A bit of styling using `position: sticky` and this was pretty straightforward.
   * **Applause Button**: I decided I wanted visitors to be able to "react" to blog posts in a way, also helping me measure the success of my posts (in a nicer way than just checking Google Analytics for visits to "/?blog=true..."), so I used the beautifully simple [applause-button module](http://applause-button.com/) to serve this purpose. I downloaded the required files and added them to my `public` directory, while styling the button with some CSS in the `BlogPostModal` Svelte file. Also a fantastic, easy, addition!
 
-# Challenges and Downsides
+## Challenges and Downsides
 This project was certainly challenging in many ways. From finding a way to make these blog posts "shareable"-ish, to the classic challenges that any frontend developer faces while trying to style things (like centering a `div` 😠).
 
 Despite the effort I put into this, my implementation of a blog is... not ideal. 
@@ -101,7 +101,7 @@ Another downside is that these blog posts are not really "shareable" in the end 
 
 Sad!
 
-# Summary
+## Summary
 All of that aside, this was a fun and cool project, and it allowed me to take a break from other coding projects that I have for school to do something I genuinely enjoyed problem solving for.
 
 The hacky implementation is what it is.
