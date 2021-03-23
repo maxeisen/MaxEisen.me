@@ -88,6 +88,10 @@ header {
     transition: 0.2s;
 }
 
+.print {
+    display: none !important;
+}
+
 .tagline, .developer-note {
     font-size: 16px;
     font-family: 'Source Code Pro', sans-serif;
@@ -97,6 +101,7 @@ header {
 .developer-note {
     margin: 10px auto 10px auto;
     text-align: center;
+    display: none;
 }
 
 .resume {
@@ -554,13 +559,17 @@ a.company-long {
     :root {
         --main-green: #00bba2;
     }
+
+    .print {
+        display: block !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
     
     .inner-page {
         font-size: 95%;
-    }
-
-    .background, .back-button, .back-button-mobile, .print-button, .footer {
-        display: none;
     }
 
     .tagline {
@@ -571,6 +580,7 @@ a.company-long {
     .developer-note {
         margin: 20px auto 0 auto;
         font-size: 12px;
+        display: block;
     }
 
     .website-link {
@@ -651,7 +661,7 @@ a.company-long {
         font-size: 14px;
     }
 
-    .developer-note {
+    .developer-note-print, .developer-note-web {
         display: none;
     }
 
