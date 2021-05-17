@@ -10,12 +10,13 @@ export const blogPosts =
         content: "creating-the-blog-component"
     },
     {
-        published: false,
+        published: true,
         postId: 1,
-        title: "My Major Design Influences",
+        title: "My Sense of Design",
         author: "Max Eisen",
-        date: "March 7, 2021",
-        description: "Take a peek into what things have had the biggest influence on my sense of design.",
-        content: "major-design-influences"
+        date: "April 14, 2021",
+        updated: "May 14, 2021",
+        description: "Take a peek into the things that have influenced and currently define my sense of design.",
+        content: "sense-of-design"
     },
 ]

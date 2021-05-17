@@ -12,10 +12,10 @@
     });
 
     const { open } = getContext('simple-modal');
-    const blogPostModal = (postId, title, author, date, content) => {
+    const blogPostModal = (postId, title, author, date, updated, content) => {
         open(BlogPostModal,
         {
-            id: postId, title: title, author: author, date: date, content: content
+            id: postId, title: title, author: author, date: date, updated: updated, content: content
         },
         {
             closeButton: CloseButton,
@@ -43,7 +43,7 @@
         if (userQuery.blog == 'true') {
             if (userQuery.postId) {
                 var blogPost = blogPosts.find(post => {return post.postId==userQuery.postId});
-                blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.content)
+                blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.updated, blogPost.content)
             }
         }
     });
@@ -53,7 +53,7 @@
 <div class="blog-subsection">
     {#each blogPosts as post}
         {#if post.published == true}
-            <div class="blog-item" tabindex="0" on:click={() => blogPostModal(post.postId, post.title, post.author, post.date, post.content)}>
+            <div class="blog-item" tabindex="0" on:click={() => blogPostModal(post.postId, post.title, post.author, post.date, post.updated, post.content)}>
                 <h2 class="blog-name">{post.title}</h2>
                 <h2 class="blog-date">{post.date}</h2>
                 <h2 class="blog-description">{post.description}</h2>

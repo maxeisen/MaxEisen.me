@@ -5,6 +5,7 @@
     export let title;
     export let author;
     export let date;
+    export let updated;
     export let content;
 
     const postUrl = `https://maxeisen.me/blog/${id}`; // fake URL for storing claps
@@ -22,7 +23,10 @@
     <div class="blog-header">
         <h1 class="blog-title" style="text-align: center">{title}</h1>
         <h3 class="blog-author" style="text-align: center">Author: <b class="author-name">{author}</b></h3>
-        <h3 class="blog-date" style="text-align: center">{date}</h3>
+        <h3 class="blog-date" style="text-align: center">Written: <b class="date-string">{date}</b></h3>
+        {#if updated}
+            <h3 class="blog-date" style="text-align: center">Updated: <b class="date-string">{updated}</b></h3>
+        {/if}
     </div>
     <div class="blog-content">{@html marked(postContent)}</div>
     <div class="blog-footer">
@@ -63,13 +67,13 @@
         color: var(--modal-title-colour);
     }
 
-    .blog-author {
+    .blog-author, .blog-date {
         font-size: 20px;
         margin-top: 8px;
         margin-bottom: 5px;
     }
 
-    .author-name, .blog-date {
+    .author-name, .date-string {
         font-weight: 300;
     }
 
