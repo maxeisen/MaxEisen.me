@@ -82,15 +82,15 @@
 <div class="intro-container">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I am a Computer Science student at <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>
+        <p class="title-extension">I am a Computer Science graduate of <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>
         with a <Annotation bind:this={introDescriptors[0]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">creative</Annotation> and
         <Annotation bind:this={introDescriptors[1]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">curious</Annotation> mind,
         and a fascination for all technology.</p>
 
         <p>Also a <descriptor><Annotation bind:this={introDescriptors[2]} type="box" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
         I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
-        As a <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">sociable professional</Annotation></descriptor>,
-        I enjoy working with teams and being around like-minded people. No matter the role, I strive to communicate effectively and confidently.</p>
+        A <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">software engineer</Annotation></descriptor> by day,
+        I enjoy working with teams and being around like-minded developers. However, in any role, I strive to communicate effectively and confidently.</p>
         
         <p>In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>record music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
         <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
