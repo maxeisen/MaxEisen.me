@@ -27,24 +27,24 @@
     };
     const skiing = {
         image: "./img/activities/skiing.webp",
-        description: "Skiing in Whistler, BC"
+        description: "Whistler, BC"
     };
     const hiking = {
         image: "./img/activities/hiking.webp",
-        description: "Hiking in Lake Country, BC"
+        description: "Lake Country, BC"
     };
     const travelling = {
         image: "./img/activities/travelling.webp",
-        description: "Travelling in Cartagena, Colombia"
+        description: "Cartagena, Colombia"
     };
     const music = {
         image: "./img/activities/guitar.webp",
         audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
-        description: "Recording a cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
+        description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
     };
     const tech = {
         image: "./img/activities/frc.webp",
-        description: "Leading my high school robotics team at the 2016 FIRST Robotics Competition",
+        description: "Captaining my high school robotics team at the 2016 FIRST Robotics Competition",
     };
 
     const appstorereviewersModal = () => {
@@ -82,7 +82,8 @@
 <div class="intro-container">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I am a Computer Science graduate of <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>
+        <p class="title-extension">I am a soon-to-be Software Engineer at <a class="intro-link" href="https://www.publicissapient.com/" rel="noreferrer" target="_blank">Publicis Sapient</a>
+        and a recent Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
         with a <Annotation bind:this={introDescriptors[0]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">creative</Annotation> and
         <Annotation bind:this={introDescriptors[1]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">curious</Annotation> mind,
         and a fascination for all technology.</p>
@@ -90,14 +91,14 @@
         <p>Also a <descriptor><Annotation bind:this={introDescriptors[2]} type="box" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
         I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
         A <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">software engineer</Annotation></descriptor> by day,
-        I enjoy working with teams and being around like-minded developers. However, in any role, I strive to communicate effectively and confidently.</p>
+        I enjoy working with teams and being around like-minded developers. With <i>every</i> new role I take on, I strive to communicate effectively and confidently.</p>
         
-        <p>In my free time, I love to listen to and <activity tabindex="0" on:click={musicModal}>record music</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
+        <p>In my free time, I love to <activity tabindex="0" on:click={musicModal}>play guitar</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
         <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
-        <p>If you are <Annotation bind:this={introDescriptors[4]} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>If you are <Annotation bind:this={introDescriptors[4]} type="circle" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>
 </div>
 

@@ -4,8 +4,8 @@ export const projects =
         name: "MaxEisen.me",
         emoji: "&#128587;",
         technologies: "Svelte, Netlify, HTML5, CSS3",
-        year: "2020",
-        shortDescription: "My personal portfolio website (the one you're currently on)",
+        year: "Ongoing",
+        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
         longDescription:
         `<ul>
             <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
@@ -13,6 +13,20 @@ export const projects =
         </ul>`,
         githubLink: "https://github.com/maxeisen/MaxEisen.me",
         screenshot: "./img/screenshots/maxeisenme",
+    },
+    {
+        name: "Eagle",
+        emoji: "&#129413;",
+        technologies: "React Native, Firebase, Netlify",
+        year: "2020/2021",
+        shortDescription: "A delivery service comparison platform to help food-lovers get the best deal",
+        longDescription:
+        `<ul>
+            <li>A mobile application to help users compare pricing, delivery times, and reviews of the same restaurant across four different delivery services</li>
+            <li>Ideated, developed, marketed, and pitched by an awesome team of 10 QTMA team members under my guidance as product manager</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/eagle_public",
+        screenshot: "./img/screenshots/eagle",
     },
     {
         name: "Studii",
@@ -73,19 +87,19 @@ export const projects =
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
         screenshot: "./img/screenshots/glitch",
     },
-    {
-        name: "TicTacToe",
-        emoji: "&#10060;",
-        technologies: "Python",
-        year: "2017",
-        shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
-        longDescription:
-        `<ul>
-            <li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li>
-            <li>Developed in under an hour on a long flight, without access to any online resources</li>
-            <li>Initially written in Python 2 and ported to Python 3</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/TicTacToe",
-        screenshot: "./img/screenshots/tictactoe",
-    }
+    // {
+    //     name: "TicTacToe",
+    //     emoji: "&#10060;",
+    //     technologies: "Python",
+    //     year: "2017",
+    //     shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+    //     longDescription:
+    //     `<ul>
+    //         <li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li>
+    //         <li>Developed in under an hour on a long flight, without access to any online resources</li>
+    //         <li>Initially written in Python 2 and ported to Python 3</li>
+    //     </ul>`,
+    //     githubLink: "https://github.com/maxeisen/TicTacToe",
+    //     screenshot: "./img/screenshots/tictactoe",
+    // }
 ]

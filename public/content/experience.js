@@ -6,15 +6,33 @@ export const experience =
         shortCompany: "Publicis Sapient",
         company: "Publicis Sapient",
         companyLink: "https://www.publicissapient.com/",
-        shortDate: "June 2021",
-        startDate: "Starting June 2021",
+        shortDate: "Sep. 2021",
+        startDate: "Starting September 2021",
         location: "Toronto, ON",
         shortDescription: "Working as a software consultant and engineer to create digital experiences for companies around the globe",
         longDescription:
         `<ul>
             <li>Consulting with client companies to determine requirements for large-scale digital transformation projects</li>
-            <li>Collaborating with a team to design, develop, and engineer these projects for launch</li>
+            <li>Collaborating with teams to design, develop, and engineer these projects for launch</li>
             <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
+        </ul>`
+    },
+    {
+        shortPosition: "CS Teaching Assistant",
+        position: "Computer Science Teaching Assistant",
+        shortCompany: "Queen's University",
+        company: "Queen's University",
+        shortDate: "Sep. 2019-Present",
+        companyLink: "https://cs.queensu.ca/",
+        startDate: "September 2019",
+        endDate: "Present",
+        location: "Kingston, ON",
+        shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
+        longDescription:
+        `<ul>
+            <li>Selected as a Summer TA for a 200-student Python programming course, having previously obtained an exceptional grade in the course</li>
+            <li>Holding weekly office hours to guide students in completing assignments and projects</li>
+            <li>Previously assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, and a 250-student Java course</li>
         </ul>`
     },
     {
@@ -22,9 +40,9 @@ export const experience =
         shortCompany: "QTMA",
         company: "Queen's Technology and Media Association",
         companyLink: "https://qtma.ca/",
-        shortDate: "April 2020-Present",
-        startDate: "April 2020",
-        endDate: "Present",
+        shortDate: "Mar. 2020-Apr. 2021",
+        startDate: "March 2020",
+        endDate: "April 2021",
         location: "Kingston, ON",
         shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
         longDescription:
@@ -34,30 +52,12 @@ export const experience =
         </ul>`
     },
     {
-        shortPosition: "CS Teaching Assistant",
-        position: "Computer Science Teaching Assistant",
-        shortCompany: "Queen's University",
-        company: "Queen's University",
-        shortDate: "Sept. 2019-Present",
-        companyLink: "https://cs.queensu.ca/",
-        startDate: "September 2019",
-        endDate: "Present",
-        location: "Kingston, ON",
-        shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
-        longDescription:
-        `<ul>
-            <li>Selected as one of 3 TAs to assist in teaching and grading of CMPE 212 - Object-Oriented Programming in Java, having previously obtained an exceptional grade in the course</li>
-            <li>Holding weekly office hours to guide students in completing assignments and projects</li>
-            <li>Previously assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, and a 250-student Python course</li>
-        </ul>`
-    },
-    {
         shortPosition: "Technical Developer",
         position: "Technical Developer Co-op",
         shortCompany: "Jonah Group",
         company: "Jonah Group",
         companyLink: "https://www.jonahgroup.com/",
-        shortDate: "May-Sept. 2020",
+        shortDate: "May-Sep. 2020",
         startDate: "May",
         endDate: "September 2020",
         location: "Toronto, ON",
@@ -91,7 +91,7 @@ export const experience =
         position: "Software Developer, Technical Coordinator",
         company: "QHacks",
         companyLink: "https://qhacks.io/",
-        shortDate: "Sept. 2019-Feb. 2020",
+        shortDate: "Sep. 2019-Feb. 2020",
         startDate: "September 2019",
         endDate: "February 2020",
         location: "Kingston, ON",

@@ -28,7 +28,7 @@
     --item-subtitle: rgb(202, 202, 202);
     --item-small-text: rgb(173, 173, 173);
 
-    --project-item-box-shadow: inset 0 0 0 1000px rgba(25, 25, 25, 0.92);
+    --project-item-box-shadow: inset 0 0 0 1000px rgba(25, 25, 25, 0.95);
     --project-item-hover-box-shadow: inset 0 0 0 1000px rgba(35, 35, 35, 0.85);
 
     --skill-bullet-colour: rgb(153, 153, 153);
