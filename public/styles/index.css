@@ -214,7 +214,7 @@ video::-webkit-media-controls-overlay-play-button {
   
 .sidebar-section {
     position: fixed;
-    width: 1fr;
+    top: 15%;
     border-radius: 25px;
     align-items: center;
     padding: 24px 32px 0 32px;
@@ -229,7 +229,6 @@ video::-webkit-media-controls-overlay-play-button {
 .info-section-main {
     z-index: 1;
     height: auto;
-    width: 2fr;
     grid-area: info-section;
 }
 
@@ -405,6 +404,11 @@ button.close.svelte-fnsfcv {
         grid-template-rows: auto;
         grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
     }
+
+    .sidebar-section {
+        top: 15.6%
+    }
+
     .experience-subsection {
         grid-template-columns: auto auto;
         grid-template-rows: auto auto auto;
@@ -494,6 +498,7 @@ button.close.svelte-fnsfcv {
     }
 
     .sidebar-section {
+        top: 0;
         min-width: 50%;
         margin: 20px auto 20px auto;
         position: relative;
