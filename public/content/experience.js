@@ -6,13 +6,14 @@ export const experience =
         shortCompany: "Publicis Sapient",
         company: "Publicis Sapient",
         companyLink: "https://www.publicissapient.com/",
-        shortDate: "Sep. 2021",
-        startDate: "Starting September 2021",
+        shortDate: "Sep. 2021-Present",
+        startDate: "September 2021",
+        endDate: "Present",
         location: "Toronto, ON",
         shortDescription: "Working as a software consultant and engineer to create digital experiences for companies around the globe",
         longDescription:
         `<ul>
-            <li>Consulting with client companies to determine requirements for large-scale digital transformation projects</li>
+            <li>Consulting with future-focused client companies to determine requirements for large-scale digital transformation projects</li>
             <li>Collaborating with teams to design, develop, and engineer these projects for launch</li>
             <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
         </ul>`
@@ -22,17 +23,17 @@ export const experience =
         position: "Computer Science Teaching Assistant",
         shortCompany: "Queen's University",
         company: "Queen's University",
-        shortDate: "Sep. 2019-Present",
+        shortDate: "Sep. 2019-July 2021",
         companyLink: "https://cs.queensu.ca/",
         startDate: "September 2019",
-        endDate: "Present",
+        endDate: "July 2021",
         location: "Kingston, ON",
         shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
         longDescription:
         `<ul>
-            <li>Selected as a Summer TA for a 200-student Python programming course, having previously obtained an exceptional grade in the course</li>
-            <li>Holding weekly office hours to guide students in completing assignments and projects</li>
-            <li>Previously assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, and a 250-student Java course</li>
+            <li>Selected as a teaching assistant for three differenmt programming courses, having previously obtained exceptional grades</li>
+            <li>Held weekly office hours to guide students in completing assignments and projects</li>
+            <li>Assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, a 250-student Java course, and a 200-student Python course</li>
         </ul>`
     },
     {

@@ -17,12 +17,7 @@
         </audio>
     {/if}
     {#if video}
-        <video class="activity-video" controls>
-            <source src="{video}.webm" type="video/webm">
-            <source src="{video}.mp4" type="video/mp4">
-            <track kind="captions">
-            Your browser does not support the video element.
-        </video>
+        <iframe width="560" height="315" src="{video}hd=1&autoplay=1&modestbranding=1&showinfo=0&rel=0" title="{description}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     {/if}
         <h3 class="activity-description" style="text-align: center">{@html description}</h3>
 </div>
@@ -41,12 +36,8 @@
         margin: 20px auto 0 auto;
     }
 
-    .activity-audio, .activity-video {
+    .activity-audio {
         margin: 20px auto 0 auto;
-    }
-
-    .activity-video {
-        width: 85%;
     }
 
     .activity-description {

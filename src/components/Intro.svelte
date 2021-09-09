@@ -1,29 +1,25 @@
 <script>
-    import Annotation from 'svelte-rough-notation';
-    import { annotationGroup } from 'rough-notation';
-    import { onMount, getContext } from 'svelte';
+    import { getContext } from 'svelte';
     import ActivityModal from './modals/ActivityModal.svelte';
-
-    let visible = false;
-    onMount(() => {
-        setTimeout(() => {
-            visible = true;
-        }, 1000);
-    });
-
-    let introDescriptors = [];
-    onMount(() => {
-        let ids = annotationGroup(introDescriptors);
-        setTimeout(() => {
-            ids.show();
-        }, 1500);
-    });
 
     const { open } = getContext('simple-modal');
 
     const appstorereviewers = {
-        video: "./media/video/appstorereviewers_compilation",
-        description: "My old YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> - reviewing iOS apps before iOS was called iOS (78,000 viewers strong)"
+        video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
+        description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (78,000 viewers strong)"
+    };
+    const cycle = {
+        image: "./img/activities/cycling.webp",
+        description: "Me and my Cannondale CAAD12"
+    };
+    const drone = {
+        video: "https://www.youtube.com/embed/fULlZkgpw50?",
+        description: "A promotional spot that I shot and edited of the new GV70 from <a href=\"https://www.genesisyorkdale.ca/\" rel=\"noreferrer\" target=\"_blank\">Genesis Yorkdale</a>"
+    };
+    const music = {
+        image: "./img/activities/guitar.webp",
+        audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
+        description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
     };
     const skiing = {
         image: "./img/activities/skiing.webp",
@@ -37,11 +33,6 @@
         image: "./img/activities/travelling.webp",
         description: "Cartagena, Colombia"
     };
-    const music = {
-        image: "./img/activities/guitar.webp",
-        audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
-        description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
-    };
     const tech = {
         image: "./img/activities/frc.webp",
         description: "Captaining my high school robotics team at the 2016 FIRST Robotics Competition",
@@ -50,6 +41,21 @@
     const appstorereviewersModal = () => {
         open(ActivityModal, {
             video: appstorereviewers.video, description: appstorereviewers.description
+        });
+    };
+    const cycleModal = () => {
+        open(ActivityModal, {
+            image: cycle.image, description: cycle.description
+        });
+    };
+    const droneModal = () => {
+        open(ActivityModal, {
+            video: drone.video, description: drone.description
+        });
+    };
+    const musicModal = () => {
+        open(ActivityModal, {
+            image: music.image, audio: music.audio, description: music.description
         });
     };
     const skiingModal = () => {
@@ -67,11 +73,6 @@
             image: travelling.image, description: travelling.description
         });
     };
-    const musicModal = () => {
-        open(ActivityModal, {
-            image: music.image, audio: music.audio, description: music.description
-        });
-    };
     const techModal = () => {
         open(ActivityModal, {
             image: tech.image, description: tech.description
@@ -82,23 +83,19 @@
 <div class="intro-container">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I am a soon-to-be Software Engineer at <a class="intro-link" href="https://www.publicissapient.com/" rel="noreferrer" target="_blank">Publicis Sapient</a>
-        and a recent Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
-        with a <Annotation bind:this={introDescriptors[0]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">creative</Annotation> and
-        <Annotation bind:this={introDescriptors[1]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="1">curious</Annotation> mind,
-        and a fascination for all technology.</p>
+        <p class="title-extension">I am a Software Development Engineer at <a class="intro-link" href="https://www.publicissapient.com/" rel="noreferrer" target="_blank">Publicis Sapient</a>
+        and a Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
+        with a creative and curious mind, a passion for adventure, and a fascination for all technology.</p>
 
-        <p>Also a <descriptor><Annotation bind:this={introDescriptors[2]} type="box" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">computational thinker</Annotation></descriptor>,
-        I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
-        A <descriptor><Annotation bind:this={introDescriptors[3]} type="underline" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">software engineer</Annotation></descriptor> by day,
-        I enjoy working with teams and being around like-minded developers. With <i>every</i> new role I take on, I strive to communicate effectively and confidently.</p>
+        <p>Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
+        As a software engineer by day, I enjoy working with teams and being around like-minded people. With <i>every</i> new role I take on, I strive to communicate effectively and confidently.</p>
         
-        <p>In my free time, I love to <activity tabindex="0" on:click={musicModal}>play guitar</activity>, <activity tabindex="0" on:click={skiingModal}>ski</activity>,
-        <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
+        <p>In my free time, I love to <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={droneModal}>drone</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>,
+        <activity tabindex="0" on:click={skiingModal}>ski</activity>, <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
-        <p>If you are <Annotation bind:this={introDescriptors[4]} type="circle" padding={2} color="var(--intro-annotation-colour)" strokeWidth="0.8">recruiting</Annotation>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>If you are <span class=static-highlight>recruiting</span>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>
 </div>
 
@@ -120,8 +117,9 @@
         line-height: 1.5;
     }
 
-    descriptor {
-        white-space: nowrap;
+    .static-highlight {
+        font-weight: 400;
+        text-shadow: 6px 0px 6px var(--intro-annotation-colour), -6px 0px 6px var(--intro-annotation-colour), 9px 0px 9px var(--intro-annotation-colour), -9px 0px 9px var(--intro-annotation-colour);
     }
 
     activity {
