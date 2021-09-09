@@ -2279,10 +2279,10 @@ var app = (function () {
     			create_component(annotation.$$.fragment);
     			t0 = space();
     			h20 = element("h2");
-    			t1 = text("CS ");
+    			t1 = text("SWE ");
     			b = element("b");
     			b.textContent = "@";
-    			t3 = text(" Queen's University");
+    			t3 = text(" Publicis Sapient");
     			t4 = space();
     			h21 = element("h2");
     			h21.textContent = "Toronto, ON";
@@ -2310,55 +2310,55 @@ var app = (function () {
     			add_location(h1, file$7, 19, 0, 649);
     			set_style(b, "color", "var(--paragraph-colour)");
     			set_style(b, "font-weight", "300");
-    			add_location(b, file$7, 20, 22, 784);
+    			add_location(b, file$7, 20, 23, 785);
     			attr_dev(h20, "class", "status svelte-1ja6dz5");
     			add_location(h20, file$7, 20, 0, 762);
     			attr_dev(h21, "class", "location svelte-1ja6dz5");
-    			add_location(h21, file$7, 21, 0, 875);
+    			add_location(h21, file$7, 21, 0, 874);
     			attr_dev(a0, "class", "social-link linkedin-link svelte-1ja6dz5");
     			attr_dev(a0, "aria-label", "LinkedIn");
     			attr_dev(a0, "href", "https://linkedin.com/in/maxeisen/");
     			attr_dev(a0, "rel", "noreferrer");
     			attr_dev(a0, "target", "_blank");
-    			add_location(a0, file$7, 23, 4, 956);
+    			add_location(a0, file$7, 23, 4, 955);
     			attr_dev(a1, "class", "social-link github-link svelte-1ja6dz5");
     			attr_dev(a1, "aria-label", "GitHub");
     			attr_dev(a1, "href", "https://github.com/maxeisen/");
     			attr_dev(a1, "rel", "noreferrer");
     			attr_dev(a1, "target", "_blank");
-    			add_location(a1, file$7, 24, 4, 1115);
+    			add_location(a1, file$7, 24, 4, 1114);
     			attr_dev(a2, "class", "social-link twitter-link svelte-1ja6dz5");
     			attr_dev(a2, "aria-label", "Twitter");
     			attr_dev(a2, "href", "https://twitter.com/maxeisen/");
     			attr_dev(a2, "rel", "noreferrer");
     			attr_dev(a2, "target", "_blank");
-    			add_location(a2, file$7, 25, 4, 1263);
+    			add_location(a2, file$7, 25, 4, 1262);
     			attr_dev(a3, "class", "social-link svelte-1ja6dz5");
     			attr_dev(a3, "aria-label", "Email");
     			attr_dev(a3, "href", "mailto:max.eisen@queensu.ca");
     			attr_dev(a3, "rel", "noreferrer");
     			attr_dev(a3, "target", "_blank");
-    			add_location(a3, file$7, 26, 4, 1415);
+    			add_location(a3, file$7, 26, 4, 1414);
     			attr_dev(div0, "class", "social-links-container svelte-1ja6dz5");
-    			add_location(div0, file$7, 22, 0, 914);
+    			add_location(div0, file$7, 22, 0, 913);
     			attr_dev(source0, "class", "headshot svelte-1ja6dz5");
     			attr_dev(source0, "srcset", /*cleanHeadshotW*/ ctx[1]);
     			attr_dev(source0, "type", "image/webp");
-    			add_location(source0, file$7, 31, 8, 1600);
+    			add_location(source0, file$7, 31, 8, 1599);
     			attr_dev(source1, "class", "headshot svelte-1ja6dz5");
     			attr_dev(source1, "srcset", /*cleanHeadshotP*/ ctx[2]);
     			attr_dev(source1, "type", "image/png");
-    			add_location(source1, file$7, 32, 8, 1677);
+    			add_location(source1, file$7, 32, 8, 1676);
     			attr_dev(img, "class", "headshot svelte-1ja6dz5");
     			attr_dev(img, "id", "headshot");
     			attr_dev(img, "width", "200px");
     			attr_dev(img, "height", "200px");
     			if (img.src !== (img_src_value = /*cleanHeadshotW*/ ctx[1])) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "Current headshot");
-    			add_location(img, file$7, 33, 8, 1753);
-    			add_location(picture, file$7, 30, 4, 1581);
+    			add_location(img, file$7, 33, 8, 1752);
+    			add_location(picture, file$7, 30, 4, 1580);
     			attr_dev(div1, "class", "headshot svelte-1ja6dz5");
-    			add_location(div1, file$7, 29, 0, 1553);
+    			add_location(div1, file$7, 29, 0, 1552);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7825,7 +7825,7 @@ var app = (function () {
             startDate: "September 2021",
             endDate: "Present",
             location: "Toronto, ON",
-            shortDescription: "Working as a software consultant and engineer to create digital experiences for companies around the globe",
+            shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
             longDescription:
             `<ul>
             <li>Consulting with future-focused client companies to determine requirements for large-scale digital transformation projects</li>
@@ -7838,12 +7838,12 @@ var app = (function () {
             position: "Computer Science Teaching Assistant",
             shortCompany: "Queen's University",
             company: "Queen's University",
-            shortDate: "Sep. 2019-July 2021",
+            shortDate: "Sep. 2019-Jul. 2021",
             companyLink: "https://cs.queensu.ca/",
             startDate: "September 2019",
             endDate: "July 2021",
             location: "Kingston, ON",
-            shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
+            shortDescription: "Assisted in the teaching and grading of several intermediate to advanced programming courses",
             longDescription:
             `<ul>
             <li>Selected as a teaching assistant for three differenmt programming courses, having previously obtained exceptional grades</li>
@@ -7860,7 +7860,7 @@ var app = (function () {
             startDate: "March 2020",
             endDate: "April 2021",
             location: "Kingston, ON",
-            shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
+            shortDescription: "Managed a talented team of Queen's students to ideate, develop, and market a software product",
             longDescription:
             `<ul>
             <li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li>
@@ -7894,7 +7894,7 @@ var app = (function () {
             startDate: "May 2019",
             endDate: "January 2021",
             location: "Toronto, ON",
-            shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
+            shortDescription: "Created a network of in-person and online quality tech help and tutoring around the GTA",
             longDescription:
             `<ul>
             <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>

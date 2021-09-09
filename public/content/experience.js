@@ -10,7 +10,7 @@ export const experience =
         startDate: "September 2021",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Working as a software consultant and engineer to create digital experiences for companies around the globe",
+        shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
         longDescription:
         `<ul>
             <li>Consulting with future-focused client companies to determine requirements for large-scale digital transformation projects</li>
@@ -23,12 +23,12 @@ export const experience =
         position: "Computer Science Teaching Assistant",
         shortCompany: "Queen's University",
         company: "Queen's University",
-        shortDate: "Sep. 2019-July 2021",
+        shortDate: "Sep. 2019-Jul. 2021",
         companyLink: "https://cs.queensu.ca/",
         startDate: "September 2019",
         endDate: "July 2021",
         location: "Kingston, ON",
-        shortDescription: "Assisting in the teaching and grading of several intermediate to advanced programming courses",
+        shortDescription: "Assisted in the teaching and grading of several intermediate to advanced programming courses",
         longDescription:
         `<ul>
             <li>Selected as a teaching assistant for three differenmt programming courses, having previously obtained exceptional grades</li>
@@ -45,7 +45,7 @@ export const experience =
         startDate: "March 2020",
         endDate: "April 2021",
         location: "Kingston, ON",
-        shortDescription: "Managing a talented team of Queen's students to ideate, develop, and market a software product",
+        shortDescription: "Managed a talented team of Queen's students to ideate, develop, and market a software product",
         longDescription:
         `<ul>
             <li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li>
@@ -79,7 +79,7 @@ export const experience =
         startDate: "May 2019",
         endDate: "January 2021",
         location: "Toronto, ON",
-        shortDescription: "Creating a network of in-person and online quality tech help and tutoring around the GTA",
+        shortDescription: "Created a network of in-person and online quality tech help and tutoring around the GTA",
         longDescription:
         `<ul>
             <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>
