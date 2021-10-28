@@ -56,8 +56,6 @@
         padding-top: 0;
         width: 200px;
         height: 200px;
-        -webkit-filter: var(--headshot-drop-shadow);
-        filter: var(--headshot-drop-shadow);
     }
 
     .social-links-container {
