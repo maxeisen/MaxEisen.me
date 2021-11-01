@@ -48,8 +48,8 @@ export const experience =
         shortDescription: "Managed a talented team of Queen's students to ideate, develop, and market a software product",
         longDescription:
         `<ul>
-            <li>Managing a team of talented developers and business analysts to ideate, build, and market a software product</li>
-            <li>Leading team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
+            <li>Managed a team of talented developers and business analysts to ideate, build, and market a software product</li>
+            <li>Led team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
         </ul>`
     },
     {
