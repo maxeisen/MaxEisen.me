@@ -766,6 +766,47 @@ var app = (function () {
 
     const file = "src/components/MenuBar.svelte";
 
+    // (22:20) {#if !isSafari}
+    function create_if_block(ctx) {
+    	let source0;
+    	let source0_src_value;
+    	let source1;
+    	let source1_src_value;
+
+    	const block = {
+    		c: function create() {
+    			source0 = element("source");
+    			source1 = element("source");
+    			attr_dev(source0, "id", "icon-video-webm");
+    			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
+    			attr_dev(source0, "type", "video/webm");
+    			add_location(source0, file, 22, 24, 1116);
+    			attr_dev(source1, "id", "icon-video-mp4");
+    			if (source1.src !== (source1_src_value = "./img/additional/memoji_cycle.mp4")) attr_dev(source1, "src", source1_src_value);
+    			attr_dev(source1, "type", "video/mp4");
+    			add_location(source1, file, 23, 24, 1230);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, source0, anchor);
+    			insert_dev(target, source1, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(source0);
+    			if (detaching) detach_dev(source1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block.name,
+    		type: "if",
+    		source: "(22:20) {#if !isSafari}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
     function create_fragment(ctx) {
     	let div2;
     	let header;
@@ -775,10 +816,6 @@ var app = (function () {
     	let img_src_value;
     	let t0;
     	let video;
-    	let source0;
-    	let source0_src_value;
-    	let source1;
-    	let source1_src_value;
     	let t1;
     	let div1;
     	let nav;
@@ -801,6 +838,7 @@ var app = (function () {
     	let li5;
     	let a6;
     	let b;
+    	let if_block = !/*isSafari*/ ctx[0] && create_if_block(ctx);
 
     	const block = {
     		c: function create() {
@@ -811,8 +849,7 @@ var app = (function () {
     			img = element("img");
     			t0 = space();
     			video = element("video");
-    			source0 = element("source");
-    			source1 = element("source");
+    			if (if_block) if_block.c();
     			t1 = space();
     			div1 = element("div");
     			nav = element("nav");
@@ -846,63 +883,55 @@ var app = (function () {
     			attr_dev(img, "width", "75px");
     			attr_dev(img, "height", "88px");
     			attr_dev(img, "alt", "Memoji gif for mobile");
-    			add_location(img, file, 18, 16, 747);
-    			attr_dev(source0, "id", "icon-video-webm");
-    			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
-    			attr_dev(source0, "type", "video/webm");
-    			add_location(source0, file, 20, 20, 1026);
-    			attr_dev(source1, "id", "icon-video-mp4");
-    			if (source1.src !== (source1_src_value = "./img/additional/memoji_cycle.mp4")) attr_dev(source1, "src", source1_src_value);
-    			attr_dev(source1, "type", "video/mp4");
-    			add_location(source1, file, 21, 20, 1136);
+    			add_location(img, file, 19, 16, 796);
     			attr_dev(video, "class", "home-icon");
     			attr_dev(video, "poster", "./img/additional/memoji_cycle_small.gif");
     			video.autoplay = true;
     			video.loop = true;
     			video.muted = true;
     			video.playsInline = true;
-    			add_location(video, file, 19, 16, 896);
+    			add_location(video, file, 20, 16, 945);
     			attr_dev(a0, "href", "/#");
     			attr_dev(a0, "aria-label", "Home");
     			attr_dev(a0, "onclick", "toggleTheme()");
-    			add_location(a0, file, 17, 12, 676);
-    			add_location(div0, file, 16, 8, 657);
+    			add_location(a0, file, 18, 12, 725);
+    			add_location(div0, file, 17, 8, 706);
     			attr_dev(a1, "href", "#experience");
-    			add_location(a1, file, 28, 42, 1449);
+    			add_location(a1, file, 31, 42, 1570);
     			attr_dev(li0, "id", "nav-bar-item");
-    			add_location(li0, file, 28, 20, 1427);
+    			add_location(li0, file, 31, 20, 1548);
     			attr_dev(a2, "href", "#projects");
-    			add_location(a2, file, 29, 42, 1534);
+    			add_location(a2, file, 32, 42, 1655);
     			attr_dev(li1, "id", "nav-bar-item");
-    			add_location(li1, file, 29, 20, 1512);
+    			add_location(li1, file, 32, 20, 1633);
     			attr_dev(a3, "href", "#blog");
-    			add_location(a3, file, 30, 42, 1615);
+    			add_location(a3, file, 33, 42, 1736);
     			attr_dev(li2, "id", "nav-bar-item");
-    			add_location(li2, file, 30, 20, 1593);
+    			add_location(li2, file, 33, 20, 1714);
     			attr_dev(a4, "href", "#education");
-    			add_location(a4, file, 31, 42, 1688);
+    			add_location(a4, file, 34, 42, 1809);
     			attr_dev(li3, "id", "nav-bar-item");
-    			add_location(li3, file, 31, 20, 1666);
+    			add_location(li3, file, 34, 20, 1787);
     			attr_dev(a5, "href", "#skills");
-    			add_location(a5, file, 32, 42, 1771);
+    			add_location(a5, file, 35, 42, 1892);
     			attr_dev(li4, "id", "nav-bar-item");
-    			add_location(li4, file, 32, 20, 1749);
-    			add_location(b, file, 33, 60, 1866);
+    			add_location(li4, file, 35, 20, 1870);
+    			add_location(b, file, 36, 60, 1987);
     			attr_dev(a6, "href", "/resume");
-    			add_location(a6, file, 33, 42, 1848);
+    			add_location(a6, file, 36, 42, 1969);
     			attr_dev(li5, "id", "nav-bar-item");
-    			add_location(li5, file, 33, 20, 1826);
+    			add_location(li5, file, 36, 20, 1947);
     			attr_dev(ul, "class", "nav-bar-list");
     			attr_dev(ul, "id", "nav-bar-list");
-    			add_location(ul, file, 27, 16, 1362);
-    			add_location(nav, file, 26, 12, 1339);
+    			add_location(ul, file, 30, 16, 1483);
+    			add_location(nav, file, 29, 12, 1460);
     			attr_dev(div1, "class", "nav-bar");
     			attr_dev(div1, "id", "nav-bar");
-    			add_location(div1, file, 25, 8, 1291);
+    			add_location(div1, file, 28, 8, 1412);
     			attr_dev(header, "id", "header");
-    			add_location(header, file, 15, 4, 627);
+    			add_location(header, file, 16, 4, 676);
     			attr_dev(div2, "class", "header-container");
-    			add_location(div2, file, 14, 0, 591);
+    			add_location(div2, file, 15, 0, 640);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -915,8 +944,7 @@ var app = (function () {
     			append_dev(a0, img);
     			append_dev(a0, t0);
     			append_dev(a0, video);
-    			append_dev(video, source0);
-    			append_dev(video, source1);
+    			if (if_block) if_block.m(video, null);
     			append_dev(header, t1);
     			append_dev(header, div1);
     			append_dev(div1, nav);
@@ -945,6 +973,7 @@ var app = (function () {
     		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div2);
+    			if (if_block) if_block.d();
     		}
     	};
 
@@ -970,6 +999,8 @@ var app = (function () {
     }
 
     function instance($$self, $$props, $$invalidate) {
+    	var isSafari = window.safari !== undefined;
+
     	window.onscroll = function () {
     		scrollFunction();
     	};
@@ -982,8 +1013,17 @@ var app = (function () {
 
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("MenuBar", $$slots, []);
-    	$$self.$capture_state = () => ({ scrollFunction });
-    	return [];
+    	$$self.$capture_state = () => ({ isSafari, scrollFunction });
+
+    	$$self.$inject_state = $$props => {
+    		if ("isSafari" in $$props) $$invalidate(0, isSafari = $$props.isSafari);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [isSafari];
     }
 
     class MenuBar extends SvelteComponentDev {
@@ -1005,7 +1045,7 @@ var app = (function () {
     const file$1 = "node_modules/svelte-icons/components/IconBase.svelte";
 
     // (18:2) {#if title}
-    function create_if_block(ctx) {
+    function create_if_block$1(ctx) {
     	let title_1;
     	let t;
 
@@ -1029,7 +1069,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block.name,
+    		id: create_if_block$1.name,
     		type: "if",
     		source: "(18:2) {#if title}",
     		ctx
@@ -1042,7 +1082,7 @@ var app = (function () {
     	let svg;
     	let if_block_anchor;
     	let current;
-    	let if_block = /*title*/ ctx[0] && create_if_block(ctx);
+    	let if_block = /*title*/ ctx[0] && create_if_block$1(ctx);
     	const default_slot_template = /*$$slots*/ ctx[3].default;
     	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[2], null);
 
@@ -1076,7 +1116,7 @@ var app = (function () {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
-    					if_block = create_if_block(ctx);
+    					if_block = create_if_block$1(ctx);
     					if_block.c();
     					if_block.m(svg, if_block_anchor);
     				}
@@ -2607,7 +2647,7 @@ var app = (function () {
     }
 
     // (19:4) {#if video}
-    function create_if_block$1(ctx) {
+    function create_if_block$2(ctx) {
     	let iframe;
     	let iframe_src_value;
 
@@ -2642,7 +2682,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$1.name,
+    		id: create_if_block$2.name,
     		type: "if",
     		source: "(19:4) {#if video}",
     		ctx
@@ -2659,7 +2699,7 @@ var app = (function () {
     	let h3;
     	let if_block0 = /*image*/ ctx[0] && create_if_block_2(ctx);
     	let if_block1 = /*audio*/ ctx[1] && create_if_block_1(ctx);
-    	let if_block2 = /*video*/ ctx[2] && create_if_block$1(ctx);
+    	let if_block2 = /*video*/ ctx[2] && create_if_block$2(ctx);
 
     	const block = {
     		c: function create() {
@@ -2722,7 +2762,7 @@ var app = (function () {
     				if (if_block2) {
     					if_block2.p(ctx, dirty);
     				} else {
-    					if_block2 = create_if_block$1(ctx);
+    					if_block2 = create_if_block$2(ctx);
     					if_block2.c();
     					if_block2.m(div, t2);
     				}
@@ -6616,7 +6656,7 @@ var app = (function () {
     const file$a = "src/components/modals/BlogPostModal.svelte";
 
     // (27:8) {#if updated}
-    function create_if_block$2(ctx) {
+    function create_if_block$3(ctx) {
     	let h3;
     	let t0;
     	let b;
@@ -6650,7 +6690,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$2.name,
+    		id: create_if_block$3.name,
     		type: "if",
     		source: "(27:8) {#if updated}",
     		ctx
@@ -6686,7 +6726,7 @@ var app = (function () {
     	let t11;
     	let t12;
     	let applause_button;
-    	let if_block = /*updated*/ ctx[3] && create_if_block$2(ctx);
+    	let if_block = /*updated*/ ctx[3] && create_if_block$3(ctx);
 
     	const block = {
     		c: function create() {
@@ -6787,7 +6827,7 @@ var app = (function () {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
-    					if_block = create_if_block$2(ctx);
+    					if_block = create_if_block$3(ctx);
     					if_block.c();
     					if_block.m(div0, null);
     				}
@@ -7124,7 +7164,7 @@ var app = (function () {
     }
 
     // (55:8) {#if post.published == true}
-    function create_if_block$3(ctx) {
+    function create_if_block$4(ctx) {
     	let div;
     	let h20;
     	let t0_value = /*post*/ ctx[4].title + "";
@@ -7196,7 +7236,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$3.name,
+    		id: create_if_block$4.name,
     		type: "if",
     		source: "(55:8) {#if post.published == true}",
     		ctx
@@ -7208,7 +7248,7 @@ var app = (function () {
     // (54:4) {#each blogPosts as post}
     function create_each_block(ctx) {
     	let if_block_anchor;
-    	let if_block = /*post*/ ctx[4].published == true && create_if_block$3(ctx);
+    	let if_block = /*post*/ ctx[4].published == true && create_if_block$4(ctx);
 
     	const block = {
     		c: function create() {
@@ -7462,7 +7502,7 @@ var app = (function () {
     }
 
     // (14:4) {#if endDate}
-    function create_if_block$4(ctx) {
+    function create_if_block$5(ctx) {
     	let h3;
     	let t0;
     	let t1;
@@ -7495,7 +7535,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$4.name,
+    		id: create_if_block$5.name,
     		type: "if",
     		source: "(14:4) {#if endDate}",
     		ctx
@@ -7521,7 +7561,7 @@ var app = (function () {
     	let p;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*endDate*/ ctx[4]) return create_if_block$4;
+    		if (/*endDate*/ ctx[4]) return create_if_block$5;
     		return create_else_block;
     	}
 
@@ -8030,7 +8070,7 @@ var app = (function () {
     }
 
     // (26:12) {#if exp.shortCompany}
-    function create_if_block$5(ctx) {
+    function create_if_block$6(ctx) {
     	let h2;
     	let t_value = /*exp*/ ctx[3].shortCompany + "";
     	let t;
@@ -8054,7 +8094,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$5.name,
+    		id: create_if_block$6.name,
     		type: "if",
     		source: "(26:12) {#if exp.shortCompany}",
     		ctx
@@ -8092,7 +8132,7 @@ var app = (function () {
     	let if_block0 = current_block_type(ctx);
 
     	function select_block_type_1(ctx, dirty) {
-    		if (/*exp*/ ctx[3].shortCompany) return create_if_block$5;
+    		if (/*exp*/ ctx[3].shortCompany) return create_if_block$6;
     		return create_else_block$1;
     	}
 
@@ -8580,7 +8620,7 @@ var app = (function () {
     const file$h = "src/components/modals/ProjectModal.svelte";
 
     // (18:8) {#if projectLink}
-    function create_if_block$6(ctx) {
+    function create_if_block$7(ctx) {
     	let a;
     	let openlogo;
     	let current;
@@ -8623,7 +8663,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$6.name,
+    		id: create_if_block$7.name,
     		type: "if",
     		source: "(18:8) {#if projectLink}",
     		ctx
@@ -8663,7 +8703,7 @@ var app = (function () {
     	let img_src_value;
     	let img_alt_value;
     	let current;
-    	let if_block = /*projectLink*/ ctx[5] && create_if_block$6(ctx);
+    	let if_block = /*projectLink*/ ctx[5] && create_if_block$7(ctx);
     	codelogo = new IoIosCode({ $$inline: true });
 
     	const block = {
@@ -8771,7 +8811,7 @@ var app = (function () {
     						transition_in(if_block, 1);
     					}
     				} else {
-    					if_block = create_if_block$6(ctx);
+    					if_block = create_if_block$7(ctx);
     					if_block.c();
     					transition_in(if_block, 1);
     					if_block.m(div0, t8);
@@ -10061,7 +10101,7 @@ var app = (function () {
     const file$n = "node_modules/svelte-simple-modal/src/Modal.svelte";
 
     // (213:0) {#if Component}
-    function create_if_block$7(ctx) {
+    function create_if_block$8(ctx) {
     	let div3;
     	let div2;
     	let div1;
@@ -10274,7 +10314,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$7.name,
+    		id: create_if_block$8.name,
     		type: "if",
     		source: "(213:0) {#if Component}",
     		ctx
@@ -10327,7 +10367,7 @@ var app = (function () {
     	let current;
     	let mounted;
     	let dispose;
-    	let if_block = /*Component*/ ctx[1] && create_if_block$7(ctx);
+    	let if_block = /*Component*/ ctx[1] && create_if_block$8(ctx);
     	const default_slot_template = /*$$slots*/ ctx[30].default;
     	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[29], null);
 
@@ -10364,7 +10404,7 @@ var app = (function () {
     						transition_in(if_block, 1);
     					}
     				} else {
-    					if_block = create_if_block$7(ctx);
+    					if_block = create_if_block$8(ctx);
     					if_block.c();
     					transition_in(if_block, 1);
     					if_block.m(t.parentNode, t);
@@ -10818,7 +10858,7 @@ var app = (function () {
     const file$o = "src/App.svelte";
 
     // (18:4) {#if (screenSize.matches)}
-    function create_if_block$8(ctx) {
+    function create_if_block$9(ctx) {
     	let menubar;
     	let current;
     	menubar = new MenuBar({ $$inline: true });
@@ -10847,7 +10887,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$8.name,
+    		id: create_if_block$9.name,
     		type: "if",
     		source: "(18:4) {#if (screenSize.matches)}",
     		ctx
@@ -10879,7 +10919,7 @@ var app = (function () {
     	let t7;
     	let footer;
     	let current;
-    	let if_block = /*screenSize*/ ctx[0].matches && create_if_block$8(ctx);
+    	let if_block = /*screenSize*/ ctx[0].matches && create_if_block$9(ctx);
     	sidebar = new Sidebar({ $$inline: true });
     	intro = new Intro({ $$inline: true });
     	experience = new Experience({ $$inline: true });
