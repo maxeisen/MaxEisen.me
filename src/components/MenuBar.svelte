@@ -1,16 +1,13 @@
 <script>
-    var screenSize = window.matchMedia("(min-width: 860px)")
     window.onscroll = function() {scrollFunction()};
     function scrollFunction() {
-        if (screenSize.matches) {
-            if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
-                document.getElementById("nav-bar").style.fontSize = "20px";
-                document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
-            }
-            else {
-                document.getElementById("nav-bar").style.fontSize = "30px";
-                document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";
-            }
+        if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
+            document.getElementById("nav-bar").style.fontSize = "20px";
+            document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
+        }
+        else {
+            document.getElementById("nav-bar").style.fontSize = "30px";
+            document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";
         }
     }
 </script>

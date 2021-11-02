@@ -214,7 +214,6 @@ video::-webkit-media-controls-overlay-play-button {
   
 .sidebar-section {
     position: fixed;
-    top: 15%;
     border-radius: 25px;
     align-items: center;
     padding: 24px 32px 0 32px;
@@ -405,10 +404,6 @@ button.close.svelte-fnsfcv {
         grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
     }
 
-    .sidebar-section {
-        top: 15.6%
-    }
-
     .experience-subsection {
         grid-template-columns: auto auto;
         grid-template-rows: auto auto auto;
@@ -548,14 +543,24 @@ button.close.svelte-fnsfcv {
     }
 
     .sidebar-section {
-        min-width: 50%;
+        background: none;
+        box-shadow: none;
+        width: 100%;
+        margin-top: 0;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 0;
     }
     
     .info-section-main {
+        background: none;
+        margin-top: 0;
         margin-left: auto;
         margin-right: auto;
+    }
+
+    .info-section-inner {
+        margin-top: 0;
     }
 
     .section-title {

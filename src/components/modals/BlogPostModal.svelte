@@ -46,7 +46,6 @@
     }
 
     .blog-header {
-        position: sticky;
         padding-top: 10px;
         padding-bottom: 10px;
         top: -18px;

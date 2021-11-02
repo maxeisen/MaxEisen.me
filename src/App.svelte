@@ -10,11 +10,14 @@
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
     import Modal from 'svelte-simple-modal';
+    var screenSize = window.matchMedia("(min-width: 860px)")
 </script>
 
 <Modal>
     <!-- <ThemeToggle on:change="{toggleTheme()}"/> -->
-    <MenuBar/>
+    {#if (screenSize.matches)}
+        <MenuBar/>
+    {/if}
     <div class="grid-container">
         <div class="sidebar-section">
             <Sidebar/>
