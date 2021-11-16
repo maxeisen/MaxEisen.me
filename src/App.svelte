@@ -10,6 +10,7 @@
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
     import Modal from 'svelte-simple-modal';
+
     var screenSize = window.matchMedia("(min-width: 860px)")
 </script>
 
