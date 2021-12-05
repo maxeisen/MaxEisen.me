@@ -209,10 +209,10 @@ video::-webkit-media-controls-overlay-play-button {
     grid-template-columns: 0.75fr 2fr;
     grid-template-rows: 1fr auto;
     gap: 1px;
-    grid-template-areas: "sidebar-section info-section info-section" "sidebar-section info-section info-section";
+    grid-template-areas: "profile-section info-section info-section" "profile-section info-section info-section";
 }
   
-.sidebar-section {
+.profile-section {
     position: fixed;
     border-radius: 25px;
     align-items: center;
@@ -222,7 +222,7 @@ video::-webkit-media-controls-overlay-play-button {
     margin-left: 60px;
     background: var(--inner-background);
     box-shadow: var(--inner-box-shadow);
-    grid-area: sidebar-section;
+    grid-area: profile-section;
 }
   
 .info-section-main {
@@ -401,7 +401,7 @@ button.close.svelte-fnsfcv {
     .grid-container {
         grid-template-columns: 0.75fr 1.5fr;
         grid-template-rows: auto;
-        grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
+        grid-template-areas: "profile-section info-section" "profile-section info-section";
     }
 
     .experience-subsection {
@@ -415,7 +415,7 @@ button.close.svelte-fnsfcv {
     .grid-container {
         grid-template-columns: 1fr 1.5fr;
         grid-template-rows: auto;
-        grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
+        grid-template-areas: "profile-section info-section" "profile-section info-section";
     }
 
     .education-item {
@@ -427,7 +427,7 @@ button.close.svelte-fnsfcv {
     .grid-container {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto;
-        grid-template-areas: "sidebar-section info-section" "sidebar-section info-section";
+        grid-template-areas: "profile-section info-section" "profile-section info-section";
     }
 
     .info-section-main {
@@ -483,7 +483,7 @@ button.close.svelte-fnsfcv {
     .grid-container {
         grid-template-columns: auto;
         grid-template-rows: auto;
-        grid-template-areas: "sidebar-section" "info-section";
+        grid-template-areas: "profile-section" "info-section";
     }
 
     .home-icon {
@@ -492,7 +492,7 @@ button.close.svelte-fnsfcv {
         width: 75px;
     }
 
-    .sidebar-section {
+    .profile-section {
         top: 0;
         min-width: 50%;
         margin: 20px auto 20px auto;
@@ -542,7 +542,7 @@ button.close.svelte-fnsfcv {
         display: inline;
     }
 
-    .sidebar-section {
+    .profile-section {
         background: none;
         box-shadow: none;
         width: 100%;

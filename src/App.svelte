@@ -1,7 +1,7 @@
 <script>
     // import ThemeToggle from './components/ThemeToggle.svelte'
     import MenuBar from './components/MenuBar.svelte';
-    import Sidebar from './components/Sidebar.svelte';
+    import Profile from './components/Profile.svelte';
     import Intro from './components/Intro.svelte';
     import Blog from './components/Blog.svelte';
     import Experience from './components/Experience.svelte';
@@ -20,8 +20,8 @@
         <MenuBar/>
     {/if}
     <div class="grid-container">
-        <div class="sidebar-section">
-            <Sidebar/>
+        <div class="profile-section">
+            <Profile/>
         </div>
         <div class="info-section-main">
             <div class="info-section-inner">

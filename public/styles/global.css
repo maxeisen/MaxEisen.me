@@ -43,8 +43,8 @@
 
 [data-theme="light"] {
     --main-green: #00806f;
-    --background-one: #006d62;
-    --background-two: #001858;
+    --background-one: #01c5b2;
+    --background-two: #0076bb;
     --main-green-translucent: rgba(0, 128, 111, 0.3);
 
     --nav-link: #ffffff;
@@ -58,7 +58,7 @@
     --paragraph-colour: #1a1919;
     --link-hover-colour: var(--main-green);
 
-    --intro-link-colour: #0062a3;
+    --intro-link-colour: #004e81;
     --intro-annotation-colour: rgba(0, 105, 91, 0.5);
     --intro-highlight-colour: rgba(0, 105, 91, 0.195);
 

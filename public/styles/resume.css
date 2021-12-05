@@ -3,6 +3,8 @@
     --main-green-translucent: rgba(0, 187, 162, 0.3);
     --background-one: #002723;
     --background-two: #00071a;
+    --nav-link: #cccccc;
+    --nav-link-hover: white;
     --footer-colour: white;
     --scrollbar-thumb: rgba(114, 114, 114, 0.4);
     --scrollbar-thumb-hover: rgb(114, 114, 114);
@@ -12,8 +14,10 @@
 [data-theme="light"] {
     --main-green: hsl(172, 100%, 25%);
     --main-green-translucent: rgba(0, 128, 111, 0.3);
-    --background-one: #006d62;
-    --background-two: #001858;
+    --background-one: #01c5b2;
+    --background-two: #0076bb;
+    --nav-link: #ffffff;
+    --nav-link-hover: #dadada;
     --footer-colour: black;
     --scrollbar-thumb: rgba(114, 114, 114, 0.8);
     --scrollbar-thumb-hover: rgb(114, 114, 114);
@@ -171,13 +175,13 @@ a:hover {
     transition: all 0.2s ease-in;
     font-size: 25px;
     font-weight: 400;
-    color: #cccccc;
+    color: var(--nav-link);
     margin-left: 12px;
     margin-top: -3px;
 }
 
 .back-button:hover {
-    color: white;
+    color: var(--nav-link-hover);
     -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
     -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
     animation: hoverGlow 1s ease-in-out infinite alternate;
@@ -188,7 +192,7 @@ a:hover {
     position: absolute;
     font-size: 30px;
     font-weight: 400;
-    color: white;
+    color: var(--nav-link);
     margin-left: 12px;
     margin-top: -5px;
 }
@@ -203,7 +207,7 @@ a:hover {
     transition: all 0.2s ease-in;
     font-size: 25px;
     font-weight: 400;
-    color: #cccccc;
+    color: var(--nav-link);
     margin-right: 12px;
     margin-top: -3px;
 }
@@ -224,7 +228,7 @@ a:hover {
 }
 
 .print-button:hover {
-    color: white;
+    color: var(--nav-link-hover);
     cursor: pointer;
     -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
     -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
@@ -552,7 +556,7 @@ a.company-long {
 }
 
 .footer:hover {
-    color: #00bba2;
+    color: var(--main-green);
 }
 
 @media print {
