@@ -7,7 +7,7 @@ This appreciation has only become more prominent in the last couple years with m
 
 But all of these experiments in design must have been drawing inspiration from somewhere, right?
 
-In this post, I'm analyzing my own sense of design, the things that have contribute to it, and some of my frequently used design elements.
+In this post, I'm analyzing my own sense of design, the things that have contributed to it, and some of my frequently used design elements.
 ## Early OS Experience
 The basis for my interest in anything digital, including digital design, stems from my lifelong love of computers. For me, growing up in the age of the GUI meant that I could quickly learn how to use a computer with relative ease (relative to using a CLI, which I didn't learn until university).
 
