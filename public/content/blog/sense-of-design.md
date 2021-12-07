@@ -49,7 +49,7 @@ Everything about Apple's design (software, mainly) spoke to me and still does in
 ## Specific Design Elements
 Let's take a look at some of the specific elements in a UI that I've taken a liking to, and use pretty consistently throughout my software design.
 ### Rounded Corners
-I really, really like rounded corners. Although, technically speaking, they are an waste of space in a UI, I just think they make software so much easier to use. Same goes for hardware, to be honest - things with rounded corners are just more appealing to me.
+I really, really like rounded corners. Although, technically speaking, they are a waste of space in a UI, I just think they make software so much easier to use. Same goes for hardware, to be honest - things with rounded corners are just more appealing to me.
 
 [Apple is no stranger to using rounded boxes](https://www.youtube.com/watch?v=bxgg_kW3QLU) in both their software *and* hardware design, so it's no surprise that I've taken such a liking to the use of rounded corners in software and web design.
 
