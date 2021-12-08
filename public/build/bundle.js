@@ -766,7 +766,7 @@ var app = (function () {
 
     const file = "src/components/MenuBar.svelte";
 
-    // (22:20) {#if !isSafari}
+    // (23:20) {#if !isSafari}
     function create_if_block(ctx) {
     	let source0;
     	let source0_src_value;
@@ -780,11 +780,11 @@ var app = (function () {
     			attr_dev(source0, "id", "icon-video-webm");
     			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
     			attr_dev(source0, "type", "video/webm");
-    			add_location(source0, file, 22, 24, 1116);
+    			add_location(source0, file, 23, 24, 1205);
     			attr_dev(source1, "id", "icon-video-mp4");
     			if (source1.src !== (source1_src_value = "./img/additional/memoji_cycle.mp4")) attr_dev(source1, "src", source1_src_value);
     			attr_dev(source1, "type", "video/mp4");
-    			add_location(source1, file, 23, 24, 1230);
+    			add_location(source1, file, 24, 24, 1319);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, source0, anchor);
@@ -800,7 +800,7 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(22:20) {#if !isSafari}",
+    		source: "(23:20) {#if !isSafari}",
     		ctx
     	});
 
@@ -883,55 +883,55 @@ var app = (function () {
     			attr_dev(img, "width", "75px");
     			attr_dev(img, "height", "88px");
     			attr_dev(img, "alt", "Memoji gif for mobile");
-    			add_location(img, file, 19, 16, 796);
+    			add_location(img, file, 20, 16, 885);
     			attr_dev(video, "class", "home-icon");
     			attr_dev(video, "poster", "./img/additional/memoji_cycle_small.gif");
     			video.autoplay = true;
     			video.loop = true;
     			video.muted = true;
     			video.playsInline = true;
-    			add_location(video, file, 20, 16, 945);
+    			add_location(video, file, 21, 16, 1034);
     			attr_dev(a0, "href", "/#");
     			attr_dev(a0, "aria-label", "Home");
     			attr_dev(a0, "onclick", "toggleTheme()");
-    			add_location(a0, file, 18, 12, 725);
-    			add_location(div0, file, 17, 8, 706);
+    			add_location(a0, file, 19, 12, 814);
+    			add_location(div0, file, 18, 8, 795);
     			attr_dev(a1, "href", "#experience");
-    			add_location(a1, file, 31, 42, 1570);
+    			add_location(a1, file, 32, 42, 1659);
     			attr_dev(li0, "id", "nav-bar-item");
-    			add_location(li0, file, 31, 20, 1548);
+    			add_location(li0, file, 32, 20, 1637);
     			attr_dev(a2, "href", "#projects");
-    			add_location(a2, file, 32, 42, 1655);
+    			add_location(a2, file, 33, 42, 1744);
     			attr_dev(li1, "id", "nav-bar-item");
-    			add_location(li1, file, 32, 20, 1633);
+    			add_location(li1, file, 33, 20, 1722);
     			attr_dev(a3, "href", "#blog");
-    			add_location(a3, file, 33, 42, 1736);
+    			add_location(a3, file, 34, 42, 1825);
     			attr_dev(li2, "id", "nav-bar-item");
-    			add_location(li2, file, 33, 20, 1714);
+    			add_location(li2, file, 34, 20, 1803);
     			attr_dev(a4, "href", "#education");
-    			add_location(a4, file, 34, 42, 1809);
+    			add_location(a4, file, 35, 42, 1898);
     			attr_dev(li3, "id", "nav-bar-item");
-    			add_location(li3, file, 34, 20, 1787);
+    			add_location(li3, file, 35, 20, 1876);
     			attr_dev(a5, "href", "#skills");
-    			add_location(a5, file, 35, 42, 1892);
+    			add_location(a5, file, 36, 42, 1981);
     			attr_dev(li4, "id", "nav-bar-item");
-    			add_location(li4, file, 35, 20, 1870);
-    			add_location(b, file, 36, 60, 1987);
+    			add_location(li4, file, 36, 20, 1959);
+    			add_location(b, file, 37, 60, 2076);
     			attr_dev(a6, "href", "/resume");
-    			add_location(a6, file, 36, 42, 1969);
+    			add_location(a6, file, 37, 42, 2058);
     			attr_dev(li5, "id", "nav-bar-item");
-    			add_location(li5, file, 36, 20, 1947);
+    			add_location(li5, file, 37, 20, 2036);
     			attr_dev(ul, "class", "nav-bar-list");
     			attr_dev(ul, "id", "nav-bar-list");
-    			add_location(ul, file, 30, 16, 1483);
-    			add_location(nav, file, 29, 12, 1460);
+    			add_location(ul, file, 31, 16, 1572);
+    			add_location(nav, file, 30, 12, 1549);
     			attr_dev(div1, "class", "nav-bar");
     			attr_dev(div1, "id", "nav-bar");
-    			add_location(div1, file, 28, 8, 1412);
+    			add_location(div1, file, 29, 8, 1501);
     			attr_dev(header, "id", "header");
-    			add_location(header, file, 16, 4, 676);
+    			add_location(header, file, 17, 4, 765);
     			attr_dev(div2, "class", "header-container");
-    			add_location(div2, file, 15, 0, 640);
+    			add_location(div2, file, 16, 0, 729);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -992,6 +992,7 @@ var app = (function () {
     	if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
     		document.getElementById("nav-bar").style.fontSize = "20px";
     		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
+    		document.getElementById("nav-bar-list").style.backdropFilter = "blur(3px)";
     	} else {
     		document.getElementById("nav-bar").style.fontSize = "30px";
     		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";

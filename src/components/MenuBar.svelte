@@ -5,6 +5,7 @@
         if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
             document.getElementById("nav-bar").style.fontSize = "20px";
             document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
+            document.getElementById("nav-bar-list").style.backdropFilter = "blur(3px)";
         }
         else {
             document.getElementById("nav-bar").style.fontSize = "30px";
