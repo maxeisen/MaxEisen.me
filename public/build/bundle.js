@@ -10021,7 +10021,7 @@ var app = (function () {
     			a = element("a");
     			t0 = text("Made at 🏠 by Max Eisen ");
     			b = element("b");
-    			b.textContent = "©2021";
+    			b.textContent = `©${new Date().getFullYear()}`;
     			set_style(b, "font-size", "14px");
     			set_style(b, "color", "var(--header-colour)");
     			add_location(b, file$m, 0, 133, 133);
