@@ -24,7 +24,7 @@
     <a class="social-link linkedin-link" aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a>
     <a class="social-link github-link" aria-label="GitHub" href="https://github.com/maxeisen/" rel="noreferrer" target="_blank"><GitHubLogo /></a>
     <a class="social-link twitter-link" aria-label="Twitter" href="https://twitter.com/maxeisen/" rel="noreferrer" target="_blank"><TwitterLogo /></a>
-    <a class="social-link" aria-label="Email" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank"><MailIcon /></a>
+    <a class="social-link" aria-label="Email" href="mailto:side@maxeisen.me" rel="noreferrer" target="_blank"><MailIcon /></a>
 </div>
 
 <div class="headshot">

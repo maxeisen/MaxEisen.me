@@ -1,24 +1,28 @@
 export const projects = 
 [
     {
-        name: "MaxEisen.me",
-        emoji: "&#128587;",
-        technologies: "Svelte, Netlify, HTML5, CSS3",
-        year: "Ongoing",
-        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+        name: "PupBot",
+        emoji: "&#128054;",
+        technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
+        year: "2021-Present",
+        shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
         longDescription:
         `<ul>
-            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
-            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+            <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
+            <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
+            <li>Matplotlib generates beautiful 12-hour price charts</li>
+            <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
+            <li>Deployed to Heroku and scheduled to run each hour</li>
         </ul>`,
-        githubLink: "https://github.com/maxeisen/MaxEisen.me",
-        screenshot: "./img/screenshots/maxeisenme",
+        githubLink: "https://github.com/maxeisen/pup-bot",
+        projectLink: "https://twitter.com/PuppyCoinBot",
+        screenshot: "./img/screenshots/pupbot",
     },
     {
         name: "Eagle",
         emoji: "&#129413;",
         technologies: "React Native, Firebase, Netlify",
-        year: "2020/2021",
+        year: "2020-2021",
         shortDescription: "A delivery service comparison platform to help food-lovers get the best deal",
         longDescription:
         `<ul>
@@ -29,10 +33,24 @@ export const projects =
         screenshot: "./img/screenshots/eagle",
     },
     {
+        name: "MaxEisen.me",
+        emoji: "&#128587;",
+        technologies: "Svelte, Netlify, HTML5, CSS3",
+        year: "2020-Present",
+        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+        longDescription:
+        `<ul>
+            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/MaxEisen.me",
+        screenshot: "./img/screenshots/maxeisenme",
+    },
+    {
         name: "Studii",
         emoji: "&#128218;",
         technologies: "React, Django, MongoDB, HTML5, CSS3",
-        year: "2019/2020",
+        year: "2019-2020",
         shortDescription: "A collaborative, all-in-one study space made for students, by students",
         longDescription:
         `<ul>
@@ -47,7 +65,7 @@ export const projects =
         name: "QHacks",
         emoji: "&#128187;",
         technologies: "React, Gatsby, MongoDB, HTML5, CSS3",
-        year: "2019/2020",
+        year: "2019-2020",
         shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
         longDescription:
         `<ul>
@@ -76,7 +94,7 @@ export const projects =
         name: "Glitch",
         emoji: "&#127918;",
         technologies: "Unity Game Engine, C#",
-        year: "2018/2019",
+        year: "2018-2019",
         shortDescription: "A unique, monochromatic platformer game for observant minimalists",
         longDescription:
         `<ul>
@@ -87,19 +105,19 @@ export const projects =
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
         screenshot: "./img/screenshots/glitch",
     },
-    // {
-    //     name: "TicTacToe",
-    //     emoji: "&#10060;",
-    //     technologies: "Python",
-    //     year: "2017",
-    //     shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
-    //     longDescription:
-    //     `<ul>
-    //         <li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li>
-    //         <li>Developed in under an hour on a long flight, without access to any online resources</li>
-    //         <li>Initially written in Python 2 and ported to Python 3</li>
-    //     </ul>`,
-    //     githubLink: "https://github.com/maxeisen/TicTacToe",
-    //     screenshot: "./img/screenshots/tictactoe",
-    // }
+    {
+        name: "TicTacToe",
+        emoji: "&#10060;",
+        technologies: "Python",
+        year: "2017",
+        shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+        longDescription:
+        `<ul>
+            <li>An extremely basic, text-based version of tic-tac-toe</li>
+            <li>One of my earliest coding projects, developed in about an hour on a flight without access to any online resources</li>
+            <li>Initially written in Python 2 and ported to Python 3</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/TicTacToe",
+        screenshot: "./img/screenshots/tictactoe",
+    }
 ]

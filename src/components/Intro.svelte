@@ -6,7 +6,7 @@
 
     const appstorereviewers = {
         video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
-        description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (78,000 viewers strong)"
+        description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (~79,000 viewers strong)"
     };
     const cycle = {
         image: "./img/activities/cycling.webp",
@@ -88,12 +88,12 @@
         with a creative and curious mind, a passion for adventure, and a fascination for all technology.</p>
 
         <p>Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
-        As a software engineer by day, I enjoy working with teams and being around like-minded people. With <i>every</i> new role I take on, I strive to communicate effectively and confidently.</p>
+        As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver.</p>
         
         <p>In my free time, I love to <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={droneModal}>drone</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>,
         <activity tabindex="0" on:click={skiingModal}>ski</activity>, <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
         
-        <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:max.eisen@queensu.ca" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
+        <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
         
         <p>If you are <span class=static-highlight>recruiting</span>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
     </div>

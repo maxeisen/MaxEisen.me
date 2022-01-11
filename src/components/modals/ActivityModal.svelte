@@ -17,7 +17,7 @@
         </audio>
     {/if}
     {#if video}
-        <iframe width="560" height="315" src="{video}hd=1&autoplay=1&modestbranding=1&showinfo=0&rel=0" title="{description}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe width="560" height="315" src="{video}hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0" title="{description}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     {/if}
         <h3 class="activity-description" style="text-align: center">{@html description}</h3>
 </div>

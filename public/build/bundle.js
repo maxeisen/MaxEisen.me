@@ -2363,7 +2363,7 @@ var app = (function () {
     			add_location(a2, file$7, 25, 4, 1237);
     			attr_dev(a3, "class", "social-link svelte-t07b25");
     			attr_dev(a3, "aria-label", "Email");
-    			attr_dev(a3, "href", "mailto:max.eisen@queensu.ca");
+    			attr_dev(a3, "href", "mailto:side@maxeisen.me");
     			attr_dev(a3, "rel", "noreferrer");
     			attr_dev(a3, "target", "_blank");
     			add_location(a3, file$7, 26, 4, 1388);
@@ -2372,21 +2372,21 @@ var app = (function () {
     			attr_dev(source0, "class", "headshot svelte-t07b25");
     			attr_dev(source0, "srcset", /*cleanHeadshotW*/ ctx[1]);
     			attr_dev(source0, "type", "image/webp");
-    			add_location(source0, file$7, 31, 8, 1568);
+    			add_location(source0, file$7, 31, 8, 1564);
     			attr_dev(source1, "class", "headshot svelte-t07b25");
     			attr_dev(source1, "srcset", /*cleanHeadshotP*/ ctx[2]);
     			attr_dev(source1, "type", "image/png");
-    			add_location(source1, file$7, 32, 8, 1644);
+    			add_location(source1, file$7, 32, 8, 1640);
     			attr_dev(img, "class", "headshot svelte-t07b25");
     			attr_dev(img, "id", "headshot");
     			attr_dev(img, "width", "200px");
     			attr_dev(img, "height", "200px");
     			if (img.src !== (img_src_value = /*cleanHeadshotW*/ ctx[1])) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "Current headshot");
-    			add_location(img, file$7, 33, 8, 1719);
-    			add_location(picture, file$7, 30, 4, 1550);
+    			add_location(img, file$7, 33, 8, 1715);
+    			add_location(picture, file$7, 30, 4, 1546);
     			attr_dev(div1, "class", "headshot svelte-t07b25");
-    			add_location(div1, file$7, 29, 0, 1523);
+    			add_location(div1, file$7, 29, 0, 1519);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -2657,7 +2657,7 @@ var app = (function () {
     			iframe = element("iframe");
     			attr_dev(iframe, "width", "560");
     			attr_dev(iframe, "height", "315");
-    			if (iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=1&modestbranding=1&showinfo=0&rel=0"))) attr_dev(iframe, "src", iframe_src_value);
+    			if (iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0"))) attr_dev(iframe, "src", iframe_src_value);
     			attr_dev(iframe, "title", /*description*/ ctx[3]);
     			attr_dev(iframe, "frameborder", "0");
     			attr_dev(iframe, "allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
@@ -2668,7 +2668,7 @@ var app = (function () {
     			insert_dev(target, iframe, anchor);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*video*/ 4 && iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=1&modestbranding=1&showinfo=0&rel=0"))) {
+    			if (dirty & /*video*/ 4 && iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0"))) {
     				attr_dev(iframe, "src", iframe_src_value);
     			}
 
@@ -2921,37 +2921,35 @@ var app = (function () {
     	let t8;
     	let activity0;
     	let t10;
-    	let i;
-    	let t12;
-    	let t13;
+    	let t11;
     	let p2;
-    	let t14;
+    	let t12;
     	let activity1;
-    	let t16;
+    	let t14;
     	let activity2;
-    	let t18;
+    	let t16;
     	let activity3;
-    	let t20;
+    	let t18;
     	let activity4;
-    	let t22;
+    	let t20;
     	let activity5;
-    	let t24;
+    	let t22;
     	let activity6;
-    	let t26;
+    	let t24;
     	let activity7;
-    	let t28;
-    	let t29;
+    	let t26;
+    	let t27;
     	let p3;
-    	let t30;
+    	let t28;
     	let a2;
-    	let t32;
-    	let t33;
+    	let t30;
+    	let t31;
     	let p4;
-    	let t34;
+    	let t32;
     	let span;
-    	let t36;
+    	let t34;
     	let a3;
-    	let t38;
+    	let t36;
     	let mounted;
     	let dispose;
 
@@ -2975,106 +2973,102 @@ var app = (function () {
     			t8 = text("Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and ");
     			activity0 = element("activity");
     			activity0.textContent = "iOS app reviewing";
-    			t10 = text(".\n        As a software engineer by day, I enjoy working with teams and being around like-minded people. With ");
-    			i = element("i");
-    			i.textContent = "every";
-    			t12 = text(" new role I take on, I strive to communicate effectively and confidently.");
-    			t13 = space();
+    			t10 = text(".\n        As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver.");
+    			t11 = space();
     			p2 = element("p");
-    			t14 = text("In my free time, I love to ");
+    			t12 = text("In my free time, I love to ");
     			activity1 = element("activity");
     			activity1.textContent = "cycle";
-    			t16 = text(", ");
+    			t14 = text(", ");
     			activity2 = element("activity");
     			activity2.textContent = "drone";
-    			t18 = text(", ");
+    			t16 = text(", ");
     			activity3 = element("activity");
     			activity3.textContent = "play guitar";
-    			t20 = text(",\n        ");
+    			t18 = text(",\n        ");
     			activity4 = element("activity");
     			activity4.textContent = "ski";
-    			t22 = text(", ");
+    			t20 = text(", ");
     			activity5 = element("activity");
     			activity5.textContent = "hike";
-    			t24 = text(", ");
+    			t22 = text(", ");
     			activity6 = element("activity");
     			activity6.textContent = "travel";
-    			t26 = text(", and ");
+    			t24 = text(", and ");
     			activity7 = element("activity");
     			activity7.textContent = "work with cool technology";
-    			t28 = text(".");
-    			t29 = space();
+    			t26 = text(".");
+    			t27 = space();
     			p3 = element("p");
-    			t30 = text("Please explore and enjoy my portfolio website, click on things for more information, and ");
+    			t28 = text("Please explore and enjoy my portfolio website, click on things for more information, and ");
     			a2 = element("a");
     			a2.textContent = "email me";
-    			t32 = text(" if you have any questions or comments.");
-    			t33 = space();
+    			t30 = text(" if you have any questions or comments.");
+    			t31 = space();
     			p4 = element("p");
-    			t34 = text("If you are ");
+    			t32 = text("If you are ");
     			span = element("span");
     			span.textContent = "recruiting";
-    			t36 = text(", please view and download (print to PDF) my ");
+    			t34 = text(", please view and download (print to PDF) my ");
     			a3 = element("a");
     			a3.textContent = "resume";
-    			t38 = text(".");
+    			t36 = text(".");
     			attr_dev(h1, "class", "section-title-intro svelte-vwcyka");
-    			add_location(h1, file$9, 83, 4, 2999);
+    			add_location(h1, file$9, 83, 4, 3000);
     			attr_dev(a0, "class", "intro-link svelte-vwcyka");
     			attr_dev(a0, "href", "https://www.publicissapient.com/");
     			attr_dev(a0, "rel", "noreferrer");
     			attr_dev(a0, "target", "_blank");
-    			add_location(a0, file$9, 85, 75, 3157);
+    			add_location(a0, file$9, 85, 75, 3158);
     			attr_dev(a1, "class", "intro-link svelte-vwcyka");
     			attr_dev(a1, "href", "https://www.queensu.ca/");
     			attr_dev(a1, "rel", "noreferrer");
     			attr_dev(a1, "target", "_blank");
-    			add_location(a1, file$9, 86, 45, 3318);
+    			add_location(a1, file$9, 86, 45, 3319);
     			attr_dev(p0, "class", "title-extension svelte-vwcyka");
-    			add_location(p0, file$9, 85, 8, 3090);
+    			add_location(p0, file$9, 85, 8, 3091);
     			attr_dev(activity0, "tabindex", "0");
     			attr_dev(activity0, "class", "svelte-vwcyka");
-    			add_location(activity0, file$9, 89, 147, 3685);
-    			add_location(i, file$9, 90, 108, 3880);
-    			add_location(p1, file$9, 89, 8, 3546);
+    			add_location(activity0, file$9, 89, 147, 3686);
+    			add_location(p1, file$9, 89, 8, 3547);
     			attr_dev(activity1, "tabindex", "0");
     			attr_dev(activity1, "class", "svelte-vwcyka");
-    			add_location(activity1, file$9, 92, 38, 4017);
+    			add_location(activity1, file$9, 92, 38, 4059);
     			attr_dev(activity2, "tabindex", "0");
     			attr_dev(activity2, "class", "svelte-vwcyka");
-    			add_location(activity2, file$9, 92, 101, 4080);
+    			add_location(activity2, file$9, 92, 101, 4122);
     			attr_dev(activity3, "tabindex", "0");
     			attr_dev(activity3, "class", "svelte-vwcyka");
-    			add_location(activity3, file$9, 92, 164, 4143);
+    			add_location(activity3, file$9, 92, 164, 4185);
     			attr_dev(activity4, "tabindex", "0");
     			attr_dev(activity4, "class", "svelte-vwcyka");
-    			add_location(activity4, file$9, 93, 8, 4220);
+    			add_location(activity4, file$9, 93, 8, 4262);
     			attr_dev(activity5, "tabindex", "0");
     			attr_dev(activity5, "class", "svelte-vwcyka");
-    			add_location(activity5, file$9, 93, 70, 4282);
+    			add_location(activity5, file$9, 93, 70, 4324);
     			attr_dev(activity6, "tabindex", "0");
     			attr_dev(activity6, "class", "svelte-vwcyka");
-    			add_location(activity6, file$9, 93, 133, 4345);
+    			add_location(activity6, file$9, 93, 133, 4387);
     			attr_dev(activity7, "tabindex", "0");
     			attr_dev(activity7, "class", "svelte-vwcyka");
-    			add_location(activity7, file$9, 93, 206, 4418);
-    			add_location(p2, file$9, 92, 8, 3987);
+    			add_location(activity7, file$9, 93, 206, 4460);
+    			add_location(p2, file$9, 92, 8, 4029);
     			attr_dev(a2, "class", "intro-link svelte-vwcyka");
-    			attr_dev(a2, "href", "mailto:max.eisen@queensu.ca");
+    			attr_dev(a2, "href", "mailto:intro@maxeisen.me");
     			attr_dev(a2, "rel", "noreferrer");
     			attr_dev(a2, "target", "_blank");
-    			add_location(a2, file$9, 95, 100, 4613);
-    			add_location(p3, file$9, 95, 8, 4521);
+    			add_location(a2, file$9, 95, 100, 4655);
+    			add_location(p3, file$9, 95, 8, 4563);
     			attr_dev(span, "class", "static-highlight svelte-vwcyka");
-    			add_location(span, file$9, 97, 22, 4790);
+    			add_location(span, file$9, 97, 22, 4829);
     			attr_dev(a3, "class", "intro-link svelte-vwcyka");
     			attr_dev(a3, "href", "/resume");
-    			add_location(a3, file$9, 97, 113, 4881);
-    			add_location(p4, file$9, 97, 8, 4776);
+    			add_location(a3, file$9, 97, 113, 4920);
+    			add_location(p4, file$9, 97, 8, 4815);
     			attr_dev(div0, "class", "intro-paragraph svelte-vwcyka");
-    			add_location(div0, file$9, 84, 4, 3052);
+    			add_location(div0, file$9, 84, 4, 3053);
     			attr_dev(div1, "class", "intro-container");
-    			add_location(div1, file$9, 82, 0, 2965);
+    			add_location(div1, file$9, 82, 0, 2966);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3095,37 +3089,35 @@ var app = (function () {
     			append_dev(p1, t8);
     			append_dev(p1, activity0);
     			append_dev(p1, t10);
-    			append_dev(p1, i);
-    			append_dev(p1, t12);
-    			append_dev(div0, t13);
+    			append_dev(div0, t11);
     			append_dev(div0, p2);
-    			append_dev(p2, t14);
+    			append_dev(p2, t12);
     			append_dev(p2, activity1);
-    			append_dev(p2, t16);
+    			append_dev(p2, t14);
     			append_dev(p2, activity2);
-    			append_dev(p2, t18);
+    			append_dev(p2, t16);
     			append_dev(p2, activity3);
-    			append_dev(p2, t20);
+    			append_dev(p2, t18);
     			append_dev(p2, activity4);
-    			append_dev(p2, t22);
+    			append_dev(p2, t20);
     			append_dev(p2, activity5);
-    			append_dev(p2, t24);
+    			append_dev(p2, t22);
     			append_dev(p2, activity6);
-    			append_dev(p2, t26);
+    			append_dev(p2, t24);
     			append_dev(p2, activity7);
-    			append_dev(p2, t28);
-    			append_dev(div0, t29);
+    			append_dev(p2, t26);
+    			append_dev(div0, t27);
     			append_dev(div0, p3);
-    			append_dev(p3, t30);
+    			append_dev(p3, t28);
     			append_dev(p3, a2);
-    			append_dev(p3, t32);
-    			append_dev(div0, t33);
+    			append_dev(p3, t30);
+    			append_dev(div0, t31);
     			append_dev(div0, p4);
-    			append_dev(p4, t34);
+    			append_dev(p4, t32);
     			append_dev(p4, span);
-    			append_dev(p4, t36);
+    			append_dev(p4, t34);
     			append_dev(p4, a3);
-    			append_dev(p4, t38);
+    			append_dev(p4, t36);
 
     			if (!mounted) {
     				dispose = [
@@ -3168,7 +3160,7 @@ var app = (function () {
 
     	const appstorereviewers = {
     		video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
-    		description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (78,000 viewers strong)"
+    		description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (~79,000 viewers strong)"
     	};
 
     	const cycle = {
@@ -9055,24 +9047,28 @@ var app = (function () {
     const projects = 
     [
         {
-            name: "MaxEisen.me",
-            emoji: "&#128587;",
-            technologies: "Svelte, Netlify, HTML5, CSS3",
-            year: "Ongoing",
-            shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+            name: "PupBot",
+            emoji: "&#128054;",
+            technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
+            year: "2021-Present",
+            shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
             longDescription:
             `<ul>
-            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
-            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+            <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
+            <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
+            <li>Matplotlib generates beautiful 12-hour price charts</li>
+            <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
+            <li>Deployed to Heroku and scheduled to run each hour</li>
         </ul>`,
-            githubLink: "https://github.com/maxeisen/MaxEisen.me",
-            screenshot: "./img/screenshots/maxeisenme",
+            githubLink: "https://github.com/maxeisen/pup-bot",
+            projectLink: "https://twitter.com/PuppyCoinBot",
+            screenshot: "./img/screenshots/pupbot",
         },
         {
             name: "Eagle",
             emoji: "&#129413;",
             technologies: "React Native, Firebase, Netlify",
-            year: "2020/2021",
+            year: "2020-2021",
             shortDescription: "A delivery service comparison platform to help food-lovers get the best deal",
             longDescription:
             `<ul>
@@ -9083,10 +9079,24 @@ var app = (function () {
             screenshot: "./img/screenshots/eagle",
         },
         {
+            name: "MaxEisen.me",
+            emoji: "&#128587;",
+            technologies: "Svelte, Netlify, HTML5, CSS3",
+            year: "2020-Present",
+            shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+            longDescription:
+            `<ul>
+            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/MaxEisen.me",
+            screenshot: "./img/screenshots/maxeisenme",
+        },
+        {
             name: "Studii",
             emoji: "&#128218;",
             technologies: "React, Django, MongoDB, HTML5, CSS3",
-            year: "2019/2020",
+            year: "2019-2020",
             shortDescription: "A collaborative, all-in-one study space made for students, by students",
             longDescription:
             `<ul>
@@ -9101,7 +9111,7 @@ var app = (function () {
             name: "QHacks",
             emoji: "&#128187;",
             technologies: "React, Gatsby, MongoDB, HTML5, CSS3",
-            year: "2019/2020",
+            year: "2019-2020",
             shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
             longDescription:
             `<ul>
@@ -9130,7 +9140,7 @@ var app = (function () {
             name: "Glitch",
             emoji: "&#127918;",
             technologies: "Unity Game Engine, C#",
-            year: "2018/2019",
+            year: "2018-2019",
             shortDescription: "A unique, monochromatic platformer game for observant minimalists",
             longDescription:
             `<ul>
@@ -9141,21 +9151,21 @@ var app = (function () {
             projectLink: "https://tamirarnesty.github.io/glitchGame/",
             screenshot: "./img/screenshots/glitch",
         },
-        // {
-        //     name: "TicTacToe",
-        //     emoji: "&#10060;",
-        //     technologies: "Python",
-        //     year: "2017",
-        //     shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
-        //     longDescription:
-        //     `<ul>
-        //         <li>An extremely basic, text-based version of tic-tac-toe made out of boredom on a flight</li>
-        //         <li>Developed in under an hour on a long flight, without access to any online resources</li>
-        //         <li>Initially written in Python 2 and ported to Python 3</li>
-        //     </ul>`,
-        //     githubLink: "https://github.com/maxeisen/TicTacToe",
-        //     screenshot: "./img/screenshots/tictactoe",
-        // }
+        {
+            name: "TicTacToe",
+            emoji: "&#10060;",
+            technologies: "Python",
+            year: "2017",
+            shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+            longDescription:
+            `<ul>
+            <li>An extremely basic, text-based version of tic-tac-toe</li>
+            <li>One of my earliest coding projects, developed in about an hour on a flight without access to any online resources</li>
+            <li>Initially written in Python 2 and ported to Python 3</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/TicTacToe",
+            screenshot: "./img/screenshots/tictactoe",
+        }
     ];
 
     /* src/components/Projects.svelte generated by Svelte v3.24.1 */
