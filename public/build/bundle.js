@@ -8012,8 +8012,8 @@ var app = (function () {
             shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
             longDescription:
             `<ul>
-            <li>Consulting with future-focused client companies to determine requirements for large-scale digital transformation projects</li>
-            <li>Collaborating with teams to design, develop, and engineer these projects for launch</li>
+            <li>Currently working with client Goldman Sachs to develop web tools for advisors to ultra-high-net-worth individuals</li>
+            <li>Collaborating with teams to design, develop, and engineer 3 different projects for production</li>
             <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
         </ul>`
         },
@@ -9244,7 +9244,7 @@ var app = (function () {
         },
         {
             name: "MaxEisen.me",
-            emoji: "&#128587;",
+            emoji: "&#128587;&#8205;&#9794;&#65039;",
             technologies: "Svelte, Netlify, HTML5, CSS3",
             year: "2020-Present",
             shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
@@ -9589,51 +9589,76 @@ var app = (function () {
     	let h1;
     	let t0;
     	let t1;
-    	let h2;
     	let t2;
-    	let h30;
     	let t3;
-    	let h31;
     	let t4;
+    	let h2;
     	let t5;
-    	let p;
-    	let b;
+    	let h30;
+    	let t6;
+    	let h31;
     	let t7;
+    	let t8;
+    	let p0;
+    	let b0;
+    	let t10;
+    	let t11;
+    	let p1;
+    	let b1;
+    	let t13;
+    	let t14;
+    	let p2;
 
     	const block = {
     		c: function create() {
     			div = element("div");
     			h1 = element("h1");
     			t0 = text(/*school*/ ctx[0]);
-    			t1 = space();
+    			t1 = text(" (");
+    			t2 = text(/*location*/ ctx[1]);
+    			t3 = text(")");
+    			t4 = space();
     			h2 = element("h2");
-    			t2 = space();
-    			h30 = element("h3");
-    			t3 = space();
-    			h31 = element("h3");
-    			t4 = text(/*years*/ ctx[3]);
     			t5 = space();
-    			p = element("p");
-    			b = element("b");
-    			b.textContent = "Committees: ";
-    			t7 = text(/*committees*/ ctx[4]);
-    			attr_dev(h1, "class", "modal-school svelte-143p4hy");
+    			h30 = element("h3");
+    			t6 = space();
+    			h31 = element("h3");
+    			t7 = text(/*years*/ ctx[4]);
+    			t8 = space();
+    			p0 = element("p");
+    			b0 = element("b");
+    			b0.textContent = "Relevant Courses: ";
+    			t10 = text(/*courses*/ ctx[5]);
+    			t11 = space();
+    			p1 = element("p");
+    			b1 = element("b");
+    			b1.textContent = "Committees: ";
+    			t13 = text(/*committees*/ ctx[6]);
+    			t14 = space();
+    			p2 = element("p");
+    			p2.textContent = "*Acted as a Teaching Assistant (courses) or Executive (committees)";
+    			attr_dev(h1, "class", "modal-school svelte-14ryp3n");
     			set_style(h1, "text-align", "center");
-    			add_location(h1, file$j, 9, 4, 171);
-    			attr_dev(h2, "class", "modal-degree svelte-143p4hy");
+    			add_location(h1, file$j, 11, 4, 220);
+    			attr_dev(h2, "class", "modal-degree svelte-14ryp3n");
     			set_style(h2, "text-align", "center");
-    			add_location(h2, file$j, 10, 4, 242);
-    			attr_dev(h30, "class", "modal-major svelte-143p4hy");
+    			add_location(h2, file$j, 12, 4, 304);
+    			attr_dev(h30, "class", "modal-major svelte-14ryp3n");
     			set_style(h30, "text-align", "center");
-    			add_location(h30, file$j, 11, 4, 319);
-    			attr_dev(h31, "class", "modal-years svelte-143p4hy");
+    			add_location(h30, file$j, 13, 4, 381);
+    			attr_dev(h31, "class", "modal-years svelte-14ryp3n");
     			set_style(h31, "text-align", "center");
-    			add_location(h31, file$j, 12, 4, 394);
-    			add_location(b, file$j, 13, 32, 491);
-    			attr_dev(p, "class", "modal-committees svelte-143p4hy");
-    			add_location(p, file$j, 13, 4, 463);
-    			attr_dev(div, "class", "education-modal svelte-143p4hy");
-    			add_location(div, file$j, 8, 0, 137);
+    			add_location(h31, file$j, 14, 4, 456);
+    			add_location(b0, file$j, 15, 32, 553);
+    			attr_dev(p0, "class", "modal-committees svelte-14ryp3n");
+    			add_location(p0, file$j, 15, 4, 525);
+    			add_location(b1, file$j, 16, 32, 624);
+    			attr_dev(p1, "class", "modal-committees svelte-14ryp3n");
+    			add_location(p1, file$j, 16, 4, 596);
+    			attr_dev(p2, "class", "ta-note svelte-14ryp3n");
+    			add_location(p2, file$j, 17, 4, 664);
+    			attr_dev(div, "class", "education-modal svelte-14ryp3n");
+    			add_location(div, file$j, 10, 0, 186);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -9642,24 +9667,35 @@ var app = (function () {
     			insert_dev(target, div, anchor);
     			append_dev(div, h1);
     			append_dev(h1, t0);
-    			append_dev(div, t1);
+    			append_dev(h1, t1);
+    			append_dev(h1, t2);
+    			append_dev(h1, t3);
+    			append_dev(div, t4);
     			append_dev(div, h2);
-    			h2.innerHTML = /*degree*/ ctx[1];
-    			append_dev(div, t2);
-    			append_dev(div, h30);
-    			h30.innerHTML = /*major*/ ctx[2];
-    			append_dev(div, t3);
-    			append_dev(div, h31);
-    			append_dev(h31, t4);
+    			h2.innerHTML = /*degree*/ ctx[2];
     			append_dev(div, t5);
-    			append_dev(div, p);
-    			append_dev(p, b);
-    			append_dev(p, t7);
+    			append_dev(div, h30);
+    			h30.innerHTML = /*major*/ ctx[3];
+    			append_dev(div, t6);
+    			append_dev(div, h31);
+    			append_dev(h31, t7);
+    			append_dev(div, t8);
+    			append_dev(div, p0);
+    			append_dev(p0, b0);
+    			append_dev(p0, t10);
+    			append_dev(div, t11);
+    			append_dev(div, p1);
+    			append_dev(p1, b1);
+    			append_dev(p1, t13);
+    			append_dev(div, t14);
+    			append_dev(div, p2);
     		},
     		p: function update(ctx, [dirty]) {
     			if (dirty & /*school*/ 1) set_data_dev(t0, /*school*/ ctx[0]);
-    			if (dirty & /*degree*/ 2) h2.innerHTML = /*degree*/ ctx[1];			if (dirty & /*major*/ 4) h30.innerHTML = /*major*/ ctx[2];			if (dirty & /*years*/ 8) set_data_dev(t4, /*years*/ ctx[3]);
-    			if (dirty & /*committees*/ 16) set_data_dev(t7, /*committees*/ ctx[4]);
+    			if (dirty & /*location*/ 2) set_data_dev(t2, /*location*/ ctx[1]);
+    			if (dirty & /*degree*/ 4) h2.innerHTML = /*degree*/ ctx[2];			if (dirty & /*major*/ 8) h30.innerHTML = /*major*/ ctx[3];			if (dirty & /*years*/ 16) set_data_dev(t7, /*years*/ ctx[4]);
+    			if (dirty & /*courses*/ 32) set_data_dev(t10, /*courses*/ ctx[5]);
+    			if (dirty & /*committees*/ 64) set_data_dev(t13, /*committees*/ ctx[6]);
     		},
     		i: noop,
     		o: noop,
@@ -9681,11 +9717,13 @@ var app = (function () {
 
     function instance$j($$self, $$props, $$invalidate) {
     	let { school } = $$props;
+    	let { location } = $$props;
     	let { degree } = $$props;
     	let { major } = $$props;
     	let { years } = $$props;
+    	let { courses } = $$props;
     	let { committees } = $$props;
-    	const writable_props = ["school", "degree", "major", "years", "committees"];
+    	const writable_props = ["school", "location", "degree", "major", "years", "courses", "committees"];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<EducationModal> was created with unknown prop '${key}'`);
@@ -9696,27 +9734,39 @@ var app = (function () {
 
     	$$self.$$set = $$props => {
     		if ("school" in $$props) $$invalidate(0, school = $$props.school);
-    		if ("degree" in $$props) $$invalidate(1, degree = $$props.degree);
-    		if ("major" in $$props) $$invalidate(2, major = $$props.major);
-    		if ("years" in $$props) $$invalidate(3, years = $$props.years);
-    		if ("committees" in $$props) $$invalidate(4, committees = $$props.committees);
+    		if ("location" in $$props) $$invalidate(1, location = $$props.location);
+    		if ("degree" in $$props) $$invalidate(2, degree = $$props.degree);
+    		if ("major" in $$props) $$invalidate(3, major = $$props.major);
+    		if ("years" in $$props) $$invalidate(4, years = $$props.years);
+    		if ("courses" in $$props) $$invalidate(5, courses = $$props.courses);
+    		if ("committees" in $$props) $$invalidate(6, committees = $$props.committees);
     	};
 
-    	$$self.$capture_state = () => ({ school, degree, major, years, committees });
+    	$$self.$capture_state = () => ({
+    		school,
+    		location,
+    		degree,
+    		major,
+    		years,
+    		courses,
+    		committees
+    	});
 
     	$$self.$inject_state = $$props => {
     		if ("school" in $$props) $$invalidate(0, school = $$props.school);
-    		if ("degree" in $$props) $$invalidate(1, degree = $$props.degree);
-    		if ("major" in $$props) $$invalidate(2, major = $$props.major);
-    		if ("years" in $$props) $$invalidate(3, years = $$props.years);
-    		if ("committees" in $$props) $$invalidate(4, committees = $$props.committees);
+    		if ("location" in $$props) $$invalidate(1, location = $$props.location);
+    		if ("degree" in $$props) $$invalidate(2, degree = $$props.degree);
+    		if ("major" in $$props) $$invalidate(3, major = $$props.major);
+    		if ("years" in $$props) $$invalidate(4, years = $$props.years);
+    		if ("courses" in $$props) $$invalidate(5, courses = $$props.courses);
+    		if ("committees" in $$props) $$invalidate(6, committees = $$props.committees);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [school, degree, major, years, committees];
+    	return [school, location, degree, major, years, courses, committees];
     }
 
     class EducationModal extends SvelteComponentDev {
@@ -9725,10 +9775,12 @@ var app = (function () {
 
     		init(this, options, instance$j, create_fragment$j, safe_not_equal, {
     			school: 0,
-    			degree: 1,
-    			major: 2,
-    			years: 3,
-    			committees: 4
+    			location: 1,
+    			degree: 2,
+    			major: 3,
+    			years: 4,
+    			courses: 5,
+    			committees: 6
     		});
 
     		dispatch_dev("SvelteRegisterComponent", {
@@ -9745,19 +9797,27 @@ var app = (function () {
     			console.warn("<EducationModal> was created without expected prop 'school'");
     		}
 
-    		if (/*degree*/ ctx[1] === undefined && !("degree" in props)) {
+    		if (/*location*/ ctx[1] === undefined && !("location" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'location'");
+    		}
+
+    		if (/*degree*/ ctx[2] === undefined && !("degree" in props)) {
     			console.warn("<EducationModal> was created without expected prop 'degree'");
     		}
 
-    		if (/*major*/ ctx[2] === undefined && !("major" in props)) {
+    		if (/*major*/ ctx[3] === undefined && !("major" in props)) {
     			console.warn("<EducationModal> was created without expected prop 'major'");
     		}
 
-    		if (/*years*/ ctx[3] === undefined && !("years" in props)) {
+    		if (/*years*/ ctx[4] === undefined && !("years" in props)) {
     			console.warn("<EducationModal> was created without expected prop 'years'");
     		}
 
-    		if (/*committees*/ ctx[4] === undefined && !("committees" in props)) {
+    		if (/*courses*/ ctx[5] === undefined && !("courses" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'courses'");
+    		}
+
+    		if (/*committees*/ ctx[6] === undefined && !("committees" in props)) {
     			console.warn("<EducationModal> was created without expected prop 'committees'");
     		}
     	}
@@ -9767,6 +9827,14 @@ var app = (function () {
     	}
 
     	set school(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get location() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
     		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -9794,6 +9862,14 @@ var app = (function () {
     		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
+    	get courses() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set courses(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
     	get committees() {
     		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
@@ -9807,12 +9883,14 @@ var app = (function () {
     [
         {
             school: "Queen's University",
+            location: "Kingston, ON",
             degreeShort: "Bachelor of Computing, Honours",
             degreeLong: "Bachelor of Computing, Honours (<a href=\"https://www.queensu.ca/admission/programs/computing\" rel=\"noreferrer\" target=\"_blank\">BCmpH</a>)",
             majorShort: "Computer Science",
             majorLong: "Computer Science (<a href=\"http://www.cips.ca/\" rel=\"noreferrer\" target=\"_blank\">CIPS</a> Accredited)",
             years: "2017 - 2021",
-            committees: "QTMA, QHacks, TEDxQueensU, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
+            courses: "Elements of Computing I* and II*, Linear Algebra, Fundamentals of Software Development (Agile)*, Software Architecture, Algorithms, Data Structures, Database Management Systems, Formal Methods in Software Engineering",
+            committees: "QTMA*, QHacks*, TEDxQueensU*, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
         }
     ];
 
@@ -9855,20 +9933,20 @@ var app = (function () {
     			attr_dev(h1, "class", "section-title");
     			attr_dev(h1, "id", "education");
     			set_style(h1, "text-align", "left");
-    			add_location(h1, file$k, 14, 0, 464);
+    			add_location(h1, file$k, 14, 0, 521);
     			attr_dev(h20, "class", "school-name svelte-ouixgn");
-    			add_location(h20, file$k, 18, 8, 786);
+    			add_location(h20, file$k, 18, 8, 888);
     			attr_dev(h21, "class", "degree-info svelte-ouixgn");
-    			add_location(h21, file$k, 19, 8, 845);
+    			add_location(h21, file$k, 19, 8, 947);
     			attr_dev(h22, "class", "major-info svelte-ouixgn");
-    			add_location(h22, file$k, 20, 8, 909);
+    			add_location(h22, file$k, 20, 8, 1011);
     			attr_dev(h23, "class", "degree-years svelte-ouixgn");
-    			add_location(h23, file$k, 21, 8, 971);
+    			add_location(h23, file$k, 21, 8, 1073);
     			attr_dev(div0, "class", "education-item");
     			attr_dev(div0, "tabindex", "0");
-    			add_location(div0, file$k, 16, 4, 585);
+    			add_location(div0, file$k, 16, 4, 642);
     			attr_dev(div1, "class", "education-subsection");
-    			add_location(div1, file$k, 15, 0, 546);
+    			add_location(div1, file$k, 15, 0, 603);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -9917,8 +9995,16 @@ var app = (function () {
     function instance$k($$self, $$props, $$invalidate) {
     	const { open } = getContext("simple-modal");
 
-    	const educationModal = (school, degree, major, years, committees) => {
-    		open(EducationModal, { school, degree, major, years, committees });
+    	const educationModal = (school, location, degree, major, years, courses, committees) => {
+    		open(EducationModal, {
+    			school,
+    			location,
+    			degree,
+    			major,
+    			years,
+    			courses,
+    			committees
+    		});
     	};
 
     	const writable_props = [];
@@ -9929,7 +10015,7 @@ var app = (function () {
 
     	let { $$slots = {}, $$scope } = $$props;
     	validate_slots("Education", $$slots, []);
-    	const click_handler = () => educationModal(education[0].school, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].committees);
+    	const click_handler = () => educationModal(education[0].school, education[0].location, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].courses, education[0].committees);
 
     	$$self.$capture_state = () => ({
     		getContext,

@@ -13,8 +13,8 @@ export const experience =
         shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
         longDescription:
         `<ul>
-            <li>Consulting with future-focused client companies to determine requirements for large-scale digital transformation projects</li>
-            <li>Collaborating with teams to design, develop, and engineer these projects for launch</li>
+            <li>Currently working with client Goldman Sachs to develop web tools for advisors to ultra-high-net-worth individuals</li>
+            <li>Collaborating with teams to design, develop, and engineer 3 different projects for production</li>
             <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
         </ul>`
     },

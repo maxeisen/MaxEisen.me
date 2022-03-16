@@ -34,7 +34,7 @@ export const projects =
     },
     {
         name: "MaxEisen.me",
-        emoji: "&#128587;",
+        emoji: "&#128587;&#8205;&#9794;&#65039;",
         technologies: "Svelte, Netlify, HTML5, CSS3",
         year: "2020-Present",
         shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",

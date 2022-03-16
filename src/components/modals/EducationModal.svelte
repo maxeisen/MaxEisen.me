@@ -1,17 +1,21 @@
 <script>
     export let school;
+    export let location;
     export let degree;
     export let major;
     export let years;
+    export let courses;
     export let committees;
 </script>
 
 <div class="education-modal">
-    <h1 class="modal-school" style="text-align: center;">{school}</h1>
+    <h1 class="modal-school" style="text-align: center;">{school} ({location})</h1>
     <h2 class="modal-degree" style="text-align: center;">{@html degree}</h2>
     <h3 class="modal-major" style="text-align: center;">{@html major}</h3>
     <h3 class="modal-years" style="text-align: center;">{years}</h3>
+    <p class="modal-committees"><b>Relevant Courses: </b>{courses}</p>
     <p class="modal-committees"><b>Committees: </b>{committees}</p>
+    <p class="ta-note">*Acted as a Teaching Assistant (courses) or Executive (committees)</p>
 </div>
 
 <style>
@@ -61,5 +65,10 @@
         margin: 10px auto 10px auto;
         color: var(--modal-text-colour);
         line-height: 1.4;
+    }
+
+    .ta-note {
+        margin-top: 20px;
+        font-size: 11px;
     }
 </style>

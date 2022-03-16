@@ -5,9 +5,9 @@
 
     const { open } = getContext('simple-modal');
 
-    const educationModal = (school, degree, major, years, committees) => {
+    const educationModal = (school, location, degree, major, years, courses, committees) => {
         open(EducationModal, {
-            school: school, degree: degree, major: major, years: years, committees: committees
+            school: school, location: location, degree: degree, major: major, years: years, courses: courses, committees: committees
         });
     };
 </script>
@@ -15,7 +15,7 @@
 <h1 class="section-title" id="education" style="text-align: left;">Education</h1>
 <div class="education-subsection">
     <div class="education-item" tabindex="0"
-    on:click={() => educationModal(education[0].school, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].committees)}>
+    on:click={() => educationModal(education[0].school, education[0].location, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].courses, education[0].committees)}>
         <h2 class="school-name">{education[0].school}</h2>
         <h2 class="degree-info">{education[0].degreeShort}</h2>
         <h2 class="major-info">{education[0].majorShort}</h2>

@@ -1,6 +1,6 @@
 [data-theme="dark"] {
     --main-green: #00bba2;
-    --main-green-translucent: rgba(0, 187, 162, 0.3);
+    --main-green-translucent: rgba(0, 187, 162, 0.4);
     --background-one: #002723;
     --background-two: #00071a;
     --nav-link: #cccccc;
@@ -12,8 +12,8 @@
 }
 
 [data-theme="light"] {
-    --main-green: hsl(172, 100%, 25%);
-    --main-green-translucent: rgba(0, 128, 111, 0.3);
+    --main-green: #00bba2;
+    --main-green-translucent: rgba(0, 187, 162, 0.4);
     --background-one: #01c5b2;
     --background-two: #0076bb;
     --nav-link: #ffffff;
@@ -155,7 +155,7 @@ a {
 }
 
 a:hover {
-    color: #00bba2;
+    color: var(--main-green);
 }
 
 .top-buttons {
@@ -398,7 +398,7 @@ img.social-icon {
 }
 
 .skill-bar.back::before {
-    background-color: rgba(0, 187, 162, 0.432);
+    background-color: var(--main-green-translucent);
 }
 
 .skill-bar.intermediate::before {
@@ -670,7 +670,7 @@ a.company-long {
     }
 
     .resume {
-        width: 4.5in;
+        width: 95%;
         height: auto;
         padding: 24px 23px 30px 23px;
     }
@@ -693,7 +693,6 @@ a.company-long {
     }
 
     .social-link {
-        padding-right: 26px;
         text-align: center;
         line-height: 1.5;
     }
@@ -730,7 +729,6 @@ a.company-long {
 
 @media only screen and (max-width: 460px) {
     .resume {
-        width: 3.25in;
         height: auto;
         padding: 24px 8px 30px 8px;
     }
