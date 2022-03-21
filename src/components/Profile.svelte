@@ -1,6 +1,5 @@
 <script>
-    let cleanHeadshotW = './img/headshots/clean_headshot.webp';
-    let cleanHeadshotP = './img/headshots/clean_headshot.png';
+    let headshotPath = './img/headshots/clean_headshot';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
     import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte';
@@ -24,14 +23,14 @@
     <a class="social-link linkedin-link" aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a>
     <a class="social-link github-link" aria-label="GitHub" href="https://github.com/maxeisen/" rel="noreferrer" target="_blank"><GitHubLogo /></a>
     <a class="social-link twitter-link" aria-label="Twitter" href="https://twitter.com/maxeisen/" rel="noreferrer" target="_blank"><TwitterLogo /></a>
-    <a class="social-link" aria-label="Email" href="mailto:side@maxeisen.me" rel="noreferrer" target="_blank"><MailIcon /></a>
+    <a class="social-link" aria-label="Email" href="mailto:profile@maxeisen.me" rel="noreferrer" target="_blank"><MailIcon /></a>
 </div>
 
 <div class="headshot">
     <picture>
-        <source class="headshot" srcset={cleanHeadshotW} type="image/webp">
-        <source class="headshot" srcset={cleanHeadshotP} type="image/png">
-        <img class="headshot" id="headshot" width="200px" height="200px" src={cleanHeadshotW} alt="Current headshot"/>
+        <source class="headshot" srcset={`${headshotPath}.webp`} type="image/webp">
+        <source class="headshot" srcset={`${headshotPath}.png`} type="image/png">
+        <img class="headshot" id="headshot" width="200px" height="200px" src={`${headshotPath}.webp`} alt="Current headshot"/>
     </picture>
 </div>
 

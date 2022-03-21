@@ -7,7 +7,11 @@
 
 <div class="activity-modal">
     {#if image}
-        <img class="activity-image" src={image} alt="{description}">
+        <picture>
+            <source srcset={`./img/activities/${image}.webp`} type="image/webp">
+            <source srcset={`./img/activities/${image}.jpg`} type="image/jpeg"> 
+            <img class="activity-image" src={`./img/activities/${image}.jpg`} alt={description}>
+        </picture>
     {/if}
     {#if audio}
         <audio class="activity-audio" controls>
@@ -19,7 +23,7 @@
     {#if video}
         <iframe width="560" height="315" src="{video}hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0" title="{description}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     {/if}
-        <h3 class="activity-description" style="text-align: center">{@html description}</h3>
+    <h3 class="activity-description" style="text-align: center">{@html description}</h3>
 </div>
 
 <style>

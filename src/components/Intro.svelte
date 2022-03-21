@@ -9,7 +9,7 @@
         description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (~79,000 viewers strong)"
     };
     const cycle = {
-        image: "./img/activities/cycling.webp",
+        image: "cycle",
         description: "Me and my Cannondale CAAD12"
     };
     const drone = {
@@ -17,24 +17,25 @@
         description: "A promotional spot that I shot and edited of the new GV70 from <a href=\"https://www.genesisyorkdale.ca/\" rel=\"noreferrer\" target=\"_blank\">Genesis Yorkdale</a>"
     };
     const music = {
-        image: "./img/activities/guitar.webp",
-        audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
-        description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
+        image: "guitar",
+        description: "Me playing guitar... duh"
+        // audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
+        // description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
     };
     const skiing = {
-        image: "./img/activities/skiing.webp",
+        image: "ski",
         description: "Whistler, BC"
     };
     const hiking = {
-        image: "./img/activities/hiking.webp",
+        image: "hike",
         description: "Lake Country, BC"
     };
     const travelling = {
-        image: "./img/activities/travelling.webp",
-        description: "Cartagena, Colombia"
+        image: "travel2",
+        description: "St. Barths"
     };
     const tech = {
-        image: "./img/activities/frc.webp",
+        image: "frc",
         description: "Captaining my high school robotics team at the 2016 FIRST Robotics Competition",
     };
 
