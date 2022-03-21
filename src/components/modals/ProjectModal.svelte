@@ -22,8 +22,8 @@
     </div>
     <p class="modal-description">{@html description}</p>
     <picture>
-        <source srcset="{screenshot}.webp" type="image/webp">
-        <source srcset="{screenshot}.jpg" type="image/jpeg">
+        <source srcset="./img/screenshots/{screenshot}.webp" type="image/webp">
+        <source srcset="./img/screenshots/{screenshot}.jpg" type="image/jpeg">
         <img class="screenshot" src="{screenshot}.webp" alt="{name} screenshot">
     </picture>
 </div>

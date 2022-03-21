@@ -8775,16 +8775,16 @@ var app = (function () {
     			add_location(div0, file$h, 16, 4, 573);
     			attr_dev(p, "class", "modal-description svelte-18eo4k3");
     			add_location(p, file$h, 22, 4, 877);
-    			attr_dev(source0, "srcset", source0_srcset_value = "" + (/*screenshot*/ ctx[6] + ".webp"));
+    			attr_dev(source0, "srcset", source0_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".webp");
     			attr_dev(source0, "type", "image/webp");
     			add_location(source0, file$h, 24, 8, 954);
-    			attr_dev(source1, "srcset", source1_srcset_value = "" + (/*screenshot*/ ctx[6] + ".jpg"));
+    			attr_dev(source1, "srcset", source1_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".jpg");
     			attr_dev(source1, "type", "image/jpeg");
-    			add_location(source1, file$h, 25, 8, 1017);
+    			add_location(source1, file$h, 25, 8, 1035);
     			attr_dev(img, "class", "screenshot svelte-18eo4k3");
     			if (img.src !== (img_src_value = "" + (/*screenshot*/ ctx[6] + ".webp"))) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"));
-    			add_location(img, file$h, 26, 8, 1079);
+    			add_location(img, file$h, 26, 8, 1115);
     			add_location(picture, file$h, 23, 4, 935);
     			attr_dev(div1, "class", "project-modal svelte-18eo4k3");
     			add_location(div1, file$h, 13, 0, 336);
@@ -8855,11 +8855,11 @@ var app = (function () {
     			}
 
     			if (!current || dirty & /*description*/ 8) p.innerHTML = /*description*/ ctx[3];
-    			if (!current || dirty & /*screenshot*/ 64 && source0_srcset_value !== (source0_srcset_value = "" + (/*screenshot*/ ctx[6] + ".webp"))) {
+    			if (!current || dirty & /*screenshot*/ 64 && source0_srcset_value !== (source0_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".webp")) {
     				attr_dev(source0, "srcset", source0_srcset_value);
     			}
 
-    			if (!current || dirty & /*screenshot*/ 64 && source1_srcset_value !== (source1_srcset_value = "" + (/*screenshot*/ ctx[6] + ".jpg"))) {
+    			if (!current || dirty & /*screenshot*/ 64 && source1_srcset_value !== (source1_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".jpg")) {
     				attr_dev(source1, "srcset", source1_srcset_value);
     			}
 
@@ -9093,7 +9093,7 @@ var app = (function () {
         </ul>`,
             githubLink: "https://github.com/maxeisen/pup-bot",
             projectLink: "https://twitter.com/PuppyCoinBot",
-            screenshot: "./img/screenshots/pupbot",
+            screenshot: "pupbot",
         },
         {
             name: "Eagle",
@@ -9107,7 +9107,8 @@ var app = (function () {
             <li>Ideated, developed, marketed, and pitched by an awesome team of 10 QTMA team members under my guidance as product manager</li>
         </ul>`,
             githubLink: "https://github.com/maxeisen/eagle_public",
-            screenshot: "./img/screenshots/eagle",
+            projectLink: "https://www.qtma.ca/product/Eagle",
+            screenshot: "eagle",
         },
         {
             name: "MaxEisen.me",
@@ -9121,7 +9122,7 @@ var app = (function () {
             <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
         </ul>`,
             githubLink: "https://github.com/maxeisen/MaxEisen.me",
-            screenshot: "./img/screenshots/maxeisenme",
+            screenshot: "maxeisenme",
         },
         {
             name: "Studii",
@@ -9135,8 +9136,8 @@ var app = (function () {
             <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>
         </ul>`,
             githubLink: "https://github.com/maxeisen/studii_public",
-            projectLink: "https://qtma.ca/studii.html",
-            screenshot: "./img/screenshots/studii",
+            projectLink: "https://www.qtma.ca/product/Studii",
+            screenshot: "studii",
         },
         {
             name: "QHacks",
@@ -9151,7 +9152,7 @@ var app = (function () {
         </ul>`,
             githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
             projectLink: "https://2020.qhacks.io",
-            screenshot: "./img/screenshots/qhacks",
+            screenshot: "qhacks",
         },
         {
             name: "Spotilizer",
@@ -9165,7 +9166,7 @@ var app = (function () {
             <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>
         </ul>`,
             githubLink: "https://github.com/maxeisen/spotilizer",
-            screenshot: "./img/screenshots/spotilizer",
+            screenshot: "spotilizer",
         },
         {
             name: "Glitch",
@@ -9180,7 +9181,7 @@ var app = (function () {
         </ul>`,
             githubLink: "https://github.com/maxeisen/Glitch",
             projectLink: "https://tamirarnesty.github.io/glitchGame/",
-            screenshot: "./img/screenshots/glitch",
+            screenshot: "glitch",
         },
         {
             name: "TicTacToe",
@@ -9195,7 +9196,7 @@ var app = (function () {
             <li>Initially written in Python 2 and ported to Python 3</li>
         </ul>`,
             githubLink: "https://github.com/maxeisen/TicTacToe",
-            screenshot: "./img/screenshots/tictactoe",
+            screenshot: "tictactoe",
         }
     ];
 
@@ -9255,15 +9256,15 @@ var app = (function () {
     			t8 = space();
     			html_tag = new HtmlTag(null);
     			attr_dev(h20, "class", "project-name svelte-1145ne2");
-    			add_location(h20, file$i, 20, 12, 992);
+    			add_location(h20, file$i, 20, 12, 1010);
     			attr_dev(h21, "class", "project-year svelte-1145ne2");
-    			add_location(h21, file$i, 21, 12, 1066);
+    			add_location(h21, file$i, 21, 12, 1084);
     			attr_dev(h22, "class", "project-tech svelte-1145ne2");
-    			add_location(h22, file$i, 22, 12, 1121);
-    			add_location(p, file$i, 23, 12, 1184);
+    			add_location(h22, file$i, 22, 12, 1139);
+    			add_location(p, file$i, 23, 12, 1202);
     			attr_dev(div, "class", "project-item");
     			attr_dev(div, "tabindex", "0");
-    			set_style(div, "background-image", "url('" + /*proj*/ ctx[3].screenshot + ".webp')");
+    			set_style(div, "background-image", "url('./img/screenshots/" + /*proj*/ ctx[3].screenshot + ".webp')");
     			add_location(div, file$i, 18, 8, 729);
     		},
     		m: function mount(target, anchor) {

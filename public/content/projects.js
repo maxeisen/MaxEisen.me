@@ -16,7 +16,7 @@ export const projects =
         </ul>`,
         githubLink: "https://github.com/maxeisen/pup-bot",
         projectLink: "https://twitter.com/PuppyCoinBot",
-        screenshot: "./img/screenshots/pupbot",
+        screenshot: "pupbot",
     },
     {
         name: "Eagle",
@@ -30,7 +30,8 @@ export const projects =
             <li>Ideated, developed, marketed, and pitched by an awesome team of 10 QTMA team members under my guidance as product manager</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/eagle_public",
-        screenshot: "./img/screenshots/eagle",
+        projectLink: "https://www.qtma.ca/product/Eagle",
+        screenshot: "eagle",
     },
     {
         name: "MaxEisen.me",
@@ -44,7 +45,7 @@ export const projects =
             <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/MaxEisen.me",
-        screenshot: "./img/screenshots/maxeisenme",
+        screenshot: "maxeisenme",
     },
     {
         name: "Studii",
@@ -58,8 +59,8 @@ export const projects =
             <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/studii_public",
-        projectLink: "https://qtma.ca/studii.html",
-        screenshot: "./img/screenshots/studii",
+        projectLink: "https://www.qtma.ca/product/Studii",
+        screenshot: "studii",
     },
     {
         name: "QHacks",
@@ -74,7 +75,7 @@ export const projects =
         </ul>`,
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
         projectLink: "https://2020.qhacks.io",
-        screenshot: "./img/screenshots/qhacks",
+        screenshot: "qhacks",
     },
     {
         name: "Spotilizer",
@@ -88,7 +89,7 @@ export const projects =
             <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/spotilizer",
-        screenshot: "./img/screenshots/spotilizer",
+        screenshot: "spotilizer",
     },
     {
         name: "Glitch",
@@ -103,7 +104,7 @@ export const projects =
         </ul>`,
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
-        screenshot: "./img/screenshots/glitch",
+        screenshot: "glitch",
     },
     {
         name: "TicTacToe",
@@ -118,6 +119,6 @@ export const projects =
             <li>Initially written in Python 2 and ported to Python 3</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/TicTacToe",
-        screenshot: "./img/screenshots/tictactoe",
+        screenshot: "tictactoe",
     }
 ]

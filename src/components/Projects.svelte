@@ -16,7 +16,7 @@
 <h1 class="section-title" id="projects" style="text-align: left;">Projects</h1>
 <div class="project-subsection">
     {#each projects as proj}
-        <div class="project-item" tabindex="0" style="background-image: url('{proj.screenshot}.webp')"
+        <div class="project-item" tabindex="0" style="background-image: url('./img/screenshots/{proj.screenshot}.webp')"
         on:click={() => projectModal(proj.name, proj.technologies, proj.year, proj.longDescription, proj.githubLink, proj.projectLink, proj.screenshot)}>
             <h2 class="project-name">{proj.name} {@html proj.emoji}</h2>
             <h2 class="project-year">{proj.year}</h2>
