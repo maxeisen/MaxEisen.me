@@ -2686,7 +2686,7 @@ var app = (function () {
     	const block = {
     		c: function create() {
     			iframe = element("iframe");
-    			attr_dev(iframe, "width", "560");
+    			attr_dev(iframe, "width", "100%");
     			attr_dev(iframe, "height", "315");
     			if (iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0"))) attr_dev(iframe, "src", iframe_src_value);
     			attr_dev(iframe, "title", /*description*/ ctx[3]);
@@ -2745,7 +2745,7 @@ var app = (function () {
     			h3 = element("h3");
     			attr_dev(h3, "class", "activity-description svelte-1aisj69");
     			set_style(h3, "text-align", "center");
-    			add_location(h3, file$8, 25, 4, 1024);
+    			add_location(h3, file$8, 25, 4, 1025);
     			attr_dev(div, "class", "activity-modal svelte-1aisj69");
     			add_location(div, file$8, 7, 0, 121);
     		},
