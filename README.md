@@ -9,7 +9,7 @@
   <a href="https://app.netlify.com/sites/maxeisen/deploys" rel="noreferrer" target="_blank">
     <img src="https://api.netlify.com/api/v1/badges/29ebb303-9e97-44b6-82da-f68a0dee3963/deploy-status" align="center" alt="Netlify Status">
   </a>
-  <a href="https://www.codacy.com/manual/maxeisen/MaxEisen.me?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=maxeisen/MaxEisen.me&amp;utm_campaign=Badge_Grade" rel="noreferrer" target="_blank">
+  <a href="https://www.codacy.com/gh/maxeisen/MaxEisen.me/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=maxeisen/MaxEisen.me&amp;utm_campaign=Badge_Grade" rel="noreferrer" target="_blank">
     <img src="https://app.codacy.com/project/badge/Grade/6c10e2469ebf468c8c24fe25b6d94649" align="center" alt="Codacy Grade">
   </a>
 </p>
