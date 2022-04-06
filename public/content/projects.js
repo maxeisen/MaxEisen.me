@@ -1,6 +1,58 @@
 export const projects = 
 [
     {
+        name: "NFTokenator",
+        emoji: "&#129689;",
+        technologies: "Python, Pillow, NumPy",
+        year: "2022-Present",
+        shortDescription: "A Python script to programatically generate NFT images from provided assets",
+        longDescription:
+        `<ul>
+            <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
+            <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
+            <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
+            <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
+            <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/nftokenator",
+        screenshot: "nftokenator",
+    },
+    {
+        name: "WhatToTip",
+        emoji: "&#128184;",
+        technologies: "Next.js, OpenAI GPT-3, Python, Vercel",
+        year: "2022-Present",
+        shortDescription: "A web app to helping travellers save money on their next trip",
+        longDescription:
+        `<ul>
+            <li>A minimalistic web app that helps travellers by providing short but informative tips for saving in every country across the globe</li>
+            <li>Next.js server-side rendering makes for fast and responsive user interactions and loading of static content</li>
+            <li>A Python script was developed to leverage OpenAI's GPT-3 engine to generate tips for every country in our list</li>
+            <li>Vercel is used to continously deploy the site from the GitHub repository</li>
+            <li>Originally developed to inform travellers on how to tip in different countries around the world, hence the name "WhatToTip"</li>
+        </ul>`,
+        projectLink: "https://whattotip.in",
+        screenshot: "whattotip",
+    },
+    {
+        name: "NuHealth",
+        emoji: "&#129659;",
+        technologies: "Next.js, Firebase, Vercel",
+        year: "2022",
+        shortDescription: "A web app to resolve the bottlenecks in socialized healthcare",
+        longDescription:
+        `<ul>
+            <li>A dual-purpose web app aimed at helping patient's manage access to their health information, and providing EMTs with crucial medical data</li>
+            <li>Next.js server-side rendering allows for quick response times when querying the Firestore database to access patient health information</li>
+            <li>Firebase is used to store patient health information and to authenticate EMTs</li>
+            <li>Patient's also have the ability to specify who should be able to access their health information</li>
+            <li>Built in <48 hours for the <a href=\"https://publicissapient.com/\" rel=\"noreferrer\" target=\"_blank\">Publicis Sapient</a> Aspire SPEED Hackathon</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/nuhealth_public",
+        projectLink: "https://nuhealth.vercel.app",
+        screenshot: "nuhealth",
+    },
+    {
         name: "PupBot",
         emoji: "&#128054;",
         technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
@@ -55,7 +107,7 @@ export const projects =
         shortDescription: "A collaborative, all-in-one study space made for students, by students",
         longDescription:
         `<ul>
-            <li>For students who can't find a study method that works for them and/or don't have classmates to study with, Studii offers real-time, affordable, peer and tutor support through a tailored forum</li>
+            <li>A real-time, affordable, peer and tutor support forum for students who can't find a study method that works for them and/or don't have classmates to study with</li>
             <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/studii_public",
@@ -85,7 +137,7 @@ export const projects =
         shortDescription: "A customizable, data-centric Spotify music visualizer built in Python",
         longDescription:
         `<ul>
-            <li>Spotilizer is a visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li>
+            <li>A visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li>
             <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/spotilizer",
@@ -99,26 +151,26 @@ export const projects =
         shortDescription: "A unique, monochromatic platformer game for observant minimalists",
         longDescription:
         `<ul>
-            <li>Glitch is a monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li>
+            <li>A monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li>
             <li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/Glitch",
         projectLink: "https://tamirarnesty.github.io/glitchGame/",
         screenshot: "glitch",
     },
-    {
-        name: "TicTacToe",
-        emoji: "&#10060;",
-        technologies: "Python",
-        year: "2017",
-        shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
-        longDescription:
-        `<ul>
-            <li>An extremely basic, text-based version of tic-tac-toe</li>
-            <li>One of my earliest coding projects, developed in about an hour on a flight without access to any online resources</li>
-            <li>Initially written in Python 2 and ported to Python 3</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/TicTacToe",
-        screenshot: "tictactoe",
-    }
+    // {
+    //     name: "TicTacToe",
+    //     emoji: "&#10060;",
+    //     technologies: "Python",
+    //     year: "2017",
+    //     shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+    //     longDescription:
+    //     `<ul>
+    //         <li>An extremely basic, text-based version of tic-tac-toe</li>
+    //         <li>One of my earliest coding projects, developed in about an hour on a flight without access to any online resources</li>
+    //         <li>Initially written in Python 2 and ported to Python 3</li>
+    //     </ul>`,
+    //     githubLink: "https://github.com/maxeisen/TicTacToe",
+    //     screenshot: "tictactoe",
+    // }
 ]

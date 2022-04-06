@@ -18,7 +18,9 @@
         {#if projectLink}
             <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>
         {/if}
-        <a class="project-link" href={githubLink} rel="noreferrer" target="_blank"><CodeLogo /></a>
+        {#if githubLink}
+            <a class="project-link" href={githubLink} rel="noreferrer" target="_blank"><CodeLogo /></a>
+        {/if}
     </div>
     <p class="modal-description">{@html description}</p>
     <picture>
