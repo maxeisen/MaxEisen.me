@@ -74,7 +74,6 @@ export const experience =
         position: "Founder, Director of Technology",
         shortCompany: "TechTrainers",
         company: "TechTrainers",
-        companyLink: "https://techtrainers.ca/",
         shortDate: "May 2019-Jan. 2021",
         startDate: "May 2019",
         endDate: "January 2021",

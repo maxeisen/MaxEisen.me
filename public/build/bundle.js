@@ -7653,7 +7653,79 @@ var app = (function () {
 
     const file$d = "src/components/modals/ExperienceModal.svelte";
 
-    // (16:4) {:else}
+    // (16:8) {:else}
+    function create_else_block_1(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text(/*company*/ ctx[1]);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*company*/ 2) set_data_dev(t, /*company*/ ctx[1]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_1.name,
+    		type: "else",
+    		source: "(16:8) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (14:8) {#if companyLink}
+    function create_if_block_1$1(ctx) {
+    	let a;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			t = text(/*company*/ ctx[1]);
+    			attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			attr_dev(a, "rel", "noreferrer");
+    			attr_dev(a, "target", "_blank");
+    			attr_dev(a, "class", "svelte-1uko5iu");
+    			add_location(a, file$d, 14, 12, 375);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+    			append_dev(a, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*company*/ 2) set_data_dev(t, /*company*/ ctx[1]);
+
+    			if (dirty & /*companyLink*/ 4) {
+    				attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$1.name,
+    		type: "if",
+    		source: "(14:8) {#if companyLink}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (23:4) {:else}
     function create_else_block(ctx) {
     	let h3;
     	let t;
@@ -7664,7 +7736,7 @@ var app = (function () {
     			t = text(/*startDate*/ ctx[3]);
     			attr_dev(h3, "class", "modal-description svelte-1uko5iu");
     			set_style(h3, "text-align", "center");
-    			add_location(h3, file$d, 16, 8, 618);
+    			add_location(h3, file$d, 23, 8, 725);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h3, anchor);
@@ -7682,14 +7754,14 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(16:4) {:else}",
+    		source: "(23:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (14:4) {#if endDate}
+    // (21:4) {#if endDate}
     function create_if_block$5(ctx) {
     	let h3;
     	let t0;
@@ -7704,7 +7776,7 @@ var app = (function () {
     			t2 = text(/*endDate*/ ctx[4]);
     			attr_dev(h3, "class", "modal-description svelte-1uko5iu");
     			set_style(h3, "text-align", "center");
-    			add_location(h3, file$d, 14, 8, 514);
+    			add_location(h3, file$d, 21, 8, 621);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h3, anchor);
@@ -7725,7 +7797,7 @@ var app = (function () {
     		block,
     		id: create_if_block$5.name,
     		type: "if",
-    		source: "(14:4) {#if endDate}",
+    		source: "(21:4) {#if endDate}",
     		ctx
     	});
 
@@ -7738,23 +7810,29 @@ var app = (function () {
     	let t0;
     	let t1;
     	let h2;
-    	let a;
     	let t2;
-    	let t3;
     	let b;
+    	let t4;
     	let t5;
     	let t6;
     	let t7;
-    	let t8;
     	let p;
 
     	function select_block_type(ctx, dirty) {
+    		if (/*companyLink*/ ctx[2]) return create_if_block_1$1;
+    		return create_else_block_1;
+    	}
+
+    	let current_block_type = select_block_type(ctx);
+    	let if_block0 = current_block_type(ctx);
+
+    	function select_block_type_1(ctx, dirty) {
     		if (/*endDate*/ ctx[4]) return create_if_block$5;
     		return create_else_block;
     	}
 
-    	let current_block_type = select_block_type(ctx);
-    	let if_block = current_block_type(ctx);
+    	let current_block_type_1 = select_block_type_1(ctx);
+    	let if_block1 = current_block_type_1(ctx);
 
     	const block = {
     		c: function create() {
@@ -7763,32 +7841,26 @@ var app = (function () {
     			t0 = text(/*position*/ ctx[0]);
     			t1 = space();
     			h2 = element("h2");
-    			a = element("a");
-    			t2 = text(/*company*/ ctx[1]);
-    			t3 = space();
+    			if_block0.c();
+    			t2 = space();
     			b = element("b");
     			b.textContent = "in";
-    			t5 = space();
-    			t6 = text(/*location*/ ctx[5]);
+    			t4 = space();
+    			t5 = text(/*location*/ ctx[5]);
+    			t6 = space();
+    			if_block1.c();
     			t7 = space();
-    			if_block.c();
-    			t8 = space();
     			p = element("p");
     			attr_dev(h1, "class", "modal-position svelte-1uko5iu");
     			set_style(h1, "text-align", "center");
     			add_location(h1, file$d, 11, 4, 235);
-    			attr_dev(a, "href", /*companyLink*/ ctx[2]);
-    			attr_dev(a, "rel", "noreferrer");
-    			attr_dev(a, "target", "_blank");
-    			attr_dev(a, "class", "svelte-1uko5iu");
-    			add_location(a, file$d, 12, 30, 336);
     			set_style(b, "color", "var(--paragraph-colour)");
     			set_style(b, "font-weight", "300");
-    			add_location(b, file$d, 12, 99, 405);
+    			add_location(b, file$d, 18, 8, 507);
     			attr_dev(h2, "class", "modal-company svelte-1uko5iu");
     			add_location(h2, file$d, 12, 4, 310);
     			attr_dev(p, "class", "modal-description svelte-1uko5iu");
-    			add_location(p, file$d, 18, 4, 706);
+    			add_location(p, file$d, 25, 4, 813);
     			attr_dev(div, "class", "experience-modal svelte-1uko5iu");
     			add_location(div, file$d, 10, 0, 200);
     		},
@@ -7801,37 +7873,43 @@ var app = (function () {
     			append_dev(h1, t0);
     			append_dev(div, t1);
     			append_dev(div, h2);
-    			append_dev(h2, a);
-    			append_dev(a, t2);
-    			append_dev(a, t3);
+    			if_block0.m(h2, null);
+    			append_dev(h2, t2);
     			append_dev(h2, b);
+    			append_dev(h2, t4);
     			append_dev(h2, t5);
-    			append_dev(h2, t6);
+    			append_dev(div, t6);
+    			if_block1.m(div, null);
     			append_dev(div, t7);
-    			if_block.m(div, null);
-    			append_dev(div, t8);
     			append_dev(div, p);
     			p.innerHTML = /*description*/ ctx[6];
     		},
     		p: function update(ctx, [dirty]) {
     			if (dirty & /*position*/ 1) set_data_dev(t0, /*position*/ ctx[0]);
-    			if (dirty & /*company*/ 2) set_data_dev(t2, /*company*/ ctx[1]);
 
-    			if (dirty & /*companyLink*/ 4) {
-    				attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block0) {
+    				if_block0.p(ctx, dirty);
+    			} else {
+    				if_block0.d(1);
+    				if_block0 = current_block_type(ctx);
+
+    				if (if_block0) {
+    					if_block0.c();
+    					if_block0.m(h2, t2);
+    				}
     			}
 
-    			if (dirty & /*location*/ 32) set_data_dev(t6, /*location*/ ctx[5]);
+    			if (dirty & /*location*/ 32) set_data_dev(t5, /*location*/ ctx[5]);
 
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
-    				if_block.p(ctx, dirty);
+    			if (current_block_type_1 === (current_block_type_1 = select_block_type_1(ctx)) && if_block1) {
+    				if_block1.p(ctx, dirty);
     			} else {
-    				if_block.d(1);
-    				if_block = current_block_type(ctx);
+    				if_block1.d(1);
+    				if_block1 = current_block_type_1(ctx);
 
-    				if (if_block) {
-    					if_block.c();
-    					if_block.m(div, t8);
+    				if (if_block1) {
+    					if_block1.c();
+    					if_block1.m(div, t7);
     				}
     			}
 
@@ -7840,7 +7918,8 @@ var app = (function () {
     		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			if_block.d();
+    			if_block0.d();
+    			if_block1.d();
     		}
     	};
 
@@ -8104,7 +8183,6 @@ var app = (function () {
             position: "Founder, Director of Technology",
             shortCompany: "TechTrainers",
             company: "TechTrainers",
-            companyLink: "https://techtrainers.ca/",
             shortDate: "May 2019-Jan. 2021",
             startDate: "May 2019",
             endDate: "January 2021",
@@ -8146,7 +8224,7 @@ var app = (function () {
     }
 
     // (23:12) {:else}
-    function create_else_block_1(ctx) {
+    function create_else_block_1$1(ctx) {
     	let h2;
     	let div;
     	let t_value = /*exp*/ ctx[3].position + "";
@@ -8175,7 +8253,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_1.name,
+    		id: create_else_block_1$1.name,
     		type: "else",
     		source: "(23:12) {:else}",
     		ctx
@@ -8185,7 +8263,7 @@ var app = (function () {
     }
 
     // (21:12) {#if exp.shortPosition}
-    function create_if_block_1$1(ctx) {
+    function create_if_block_1$2(ctx) {
     	let h2;
     	let div;
     	let t_value = /*exp*/ ctx[3].shortPosition + "";
@@ -8214,7 +8292,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$1.name,
+    		id: create_if_block_1$2.name,
     		type: "if",
     		source: "(21:12) {#if exp.shortPosition}",
     		ctx
@@ -8312,8 +8390,8 @@ var app = (function () {
     	let dispose;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*exp*/ ctx[3].shortPosition) return create_if_block_1$1;
-    		return create_else_block_1;
+    		if (/*exp*/ ctx[3].shortPosition) return create_if_block_1$2;
+    		return create_else_block_1$1;
     	}
 
     	let current_block_type = select_block_type(ctx);
@@ -8808,7 +8886,7 @@ var app = (function () {
     const file$h = "src/components/modals/ProjectModal.svelte";
 
     // (18:8) {#if projectLink}
-    function create_if_block_1$2(ctx) {
+    function create_if_block_1$3(ctx) {
     	let a;
     	let openlogo;
     	let current;
@@ -8851,7 +8929,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$2.name,
+    		id: create_if_block_1$3.name,
     		type: "if",
     		source: "(18:8) {#if projectLink}",
     		ctx
@@ -8942,7 +9020,7 @@ var app = (function () {
     	let img_src_value;
     	let img_alt_value;
     	let current;
-    	let if_block0 = /*projectLink*/ ctx[5] && create_if_block_1$2(ctx);
+    	let if_block0 = /*projectLink*/ ctx[5] && create_if_block_1$3(ctx);
     	let if_block1 = /*githubLink*/ ctx[4] && create_if_block$7(ctx);
 
     	const block = {
@@ -9043,7 +9121,7 @@ var app = (function () {
     						transition_in(if_block0, 1);
     					}
     				} else {
-    					if_block0 = create_if_block_1$2(ctx);
+    					if_block0 = create_if_block_1$3(ctx);
     					if_block0.c();
     					transition_in(if_block0, 1);
     					if_block0.m(div0, t8);
@@ -10480,7 +10558,7 @@ var app = (function () {
     	let current;
     	let mounted;
     	let dispose;
-    	let if_block = /*state*/ ctx[0].closeButton && create_if_block_1$3(ctx);
+    	let if_block = /*state*/ ctx[0].closeButton && create_if_block_1$4(ctx);
     	const switch_instance_spread_levels = [/*props*/ ctx[2]];
     	var switch_value = /*Component*/ ctx[1];
 
@@ -10593,7 +10671,7 @@ var app = (function () {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
-    					if_block = create_if_block_1$3(ctx);
+    					if_block = create_if_block_1$4(ctx);
     					if_block.c();
     					if_block.m(div1, t);
     				}
@@ -10691,7 +10769,7 @@ var app = (function () {
     }
 
     // (231:8) {#if state.closeButton}
-    function create_if_block_1$3(ctx) {
+    function create_if_block_1$4(ctx) {
     	let button;
     	let mounted;
     	let dispose;
@@ -10720,7 +10798,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$3.name,
+    		id: create_if_block_1$4.name,
     		type: "if",
     		source: "(231:8) {#if state.closeButton}",
     		ctx

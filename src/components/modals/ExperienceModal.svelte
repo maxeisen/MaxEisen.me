@@ -10,7 +10,14 @@
 
 <div class="experience-modal">
     <h1 class="modal-position" style="text-align: center;">{position}</h1>
-    <h2 class="modal-company"><a href={companyLink} rel="noreferrer" target="_blank">{company} </a><b style="color: var(--paragraph-colour); font-weight: 300">in</b> {location}</h2>
+    <h2 class="modal-company">
+        {#if companyLink}
+            <a href="{companyLink}" rel="noreferrer" target="_blank">{company} </a>
+        {:else}
+            {company}
+        {/if}
+        <b style="color: var(--paragraph-colour); font-weight: 300">in</b> {location}
+    </h2>
     {#if endDate}
         <h3 class="modal-description" style="text-align: center">{startDate}-{endDate}</h3>
     {:else}
