@@ -1,22 +1,13 @@
+<script>
+    import { skills } from '../../public/content/skills.js';
+</script>
+
 <h1 class="section-title" id="skills" style="text-align: left;">Skills</h1>
 <div class="skills-subsection">
     <ul>
-        <li>Python</li>
-        <li>Java</li>
-        <li>JavaScript</li>
-        <li>HTML5</li>
-        <li>CSS3</li>
-        <li>SQL</li>
-        <li>C++</li>
-        <li>C#</li>
-        <li>React</li>
-        <li>Svelte</li>
-        <li>Gatsby</li>
-        <li>Spring</li>
-        <li>Node</li>
-        <li>Git</li>
-        <li>AWS</li>
-        <li>Unity</li>
+        {#each skills as skill}
+            <li>{skill}</li>
+        {/each}
     </ul>
 </div>
 

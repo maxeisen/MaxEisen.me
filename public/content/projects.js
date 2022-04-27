@@ -46,7 +46,7 @@ export const projects =
             <li>Next.js server-side rendering allows for quick response times when querying the Firestore database to access patient health information</li>
             <li>Firebase is used to store patient health information and to authenticate EMTs</li>
             <li>Patient's also have the ability to specify who should be able to access their health information</li>
-            <li>Built in <48 hours by a team of 4, for the <a href=\"https://publicissapient.com/\" rel=\"noreferrer\" target=\"_blank\">Publicis Sapient</a> Aspire SPEED Hackathon</li>
+            <li>Built in <48 hours by a team of 4, for the <a href=\"https://publicissapient.com/\" rel=\"noreferrer\" target=\"_blank\">Publicis Sapient</a> Aspire SPEED Hackathon <b>(top 10 finalist)</b></li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/nuhealth_public",
         projectLink: "https://nuhealth.vercel.app",
