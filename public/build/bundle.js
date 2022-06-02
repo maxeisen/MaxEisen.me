@@ -9383,6 +9383,25 @@ var app = (function () {
     const projects = 
     [
         {
+            name: "Convoke",
+            emoji: "🤔",
+            technologies: "Next.js, OpenAI GPT-3, Vercel",
+            year: "2022-Present",
+            shortDescription: "A web-based game designed to provoke abstract conversation and deep thought",
+            longDescription:
+            `<ul>
+            <li>A game made as an alternative to many classic social games played over a few drinks, to provoke thought and conversation</li>
+            <li>Using <a href=\"https://openai.com/blog/openai-api/\" rel=\"noreferrer\" target=\"_blank\">Open-AI's GPT-3 API</a>, thought-provoking questions are generated each round, posed to your group, and a best response is selected</li>
+            <li>Scores are kept track of by the web app and a winner is declared after three rounds</li>
+            <li>Alternatively a more personal <a href=\"https://convoke.app/daily\" rel=\"noreferrer\" target=\"_blank\">daily question</a> can be answered by an individual user, with responses saved to local storage</li>
+            <li>Developed in two weeks after inspiration struck</li>
+            <li>Ranked #7 on launch day on <a href=\"https://www.producthunt.com/posts/convoke\" rel=\"noreferrer\" target=\"_blank\">Product Hunt</a></li>
+            <li>Currently closed-source as opportunities for expansion and monetization are explored</li>
+        </ul>`,
+            projectLink: "https://convoke.app",
+            screenshot: "convoke",
+        },
+        {
             name: "NFTokenator",
             emoji: "&#129689;",
             technologies: "Python, Pillow, NumPy",
