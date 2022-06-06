@@ -104,20 +104,20 @@ export const projects =
         projectLink: "https://www.qtma.ca/product/Eagle",
         screenshot: "eagle",
     },
-    {
-        name: "MaxEisen.me",
-        emoji: "&#128587;&#8205;&#9794;&#65039;",
-        technologies: "Svelte, Netlify, HTML5, CSS3",
-        year: "2020-Present",
-        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
-        longDescription:
-        `<ul>
-            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
-            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/MaxEisen.me",
-        screenshot: "maxeisenme",
-    },
+    // {
+    //     name: "MaxEisen.me",
+    //     emoji: "&#128587;&#8205;&#9794;&#65039;",
+    //     technologies: "Svelte, Netlify, HTML5, CSS3",
+    //     year: "2020-Present",
+    //     shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+    //     longDescription:
+    //     `<ul>
+    //         <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+    //         <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+    //     </ul>`,
+    //     githubLink: "https://github.com/maxeisen/MaxEisen.me",
+    //     screenshot: "maxeisenme",
+    // },
     {
         name: "Studii",
         emoji: "&#128218;",
