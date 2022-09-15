@@ -10,7 +10,7 @@
     };
     const cycle = {
         image: "cycle",
-        description: "Me and my Cannondale CAAD12"
+        description: "Me crossing the finish line of the 122km <a href=\"https://www.rbcgranfondo.com/whistler/\" rel=\"noreferrer\" target=\"_blank\"> 2022 GranFondo Whistler</a>"
     };
     const drone = {
         video: "https://www.youtube.com/embed/fULlZkgpw50?",
