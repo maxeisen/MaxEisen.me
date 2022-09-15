@@ -3,19 +3,38 @@ export const experience =
     {
         shortPosition: "Software Engineer",
         position: "Software Development Engineer",
+        shortCompany: "Amazon",
+        company: "Amazon Web Services (AWS)",
+        companyLink: "https://aws.amazon.com/",
+        shortDate: "Sep. 2022-Present",
+        startDate: "September 2022",
+        endDate: "Present",
+        location: "Toronto, ON",
+        shortDescription: "Working with the world's largest cloud services provider to build the future of low-latency content delivery",
+        longDescription:
+        `<ul>
+            <li>Working in the AWS CloudFront org to build and ensure the operational health of a major low-latency content delivery network</li>
+            <li>Owning features to ensure the successful monitoring, maintenance, and operation of nodes around the world</li>
+            <li>Ensuring highest possible availability for major CDN clients using our service to serve content to customers globally</li>
+        </ul>`
+    },
+    {
+        shortPosition: "Software Engineer",
+        position: "Software Development Engineer",
         shortCompany: "Publicis Sapient",
         company: "Publicis Sapient",
         companyLink: "https://www.publicissapient.com/",
-        shortDate: "Sep. 2021-Present",
+        shortDate: "Sep. 2021-Sep. 2022",
         startDate: "September 2021",
-        endDate: "Present",
+        endDate: "September 2022",
         location: "Toronto, ON",
         shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
         longDescription:
         `<ul>
-            <li>Currently working with client Goldman Sachs to develop web tools for advisors to ultra-high-net-worth individuals</li>
-            <li>Collaborating with teams to design, develop, and engineer 3 different projects for production</li>
-            <li>Publicis Sapient operates in 20 different countries around the world, giving me the opportunity to work with clients from across the globe</li>
+            <li>Contracted out through digital transformation giant Publicis Sapient, operating in 20 countries across the world</li>
+            <li>Worked with client Goldman Sachs, owning and developing major features for advisor web tools</li>
+            <li>Collaborated with teams to design, develop, and engineer over 5 different projects for production</li>
+            <li>Promoted to L1 engineer after only 1 year, marking a major boost in role and responsibilities</li>
         </ul>`
     },
     {
@@ -86,6 +105,9 @@ export const experience =
             <li>Company was able to turn a profit in first month of operations</li>
         </ul>`
     },
+]
+
+const additional = [
     {
         shortPosition: "Software Developer",
         position: "Software Developer, Technical Coordinator",
