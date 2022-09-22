@@ -17,7 +17,7 @@
 </script>
 
 <h1><Annotation bind:visible type="highlight" color="var(--intro-highlight-colour)">Max Eisen</Annotation></h1>
-<h2 class="status">SWE <b style="color: var(--paragraph-colour); font-weight: 300">@</b> Publicis Sapient</h2>
+<h2 class="status">SDE <b style="color: var(--paragraph-colour); font-weight: 300">@</b> Amazon</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
     <a class="social-link linkedin-link" aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a>
