@@ -153,6 +153,10 @@ a:hover {
     color: var(--link-hover-colour);
 }
 
+.home-icon-container {
+    height: 115px;
+}
+
 .home-icon {
     -webkit-transition: all 0.1s ease-in;
 	-moz-transition: all 0.1s ease-in;

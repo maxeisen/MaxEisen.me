@@ -13,7 +13,7 @@
     "rollup-plugin-livereload": "^1.3.0",
     "rollup-plugin-svelte": "^5.2.3",
     "rollup-plugin-terser": "^7.0.0",
-    "svelte": "^3.49.0",
+    "svelte": "^3.29.4",
     "svelte-simple-modal": "^0.4.2"
   },
   "dependencies": {
