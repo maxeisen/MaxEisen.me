@@ -459,7 +459,7 @@ img.social-icon {
 
 .job-title {
     text-align: left;
-    font-size: 15px;
+    font-size: 14px;
     color: #000000;
     margin: 7px 0 7px 0;
 }
@@ -498,7 +498,7 @@ a.company-long {
 .job-date-location {
     line-height: 0.8;
     text-align: left;
-    font-size: 14px;
+    font-size: 12px;
     margin: 7px 0 7px 0;
 }
 
@@ -513,20 +513,20 @@ a.company-long {
 
 .job-description, li {
     line-height: 1.3;
-    font-size: 13px;
+    font-size: 12px;
     text-align: left;
 }
 
 .degree-info {
     text-align: left;
-    font-size: 15px;
+    font-size: 14px;
     color: #000000;
 }
 
 .relevant-courses {
     text-align: center;
     color: black;
-    font-size: 14px
+    font-size: 12px
 }
 
 .easter-egg {

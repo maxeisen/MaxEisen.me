@@ -10,12 +10,12 @@ export const experience =
         startDate: "September 2022",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Working with the world's largest cloud services provider to build the future of low-latency content delivery",
+        shortDescription: "Working with the world's largest cloud services provider to maintain their low-latency global CDN",
         longDescription:
         `<ul>
-            <li>Working in the AWS CloudFront org to build and ensure the operational health of a major low-latency content delivery network</li>
-            <li>Owning features to ensure the successful monitoring, maintenance, and operation of nodes around the world</li>
-            <li>Ensuring highest possible availability for major CDN clients using our service to serve content to customers globally</li>
+            <li>Working with the CloudFront FleetHealth team to maintain capacity and operational health of the global, low-latency content delivery network</li>
+            <li>Owning features to ensure the successful monitoring, maintenance, and operation of POPs around the world</li>
+            <li>Ensuring highest possible availability for major clients using our service</li>
         </ul>`
     },
     {

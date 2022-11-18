@@ -1,1 +1,11620 @@
-var app=function(){"use strict";function e(){}const t=e=>e;function n(e,t){for(const n in t)e[n]=t[n];return e}function i(e){return e()}function r(){return Object.create(null)}function s(e){e.forEach(i)}function o(e){return"function"==typeof e}function a(e,t){return e!=e?t==t:e!==t||e&&"object"==typeof e||"function"==typeof e}let u;function l(e,t){return u||(u=document.createElement("a")),u.href=t,e===u.href}function c(e,t,n,i){if(e){const r=h(e,t,n,i);return e[0](r)}}function h(e,t,i,r){return e[1]&&r?n(i.ctx.slice(),e[1](r(t))):i.ctx}function p(e,t,n,i){if(e[2]&&i){const r=e[2](i(n));if(void 0===t.dirty)return r;if("object"==typeof r){const e=[],n=Math.max(t.dirty.length,r.length);for(let i=0;i<n;i+=1)e[i]=t.dirty[i]|r[i];return e}return t.dirty|r}return t.dirty}function d(e,t,n,i,r,s){if(r){const o=h(t,n,i,s);e.p(o,r)}}function f(e){if(e.ctx.length>32){const t=[],n=e.ctx.length/32;for(let e=0;e<n;e++)t[e]=-1;return t}return-1}function g(e){const t={};for(const n in e)"$"!==n[0]&&(t[n]=e[n]);return t}function m(e,t){const n={};t=new Set(t);for(const i in e)t.has(i)||"$"===i[0]||(n[i]=e[i]);return n}const D="undefined"!=typeof window;let y=D?()=>window.performance.now():()=>Date.now(),k=D?e=>requestAnimationFrame(e):e;const b=new Set;function v(e){b.forEach((t=>{t.c(e)||(b.delete(t),t.f())})),0!==b.size&&k(v)}function w(e,t){e.appendChild(t)}function x(e){if(!e)return document;const t=e.getRootNode?e.getRootNode():e.ownerDocument;return t&&t.host?t:e.ownerDocument}function $(e){const t=E("style");return function(e,t){w(e.head||e,t),t.sheet}(x(e),t),t.sheet}function C(e,t,n){e.insertBefore(t,n||null)}function A(e){e.parentNode.removeChild(e)}function F(e,t){for(let n=0;n<e.length;n+=1)e[n]&&e[n].d(t)}function E(e){return document.createElement(e)}function B(e){return document.createElementNS("http://www.w3.org/2000/svg",e)}function _(e){return document.createTextNode(e)}function S(){return _(" ")}function z(){return _("")}function T(e,t,n,i){return e.addEventListener(t,n,i),()=>e.removeEventListener(t,n,i)}function j(e,t,n){null==n?e.removeAttribute(t):e.getAttribute(t)!==n&&e.setAttribute(t,n)}function M(e,t,n){t in e?e[t]="boolean"==typeof e[t]&&""===n||n:j(e,t,n)}function L(e,t){t=""+t,e.wholeText!==t&&(e.data=t)}function I(e,t,n,i){null===n?e.style.removeProperty(t):e.style.setProperty(t,n,i?"important":"")}class O{constructor(e=!1){this.is_svg=!1,this.is_svg=e,this.e=this.n=null}c(e){this.h(e)}m(e,t,n=null){this.e||(this.is_svg?this.e=B(t.nodeName):this.e=E(t.nodeName),this.t=t,this.c(e)),this.i(n)}h(e){this.e.innerHTML=e,this.n=Array.from(this.e.childNodes)}i(e){for(let t=0;t<this.n.length;t+=1)C(this.t,this.n[t],e)}p(e){this.d(),this.h(e),this.i(this.a)}d(){this.n.forEach(A)}}const R=new Map;let P,N=0;function W(e,t,n,i,r,s,o,a=0){const u=16.666/i;let l="{\n";for(let e=0;e<=1;e+=u){const i=t+(n-t)*s(e);l+=100*e+`%{${o(i,1-i)}}\n`}const c=l+`100% {${o(n,1-n)}}\n}`,h=`__svelte_${function(e){let t=5381,n=e.length;for(;n--;)t=(t<<5)-t^e.charCodeAt(n);return t>>>0}(c)}_${a}`,p=x(e),{stylesheet:d,rules:f}=R.get(p)||function(e,t){const n={stylesheet:$(t),rules:{}};return R.set(e,n),n}(p,e);f[h]||(f[h]=!0,d.insertRule(`@keyframes ${h} ${c}`,d.cssRules.length));const g=e.style.animation||"";return e.style.animation=`${g?`${g}, `:""}${h} ${i}ms linear ${r}ms 1 both`,N+=1,h}function q(e,t){const n=(e.style.animation||"").split(", "),i=n.filter(t?e=>e.indexOf(t)<0:e=>-1===e.indexOf("__svelte")),r=n.length-i.length;r&&(e.style.animation=i.join(", "),N-=r,N||k((()=>{N||(R.forEach((e=>{const{ownerNode:t}=e.stylesheet;t&&A(t)})),R.clear())})))}function H(e){P=e}function U(){if(!P)throw new Error("Function called outside component initialization");return P}function G(e){U().$$.on_mount.push(e)}function Q(e,t){return U().$$.context.set(e,t),t}function Z(e){return U().$$.context.get(e)}const V=[],J=[],K=[],Y=[],X=Promise.resolve();let ee=!1;function te(e){K.push(e)}const ne=new Set;let ie,re=0;function se(){const e=P;do{for(;re<V.length;){const e=V[re];re++,H(e),oe(e.$$)}for(H(null),V.length=0,re=0;J.length;)J.pop()();for(let e=0;e<K.length;e+=1){const t=K[e];ne.has(t)||(ne.add(t),t())}K.length=0}while(V.length);for(;Y.length;)Y.pop()();ee=!1,ne.clear(),H(e)}function oe(e){if(null!==e.fragment){e.update(),s(e.before_update);const t=e.dirty;e.dirty=[-1],e.fragment&&e.fragment.p(e.ctx,t),e.after_update.forEach(te)}}function ae(e,t,n){e.dispatchEvent(function(e,t,{bubbles:n=!1,cancelable:i=!1}={}){const r=document.createEvent("CustomEvent");return r.initCustomEvent(e,n,i,t),r}(`${t?"intro":"outro"}${n}`))}const ue=new Set;let le;function ce(){le={r:0,c:[],p:le}}function he(){le.r||s(le.c),le=le.p}function pe(e,t){e&&e.i&&(ue.delete(e),e.i(t))}function de(e,t,n,i){if(e&&e.o){if(ue.has(e))return;ue.add(e),le.c.push((()=>{ue.delete(e),i&&(n&&e.d(1),i())})),e.o(t)}else i&&i()}const fe={duration:0};function ge(n,i,r,a){let u=i(n,r),l=a?0:1,c=null,h=null,p=null;function d(){p&&q(n,p)}function f(e,t){const n=e.b-l;return t*=Math.abs(n),{a:l,b:e.b,d:n,duration:t,start:e.start,end:e.start+t,group:e.group}}function g(i){const{delay:r=0,duration:o=300,easing:a=t,tick:g=e,css:m}=u||fe,D={start:y()+r,b:i};i||(D.group=le,le.r+=1),c||h?h=D:(m&&(d(),p=W(n,l,i,o,r,a,m)),i&&g(0,1),c=f(D,o),te((()=>ae(n,i,"start"))),function(e){let t;0===b.size&&k(v),new Promise((n=>{b.add(t={c:e,f:n})}))}((e=>{if(h&&e>h.start&&(c=f(h,o),h=null,ae(n,c.b,"start"),m&&(d(),p=W(n,l,c.b,c.duration,0,a,u.css))),c)if(e>=c.end)g(l=c.b,1-l),ae(n,c.b,"end"),h||(c.b?d():--c.group.r||s(c.group.c)),c=null;else if(e>=c.start){const t=e-c.start;l=c.a+c.d*a(t/c.duration),g(l,1-l)}return!(!c&&!h)})))}return{run(e){o(u)?(ie||(ie=Promise.resolve(),ie.then((()=>{ie=null}))),ie).then((()=>{u=u(),g(e)})):g(e)},end(){d(),c=h=null}}}function me(e,t){const n={},i={},r={$$scope:1};let s=e.length;for(;s--;){const o=e[s],a=t[s];if(a){for(const e in o)e in a||(i[e]=1);for(const e in a)r[e]||(n[e]=a[e],r[e]=1);e[s]=a}else for(const e in o)r[e]=1}for(const e in i)e in n||(n[e]=void 0);return n}function De(e){return"object"==typeof e&&null!==e?e:{}}function ye(e){e&&e.c()}function ke(e,t,n,r){const{fragment:a,on_mount:u,on_destroy:l,after_update:c}=e.$$;a&&a.m(t,n),r||te((()=>{const t=u.map(i).filter(o);l?l.push(...t):s(t),e.$$.on_mount=[]})),c.forEach(te)}function be(e,t){const n=e.$$;null!==n.fragment&&(s(n.on_destroy),n.fragment&&n.fragment.d(t),n.on_destroy=n.fragment=null,n.ctx=[])}function ve(e,t){-1===e.$$.dirty[0]&&(V.push(e),ee||(ee=!0,X.then(se)),e.$$.dirty.fill(0)),e.$$.dirty[t/31|0]|=1<<t%31}function we(t,n,i,o,a,u,l,c=[-1]){const h=P;H(t);const p=t.$$={fragment:null,ctx:null,props:u,update:e,not_equal:a,bound:r(),on_mount:[],on_destroy:[],on_disconnect:[],before_update:[],after_update:[],context:new Map(n.context||(h?h.$$.context:[])),callbacks:r(),dirty:c,skip_bound:!1,root:n.target||h.$$.root};l&&l(p.root);let d=!1;if(p.ctx=i?i(t,n.props||{},((e,n,...i)=>{const r=i.length?i[0]:n;return p.ctx&&a(p.ctx[e],p.ctx[e]=r)&&(!p.skip_bound&&p.bound[e]&&p.bound[e](r),d&&ve(t,e)),n})):[],p.update(),d=!0,s(p.before_update),p.fragment=!!o&&o(p.ctx),n.target){if(n.hydrate){const e=function(e){return Array.from(e.childNodes)}(n.target);p.fragment&&p.fragment.l(e),e.forEach(A)}else p.fragment&&p.fragment.c();n.intro&&pe(t.$$.fragment),ke(t,n.target,n.anchor,n.customElement),se()}H(h)}class xe{$destroy(){be(this,1),this.$destroy=e}$on(e,t){const n=this.$$.callbacks[e]||(this.$$.callbacks[e]=[]);return n.push(t),()=>{const e=n.indexOf(t);-1!==e&&n.splice(e,1)}}$set(e){var t;this.$$set&&(t=e,0!==Object.keys(t).length)&&(this.$$.skip_bound=!0,this.$$set(e),this.$$.skip_bound=!1)}}function $e(t){let n,i,r,s,o,a,u,c,h,p,d=!t[0]&&function(e){let t,n,i,r;return{c(){t=E("source"),i=E("source"),j(t,"id","icon-video-webm"),l(t.src,n="./img/additional/memoji_cycle.webm")||j(t,"src","./img/additional/memoji_cycle.webm"),j(t,"type","video/webm"),j(i,"id","icon-video-mp4"),l(i.src,r="./img/additional/memoji_cycle.mp4")||j(i,"src","./img/additional/memoji_cycle.mp4"),j(i,"type","video/mp4")},m(e,n){C(e,t,n),C(e,i,n)},d(e){e&&A(t),e&&A(i)}}}();return{c(){n=E("div"),i=E("header"),r=E("div"),s=E("a"),o=E("img"),u=S(),c=E("video"),d&&d.c(),h=S(),p=E("div"),p.innerHTML='<nav><ul class="nav-bar-list" id="nav-bar-list"><li id="nav-bar-item"><a href="#experience">Experience</a></li> \n                    <li id="nav-bar-item"><a href="#projects">Projects</a></li> \n                    <li id="nav-bar-item"><a href="#blog">Blog</a></li> \n                    <li id="nav-bar-item"><a href="#education">Education</a></li> \n                    <li id="nav-bar-item"><a href="#skills">Skills</a></li> \n                    <li id="nav-bar-item"><a href="/resume"><b>Resume</b></a></li></ul></nav>',j(o,"class","home-icon-mobile"),l(o.src,a="./img/additional/memoji_cycle_small.gif")||j(o,"src","./img/additional/memoji_cycle_small.gif"),j(o,"width","75px"),j(o,"height","88px"),j(o,"alt","Memoji gif for mobile"),j(c,"class","home-icon"),j(c,"poster","./img/additional/memoji_cycle_small.gif"),c.autoplay=!0,c.loop=!0,c.muted=!0,c.playsInline=!0,j(s,"href","/#"),j(s,"aria-label","Home"),j(s,"onclick","toggleTheme()"),j(r,"class","home-icon-container"),j(p,"class","nav-bar"),j(p,"id","nav-bar"),j(i,"id","header"),j(n,"class","header-container")},m(e,t){C(e,n,t),w(n,i),w(i,r),w(r,s),w(s,o),w(s,u),w(s,c),d&&d.m(c,null),w(i,h),w(i,p)},p:e,i:e,o:e,d(e){e&&A(n),d&&d.d()}}}function Ce(e){var t=void 0!==window.safari;return window.onscroll=function(){document.body.scrollTop>70||document.documentElement.scrollTop>70?(document.getElementById("nav-bar").style.fontSize="20px",document.getElementById("nav-bar-list").style.backgroundColor="rgba(18, 18, 18, 0.9)",document.getElementById("nav-bar-list").style.backdropFilter="blur(3px)"):(document.getElementById("nav-bar").style.fontSize="30px",document.getElementById("nav-bar-list").style.backgroundColor="rgba(18, 18, 18, 0)")},[t]}class Ae extends xe{constructor(e){super(),we(this,e,Ce,$e,a,{})}}function Fe(e){let t,n;return{c(){t=B("title"),n=_(e[0])},m(e,i){C(e,t,i),w(t,n)},p(e,t){1&t&&L(n,e[0])},d(e){e&&A(t)}}}function Ee(e){let t,n,i,r=e[0]&&Fe(e);const s=e[3].default,o=c(s,e,e[2],null);return{c(){t=B("svg"),r&&r.c(),n=z(),o&&o.c(),j(t,"xmlns","http://www.w3.org/2000/svg"),j(t,"viewBox",e[1]),j(t,"class","svelte-c8tyih")},m(e,s){C(e,t,s),r&&r.m(t,null),w(t,n),o&&o.m(t,null),i=!0},p(e,[a]){e[0]?r?r.p(e,a):(r=Fe(e),r.c(),r.m(t,n)):r&&(r.d(1),r=null),o&&o.p&&(!i||4&a)&&d(o,s,e,e[2],i?p(s,e[2],a,null):f(e[2]),null),(!i||2&a)&&j(t,"viewBox",e[1])},i(e){i||(pe(o,e),i=!0)},o(e){de(o,e),i=!1},d(e){e&&A(t),r&&r.d(),o&&o.d(e)}}}function Be(e,t,n){let{$$slots:i={},$$scope:r}=t,{title:s=null}=t,{viewBox:o}=t;return e.$$set=e=>{"title"in e&&n(0,s=e.title),"viewBox"in e&&n(1,o=e.viewBox),"$$scope"in e&&n(2,r=e.$$scope)},[s,o,r,i]}class _e extends xe{constructor(e){super(),we(this,e,Be,Ee,a,{title:0,viewBox:1})}}function Se(t){let n;return{c(){n=B("path"),j(n,"d","M417.2 64H96.8C79.3 64 64 76.6 64 93.9V415c0 17.4 15.3 32.9 32.8 32.9h320.3c17.6 0 30.8-15.6 30.8-32.9V93.9C448 76.6 434.7 64 417.2 64zM183 384h-55V213h55v171zm-25.6-197h-.4c-17.6 0-29-13.1-29-29.5 0-16.7 11.7-29.5 29.7-29.5s29 12.7 29.4 29.5c0 16.4-11.4 29.5-29.7 29.5zM384 384h-55v-93.5c0-22.4-8-37.7-27.9-37.7-15.2 0-24.2 10.3-28.2 20.3-1.5 3.6-1.9 8.5-1.9 13.5V384h-55V213h55v23.8c8-11.4 20.5-27.8 49.6-27.8 36.1 0 63.4 23.8 63.4 75.1V384z")},m(e,t){C(e,n,t)},p:e,d(e){e&&A(n)}}}function ze(e){let t,i;const r=[{viewBox:"0 0 512 512"},e[0]];let s={$$slots:{default:[Se]},$$scope:{ctx:e}};for(let e=0;e<r.length;e+=1)s=n(s,r[e]);return t=new _e({props:s}),{c(){ye(t.$$.fragment)},m(e,n){ke(t,e,n),i=!0},p(e,[n]){const i=1&n?me(r,[r[0],De(e[0])]):{};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){i||(pe(t.$$.fragment,e),i=!0)},o(e){de(t.$$.fragment,e),i=!1},d(e){be(t,e)}}}function Te(e,t,i){return e.$$set=e=>{i(0,t=n(n({},t),g(e)))},[t=g(t)]}class je extends xe{constructor(e){super(),we(this,e,Te,ze,a,{})}}function Me(t){let n;return{c(){n=B("path"),j(n,"d","M256 32C132.3 32 32 134.9 32 261.7c0 101.5 64.2 187.5 153.2 217.9 1.4.3 2.6.4 3.8.4 8.3 0 11.5-6.1 11.5-11.4 0-5.5-.2-19.9-.3-39.1-8.4 1.9-15.9 2.7-22.6 2.7-43.1 0-52.9-33.5-52.9-33.5-10.2-26.5-24.9-33.6-24.9-33.6-19.5-13.7-.1-14.1 1.4-14.1h.1c22.5 2 34.3 23.8 34.3 23.8 11.2 19.6 26.2 25.1 39.6 25.1 10.5 0 20-3.4 25.6-6 2-14.8 7.8-24.9 14.2-30.7-49.7-5.8-102-25.5-102-113.5 0-25.1 8.7-45.6 23-61.6-2.3-5.8-10-29.2 2.2-60.8 0 0 1.6-.5 5-.5 8.1 0 26.4 3.1 56.6 24.1 17.9-5.1 37-7.6 56.1-7.7 19 .1 38.2 2.6 56.1 7.7 30.2-21 48.5-24.1 56.6-24.1 3.4 0 5 .5 5 .5 12.2 31.6 4.5 55 2.2 60.8 14.3 16.1 23 36.6 23 61.6 0 88.2-52.4 107.6-102.3 113.3 8 7.1 15.2 21.1 15.2 42.5 0 30.7-.3 55.5-.3 63 0 5.4 3.1 11.5 11.4 11.5 1.2 0 2.6-.1 4-.4C415.9 449.2 480 363.1 480 261.7 480 134.9 379.7 32 256 32z")},m(e,t){C(e,n,t)},p:e,d(e){e&&A(n)}}}function Le(e){let t,i;const r=[{viewBox:"0 0 512 512"},e[0]];let s={$$slots:{default:[Me]},$$scope:{ctx:e}};for(let e=0;e<r.length;e+=1)s=n(s,r[e]);return t=new _e({props:s}),{c(){ye(t.$$.fragment)},m(e,n){ke(t,e,n),i=!0},p(e,[n]){const i=1&n?me(r,[r[0],De(e[0])]):{};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){i||(pe(t.$$.fragment,e),i=!0)},o(e){de(t.$$.fragment,e),i=!1},d(e){be(t,e)}}}function Ie(e,t,i){return e.$$set=e=>{i(0,t=n(n({},t),g(e)))},[t=g(t)]}class Oe extends xe{constructor(e){super(),we(this,e,Ie,Le,a,{})}}function Re(t){let n;return{c(){n=B("path"),j(n,"d","M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6-18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6.8 15 2.5 22.1-80.5-4-151.9-42.6-199.6-101.3-8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7-16-.4-31-4.8-44-12.1v1.2c0 47 33.4 86.1 77.7 95-8.1 2.2-16.7 3.4-25.5 3.4-6.2 0-12.3-.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3-33.1 26-74.9 41.5-120.3 41.5-7.8 0-15.5-.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-.1-8.4-.3-12.5C462.6 146 479 129 492 109.5z")},m(e,t){C(e,n,t)},p:e,d(e){e&&A(n)}}}function Pe(e){let t,i;const r=[{viewBox:"0 0 512 512"},e[0]];let s={$$slots:{default:[Re]},$$scope:{ctx:e}};for(let e=0;e<r.length;e+=1)s=n(s,r[e]);return t=new _e({props:s}),{c(){ye(t.$$.fragment)},m(e,n){ke(t,e,n),i=!0},p(e,[n]){const i=1&n?me(r,[r[0],De(e[0])]):{};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){i||(pe(t.$$.fragment,e),i=!0)},o(e){de(t.$$.fragment,e),i=!1},d(e){be(t,e)}}}function Ne(e,t,i){return e.$$set=e=>{i(0,t=n(n({},t),g(e)))},[t=g(t)]}class We extends xe{constructor(e){super(),we(this,e,Ne,Pe,a,{})}}function qe(t){let n,i,r;return{c(){n=B("path"),i=S(),r=B("path"),j(n,"d","M460.6 147.3L353 256.9c-.8.8-.8 2 0 2.8l75.3 80.2c5.1 5.1 5.1 13.3 0 18.4-2.5 2.5-5.9 3.8-9.2 3.8s-6.7-1.3-9.2-3.8l-75-79.9c-.8-.8-2.1-.8-2.9 0L313.7 297c-15.3 15.5-35.6 24.1-57.4 24.2-22.1.1-43.1-9.2-58.6-24.9l-17.6-17.9c-.8-.8-2.1-.8-2.9 0l-75 79.9c-2.5 2.5-5.9 3.8-9.2 3.8s-6.7-1.3-9.2-3.8c-5.1-5.1-5.1-13.3 0-18.4l75.3-80.2c.7-.8.7-2 0-2.8L51.4 147.3c-1.3-1.3-3.4-.4-3.4 1.4V368c0 17.6 14.4 32 32 32h352c17.6 0 32-14.4 32-32V148.7c0-1.8-2.2-2.6-3.4-1.4z"),j(r,"d","M256 295.1c14.8 0 28.7-5.8 39.1-16.4L452 119c-5.5-4.4-12.3-7-19.8-7H79.9c-7.5 0-14.4 2.6-19.8 7L217 278.7c10.3 10.5 24.2 16.4 39 16.4z")},m(e,t){C(e,n,t),C(e,i,t),C(e,r,t)},p:e,d(e){e&&A(n),e&&A(i),e&&A(r)}}}function He(e){let t,i;const r=[{viewBox:"0 0 512 512"},e[0]];let s={$$slots:{default:[qe]},$$scope:{ctx:e}};for(let e=0;e<r.length;e+=1)s=n(s,r[e]);return t=new _e({props:s}),{c(){ye(t.$$.fragment)},m(e,n){ke(t,e,n),i=!0},p(e,[n]){const i=1&n?me(r,[r[0],De(e[0])]):{};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){i||(pe(t.$$.fragment,e),i=!0)},o(e){de(t.$$.fragment,e),i=!1},d(e){be(t,e)}}}function Ue(e,t,i){return e.$$set=e=>{i(0,t=n(n({},t),g(e)))},[t=g(t)]}class Ge extends xe{constructor(e){super(),we(this,e,Ue,He,a,{})}}const Qe="http://www.w3.org/2000/svg";class Ze{constructor(e){this.seed=e}next(){return this.seed?(2**31-1&(this.seed=Math.imul(48271,this.seed)))/2**31:Math.random()}}function Ve(e,t,n,i,r){return{type:"path",ops:nt(e,t,n,i,r)}}function Je(e,t,n){const i=(e||[]).length;if(i>2){const r=[];for(let t=0;t<i-1;t++)r.push(...nt(e[t][0],e[t][1],e[t+1][0],e[t+1][1],n));return t&&r.push(...nt(e[i-1][0],e[i-1][1],e[0][0],e[0][1],n)),{type:"path",ops:r}}return 2===i?Ve(e[0][0],e[0][1],e[1][0],e[1][1],n):{type:"path",ops:[]}}function Ke(e,t,n,i,r){return function(e,t){return Je(e,!0,t)}([[e,t],[e+n,t],[e+n,t+i],[e,t+i]],r)}function Ye(e,t,n,i,r){return function(e,t,n,i){const[r,s]=st(i.increment,e,t,i.rx,i.ry,1,i.increment*et(.1,et(.4,1,n),n),n);let o=rt(r,null,n);if(!n.disableMultiStroke){const[r]=st(i.increment,e,t,i.rx,i.ry,1.5,0,n),s=rt(r,null,n);o=o.concat(s)}return{estimatedPoints:s,opset:{type:"path",ops:o}}}(e,t,r,function(e,t,n){const i=Math.sqrt(2*Math.PI*Math.sqrt((Math.pow(e/2,2)+Math.pow(t/2,2))/2)),r=Math.max(n.curveStepCount,n.curveStepCount/Math.sqrt(200)*i),s=2*Math.PI/r;let o=Math.abs(e/2),a=Math.abs(t/2);const u=1-n.curveFitting;return o+=tt(o*u,n),a+=tt(a*u,n),{increment:s,rx:o,ry:a}}(n,i,r)).opset}function Xe(e){return e.randomizer||(e.randomizer=new Ze(e.seed||0)),e.randomizer.next()}function et(e,t,n,i=1){return n.roughness*i*(Xe(n)*(t-e)+e)}function tt(e,t,n=1){return et(-e,e,t,n)}function nt(e,t,n,i,r,s=!1){const o=s?r.disableMultiStrokeFill:r.disableMultiStroke,a=it(e,t,n,i,r,!0,!1);if(o)return a;const u=it(e,t,n,i,r,!0,!0);return a.concat(u)}function it(e,t,n,i,r,s,o){const a=Math.pow(e-n,2)+Math.pow(t-i,2),u=Math.sqrt(a);let l=1;l=u<200?1:u>500?.4:-.0016668*u+1.233334;let c=r.maxRandomnessOffset||0;c*c*100>a&&(c=u/10);const h=c/2,p=.2+.2*Xe(r);let d=r.bowing*r.maxRandomnessOffset*(i-t)/200,f=r.bowing*r.maxRandomnessOffset*(e-n)/200;d=tt(d,r,l),f=tt(f,r,l);const g=[],m=()=>tt(h,r,l),D=()=>tt(c,r,l);return s&&(o?g.push({op:"move",data:[e+m(),t+m()]}):g.push({op:"move",data:[e+tt(c,r,l),t+tt(c,r,l)]})),o?g.push({op:"bcurveTo",data:[d+e+(n-e)*p+m(),f+t+(i-t)*p+m(),d+e+2*(n-e)*p+m(),f+t+2*(i-t)*p+m(),n+m(),i+m()]}):g.push({op:"bcurveTo",data:[d+e+(n-e)*p+D(),f+t+(i-t)*p+D(),d+e+2*(n-e)*p+D(),f+t+2*(i-t)*p+D(),n+D(),i+D()]}),g}function rt(e,t,n){const i=e.length,r=[];if(i>3){const s=[],o=1-n.curveTightness;r.push({op:"move",data:[e[1][0],e[1][1]]});for(let t=1;t+2<i;t++){const n=e[t];s[0]=[n[0],n[1]],s[1]=[n[0]+(o*e[t+1][0]-o*e[t-1][0])/6,n[1]+(o*e[t+1][1]-o*e[t-1][1])/6],s[2]=[e[t+1][0]+(o*e[t][0]-o*e[t+2][0])/6,e[t+1][1]+(o*e[t][1]-o*e[t+2][1])/6],s[3]=[e[t+1][0],e[t+1][1]],r.push({op:"bcurveTo",data:[s[1][0],s[1][1],s[2][0],s[2][1],s[3][0],s[3][1]]})}if(t&&2===t.length){const e=n.maxRandomnessOffset;r.push({op:"lineTo",data:[t[0]+tt(e,n),t[1]+tt(e,n)]})}}else 3===i?(r.push({op:"move",data:[e[1][0],e[1][1]]}),r.push({op:"bcurveTo",data:[e[1][0],e[1][1],e[2][0],e[2][1],e[2][0],e[2][1]]})):2===i&&r.push(...nt(e[0][0],e[0][1],e[1][0],e[1][1],n));return r}function st(e,t,n,i,r,s,o,a){const u=[],l=[],c=tt(.5,a)-Math.PI/2;l.push([tt(s,a)+t+.9*i*Math.cos(c-e),tt(s,a)+n+.9*r*Math.sin(c-e)]);for(let o=c;o<2*Math.PI+c-.01;o+=e){const e=[tt(s,a)+t+i*Math.cos(o),tt(s,a)+n+r*Math.sin(o)];u.push(e),l.push(e)}return l.push([tt(s,a)+t+i*Math.cos(c+2*Math.PI+.5*o),tt(s,a)+n+r*Math.sin(c+2*Math.PI+.5*o)]),l.push([tt(s,a)+t+.98*i*Math.cos(c+o),tt(s,a)+n+.98*r*Math.sin(c+o)]),l.push([tt(s,a)+t+.9*i*Math.cos(c+.5*o),tt(s,a)+n+.9*r*Math.sin(c+.5*o)]),[l,u]}function ot(e,t){return{maxRandomnessOffset:2,roughness:"highlight"===e?3:1.5,bowing:1,stroke:"#000",strokeWidth:1.5,curveTightness:0,curveFitting:.95,curveStepCount:9,fillStyle:"hachure",fillWeight:-1,hachureAngle:-41,hachureGap:-1,dashOffset:-1,dashGap:-1,zigzagOffset:-1,combineNestedSvgPaths:!1,disableMultiStroke:"double"!==e,disableMultiStrokeFill:!1,seed:t}}function at(e,t,n,i,r,s){const o=[];let a=n.strokeWidth||2;const u=function(e){const t=e.padding;if(t||0===t){if("number"==typeof t)return[t,t,t,t];if(Array.isArray(t)){const e=t;if(e.length)switch(e.length){case 4:return[...e];case 1:return[e[0],e[0],e[0],e[0]];case 2:return[...e,...e];case 3:return[...e,e[1]];default:return[e[0],e[1],e[2],e[3]]}}}return[5,5,5,5]}(n),l=void 0===n.animate||!!n.animate,c=n.iterations||2,h=ot("single",s);switch(n.type){case"underline":{const e=t.y+t.h+u[2];for(let n=0;n<c;n++)n%2?o.push(Ve(t.x+t.w,e,t.x,e,h)):o.push(Ve(t.x,e,t.x+t.w,e,h));break}case"strike-through":{const e=t.y+t.h/2;for(let n=0;n<c;n++)n%2?o.push(Ve(t.x+t.w,e,t.x,e,h)):o.push(Ve(t.x,e,t.x+t.w,e,h));break}case"box":{const e=t.x-u[3],n=t.y-u[0],i=t.w+(u[1]+u[3]),r=t.h+(u[0]+u[2]);for(let t=0;t<c;t++)o.push(Ke(e,n,i,r,h));break}case"bracket":{const e=Array.isArray(n.brackets)?n.brackets:n.brackets?[n.brackets]:["right"],i=t.x-2*u[3],r=t.x+t.w+2*u[1],s=t.y-2*u[0],a=t.y+t.h+2*u[2];for(const n of e){let e;switch(n){case"bottom":e=[[i,t.y+t.h],[i,a],[r,a],[r,t.y+t.h]];break;case"top":e=[[i,t.y],[i,s],[r,s],[r,t.y]];break;case"left":e=[[t.x,s],[i,s],[i,a],[t.x,a]];break;case"right":e=[[t.x+t.w,s],[r,s],[r,a],[t.x+t.w,a]]}e&&o.push(Je(e,!1,h))}break}case"crossed-off":{const e=t.x,n=t.y,i=e+t.w,r=n+t.h;for(let t=0;t<c;t++)t%2?o.push(Ve(i,r,e,n,h)):o.push(Ve(e,n,i,r,h));for(let t=0;t<c;t++)t%2?o.push(Ve(e,r,i,n,h)):o.push(Ve(i,n,e,r,h));break}case"circle":{const e=ot("double",s),n=t.w+(u[1]+u[3]),i=t.h+(u[0]+u[2]),r=t.x-u[3]+n/2,a=t.y-u[0]+i/2,l=Math.floor(c/2),p=c-2*l;for(let t=0;t<l;t++)o.push(Ye(r,a,n,i,e));for(let e=0;e<p;e++)o.push(Ye(r,a,n,i,h));break}case"highlight":{const e=ot("highlight",s);a=.95*t.h;const n=t.y+t.h/2;for(let i=0;i<c;i++)i%2?o.push(Ve(t.x+t.w,n,t.x,n,e)):o.push(Ve(t.x,n,t.x+t.w,n,e));break}}if(o.length){const t=function(e){const t=[];for(const n of e){let e="";for(const i of n.ops){const n=i.data;switch(i.op){case"move":e.trim()&&t.push(e.trim()),e=`M${n[0]} ${n[1]} `;break;case"bcurveTo":e+=`C${n[0]} ${n[1]}, ${n[2]} ${n[3]}, ${n[4]} ${n[5]} `;break;case"lineTo":e+=`L${n[0]} ${n[1]} `}}e.trim()&&t.push(e.trim())}return t}(o),s=[],u=[];let c=0;const h=(e,t,n)=>e.setAttribute(t,n);for(const i of t){const t=document.createElementNS(Qe,"path");if(h(t,"d",i),h(t,"fill","none"),h(t,"stroke",n.color||"currentColor"),h(t,"stroke-width",""+a),l){const e=t.getTotalLength();s.push(e),c+=e}e.appendChild(t),u.push(t)}if(l){let e=0;for(let t=0;t<u.length;t++){const n=u[t],o=s[t],a=c?r*(o/c):0,l=i+e,h=n.style;h.strokeDashoffset=""+o,h.strokeDasharray=""+o,h.animation=`rough-notation-dash ${a}ms ease-out ${l}ms forwards`,e+=a}}}}class ut{constructor(e,t){this._state="unattached",this._resizing=!1,this._seed=Math.floor(Math.random()*2**31),this._lastSizes=[],this._animationDelay=0,this._resizeListener=()=>{this._resizing||(this._resizing=!0,setTimeout((()=>{this._resizing=!1,"showing"===this._state&&this.haveRectsChanged()&&this.show()}),400))},this._e=e,this._config=JSON.parse(JSON.stringify(t)),this.attach()}get animate(){return this._config.animate}set animate(e){this._config.animate=e}get animationDuration(){return this._config.animationDuration}set animationDuration(e){this._config.animationDuration=e}get iterations(){return this._config.iterations}set iterations(e){this._config.iterations=e}get color(){return this._config.color}set color(e){this._config.color!==e&&(this._config.color=e,this.refresh())}get strokeWidth(){return this._config.strokeWidth}set strokeWidth(e){this._config.strokeWidth!==e&&(this._config.strokeWidth=e,this.refresh())}get padding(){return this._config.padding}set padding(e){this._config.padding!==e&&(this._config.padding=e,this.refresh())}attach(){if("unattached"===this._state&&this._e.parentElement){!function(){if(!window.__rno_kf_s){const e=window.__rno_kf_s=document.createElement("style");e.textContent="@keyframes rough-notation-dash { to { stroke-dashoffset: 0; } }",document.head.appendChild(e)}}();const e=this._svg=document.createElementNS(Qe,"svg");e.setAttribute("class","rough-annotation");const t=e.style;t.position="absolute",t.top="0",t.left="0",t.overflow="visible",t.pointerEvents="none",t.width="100px",t.height="100px";const n="highlight"===this._config.type;if(this._e.insertAdjacentElement(n?"beforebegin":"afterend",e),this._state="not-showing",n){const e=window.getComputedStyle(this._e).position;(!e||"static"===e)&&(this._e.style.position="relative")}this.attachListeners()}}detachListeners(){window.removeEventListener("resize",this._resizeListener),this._ro&&this._ro.unobserve(this._e)}attachListeners(){this.detachListeners(),window.addEventListener("resize",this._resizeListener,{passive:!0}),!this._ro&&"ResizeObserver"in window&&(this._ro=new window.ResizeObserver((e=>{for(const t of e)t.contentRect&&this._resizeListener()}))),this._ro&&this._ro.observe(this._e)}haveRectsChanged(){if(this._lastSizes.length){const e=this.rects();if(e.length!==this._lastSizes.length)return!0;for(let t=0;t<e.length;t++)if(!this.isSameRect(e[t],this._lastSizes[t]))return!0}return!1}isSameRect(e,t){const n=(e,t)=>Math.round(e)===Math.round(t);return n(e.x,t.x)&&n(e.y,t.y)&&n(e.w,t.w)&&n(e.h,t.h)}isShowing(){return"not-showing"!==this._state}refresh(){this.isShowing()&&!this.pendingRefresh&&(this.pendingRefresh=Promise.resolve().then((()=>{this.isShowing()&&this.show(),delete this.pendingRefresh})))}show(){switch(this._state){case"unattached":break;case"showing":this.hide(),this._svg&&this.render(this._svg,!0);break;case"not-showing":this.attach(),this._svg&&this.render(this._svg,!1)}}hide(){if(this._svg)for(;this._svg.lastChild;)this._svg.removeChild(this._svg.lastChild);this._state="not-showing"}remove(){this._svg&&this._svg.parentElement&&this._svg.parentElement.removeChild(this._svg),this._svg=void 0,this._state="unattached",this.detachListeners()}render(e,t){let n=this._config;t&&(n=JSON.parse(JSON.stringify(this._config)),n.animate=!1);const i=this.rects();let r=0;i.forEach((e=>r+=e.w));const s=n.animationDuration||800;let o=0;for(let t=0;t<i.length;t++){const a=s*(i[t].w/r);at(e,i[t],n,o+this._animationDelay,a,this._seed),o+=a}this._lastSizes=i,this._state="showing"}rects(){const e=[];if(this._svg)if(this._config.multiline){const t=this._e.getClientRects();for(let n=0;n<t.length;n++)e.push(this.svgRect(this._svg,t[n]))}else e.push(this.svgRect(this._svg,this._e.getBoundingClientRect()));return e}svgRect(e,t){const n=e.getBoundingClientRect(),i=t;return{x:(i.x||i.left)-(n.x||n.left),y:(i.y||i.top)-(n.y||n.top),w:i.width,h:i.height}}}function lt(e){let t,n;const i=e[18].default,r=c(i,e,e[17],null);return{c(){t=E("div"),r&&r.c(),I(t,"display","inline")},m(i,s){C(i,t,s),r&&r.m(t,null),e[19](t),n=!0},p(e,[t]){r&&r.p&&(!n||131072&t)&&d(r,i,e,e[17],n?p(i,e[17],t,null):f(e[17]),null)},i(e){n||(pe(r,e),n=!0)},o(e){de(r,e),n=!1},d(n){n&&A(t),r&&r.d(n),e[19](null)}}}function ct(e,t,i){const r=["visible","animate","animationDuration","animationDelay","color","strokeWidth","padding","iterations","multiline","brackets","_animationGroupDelay","_animationDelay","show","hide","isShowing","annotation"];let s,o=m(t,r),{$$slots:a={},$$scope:u}=t,{visible:l=!1}=t,{animate:c}=t,{animationDuration:h}=t,{animationDelay:p}=t,{color:d}=t,{strokeWidth:f}=t,{padding:D}=t,{iterations:y}=t,{multiline:k}=t,{brackets:b}=t,{_animationGroupDelay:v}=t,{_animationDelay:w}=t;let{annotation:x}=t;return G((()=>(i(2,x=function(e,t){return new ut(e,t)}(s,{animate:c,animationDuration:h,animationDelay:p,color:d,strokeWidth:f,padding:D,iterations:y,multiline:k,brackets:b,...o})),()=>x.remove()))),e.$$set=e=>{t=n(n({},t),g(e)),i(20,o=m(t,r)),"visible"in e&&i(1,l=e.visible),"animate"in e&&i(3,c=e.animate),"animationDuration"in e&&i(4,h=e.animationDuration),"animationDelay"in e&&i(5,p=e.animationDelay),"color"in e&&i(6,d=e.color),"strokeWidth"in e&&i(7,f=e.strokeWidth),"padding"in e&&i(8,D=e.padding),"iterations"in e&&i(9,y=e.iterations),"multiline"in e&&i(10,k=e.multiline),"brackets"in e&&i(11,b=e.brackets),"_animationGroupDelay"in e&&i(12,v=e._animationGroupDelay),"_animationDelay"in e&&i(13,w=e._animationDelay),"annotation"in e&&i(2,x=e.annotation),"$$scope"in e&&i(17,u=e.$$scope)},e.$$.update=()=>{12&e.$$.dirty&&x&&void 0!==c&&i(2,x.animate=c,x),20&e.$$.dirty&&x&&void 0!==h&&i(2,x.animationDuration=h,x),36&e.$$.dirty&&x&&void 0!==p&&i(2,x.animationDelay=p,x),68&e.$$.dirty&&x&&void 0!==d&&i(2,x.color=d,x),132&e.$$.dirty&&x&&void 0!==f&&i(2,x.strokeWidth=f,x),260&e.$$.dirty&&x&&void 0!==D&&i(2,x.padding=D,x),516&e.$$.dirty&&x&&void 0!==y&&i(2,x.iterations=y,x),2052&e.$$.dirty&&x&&void 0!==b&&i(2,x.brackets=b,x),4100&e.$$.dirty&&x&&void 0!==v&&i(2,x._animationGroupDelay=v,x),8196&e.$$.dirty&&x&&void 0!==w&&i(2,x._animationDelay=w,x),6&e.$$.dirty&&x&&(l?x.show():x.hide())},[s,l,x,c,h,p,d,f,D,y,k,b,v,w,()=>i(1,l=!0),()=>i(1,l=!1),()=>l,u,a,function(e){J[e?"unshift":"push"]((()=>{s=e,i(0,s)}))}]}class ht extends xe{constructor(e){super(),we(this,e,ct,lt,a,{visible:1,animate:3,animationDuration:4,animationDelay:5,color:6,strokeWidth:7,padding:8,iterations:9,multiline:10,brackets:11,_animationGroupDelay:12,_animationDelay:13,show:14,hide:15,isShowing:16,annotation:2})}get visible(){return this.$$.ctx[1]}set visible(e){this.$$set({visible:e}),se()}get animate(){return this.$$.ctx[3]}set animate(e){this.$$set({animate:e}),se()}get animationDuration(){return this.$$.ctx[4]}set animationDuration(e){this.$$set({animationDuration:e}),se()}get animationDelay(){return this.$$.ctx[5]}set animationDelay(e){this.$$set({animationDelay:e}),se()}get color(){return this.$$.ctx[6]}set color(e){this.$$set({color:e}),se()}get strokeWidth(){return this.$$.ctx[7]}set strokeWidth(e){this.$$set({strokeWidth:e}),se()}get padding(){return this.$$.ctx[8]}set padding(e){this.$$set({padding:e}),se()}get iterations(){return this.$$.ctx[9]}set iterations(e){this.$$set({iterations:e}),se()}get multiline(){return this.$$.ctx[10]}set multiline(e){this.$$set({multiline:e}),se()}get brackets(){return this.$$.ctx[11]}set brackets(e){this.$$set({brackets:e}),se()}get _animationGroupDelay(){return this.$$.ctx[12]}set _animationGroupDelay(e){this.$$set({_animationGroupDelay:e}),se()}get _animationDelay(){return this.$$.ctx[13]}set _animationDelay(e){this.$$set({_animationDelay:e}),se()}get show(){return this.$$.ctx[14]}get hide(){return this.$$.ctx[15]}get isShowing(){return this.$$.ctx[16]}get annotation(){return this.$$.ctx[2]}set annotation(e){this.$$set({annotation:e}),se()}}function pt(e){let t;return{c(){t=_("Max Eisen")},m(e,n){C(e,t,n)},d(e){e&&A(t)}}}function dt(e){let t,n,i,r,s,o,a,u,c,h,p,d,f,g,m,D,y,k,b,v,x,$,F,B,_,z,T,M,L,I,O,R;function P(t){e[1](t)}let N={type:"highlight",color:"var(--intro-highlight-colour)",$$slots:{default:[pt]},$$scope:{ctx:e}};return void 0!==e[0]&&(N.visible=e[0]),n=new ht({props:N}),J.push((()=>function(e,t,n){const i=e.$$.props[t];void 0!==i&&(e.$$.bound[i]=n,n(e.$$.ctx[i]))}(n,"visible",P))),p=new je({}),g=new Oe({}),y=new We({}),v=new Ge({}),{c(){t=E("h1"),ye(n.$$.fragment),r=S(),s=E("h2"),s.innerHTML='SDE <b style="color: var(--paragraph-colour); font-weight: 300">@</b> Amazon',o=S(),a=E("h2"),a.textContent="Toronto, ON",u=S(),c=E("div"),h=E("a"),ye(p.$$.fragment),d=S(),f=E("a"),ye(g.$$.fragment),m=S(),D=E("a"),ye(y.$$.fragment),k=S(),b=E("a"),ye(v.$$.fragment),x=S(),$=E("div"),F=E("picture"),B=E("source"),z=S(),T=E("source"),L=S(),I=E("img"),j(s,"class","status svelte-t07b25"),j(a,"class","location svelte-t07b25"),j(h,"class","social-link linkedin-link svelte-t07b25"),j(h,"aria-label","LinkedIn"),j(h,"href","https://linkedin.com/in/maxeisen/"),j(h,"rel","noreferrer"),j(h,"target","_blank"),j(f,"class","social-link github-link svelte-t07b25"),j(f,"aria-label","GitHub"),j(f,"href","https://github.com/maxeisen/"),j(f,"rel","noreferrer"),j(f,"target","_blank"),j(D,"class","social-link twitter-link svelte-t07b25"),j(D,"aria-label","Twitter"),j(D,"href","https://twitter.com/maxeisen/"),j(D,"rel","noreferrer"),j(D,"target","_blank"),j(b,"class","social-link svelte-t07b25"),j(b,"aria-label","Email"),j(b,"href","mailto:profile@maxeisen.me"),j(b,"rel","noreferrer"),j(b,"target","_blank"),j(c,"class","social-links-container svelte-t07b25"),j(B,"class","headshot svelte-t07b25"),j(B,"srcset",_=`${ft}.webp`),j(B,"type","image/webp"),j(T,"class","headshot svelte-t07b25"),j(T,"srcset",M=`${ft}.png`),j(T,"type","image/png"),j(I,"class","headshot svelte-t07b25"),j(I,"id","headshot"),j(I,"width","200px"),j(I,"height","200px"),l(I.src,O=`${ft}.webp`)||j(I,"src",O),j(I,"alt","Current headshot"),j($,"class","headshot svelte-t07b25")},m(e,i){C(e,t,i),ke(n,t,null),C(e,r,i),C(e,s,i),C(e,o,i),C(e,a,i),C(e,u,i),C(e,c,i),w(c,h),ke(p,h,null),w(c,d),w(c,f),ke(g,f,null),w(c,m),w(c,D),ke(y,D,null),w(c,k),w(c,b),ke(v,b,null),C(e,x,i),C(e,$,i),w($,F),w(F,B),w(F,z),w(F,T),w(F,L),w(F,I),R=!0},p(e,[t]){const r={};var s;4&t&&(r.$$scope={dirty:t,ctx:e}),!i&&1&t&&(i=!0,r.visible=e[0],s=()=>i=!1,Y.push(s)),n.$set(r)},i(e){R||(pe(n.$$.fragment,e),pe(p.$$.fragment,e),pe(g.$$.fragment,e),pe(y.$$.fragment,e),pe(v.$$.fragment,e),R=!0)},o(e){de(n.$$.fragment,e),de(p.$$.fragment,e),de(g.$$.fragment,e),de(y.$$.fragment,e),de(v.$$.fragment,e),R=!1},d(e){e&&A(t),be(n),e&&A(r),e&&A(s),e&&A(o),e&&A(a),e&&A(u),e&&A(c),be(p),be(g),be(y),be(v),e&&A(x),e&&A($)}}}let ft="./img/headshots/clean_headshot";function gt(e,t,n){let i=!1;return G((()=>{setTimeout((()=>{n(0,i=!0)}),1e3)})),[i,function(e){i=e,n(0,i)}]}class mt extends xe{constructor(e){super(),we(this,e,gt,dt,a,{})}}function Dt(e){let t,n,i,r,s,o,a,u,c;return{c(){t=E("picture"),n=E("source"),r=S(),s=E("source"),a=S(),u=E("img"),j(n,"srcset",i=`./img/activities/${e[0]}.webp`),j(n,"type","image/webp"),j(s,"srcset",o=`./img/activities/${e[0]}.jpg`),j(s,"type","image/jpeg"),j(u,"class","activity-image svelte-1aisj69"),l(u.src,c=`./img/activities/${e[0]}.jpg`)||j(u,"src",c),j(u,"alt",e[3])},m(e,i){C(e,t,i),w(t,n),w(t,r),w(t,s),w(t,a),w(t,u)},p(e,t){1&t&&i!==(i=`./img/activities/${e[0]}.webp`)&&j(n,"srcset",i),1&t&&o!==(o=`./img/activities/${e[0]}.jpg`)&&j(s,"srcset",o),1&t&&!l(u.src,c=`./img/activities/${e[0]}.jpg`)&&j(u,"src",c),8&t&&j(u,"alt",e[3])},d(e){e&&A(t)}}}function yt(e){let t,n,i,r,s;return{c(){t=E("audio"),n=E("source"),r=E("track"),s=_("\r\n            Your browser does not support the audio element."),l(n.src,i=e[1])||j(n,"src",i),j(n,"type","audio/mpeg"),j(r,"kind","captions"),j(t,"class","activity-audio svelte-1aisj69"),t.controls=!0},m(e,i){C(e,t,i),w(t,n),w(t,r),w(t,s)},p(e,t){2&t&&!l(n.src,i=e[1])&&j(n,"src",i)},d(e){e&&A(t)}}}function kt(e){let t,n;return{c(){t=E("iframe"),j(t,"width","100%"),j(t,"height","315"),l(t.src,n=e[2]+"hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0")||j(t,"src",n),j(t,"title",e[3]),j(t,"frameborder","0"),j(t,"allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"),t.allowFullscreen=!0},m(e,n){C(e,t,n)},p(e,i){4&i&&!l(t.src,n=e[2]+"hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0")&&j(t,"src",n),8&i&&j(t,"title",e[3])},d(e){e&&A(t)}}}function bt(t){let n,i,r,s,o,a=t[0]&&Dt(t),u=t[1]&&yt(t),l=t[2]&&kt(t);return{c(){n=E("div"),a&&a.c(),i=S(),u&&u.c(),r=S(),l&&l.c(),s=S(),o=E("h3"),j(o,"class","activity-description svelte-1aisj69"),I(o,"text-align","center"),j(n,"class","activity-modal svelte-1aisj69")},m(e,c){C(e,n,c),a&&a.m(n,null),w(n,i),u&&u.m(n,null),w(n,r),l&&l.m(n,null),w(n,s),w(n,o),o.innerHTML=t[3]},p(e,[t]){e[0]?a?a.p(e,t):(a=Dt(e),a.c(),a.m(n,i)):a&&(a.d(1),a=null),e[1]?u?u.p(e,t):(u=yt(e),u.c(),u.m(n,r)):u&&(u.d(1),u=null),e[2]?l?l.p(e,t):(l=kt(e),l.c(),l.m(n,s)):l&&(l.d(1),l=null),8&t&&(o.innerHTML=e[3])},i:e,o:e,d(e){e&&A(n),a&&a.d(),u&&u.d(),l&&l.d()}}}function vt(e,t,n){let{image:i}=t,{audio:r}=t,{video:s}=t,{description:o}=t;return e.$$set=e=>{"image"in e&&n(0,i=e.image),"audio"in e&&n(1,r=e.audio),"video"in e&&n(2,s=e.video),"description"in e&&n(3,o=e.description)},[i,r,s,o]}class wt extends xe{constructor(e){super(),we(this,e,vt,bt,a,{image:0,audio:1,video:2,description:3})}}function xt(t){let n,i,r,o,a,u,l,c,h,p,d,f,g,m,D,y,k,b,v,x,$,F,B,z,M,L,I,O,R,P,N,W,q;return{c(){n=E("div"),i=E("h1"),i.textContent="Who is Max?",r=S(),o=E("div"),a=E("p"),a.innerHTML='I am a Software Development Engineer at <a class="intro-link svelte-vwcyka" href="https://aws.amazon.com/" rel="noreferrer" target="_blank">Amazon</a>\n        and a Computer Science graduate from <a class="intro-link svelte-vwcyka" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen&#39;s University</a>,\n        with a creative and curious mind, a passion for adventure, and a fascination for all technology.',u=S(),l=E("p"),c=_("Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and "),h=E("activity"),h.textContent="iOS app reviewing",p=_(".\r\n        As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver."),d=S(),f=E("p"),g=_("In my free time, I love to "),m=E("activity"),m.textContent="cycle",D=_(", "),y=E("activity"),y.textContent="drone",k=_(", "),b=E("activity"),b.textContent="play guitar",v=_(",\r\n        "),x=E("activity"),x.textContent="ski",$=_(", "),F=E("activity"),F.textContent="hike",B=_(", "),z=E("activity"),z.textContent="travel",M=_(", and "),L=E("activity"),L.textContent="work with cool technology",I=_("."),O=S(),R=E("p"),R.innerHTML='Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link svelte-vwcyka" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.',P=S(),N=E("p"),N.innerHTML='If you are <span class="static-highlight svelte-vwcyka">recruiting</span>, please view and download (print to PDF) my <a class="intro-link svelte-vwcyka" href="/resume">resume</a>.',j(i,"class","section-title-intro svelte-vwcyka"),j(a,"class","title-extension svelte-vwcyka"),j(h,"tabindex","0"),j(h,"class","svelte-vwcyka"),j(m,"tabindex","0"),j(m,"class","svelte-vwcyka"),j(y,"tabindex","0"),j(y,"class","svelte-vwcyka"),j(b,"tabindex","0"),j(b,"class","svelte-vwcyka"),j(x,"tabindex","0"),j(x,"class","svelte-vwcyka"),j(F,"tabindex","0"),j(F,"class","svelte-vwcyka"),j(z,"tabindex","0"),j(z,"class","svelte-vwcyka"),j(L,"tabindex","0"),j(L,"class","svelte-vwcyka"),j(o,"class","intro-paragraph svelte-vwcyka"),j(n,"class","intro-container")},m(e,s){C(e,n,s),w(n,i),w(n,r),w(n,o),w(o,a),w(o,u),w(o,l),w(l,c),w(l,h),w(l,p),w(o,d),w(o,f),w(f,g),w(f,m),w(f,D),w(f,y),w(f,k),w(f,b),w(f,v),w(f,x),w(f,$),w(f,F),w(f,B),w(f,z),w(f,M),w(f,L),w(f,I),w(o,O),w(o,R),w(o,P),w(o,N),W||(q=[T(h,"click",t[0]),T(m,"click",t[1]),T(y,"click",t[2]),T(b,"click",t[3]),T(x,"click",t[4]),T(F,"click",t[5]),T(z,"click",t[6]),T(L,"click",t[7])],W=!0)},p:e,i:e,o:e,d(e){e&&A(n),W=!1,s(q)}}}function $t(e){const{open:t}=Z("simple-modal"),n="https://www.youtube.com/embed/1raFNOEm5rA?start=171&",i='A compilation from my old iOS app reviewing YouTube channel, <a href="https://www.youtube.com/user/AppStoreReviewers/videos" rel="noreferrer" target="_blank">AppStoreReviewers</a> (~79,000 viewers strong)',r="cycle",s='Me crossing the finish line of the 122km <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank"> 2022 GranFondo Whistler</a>',o="https://www.youtube.com/embed/fULlZkgpw50?",a='A promotional spot that I shot and edited of the new GV70 from <a href="https://www.genesisyorkdale.ca/" rel="noreferrer" target="_blank">Genesis Yorkdale</a>',u={image:"guitar",description:"Me playing guitar... duh"},l="ski",c="Whistler, BC",h="hike",p="Lake Country, BC",d="travel2",f="St. Barths",g="frc",m="Captaining my high school robotics team at the 2016 FIRST Robotics Competition";return[()=>{t(wt,{video:n,description:i})},()=>{t(wt,{image:r,description:s})},()=>{t(wt,{video:o,description:a})},()=>{t(wt,{image:u.image,audio:u.audio,description:u.description})},()=>{t(wt,{image:l,description:c})},()=>{t(wt,{image:h,description:p})},()=>{t(wt,{image:d,description:f})},()=>{t(wt,{image:g,description:m})}]}class Ct extends xe{constructor(e){super(),we(this,e,$t,xt,a,{})}}"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self&&self;function At(e,t){return e(t={exports:{}},t.exports),t.exports}var Ft="%[a-f0-9]{2}",Et=new RegExp(Ft,"gi"),Bt=new RegExp("("+Ft+")+","gi");function _t(e,t){try{return decodeURIComponent(e.join(""))}catch(e){}if(1===e.length)return e;t=t||1;var n=e.slice(0,t),i=e.slice(t);return Array.prototype.concat.call([],_t(n),_t(i))}function St(e){try{return decodeURIComponent(e)}catch(i){for(var t=e.match(Et),n=1;n<t.length;n++)t=(e=_t(t,n).join("")).match(Et);return e}}var zt,Tt=function(e){if("string"!=typeof e)throw new TypeError("Expected `encodedURI` to be of type `string`, got `"+typeof e+"`");try{return e=e.replace(/\+/g," "),decodeURIComponent(e)}catch(t){return function(e){for(var t={"%FE%FF":"��","%FF%FE":"��"},n=Bt.exec(e);n;){try{t[n[0]]=decodeURIComponent(n[0])}catch(e){var i=St(n[0]);i!==n[0]&&(t[n[0]]=i)}n=Bt.exec(e)}t["%C2"]="�";for(var r=Object.keys(t),s=0;s<r.length;s++){var o=r[s];e=e.replace(new RegExp(o,"g"),t[o])}return e}(e)}},jt=(e,t)=>{if("string"!=typeof e||"string"!=typeof t)throw new TypeError("Expected the arguments to be of type `string`");if(""===t)return[e];const n=e.indexOf(t);return-1===n?[e]:[e.slice(0,n),e.slice(n+t.length)]},Mt=function(e,t){for(var n={},i=Object.keys(e),r=Array.isArray(t),s=0;s<i.length;s++){var o=i[s],a=e[o];(r?-1!==t.indexOf(o):t(o,a,e))&&(n[o]=a)}return n},Lt=At((function(e,t){function n(e){if("string"!=typeof e||1!==e.length)throw new TypeError("arrayFormatSeparator must be single character string")}function i(e,t){return t.encode?t.strict?encodeURIComponent(e).replace(/[!'()*]/g,(e=>`%${e.charCodeAt(0).toString(16).toUpperCase()}`)):encodeURIComponent(e):e}function r(e,t){return t.decode?Tt(e):e}function s(e){return Array.isArray(e)?e.sort():"object"==typeof e?s(Object.keys(e)).sort(((e,t)=>Number(e)-Number(t))).map((t=>e[t])):e}function o(e){const t=e.indexOf("#");return-1!==t&&(e=e.slice(0,t)),e}function a(e){const t=(e=o(e)).indexOf("?");return-1===t?"":e.slice(t+1)}function u(e,t){return t.parseNumbers&&!Number.isNaN(Number(e))&&"string"==typeof e&&""!==e.trim()?e=Number(e):!t.parseBooleans||null===e||"true"!==e.toLowerCase()&&"false"!==e.toLowerCase()||(e="true"===e.toLowerCase()),e}function l(e,t){n((t=Object.assign({decode:!0,sort:!0,arrayFormat:"none",arrayFormatSeparator:",",parseNumbers:!1,parseBooleans:!1},t)).arrayFormatSeparator);const i=function(e){let t;switch(e.arrayFormat){case"index":return(e,n,i)=>{t=/\[(\d*)\]$/.exec(e),e=e.replace(/\[\d*\]$/,""),t?(void 0===i[e]&&(i[e]={}),i[e][t[1]]=n):i[e]=n};case"bracket":return(e,n,i)=>{t=/(\[\])$/.exec(e),e=e.replace(/\[\]$/,""),t?void 0!==i[e]?i[e]=[].concat(i[e],n):i[e]=[n]:i[e]=n};case"comma":case"separator":return(t,n,i)=>{const s="string"==typeof n&&n.includes(e.arrayFormatSeparator),o="string"==typeof n&&!s&&r(n,e).includes(e.arrayFormatSeparator);n=o?r(n,e):n;const a=s||o?n.split(e.arrayFormatSeparator).map((t=>r(t,e))):null===n?n:r(n,e);i[t]=a};default:return(e,t,n)=>{void 0!==n[e]?n[e]=[].concat(n[e],t):n[e]=t}}}(t),o=Object.create(null);if("string"!=typeof e)return o;if(!(e=e.trim().replace(/^[?#&]/,"")))return o;for(const n of e.split("&")){if(""===n)continue;let[e,s]=jt(t.decode?n.replace(/\+/g," "):n,"=");s=void 0===s?null:["comma","separator"].includes(t.arrayFormat)?s:r(s,t),i(r(e,t),s,o)}for(const e of Object.keys(o)){const n=o[e];if("object"==typeof n&&null!==n)for(const e of Object.keys(n))n[e]=u(n[e],t);else o[e]=u(n,t)}return!1===t.sort?o:(!0===t.sort?Object.keys(o).sort():Object.keys(o).sort(t.sort)).reduce(((e,t)=>{const n=o[t];return Boolean(n)&&"object"==typeof n&&!Array.isArray(n)?e[t]=s(n):e[t]=n,e}),Object.create(null))}t.extract=a,t.parse=l,t.stringify=(e,t)=>{if(!e)return"";n((t=Object.assign({encode:!0,strict:!0,arrayFormat:"none",arrayFormatSeparator:","},t)).arrayFormatSeparator);const r=n=>t.skipNull&&null==e[n]||t.skipEmptyString&&""===e[n],s=function(e){switch(e.arrayFormat){case"index":return t=>(n,r)=>{const s=n.length;return void 0===r||e.skipNull&&null===r||e.skipEmptyString&&""===r?n:null===r?[...n,[i(t,e),"[",s,"]"].join("")]:[...n,[i(t,e),"[",i(s,e),"]=",i(r,e)].join("")]};case"bracket":return t=>(n,r)=>void 0===r||e.skipNull&&null===r||e.skipEmptyString&&""===r?n:null===r?[...n,[i(t,e),"[]"].join("")]:[...n,[i(t,e),"[]=",i(r,e)].join("")];case"comma":case"separator":return t=>(n,r)=>null==r||0===r.length?n:0===n.length?[[i(t,e),"=",i(r,e)].join("")]:[[n,i(r,e)].join(e.arrayFormatSeparator)];default:return t=>(n,r)=>void 0===r||e.skipNull&&null===r||e.skipEmptyString&&""===r?n:null===r?[...n,i(t,e)]:[...n,[i(t,e),"=",i(r,e)].join("")]}}(t),o={};for(const t of Object.keys(e))r(t)||(o[t]=e[t]);const a=Object.keys(o);return!1!==t.sort&&a.sort(t.sort),a.map((n=>{const r=e[n];return void 0===r?"":null===r?i(n,t):Array.isArray(r)?r.reduce(s(n),[]).join("&"):i(n,t)+"="+i(r,t)})).filter((e=>e.length>0)).join("&")},t.parseUrl=(e,t)=>{t=Object.assign({decode:!0},t);const[n,i]=jt(e,"#");return Object.assign({url:n.split("?")[0]||"",query:l(a(e),t)},t&&t.parseFragmentIdentifier&&i?{fragmentIdentifier:r(i,t)}:{})},t.stringifyUrl=(e,n)=>{n=Object.assign({encode:!0,strict:!0},n);const r=o(e.url).split("?")[0]||"",s=t.extract(e.url),a=t.parse(s,{sort:!1}),u=Object.assign(a,e.query);let l=t.stringify(u,n);l&&(l=`?${l}`);let c=function(e){let t="";const n=e.indexOf("#");return-1!==n&&(t=e.slice(n)),t}(e.url);return e.fragmentIdentifier&&(c=`#${i(e.fragmentIdentifier,n)}`),`${r}${l}${c}`},t.pick=(e,n,i)=>{i=Object.assign({parseFragmentIdentifier:!0},i);const{url:r,query:s,fragmentIdentifier:o}=t.parseUrl(e,i);return t.stringifyUrl({url:r,query:Mt(s,n),fragmentIdentifier:o},i)},t.exclude=(e,n,i)=>{const r=Array.isArray(n)?e=>!n.includes(e):(e,t)=>!n(e,t);return t.pick(e,r,i)}})),It=(Lt.extract,Lt.parse,Lt.stringify,Lt.parseUrl,Lt.stringifyUrl,Lt.pick,Lt.exclude,At((function(e,t){!function(e){function t(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}function n(e,n,i){return n&&t(e.prototype,n),i&&t(e,i),Object.defineProperty(e,"prototype",{writable:!1}),e}function i(e,t){if(e){if("string"==typeof e)return r(e,t);var n=Object.prototype.toString.call(e).slice(8,-1);return"Object"===n&&e.constructor&&(n=e.constructor.name),"Map"===n||"Set"===n?Array.from(e):"Arguments"===n||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)?r(e,t):void 0}}function r(e,t){(null==t||t>e.length)&&(t=e.length);for(var n=0,i=new Array(t);n<t;n++)i[n]=e[n];return i}function s(e,t){var n="undefined"!=typeof Symbol&&e[Symbol.iterator]||e["@@iterator"];if(n)return(n=n.call(e)).next.bind(n);if(Array.isArray(e)||(n=i(e))||t&&e&&"number"==typeof e.length){n&&(e=n);var r=0;return function(){return r>=e.length?{done:!0}:{done:!1,value:e[r++]}}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}function o(){return{baseUrl:null,breaks:!1,extensions:null,gfm:!0,headerIds:!0,headerPrefix:"",highlight:null,langPrefix:"language-",mangle:!0,pedantic:!1,renderer:null,sanitize:!1,sanitizer:null,silent:!1,smartLists:!1,smartypants:!1,tokenizer:null,walkTokens:null,xhtml:!1}}function a(t){e.defaults=t}e.defaults=o();var u=/[&<>"']/,l=/[&<>"']/g,c=/[<>"']|&(?!#?\w+;)/,h=/[<>"']|&(?!#?\w+;)/g,p={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},d=function(e){return p[e]};function f(e,t){if(t){if(u.test(e))return e.replace(l,d)}else if(c.test(e))return e.replace(h,d);return e}var g=/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi;function m(e){return e.replace(g,(function(e,t){return"colon"===(t=t.toLowerCase())?":":"#"===t.charAt(0)?"x"===t.charAt(1)?String.fromCharCode(parseInt(t.substring(2),16)):String.fromCharCode(+t.substring(1)):""}))}var D=/(^|[^\[])\^/g;function y(e,t){e=e.source||e,t=t||"";var n={replace:function(t,i){return i=(i=i.source||i).replace(D,"$1"),e=e.replace(t,i),n},getRegex:function(){return new RegExp(e,t)}};return n}var k=/[^\w:]/g,b=/^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;function v(e,t,n){if(e){var i;try{i=decodeURIComponent(m(n)).replace(k,"").toLowerCase()}catch(e){return null}if(0===i.indexOf("javascript:")||0===i.indexOf("vbscript:")||0===i.indexOf("data:"))return null}t&&!b.test(n)&&(n=A(t,n));try{n=encodeURI(n).replace(/%25/g,"%")}catch(e){return null}return n}var w={},x=/^[^:]+:\/*[^/]*$/,$=/^([^:]+:)[\s\S]*$/,C=/^([^:]+:\/*[^/]*)[\s\S]*$/;function A(e,t){w[" "+e]||(x.test(e)?w[" "+e]=e+"/":w[" "+e]=_(e,"/",!0));var n=-1===(e=w[" "+e]).indexOf(":");return"//"===t.substring(0,2)?n?t:e.replace($,"$1")+t:"/"===t.charAt(0)?n?t:e.replace(C,"$1")+t:e+t}var F={exec:function(){}};function E(e){for(var t,n,i=1;i<arguments.length;i++)for(n in t=arguments[i])Object.prototype.hasOwnProperty.call(t,n)&&(e[n]=t[n]);return e}function B(e,t){var n=e.replace(/\|/g,(function(e,t,n){for(var i=!1,r=t;--r>=0&&"\\"===n[r];)i=!i;return i?"|":" |"})).split(/ \|/),i=0;if(n[0].trim()||n.shift(),n.length>0&&!n[n.length-1].trim()&&n.pop(),n.length>t)n.splice(t);else for(;n.length<t;)n.push("");for(;i<n.length;i++)n[i]=n[i].trim().replace(/\\\|/g,"|");return n}function _(e,t,n){var i=e.length;if(0===i)return"";for(var r=0;r<i;){var s=e.charAt(i-r-1);if(s!==t||n){if(s===t||!n)break;r++}else r++}return e.substr(0,i-r)}function S(e,t){if(-1===e.indexOf(t[1]))return-1;for(var n=e.length,i=0,r=0;r<n;r++)if("\\"===e[r])r++;else if(e[r]===t[0])i++;else if(e[r]===t[1]&&--i<0)return r;return-1}function z(e){e&&e.sanitize&&!e.silent&&console.warn("marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options")}function T(e,t){if(t<1)return"";for(var n="";t>1;)1&t&&(n+=e),t>>=1,e+=e;return n+e}function j(e,t,n,i){var r=t.href,s=t.title?f(t.title):null,o=e[1].replace(/\\([\[\]])/g,"$1");if("!"!==e[0].charAt(0)){i.state.inLink=!0;var a={type:"link",raw:n,href:r,title:s,text:o,tokens:i.inlineTokens(o,[])};return i.state.inLink=!1,a}return{type:"image",raw:n,href:r,title:s,text:f(o)}}function M(e,t){var n=e.match(/^(\s+)(?:```)/);if(null===n)return t;var i=n[1];return t.split("\n").map((function(e){var t=e.match(/^\s+/);return null===t?e:t[0].length>=i.length?e.slice(i.length):e})).join("\n")}var L=function(){function t(t){this.options=t||e.defaults}var n=t.prototype;return n.space=function(e){var t=this.rules.block.newline.exec(e);if(t&&t[0].length>0)return{type:"space",raw:t[0]}},n.code=function(e){var t=this.rules.block.code.exec(e);if(t){var n=t[0].replace(/^ {1,4}/gm,"");return{type:"code",raw:t[0],codeBlockStyle:"indented",text:this.options.pedantic?n:_(n,"\n")}}},n.fences=function(e){var t=this.rules.block.fences.exec(e);if(t){var n=t[0],i=M(n,t[3]||"");return{type:"code",raw:n,lang:t[2]?t[2].trim():t[2],text:i}}},n.heading=function(e){var t=this.rules.block.heading.exec(e);if(t){var n=t[2].trim();if(/#$/.test(n)){var i=_(n,"#");this.options.pedantic?n=i.trim():i&&!/ $/.test(i)||(n=i.trim())}var r={type:"heading",raw:t[0],depth:t[1].length,text:n,tokens:[]};return this.lexer.inline(r.text,r.tokens),r}},n.hr=function(e){var t=this.rules.block.hr.exec(e);if(t)return{type:"hr",raw:t[0]}},n.blockquote=function(e){var t=this.rules.block.blockquote.exec(e);if(t){var n=t[0].replace(/^ *> ?/gm,"");return{type:"blockquote",raw:t[0],tokens:this.lexer.blockTokens(n,[]),text:n}}},n.list=function(e){var t=this.rules.block.list.exec(e);if(t){var n,i,r,o,a,u,l,c,h,p,d,f,g=t[1].trim(),m=g.length>1,D={type:"list",raw:"",ordered:m,start:m?+g.slice(0,-1):"",loose:!1,items:[]};g=m?"\\d{1,9}\\"+g.slice(-1):"\\"+g,this.options.pedantic&&(g=m?g:"[*+-]");for(var y=new RegExp("^( {0,3}"+g+")((?: [^\\n]*)?(?:\\n|$))");e&&(f=!1,t=y.exec(e))&&!this.rules.block.hr.test(e);){if(n=t[0],e=e.substring(n.length),c=t[2].split("\n",1)[0],h=e.split("\n",1)[0],this.options.pedantic?(o=2,d=c.trimLeft()):(o=(o=t[2].search(/[^ ]/))>4?1:o,d=c.slice(o),o+=t[1].length),u=!1,!c&&/^ *$/.test(h)&&(n+=h+"\n",e=e.substring(h.length+1),f=!0),!f)for(var k=new RegExp("^ {0,"+Math.min(3,o-1)+"}(?:[*+-]|\\d{1,9}[.)])");e&&(c=p=e.split("\n",1)[0],this.options.pedantic&&(c=c.replace(/^ {1,4}(?=( {4})*[^ ])/g,"  ")),!k.test(c));){if(c.search(/[^ ]/)>=o||!c.trim())d+="\n"+c.slice(o);else{if(u)break;d+="\n"+c}u||c.trim()||(u=!0),n+=p+"\n",e=e.substring(p.length+1)}D.loose||(l?D.loose=!0:/\n *\n *$/.test(n)&&(l=!0)),this.options.gfm&&(i=/^\[[ xX]\] /.exec(d))&&(r="[ ] "!==i[0],d=d.replace(/^\[[ xX]\] +/,"")),D.items.push({type:"list_item",raw:n,task:!!i,checked:r,loose:!1,text:d}),D.raw+=n}D.items[D.items.length-1].raw=n.trimRight(),D.items[D.items.length-1].text=d.trimRight(),D.raw=D.raw.trimRight();var b=D.items.length;for(a=0;a<b;a++){this.lexer.state.top=!1,D.items[a].tokens=this.lexer.blockTokens(D.items[a].text,[]);var v=D.items[a].tokens.filter((function(e){return"space"===e.type})),w=v.every((function(e){for(var t,n=0,i=s(e.raw.split(""));!(t=i()).done;)if("\n"===t.value&&(n+=1),n>1)return!0;return!1}));!D.loose&&v.length&&w&&(D.loose=!0,D.items[a].loose=!0)}return D}},n.html=function(e){var t=this.rules.block.html.exec(e);if(t){var n={type:"html",raw:t[0],pre:!this.options.sanitizer&&("pre"===t[1]||"script"===t[1]||"style"===t[1]),text:t[0]};return this.options.sanitize&&(n.type="paragraph",n.text=this.options.sanitizer?this.options.sanitizer(t[0]):f(t[0]),n.tokens=[],this.lexer.inline(n.text,n.tokens)),n}},n.def=function(e){var t=this.rules.block.def.exec(e);if(t)return t[3]&&(t[3]=t[3].substring(1,t[3].length-1)),{type:"def",tag:t[1].toLowerCase().replace(/\s+/g," "),raw:t[0],href:t[2],title:t[3]}},n.table=function(e){var t=this.rules.block.table.exec(e);if(t){var n={type:"table",header:B(t[1]).map((function(e){return{text:e}})),align:t[2].replace(/^ *|\| *$/g,"").split(/ *\| */),rows:t[3]&&t[3].trim()?t[3].replace(/\n[ \t]*$/,"").split("\n"):[]};if(n.header.length===n.align.length){n.raw=t[0];var i,r,s,o,a=n.align.length;for(i=0;i<a;i++)/^ *-+: *$/.test(n.align[i])?n.align[i]="right":/^ *:-+: *$/.test(n.align[i])?n.align[i]="center":/^ *:-+ *$/.test(n.align[i])?n.align[i]="left":n.align[i]=null;for(a=n.rows.length,i=0;i<a;i++)n.rows[i]=B(n.rows[i],n.header.length).map((function(e){return{text:e}}));for(a=n.header.length,r=0;r<a;r++)n.header[r].tokens=[],this.lexer.inlineTokens(n.header[r].text,n.header[r].tokens);for(a=n.rows.length,r=0;r<a;r++)for(o=n.rows[r],s=0;s<o.length;s++)o[s].tokens=[],this.lexer.inlineTokens(o[s].text,o[s].tokens);return n}}},n.lheading=function(e){var t=this.rules.block.lheading.exec(e);if(t){var n={type:"heading",raw:t[0],depth:"="===t[2].charAt(0)?1:2,text:t[1],tokens:[]};return this.lexer.inline(n.text,n.tokens),n}},n.paragraph=function(e){var t=this.rules.block.paragraph.exec(e);if(t){var n={type:"paragraph",raw:t[0],text:"\n"===t[1].charAt(t[1].length-1)?t[1].slice(0,-1):t[1],tokens:[]};return this.lexer.inline(n.text,n.tokens),n}},n.text=function(e){var t=this.rules.block.text.exec(e);if(t){var n={type:"text",raw:t[0],text:t[0],tokens:[]};return this.lexer.inline(n.text,n.tokens),n}},n.escape=function(e){var t=this.rules.inline.escape.exec(e);if(t)return{type:"escape",raw:t[0],text:f(t[1])}},n.tag=function(e){var t=this.rules.inline.tag.exec(e);if(t)return!this.lexer.state.inLink&&/^<a /i.test(t[0])?this.lexer.state.inLink=!0:this.lexer.state.inLink&&/^<\/a>/i.test(t[0])&&(this.lexer.state.inLink=!1),!this.lexer.state.inRawBlock&&/^<(pre|code|kbd|script)(\s|>)/i.test(t[0])?this.lexer.state.inRawBlock=!0:this.lexer.state.inRawBlock&&/^<\/(pre|code|kbd|script)(\s|>)/i.test(t[0])&&(this.lexer.state.inRawBlock=!1),{type:this.options.sanitize?"text":"html",raw:t[0],inLink:this.lexer.state.inLink,inRawBlock:this.lexer.state.inRawBlock,text:this.options.sanitize?this.options.sanitizer?this.options.sanitizer(t[0]):f(t[0]):t[0]}},n.link=function(e){var t=this.rules.inline.link.exec(e);if(t){var n=t[2].trim();if(!this.options.pedantic&&/^</.test(n)){if(!/>$/.test(n))return;var i=_(n.slice(0,-1),"\\");if((n.length-i.length)%2==0)return}else{var r=S(t[2],"()");if(r>-1){var s=(0===t[0].indexOf("!")?5:4)+t[1].length+r;t[2]=t[2].substring(0,r),t[0]=t[0].substring(0,s).trim(),t[3]=""}}var o=t[2],a="";if(this.options.pedantic){var u=/^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(o);u&&(o=u[1],a=u[3])}else a=t[3]?t[3].slice(1,-1):"";return o=o.trim(),/^</.test(o)&&(o=this.options.pedantic&&!/>$/.test(n)?o.slice(1):o.slice(1,-1)),j(t,{href:o?o.replace(this.rules.inline._escapes,"$1"):o,title:a?a.replace(this.rules.inline._escapes,"$1"):a},t[0],this.lexer)}},n.reflink=function(e,t){var n;if((n=this.rules.inline.reflink.exec(e))||(n=this.rules.inline.nolink.exec(e))){var i=(n[2]||n[1]).replace(/\s+/g," ");if(!(i=t[i.toLowerCase()])||!i.href){var r=n[0].charAt(0);return{type:"text",raw:r,text:r}}return j(n,i,n[0],this.lexer)}},n.emStrong=function(e,t,n){void 0===n&&(n="");var i=this.rules.inline.emStrong.lDelim.exec(e);if(i&&(!i[3]||!n.match(/(?:[0-9A-Za-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05D0-\u05EA\u05EF-\u05F2\u0620-\u064A\u0660-\u0669\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u0870-\u0887\u0889-\u088E\u08A0-\u08C9\u0904-\u0939\u093D\u0950\u0958-\u0961\u0966-\u096F\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A66-\u0A6F\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AE6-\u0AEF\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B66-\u0B6F\u0B71-\u0B77\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0BE6-\u0BF2\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C5D\u0C60\u0C61\u0C66-\u0C6F\u0C78-\u0C7E\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDD\u0CDE\u0CE0\u0CE1\u0CE6-\u0CEF\u0CF1\u0CF2\u0D04-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D58-\u0D61\u0D66-\u0D78\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DE6-\u0DEF\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F-\u1049\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u1711\u171F-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A16\u1A20-\u1A54\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1B05-\u1B33\u1B45-\u1B4C\u1B50-\u1B59\u1B83-\u1BA0\u1BAE-\u1BE5\u1C00-\u1C23\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2150-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2C00-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7CA\uA7D0\uA7D1\uA7D3\uA7D5-\uA7D9\uA7F2-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA830-\uA835\uA840-\uA873\uA882-\uA8B3\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD\uA8FE\uA900-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF-\uA9D9\uA9E0-\uA9E4\uA9E6-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA50-\uAA59\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABE2\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDD70-\uDD7A\uDD7C-\uDD8A\uDD8C-\uDD92\uDD94\uDD95\uDD97-\uDDA1\uDDA3-\uDDB1\uDDB3-\uDDB9\uDDBB\uDDBC\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67\uDF80-\uDF85\uDF87-\uDFB0\uDFB2-\uDFBA]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD23\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDF70-\uDF81\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC03-\uDC37\uDC52-\uDC6F\uDC71\uDC72\uDC75\uDC83-\uDCAF\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD03-\uDD26\uDD36-\uDD3F\uDD44\uDD47\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDD0-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDEF0-\uDEF9\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE50-\uDE59\uDE80-\uDEAA\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF30-\uDF3B\uDF40-\uDF46]|\uD806[\uDC00-\uDC2B\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD2F\uDD3F\uDD41\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD0\uDDE1\uDDE3\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE89\uDE9D\uDEB0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD89\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF2\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|\uD80B[\uDF90-\uDFF0]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDE70-\uDEBE\uDEC0-\uDEC9\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF50\uDF93-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82B[\uDFF0-\uDFF3\uDFF5-\uDFFB\uDFFD\uDFFE]|\uD82C[\uDC00-\uDD22\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD837[\uDF00-\uDF1E]|\uD838[\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDE90-\uDEAD\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD839[\uDFE0-\uDFE6\uDFE8-\uDFEB\uDFED\uDFEE\uDFF0-\uDFFE]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDF\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF38\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])/))){var r=i[1]||i[2]||"";if(!r||r&&(""===n||this.rules.inline.punctuation.exec(n))){var s,o,a=i[0].length-1,u=a,l=0,c="*"===i[0][0]?this.rules.inline.emStrong.rDelimAst:this.rules.inline.emStrong.rDelimUnd;for(c.lastIndex=0,t=t.slice(-1*e.length+a);null!=(i=c.exec(t));)if(s=i[1]||i[2]||i[3]||i[4]||i[5]||i[6])if(o=s.length,i[3]||i[4])u+=o;else if(!((i[5]||i[6])&&a%3)||(a+o)%3){if(!((u-=o)>0)){if(o=Math.min(o,o+u+l),Math.min(a,o)%2){var h=e.slice(1,a+i.index+o);return{type:"em",raw:e.slice(0,a+i.index+o+1),text:h,tokens:this.lexer.inlineTokens(h,[])}}var p=e.slice(2,a+i.index+o-1);return{type:"strong",raw:e.slice(0,a+i.index+o+1),text:p,tokens:this.lexer.inlineTokens(p,[])}}}else l+=o}}},n.codespan=function(e){var t=this.rules.inline.code.exec(e);if(t){var n=t[2].replace(/\n/g," "),i=/[^ ]/.test(n),r=/^ /.test(n)&&/ $/.test(n);return i&&r&&(n=n.substring(1,n.length-1)),n=f(n,!0),{type:"codespan",raw:t[0],text:n}}},n.br=function(e){var t=this.rules.inline.br.exec(e);if(t)return{type:"br",raw:t[0]}},n.del=function(e){var t=this.rules.inline.del.exec(e);if(t)return{type:"del",raw:t[0],text:t[2],tokens:this.lexer.inlineTokens(t[2],[])}},n.autolink=function(e,t){var n,i,r=this.rules.inline.autolink.exec(e);if(r)return i="@"===r[2]?"mailto:"+(n=f(this.options.mangle?t(r[1]):r[1])):n=f(r[1]),{type:"link",raw:r[0],text:n,href:i,tokens:[{type:"text",raw:n,text:n}]}},n.url=function(e,t){var n;if(n=this.rules.inline.url.exec(e)){var i,r;if("@"===n[2])r="mailto:"+(i=f(this.options.mangle?t(n[0]):n[0]));else{var s;do{s=n[0],n[0]=this.rules.inline._backpedal.exec(n[0])[0]}while(s!==n[0]);i=f(n[0]),r="www."===n[1]?"http://"+i:i}return{type:"link",raw:n[0],text:i,href:r,tokens:[{type:"text",raw:i,text:i}]}}},n.inlineText=function(e,t){var n,i=this.rules.inline.text.exec(e);if(i)return n=this.lexer.state.inRawBlock?this.options.sanitize?this.options.sanitizer?this.options.sanitizer(i[0]):f(i[0]):i[0]:f(this.options.smartypants?t(i[0]):i[0]),{type:"text",raw:i[0],text:n}},t}(),I={newline:/^(?: *(?:\n|$))+/,code:/^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,fences:/^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,hr:/^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,heading:/^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,blockquote:/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,list:/^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,html:"^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))",def:/^ {0,3}\[(label)\]: *(?:\n *)?<?([^\s>]+)>?(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/,table:F,lheading:/^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,_paragraph:/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,text:/^[^\n]+/,_label:/(?!\s*\])(?:\\.|[^\[\]\\])+/,_title:/(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/};I.def=y(I.def).replace("label",I._label).replace("title",I._title).getRegex(),I.bullet=/(?:[*+-]|\d{1,9}[.)])/,I.listItemStart=y(/^( *)(bull) */).replace("bull",I.bullet).getRegex(),I.list=y(I.list).replace(/bull/g,I.bullet).replace("hr","\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))").replace("def","\\n+(?="+I.def.source+")").getRegex(),I._tag="address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul",I._comment=/<!--(?!-?>)[\s\S]*?(?:-->|$)/,I.html=y(I.html,"i").replace("comment",I._comment).replace("tag",I._tag).replace("attribute",/ +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(),I.paragraph=y(I._paragraph).replace("hr",I.hr).replace("heading"," {0,3}#{1,6} ").replace("|lheading","").replace("|table","").replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",I._tag).getRegex(),I.blockquote=y(I.blockquote).replace("paragraph",I.paragraph).getRegex(),I.normal=E({},I),I.gfm=E({},I.normal,{table:"^ *([^\\n ].*\\|.*)\\n {0,3}(?:\\| *)?(:?-+:? *(?:\\| *:?-+:? *)*)(?:\\| *)?(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)"}),I.gfm.table=y(I.gfm.table).replace("hr",I.hr).replace("heading"," {0,3}#{1,6} ").replace("blockquote"," {0,3}>").replace("code"," {4}[^\\n]").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",I._tag).getRegex(),I.gfm.paragraph=y(I._paragraph).replace("hr",I.hr).replace("heading"," {0,3}#{1,6} ").replace("|lheading","").replace("table",I.gfm.table).replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",I._tag).getRegex(),I.pedantic=E({},I.normal,{html:y("^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:\"[^\"]*\"|'[^']*'|\\s[^'\"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))").replace("comment",I._comment).replace(/tag/g,"(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,heading:/^(#{1,6})(.*)(?:\n+|$)/,fences:F,paragraph:y(I.normal._paragraph).replace("hr",I.hr).replace("heading"," *#{1,6} *[^\n]").replace("lheading",I.lheading).replace("blockquote"," {0,3}>").replace("|fences","").replace("|list","").replace("|html","").getRegex()});var O={escape:/^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,autolink:/^<(scheme:[^\s\x00-\x1f<>]*|email)>/,url:F,tag:"^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>",link:/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,reflink:/^!?\[(label)\]\[(ref)\]/,nolink:/^!?\[(ref)\](?:\[\])?/,reflinkSearch:"reflink|nolink(?!\\()",emStrong:{lDelim:/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,rDelimAst:/^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,rDelimUnd:/^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/},code:/^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,br:/^( {2,}|\\)\n(?!\s*$)/,del:F,text:/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,punctuation:/^([\spunctuation])/};function R(e){return e.replace(/---/g,"—").replace(/--/g,"–").replace(/(^|[-\u2014/(\[{"\s])'/g,"$1‘").replace(/'/g,"’").replace(/(^|[-\u2014/(\[{\u2018\s])"/g,"$1“").replace(/"/g,"”").replace(/\.{3}/g,"…")}function P(e){var t,n,i="",r=e.length;for(t=0;t<r;t++)n=e.charCodeAt(t),Math.random()>.5&&(n="x"+n.toString(16)),i+="&#"+n+";";return i}O._punctuation="!\"#$%&'()+\\-.,/:;<=>?@\\[\\]`^{|}~",O.punctuation=y(O.punctuation).replace(/punctuation/g,O._punctuation).getRegex(),O.blockSkip=/\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g,O.escapedEmSt=/\\\*|\\_/g,O._comment=y(I._comment).replace("(?:--\x3e|$)","--\x3e").getRegex(),O.emStrong.lDelim=y(O.emStrong.lDelim).replace(/punct/g,O._punctuation).getRegex(),O.emStrong.rDelimAst=y(O.emStrong.rDelimAst,"g").replace(/punct/g,O._punctuation).getRegex(),O.emStrong.rDelimUnd=y(O.emStrong.rDelimUnd,"g").replace(/punct/g,O._punctuation).getRegex(),O._escapes=/\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g,O._scheme=/[a-zA-Z][a-zA-Z0-9+.-]{1,31}/,O._email=/[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/,O.autolink=y(O.autolink).replace("scheme",O._scheme).replace("email",O._email).getRegex(),O._attribute=/\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/,O.tag=y(O.tag).replace("comment",O._comment).replace("attribute",O._attribute).getRegex(),O._label=/(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/,O._href=/<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/,O._title=/"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/,O.link=y(O.link).replace("label",O._label).replace("href",O._href).replace("title",O._title).getRegex(),O.reflink=y(O.reflink).replace("label",O._label).replace("ref",I._label).getRegex(),O.nolink=y(O.nolink).replace("ref",I._label).getRegex(),O.reflinkSearch=y(O.reflinkSearch,"g").replace("reflink",O.reflink).replace("nolink",O.nolink).getRegex(),O.normal=E({},O),O.pedantic=E({},O.normal,{strong:{start:/^__|\*\*/,middle:/^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,endAst:/\*\*(?!\*)/g,endUnd:/__(?!_)/g},em:{start:/^_|\*/,middle:/^()\*(?=\S)([\s\S]*?\S)\*(?!\*)|^_(?=\S)([\s\S]*?\S)_(?!_)/,endAst:/\*(?!\*)/g,endUnd:/_(?!_)/g},link:y(/^!?\[(label)\]\((.*?)\)/).replace("label",O._label).getRegex(),reflink:y(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label",O._label).getRegex()}),O.gfm=E({},O.normal,{escape:y(O.escape).replace("])","~|])").getRegex(),_extended_email:/[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,url:/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,_backpedal:/(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,del:/^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,text:/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/}),O.gfm.url=y(O.gfm.url,"i").replace("email",O.gfm._extended_email).getRegex(),O.breaks=E({},O.gfm,{br:y(O.br).replace("{2,}","*").getRegex(),text:y(O.gfm.text).replace("\\b_","\\b_| {2,}\\n").replace(/\{2,\}/g,"*").getRegex()});var N=function(){function t(t){this.tokens=[],this.tokens.links=Object.create(null),this.options=t||e.defaults,this.options.tokenizer=this.options.tokenizer||new L,this.tokenizer=this.options.tokenizer,this.tokenizer.options=this.options,this.tokenizer.lexer=this,this.inlineQueue=[],this.state={inLink:!1,inRawBlock:!1,top:!0};var n={block:I.normal,inline:O.normal};this.options.pedantic?(n.block=I.pedantic,n.inline=O.pedantic):this.options.gfm&&(n.block=I.gfm,this.options.breaks?n.inline=O.breaks:n.inline=O.gfm),this.tokenizer.rules=n}t.lex=function(e,n){return new t(n).lex(e)},t.lexInline=function(e,n){return new t(n).inlineTokens(e)};var i=t.prototype;return i.lex=function(e){var t;for(e=e.replace(/\r\n|\r/g,"\n").replace(/\t/g,"    "),this.blockTokens(e,this.tokens);t=this.inlineQueue.shift();)this.inlineTokens(t.src,t.tokens);return this.tokens},i.blockTokens=function(e,t){var n,i,r,s,o=this;for(void 0===t&&(t=[]),this.options.pedantic&&(e=e.replace(/^ +$/gm,""));e;)if(!(this.options.extensions&&this.options.extensions.block&&this.options.extensions.block.some((function(i){return!!(n=i.call({lexer:o},e,t))&&(e=e.substring(n.raw.length),t.push(n),!0)}))))if(n=this.tokenizer.space(e))e=e.substring(n.raw.length),1===n.raw.length&&t.length>0?t[t.length-1].raw+="\n":t.push(n);else if(n=this.tokenizer.code(e))e=e.substring(n.raw.length),!(i=t[t.length-1])||"paragraph"!==i.type&&"text"!==i.type?t.push(n):(i.raw+="\n"+n.raw,i.text+="\n"+n.text,this.inlineQueue[this.inlineQueue.length-1].src=i.text);else if(n=this.tokenizer.fences(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.heading(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.hr(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.blockquote(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.list(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.html(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.def(e))e=e.substring(n.raw.length),!(i=t[t.length-1])||"paragraph"!==i.type&&"text"!==i.type?this.tokens.links[n.tag]||(this.tokens.links[n.tag]={href:n.href,title:n.title}):(i.raw+="\n"+n.raw,i.text+="\n"+n.raw,this.inlineQueue[this.inlineQueue.length-1].src=i.text);else if(n=this.tokenizer.table(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.lheading(e))e=e.substring(n.raw.length),t.push(n);else if(r=e,this.options.extensions&&this.options.extensions.startBlock&&function(){var t=1/0,n=e.slice(1),i=void 0;o.options.extensions.startBlock.forEach((function(e){"number"==typeof(i=e.call({lexer:this},n))&&i>=0&&(t=Math.min(t,i))})),t<1/0&&t>=0&&(r=e.substring(0,t+1))}(),this.state.top&&(n=this.tokenizer.paragraph(r)))i=t[t.length-1],s&&"paragraph"===i.type?(i.raw+="\n"+n.raw,i.text+="\n"+n.text,this.inlineQueue.pop(),this.inlineQueue[this.inlineQueue.length-1].src=i.text):t.push(n),s=r.length!==e.length,e=e.substring(n.raw.length);else if(n=this.tokenizer.text(e))e=e.substring(n.raw.length),(i=t[t.length-1])&&"text"===i.type?(i.raw+="\n"+n.raw,i.text+="\n"+n.text,this.inlineQueue.pop(),this.inlineQueue[this.inlineQueue.length-1].src=i.text):t.push(n);else if(e){var a="Infinite loop on byte: "+e.charCodeAt(0);if(this.options.silent){console.error(a);break}throw new Error(a)}return this.state.top=!0,t},i.inline=function(e,t){this.inlineQueue.push({src:e,tokens:t})},i.inlineTokens=function(e,t){var n,i,r,s=this;void 0===t&&(t=[]);var o,a,u,l=e;if(this.tokens.links){var c=Object.keys(this.tokens.links);if(c.length>0)for(;null!=(o=this.tokenizer.rules.inline.reflinkSearch.exec(l));)c.includes(o[0].slice(o[0].lastIndexOf("[")+1,-1))&&(l=l.slice(0,o.index)+"["+T("a",o[0].length-2)+"]"+l.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex))}for(;null!=(o=this.tokenizer.rules.inline.blockSkip.exec(l));)l=l.slice(0,o.index)+"["+T("a",o[0].length-2)+"]"+l.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);for(;null!=(o=this.tokenizer.rules.inline.escapedEmSt.exec(l));)l=l.slice(0,o.index)+"++"+l.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);for(;e;)if(a||(u=""),a=!1,!(this.options.extensions&&this.options.extensions.inline&&this.options.extensions.inline.some((function(i){return!!(n=i.call({lexer:s},e,t))&&(e=e.substring(n.raw.length),t.push(n),!0)}))))if(n=this.tokenizer.escape(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.tag(e))e=e.substring(n.raw.length),(i=t[t.length-1])&&"text"===n.type&&"text"===i.type?(i.raw+=n.raw,i.text+=n.text):t.push(n);else if(n=this.tokenizer.link(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.reflink(e,this.tokens.links))e=e.substring(n.raw.length),(i=t[t.length-1])&&"text"===n.type&&"text"===i.type?(i.raw+=n.raw,i.text+=n.text):t.push(n);else if(n=this.tokenizer.emStrong(e,l,u))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.codespan(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.br(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.del(e))e=e.substring(n.raw.length),t.push(n);else if(n=this.tokenizer.autolink(e,P))e=e.substring(n.raw.length),t.push(n);else if(this.state.inLink||!(n=this.tokenizer.url(e,P))){if(r=e,this.options.extensions&&this.options.extensions.startInline&&function(){var t=1/0,n=e.slice(1),i=void 0;s.options.extensions.startInline.forEach((function(e){"number"==typeof(i=e.call({lexer:this},n))&&i>=0&&(t=Math.min(t,i))})),t<1/0&&t>=0&&(r=e.substring(0,t+1))}(),n=this.tokenizer.inlineText(r,R))e=e.substring(n.raw.length),"_"!==n.raw.slice(-1)&&(u=n.raw.slice(-1)),a=!0,(i=t[t.length-1])&&"text"===i.type?(i.raw+=n.raw,i.text+=n.text):t.push(n);else if(e){var h="Infinite loop on byte: "+e.charCodeAt(0);if(this.options.silent){console.error(h);break}throw new Error(h)}}else e=e.substring(n.raw.length),t.push(n);return t},n(t,null,[{key:"rules",get:function(){return{block:I,inline:O}}}]),t}(),W=function(){function t(t){this.options=t||e.defaults}var n=t.prototype;return n.code=function(e,t,n){var i=(t||"").match(/\S*/)[0];if(this.options.highlight){var r=this.options.highlight(e,i);null!=r&&r!==e&&(n=!0,e=r)}return e=e.replace(/\n$/,"")+"\n",i?'<pre><code class="'+this.options.langPrefix+f(i,!0)+'">'+(n?e:f(e,!0))+"</code></pre>\n":"<pre><code>"+(n?e:f(e,!0))+"</code></pre>\n"},n.blockquote=function(e){return"<blockquote>\n"+e+"</blockquote>\n"},n.html=function(e){return e},n.heading=function(e,t,n,i){return this.options.headerIds?"<h"+t+' id="'+this.options.headerPrefix+i.slug(n)+'">'+e+"</h"+t+">\n":"<h"+t+">"+e+"</h"+t+">\n"},n.hr=function(){return this.options.xhtml?"<hr/>\n":"<hr>\n"},n.list=function(e,t,n){var i=t?"ol":"ul";return"<"+i+(t&&1!==n?' start="'+n+'"':"")+">\n"+e+"</"+i+">\n"},n.listitem=function(e){return"<li>"+e+"</li>\n"},n.checkbox=function(e){return"<input "+(e?'checked="" ':"")+'disabled="" type="checkbox"'+(this.options.xhtml?" /":"")+"> "},n.paragraph=function(e){return"<p>"+e+"</p>\n"},n.table=function(e,t){return t&&(t="<tbody>"+t+"</tbody>"),"<table>\n<thead>\n"+e+"</thead>\n"+t+"</table>\n"},n.tablerow=function(e){return"<tr>\n"+e+"</tr>\n"},n.tablecell=function(e,t){var n=t.header?"th":"td";return(t.align?"<"+n+' align="'+t.align+'">':"<"+n+">")+e+"</"+n+">\n"},n.strong=function(e){return"<strong>"+e+"</strong>"},n.em=function(e){return"<em>"+e+"</em>"},n.codespan=function(e){return"<code>"+e+"</code>"},n.br=function(){return this.options.xhtml?"<br/>":"<br>"},n.del=function(e){return"<del>"+e+"</del>"},n.link=function(e,t,n){if(null===(e=v(this.options.sanitize,this.options.baseUrl,e)))return n;var i='<a href="'+f(e)+'"';return t&&(i+=' title="'+t+'"'),i+=">"+n+"</a>"},n.image=function(e,t,n){if(null===(e=v(this.options.sanitize,this.options.baseUrl,e)))return n;var i='<img src="'+e+'" alt="'+n+'"';return t&&(i+=' title="'+t+'"'),i+=this.options.xhtml?"/>":">"},n.text=function(e){return e},t}(),q=function(){function e(){}var t=e.prototype;return t.strong=function(e){return e},t.em=function(e){return e},t.codespan=function(e){return e},t.del=function(e){return e},t.html=function(e){return e},t.text=function(e){return e},t.link=function(e,t,n){return""+n},t.image=function(e,t,n){return""+n},t.br=function(){return""},e}(),H=function(){function e(){this.seen={}}var t=e.prototype;return t.serialize=function(e){return e.toLowerCase().trim().replace(/<[!\/a-z].*?>/gi,"").replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g,"").replace(/\s/g,"-")},t.getNextSafeSlug=function(e,t){var n=e,i=0;if(this.seen.hasOwnProperty(n)){i=this.seen[e];do{n=e+"-"+ ++i}while(this.seen.hasOwnProperty(n))}return t||(this.seen[e]=i,this.seen[n]=0),n},t.slug=function(e,t){void 0===t&&(t={});var n=this.serialize(e);return this.getNextSafeSlug(n,t.dryrun)},e}(),U=function(){function t(t){this.options=t||e.defaults,this.options.renderer=this.options.renderer||new W,this.renderer=this.options.renderer,this.renderer.options=this.options,this.textRenderer=new q,this.slugger=new H}t.parse=function(e,n){return new t(n).parse(e)},t.parseInline=function(e,n){return new t(n).parseInline(e)};var n=t.prototype;return n.parse=function(e,t){void 0===t&&(t=!0);var n,i,r,s,o,a,u,l,c,h,p,d,f,g,D,y,k,b,v,w="",x=e.length;for(n=0;n<x;n++)if(h=e[n],!(this.options.extensions&&this.options.extensions.renderers&&this.options.extensions.renderers[h.type])||!1===(v=this.options.extensions.renderers[h.type].call({parser:this},h))&&["space","hr","heading","code","table","blockquote","list","html","paragraph","text"].includes(h.type))switch(h.type){case"space":continue;case"hr":w+=this.renderer.hr();continue;case"heading":w+=this.renderer.heading(this.parseInline(h.tokens),h.depth,m(this.parseInline(h.tokens,this.textRenderer)),this.slugger);continue;case"code":w+=this.renderer.code(h.text,h.lang,h.escaped);continue;case"table":for(l="",u="",s=h.header.length,i=0;i<s;i++)u+=this.renderer.tablecell(this.parseInline(h.header[i].tokens),{header:!0,align:h.align[i]});for(l+=this.renderer.tablerow(u),c="",s=h.rows.length,i=0;i<s;i++){for(u="",o=(a=h.rows[i]).length,r=0;r<o;r++)u+=this.renderer.tablecell(this.parseInline(a[r].tokens),{header:!1,align:h.align[r]});c+=this.renderer.tablerow(u)}w+=this.renderer.table(l,c);continue;case"blockquote":c=this.parse(h.tokens),w+=this.renderer.blockquote(c);continue;case"list":for(p=h.ordered,d=h.start,f=h.loose,s=h.items.length,c="",i=0;i<s;i++)y=(D=h.items[i]).checked,k=D.task,g="",D.task&&(b=this.renderer.checkbox(y),f?D.tokens.length>0&&"paragraph"===D.tokens[0].type?(D.tokens[0].text=b+" "+D.tokens[0].text,D.tokens[0].tokens&&D.tokens[0].tokens.length>0&&"text"===D.tokens[0].tokens[0].type&&(D.tokens[0].tokens[0].text=b+" "+D.tokens[0].tokens[0].text)):D.tokens.unshift({type:"text",text:b}):g+=b),g+=this.parse(D.tokens,f),c+=this.renderer.listitem(g,k,y);w+=this.renderer.list(c,p,d);continue;case"html":w+=this.renderer.html(h.text);continue;case"paragraph":w+=this.renderer.paragraph(this.parseInline(h.tokens));continue;case"text":for(c=h.tokens?this.parseInline(h.tokens):h.text;n+1<x&&"text"===e[n+1].type;)c+="\n"+((h=e[++n]).tokens?this.parseInline(h.tokens):h.text);w+=t?this.renderer.paragraph(c):c;continue;default:var $='Token with "'+h.type+'" type was not found.';if(this.options.silent)return void console.error($);throw new Error($)}else w+=v||"";return w},n.parseInline=function(e,t){t=t||this.renderer;var n,i,r,s="",o=e.length;for(n=0;n<o;n++)if(i=e[n],!(this.options.extensions&&this.options.extensions.renderers&&this.options.extensions.renderers[i.type])||!1===(r=this.options.extensions.renderers[i.type].call({parser:this},i))&&["escape","html","link","image","strong","em","codespan","br","del","text"].includes(i.type))switch(i.type){case"escape":case"text":s+=t.text(i.text);break;case"html":s+=t.html(i.text);break;case"link":s+=t.link(i.href,i.title,this.parseInline(i.tokens,t));break;case"image":s+=t.image(i.href,i.title,i.text);break;case"strong":s+=t.strong(this.parseInline(i.tokens,t));break;case"em":s+=t.em(this.parseInline(i.tokens,t));break;case"codespan":s+=t.codespan(i.text);break;case"br":s+=t.br();break;case"del":s+=t.del(this.parseInline(i.tokens,t));break;default:var a='Token with "'+i.type+'" type was not found.';if(this.options.silent)return void console.error(a);throw new Error(a)}else s+=r||"";return s},t}();function G(e,t,n){if(null==e)throw new Error("marked(): input parameter is undefined or null");if("string"!=typeof e)throw new Error("marked(): input parameter is of type "+Object.prototype.toString.call(e)+", string expected");if("function"==typeof t&&(n=t,t=null),z(t=E({},G.defaults,t||{})),n){var i,r=t.highlight;try{i=N.lex(e,t)}catch(e){return n(e)}var s=function(e){var s;if(!e)try{t.walkTokens&&G.walkTokens(i,t.walkTokens),s=U.parse(i,t)}catch(t){e=t}return t.highlight=r,e?n(e):n(null,s)};if(!r||r.length<3)return s();if(delete t.highlight,!i.length)return s();var o=0;return G.walkTokens(i,(function(e){"code"===e.type&&(o++,setTimeout((function(){r(e.text,e.lang,(function(t,n){if(t)return s(t);null!=n&&n!==e.text&&(e.text=n,e.escaped=!0),0==--o&&s()}))}),0))})),void(0===o&&s())}try{var a=N.lex(e,t);return t.walkTokens&&G.walkTokens(a,t.walkTokens),U.parse(a,t)}catch(e){if(e.message+="\nPlease report this to https://github.com/markedjs/marked.",t.silent)return"<p>An error occurred:</p><pre>"+f(e.message+"",!0)+"</pre>";throw e}}G.options=G.setOptions=function(e){return E(G.defaults,e),a(G.defaults),G},G.getDefaults=o,G.defaults=e.defaults,G.use=function(){for(var e=arguments.length,t=new Array(e),n=0;n<e;n++)t[n]=arguments[n];var i,r=E.apply(void 0,[{}].concat(t)),s=G.defaults.extensions||{renderers:{},childTokens:{}};t.forEach((function(e){if(e.extensions&&(i=!0,e.extensions.forEach((function(e){if(!e.name)throw new Error("extension name required");if(e.renderer){var t=s.renderers?s.renderers[e.name]:null;s.renderers[e.name]=t?function(){for(var n=arguments.length,i=new Array(n),r=0;r<n;r++)i[r]=arguments[r];var s=e.renderer.apply(this,i);return!1===s&&(s=t.apply(this,i)),s}:e.renderer}if(e.tokenizer){if(!e.level||"block"!==e.level&&"inline"!==e.level)throw new Error("extension level must be 'block' or 'inline'");s[e.level]?s[e.level].unshift(e.tokenizer):s[e.level]=[e.tokenizer],e.start&&("block"===e.level?s.startBlock?s.startBlock.push(e.start):s.startBlock=[e.start]:"inline"===e.level&&(s.startInline?s.startInline.push(e.start):s.startInline=[e.start]))}e.childTokens&&(s.childTokens[e.name]=e.childTokens)}))),e.renderer&&function(){var t=G.defaults.renderer||new W,n=function(n){var i=t[n];t[n]=function(){for(var r=arguments.length,s=new Array(r),o=0;o<r;o++)s[o]=arguments[o];var a=e.renderer[n].apply(t,s);return!1===a&&(a=i.apply(t,s)),a}};for(var i in e.renderer)n(i);r.renderer=t}(),e.tokenizer&&function(){var t=G.defaults.tokenizer||new L,n=function(n){var i=t[n];t[n]=function(){for(var r=arguments.length,s=new Array(r),o=0;o<r;o++)s[o]=arguments[o];var a=e.tokenizer[n].apply(t,s);return!1===a&&(a=i.apply(t,s)),a}};for(var i in e.tokenizer)n(i);r.tokenizer=t}(),e.walkTokens){var t=G.defaults.walkTokens;r.walkTokens=function(n){e.walkTokens.call(this,n),t&&t.call(this,n)}}i&&(r.extensions=s),G.setOptions(r)}))},G.walkTokens=function(e,t){for(var n,i=function(){var e=n.value;switch(t.call(G,e),e.type){case"table":for(var i,r=s(e.header);!(i=r()).done;){var o=i.value;G.walkTokens(o.tokens,t)}for(var a,u=s(e.rows);!(a=u()).done;)for(var l,c=s(a.value);!(l=c()).done;){var h=l.value;G.walkTokens(h.tokens,t)}break;case"list":G.walkTokens(e.items,t);break;default:G.defaults.extensions&&G.defaults.extensions.childTokens&&G.defaults.extensions.childTokens[e.type]?G.defaults.extensions.childTokens[e.type].forEach((function(n){G.walkTokens(e[n],t)})):e.tokens&&G.walkTokens(e.tokens,t)}},r=s(e);!(n=r()).done;)i()},G.parseInline=function(e,t){if(null==e)throw new Error("marked.parseInline(): input parameter is undefined or null");if("string"!=typeof e)throw new Error("marked.parseInline(): input parameter is of type "+Object.prototype.toString.call(e)+", string expected");z(t=E({},G.defaults,t||{}));try{var n=N.lexInline(e,t);return t.walkTokens&&G.walkTokens(n,t.walkTokens),U.parseInline(n,t)}catch(e){if(e.message+="\nPlease report this to https://github.com/markedjs/marked.",t.silent)return"<p>An error occurred:</p><pre>"+f(e.message+"",!0)+"</pre>";throw e}},G.Parser=U,G.parser=U.parse,G.Renderer=W,G.TextRenderer=q,G.Lexer=N,G.lexer=N.lex,G.Tokenizer=L,G.Slugger=H,G.parse=G;var Q=G.options,Z=G.setOptions,V=G.use,J=G.walkTokens,K=G.parseInline,Y=G,X=U.parse,ee=N.lex;e.Lexer=N,e.Parser=U,e.Renderer=W,e.Slugger=H,e.TextRenderer=q,e.Tokenizer=L,e.getDefaults=o,e.lexer=ee,e.marked=G,e.options=Q,e.parse=Y,e.parseInline=K,e.parser=X,e.setOptions=Z,e.use=V,e.walkTokens=J,Object.defineProperty(e,"__esModule",{value:!0})}(t)}))),Ot=(zt=It)&&zt.__esModule&&Object.prototype.hasOwnProperty.call(zt,"default")?zt.default:zt;function Rt(e){let t,n,i,r;return{c(){t=E("h3"),n=_("Updated: "),i=E("b"),r=_(e[3]),j(i,"class","date-string svelte-zkl2k0"),j(t,"class","blog-date svelte-zkl2k0"),I(t,"text-align","center")},m(e,s){C(e,t,s),w(t,n),w(t,i),w(i,r)},p(e,t){8&t&&L(r,e[3])},d(e){e&&A(t)}}}function Pt(t){let n,i,r,s,o,a,u,l,c,h,p,d,f,g,m,D,y,k,b,v,x,$,F,B,z=Ot.parse(t[4])+"",T=t[1].split(" ")[0]+"",O=t[3]&&Rt(t);return{c(){n=E("div"),i=E("div"),r=E("h1"),s=_(t[0]),o=S(),a=E("h3"),u=_("Author: "),l=E("b"),c=_(t[1]),h=S(),p=E("h3"),d=_("Written: "),f=E("b"),g=_(t[2]),m=S(),O&&O.c(),D=S(),y=E("div"),k=S(),b=E("div"),v=E("h2"),x=E("b"),x.textContent="-",$=_(T),F=S(),B=E("applause-button"),j(r,"class","blog-title svelte-zkl2k0"),I(r,"text-align","center"),j(l,"class","author-name svelte-zkl2k0"),j(a,"class","blog-author svelte-zkl2k0"),I(a,"text-align","center"),j(f,"class","date-string svelte-zkl2k0"),j(p,"class","blog-date svelte-zkl2k0"),I(p,"text-align","center"),j(i,"class","blog-header svelte-zkl2k0"),j(y,"class","blog-content svelte-zkl2k0"),I(x,"font-weight","300"),j(v,"class","signature svelte-zkl2k0"),M(B,"url",t[5]),M(B,"multiclap","true"),M(B,"color","var(--main-green)"),M(B,"class","svelte-zkl2k0"),j(b,"class","blog-footer svelte-zkl2k0"),j(n,"class","blog-modal svelte-zkl2k0")},m(e,t){C(e,n,t),w(n,i),w(i,r),w(r,s),w(i,o),w(i,a),w(a,u),w(a,l),w(l,c),w(i,h),w(i,p),w(p,d),w(p,f),w(f,g),w(i,m),O&&O.m(i,null),w(n,D),w(n,y),y.innerHTML=z,w(n,k),w(n,b),w(b,v),w(v,x),w(v,$),w(b,F),w(b,B)},p(e,[t]){1&t&&L(s,e[0]),2&t&&L(c,e[1]),4&t&&L(g,e[2]),e[3]?O?O.p(e,t):(O=Rt(e),O.c(),O.m(i,null)):O&&(O.d(1),O=null),16&t&&z!==(z=Ot.parse(e[4])+"")&&(y.innerHTML=z),2&t&&T!==(T=e[1].split(" ")[0]+"")&&L($,T)},i:e,o:e,d(e){e&&A(n),O&&O.d()}}}function Nt(e,t,n){let{id:i}=t,{title:r}=t,{author:s}=t,{date:o}=t,{updated:a}=t,{content:u}=t;const l=`https://maxeisen.me/blog/${i}`;var c="Loading...";return fetch(`../content/blog/${u}.md`).then((e=>e.text())).then((e=>{n(4,c=e)})),e.$$set=e=>{"id"in e&&n(6,i=e.id),"title"in e&&n(0,r=e.title),"author"in e&&n(1,s=e.author),"date"in e&&n(2,o=e.date),"updated"in e&&n(3,a=e.updated),"content"in e&&n(7,u=e.content)},[r,s,o,a,c,l,i,u]}class Wt extends xe{constructor(e){super(),we(this,e,Nt,Pt,a,{id:6,title:0,author:1,date:2,updated:3,content:7})}}function qt(t){let n,i,r;return{c(){n=E("button"),n.textContent="Custom Close Button"},m(e,s){C(e,n,s),i||(r=T(n,"click",(function(){o(t[0])&&t[0].apply(this,arguments)})),i=!0)},p(e,[n]){t=e},i:e,o:e,d(e){e&&A(n),i=!1,r()}}}function Ht(e,t,n){let{onClose:i}=t;return e.$$set=e=>{"onClose"in e&&n(0,i=e.onClose)},[i]}class Ut extends xe{constructor(e){super(),we(this,e,Ht,qt,a,{onClose:0})}}const Gt=[{published:!0,postId:0,title:"Creating the Blog Component",author:"Max Eisen",date:"March 3, 2021",description:"How I created this blog component on my site from scratch (it was a pain).",content:"creating-the-blog-component"},{published:!0,postId:1,title:"My Sense of Design",author:"Max Eisen",date:"April 14, 2021",updated:"May 14, 2021",description:"Take a peek into the things that have influenced and currently define my sense of design.",content:"sense-of-design"}];function Qt(e,t,n){const i=e.slice();return i[4]=t[n],i}function Zt(e){let t,n=1==e[4].published&&function(e){let t,n,i,r,s,o,a,u,l,c,h,p,d=e[4].title+"",f=e[4].date+"",g=e[4].description+"";function m(){return e[1](e[4])}return{c(){t=E("div"),n=E("h2"),i=_(d),r=S(),s=E("h2"),o=_(f),a=S(),u=E("h2"),l=_(g),c=S(),j(n,"class","blog-name svelte-1ejqdqo"),j(s,"class","blog-date svelte-1ejqdqo"),j(u,"class","blog-description svelte-1ejqdqo"),j(t,"class","blog-item"),j(t,"tabindex","0")},m(e,d){C(e,t,d),w(t,n),w(n,i),w(t,r),w(t,s),w(s,o),w(t,a),w(t,u),w(u,l),w(t,c),h||(p=T(t,"click",m),h=!0)},p(t,n){e=t},d(e){e&&A(t),h=!1,p()}}}(e);return{c(){n&&n.c(),t=z()},m(e,i){n&&n.m(e,i),C(e,t,i)},p(e,t){1==e[4].published&&n.p(e,t)},d(e){n&&n.d(e),e&&A(t)}}}function Vt(t){let n,i,r,s=Gt,o=[];for(let e=0;e<s.length;e+=1)o[e]=Zt(Qt(t,s,e));return{c(){n=E("h1"),n.textContent="Blog",i=S(),r=E("div");for(let e=0;e<o.length;e+=1)o[e].c();j(n,"class","section-title"),j(n,"id","blog"),I(n,"text-align","left"),j(r,"class","blog-subsection")},m(e,t){C(e,n,t),C(e,i,t),C(e,r,t);for(let e=0;e<o.length;e+=1)o[e].m(r,null)},p(e,[t]){if(1&t){let n;for(s=Gt,n=0;n<s.length;n+=1){const i=Qt(e,s,n);o[n]?o[n].p(i,t):(o[n]=Zt(i),o[n].c(),o[n].m(r,null))}for(;n<o.length;n+=1)o[n].d(1);o.length=s.length}},i:e,o:e,d(e){e&&A(n),e&&A(i),e&&A(r),F(o,e)}}}function Jt(e){const t=Lt.parse(window.location.search);Gt.sort((function(e,t){return t.postId-e.postId}));const{open:n}=Z("simple-modal"),i=(e,t,i,r,s,o)=>{n(Wt,{id:e,title:t,author:i,date:r,updated:s,content:o},{closeButton:Ut,styleWindow:{width:"950px",padding:"5px",maxHeight:"92.5%"}},{onOpen:()=>{window.history.replaceState({},t+" | MaxEisen.me","/?blog=true&postId="+e),document.title=t+" | MaxEisen.me",document.body.style.overflow="hidden"},onClose:()=>{window.history.replaceState({},"Get to Know Max Eisen | MaxEisen.me","/"),document.title="Get to Know Max Eisen | MaxEisen.me",document.body.style.overflowY="scroll"}})};G((async()=>{if("true"==t.blog&&t.postId){var e=Gt.find((e=>e.postId==t.postId));i(e.postId,e.title,e.author,e.date,e.updated,e.content)}}));return[i,e=>i(e.postId,e.title,e.author,e.date,e.updated,e.content)]}class Kt extends xe{constructor(e){super(),we(this,e,Jt,Vt,a,{})}}function Yt(e){let t;return{c(){t=_(e[1])},m(e,n){C(e,t,n)},p(e,n){2&n&&L(t,e[1])},d(e){e&&A(t)}}}function Xt(e){let t,n;return{c(){t=E("a"),n=_(e[1]),j(t,"href",e[2]),j(t,"rel","noreferrer"),j(t,"target","_blank"),j(t,"class","svelte-1uko5iu")},m(e,i){C(e,t,i),w(t,n)},p(e,i){2&i&&L(n,e[1]),4&i&&j(t,"href",e[2])},d(e){e&&A(t)}}}function en(e){let t,n;return{c(){t=E("h3"),n=_(e[3]),j(t,"class","modal-description svelte-1uko5iu"),I(t,"text-align","center")},m(e,i){C(e,t,i),w(t,n)},p(e,t){8&t&&L(n,e[3])},d(e){e&&A(t)}}}function tn(e){let t,n,i,r;return{c(){t=E("h3"),n=_(e[3]),i=_("-"),r=_(e[4]),j(t,"class","modal-description svelte-1uko5iu"),I(t,"text-align","center")},m(e,s){C(e,t,s),w(t,n),w(t,i),w(t,r)},p(e,t){8&t&&L(n,e[3]),16&t&&L(r,e[4])},d(e){e&&A(t)}}}function nn(t){let n,i,r,s,o,a,u,l,c,h,p,d;function f(e,t){return e[2]?Xt:Yt}let g=f(t),m=g(t);function D(e,t){return e[4]?tn:en}let y=D(t),k=y(t);return{c(){n=E("div"),i=E("h1"),r=_(t[0]),s=S(),o=E("h2"),m.c(),a=S(),u=E("b"),u.textContent="in",l=S(),c=_(t[5]),h=S(),k.c(),p=S(),d=E("p"),j(i,"class","modal-position svelte-1uko5iu"),I(i,"text-align","center"),I(u,"color","var(--paragraph-colour)"),I(u,"font-weight","300"),j(o,"class","modal-company svelte-1uko5iu"),j(d,"class","modal-description svelte-1uko5iu"),j(n,"class","experience-modal svelte-1uko5iu")},m(e,f){C(e,n,f),w(n,i),w(i,r),w(n,s),w(n,o),m.m(o,null),w(o,a),w(o,u),w(o,l),w(o,c),w(n,h),k.m(n,null),w(n,p),w(n,d),d.innerHTML=t[6]},p(e,[t]){1&t&&L(r,e[0]),g===(g=f(e))&&m?m.p(e,t):(m.d(1),m=g(e),m&&(m.c(),m.m(o,a))),32&t&&L(c,e[5]),y===(y=D(e))&&k?k.p(e,t):(k.d(1),k=y(e),k&&(k.c(),k.m(n,p))),64&t&&(d.innerHTML=e[6])},i:e,o:e,d(e){e&&A(n),m.d(),k.d()}}}function rn(e,t,n){let{position:i}=t,{company:r}=t,{companyLink:s}=t,{startDate:o}=t,{endDate:a}=t,{location:u}=t,{description:l}=t;return e.$$set=e=>{"position"in e&&n(0,i=e.position),"company"in e&&n(1,r=e.company),"companyLink"in e&&n(2,s=e.companyLink),"startDate"in e&&n(3,o=e.startDate),"endDate"in e&&n(4,a=e.endDate),"location"in e&&n(5,u=e.location),"description"in e&&n(6,l=e.description)},[i,r,s,o,a,u,l]}class sn extends xe{constructor(e){super(),we(this,e,rn,nn,a,{position:0,company:1,companyLink:2,startDate:3,endDate:4,location:5,description:6})}}const on=[{shortPosition:"Software Engineer",position:"Software Development Engineer",shortCompany:"Amazon",company:"Amazon Web Services (AWS)",companyLink:"https://aws.amazon.com/",shortDate:"Sep. 2022-Present",startDate:"September 2022",endDate:"Present",location:"Toronto, ON",shortDescription:"Working with the world's largest cloud services provider to build the future of low-latency content delivery",longDescription:"<ul>\n            <li>Working in the AWS CloudFront org to build and ensure the operational health of a major low-latency content delivery network</li>\n            <li>Owning features to ensure the successful monitoring, maintenance, and operation of nodes around the world</li>\n            <li>Ensuring highest possible availability for major CDN clients using our service to serve content to customers globally</li>\n        </ul>"},{shortPosition:"Software Engineer",position:"Software Development Engineer",shortCompany:"Publicis Sapient",company:"Publicis Sapient",companyLink:"https://www.publicissapient.com/",shortDate:"Sep. 2021-Sep. 2022",startDate:"September 2021",endDate:"September 2022",location:"Toronto, ON",shortDescription:"Consulting with companies and engineering software to digitally transform businesses around the globe",longDescription:"<ul>\n            <li>Contracted out through digital transformation giant Publicis Sapient, operating in 20 countries across the world</li>\n            <li>Worked with client Goldman Sachs, owning and developing major features for advisor web tools</li>\n            <li>Collaborated with teams to design, develop, and engineer over 5 different projects for production</li>\n            <li>Promoted to L1 engineer after only 1 year, marking a major boost in role and responsibilities</li>\n        </ul>"},{shortPosition:"CS Teaching Assistant",position:"Computer Science Teaching Assistant",shortCompany:"Queen's University",company:"Queen's University",shortDate:"Sep. 2019-Jul. 2021",companyLink:"https://cs.queensu.ca/",startDate:"September 2019",endDate:"July 2021",location:"Kingston, ON",shortDescription:"Assisted in the teaching and grading of several intermediate to advanced programming courses",longDescription:"<ul>\n            <li>Selected as a teaching assistant for three differenmt programming courses, having previously obtained exceptional grades</li>\n            <li>Held weekly office hours to guide students in completing assignments and projects</li>\n            <li>Assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, a 250-student Java course, and a 200-student Python course</li>\n        </ul>"},{position:"Product Manager",shortCompany:"QTMA",company:"Queen's Technology and Media Association",companyLink:"https://qtma.ca/",shortDate:"Mar. 2020-Apr. 2021",startDate:"March 2020",endDate:"April 2021",location:"Kingston, ON",shortDescription:"Managed a talented team of Queen's students to ideate, develop, and market a software product",longDescription:"<ul>\n            <li>Managed a team of talented developers and business analysts to ideate, build, and market a software product</li>\n            <li>Led team presentations and product pitches to students, professors, and potential investors throughout the school year</li>\n        </ul>"},{shortPosition:"Technical Developer",position:"Technical Developer Co-op",shortCompany:"Jonah Group",company:"Jonah Group",companyLink:"https://www.jonahgroup.com/",shortDate:"May-Sep. 2020",startDate:"May",endDate:"September 2020",location:"Toronto, ON",shortDescription:"Worked with a fantastic team of developers to create large-scale software products for companies",longDescription:"<ul>\n            <li>Used React, Spring Boot, and Postgres in my summer internship to build custom, high-performance software for companies</li>\n            <li>Full stack developer on an agile team, developing a decision engine to be implemented for client companies</li>\n        </ul>"},{shortPosition:"Director of Technology",position:"Founder, Director of Technology",shortCompany:"TechTrainers",company:"TechTrainers",shortDate:"May 2019-Jan. 2021",startDate:"May 2019",endDate:"January 2021",location:"Toronto, ON",shortDescription:"Created a network of in-person and online quality tech help and tutoring around the GTA",longDescription:"<ul>\n            <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>\n            <li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li>\n            <li>Company was able to turn a profit in first month of operations</li>\n        </ul>"}];function an(e,t,n){const i=e.slice();return i[3]=t[n],i}function un(t){let n,i,r,s=t[3].position+"";return{c(){n=E("h2"),i=E("div"),r=_(s),j(i,"class","experience-position svelte-1y5zmi7"),j(n,"class","experience-title svelte-1y5zmi7")},m(e,t){C(e,n,t),w(n,i),w(i,r)},p:e,d(e){e&&A(n)}}}function ln(t){let n,i,r,s=t[3].shortPosition+"";return{c(){n=E("h2"),i=E("div"),r=_(s),j(i,"class","experience-position svelte-1y5zmi7"),j(n,"class","experience-title svelte-1y5zmi7")},m(e,t){C(e,n,t),w(n,i),w(i,r)},p:e,d(e){e&&A(n)}}}function cn(t){let n,i,r=t[3].company+"";return{c(){n=E("h2"),i=_(r),j(n,"class","experience-company svelte-1y5zmi7")},m(e,t){C(e,n,t),w(n,i)},p:e,d(e){e&&A(n)}}}function hn(t){let n,i,r=t[3].shortCompany+"";return{c(){n=E("h2"),i=_(r),j(n,"class","experience-company svelte-1y5zmi7")},m(e,t){C(e,n,t),w(n,i)},p:e,d(e){e&&A(n)}}}function pn(e){let t,n,i,r,s,o,a,u,l,c,h,p,d,f,g=e[3].shortDescription+"",m=e[3].shortDate+"",D=e[3].location+"";let y=function(e,t){return e[3].shortPosition?ln:un}(e),k=y(e);let b=function(e,t){return e[3].shortCompany?hn:cn}(e),v=b(e);function x(){return e[1](e[3])}return{c(){t=E("div"),k.c(),n=S(),v.c(),i=S(),r=E("p"),s=_(g),o=S(),a=E("h1"),u=E("div"),l=_(m),c=E("div"),h=_(D),p=S(),j(u,"class","experience-date svelte-1y5zmi7"),j(c,"class","experience-location svelte-1y5zmi7"),j(a,"class","experience-date-location svelte-1y5zmi7"),j(t,"class","experience-item"),j(t,"tabindex","0")},m(e,g){C(e,t,g),k.m(t,null),w(t,n),v.m(t,null),w(t,i),w(t,r),w(r,s),w(t,o),w(t,a),w(a,u),w(u,l),w(a,c),w(c,h),w(t,p),d||(f=T(t,"click",x),d=!0)},p(t,n){e=t,k.p(e,n),v.p(e,n)},d(e){e&&A(t),k.d(),v.d(),d=!1,f()}}}function dn(t){let n,i,r,s=on,o=[];for(let e=0;e<s.length;e+=1)o[e]=pn(an(t,s,e));return{c(){n=E("h1"),n.textContent="Experience",i=S(),r=E("div");for(let e=0;e<o.length;e+=1)o[e].c();j(n,"class","section-title"),j(n,"id","experience"),I(n,"text-align","left"),j(r,"class","experience-subsection")},m(e,t){C(e,n,t),C(e,i,t),C(e,r,t);for(let e=0;e<o.length;e+=1)o[e].m(r,null)},p(e,[t]){if(1&t){let n;for(s=on,n=0;n<s.length;n+=1){const i=an(e,s,n);o[n]?o[n].p(i,t):(o[n]=pn(i),o[n].c(),o[n].m(r,null))}for(;n<o.length;n+=1)o[n].d(1);o.length=s.length}},i:e,o:e,d(e){e&&A(n),e&&A(i),e&&A(r),F(o,e)}}}function fn(e){const{open:t}=Z("simple-modal"),n=(e,n,i,r,s,o,a)=>{t(sn,{position:e,company:n,companyLink:i,startDate:r,endDate:s,location:o,description:a})};return[n,e=>n(e.position,e.company,e.companyLink,e.startDate,e.endDate,e.location,e.longDescription)]}class gn extends xe{constructor(e){super(),we(this,e,fn,dn,a,{})}}function mn(t){let n;return{c(){n=B("path"),j(n,"d","M405.34 405.332H106.66V106.668H240V64H106.66C83.191 64 64 83.197 64 106.668v298.664C64 428.803 83.191 448 106.66 448h298.68c23.469 0 42.66-19.197 42.66-42.668V272h-42.66v133.332zM288 64v42.668h87.474L159.999 322.133l29.866 29.866 215.476-215.47V224H448V64H288z")},m(e,t){C(e,n,t)},p:e,d(e){e&&A(n)}}}function Dn(e){let t,i;const r=[{viewBox:"0 0 512 512"},e[0]];let s={$$slots:{default:[mn]},$$scope:{ctx:e}};for(let e=0;e<r.length;e+=1)s=n(s,r[e]);return t=new _e({props:s}),{c(){ye(t.$$.fragment)},m(e,n){ke(t,e,n),i=!0},p(e,[n]){const i=1&n?me(r,[r[0],De(e[0])]):{};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){i||(pe(t.$$.fragment,e),i=!0)},o(e){de(t.$$.fragment,e),i=!1},d(e){be(t,e)}}}function yn(e,t,i){return e.$$set=e=>{i(0,t=n(n({},t),g(e)))},[t=g(t)]}class kn extends xe{constructor(e){super(),we(this,e,yn,Dn,a,{})}}function bn(t){let n;return{c(){n=B("path"),j(n,"d","M332 142.7c-1.2-1.1-2.7-1.7-4.1-1.7s-3 .6-4.1 1.7L310 155.9c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l95.8 91.5-95.8 91.5c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l13.8 13.2c1.2 1.1 2.6 1.7 4.1 1.7 1.5 0 3-.6 4.1-1.7l114.2-109c1.2-1.1 1.9-2.7 1.9-4.3 0-1.6-.7-3.2-1.9-4.3L332 142.7zM204 160.2c0-1.6-.7-3.2-1.9-4.3l-13.8-13.2c-1.2-1.1-2.7-1.7-4.1-1.7s-3 .6-4.1 1.7l-114.2 109c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l114.2 109c1.2 1.1 2.7 1.7 4.1 1.7 1.5 0 3-.6 4.1-1.7l13.8-13.2c1.2-1.1 1.9-2.7 1.9-4.3 0-1.6-.7-3.2-1.9-4.3L106.3 256l95.8-91.5c1.2-1.1 1.9-2.7 1.9-4.3z")},m(e,t){C(e,n,t)},p:e,d(e){e&&A(n)}}}function vn(e){let t,i;const r=[{viewBox:"0 0 512 512"},e[0]];let s={$$slots:{default:[bn]},$$scope:{ctx:e}};for(let e=0;e<r.length;e+=1)s=n(s,r[e]);return t=new _e({props:s}),{c(){ye(t.$$.fragment)},m(e,n){ke(t,e,n),i=!0},p(e,[n]){const i=1&n?me(r,[r[0],De(e[0])]):{};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){i||(pe(t.$$.fragment,e),i=!0)},o(e){de(t.$$.fragment,e),i=!1},d(e){be(t,e)}}}function wn(e,t,i){return e.$$set=e=>{i(0,t=n(n({},t),g(e)))},[t=g(t)]}class xn extends xe{constructor(e){super(),we(this,e,wn,vn,a,{})}}function $n(e){let t,n,i;return n=new kn({}),{c(){t=E("a"),ye(n.$$.fragment),j(t,"class","project-link svelte-18eo4k3"),j(t,"href",e[5]),j(t,"rel","noreferrer"),j(t,"target","_blank")},m(e,r){C(e,t,r),ke(n,t,null),i=!0},p(e,n){(!i||32&n)&&j(t,"href",e[5])},i(e){i||(pe(n.$$.fragment,e),i=!0)},o(e){de(n.$$.fragment,e),i=!1},d(e){e&&A(t),be(n)}}}function Cn(e){let t,n,i;return n=new xn({}),{c(){t=E("a"),ye(n.$$.fragment),j(t,"class","project-link svelte-18eo4k3"),j(t,"href",e[4]),j(t,"rel","noreferrer"),j(t,"target","_blank")},m(e,r){C(e,t,r),ke(n,t,null),i=!0},p(e,n){(!i||16&n)&&j(t,"href",e[4])},i(e){i||(pe(n.$$.fragment,e),i=!0)},o(e){de(n.$$.fragment,e),i=!1},d(e){e&&A(t),be(n)}}}function An(e){let t,n,i,r,s,o,a,u,c,h,p,d,f,g,m,D,y,k,b,v,x,$,F,B,z,T,M,O,R=e[5]&&$n(e),P=e[4]&&Cn(e);return{c(){t=E("div"),n=E("h1"),i=_(e[0]),r=_(" ("),s=_(e[2]),o=_(")"),a=S(),u=E("h3"),c=_("Developed with: "),h=E("b"),p=_(e[1]),d=S(),f=E("div"),R&&R.c(),g=S(),P&&P.c(),m=S(),D=E("p"),y=S(),k=E("picture"),b=E("source"),x=S(),$=E("source"),B=S(),z=E("img"),j(n,"class","modal-name svelte-18eo4k3"),I(n,"text-align","center"),j(h,"class","technologies svelte-18eo4k3"),j(u,"class","modal-description svelte-18eo4k3"),I(u,"text-align","center"),j(f,"class","project-links-container svelte-18eo4k3"),j(D,"class","modal-description svelte-18eo4k3"),j(b,"srcset",v="./img/screenshots/"+e[6]+".webp"),j(b,"type","image/webp"),j($,"srcset",F="./img/screenshots/"+e[6]+".jpg"),j($,"type","image/jpeg"),j(z,"class","screenshot svelte-18eo4k3"),l(z.src,T=e[6]+".webp")||j(z,"src",T),j(z,"alt",M=e[0]+" screenshot"),j(t,"class","project-modal svelte-18eo4k3")},m(l,v){C(l,t,v),w(t,n),w(n,i),w(n,r),w(n,s),w(n,o),w(t,a),w(t,u),w(u,c),w(u,h),w(h,p),w(t,d),w(t,f),R&&R.m(f,null),w(f,g),P&&P.m(f,null),w(t,m),w(t,D),D.innerHTML=e[3],w(t,y),w(t,k),w(k,b),w(k,x),w(k,$),w(k,B),w(k,z),O=!0},p(e,[t]){(!O||1&t)&&L(i,e[0]),(!O||4&t)&&L(s,e[2]),(!O||2&t)&&L(p,e[1]),e[5]?R?(R.p(e,t),32&t&&pe(R,1)):(R=$n(e),R.c(),pe(R,1),R.m(f,g)):R&&(ce(),de(R,1,1,(()=>{R=null})),he()),e[4]?P?(P.p(e,t),16&t&&pe(P,1)):(P=Cn(e),P.c(),pe(P,1),P.m(f,null)):P&&(ce(),de(P,1,1,(()=>{P=null})),he()),(!O||8&t)&&(D.innerHTML=e[3]),(!O||64&t&&v!==(v="./img/screenshots/"+e[6]+".webp"))&&j(b,"srcset",v),(!O||64&t&&F!==(F="./img/screenshots/"+e[6]+".jpg"))&&j($,"srcset",F),(!O||64&t&&!l(z.src,T=e[6]+".webp"))&&j(z,"src",T),(!O||1&t&&M!==(M=e[0]+" screenshot"))&&j(z,"alt",M)},i(e){O||(pe(R),pe(P),O=!0)},o(e){de(R),de(P),O=!1},d(e){e&&A(t),R&&R.d(),P&&P.d()}}}function Fn(e,t,n){let{name:i}=t,{technologies:r}=t,{year:s}=t,{description:o}=t,{githubLink:a}=t,{projectLink:u}=t,{screenshot:l}=t;return e.$$set=e=>{"name"in e&&n(0,i=e.name),"technologies"in e&&n(1,r=e.technologies),"year"in e&&n(2,s=e.year),"description"in e&&n(3,o=e.description),"githubLink"in e&&n(4,a=e.githubLink),"projectLink"in e&&n(5,u=e.projectLink),"screenshot"in e&&n(6,l=e.screenshot)},[i,r,s,o,a,u,l]}class En extends xe{constructor(e){super(),we(this,e,Fn,An,a,{name:0,technologies:1,year:2,description:3,githubLink:4,projectLink:5,screenshot:6})}}const Bn=[{name:"Convoke",emoji:"🤔",technologies:"Next.js, OpenAI GPT-3, Vercel",year:"2022-Present",shortDescription:"A web-based game designed to provoke abstract conversation and deep thought",longDescription:'<ul>\n            <li>A game made as an alternative to many classic social games played over a few drinks, to provoke thought and conversation</li>\n            <li>Using <a href="https://openai.com/blog/openai-api/" rel="noreferrer" target="_blank">Open-AI\'s GPT-3 API</a>, thought-provoking questions are generated each round, posed to your group, and a best response is selected</li>\n            <li>Scores are kept track of by the web app and a winner is declared after three rounds</li>\n            <li>Alternatively a more personal <a href="https://convoke.app/daily" rel="noreferrer" target="_blank">daily question</a> can be answered by an individual user, with responses saved to local storage</li>\n            <li>Developed in two weeks after inspiration struck</li>\n            <li>Ranked #7 on launch day on <a href="https://www.producthunt.com/posts/convoke" rel="noreferrer" target="_blank">Product Hunt</a></li>\n            <li>Currently closed-source as opportunities for expansion and monetization are explored</li>\n        </ul>',projectLink:"https://convoke.app",screenshot:"convoke"},{name:"NFTokenator",emoji:"&#129689;",technologies:"Python, Pillow, NumPy",year:"2022-Present",shortDescription:"A Python script to programatically generate NFT images from provided assets",longDescription:"<ul>\n            <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>\n            <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>\n            <li>Pillow is used to stack layers that are selected at random based on provided weights</li>\n            <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>\n            <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>\n        </ul>",githubLink:"https://github.com/maxeisen/nftokenator",screenshot:"nftokenator"},{name:"WhatToTip",emoji:"&#128184;",technologies:"Next.js, OpenAI GPT-3, Python, Vercel",year:"2022-Present",shortDescription:"A web app to helping travellers save money on their next trip",longDescription:'<ul>\n            <li>A minimalistic web app that helps travellers by providing short but informative tips for saving in every country across the globe</li>\n            <li>Next.js server-side rendering makes for fast and responsive user interactions and loading of static content</li>\n            <li>A Python script was developed to leverage OpenAI\'s GPT-3 engine to generate tips for every country in our list</li>\n            <li>Vercel is used to continously deploy the site from the GitHub repository</li>\n            <li>Originally developed to inform travellers on how to tip in different countries around the world, hence the name "WhatToTip"</li>\n        </ul>',projectLink:"https://whattotip.in",screenshot:"whattotip"},{name:"NuHealth",emoji:"&#129659;",technologies:"Next.js, Firebase, Vercel",year:"2022",shortDescription:"A web app to resolve the bottlenecks in socialized healthcare",longDescription:'<ul>\n            <li>A dual-purpose web app aimed at helping patient\'s manage access to their health information, and providing EMTs with crucial medical data</li>\n            <li>Next.js server-side rendering allows for quick response times when querying the Firestore database to access patient health information</li>\n            <li>Firebase is used to store patient health information and to authenticate EMTs</li>\n            <li>Patient\'s also have the ability to specify who should be able to access their health information</li>\n            <li>Built in <48 hours by a team of 4, for the <a href="https://publicissapient.com/" rel="noreferrer" target="_blank">Publicis Sapient</a> Aspire SPEED Hackathon <b>(top 10 finalist)</b></li>\n        </ul>',githubLink:"https://github.com/maxeisen/nuhealth_public",projectLink:"https://nuhealth.vercel.app",screenshot:"nuhealth"},{name:"PupBot",emoji:"&#128054;",technologies:"Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",year:"2021-Present",shortDescription:"A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",longDescription:'<ul>\n            <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>\n            <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>\n            <li>Matplotlib generates beautiful 12-hour price charts</li>\n            <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>\n            <li>Deployed to Heroku and scheduled to run each hour</li>\n        </ul>',githubLink:"https://github.com/maxeisen/pup-bot",projectLink:"https://twitter.com/PuppyCoinBot",screenshot:"pupbot"},{name:"Eagle",emoji:"&#129413;",technologies:"React Native, Firebase, Netlify",year:"2020-2021",shortDescription:"A delivery service comparison platform to help food-lovers get the best deal",longDescription:"<ul>\n            <li>A mobile application to help users compare pricing, delivery times, and reviews of the same restaurant across four different delivery services</li>\n            <li>Ideated, developed, marketed, and pitched by an awesome team of 10 QTMA team members under my guidance as product manager</li>\n        </ul>",githubLink:"https://github.com/maxeisen/eagle_public",projectLink:"https://www.qtma.ca/product/Eagle",screenshot:"eagle"},{name:"Studii",emoji:"&#128218;",technologies:"React, Django, MongoDB, HTML5, CSS3",year:"2019-2020",shortDescription:"A collaborative, all-in-one study space made for students, by students",longDescription:"<ul>\n            <li>A real-time, affordable, peer and tutor support forum for students who can't find a study method that works for them and/or don't have classmates to study with</li>\n            <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>\n        </ul>",githubLink:"https://github.com/maxeisen/studii_public",projectLink:"https://www.qtma.ca/product/Studii",screenshot:"studii"},{name:"QHacks",emoji:"&#128187;",technologies:"React, Gatsby, MongoDB, HTML5, CSS3",year:"2019-2020",shortDescription:"The official website for Queen's University's 2020 MLH hackathon",longDescription:"<ul>\n            <li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li>\n            <li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li>\n        </ul>",githubLink:"https://github.com/maxeisen/qhacks-website/tree/dev-2020",projectLink:"https://2020.qhacks.io",screenshot:"qhacks"},{name:"Spotilizer",emoji:"&#127925;",technologies:"Python, Tkinter, Spotify Web API",year:"2019",shortDescription:"A customizable, data-centric Spotify music visualizer built in Python",longDescription:"<ul>\n            <li>A visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li>\n            <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>\n        </ul>",githubLink:"https://github.com/maxeisen/spotilizer",screenshot:"spotilizer"},{name:"Glitch",emoji:"&#127918;",technologies:"Unity Game Engine, C#",year:"2018-2019",shortDescription:"A unique, monochromatic platformer game for observant minimalists",longDescription:"<ul>\n            <li>A monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li>\n            <li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li>\n        </ul>",githubLink:"https://github.com/maxeisen/Glitch",projectLink:"https://tamirarnesty.github.io/glitchGame/",screenshot:"glitch"}];function _n(e,t,n){const i=e.slice();return i[3]=t[n],i}function Sn(e){let t,n,i,r,s,o,a,u,l,c,h,p,d,f,g,m,D,y=e[3].name+"",k=e[3].emoji+"",b=e[3].year+"",v=e[3].technologies+"",x=e[3].shortDescription+"";function $(){return e[1](e[3])}return{c(){t=E("div"),n=E("h2"),i=_(y),r=S(),s=new O(!1),o=S(),a=E("h2"),u=_(b),l=S(),c=E("h2"),h=_(v),p=S(),d=E("p"),f=_(x),g=S(),s.a=null,j(n,"class","project-name svelte-1145ne2"),j(a,"class","project-year svelte-1145ne2"),j(c,"class","project-tech svelte-1145ne2"),j(t,"class","project-item"),j(t,"tabindex","0"),I(t,"background-image","url('./img/screenshots/"+e[3].screenshot+".webp')")},m(e,y){C(e,t,y),w(t,n),w(n,i),w(n,r),s.m(k,n),w(t,o),w(t,a),w(a,u),w(t,l),w(t,c),w(c,h),w(t,p),w(t,d),w(d,f),w(t,g),m||(D=T(t,"click",$),m=!0)},p(t,n){e=t},d(e){e&&A(t),m=!1,D()}}}function zn(t){let n,i,r,s=Bn,o=[];for(let e=0;e<s.length;e+=1)o[e]=Sn(_n(t,s,e));return{c(){n=E("h1"),n.textContent="Projects",i=S(),r=E("div");for(let e=0;e<o.length;e+=1)o[e].c();j(n,"class","section-title"),j(n,"id","projects"),I(n,"text-align","left"),j(r,"class","project-subsection")},m(e,t){C(e,n,t),C(e,i,t),C(e,r,t);for(let e=0;e<o.length;e+=1)o[e].m(r,null)},p(e,[t]){if(1&t){let n;for(s=Bn,n=0;n<s.length;n+=1){const i=_n(e,s,n);o[n]?o[n].p(i,t):(o[n]=Sn(i),o[n].c(),o[n].m(r,null))}for(;n<o.length;n+=1)o[n].d(1);o.length=s.length}},i:e,o:e,d(e){e&&A(n),e&&A(i),e&&A(r),F(o,e)}}}function Tn(e){const{open:t}=Z("simple-modal"),n=(e,n,i,r,s,o,a)=>{t(En,{name:e,technologies:n,year:i,description:r,githubLink:s,projectLink:o,screenshot:a})};return[n,e=>n(e.name,e.technologies,e.year,e.longDescription,e.githubLink,e.projectLink,e.screenshot)]}class jn extends xe{constructor(e){super(),we(this,e,Tn,zn,a,{})}}function Mn(t){let n,i,r,s,o,a,u,l,c,h,p,d,f,g,m,D,y,k,b,v,x,$,F;return{c(){n=E("div"),i=E("h1"),r=_(t[0]),s=_(" ("),o=_(t[1]),a=_(")"),u=S(),l=E("h2"),c=S(),h=E("h3"),p=S(),d=E("h3"),f=_(t[4]),g=S(),m=E("p"),D=E("b"),D.textContent="Relevant Courses: ",y=_(t[5]),k=S(),b=E("p"),v=E("b"),v.textContent="Committees: ",x=_(t[6]),$=S(),F=E("p"),F.textContent="*Acted as a Teaching Assistant (courses) or Executive (committees)",j(i,"class","modal-school svelte-14ryp3n"),I(i,"text-align","center"),j(l,"class","modal-degree svelte-14ryp3n"),I(l,"text-align","center"),j(h,"class","modal-major svelte-14ryp3n"),I(h,"text-align","center"),j(d,"class","modal-years svelte-14ryp3n"),I(d,"text-align","center"),j(m,"class","modal-committees svelte-14ryp3n"),j(b,"class","modal-committees svelte-14ryp3n"),j(F,"class","ta-note svelte-14ryp3n"),j(n,"class","education-modal svelte-14ryp3n")},m(e,A){C(e,n,A),w(n,i),w(i,r),w(i,s),w(i,o),w(i,a),w(n,u),w(n,l),l.innerHTML=t[2],w(n,c),w(n,h),h.innerHTML=t[3],w(n,p),w(n,d),w(d,f),w(n,g),w(n,m),w(m,D),w(m,y),w(n,k),w(n,b),w(b,v),w(b,x),w(n,$),w(n,F)},p(e,[t]){1&t&&L(r,e[0]),2&t&&L(o,e[1]),4&t&&(l.innerHTML=e[2]),8&t&&(h.innerHTML=e[3]),16&t&&L(f,e[4]),32&t&&L(y,e[5]),64&t&&L(x,e[6])},i:e,o:e,d(e){e&&A(n)}}}function Ln(e,t,n){let{school:i}=t,{location:r}=t,{degree:s}=t,{major:o}=t,{years:a}=t,{courses:u}=t,{committees:l}=t;return e.$$set=e=>{"school"in e&&n(0,i=e.school),"location"in e&&n(1,r=e.location),"degree"in e&&n(2,s=e.degree),"major"in e&&n(3,o=e.major),"years"in e&&n(4,a=e.years),"courses"in e&&n(5,u=e.courses),"committees"in e&&n(6,l=e.committees)},[i,r,s,o,a,u,l]}class In extends xe{constructor(e){super(),we(this,e,Ln,Mn,a,{school:0,location:1,degree:2,major:3,years:4,courses:5,committees:6})}}const On=[{school:"Queen's University",location:"Kingston, ON",degreeShort:"Bachelor of Computing, Honours",degreeLong:'Bachelor of Computing, Honours (<a href="https://www.queensu.ca/admission/programs/computing" rel="noreferrer" target="_blank">BCmpH</a>)',majorShort:"Computer Science",majorLong:'Computer Science (<a href="http://www.cips.ca/" rel="noreferrer" target="_blank">CIPS</a> Accredited)',years:"2017 - 2021",courses:"Elements of Computing I* and II*, Linear Algebra, Fundamentals of Software Development (Agile)*, Software Architecture, Algorithms, Data Structures, Database Management Systems, Formal Methods in Software Engineering",committees:"QTMA*, QHacks*, TEDxQueensU*, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"}];function Rn(t){let n,i,r,s,o,a,u,l,c,h,p,d,f;return{c(){n=E("h1"),n.textContent="Education",i=S(),r=E("div"),s=E("div"),o=E("h2"),o.textContent=`${On[0].school}`,a=S(),u=E("h2"),u.textContent=`${On[0].degreeShort}`,l=S(),c=E("h2"),c.textContent=`${On[0].majorShort}`,h=S(),p=E("h2"),p.textContent=`${On[0].years}`,j(n,"class","section-title"),j(n,"id","education"),I(n,"text-align","left"),j(o,"class","school-name svelte-ouixgn"),j(u,"class","degree-info svelte-ouixgn"),j(c,"class","major-info svelte-ouixgn"),j(p,"class","degree-years svelte-ouixgn"),j(s,"class","education-item"),j(s,"tabindex","0"),j(r,"class","education-subsection")},m(e,g){C(e,n,g),C(e,i,g),C(e,r,g),w(r,s),w(s,o),w(s,a),w(s,u),w(s,l),w(s,c),w(s,h),w(s,p),d||(f=T(s,"click",t[1]),d=!0)},p:e,i:e,o:e,d(e){e&&A(n),e&&A(i),e&&A(r),d=!1,f()}}}function Pn(e){const{open:t}=Z("simple-modal"),n=(e,n,i,r,s,o,a)=>{t(In,{school:e,location:n,degree:i,major:r,years:s,courses:o,committees:a})};return[n,()=>n(On[0].school,On[0].location,On[0].degreeLong,On[0].majorLong,On[0].years,On[0].courses,On[0].committees)]}class Nn extends xe{constructor(e){super(),we(this,e,Pn,Rn,a,{})}}const Wn=["JavaScript","Python","Java","HTML5","CSS3","Git","SQL","C++","React","Next.js","React Native","Svelte","Node.js","Spring","Azure","AWS"];function qn(e,t,n){const i=e.slice();return i[0]=t[n],i}function Hn(t){let n,i,r=t[0]+"";return{c(){n=E("li"),i=_(r),j(n,"class","svelte-1vlexz")},m(e,t){C(e,n,t),w(n,i)},p:e,d(e){e&&A(n)}}}function Un(t){let n,i,r,s,o=Wn,a=[];for(let e=0;e<o.length;e+=1)a[e]=Hn(qn(t,o,e));return{c(){n=E("h1"),n.textContent="Skills",i=S(),r=E("div"),s=E("ul");for(let e=0;e<a.length;e+=1)a[e].c();j(n,"class","section-title"),j(n,"id","skills"),I(n,"text-align","left"),j(s,"class","svelte-1vlexz"),j(r,"class","skills-subsection")},m(e,t){C(e,n,t),C(e,i,t),C(e,r,t),w(r,s);for(let e=0;e<a.length;e+=1)a[e].m(s,null)},p(e,[t]){if(0&t){let n;for(o=Wn,n=0;n<o.length;n+=1){const i=qn(e,o,n);a[n]?a[n].p(i,t):(a[n]=Hn(i),a[n].c(),a[n].m(s,null))}for(;n<a.length;n+=1)a[n].d(1);a.length=o.length}},i:e,o:e,d(e){e&&A(n),e&&A(i),e&&A(r),F(a,e)}}}class Gn extends xe{constructor(e){super(),we(this,e,null,Un,a,{})}}function Qn(t){let n,i,r,s;return{c(){n=E("h2"),i=E("a"),r=_("Made at 🏠 by Max Eisen "),s=E("b"),s.textContent=`©${(new Date).getFullYear()}`,I(s,"font-size","14px"),I(s,"color","var(--header-colour)"),j(i,"href","https://github.com/maxeisen/MaxEisen.me/"),j(i,"rel","noreferrer"),j(i,"class","footer"),j(n,"class","footer")},m(e,t){C(e,n,t),w(n,i),w(i,r),w(i,s)},p:e,i:e,o:e,d(e){e&&A(n)}}}class Zn extends xe{constructor(e){super(),we(this,e,null,Qn,a,{})}}function Vn(e,{delay:n=0,duration:i=400,easing:r=t}={}){const s=+getComputedStyle(e).opacity;return{delay:n,duration:i,easing:r,css:e=>"opacity: "+e*s}}function Jn(e){let t,i,r,a,u,l,c,h,p,d,f,g=e[0].closeButton&&Kn(e);const m=[e[2]];var D=e[1];function y(e){let t={};for(let e=0;e<m.length;e+=1)t=n(t,m[e]);return{props:t}}return D&&(l=new D(y())),{c(){t=E("div"),i=E("div"),r=E("div"),g&&g.c(),a=S(),u=E("div"),l&&ye(l.$$.fragment),j(u,"class","content svelte-fnsfcv"),j(u,"style",e[11]),j(r,"class","window svelte-fnsfcv"),j(r,"style",e[12]),j(i,"class","window-wrap svelte-fnsfcv"),j(t,"class","bg svelte-fnsfcv"),j(t,"style",e[13])},m(n,s){C(n,t,s),w(t,i),w(i,r),g&&g.m(r,null),w(r,a),w(r,u),l&&ke(l,u,null),e[31](i),e[32](t),p=!0,d||(f=[T(r,"introstart",(function(){o(e[5])&&e[5].apply(this,arguments)})),T(r,"outrostart",(function(){o(e[6])&&e[6].apply(this,arguments)})),T(r,"introend",(function(){o(e[7])&&e[7].apply(this,arguments)})),T(r,"outroend",(function(){o(e[8])&&e[8].apply(this,arguments)})),T(t,"click",e[16])],d=!0)},p(n,i){(e=n)[0].closeButton?g?g.p(e,i):(g=Kn(e),g.c(),g.m(r,a)):g&&(g.d(1),g=null);const s=4&i[0]?me(m,[De(e[2])]):{};if(D!==(D=e[1])){if(l){ce();const e=l;de(e.$$.fragment,1,0,(()=>{be(e,1)})),he()}D?(l=new D(y()),ye(l.$$.fragment),pe(l.$$.fragment,1),ke(l,u,null)):l=null}else D&&l.$set(s);(!p||2048&i[0])&&j(u,"style",e[11]),(!p||4096&i[0])&&j(r,"style",e[12]),(!p||8192&i[0])&&j(t,"style",e[13])},i(n){p||(l&&pe(l.$$.fragment,n),te((()=>{c||(c=ge(r,e[9],e[0].transitionWindowProps,!0)),c.run(1)})),te((()=>{h||(h=ge(t,e[10],e[0].transitionBgProps,!0)),h.run(1)})),p=!0)},o(n){l&&de(l.$$.fragment,n),c||(c=ge(r,e[9],e[0].transitionWindowProps,!1)),c.run(0),h||(h=ge(t,e[10],e[0].transitionBgProps,!1)),h.run(0),p=!1},d(n){n&&A(t),g&&g.d(),l&&be(l),n&&c&&c.end(),e[31](null),e[32](null),n&&h&&h.end(),d=!1,s(f)}}}function Kn(t){let n,i,r;return{c(){n=E("button"),j(n,"class","close svelte-fnsfcv")},m(e,s){C(e,n,s),i||(r=T(n,"click",t[14]),i=!0)},p:e,d(e){e&&A(n),i=!1,r()}}}function Yn(e){let t,n,i,r,s=e[1]&&Jn(e);const o=e[30].default,a=c(o,e,e[29],null);return{c(){s&&s.c(),t=S(),a&&a.c()},m(o,u){s&&s.m(o,u),C(o,t,u),a&&a.m(o,u),n=!0,i||(r=T(window,"keyup",e[15]),i=!0)},p(e,i){e[1]?s?(s.p(e,i),2&i[0]&&pe(s,1)):(s=Jn(e),s.c(),pe(s,1),s.m(t.parentNode,t)):s&&(ce(),de(s,1,1,(()=>{s=null})),he()),a&&a.p&&(!n||536870912&i[0])&&d(a,o,e,e[29],n?p(o,e[29],i,null):f(e[29]),null)},i(e){n||(pe(s),pe(a,e),n=!0)},o(e){de(s),de(a,e),n=!1},d(e){s&&s.d(e),e&&A(t),a&&a.d(e),i=!1,r()}}}function Xn(e,t,n){let i,r,s,o,a,{$$slots:u={},$$scope:l}=t,{key:c="simple-modal"}=t,{closeButton:h=!0}=t,{closeOnEsc:p=!0}=t,{closeOnOuterClick:d=!0}=t,{styleBg:f={top:0,left:0}}=t,{styleWindow:g={}}=t,{styleContent:m={}}=t,{setContext:D=Q}=t,{transitionBg:y=Vn}=t,{transitionBgProps:k={duration:250}}=t,{transitionWindow:b=y}=t,{transitionWindowProps:v=k}=t;const w={closeButton:h,closeOnEsc:p,closeOnOuterClick:d,styleBg:f,styleWindow:g,styleContent:m,transitionBg:y,transitionBgProps:k,transitionWindow:b,transitionWindowProps:v};let x,$,C={...w},A=null,F=null;const E=e=>Object.keys(e).reduce(((t,n)=>`${t}; ${(e=>e.replace(/([a-zA-Z])(?=[A-Z])/g,"$1-").toLowerCase())(n)}: ${e[n]}`),""),B=()=>{};let _=B,S=B,z=B,T=B;const j=(e={})=>{n(6,S=e.onClose||S),n(8,T=e.onClosed||T),n(1,A=null),n(2,F=null)};return D(c,{open:(e,t={},i={},r={})=>{n(1,A=e),n(2,F=t),n(0,C={...w,...i}),n(5,_=r.onOpen||B),n(6,S=r.onClose||B),n(7,z=r.onOpened||B),n(8,T=r.onClosed||B)},close:j}),e.$$set=e=>{"key"in e&&n(17,c=e.key),"closeButton"in e&&n(18,h=e.closeButton),"closeOnEsc"in e&&n(19,p=e.closeOnEsc),"closeOnOuterClick"in e&&n(20,d=e.closeOnOuterClick),"styleBg"in e&&n(21,f=e.styleBg),"styleWindow"in e&&n(22,g=e.styleWindow),"styleContent"in e&&n(23,m=e.styleContent),"setContext"in e&&n(24,D=e.setContext),"transitionBg"in e&&n(25,y=e.transitionBg),"transitionBgProps"in e&&n(26,k=e.transitionBgProps),"transitionWindow"in e&&n(27,b=e.transitionWindow),"transitionWindowProps"in e&&n(28,v=e.transitionWindowProps),"$$scope"in e&&n(29,l=e.$$scope)},e.$$.update=()=>{1&e.$$.dirty[0]&&n(13,i=E(C.styleBg)),1&e.$$.dirty[0]&&n(12,r=E(C.styleWindow)),1&e.$$.dirty[0]&&n(11,s=E(C.styleContent)),1&e.$$.dirty[0]&&n(10,o=C.transitionBg),1&e.$$.dirty[0]&&n(9,a=C.transitionWindow)},[C,A,F,x,$,_,S,z,T,a,o,s,r,i,j,e=>{C.closeOnEsc&&A&&"Escape"===e.key&&(e.preventDefault(),j())},e=>{!C.closeOnOuterClick||e.target!==x&&e.target!==$||(e.preventDefault(),j())},c,h,p,d,f,g,m,D,y,k,b,v,l,u,function(e){J[e?"unshift":"push"]((()=>{$=e,n(4,$)}))},function(e){J[e?"unshift":"push"]((()=>{x=e,n(3,x)}))}]}class ei extends xe{constructor(e){super(),we(this,e,Xn,Yn,a,{key:17,closeButton:18,closeOnEsc:19,closeOnOuterClick:20,styleBg:21,styleWindow:22,styleContent:23,setContext:24,transitionBg:25,transitionBgProps:26,transitionWindow:27,transitionWindowProps:28},null,[-1,-1])}}function ti(t){let n,i,r,s,o,a,u,l,c,h,p,d,f,g,m,D,y,k,b,v,x,$=t[0].matches&&function(e){let t,n;return t=new Ae({}),{c(){ye(t.$$.fragment)},m(e,i){ke(t,e,i),n=!0},i(e){n||(pe(t.$$.fragment,e),n=!0)},o(e){de(t.$$.fragment,e),n=!1},d(e){be(t,e)}}}();return s=new mt({}),l=new Ct({}),h=new gn({}),d=new jn({}),g=new Kt({}),D=new Nn({}),k=new Gn({}),v=new Zn({}),{c(){$&&$.c(),n=S(),i=E("div"),r=E("div"),ye(s.$$.fragment),o=S(),a=E("div"),u=E("div"),ye(l.$$.fragment),c=S(),ye(h.$$.fragment),p=S(),ye(d.$$.fragment),f=S(),ye(g.$$.fragment),m=S(),ye(D.$$.fragment),y=S(),ye(k.$$.fragment),b=S(),ye(v.$$.fragment),j(r,"class","profile-section"),j(u,"class","info-section-inner"),j(a,"class","info-section-main"),j(i,"class","grid-container")},m(e,t){$&&$.m(e,t),C(e,n,t),C(e,i,t),w(i,r),ke(s,r,null),w(i,o),w(i,a),w(a,u),ke(l,u,null),w(u,c),ke(h,u,null),w(u,p),ke(d,u,null),w(u,f),ke(g,u,null),w(u,m),ke(D,u,null),w(u,y),ke(k,u,null),w(a,b),ke(v,a,null),x=!0},p:e,i(e){x||(pe($),pe(s.$$.fragment,e),pe(l.$$.fragment,e),pe(h.$$.fragment,e),pe(d.$$.fragment,e),pe(g.$$.fragment,e),pe(D.$$.fragment,e),pe(k.$$.fragment,e),pe(v.$$.fragment,e),x=!0)},o(e){de($),de(s.$$.fragment,e),de(l.$$.fragment,e),de(h.$$.fragment,e),de(d.$$.fragment,e),de(g.$$.fragment,e),de(D.$$.fragment,e),de(k.$$.fragment,e),de(v.$$.fragment,e),x=!1},d(e){$&&$.d(e),e&&A(n),e&&A(i),be(s),be(l),be(h),be(d),be(g),be(D),be(k),be(v)}}}function ni(e){let t,n;return t=new ei({props:{$$slots:{default:[ti]},$$scope:{ctx:e}}}),{c(){ye(t.$$.fragment)},m(e,i){ke(t,e,i),n=!0},p(e,[n]){const i={};2&n&&(i.$$scope={dirty:n,ctx:e}),t.$set(i)},i(e){n||(pe(t.$$.fragment,e),n=!0)},o(e){de(t.$$.fragment,e),n=!1},d(e){be(t,e)}}}function ii(e){return[window.matchMedia("(min-width: 860px)")]}return new class extends xe{constructor(e){super(),we(this,e,ii,ni,a,{})}}({target:document.body})}();
+
+(function(l, r) { if (l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (window.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(window.document);
+var app = (function () {
+    'use strict';
+
+    function noop() { }
+    const identity = x => x;
+    function assign(tar, src) {
+        // @ts-ignore
+        for (const k in src)
+            tar[k] = src[k];
+        return tar;
+    }
+    function add_location(element, file, line, column, char) {
+        element.__svelte_meta = {
+            loc: { file, line, column, char }
+        };
+    }
+    function run(fn) {
+        return fn();
+    }
+    function blank_object() {
+        return Object.create(null);
+    }
+    function run_all(fns) {
+        fns.forEach(run);
+    }
+    function is_function(thing) {
+        return typeof thing === 'function';
+    }
+    function safe_not_equal(a, b) {
+        return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+    }
+    function is_empty(obj) {
+        return Object.keys(obj).length === 0;
+    }
+    function create_slot(definition, ctx, $$scope, fn) {
+        if (definition) {
+            const slot_ctx = get_slot_context(definition, ctx, $$scope, fn);
+            return definition[0](slot_ctx);
+        }
+    }
+    function get_slot_context(definition, ctx, $$scope, fn) {
+        return definition[1] && fn
+            ? assign($$scope.ctx.slice(), definition[1](fn(ctx)))
+            : $$scope.ctx;
+    }
+    function get_slot_changes(definition, $$scope, dirty, fn) {
+        if (definition[2] && fn) {
+            const lets = definition[2](fn(dirty));
+            if ($$scope.dirty === undefined) {
+                return lets;
+            }
+            if (typeof lets === 'object') {
+                const merged = [];
+                const len = Math.max($$scope.dirty.length, lets.length);
+                for (let i = 0; i < len; i += 1) {
+                    merged[i] = $$scope.dirty[i] | lets[i];
+                }
+                return merged;
+            }
+            return $$scope.dirty | lets;
+        }
+        return $$scope.dirty;
+    }
+    function update_slot(slot, slot_definition, ctx, $$scope, dirty, get_slot_changes_fn, get_slot_context_fn) {
+        const slot_changes = get_slot_changes(slot_definition, $$scope, dirty, get_slot_changes_fn);
+        if (slot_changes) {
+            const slot_context = get_slot_context(slot_definition, ctx, $$scope, get_slot_context_fn);
+            slot.p(slot_context, slot_changes);
+        }
+    }
+    function exclude_internal_props(props) {
+        const result = {};
+        for (const k in props)
+            if (k[0] !== '$')
+                result[k] = props[k];
+        return result;
+    }
+    function compute_rest_props(props, keys) {
+        const rest = {};
+        keys = new Set(keys);
+        for (const k in props)
+            if (!keys.has(k) && k[0] !== '$')
+                rest[k] = props[k];
+        return rest;
+    }
+
+    const is_client = typeof window !== 'undefined';
+    let now = is_client
+        ? () => window.performance.now()
+        : () => Date.now();
+    let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
+
+    const tasks = new Set();
+    function run_tasks(now) {
+        tasks.forEach(task => {
+            if (!task.c(now)) {
+                tasks.delete(task);
+                task.f();
+            }
+        });
+        if (tasks.size !== 0)
+            raf(run_tasks);
+    }
+    /**
+     * Creates a new task that runs on each raf frame
+     * until it returns a falsy value or is aborted
+     */
+    function loop(callback) {
+        let task;
+        if (tasks.size === 0)
+            raf(run_tasks);
+        return {
+            promise: new Promise(fulfill => {
+                tasks.add(task = { c: callback, f: fulfill });
+            }),
+            abort() {
+                tasks.delete(task);
+            }
+        };
+    }
+
+    function append(target, node) {
+        target.appendChild(node);
+    }
+    function insert(target, node, anchor) {
+        target.insertBefore(node, anchor || null);
+    }
+    function detach(node) {
+        node.parentNode.removeChild(node);
+    }
+    function destroy_each(iterations, detaching) {
+        for (let i = 0; i < iterations.length; i += 1) {
+            if (iterations[i])
+                iterations[i].d(detaching);
+        }
+    }
+    function element(name) {
+        return document.createElement(name);
+    }
+    function svg_element(name) {
+        return document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+    function text(data) {
+        return document.createTextNode(data);
+    }
+    function space() {
+        return text(' ');
+    }
+    function empty() {
+        return text('');
+    }
+    function listen(node, event, handler, options) {
+        node.addEventListener(event, handler, options);
+        return () => node.removeEventListener(event, handler, options);
+    }
+    function attr(node, attribute, value) {
+        if (value == null)
+            node.removeAttribute(attribute);
+        else if (node.getAttribute(attribute) !== value)
+            node.setAttribute(attribute, value);
+    }
+    function set_custom_element_data(node, prop, value) {
+        if (prop in node) {
+            node[prop] = value;
+        }
+        else {
+            attr(node, prop, value);
+        }
+    }
+    function children(element) {
+        return Array.from(element.childNodes);
+    }
+    function set_style(node, key, value, important) {
+        node.style.setProperty(key, value, important ? 'important' : '');
+    }
+    function custom_event(type, detail) {
+        const e = document.createEvent('CustomEvent');
+        e.initCustomEvent(type, false, false, detail);
+        return e;
+    }
+    class HtmlTag {
+        constructor(anchor = null) {
+            this.a = anchor;
+            this.e = this.n = null;
+        }
+        m(html, target, anchor = null) {
+            if (!this.e) {
+                this.e = element(target.nodeName);
+                this.t = target;
+                this.h(html);
+            }
+            this.i(anchor);
+        }
+        h(html) {
+            this.e.innerHTML = html;
+            this.n = Array.from(this.e.childNodes);
+        }
+        i(anchor) {
+            for (let i = 0; i < this.n.length; i += 1) {
+                insert(this.t, this.n[i], anchor);
+            }
+        }
+        p(html) {
+            this.d();
+            this.h(html);
+            this.i(this.a);
+        }
+        d() {
+            this.n.forEach(detach);
+        }
+    }
+
+    const active_docs = new Set();
+    let active = 0;
+    // https://github.com/darkskyapp/string-hash/blob/master/index.js
+    function hash(str) {
+        let hash = 5381;
+        let i = str.length;
+        while (i--)
+            hash = ((hash << 5) - hash) ^ str.charCodeAt(i);
+        return hash >>> 0;
+    }
+    function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+        const step = 16.666 / duration;
+        let keyframes = '{\n';
+        for (let p = 0; p <= 1; p += step) {
+            const t = a + (b - a) * ease(p);
+            keyframes += p * 100 + `%{${fn(t, 1 - t)}}\n`;
+        }
+        const rule = keyframes + `100% {${fn(b, 1 - b)}}\n}`;
+        const name = `__svelte_${hash(rule)}_${uid}`;
+        const doc = node.ownerDocument;
+        active_docs.add(doc);
+        const stylesheet = doc.__svelte_stylesheet || (doc.__svelte_stylesheet = doc.head.appendChild(element('style')).sheet);
+        const current_rules = doc.__svelte_rules || (doc.__svelte_rules = {});
+        if (!current_rules[name]) {
+            current_rules[name] = true;
+            stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+        }
+        const animation = node.style.animation || '';
+        node.style.animation = `${animation ? `${animation}, ` : ``}${name} ${duration}ms linear ${delay}ms 1 both`;
+        active += 1;
+        return name;
+    }
+    function delete_rule(node, name) {
+        const previous = (node.style.animation || '').split(', ');
+        const next = previous.filter(name
+            ? anim => anim.indexOf(name) < 0 // remove specific animation
+            : anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
+        );
+        const deleted = previous.length - next.length;
+        if (deleted) {
+            node.style.animation = next.join(', ');
+            active -= deleted;
+            if (!active)
+                clear_rules();
+        }
+    }
+    function clear_rules() {
+        raf(() => {
+            if (active)
+                return;
+            active_docs.forEach(doc => {
+                const stylesheet = doc.__svelte_stylesheet;
+                let i = stylesheet.cssRules.length;
+                while (i--)
+                    stylesheet.deleteRule(i);
+                doc.__svelte_rules = {};
+            });
+            active_docs.clear();
+        });
+    }
+
+    let current_component;
+    function set_current_component(component) {
+        current_component = component;
+    }
+    function get_current_component() {
+        if (!current_component)
+            throw new Error(`Function called outside component initialization`);
+        return current_component;
+    }
+    function onMount(fn) {
+        get_current_component().$$.on_mount.push(fn);
+    }
+    function setContext(key, context) {
+        get_current_component().$$.context.set(key, context);
+    }
+    function getContext(key) {
+        return get_current_component().$$.context.get(key);
+    }
+
+    const dirty_components = [];
+    const binding_callbacks = [];
+    const render_callbacks = [];
+    const flush_callbacks = [];
+    const resolved_promise = Promise.resolve();
+    let update_scheduled = false;
+    function schedule_update() {
+        if (!update_scheduled) {
+            update_scheduled = true;
+            resolved_promise.then(flush);
+        }
+    }
+    function add_render_callback(fn) {
+        render_callbacks.push(fn);
+    }
+    function add_flush_callback(fn) {
+        flush_callbacks.push(fn);
+    }
+    let flushing = false;
+    const seen_callbacks = new Set();
+    function flush() {
+        if (flushing)
+            return;
+        flushing = true;
+        do {
+            // first, call beforeUpdate functions
+            // and update components
+            for (let i = 0; i < dirty_components.length; i += 1) {
+                const component = dirty_components[i];
+                set_current_component(component);
+                update(component.$$);
+            }
+            dirty_components.length = 0;
+            while (binding_callbacks.length)
+                binding_callbacks.pop()();
+            // then, once components are updated, call
+            // afterUpdate functions. This may cause
+            // subsequent updates...
+            for (let i = 0; i < render_callbacks.length; i += 1) {
+                const callback = render_callbacks[i];
+                if (!seen_callbacks.has(callback)) {
+                    // ...so guard against infinite loops
+                    seen_callbacks.add(callback);
+                    callback();
+                }
+            }
+            render_callbacks.length = 0;
+        } while (dirty_components.length);
+        while (flush_callbacks.length) {
+            flush_callbacks.pop()();
+        }
+        update_scheduled = false;
+        flushing = false;
+        seen_callbacks.clear();
+    }
+    function update($$) {
+        if ($$.fragment !== null) {
+            $$.update();
+            run_all($$.before_update);
+            const dirty = $$.dirty;
+            $$.dirty = [-1];
+            $$.fragment && $$.fragment.p($$.ctx, dirty);
+            $$.after_update.forEach(add_render_callback);
+        }
+    }
+
+    let promise;
+    function wait() {
+        if (!promise) {
+            promise = Promise.resolve();
+            promise.then(() => {
+                promise = null;
+            });
+        }
+        return promise;
+    }
+    function dispatch(node, direction, kind) {
+        node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+    }
+    const outroing = new Set();
+    let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
+    function transition_in(block, local) {
+        if (block && block.i) {
+            outroing.delete(block);
+            block.i(local);
+        }
+    }
+    function transition_out(block, local, detach, callback) {
+        if (block && block.o) {
+            if (outroing.has(block))
+                return;
+            outroing.add(block);
+            outros.c.push(() => {
+                outroing.delete(block);
+                if (callback) {
+                    if (detach)
+                        block.d(1);
+                    callback();
+                }
+            });
+            block.o(local);
+        }
+    }
+    const null_transition = { duration: 0 };
+    function create_bidirectional_transition(node, fn, params, intro) {
+        let config = fn(node, params);
+        let t = intro ? 0 : 1;
+        let running_program = null;
+        let pending_program = null;
+        let animation_name = null;
+        function clear_animation() {
+            if (animation_name)
+                delete_rule(node, animation_name);
+        }
+        function init(program, duration) {
+            const d = program.b - t;
+            duration *= Math.abs(d);
+            return {
+                a: t,
+                b: program.b,
+                d,
+                duration,
+                start: program.start,
+                end: program.start + duration,
+                group: program.group
+            };
+        }
+        function go(b) {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            const program = {
+                start: now() + delay,
+                b
+            };
+            if (!b) {
+                // @ts-ignore todo: improve typings
+                program.group = outros;
+                outros.r += 1;
+            }
+            if (running_program) {
+                pending_program = program;
+            }
+            else {
+                // if this is an intro, and there's a delay, we need to do
+                // an initial tick and/or apply CSS animation immediately
+                if (css) {
+                    clear_animation();
+                    animation_name = create_rule(node, t, b, duration, delay, easing, css);
+                }
+                if (b)
+                    tick(0, 1);
+                running_program = init(program, duration);
+                add_render_callback(() => dispatch(node, b, 'start'));
+                loop(now => {
+                    if (pending_program && now > pending_program.start) {
+                        running_program = init(pending_program, duration);
+                        pending_program = null;
+                        dispatch(node, running_program.b, 'start');
+                        if (css) {
+                            clear_animation();
+                            animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
+                        }
+                    }
+                    if (running_program) {
+                        if (now >= running_program.end) {
+                            tick(t = running_program.b, 1 - t);
+                            dispatch(node, running_program.b, 'end');
+                            if (!pending_program) {
+                                // we're done
+                                if (running_program.b) {
+                                    // intro — we can tidy up immediately
+                                    clear_animation();
+                                }
+                                else {
+                                    // outro — needs to be coordinated
+                                    if (!--running_program.group.r)
+                                        run_all(running_program.group.c);
+                                }
+                            }
+                            running_program = null;
+                        }
+                        else if (now >= running_program.start) {
+                            const p = now - running_program.start;
+                            t = running_program.a + running_program.d * easing(p / running_program.duration);
+                            tick(t, 1 - t);
+                        }
+                    }
+                    return !!(running_program || pending_program);
+                });
+            }
+        }
+        return {
+            run(b) {
+                if (is_function(config)) {
+                    wait().then(() => {
+                        // @ts-ignore
+                        config = config();
+                        go(b);
+                    });
+                }
+                else {
+                    go(b);
+                }
+            },
+            end() {
+                clear_animation();
+                running_program = pending_program = null;
+            }
+        };
+    }
+
+    const globals = (typeof window !== 'undefined'
+        ? window
+        : typeof globalThis !== 'undefined'
+            ? globalThis
+            : global);
+
+    function get_spread_update(levels, updates) {
+        const update = {};
+        const to_null_out = {};
+        const accounted_for = { $$scope: 1 };
+        let i = levels.length;
+        while (i--) {
+            const o = levels[i];
+            const n = updates[i];
+            if (n) {
+                for (const key in o) {
+                    if (!(key in n))
+                        to_null_out[key] = 1;
+                }
+                for (const key in n) {
+                    if (!accounted_for[key]) {
+                        update[key] = n[key];
+                        accounted_for[key] = 1;
+                    }
+                }
+                levels[i] = n;
+            }
+            else {
+                for (const key in o) {
+                    accounted_for[key] = 1;
+                }
+            }
+        }
+        for (const key in to_null_out) {
+            if (!(key in update))
+                update[key] = undefined;
+        }
+        return update;
+    }
+    function get_spread_object(spread_props) {
+        return typeof spread_props === 'object' && spread_props !== null ? spread_props : {};
+    }
+
+    function bind(component, name, callback) {
+        const index = component.$$.props[name];
+        if (index !== undefined) {
+            component.$$.bound[index] = callback;
+            callback(component.$$.ctx[index]);
+        }
+    }
+    function create_component(block) {
+        block && block.c();
+    }
+    function mount_component(component, target, anchor) {
+        const { fragment, on_mount, on_destroy, after_update } = component.$$;
+        fragment && fragment.m(target, anchor);
+        // onMount happens before the initial afterUpdate
+        add_render_callback(() => {
+            const new_on_destroy = on_mount.map(run).filter(is_function);
+            if (on_destroy) {
+                on_destroy.push(...new_on_destroy);
+            }
+            else {
+                // Edge case - component was destroyed immediately,
+                // most likely as a result of a binding initialising
+                run_all(new_on_destroy);
+            }
+            component.$$.on_mount = [];
+        });
+        after_update.forEach(add_render_callback);
+    }
+    function destroy_component(component, detaching) {
+        const $$ = component.$$;
+        if ($$.fragment !== null) {
+            run_all($$.on_destroy);
+            $$.fragment && $$.fragment.d(detaching);
+            // TODO null out other refs, including component.$$ (but need to
+            // preserve final state?)
+            $$.on_destroy = $$.fragment = null;
+            $$.ctx = [];
+        }
+    }
+    function make_dirty(component, i) {
+        if (component.$$.dirty[0] === -1) {
+            dirty_components.push(component);
+            schedule_update();
+            component.$$.dirty.fill(0);
+        }
+        component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
+    }
+    function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+        const parent_component = current_component;
+        set_current_component(component);
+        const prop_values = options.props || {};
+        const $$ = component.$$ = {
+            fragment: null,
+            ctx: null,
+            // state
+            props,
+            update: noop,
+            not_equal,
+            bound: blank_object(),
+            // lifecycle
+            on_mount: [],
+            on_destroy: [],
+            before_update: [],
+            after_update: [],
+            context: new Map(parent_component ? parent_component.$$.context : []),
+            // everything else
+            callbacks: blank_object(),
+            dirty,
+            skip_bound: false
+        };
+        let ready = false;
+        $$.ctx = instance
+            ? instance(component, prop_values, (i, ret, ...rest) => {
+                const value = rest.length ? rest[0] : ret;
+                if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
+                    if (!$$.skip_bound && $$.bound[i])
+                        $$.bound[i](value);
+                    if (ready)
+                        make_dirty(component, i);
+                }
+                return ret;
+            })
+            : [];
+        $$.update();
+        ready = true;
+        run_all($$.before_update);
+        // `false` as a special case of no DOM component
+        $$.fragment = create_fragment ? create_fragment($$.ctx) : false;
+        if (options.target) {
+            if (options.hydrate) {
+                const nodes = children(options.target);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.l(nodes);
+                nodes.forEach(detach);
+            }
+            else {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.c();
+            }
+            if (options.intro)
+                transition_in(component.$$.fragment);
+            mount_component(component, options.target, options.anchor);
+            flush();
+        }
+        set_current_component(parent_component);
+    }
+    class SvelteComponent {
+        $destroy() {
+            destroy_component(this, 1);
+            this.$destroy = noop;
+        }
+        $on(type, callback) {
+            const callbacks = (this.$$.callbacks[type] || (this.$$.callbacks[type] = []));
+            callbacks.push(callback);
+            return () => {
+                const index = callbacks.indexOf(callback);
+                if (index !== -1)
+                    callbacks.splice(index, 1);
+            };
+        }
+        $set($$props) {
+            if (this.$$set && !is_empty($$props)) {
+                this.$$.skip_bound = true;
+                this.$$set($$props);
+                this.$$.skip_bound = false;
+            }
+        }
+    }
+
+    function dispatch_dev(type, detail) {
+        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.24.1' }, detail)));
+    }
+    function append_dev(target, node) {
+        dispatch_dev("SvelteDOMInsert", { target, node });
+        append(target, node);
+    }
+    function insert_dev(target, node, anchor) {
+        dispatch_dev("SvelteDOMInsert", { target, node, anchor });
+        insert(target, node, anchor);
+    }
+    function detach_dev(node) {
+        dispatch_dev("SvelteDOMRemove", { node });
+        detach(node);
+    }
+    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
+        const modifiers = options === true ? ["capture"] : options ? Array.from(Object.keys(options)) : [];
+        if (has_prevent_default)
+            modifiers.push('preventDefault');
+        if (has_stop_propagation)
+            modifiers.push('stopPropagation');
+        dispatch_dev("SvelteDOMAddEventListener", { node, event, handler, modifiers });
+        const dispose = listen(node, event, handler, options);
+        return () => {
+            dispatch_dev("SvelteDOMRemoveEventListener", { node, event, handler, modifiers });
+            dispose();
+        };
+    }
+    function attr_dev(node, attribute, value) {
+        attr(node, attribute, value);
+        if (value == null)
+            dispatch_dev("SvelteDOMRemoveAttribute", { node, attribute });
+        else
+            dispatch_dev("SvelteDOMSetAttribute", { node, attribute, value });
+    }
+    function set_data_dev(text, data) {
+        data = '' + data;
+        if (text.wholeText === data)
+            return;
+        dispatch_dev("SvelteDOMSetData", { node: text, data });
+        text.data = data;
+    }
+    function validate_each_argument(arg) {
+        if (typeof arg !== 'string' && !(arg && typeof arg === 'object' && 'length' in arg)) {
+            let msg = '{#each} only iterates over array-like objects.';
+            if (typeof Symbol === 'function' && arg && Symbol.iterator in arg) {
+                msg += ' You can use a spread to convert this iterable into an array.';
+            }
+            throw new Error(msg);
+        }
+    }
+    function validate_slots(name, slot, keys) {
+        for (const slot_key of Object.keys(slot)) {
+            if (!~keys.indexOf(slot_key)) {
+                console.warn(`<${name}> received an unexpected slot "${slot_key}".`);
+            }
+        }
+    }
+    class SvelteComponentDev extends SvelteComponent {
+        constructor(options) {
+            if (!options || (!options.target && !options.$$inline)) {
+                throw new Error(`'target' is a required option`);
+            }
+            super();
+        }
+        $destroy() {
+            super.$destroy();
+            this.$destroy = () => {
+                console.warn(`Component was already destroyed`); // eslint-disable-line no-console
+            };
+        }
+        $capture_state() { }
+        $inject_state() { }
+    }
+
+    /* src/components/MenuBar.svelte generated by Svelte v3.24.1 */
+
+    const file = "src/components/MenuBar.svelte";
+
+    // (23:20) {#if !isSafari}
+    function create_if_block(ctx) {
+    	let source0;
+    	let source0_src_value;
+    	let source1;
+    	let source1_src_value;
+
+    	const block = {
+    		c: function create() {
+    			source0 = element("source");
+    			source1 = element("source");
+    			attr_dev(source0, "id", "icon-video-webm");
+    			if (source0.src !== (source0_src_value = "./img/additional/memoji_cycle.webm")) attr_dev(source0, "src", source0_src_value);
+    			attr_dev(source0, "type", "video/webm");
+    			add_location(source0, file, 23, 24, 1233);
+    			attr_dev(source1, "id", "icon-video-mp4");
+    			if (source1.src !== (source1_src_value = "./img/additional/memoji_cycle.mp4")) attr_dev(source1, "src", source1_src_value);
+    			attr_dev(source1, "type", "video/mp4");
+    			add_location(source1, file, 24, 24, 1347);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, source0, anchor);
+    			insert_dev(target, source1, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(source0);
+    			if (detaching) detach_dev(source1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block.name,
+    		type: "if",
+    		source: "(23:20) {#if !isSafari}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment(ctx) {
+    	let div2;
+    	let header;
+    	let div0;
+    	let a0;
+    	let img;
+    	let img_src_value;
+    	let t0;
+    	let video;
+    	let t1;
+    	let div1;
+    	let nav;
+    	let ul;
+    	let li0;
+    	let a1;
+    	let t3;
+    	let li1;
+    	let a2;
+    	let t5;
+    	let li2;
+    	let a3;
+    	let t7;
+    	let li3;
+    	let a4;
+    	let t9;
+    	let li4;
+    	let a5;
+    	let t11;
+    	let li5;
+    	let a6;
+    	let b;
+    	let if_block = !/*isSafari*/ ctx[0] && create_if_block(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div2 = element("div");
+    			header = element("header");
+    			div0 = element("div");
+    			a0 = element("a");
+    			img = element("img");
+    			t0 = space();
+    			video = element("video");
+    			if (if_block) if_block.c();
+    			t1 = space();
+    			div1 = element("div");
+    			nav = element("nav");
+    			ul = element("ul");
+    			li0 = element("li");
+    			a1 = element("a");
+    			a1.textContent = "Experience";
+    			t3 = space();
+    			li1 = element("li");
+    			a2 = element("a");
+    			a2.textContent = "Projects";
+    			t5 = space();
+    			li2 = element("li");
+    			a3 = element("a");
+    			a3.textContent = "Blog";
+    			t7 = space();
+    			li3 = element("li");
+    			a4 = element("a");
+    			a4.textContent = "Education";
+    			t9 = space();
+    			li4 = element("li");
+    			a5 = element("a");
+    			a5.textContent = "Skills";
+    			t11 = space();
+    			li5 = element("li");
+    			a6 = element("a");
+    			b = element("b");
+    			b.textContent = "Resume";
+    			attr_dev(img, "class", "home-icon-mobile");
+    			if (img.src !== (img_src_value = "./img/additional/memoji_cycle_small.gif")) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "width", "75px");
+    			attr_dev(img, "height", "88px");
+    			attr_dev(img, "alt", "Memoji gif for mobile");
+    			add_location(img, file, 20, 16, 913);
+    			attr_dev(video, "class", "home-icon");
+    			attr_dev(video, "poster", "./img/additional/memoji_cycle_small.gif");
+    			video.autoplay = true;
+    			video.loop = true;
+    			video.muted = true;
+    			video.playsInline = true;
+    			add_location(video, file, 21, 16, 1062);
+    			attr_dev(a0, "href", "/#");
+    			attr_dev(a0, "aria-label", "Home");
+    			attr_dev(a0, "onclick", "toggleTheme()");
+    			add_location(a0, file, 19, 12, 842);
+    			attr_dev(div0, "class", "home-icon-container");
+    			add_location(div0, file, 18, 8, 795);
+    			attr_dev(a1, "href", "#experience");
+    			add_location(a1, file, 32, 42, 1687);
+    			attr_dev(li0, "id", "nav-bar-item");
+    			add_location(li0, file, 32, 20, 1665);
+    			attr_dev(a2, "href", "#projects");
+    			add_location(a2, file, 33, 42, 1772);
+    			attr_dev(li1, "id", "nav-bar-item");
+    			add_location(li1, file, 33, 20, 1750);
+    			attr_dev(a3, "href", "#blog");
+    			add_location(a3, file, 34, 42, 1853);
+    			attr_dev(li2, "id", "nav-bar-item");
+    			add_location(li2, file, 34, 20, 1831);
+    			attr_dev(a4, "href", "#education");
+    			add_location(a4, file, 35, 42, 1926);
+    			attr_dev(li3, "id", "nav-bar-item");
+    			add_location(li3, file, 35, 20, 1904);
+    			attr_dev(a5, "href", "#skills");
+    			add_location(a5, file, 36, 42, 2009);
+    			attr_dev(li4, "id", "nav-bar-item");
+    			add_location(li4, file, 36, 20, 1987);
+    			add_location(b, file, 37, 60, 2104);
+    			attr_dev(a6, "href", "/resume");
+    			add_location(a6, file, 37, 42, 2086);
+    			attr_dev(li5, "id", "nav-bar-item");
+    			add_location(li5, file, 37, 20, 2064);
+    			attr_dev(ul, "class", "nav-bar-list");
+    			attr_dev(ul, "id", "nav-bar-list");
+    			add_location(ul, file, 31, 16, 1600);
+    			add_location(nav, file, 30, 12, 1577);
+    			attr_dev(div1, "class", "nav-bar");
+    			attr_dev(div1, "id", "nav-bar");
+    			add_location(div1, file, 29, 8, 1529);
+    			attr_dev(header, "id", "header");
+    			add_location(header, file, 17, 4, 765);
+    			attr_dev(div2, "class", "header-container");
+    			add_location(div2, file, 16, 0, 729);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div2, anchor);
+    			append_dev(div2, header);
+    			append_dev(header, div0);
+    			append_dev(div0, a0);
+    			append_dev(a0, img);
+    			append_dev(a0, t0);
+    			append_dev(a0, video);
+    			if (if_block) if_block.m(video, null);
+    			append_dev(header, t1);
+    			append_dev(header, div1);
+    			append_dev(div1, nav);
+    			append_dev(nav, ul);
+    			append_dev(ul, li0);
+    			append_dev(li0, a1);
+    			append_dev(ul, t3);
+    			append_dev(ul, li1);
+    			append_dev(li1, a2);
+    			append_dev(ul, t5);
+    			append_dev(ul, li2);
+    			append_dev(li2, a3);
+    			append_dev(ul, t7);
+    			append_dev(ul, li3);
+    			append_dev(li3, a4);
+    			append_dev(ul, t9);
+    			append_dev(ul, li4);
+    			append_dev(li4, a5);
+    			append_dev(ul, t11);
+    			append_dev(ul, li5);
+    			append_dev(li5, a6);
+    			append_dev(a6, b);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div2);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function scrollFunction() {
+    	if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
+    		document.getElementById("nav-bar").style.fontSize = "20px";
+    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
+    		document.getElementById("nav-bar-list").style.backdropFilter = "blur(3px)";
+    	} else {
+    		document.getElementById("nav-bar").style.fontSize = "30px";
+    		document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";
+    	}
+    }
+
+    function instance($$self, $$props, $$invalidate) {
+    	var isSafari = window.safari !== undefined;
+
+    	window.onscroll = function () {
+    		scrollFunction();
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<MenuBar> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("MenuBar", $$slots, []);
+    	$$self.$capture_state = () => ({ isSafari, scrollFunction });
+
+    	$$self.$inject_state = $$props => {
+    		if ("isSafari" in $$props) $$invalidate(0, isSafari = $$props.isSafari);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [isSafari];
+    }
+
+    class MenuBar extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance, create_fragment, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "MenuBar",
+    			options,
+    			id: create_fragment.name
+    		});
+    	}
+    }
+
+    /* node_modules/svelte-icons/components/IconBase.svelte generated by Svelte v3.24.1 */
+
+    const file$1 = "node_modules/svelte-icons/components/IconBase.svelte";
+
+    // (18:2) {#if title}
+    function create_if_block$1(ctx) {
+    	let title_1;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			title_1 = svg_element("title");
+    			t = text(/*title*/ ctx[0]);
+    			add_location(title_1, file$1, 18, 4, 298);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, title_1, anchor);
+    			append_dev(title_1, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*title*/ 1) set_data_dev(t, /*title*/ ctx[0]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(title_1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$1.name,
+    		type: "if",
+    		source: "(18:2) {#if title}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$1(ctx) {
+    	let svg;
+    	let if_block_anchor;
+    	let current;
+    	let if_block = /*title*/ ctx[0] && create_if_block$1(ctx);
+    	const default_slot_template = /*$$slots*/ ctx[3].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[2], null);
+
+    	const block = {
+    		c: function create() {
+    			svg = svg_element("svg");
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    			if (default_slot) default_slot.c();
+    			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			attr_dev(svg, "viewBox", /*viewBox*/ ctx[1]);
+    			attr_dev(svg, "class", "svelte-c8tyih");
+    			add_location(svg, file$1, 16, 0, 229);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, svg, anchor);
+    			if (if_block) if_block.m(svg, null);
+    			append_dev(svg, if_block_anchor);
+
+    			if (default_slot) {
+    				default_slot.m(svg, null);
+    			}
+
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (/*title*/ ctx[0]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block$1(ctx);
+    					if_block.c();
+    					if_block.m(svg, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (default_slot) {
+    				if (default_slot.p && dirty & /*$$scope*/ 4) {
+    					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[2], dirty, null, null);
+    				}
+    			}
+
+    			if (!current || dirty & /*viewBox*/ 2) {
+    				attr_dev(svg, "viewBox", /*viewBox*/ ctx[1]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(default_slot, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(default_slot, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(svg);
+    			if (if_block) if_block.d();
+    			if (default_slot) default_slot.d(detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$1.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$1($$self, $$props, $$invalidate) {
+    	let { title = null } = $$props;
+    	let { viewBox } = $$props;
+    	const writable_props = ["title", "viewBox"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<IconBase> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IconBase", $$slots, ['default']);
+
+    	$$self.$$set = $$props => {
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("viewBox" in $$props) $$invalidate(1, viewBox = $$props.viewBox);
+    		if ("$$scope" in $$props) $$invalidate(2, $$scope = $$props.$$scope);
+    	};
+
+    	$$self.$capture_state = () => ({ title, viewBox });
+
+    	$$self.$inject_state = $$props => {
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("viewBox" in $$props) $$invalidate(1, viewBox = $$props.viewBox);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [title, viewBox, $$scope, $$slots];
+    }
+
+    class IconBase extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, { title: 0, viewBox: 1 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IconBase",
+    			options,
+    			id: create_fragment$1.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*viewBox*/ ctx[1] === undefined && !("viewBox" in props)) {
+    			console.warn("<IconBase> was created without expected prop 'viewBox'");
+    		}
+    	}
+
+    	get title() {
+    		throw new Error("<IconBase>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set title(value) {
+    		throw new Error("<IconBase>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get viewBox() {
+    		throw new Error("<IconBase>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set viewBox(value) {
+    		throw new Error("<IconBase>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-icons/io/IoLogoLinkedin.svelte generated by Svelte v3.24.1 */
+    const file$2 = "node_modules/svelte-icons/io/IoLogoLinkedin.svelte";
+
+    // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
+    function create_default_slot(ctx) {
+    	let path;
+
+    	const block = {
+    		c: function create() {
+    			path = svg_element("path");
+    			attr_dev(path, "d", "M417.2 64H96.8C79.3 64 64 76.6 64 93.9V415c0 17.4 15.3 32.9 32.8 32.9h320.3c17.6 0 30.8-15.6 30.8-32.9V93.9C448 76.6 434.7 64 417.2 64zM183 384h-55V213h55v171zm-25.6-197h-.4c-17.6 0-29-13.1-29-29.5 0-16.7 11.7-29.5 29.7-29.5s29 12.7 29.4 29.5c0 16.4-11.4 29.5-29.7 29.5zM384 384h-55v-93.5c0-22.4-8-37.7-27.9-37.7-15.2 0-24.2 10.3-28.2 20.3-1.5 3.6-1.9 8.5-1.9 13.5V384h-55V213h55v23.8c8-11.4 20.5-27.8 49.6-27.8 36.1 0 63.4 23.8 63.4 75.1V384z");
+    			add_location(path, file$2, 4, 10, 153);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, path, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(path);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot.name,
+    		type: "slot",
+    		source: "(4:8) <IconBase viewBox=\\\"0 0 512 512\\\" {...$$props}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$2(ctx) {
+    	let iconbase;
+    	let current;
+    	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
+
+    	let iconbase_props = {
+    		$$slots: { default: [create_default_slot] },
+    		$$scope: { ctx }
+    	};
+
+    	for (let i = 0; i < iconbase_spread_levels.length; i += 1) {
+    		iconbase_props = assign(iconbase_props, iconbase_spread_levels[i]);
+    	}
+
+    	iconbase = new IconBase({ props: iconbase_props, $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(iconbase.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(iconbase, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const iconbase_changes = (dirty & /*$$props*/ 1)
+    			? get_spread_update(iconbase_spread_levels, [iconbase_spread_levels[0], get_spread_object(/*$$props*/ ctx[0])])
+    			: {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				iconbase_changes.$$scope = { dirty, ctx };
+    			}
+
+    			iconbase.$set(iconbase_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(iconbase.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(iconbase.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(iconbase, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$2.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$2($$self, $$props, $$invalidate) {
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IoLogoLinkedin", $$slots, []);
+
+    	$$self.$$set = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+    	};
+
+    	$$self.$capture_state = () => ({ IconBase });
+
+    	$$self.$inject_state = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$props = exclude_internal_props($$props);
+    	return [$$props];
+    }
+
+    class IoLogoLinkedin extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$2, create_fragment$2, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IoLogoLinkedin",
+    			options,
+    			id: create_fragment$2.name
+    		});
+    	}
+    }
+
+    /* node_modules/svelte-icons/io/IoLogoGithub.svelte generated by Svelte v3.24.1 */
+    const file$3 = "node_modules/svelte-icons/io/IoLogoGithub.svelte";
+
+    // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
+    function create_default_slot$1(ctx) {
+    	let path;
+
+    	const block = {
+    		c: function create() {
+    			path = svg_element("path");
+    			attr_dev(path, "d", "M256 32C132.3 32 32 134.9 32 261.7c0 101.5 64.2 187.5 153.2 217.9 1.4.3 2.6.4 3.8.4 8.3 0 11.5-6.1 11.5-11.4 0-5.5-.2-19.9-.3-39.1-8.4 1.9-15.9 2.7-22.6 2.7-43.1 0-52.9-33.5-52.9-33.5-10.2-26.5-24.9-33.6-24.9-33.6-19.5-13.7-.1-14.1 1.4-14.1h.1c22.5 2 34.3 23.8 34.3 23.8 11.2 19.6 26.2 25.1 39.6 25.1 10.5 0 20-3.4 25.6-6 2-14.8 7.8-24.9 14.2-30.7-49.7-5.8-102-25.5-102-113.5 0-25.1 8.7-45.6 23-61.6-2.3-5.8-10-29.2 2.2-60.8 0 0 1.6-.5 5-.5 8.1 0 26.4 3.1 56.6 24.1 17.9-5.1 37-7.6 56.1-7.7 19 .1 38.2 2.6 56.1 7.7 30.2-21 48.5-24.1 56.6-24.1 3.4 0 5 .5 5 .5 12.2 31.6 4.5 55 2.2 60.8 14.3 16.1 23 36.6 23 61.6 0 88.2-52.4 107.6-102.3 113.3 8 7.1 15.2 21.1 15.2 42.5 0 30.7-.3 55.5-.3 63 0 5.4 3.1 11.5 11.4 11.5 1.2 0 2.6-.1 4-.4C415.9 449.2 480 363.1 480 261.7 480 134.9 379.7 32 256 32z");
+    			add_location(path, file$3, 4, 10, 153);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, path, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(path);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$1.name,
+    		type: "slot",
+    		source: "(4:8) <IconBase viewBox=\\\"0 0 512 512\\\" {...$$props}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$3(ctx) {
+    	let iconbase;
+    	let current;
+    	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
+
+    	let iconbase_props = {
+    		$$slots: { default: [create_default_slot$1] },
+    		$$scope: { ctx }
+    	};
+
+    	for (let i = 0; i < iconbase_spread_levels.length; i += 1) {
+    		iconbase_props = assign(iconbase_props, iconbase_spread_levels[i]);
+    	}
+
+    	iconbase = new IconBase({ props: iconbase_props, $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(iconbase.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(iconbase, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const iconbase_changes = (dirty & /*$$props*/ 1)
+    			? get_spread_update(iconbase_spread_levels, [iconbase_spread_levels[0], get_spread_object(/*$$props*/ ctx[0])])
+    			: {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				iconbase_changes.$$scope = { dirty, ctx };
+    			}
+
+    			iconbase.$set(iconbase_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(iconbase.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(iconbase.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(iconbase, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$3.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$3($$self, $$props, $$invalidate) {
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IoLogoGithub", $$slots, []);
+
+    	$$self.$$set = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+    	};
+
+    	$$self.$capture_state = () => ({ IconBase });
+
+    	$$self.$inject_state = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$props = exclude_internal_props($$props);
+    	return [$$props];
+    }
+
+    class IoLogoGithub extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$3, create_fragment$3, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IoLogoGithub",
+    			options,
+    			id: create_fragment$3.name
+    		});
+    	}
+    }
+
+    /* node_modules/svelte-icons/io/IoLogoTwitter.svelte generated by Svelte v3.24.1 */
+    const file$4 = "node_modules/svelte-icons/io/IoLogoTwitter.svelte";
+
+    // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
+    function create_default_slot$2(ctx) {
+    	let path;
+
+    	const block = {
+    		c: function create() {
+    			path = svg_element("path");
+    			attr_dev(path, "d", "M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6-18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6.8 15 2.5 22.1-80.5-4-151.9-42.6-199.6-101.3-8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7-16-.4-31-4.8-44-12.1v1.2c0 47 33.4 86.1 77.7 95-8.1 2.2-16.7 3.4-25.5 3.4-6.2 0-12.3-.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3-33.1 26-74.9 41.5-120.3 41.5-7.8 0-15.5-.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-.1-8.4-.3-12.5C462.6 146 479 129 492 109.5z");
+    			add_location(path, file$4, 4, 10, 153);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, path, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(path);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$2.name,
+    		type: "slot",
+    		source: "(4:8) <IconBase viewBox=\\\"0 0 512 512\\\" {...$$props}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$4(ctx) {
+    	let iconbase;
+    	let current;
+    	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
+
+    	let iconbase_props = {
+    		$$slots: { default: [create_default_slot$2] },
+    		$$scope: { ctx }
+    	};
+
+    	for (let i = 0; i < iconbase_spread_levels.length; i += 1) {
+    		iconbase_props = assign(iconbase_props, iconbase_spread_levels[i]);
+    	}
+
+    	iconbase = new IconBase({ props: iconbase_props, $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(iconbase.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(iconbase, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const iconbase_changes = (dirty & /*$$props*/ 1)
+    			? get_spread_update(iconbase_spread_levels, [iconbase_spread_levels[0], get_spread_object(/*$$props*/ ctx[0])])
+    			: {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				iconbase_changes.$$scope = { dirty, ctx };
+    			}
+
+    			iconbase.$set(iconbase_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(iconbase.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(iconbase.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(iconbase, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$4.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$4($$self, $$props, $$invalidate) {
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IoLogoTwitter", $$slots, []);
+
+    	$$self.$$set = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+    	};
+
+    	$$self.$capture_state = () => ({ IconBase });
+
+    	$$self.$inject_state = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$props = exclude_internal_props($$props);
+    	return [$$props];
+    }
+
+    class IoLogoTwitter extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$4, create_fragment$4, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IoLogoTwitter",
+    			options,
+    			id: create_fragment$4.name
+    		});
+    	}
+    }
+
+    /* node_modules/svelte-icons/io/IoIosMail.svelte generated by Svelte v3.24.1 */
+    const file$5 = "node_modules/svelte-icons/io/IoIosMail.svelte";
+
+    // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
+    function create_default_slot$3(ctx) {
+    	let path0;
+    	let t;
+    	let path1;
+
+    	const block = {
+    		c: function create() {
+    			path0 = svg_element("path");
+    			t = space();
+    			path1 = svg_element("path");
+    			attr_dev(path0, "d", "M460.6 147.3L353 256.9c-.8.8-.8 2 0 2.8l75.3 80.2c5.1 5.1 5.1 13.3 0 18.4-2.5 2.5-5.9 3.8-9.2 3.8s-6.7-1.3-9.2-3.8l-75-79.9c-.8-.8-2.1-.8-2.9 0L313.7 297c-15.3 15.5-35.6 24.1-57.4 24.2-22.1.1-43.1-9.2-58.6-24.9l-17.6-17.9c-.8-.8-2.1-.8-2.9 0l-75 79.9c-2.5 2.5-5.9 3.8-9.2 3.8s-6.7-1.3-9.2-3.8c-5.1-5.1-5.1-13.3 0-18.4l75.3-80.2c.7-.8.7-2 0-2.8L51.4 147.3c-1.3-1.3-3.4-.4-3.4 1.4V368c0 17.6 14.4 32 32 32h352c17.6 0 32-14.4 32-32V148.7c0-1.8-2.2-2.6-3.4-1.4z");
+    			add_location(path0, file$5, 4, 10, 153);
+    			attr_dev(path1, "d", "M256 295.1c14.8 0 28.7-5.8 39.1-16.4L452 119c-5.5-4.4-12.3-7-19.8-7H79.9c-7.5 0-14.4 2.6-19.8 7L217 278.7c10.3 10.5 24.2 16.4 39 16.4z");
+    			add_location(path1, file$5, 5, 0, 624);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, path0, anchor);
+    			insert_dev(target, t, anchor);
+    			insert_dev(target, path1, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(path0);
+    			if (detaching) detach_dev(t);
+    			if (detaching) detach_dev(path1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$3.name,
+    		type: "slot",
+    		source: "(4:8) <IconBase viewBox=\\\"0 0 512 512\\\" {...$$props}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$5(ctx) {
+    	let iconbase;
+    	let current;
+    	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
+
+    	let iconbase_props = {
+    		$$slots: { default: [create_default_slot$3] },
+    		$$scope: { ctx }
+    	};
+
+    	for (let i = 0; i < iconbase_spread_levels.length; i += 1) {
+    		iconbase_props = assign(iconbase_props, iconbase_spread_levels[i]);
+    	}
+
+    	iconbase = new IconBase({ props: iconbase_props, $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(iconbase.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(iconbase, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const iconbase_changes = (dirty & /*$$props*/ 1)
+    			? get_spread_update(iconbase_spread_levels, [iconbase_spread_levels[0], get_spread_object(/*$$props*/ ctx[0])])
+    			: {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				iconbase_changes.$$scope = { dirty, ctx };
+    			}
+
+    			iconbase.$set(iconbase_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(iconbase.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(iconbase.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(iconbase, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$5.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$5($$self, $$props, $$invalidate) {
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IoIosMail", $$slots, []);
+
+    	$$self.$$set = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+    	};
+
+    	$$self.$capture_state = () => ({ IconBase });
+
+    	$$self.$inject_state = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$props = exclude_internal_props($$props);
+    	return [$$props];
+    }
+
+    class IoIosMail extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$5, create_fragment$5, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IoIosMail",
+    			options,
+    			id: create_fragment$5.name
+    		});
+    	}
+    }
+
+    const t="http://www.w3.org/2000/svg";class e{constructor(t){this.seed=t;}next(){return this.seed?(2**31-1&(this.seed=Math.imul(48271,this.seed)))/2**31:Math.random()}}function s(t,e,s,i,n){return {type:"path",ops:c(t,e,s,i,n)}}function i(t,e,i){const n=(t||[]).length;if(n>2){const s=[];for(let e=0;e<n-1;e++)s.push(...c(t[e][0],t[e][1],t[e+1][0],t[e+1][1],i));return e&&s.push(...c(t[n-1][0],t[n-1][1],t[0][0],t[0][1],i)),{type:"path",ops:s}}return 2===n?s(t[0][0],t[0][1],t[1][0],t[1][1],i):{type:"path",ops:[]}}function n(t,e,s,n,o){return function(t,e){return i(t,!0,e)}([[t,e],[t+s,e],[t+s,e+n],[t,e+n]],o)}function o(t,e,s,i,n){return function(t,e,s,i){const[n,o]=l(i.increment,t,e,i.rx,i.ry,1,i.increment*h(.1,h(.4,1,s),s),s);let r=f(n,null,s);if(!s.disableMultiStroke){const[n]=l(i.increment,t,e,i.rx,i.ry,1.5,0,s),o=f(n,null,s);r=r.concat(o);}return {estimatedPoints:o,opset:{type:"path",ops:r}}}(t,e,n,function(t,e,s){const i=Math.sqrt(2*Math.PI*Math.sqrt((Math.pow(t/2,2)+Math.pow(e/2,2))/2)),n=Math.max(s.curveStepCount,s.curveStepCount/Math.sqrt(200)*i),o=2*Math.PI/n;let r=Math.abs(t/2),h=Math.abs(e/2);const c=1-s.curveFitting;return r+=a(r*c,s),h+=a(h*c,s),{increment:o,rx:r,ry:h}}(s,i,n)).opset}function r(t){return t.randomizer||(t.randomizer=new e(t.seed||0)),t.randomizer.next()}function h(t,e,s,i=1){return s.roughness*i*(r(s)*(e-t)+t)}function a(t,e,s=1){return h(-t,t,e,s)}function c(t,e,s,i,n,o=!1){const r=o?n.disableMultiStrokeFill:n.disableMultiStroke,h=u(t,e,s,i,n,!0,!1);if(r)return h;const a=u(t,e,s,i,n,!0,!0);return h.concat(a)}function u(t,e,s,i,n,o,h){const c=Math.pow(t-s,2)+Math.pow(e-i,2),u=Math.sqrt(c);let f=1;f=u<200?1:u>500?.4:-.0016668*u+1.233334;let l=n.maxRandomnessOffset||0;l*l*100>c&&(l=u/10);const g=l/2,d=.2+.2*r(n);let p=n.bowing*n.maxRandomnessOffset*(i-e)/200,_=n.bowing*n.maxRandomnessOffset*(t-s)/200;p=a(p,n,f),_=a(_,n,f);const m=[],w=()=>a(g,n,f),v=()=>a(l,n,f);return o&&(h?m.push({op:"move",data:[t+w(),e+w()]}):m.push({op:"move",data:[t+a(l,n,f),e+a(l,n,f)]})),h?m.push({op:"bcurveTo",data:[p+t+(s-t)*d+w(),_+e+(i-e)*d+w(),p+t+2*(s-t)*d+w(),_+e+2*(i-e)*d+w(),s+w(),i+w()]}):m.push({op:"bcurveTo",data:[p+t+(s-t)*d+v(),_+e+(i-e)*d+v(),p+t+2*(s-t)*d+v(),_+e+2*(i-e)*d+v(),s+v(),i+v()]}),m}function f(t,e,s){const i=t.length,n=[];if(i>3){const o=[],r=1-s.curveTightness;n.push({op:"move",data:[t[1][0],t[1][1]]});for(let e=1;e+2<i;e++){const s=t[e];o[0]=[s[0],s[1]],o[1]=[s[0]+(r*t[e+1][0]-r*t[e-1][0])/6,s[1]+(r*t[e+1][1]-r*t[e-1][1])/6],o[2]=[t[e+1][0]+(r*t[e][0]-r*t[e+2][0])/6,t[e+1][1]+(r*t[e][1]-r*t[e+2][1])/6],o[3]=[t[e+1][0],t[e+1][1]],n.push({op:"bcurveTo",data:[o[1][0],o[1][1],o[2][0],o[2][1],o[3][0],o[3][1]]});}if(e&&2===e.length){const t=s.maxRandomnessOffset;n.push({op:"lineTo",data:[e[0]+a(t,s),e[1]+a(t,s)]});}}else 3===i?(n.push({op:"move",data:[t[1][0],t[1][1]]}),n.push({op:"bcurveTo",data:[t[1][0],t[1][1],t[2][0],t[2][1],t[2][0],t[2][1]]})):2===i&&n.push(...c(t[0][0],t[0][1],t[1][0],t[1][1],s));return n}function l(t,e,s,i,n,o,r,h){const c=[],u=[],f=a(.5,h)-Math.PI/2;u.push([a(o,h)+e+.9*i*Math.cos(f-t),a(o,h)+s+.9*n*Math.sin(f-t)]);for(let r=f;r<2*Math.PI+f-.01;r+=t){const t=[a(o,h)+e+i*Math.cos(r),a(o,h)+s+n*Math.sin(r)];c.push(t),u.push(t);}return u.push([a(o,h)+e+i*Math.cos(f+2*Math.PI+.5*r),a(o,h)+s+n*Math.sin(f+2*Math.PI+.5*r)]),u.push([a(o,h)+e+.98*i*Math.cos(f+r),a(o,h)+s+.98*n*Math.sin(f+r)]),u.push([a(o,h)+e+.9*i*Math.cos(f+.5*r),a(o,h)+s+.9*n*Math.sin(f+.5*r)]),[u,c]}function g(t,e){return {maxRandomnessOffset:2,roughness:"highlight"===t?3:1.5,bowing:1,stroke:"#000",strokeWidth:1.5,curveTightness:0,curveFitting:.95,curveStepCount:9,fillStyle:"hachure",fillWeight:-1,hachureAngle:-41,hachureGap:-1,dashOffset:-1,dashGap:-1,zigzagOffset:-1,combineNestedSvgPaths:!1,disableMultiStroke:"double"!==t,disableMultiStrokeFill:!1,seed:e}}function d(e,r,h,a,c,u){const f=[];let l=h.strokeWidth||2;const d=function(t){const e=t.padding;if(e||0===e){if("number"==typeof e)return [e,e,e,e];if(Array.isArray(e)){const t=e;if(t.length)switch(t.length){case 4:return [...t];case 1:return [t[0],t[0],t[0],t[0]];case 2:return [...t,...t];case 3:return [...t,t[1]];default:return [t[0],t[1],t[2],t[3]]}}}return [5,5,5,5]}(h),p=void 0===h.animate||!!h.animate,_=h.iterations||2,m=g("single",u);switch(h.type){case"underline":{const t=r.y+r.h+d[2];for(let e=0;e<_;e++)e%2?f.push(s(r.x+r.w,t,r.x,t,m)):f.push(s(r.x,t,r.x+r.w,t,m));break}case"strike-through":{const t=r.y+r.h/2;for(let e=0;e<_;e++)e%2?f.push(s(r.x+r.w,t,r.x,t,m)):f.push(s(r.x,t,r.x+r.w,t,m));break}case"box":{const t=r.x-d[3],e=r.y-d[0],s=r.w+(d[1]+d[3]),i=r.h+(d[0]+d[2]);for(let o=0;o<_;o++)f.push(n(t,e,s,i,m));break}case"bracket":{const t=Array.isArray(h.brackets)?h.brackets:h.brackets?[h.brackets]:["right"],e=r.x-2*d[3],s=r.x+r.w+2*d[1],n=r.y-2*d[0],o=r.y+r.h+2*d[2];for(const h of t){let t;switch(h){case"bottom":t=[[e,r.y+r.h],[e,o],[s,o],[s,r.y+r.h]];break;case"top":t=[[e,r.y],[e,n],[s,n],[s,r.y]];break;case"left":t=[[r.x,n],[e,n],[e,o],[r.x,o]];break;case"right":t=[[r.x+r.w,n],[s,n],[s,o],[r.x+r.w,o]];}t&&f.push(i(t,!1,m));}break}case"crossed-off":{const t=r.x,e=r.y,i=t+r.w,n=e+r.h;for(let o=0;o<_;o++)o%2?f.push(s(i,n,t,e,m)):f.push(s(t,e,i,n,m));for(let o=0;o<_;o++)o%2?f.push(s(t,n,i,e,m)):f.push(s(i,e,t,n,m));break}case"circle":{const t=g("double",u),e=r.w+(d[1]+d[3]),s=r.h+(d[0]+d[2]),i=r.x-d[3]+e/2,n=r.y-d[0]+s/2,h=Math.floor(_/2),a=_-2*h;for(let r=0;r<h;r++)f.push(o(i,n,e,s,t));for(let t=0;t<a;t++)f.push(o(i,n,e,s,m));break}case"highlight":{const t=g("highlight",u);l=.95*r.h;const e=r.y+r.h/2;for(let i=0;i<_;i++)i%2?f.push(s(r.x+r.w,e,r.x,e,t)):f.push(s(r.x,e,r.x+r.w,e,t));break}}if(f.length){const s=function(t){const e=[];for(const s of t){let t="";for(const i of s.ops){const s=i.data;switch(i.op){case"move":t.trim()&&e.push(t.trim()),t=`M${s[0]} ${s[1]} `;break;case"bcurveTo":t+=`C${s[0]} ${s[1]}, ${s[2]} ${s[3]}, ${s[4]} ${s[5]} `;break;case"lineTo":t+=`L${s[0]} ${s[1]} `;}}t.trim()&&e.push(t.trim());}return e}(f),i=[],n=[];let o=0;const r=(t,e,s)=>t.setAttribute(e,s);for(const a of s){const s=document.createElementNS(t,"path");if(r(s,"d",a),r(s,"fill","none"),r(s,"stroke",h.color||"currentColor"),r(s,"stroke-width",""+l),p){const t=s.getTotalLength();i.push(t),o+=t;}e.appendChild(s),n.push(s);}if(p){let t=0;for(let e=0;e<n.length;e++){const s=n[e],r=i[e],h=o?c*(r/o):0,u=a+t,f=s.style;f.strokeDashoffset=""+r,f.strokeDasharray=""+r,f.animation=`rough-notation-dash ${h}ms ease-out ${u}ms forwards`,t+=h;}}}}class p{constructor(t,e){this._state="unattached",this._resizing=!1,this._seed=Math.floor(Math.random()*2**31),this._lastSizes=[],this._animationDelay=0,this._resizeListener=()=>{this._resizing||(this._resizing=!0,setTimeout(()=>{this._resizing=!1,"showing"===this._state&&this.haveRectsChanged()&&this.show();},400));},this._e=t,this._config=JSON.parse(JSON.stringify(e)),this.attach();}get animate(){return this._config.animate}set animate(t){this._config.animate=t;}get animationDuration(){return this._config.animationDuration}set animationDuration(t){this._config.animationDuration=t;}get iterations(){return this._config.iterations}set iterations(t){this._config.iterations=t;}get color(){return this._config.color}set color(t){this._config.color!==t&&(this._config.color=t,this.refresh());}get strokeWidth(){return this._config.strokeWidth}set strokeWidth(t){this._config.strokeWidth!==t&&(this._config.strokeWidth=t,this.refresh());}get padding(){return this._config.padding}set padding(t){this._config.padding!==t&&(this._config.padding=t,this.refresh());}attach(){if("unattached"===this._state&&this._e.parentElement){!function(){if(!window.__rno_kf_s){const t=window.__rno_kf_s=document.createElement("style");t.textContent="@keyframes rough-notation-dash { to { stroke-dashoffset: 0; } }",document.head.appendChild(t);}}();const e=this._svg=document.createElementNS(t,"svg");e.setAttribute("class","rough-annotation");const s=e.style;s.position="absolute",s.top="0",s.left="0",s.overflow="visible",s.pointerEvents="none",s.width="100px",s.height="100px";const i="highlight"===this._config.type;if(this._e.insertAdjacentElement(i?"beforebegin":"afterend",e),this._state="not-showing",i){const t=window.getComputedStyle(this._e).position;(!t||"static"===t)&&(this._e.style.position="relative");}this.attachListeners();}}detachListeners(){window.removeEventListener("resize",this._resizeListener),this._ro&&this._ro.unobserve(this._e);}attachListeners(){this.detachListeners(),window.addEventListener("resize",this._resizeListener,{passive:!0}),!this._ro&&"ResizeObserver"in window&&(this._ro=new window.ResizeObserver(t=>{for(const e of t)e.contentRect&&this._resizeListener();})),this._ro&&this._ro.observe(this._e);}haveRectsChanged(){if(this._lastSizes.length){const t=this.rects();if(t.length!==this._lastSizes.length)return !0;for(let e=0;e<t.length;e++)if(!this.isSameRect(t[e],this._lastSizes[e]))return !0}return !1}isSameRect(t,e){const s=(t,e)=>Math.round(t)===Math.round(e);return s(t.x,e.x)&&s(t.y,e.y)&&s(t.w,e.w)&&s(t.h,e.h)}isShowing(){return "not-showing"!==this._state}refresh(){this.isShowing()&&!this.pendingRefresh&&(this.pendingRefresh=Promise.resolve().then(()=>{this.isShowing()&&this.show(),delete this.pendingRefresh;}));}show(){switch(this._state){case"unattached":break;case"showing":this.hide(),this._svg&&this.render(this._svg,!0);break;case"not-showing":this.attach(),this._svg&&this.render(this._svg,!1);}}hide(){if(this._svg)for(;this._svg.lastChild;)this._svg.removeChild(this._svg.lastChild);this._state="not-showing";}remove(){this._svg&&this._svg.parentElement&&this._svg.parentElement.removeChild(this._svg),this._svg=void 0,this._state="unattached",this.detachListeners();}render(t,e){let s=this._config;e&&(s=JSON.parse(JSON.stringify(this._config)),s.animate=!1);const i=this.rects();let n=0;i.forEach(t=>n+=t.w);const o=s.animationDuration||800;let r=0;for(let e=0;e<i.length;e++){const h=o*(i[e].w/n);d(t,i[e],s,r+this._animationDelay,h,this._seed),r+=h;}this._lastSizes=i,this._state="showing";}rects(){const t=[];if(this._svg)if(this._config.multiline){const e=this._e.getClientRects();for(let s=0;s<e.length;s++)t.push(this.svgRect(this._svg,e[s]));}else t.push(this.svgRect(this._svg,this._e.getBoundingClientRect()));return t}svgRect(t,e){const s=t.getBoundingClientRect(),i=e;return {x:(i.x||i.left)-(s.x||s.left),y:(i.y||i.top)-(s.y||s.top),w:i.width,h:i.height}}}function _(t,e){return new p(t,e)}
+
+    /* node_modules/svelte-rough-notation/src/RoughNotation.svelte generated by Svelte v3.24.1 */
+    const file$6 = "node_modules/svelte-rough-notation/src/RoughNotation.svelte";
+
+    function create_fragment$6(ctx) {
+    	let div;
+    	let current;
+    	const default_slot_template = /*$$slots*/ ctx[18].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[17], null);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			if (default_slot) default_slot.c();
+    			set_style(div, "display", "inline");
+    			add_location(div, file$6, 98, 0, 2579);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+
+    			if (default_slot) {
+    				default_slot.m(div, null);
+    			}
+
+    			/*div_binding*/ ctx[19](div);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (default_slot) {
+    				if (default_slot.p && dirty & /*$$scope*/ 131072) {
+    					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[17], dirty, null, null);
+    				}
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(default_slot, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(default_slot, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			if (default_slot) default_slot.d(detaching);
+    			/*div_binding*/ ctx[19](null);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$6.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$6($$self, $$props, $$invalidate) {
+    	const omit_props_names = [
+    		"visible","animate","animationDuration","animationDelay","color","strokeWidth","padding","iterations","multiline","brackets","_animationGroupDelay","_animationDelay","show","hide","isShowing","annotation"
+    	];
+
+    	let $$restProps = compute_rest_props($$props, omit_props_names);
+    	let container;
+    	let { visible = false } = $$props;
+    	let { animate = undefined } = $$props;
+    	let { animationDuration = undefined } = $$props;
+    	let { animationDelay = undefined } = $$props;
+    	let { color = undefined } = $$props;
+    	let { strokeWidth = undefined } = $$props;
+    	let { padding = undefined } = $$props;
+    	let { iterations = undefined } = $$props;
+    	let { multiline = undefined } = $$props;
+    	let { brackets = undefined } = $$props;
+    	let { _animationGroupDelay = undefined } = $$props;
+    	let { _animationDelay = undefined } = $$props;
+    	const show = () => $$invalidate(1, visible = true);
+    	const hide = () => $$invalidate(1, visible = false);
+    	const isShowing = () => visible;
+    	let { annotation = undefined } = $$props;
+
+    	onMount(() => {
+    		$$invalidate(2, annotation = _(container, {
+    			animate,
+    			animationDuration,
+    			animationDelay,
+    			color,
+    			strokeWidth,
+    			padding,
+    			iterations,
+    			multiline,
+    			brackets,
+    			// Graceful fallback for if new props are added
+    			...$$restProps
+    		}));
+
+    		return () => annotation.remove();
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("RoughNotation", $$slots, ['default']);
+
+    	function div_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			container = $$value;
+    			$$invalidate(0, container);
+    		});
+    	}
+
+    	$$self.$$set = $$new_props => {
+    		$$props = assign(assign({}, $$props), exclude_internal_props($$new_props));
+    		$$invalidate(20, $$restProps = compute_rest_props($$props, omit_props_names));
+    		if ("visible" in $$new_props) $$invalidate(1, visible = $$new_props.visible);
+    		if ("animate" in $$new_props) $$invalidate(3, animate = $$new_props.animate);
+    		if ("animationDuration" in $$new_props) $$invalidate(4, animationDuration = $$new_props.animationDuration);
+    		if ("animationDelay" in $$new_props) $$invalidate(5, animationDelay = $$new_props.animationDelay);
+    		if ("color" in $$new_props) $$invalidate(6, color = $$new_props.color);
+    		if ("strokeWidth" in $$new_props) $$invalidate(7, strokeWidth = $$new_props.strokeWidth);
+    		if ("padding" in $$new_props) $$invalidate(8, padding = $$new_props.padding);
+    		if ("iterations" in $$new_props) $$invalidate(9, iterations = $$new_props.iterations);
+    		if ("multiline" in $$new_props) $$invalidate(10, multiline = $$new_props.multiline);
+    		if ("brackets" in $$new_props) $$invalidate(11, brackets = $$new_props.brackets);
+    		if ("_animationGroupDelay" in $$new_props) $$invalidate(12, _animationGroupDelay = $$new_props._animationGroupDelay);
+    		if ("_animationDelay" in $$new_props) $$invalidate(13, _animationDelay = $$new_props._animationDelay);
+    		if ("annotation" in $$new_props) $$invalidate(2, annotation = $$new_props.annotation);
+    		if ("$$scope" in $$new_props) $$invalidate(17, $$scope = $$new_props.$$scope);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		annotate: _,
+    		onMount,
+    		container,
+    		visible,
+    		animate,
+    		animationDuration,
+    		animationDelay,
+    		color,
+    		strokeWidth,
+    		padding,
+    		iterations,
+    		multiline,
+    		brackets,
+    		_animationGroupDelay,
+    		_animationDelay,
+    		show,
+    		hide,
+    		isShowing,
+    		annotation
+    	});
+
+    	$$self.$inject_state = $$new_props => {
+    		if ("container" in $$props) $$invalidate(0, container = $$new_props.container);
+    		if ("visible" in $$props) $$invalidate(1, visible = $$new_props.visible);
+    		if ("animate" in $$props) $$invalidate(3, animate = $$new_props.animate);
+    		if ("animationDuration" in $$props) $$invalidate(4, animationDuration = $$new_props.animationDuration);
+    		if ("animationDelay" in $$props) $$invalidate(5, animationDelay = $$new_props.animationDelay);
+    		if ("color" in $$props) $$invalidate(6, color = $$new_props.color);
+    		if ("strokeWidth" in $$props) $$invalidate(7, strokeWidth = $$new_props.strokeWidth);
+    		if ("padding" in $$props) $$invalidate(8, padding = $$new_props.padding);
+    		if ("iterations" in $$props) $$invalidate(9, iterations = $$new_props.iterations);
+    		if ("multiline" in $$props) $$invalidate(10, multiline = $$new_props.multiline);
+    		if ("brackets" in $$props) $$invalidate(11, brackets = $$new_props.brackets);
+    		if ("_animationGroupDelay" in $$props) $$invalidate(12, _animationGroupDelay = $$new_props._animationGroupDelay);
+    		if ("_animationDelay" in $$props) $$invalidate(13, _animationDelay = $$new_props._animationDelay);
+    		if ("annotation" in $$props) $$invalidate(2, annotation = $$new_props.annotation);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*annotation, animate*/ 12) {
+    			 if (annotation && animate !== undefined) {
+    				$$invalidate(2, annotation.animate = animate, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, animationDuration*/ 20) {
+    			 if (annotation && animationDuration !== undefined) {
+    				$$invalidate(2, annotation.animationDuration = animationDuration, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, animationDelay*/ 36) {
+    			 if (annotation && animationDelay !== undefined) {
+    				$$invalidate(2, annotation.animationDelay = animationDelay, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, color*/ 68) {
+    			 if (annotation && color !== undefined) {
+    				$$invalidate(2, annotation.color = color, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, strokeWidth*/ 132) {
+    			 if (annotation && strokeWidth !== undefined) {
+    				$$invalidate(2, annotation.strokeWidth = strokeWidth, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, padding*/ 260) {
+    			 if (annotation && padding !== undefined) {
+    				$$invalidate(2, annotation.padding = padding, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, iterations*/ 516) {
+    			 if (annotation && iterations !== undefined) {
+    				$$invalidate(2, annotation.iterations = iterations, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, brackets*/ 2052) {
+    			 if (annotation && brackets !== undefined) {
+    				$$invalidate(2, annotation.brackets = brackets, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, _animationGroupDelay*/ 4100) {
+    			 if (annotation && _animationGroupDelay !== undefined) {
+    				$$invalidate(2, annotation._animationGroupDelay = _animationGroupDelay, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, _animationDelay*/ 8196) {
+    			 if (annotation && _animationDelay !== undefined) {
+    				$$invalidate(2, annotation._animationDelay = _animationDelay, annotation);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*annotation, visible*/ 6) {
+    			 if (annotation) {
+    				if (visible) {
+    					annotation.show();
+    				} else {
+    					annotation.hide();
+    				}
+    			}
+    		}
+    	};
+
+    	return [
+    		container,
+    		visible,
+    		annotation,
+    		animate,
+    		animationDuration,
+    		animationDelay,
+    		color,
+    		strokeWidth,
+    		padding,
+    		iterations,
+    		multiline,
+    		brackets,
+    		_animationGroupDelay,
+    		_animationDelay,
+    		show,
+    		hide,
+    		isShowing,
+    		$$scope,
+    		$$slots,
+    		div_binding
+    	];
+    }
+
+    class RoughNotation extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$6, create_fragment$6, safe_not_equal, {
+    			visible: 1,
+    			animate: 3,
+    			animationDuration: 4,
+    			animationDelay: 5,
+    			color: 6,
+    			strokeWidth: 7,
+    			padding: 8,
+    			iterations: 9,
+    			multiline: 10,
+    			brackets: 11,
+    			_animationGroupDelay: 12,
+    			_animationDelay: 13,
+    			show: 14,
+    			hide: 15,
+    			isShowing: 16,
+    			annotation: 2
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "RoughNotation",
+    			options,
+    			id: create_fragment$6.name
+    		});
+    	}
+
+    	get visible() {
+    		return this.$$.ctx[1];
+    	}
+
+    	set visible(visible) {
+    		this.$set({ visible });
+    		flush();
+    	}
+
+    	get animate() {
+    		return this.$$.ctx[3];
+    	}
+
+    	set animate(animate) {
+    		this.$set({ animate });
+    		flush();
+    	}
+
+    	get animationDuration() {
+    		return this.$$.ctx[4];
+    	}
+
+    	set animationDuration(animationDuration) {
+    		this.$set({ animationDuration });
+    		flush();
+    	}
+
+    	get animationDelay() {
+    		return this.$$.ctx[5];
+    	}
+
+    	set animationDelay(animationDelay) {
+    		this.$set({ animationDelay });
+    		flush();
+    	}
+
+    	get color() {
+    		return this.$$.ctx[6];
+    	}
+
+    	set color(color) {
+    		this.$set({ color });
+    		flush();
+    	}
+
+    	get strokeWidth() {
+    		return this.$$.ctx[7];
+    	}
+
+    	set strokeWidth(strokeWidth) {
+    		this.$set({ strokeWidth });
+    		flush();
+    	}
+
+    	get padding() {
+    		return this.$$.ctx[8];
+    	}
+
+    	set padding(padding) {
+    		this.$set({ padding });
+    		flush();
+    	}
+
+    	get iterations() {
+    		return this.$$.ctx[9];
+    	}
+
+    	set iterations(iterations) {
+    		this.$set({ iterations });
+    		flush();
+    	}
+
+    	get multiline() {
+    		return this.$$.ctx[10];
+    	}
+
+    	set multiline(multiline) {
+    		this.$set({ multiline });
+    		flush();
+    	}
+
+    	get brackets() {
+    		return this.$$.ctx[11];
+    	}
+
+    	set brackets(brackets) {
+    		this.$set({ brackets });
+    		flush();
+    	}
+
+    	get _animationGroupDelay() {
+    		return this.$$.ctx[12];
+    	}
+
+    	set _animationGroupDelay(_animationGroupDelay) {
+    		this.$set({ _animationGroupDelay });
+    		flush();
+    	}
+
+    	get _animationDelay() {
+    		return this.$$.ctx[13];
+    	}
+
+    	set _animationDelay(_animationDelay) {
+    		this.$set({ _animationDelay });
+    		flush();
+    	}
+
+    	get show() {
+    		return this.$$.ctx[14];
+    	}
+
+    	set show(value) {
+    		throw new Error("<RoughNotation>: Cannot set read-only property 'show'");
+    	}
+
+    	get hide() {
+    		return this.$$.ctx[15];
+    	}
+
+    	set hide(value) {
+    		throw new Error("<RoughNotation>: Cannot set read-only property 'hide'");
+    	}
+
+    	get isShowing() {
+    		return this.$$.ctx[16];
+    	}
+
+    	set isShowing(value) {
+    		throw new Error("<RoughNotation>: Cannot set read-only property 'isShowing'");
+    	}
+
+    	get annotation() {
+    		return this.$$.ctx[2];
+    	}
+
+    	set annotation(annotation) {
+    		this.$set({ annotation });
+    		flush();
+    	}
+    }
+
+    /* src/components/Profile.svelte generated by Svelte v3.24.1 */
+    const file$7 = "src/components/Profile.svelte";
+
+    // (19:4) <Annotation bind:visible type="highlight" color="var(--intro-highlight-colour)">
+    function create_default_slot$4(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("Max Eisen");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$4.name,
+    		type: "slot",
+    		source: "(19:4) <Annotation bind:visible type=\\\"highlight\\\" color=\\\"var(--intro-highlight-colour)\\\">",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$7(ctx) {
+    	let h1;
+    	let annotation;
+    	let updating_visible;
+    	let t0;
+    	let h20;
+    	let t1;
+    	let b;
+    	let t3;
+    	let t4;
+    	let h21;
+    	let t6;
+    	let div0;
+    	let a0;
+    	let linkedinlogo;
+    	let t7;
+    	let a1;
+    	let githublogo;
+    	let t8;
+    	let a2;
+    	let twitterlogo;
+    	let t9;
+    	let a3;
+    	let mailicon;
+    	let t10;
+    	let div1;
+    	let picture;
+    	let source0;
+    	let source0_srcset_value;
+    	let t11;
+    	let source1;
+    	let source1_srcset_value;
+    	let t12;
+    	let img;
+    	let img_src_value;
+    	let current;
+
+    	function annotation_visible_binding(value) {
+    		/*annotation_visible_binding*/ ctx[2].call(null, value);
+    	}
+
+    	let annotation_props = {
+    		type: "highlight",
+    		color: "var(--intro-highlight-colour)",
+    		$$slots: { default: [create_default_slot$4] },
+    		$$scope: { ctx }
+    	};
+
+    	if (/*visible*/ ctx[0] !== void 0) {
+    		annotation_props.visible = /*visible*/ ctx[0];
+    	}
+
+    	annotation = new RoughNotation({ props: annotation_props, $$inline: true });
+    	binding_callbacks.push(() => bind(annotation, "visible", annotation_visible_binding));
+    	linkedinlogo = new IoLogoLinkedin({ $$inline: true });
+    	githublogo = new IoLogoGithub({ $$inline: true });
+    	twitterlogo = new IoLogoTwitter({ $$inline: true });
+    	mailicon = new IoIosMail({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			create_component(annotation.$$.fragment);
+    			t0 = space();
+    			h20 = element("h2");
+    			t1 = text("SDE ");
+    			b = element("b");
+    			b.textContent = "@";
+    			t3 = text(" Amazon");
+    			t4 = space();
+    			h21 = element("h2");
+    			h21.textContent = "Toronto, ON";
+    			t6 = space();
+    			div0 = element("div");
+    			a0 = element("a");
+    			create_component(linkedinlogo.$$.fragment);
+    			t7 = space();
+    			a1 = element("a");
+    			create_component(githublogo.$$.fragment);
+    			t8 = space();
+    			a2 = element("a");
+    			create_component(twitterlogo.$$.fragment);
+    			t9 = space();
+    			a3 = element("a");
+    			create_component(mailicon.$$.fragment);
+    			t10 = space();
+    			div1 = element("div");
+    			picture = element("picture");
+    			source0 = element("source");
+    			t11 = space();
+    			source1 = element("source");
+    			t12 = space();
+    			img = element("img");
+    			add_location(h1, file$7, 18, 0, 560);
+    			set_style(b, "color", "var(--paragraph-colour)");
+    			set_style(b, "font-weight", "300");
+    			add_location(b, file$7, 19, 23, 695);
+    			attr_dev(h20, "class", "status svelte-t07b25");
+    			add_location(h20, file$7, 19, 0, 672);
+    			attr_dev(h21, "class", "location svelte-t07b25");
+    			add_location(h21, file$7, 20, 0, 773);
+    			attr_dev(a0, "class", "social-link linkedin-link svelte-t07b25");
+    			attr_dev(a0, "aria-label", "LinkedIn");
+    			attr_dev(a0, "href", "https://linkedin.com/in/maxeisen/");
+    			attr_dev(a0, "rel", "noreferrer");
+    			attr_dev(a0, "target", "_blank");
+    			add_location(a0, file$7, 22, 4, 852);
+    			attr_dev(a1, "class", "social-link github-link svelte-t07b25");
+    			attr_dev(a1, "aria-label", "GitHub");
+    			attr_dev(a1, "href", "https://github.com/maxeisen/");
+    			attr_dev(a1, "rel", "noreferrer");
+    			attr_dev(a1, "target", "_blank");
+    			add_location(a1, file$7, 23, 4, 1010);
+    			attr_dev(a2, "class", "social-link twitter-link svelte-t07b25");
+    			attr_dev(a2, "aria-label", "Twitter");
+    			attr_dev(a2, "href", "https://twitter.com/maxeisen/");
+    			attr_dev(a2, "rel", "noreferrer");
+    			attr_dev(a2, "target", "_blank");
+    			add_location(a2, file$7, 24, 4, 1157);
+    			attr_dev(a3, "class", "social-link svelte-t07b25");
+    			attr_dev(a3, "aria-label", "Email");
+    			attr_dev(a3, "href", "mailto:profile@maxeisen.me");
+    			attr_dev(a3, "rel", "noreferrer");
+    			attr_dev(a3, "target", "_blank");
+    			add_location(a3, file$7, 25, 4, 1308);
+    			attr_dev(div0, "class", "social-links-container svelte-t07b25");
+    			add_location(div0, file$7, 21, 0, 811);
+    			attr_dev(source0, "class", "headshot svelte-t07b25");
+    			attr_dev(source0, "srcset", source0_srcset_value = `${/*headshotPath*/ ctx[1]}.webp`);
+    			attr_dev(source0, "type", "image/webp");
+    			add_location(source0, file$7, 30, 8, 1487);
+    			attr_dev(source1, "class", "headshot svelte-t07b25");
+    			attr_dev(source1, "srcset", source1_srcset_value = `${/*headshotPath*/ ctx[1]}.png`);
+    			attr_dev(source1, "type", "image/png");
+    			add_location(source1, file$7, 31, 8, 1571);
+    			attr_dev(img, "class", "headshot svelte-t07b25");
+    			attr_dev(img, "id", "headshot");
+    			attr_dev(img, "width", "200px");
+    			attr_dev(img, "height", "200px");
+    			if (img.src !== (img_src_value = `${/*headshotPath*/ ctx[1]}.webp`)) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", "Current headshot");
+    			add_location(img, file$7, 32, 8, 1653);
+    			add_location(picture, file$7, 29, 4, 1469);
+    			attr_dev(div1, "class", "headshot svelte-t07b25");
+    			add_location(div1, file$7, 28, 0, 1442);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			mount_component(annotation, h1, null);
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, h20, anchor);
+    			append_dev(h20, t1);
+    			append_dev(h20, b);
+    			append_dev(h20, t3);
+    			insert_dev(target, t4, anchor);
+    			insert_dev(target, h21, anchor);
+    			insert_dev(target, t6, anchor);
+    			insert_dev(target, div0, anchor);
+    			append_dev(div0, a0);
+    			mount_component(linkedinlogo, a0, null);
+    			append_dev(div0, t7);
+    			append_dev(div0, a1);
+    			mount_component(githublogo, a1, null);
+    			append_dev(div0, t8);
+    			append_dev(div0, a2);
+    			mount_component(twitterlogo, a2, null);
+    			append_dev(div0, t9);
+    			append_dev(div0, a3);
+    			mount_component(mailicon, a3, null);
+    			insert_dev(target, t10, anchor);
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, picture);
+    			append_dev(picture, source0);
+    			append_dev(picture, t11);
+    			append_dev(picture, source1);
+    			append_dev(picture, t12);
+    			append_dev(picture, img);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const annotation_changes = {};
+
+    			if (dirty & /*$$scope*/ 8) {
+    				annotation_changes.$$scope = { dirty, ctx };
+    			}
+
+    			if (!updating_visible && dirty & /*visible*/ 1) {
+    				updating_visible = true;
+    				annotation_changes.visible = /*visible*/ ctx[0];
+    				add_flush_callback(() => updating_visible = false);
+    			}
+
+    			annotation.$set(annotation_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(annotation.$$.fragment, local);
+    			transition_in(linkedinlogo.$$.fragment, local);
+    			transition_in(githublogo.$$.fragment, local);
+    			transition_in(twitterlogo.$$.fragment, local);
+    			transition_in(mailicon.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(annotation.$$.fragment, local);
+    			transition_out(linkedinlogo.$$.fragment, local);
+    			transition_out(githublogo.$$.fragment, local);
+    			transition_out(twitterlogo.$$.fragment, local);
+    			transition_out(mailicon.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			destroy_component(annotation);
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(h20);
+    			if (detaching) detach_dev(t4);
+    			if (detaching) detach_dev(h21);
+    			if (detaching) detach_dev(t6);
+    			if (detaching) detach_dev(div0);
+    			destroy_component(linkedinlogo);
+    			destroy_component(githublogo);
+    			destroy_component(twitterlogo);
+    			destroy_component(mailicon);
+    			if (detaching) detach_dev(t10);
+    			if (detaching) detach_dev(div1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$7.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$7($$self, $$props, $$invalidate) {
+    	let headshotPath = "./img/headshots/clean_headshot";
+    	let visible = false;
+
+    	onMount(() => {
+    		setTimeout(
+    			() => {
+    				$$invalidate(0, visible = true);
+    			},
+    			1000
+    		);
+    	});
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Profile> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Profile", $$slots, []);
+
+    	function annotation_visible_binding(value) {
+    		visible = value;
+    		$$invalidate(0, visible);
+    	}
+
+    	$$self.$capture_state = () => ({
+    		headshotPath,
+    		LinkedInLogo: IoLogoLinkedin,
+    		GitHubLogo: IoLogoGithub,
+    		TwitterLogo: IoLogoTwitter,
+    		MailIcon: IoIosMail,
+    		Annotation: RoughNotation,
+    		onMount,
+    		visible
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("headshotPath" in $$props) $$invalidate(1, headshotPath = $$props.headshotPath);
+    		if ("visible" in $$props) $$invalidate(0, visible = $$props.visible);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [visible, headshotPath, annotation_visible_binding];
+    }
+
+    class Profile extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$7, create_fragment$7, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Profile",
+    			options,
+    			id: create_fragment$7.name
+    		});
+    	}
+    }
+
+    /* src/components/modals/ActivityModal.svelte generated by Svelte v3.24.1 */
+
+    const file$8 = "src/components/modals/ActivityModal.svelte";
+
+    // (9:4) {#if image}
+    function create_if_block_2(ctx) {
+    	let picture;
+    	let source0;
+    	let source0_srcset_value;
+    	let t0;
+    	let source1;
+    	let source1_srcset_value;
+    	let t1;
+    	let img;
+    	let img_src_value;
+
+    	const block = {
+    		c: function create() {
+    			picture = element("picture");
+    			source0 = element("source");
+    			t0 = space();
+    			source1 = element("source");
+    			t1 = space();
+    			img = element("img");
+    			attr_dev(source0, "srcset", source0_srcset_value = `./img/activities/${/*image*/ ctx[0]}.webp`);
+    			attr_dev(source0, "type", "image/webp");
+    			add_location(source0, file$8, 10, 12, 189);
+    			attr_dev(source1, "srcset", source1_srcset_value = `./img/activities/${/*image*/ ctx[0]}.jpg`);
+    			attr_dev(source1, "type", "image/jpeg");
+    			add_location(source1, file$8, 11, 12, 270);
+    			attr_dev(img, "class", "activity-image svelte-1aisj69");
+    			if (img.src !== (img_src_value = `./img/activities/${/*image*/ ctx[0]}.jpg`)) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", /*description*/ ctx[3]);
+    			add_location(img, file$8, 12, 12, 351);
+    			add_location(picture, file$8, 9, 8, 167);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, picture, anchor);
+    			append_dev(picture, source0);
+    			append_dev(picture, t0);
+    			append_dev(picture, source1);
+    			append_dev(picture, t1);
+    			append_dev(picture, img);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*image*/ 1 && source0_srcset_value !== (source0_srcset_value = `./img/activities/${/*image*/ ctx[0]}.webp`)) {
+    				attr_dev(source0, "srcset", source0_srcset_value);
+    			}
+
+    			if (dirty & /*image*/ 1 && source1_srcset_value !== (source1_srcset_value = `./img/activities/${/*image*/ ctx[0]}.jpg`)) {
+    				attr_dev(source1, "srcset", source1_srcset_value);
+    			}
+
+    			if (dirty & /*image*/ 1 && img.src !== (img_src_value = `./img/activities/${/*image*/ ctx[0]}.jpg`)) {
+    				attr_dev(img, "src", img_src_value);
+    			}
+
+    			if (dirty & /*description*/ 8) {
+    				attr_dev(img, "alt", /*description*/ ctx[3]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(picture);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_2.name,
+    		type: "if",
+    		source: "(9:4) {#if image}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (16:4) {#if audio}
+    function create_if_block_1(ctx) {
+    	let audio_1;
+    	let source;
+    	let source_src_value;
+    	let track;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			audio_1 = element("audio");
+    			source = element("source");
+    			track = element("track");
+    			t = text("\n            Your browser does not support the audio element.");
+    			if (source.src !== (source_src_value = /*audio*/ ctx[1])) attr_dev(source, "src", source_src_value);
+    			attr_dev(source, "type", "audio/mpeg");
+    			add_location(source, file$8, 17, 12, 541);
+    			attr_dev(track, "kind", "captions");
+    			add_location(track, file$8, 18, 12, 592);
+    			attr_dev(audio_1, "class", "activity-audio svelte-1aisj69");
+    			audio_1.controls = true;
+    			add_location(audio_1, file$8, 16, 8, 489);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, audio_1, anchor);
+    			append_dev(audio_1, source);
+    			append_dev(audio_1, track);
+    			append_dev(audio_1, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*audio*/ 2 && source.src !== (source_src_value = /*audio*/ ctx[1])) {
+    				attr_dev(source, "src", source_src_value);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(audio_1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(16:4) {#if audio}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (23:4) {#if video}
+    function create_if_block$2(ctx) {
+    	let iframe;
+    	let iframe_src_value;
+
+    	const block = {
+    		c: function create() {
+    			iframe = element("iframe");
+    			attr_dev(iframe, "width", "100%");
+    			attr_dev(iframe, "height", "315");
+    			if (iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0"))) attr_dev(iframe, "src", iframe_src_value);
+    			attr_dev(iframe, "title", /*description*/ ctx[3]);
+    			attr_dev(iframe, "frameborder", "0");
+    			attr_dev(iframe, "allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture");
+    			iframe.allowFullscreen = true;
+    			add_location(iframe, file$8, 23, 8, 728);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, iframe, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*video*/ 4 && iframe.src !== (iframe_src_value = "" + (/*video*/ ctx[2] + "hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0"))) {
+    				attr_dev(iframe, "src", iframe_src_value);
+    			}
+
+    			if (dirty & /*description*/ 8) {
+    				attr_dev(iframe, "title", /*description*/ ctx[3]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(iframe);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$2.name,
+    		type: "if",
+    		source: "(23:4) {#if video}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$8(ctx) {
+    	let div;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let h3;
+    	let if_block0 = /*image*/ ctx[0] && create_if_block_2(ctx);
+    	let if_block1 = /*audio*/ ctx[1] && create_if_block_1(ctx);
+    	let if_block2 = /*video*/ ctx[2] && create_if_block$2(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			if (if_block0) if_block0.c();
+    			t0 = space();
+    			if (if_block1) if_block1.c();
+    			t1 = space();
+    			if (if_block2) if_block2.c();
+    			t2 = space();
+    			h3 = element("h3");
+    			attr_dev(h3, "class", "activity-description svelte-1aisj69");
+    			set_style(h3, "text-align", "center");
+    			add_location(h3, file$8, 25, 4, 1000);
+    			attr_dev(div, "class", "activity-modal svelte-1aisj69");
+    			add_location(div, file$8, 7, 0, 114);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			if (if_block0) if_block0.m(div, null);
+    			append_dev(div, t0);
+    			if (if_block1) if_block1.m(div, null);
+    			append_dev(div, t1);
+    			if (if_block2) if_block2.m(div, null);
+    			append_dev(div, t2);
+    			append_dev(div, h3);
+    			h3.innerHTML = /*description*/ ctx[3];
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (/*image*/ ctx[0]) {
+    				if (if_block0) {
+    					if_block0.p(ctx, dirty);
+    				} else {
+    					if_block0 = create_if_block_2(ctx);
+    					if_block0.c();
+    					if_block0.m(div, t0);
+    				}
+    			} else if (if_block0) {
+    				if_block0.d(1);
+    				if_block0 = null;
+    			}
+
+    			if (/*audio*/ ctx[1]) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+    				} else {
+    					if_block1 = create_if_block_1(ctx);
+    					if_block1.c();
+    					if_block1.m(div, t1);
+    				}
+    			} else if (if_block1) {
+    				if_block1.d(1);
+    				if_block1 = null;
+    			}
+
+    			if (/*video*/ ctx[2]) {
+    				if (if_block2) {
+    					if_block2.p(ctx, dirty);
+    				} else {
+    					if_block2 = create_if_block$2(ctx);
+    					if_block2.c();
+    					if_block2.m(div, t2);
+    				}
+    			} else if (if_block2) {
+    				if_block2.d(1);
+    				if_block2 = null;
+    			}
+
+    			if (dirty & /*description*/ 8) h3.innerHTML = /*description*/ ctx[3];		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
+    			if (if_block2) if_block2.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$8.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$8($$self, $$props, $$invalidate) {
+    	let { image } = $$props;
+    	let { audio } = $$props;
+    	let { video } = $$props;
+    	let { description } = $$props;
+    	const writable_props = ["image", "audio", "video", "description"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ActivityModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("ActivityModal", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("image" in $$props) $$invalidate(0, image = $$props.image);
+    		if ("audio" in $$props) $$invalidate(1, audio = $$props.audio);
+    		if ("video" in $$props) $$invalidate(2, video = $$props.video);
+    		if ("description" in $$props) $$invalidate(3, description = $$props.description);
+    	};
+
+    	$$self.$capture_state = () => ({ image, audio, video, description });
+
+    	$$self.$inject_state = $$props => {
+    		if ("image" in $$props) $$invalidate(0, image = $$props.image);
+    		if ("audio" in $$props) $$invalidate(1, audio = $$props.audio);
+    		if ("video" in $$props) $$invalidate(2, video = $$props.video);
+    		if ("description" in $$props) $$invalidate(3, description = $$props.description);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [image, audio, video, description];
+    }
+
+    class ActivityModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$8, create_fragment$8, safe_not_equal, {
+    			image: 0,
+    			audio: 1,
+    			video: 2,
+    			description: 3
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ActivityModal",
+    			options,
+    			id: create_fragment$8.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*image*/ ctx[0] === undefined && !("image" in props)) {
+    			console.warn("<ActivityModal> was created without expected prop 'image'");
+    		}
+
+    		if (/*audio*/ ctx[1] === undefined && !("audio" in props)) {
+    			console.warn("<ActivityModal> was created without expected prop 'audio'");
+    		}
+
+    		if (/*video*/ ctx[2] === undefined && !("video" in props)) {
+    			console.warn("<ActivityModal> was created without expected prop 'video'");
+    		}
+
+    		if (/*description*/ ctx[3] === undefined && !("description" in props)) {
+    			console.warn("<ActivityModal> was created without expected prop 'description'");
+    		}
+    	}
+
+    	get image() {
+    		throw new Error("<ActivityModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set image(value) {
+    		throw new Error("<ActivityModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get audio() {
+    		throw new Error("<ActivityModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set audio(value) {
+    		throw new Error("<ActivityModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get video() {
+    		throw new Error("<ActivityModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set video(value) {
+    		throw new Error("<ActivityModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get description() {
+    		throw new Error("<ActivityModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set description(value) {
+    		throw new Error("<ActivityModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/Intro.svelte generated by Svelte v3.24.1 */
+    const file$9 = "src/components/Intro.svelte";
+
+    function create_fragment$9(ctx) {
+    	let div1;
+    	let h1;
+    	let t1;
+    	let div0;
+    	let p0;
+    	let t2;
+    	let a0;
+    	let t4;
+    	let a1;
+    	let t6;
+    	let t7;
+    	let p1;
+    	let t8;
+    	let activity0;
+    	let t10;
+    	let t11;
+    	let p2;
+    	let t12;
+    	let activity1;
+    	let t14;
+    	let activity2;
+    	let t16;
+    	let activity3;
+    	let t18;
+    	let activity4;
+    	let t20;
+    	let activity5;
+    	let t22;
+    	let activity6;
+    	let t24;
+    	let activity7;
+    	let t26;
+    	let t27;
+    	let p3;
+    	let t28;
+    	let a2;
+    	let t30;
+    	let t31;
+    	let p4;
+    	let t32;
+    	let span;
+    	let t34;
+    	let a3;
+    	let t36;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			div1 = element("div");
+    			h1 = element("h1");
+    			h1.textContent = "Who is Max?";
+    			t1 = space();
+    			div0 = element("div");
+    			p0 = element("p");
+    			t2 = text("I am a Software Development Engineer at ");
+    			a0 = element("a");
+    			a0.textContent = "Amazon";
+    			t4 = text("\n        and a Computer Science graduate from ");
+    			a1 = element("a");
+    			a1.textContent = "Queen's University";
+    			t6 = text(",\n        with a creative and curious mind, a passion for adventure, and a fascination for all technology.");
+    			t7 = space();
+    			p1 = element("p");
+    			t8 = text("Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and ");
+    			activity0 = element("activity");
+    			activity0.textContent = "iOS app reviewing";
+    			t10 = text(".\n        As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver.");
+    			t11 = space();
+    			p2 = element("p");
+    			t12 = text("In my free time, I love to ");
+    			activity1 = element("activity");
+    			activity1.textContent = "cycle";
+    			t14 = text(", ");
+    			activity2 = element("activity");
+    			activity2.textContent = "drone";
+    			t16 = text(", ");
+    			activity3 = element("activity");
+    			activity3.textContent = "play guitar";
+    			t18 = text(",\n        ");
+    			activity4 = element("activity");
+    			activity4.textContent = "ski";
+    			t20 = text(", ");
+    			activity5 = element("activity");
+    			activity5.textContent = "hike";
+    			t22 = text(", ");
+    			activity6 = element("activity");
+    			activity6.textContent = "travel";
+    			t24 = text(", and ");
+    			activity7 = element("activity");
+    			activity7.textContent = "work with cool technology";
+    			t26 = text(".");
+    			t27 = space();
+    			p3 = element("p");
+    			t28 = text("Please explore and enjoy my portfolio website, click on things for more information, and ");
+    			a2 = element("a");
+    			a2.textContent = "email me";
+    			t30 = text(" if you have any questions or comments.");
+    			t31 = space();
+    			p4 = element("p");
+    			t32 = text("If you are ");
+    			span = element("span");
+    			span.textContent = "recruiting";
+    			t34 = text(", please view and download (print to PDF) my ");
+    			a3 = element("a");
+    			a3.textContent = "resume";
+    			t36 = text(".");
+    			attr_dev(h1, "class", "section-title-intro svelte-vwcyka");
+    			add_location(h1, file$9, 84, 4, 3033);
+    			attr_dev(a0, "class", "intro-link svelte-vwcyka");
+    			attr_dev(a0, "href", "https://aws.amazon.com/");
+    			attr_dev(a0, "rel", "noreferrer");
+    			attr_dev(a0, "target", "_blank");
+    			add_location(a0, file$9, 86, 75, 3191);
+    			attr_dev(a1, "class", "intro-link svelte-vwcyka");
+    			attr_dev(a1, "href", "https://www.queensu.ca/");
+    			attr_dev(a1, "rel", "noreferrer");
+    			attr_dev(a1, "target", "_blank");
+    			add_location(a1, file$9, 87, 45, 3333);
+    			attr_dev(p0, "class", "title-extension svelte-vwcyka");
+    			add_location(p0, file$9, 86, 8, 3124);
+    			attr_dev(activity0, "tabindex", "0");
+    			attr_dev(activity0, "class", "svelte-vwcyka");
+    			add_location(activity0, file$9, 90, 147, 3700);
+    			add_location(p1, file$9, 90, 8, 3561);
+    			attr_dev(activity1, "tabindex", "0");
+    			attr_dev(activity1, "class", "svelte-vwcyka");
+    			add_location(activity1, file$9, 93, 38, 4073);
+    			attr_dev(activity2, "tabindex", "0");
+    			attr_dev(activity2, "class", "svelte-vwcyka");
+    			add_location(activity2, file$9, 93, 101, 4136);
+    			attr_dev(activity3, "tabindex", "0");
+    			attr_dev(activity3, "class", "svelte-vwcyka");
+    			add_location(activity3, file$9, 93, 164, 4199);
+    			attr_dev(activity4, "tabindex", "0");
+    			attr_dev(activity4, "class", "svelte-vwcyka");
+    			add_location(activity4, file$9, 94, 8, 4276);
+    			attr_dev(activity5, "tabindex", "0");
+    			attr_dev(activity5, "class", "svelte-vwcyka");
+    			add_location(activity5, file$9, 94, 70, 4338);
+    			attr_dev(activity6, "tabindex", "0");
+    			attr_dev(activity6, "class", "svelte-vwcyka");
+    			add_location(activity6, file$9, 94, 133, 4401);
+    			attr_dev(activity7, "tabindex", "0");
+    			attr_dev(activity7, "class", "svelte-vwcyka");
+    			add_location(activity7, file$9, 94, 206, 4474);
+    			add_location(p2, file$9, 93, 8, 4043);
+    			attr_dev(a2, "class", "intro-link svelte-vwcyka");
+    			attr_dev(a2, "href", "mailto:intro@maxeisen.me");
+    			attr_dev(a2, "rel", "noreferrer");
+    			attr_dev(a2, "target", "_blank");
+    			add_location(a2, file$9, 96, 100, 4669);
+    			add_location(p3, file$9, 96, 8, 4577);
+    			attr_dev(span, "class", "static-highlight svelte-vwcyka");
+    			add_location(span, file$9, 98, 22, 4843);
+    			attr_dev(a3, "class", "intro-link svelte-vwcyka");
+    			attr_dev(a3, "href", "/resume");
+    			add_location(a3, file$9, 98, 113, 4934);
+    			add_location(p4, file$9, 98, 8, 4829);
+    			attr_dev(div0, "class", "intro-paragraph svelte-vwcyka");
+    			add_location(div0, file$9, 85, 4, 3086);
+    			attr_dev(div1, "class", "intro-container");
+    			add_location(div1, file$9, 83, 0, 2999);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, h1);
+    			append_dev(div1, t1);
+    			append_dev(div1, div0);
+    			append_dev(div0, p0);
+    			append_dev(p0, t2);
+    			append_dev(p0, a0);
+    			append_dev(p0, t4);
+    			append_dev(p0, a1);
+    			append_dev(p0, t6);
+    			append_dev(div0, t7);
+    			append_dev(div0, p1);
+    			append_dev(p1, t8);
+    			append_dev(p1, activity0);
+    			append_dev(p1, t10);
+    			append_dev(div0, t11);
+    			append_dev(div0, p2);
+    			append_dev(p2, t12);
+    			append_dev(p2, activity1);
+    			append_dev(p2, t14);
+    			append_dev(p2, activity2);
+    			append_dev(p2, t16);
+    			append_dev(p2, activity3);
+    			append_dev(p2, t18);
+    			append_dev(p2, activity4);
+    			append_dev(p2, t20);
+    			append_dev(p2, activity5);
+    			append_dev(p2, t22);
+    			append_dev(p2, activity6);
+    			append_dev(p2, t24);
+    			append_dev(p2, activity7);
+    			append_dev(p2, t26);
+    			append_dev(div0, t27);
+    			append_dev(div0, p3);
+    			append_dev(p3, t28);
+    			append_dev(p3, a2);
+    			append_dev(p3, t30);
+    			append_dev(div0, t31);
+    			append_dev(div0, p4);
+    			append_dev(p4, t32);
+    			append_dev(p4, span);
+    			append_dev(p4, t34);
+    			append_dev(p4, a3);
+    			append_dev(p4, t36);
+
+    			if (!mounted) {
+    				dispose = [
+    					listen_dev(activity0, "click", /*appstorereviewersModal*/ ctx[0], false, false, false),
+    					listen_dev(activity1, "click", /*cycleModal*/ ctx[1], false, false, false),
+    					listen_dev(activity2, "click", /*droneModal*/ ctx[2], false, false, false),
+    					listen_dev(activity3, "click", /*musicModal*/ ctx[3], false, false, false),
+    					listen_dev(activity4, "click", /*skiingModal*/ ctx[4], false, false, false),
+    					listen_dev(activity5, "click", /*hikingModal*/ ctx[5], false, false, false),
+    					listen_dev(activity6, "click", /*travellingModal*/ ctx[6], false, false, false),
+    					listen_dev(activity7, "click", /*techModal*/ ctx[7], false, false, false)
+    				];
+
+    				mounted = true;
+    			}
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div1);
+    			mounted = false;
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$9.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$9($$self, $$props, $$invalidate) {
+    	const { open } = getContext("simple-modal");
+
+    	const appstorereviewers = {
+    		video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
+    		description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (~79,000 viewers strong)"
+    	};
+
+    	const cycle = {
+    		image: "cycle",
+    		description: "Me crossing the finish line of the 122km <a href=\"https://www.rbcgranfondo.com/whistler/\" rel=\"noreferrer\" target=\"_blank\"> 2022 GranFondo Whistler</a>"
+    	};
+
+    	const drone = {
+    		video: "https://www.youtube.com/embed/fULlZkgpw50?",
+    		description: "A promotional spot that I shot and edited of the new GV70 from <a href=\"https://www.genesisyorkdale.ca/\" rel=\"noreferrer\" target=\"_blank\">Genesis Yorkdale</a>"
+    	};
+
+    	const music = {
+    		image: "guitar",
+    		description: "Me playing guitar... duh"
+    	}; // audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
+    	// description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
+
+    	const skiing = {
+    		image: "ski",
+    		description: "Whistler, BC"
+    	};
+
+    	const hiking = {
+    		image: "hike",
+    		description: "Lake Country, BC"
+    	};
+
+    	const travelling = {
+    		image: "travel2",
+    		description: "St. Barths"
+    	};
+
+    	const tech = {
+    		image: "frc",
+    		description: "Captaining my high school robotics team at the 2016 FIRST Robotics Competition"
+    	};
+
+    	const appstorereviewersModal = () => {
+    		open(ActivityModal, {
+    			video: appstorereviewers.video,
+    			description: appstorereviewers.description
+    		});
+    	};
+
+    	const cycleModal = () => {
+    		open(ActivityModal, {
+    			image: cycle.image,
+    			description: cycle.description
+    		});
+    	};
+
+    	const droneModal = () => {
+    		open(ActivityModal, {
+    			video: drone.video,
+    			description: drone.description
+    		});
+    	};
+
+    	const musicModal = () => {
+    		open(ActivityModal, {
+    			image: music.image,
+    			audio: music.audio,
+    			description: music.description
+    		});
+    	};
+
+    	const skiingModal = () => {
+    		open(ActivityModal, {
+    			image: skiing.image,
+    			description: skiing.description
+    		});
+    	};
+
+    	const hikingModal = () => {
+    		open(ActivityModal, {
+    			image: hiking.image,
+    			description: hiking.description
+    		});
+    	};
+
+    	const travellingModal = () => {
+    		open(ActivityModal, {
+    			image: travelling.image,
+    			description: travelling.description
+    		});
+    	};
+
+    	const techModal = () => {
+    		open(ActivityModal, {
+    			image: tech.image,
+    			description: tech.description
+    		});
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Intro> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Intro", $$slots, []);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		ActivityModal,
+    		open,
+    		appstorereviewers,
+    		cycle,
+    		drone,
+    		music,
+    		skiing,
+    		hiking,
+    		travelling,
+    		tech,
+    		appstorereviewersModal,
+    		cycleModal,
+    		droneModal,
+    		musicModal,
+    		skiingModal,
+    		hikingModal,
+    		travellingModal,
+    		techModal
+    	});
+
+    	return [
+    		appstorereviewersModal,
+    		cycleModal,
+    		droneModal,
+    		musicModal,
+    		skiingModal,
+    		hikingModal,
+    		travellingModal,
+    		techModal
+    	];
+    }
+
+    class Intro extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$9, create_fragment$9, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Intro",
+    			options,
+    			id: create_fragment$9.name
+    		});
+    	}
+    }
+
+    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+    function unwrapExports (x) {
+    	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+    }
+
+    function createCommonjsModule(fn, module) {
+    	return module = { exports: {} }, fn(module, module.exports), module.exports;
+    }
+
+    var strictUriEncode = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+
+    var token = '%[a-f0-9]{2}';
+    var singleMatcher = new RegExp(token, 'gi');
+    var multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+    function decodeComponents(components, split) {
+    	try {
+    		// Try to decode the entire string first
+    		return decodeURIComponent(components.join(''));
+    	} catch (err) {
+    		// Do nothing
+    	}
+
+    	if (components.length === 1) {
+    		return components;
+    	}
+
+    	split = split || 1;
+
+    	// Split the array in 2 parts
+    	var left = components.slice(0, split);
+    	var right = components.slice(split);
+
+    	return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+    }
+
+    function decode(input) {
+    	try {
+    		return decodeURIComponent(input);
+    	} catch (err) {
+    		var tokens = input.match(singleMatcher);
+
+    		for (var i = 1; i < tokens.length; i++) {
+    			input = decodeComponents(tokens, i).join('');
+
+    			tokens = input.match(singleMatcher);
+    		}
+
+    		return input;
+    	}
+    }
+
+    function customDecodeURIComponent(input) {
+    	// Keep track of all the replacements and prefill the map with the `BOM`
+    	var replaceMap = {
+    		'%FE%FF': '\uFFFD\uFFFD',
+    		'%FF%FE': '\uFFFD\uFFFD'
+    	};
+
+    	var match = multiMatcher.exec(input);
+    	while (match) {
+    		try {
+    			// Decode as big chunks as possible
+    			replaceMap[match[0]] = decodeURIComponent(match[0]);
+    		} catch (err) {
+    			var result = decode(match[0]);
+
+    			if (result !== match[0]) {
+    				replaceMap[match[0]] = result;
+    			}
+    		}
+
+    		match = multiMatcher.exec(input);
+    	}
+
+    	// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+    	replaceMap['%C2'] = '\uFFFD';
+
+    	var entries = Object.keys(replaceMap);
+
+    	for (var i = 0; i < entries.length; i++) {
+    		// Replace all decoded components
+    		var key = entries[i];
+    		input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+    	}
+
+    	return input;
+    }
+
+    var decodeUriComponent = function (encodedURI) {
+    	if (typeof encodedURI !== 'string') {
+    		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+    	}
+
+    	try {
+    		encodedURI = encodedURI.replace(/\+/g, ' ');
+
+    		// Try the built in decoder first
+    		return decodeURIComponent(encodedURI);
+    	} catch (err) {
+    		// Fallback to a more advanced decoder
+    		return customDecodeURIComponent(encodedURI);
+    	}
+    };
+
+    var splitOnFirst = (string, separator) => {
+    	if (!(typeof string === 'string' && typeof separator === 'string')) {
+    		throw new TypeError('Expected the arguments to be of type `string`');
+    	}
+
+    	if (separator === '') {
+    		return [string];
+    	}
+
+    	const separatorIndex = string.indexOf(separator);
+
+    	if (separatorIndex === -1) {
+    		return [string];
+    	}
+
+    	return [
+    		string.slice(0, separatorIndex),
+    		string.slice(separatorIndex + separator.length)
+    	];
+    };
+
+    var filterObj = function (obj, predicate) {
+    	var ret = {};
+    	var keys = Object.keys(obj);
+    	var isArr = Array.isArray(predicate);
+
+    	for (var i = 0; i < keys.length; i++) {
+    		var key = keys[i];
+    		var val = obj[key];
+
+    		if (isArr ? predicate.indexOf(key) !== -1 : predicate(key, val, obj)) {
+    			ret[key] = val;
+    		}
+    	}
+
+    	return ret;
+    };
+
+    var queryString = createCommonjsModule(function (module, exports) {
+
+
+
+
+
+    const isNullOrUndefined = value => value === null || value === undefined;
+
+    function encoderForArrayFormat(options) {
+    	switch (options.arrayFormat) {
+    		case 'index':
+    			return key => (result, value) => {
+    				const index = result.length;
+
+    				if (
+    					value === undefined ||
+    					(options.skipNull && value === null) ||
+    					(options.skipEmptyString && value === '')
+    				) {
+    					return result;
+    				}
+
+    				if (value === null) {
+    					return [...result, [encode(key, options), '[', index, ']'].join('')];
+    				}
+
+    				return [
+    					...result,
+    					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join('')
+    				];
+    			};
+
+    		case 'bracket':
+    			return key => (result, value) => {
+    				if (
+    					value === undefined ||
+    					(options.skipNull && value === null) ||
+    					(options.skipEmptyString && value === '')
+    				) {
+    					return result;
+    				}
+
+    				if (value === null) {
+    					return [...result, [encode(key, options), '[]'].join('')];
+    				}
+
+    				return [...result, [encode(key, options), '[]=', encode(value, options)].join('')];
+    			};
+
+    		case 'comma':
+    		case 'separator':
+    			return key => (result, value) => {
+    				if (value === null || value === undefined || value.length === 0) {
+    					return result;
+    				}
+
+    				if (result.length === 0) {
+    					return [[encode(key, options), '=', encode(value, options)].join('')];
+    				}
+
+    				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
+    			};
+
+    		default:
+    			return key => (result, value) => {
+    				if (
+    					value === undefined ||
+    					(options.skipNull && value === null) ||
+    					(options.skipEmptyString && value === '')
+    				) {
+    					return result;
+    				}
+
+    				if (value === null) {
+    					return [...result, encode(key, options)];
+    				}
+
+    				return [...result, [encode(key, options), '=', encode(value, options)].join('')];
+    			};
+    	}
+    }
+
+    function parserForArrayFormat(options) {
+    	let result;
+
+    	switch (options.arrayFormat) {
+    		case 'index':
+    			return (key, value, accumulator) => {
+    				result = /\[(\d*)\]$/.exec(key);
+
+    				key = key.replace(/\[\d*\]$/, '');
+
+    				if (!result) {
+    					accumulator[key] = value;
+    					return;
+    				}
+
+    				if (accumulator[key] === undefined) {
+    					accumulator[key] = {};
+    				}
+
+    				accumulator[key][result[1]] = value;
+    			};
+
+    		case 'bracket':
+    			return (key, value, accumulator) => {
+    				result = /(\[\])$/.exec(key);
+    				key = key.replace(/\[\]$/, '');
+
+    				if (!result) {
+    					accumulator[key] = value;
+    					return;
+    				}
+
+    				if (accumulator[key] === undefined) {
+    					accumulator[key] = [value];
+    					return;
+    				}
+
+    				accumulator[key] = [].concat(accumulator[key], value);
+    			};
+
+    		case 'comma':
+    		case 'separator':
+    			return (key, value, accumulator) => {
+    				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+    				const isEncodedArray = (typeof value === 'string' && !isArray && decode(value, options).includes(options.arrayFormatSeparator));
+    				value = isEncodedArray ? decode(value, options) : value;
+    				const newValue = isArray || isEncodedArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : value === null ? value : decode(value, options);
+    				accumulator[key] = newValue;
+    			};
+
+    		default:
+    			return (key, value, accumulator) => {
+    				if (accumulator[key] === undefined) {
+    					accumulator[key] = value;
+    					return;
+    				}
+
+    				accumulator[key] = [].concat(accumulator[key], value);
+    			};
+    	}
+    }
+
+    function validateArrayFormatSeparator(value) {
+    	if (typeof value !== 'string' || value.length !== 1) {
+    		throw new TypeError('arrayFormatSeparator must be single character string');
+    	}
+    }
+
+    function encode(value, options) {
+    	if (options.encode) {
+    		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+    	}
+
+    	return value;
+    }
+
+    function decode(value, options) {
+    	if (options.decode) {
+    		return decodeUriComponent(value);
+    	}
+
+    	return value;
+    }
+
+    function keysSorter(input) {
+    	if (Array.isArray(input)) {
+    		return input.sort();
+    	}
+
+    	if (typeof input === 'object') {
+    		return keysSorter(Object.keys(input))
+    			.sort((a, b) => Number(a) - Number(b))
+    			.map(key => input[key]);
+    	}
+
+    	return input;
+    }
+
+    function removeHash(input) {
+    	const hashStart = input.indexOf('#');
+    	if (hashStart !== -1) {
+    		input = input.slice(0, hashStart);
+    	}
+
+    	return input;
+    }
+
+    function getHash(url) {
+    	let hash = '';
+    	const hashStart = url.indexOf('#');
+    	if (hashStart !== -1) {
+    		hash = url.slice(hashStart);
+    	}
+
+    	return hash;
+    }
+
+    function extract(input) {
+    	input = removeHash(input);
+    	const queryStart = input.indexOf('?');
+    	if (queryStart === -1) {
+    		return '';
+    	}
+
+    	return input.slice(queryStart + 1);
+    }
+
+    function parseValue(value, options) {
+    	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+    		value = Number(value);
+    	} else if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+    		value = value.toLowerCase() === 'true';
+    	}
+
+    	return value;
+    }
+
+    function parse(query, options) {
+    	options = Object.assign({
+    		decode: true,
+    		sort: true,
+    		arrayFormat: 'none',
+    		arrayFormatSeparator: ',',
+    		parseNumbers: false,
+    		parseBooleans: false
+    	}, options);
+
+    	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+    	const formatter = parserForArrayFormat(options);
+
+    	// Create an object with no prototype
+    	const ret = Object.create(null);
+
+    	if (typeof query !== 'string') {
+    		return ret;
+    	}
+
+    	query = query.trim().replace(/^[?#&]/, '');
+
+    	if (!query) {
+    		return ret;
+    	}
+
+    	for (const param of query.split('&')) {
+    		if (param === '') {
+    			continue;
+    		}
+
+    		let [key, value] = splitOnFirst(options.decode ? param.replace(/\+/g, ' ') : param, '=');
+
+    		// Missing `=` should be `null`:
+    		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+    		value = value === undefined ? null : ['comma', 'separator'].includes(options.arrayFormat) ? value : decode(value, options);
+    		formatter(decode(key, options), value, ret);
+    	}
+
+    	for (const key of Object.keys(ret)) {
+    		const value = ret[key];
+    		if (typeof value === 'object' && value !== null) {
+    			for (const k of Object.keys(value)) {
+    				value[k] = parseValue(value[k], options);
+    			}
+    		} else {
+    			ret[key] = parseValue(value, options);
+    		}
+    	}
+
+    	if (options.sort === false) {
+    		return ret;
+    	}
+
+    	return (options.sort === true ? Object.keys(ret).sort() : Object.keys(ret).sort(options.sort)).reduce((result, key) => {
+    		const value = ret[key];
+    		if (Boolean(value) && typeof value === 'object' && !Array.isArray(value)) {
+    			// Sort object keys, not values
+    			result[key] = keysSorter(value);
+    		} else {
+    			result[key] = value;
+    		}
+
+    		return result;
+    	}, Object.create(null));
+    }
+
+    exports.extract = extract;
+    exports.parse = parse;
+
+    exports.stringify = (object, options) => {
+    	if (!object) {
+    		return '';
+    	}
+
+    	options = Object.assign({
+    		encode: true,
+    		strict: true,
+    		arrayFormat: 'none',
+    		arrayFormatSeparator: ','
+    	}, options);
+
+    	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+    	const shouldFilter = key => (
+    		(options.skipNull && isNullOrUndefined(object[key])) ||
+    		(options.skipEmptyString && object[key] === '')
+    	);
+
+    	const formatter = encoderForArrayFormat(options);
+
+    	const objectCopy = {};
+
+    	for (const key of Object.keys(object)) {
+    		if (!shouldFilter(key)) {
+    			objectCopy[key] = object[key];
+    		}
+    	}
+
+    	const keys = Object.keys(objectCopy);
+
+    	if (options.sort !== false) {
+    		keys.sort(options.sort);
+    	}
+
+    	return keys.map(key => {
+    		const value = object[key];
+
+    		if (value === undefined) {
+    			return '';
+    		}
+
+    		if (value === null) {
+    			return encode(key, options);
+    		}
+
+    		if (Array.isArray(value)) {
+    			return value
+    				.reduce(formatter(key), [])
+    				.join('&');
+    		}
+
+    		return encode(key, options) + '=' + encode(value, options);
+    	}).filter(x => x.length > 0).join('&');
+    };
+
+    exports.parseUrl = (url, options) => {
+    	options = Object.assign({
+    		decode: true
+    	}, options);
+
+    	const [url_, hash] = splitOnFirst(url, '#');
+
+    	return Object.assign(
+    		{
+    			url: url_.split('?')[0] || '',
+    			query: parse(extract(url), options)
+    		},
+    		options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}
+    	);
+    };
+
+    exports.stringifyUrl = (object, options) => {
+    	options = Object.assign({
+    		encode: true,
+    		strict: true
+    	}, options);
+
+    	const url = removeHash(object.url).split('?')[0] || '';
+    	const queryFromUrl = exports.extract(object.url);
+    	const parsedQueryFromUrl = exports.parse(queryFromUrl, {sort: false});
+
+    	const query = Object.assign(parsedQueryFromUrl, object.query);
+    	let queryString = exports.stringify(query, options);
+    	if (queryString) {
+    		queryString = `?${queryString}`;
+    	}
+
+    	let hash = getHash(object.url);
+    	if (object.fragmentIdentifier) {
+    		hash = `#${encode(object.fragmentIdentifier, options)}`;
+    	}
+
+    	return `${url}${queryString}${hash}`;
+    };
+
+    exports.pick = (input, filter, options) => {
+    	options = Object.assign({
+    		parseFragmentIdentifier: true
+    	}, options);
+
+    	const {url, query, fragmentIdentifier} = exports.parseUrl(input, options);
+    	return exports.stringifyUrl({
+    		url,
+    		query: filterObj(query, filter),
+    		fragmentIdentifier
+    	}, options);
+    };
+
+    exports.exclude = (input, filter, options) => {
+    	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+    	return exports.pick(input, exclusionFilter, options);
+    };
+    });
+    var queryString_1 = queryString.extract;
+    var queryString_2 = queryString.parse;
+    var queryString_3 = queryString.stringify;
+    var queryString_4 = queryString.parseUrl;
+    var queryString_5 = queryString.stringifyUrl;
+    var queryString_6 = queryString.pick;
+    var queryString_7 = queryString.exclude;
+
+    var marked_umd = createCommonjsModule(function (module, exports) {
+    /**
+     * marked - a markdown parser
+     * Copyright (c) 2011-2022, Christopher Jeffrey. (MIT Licensed)
+     * https://github.com/markedjs/marked
+     */
+
+    /**
+     * DO NOT EDIT THIS FILE
+     * The code in this file is generated from files in ./src/
+     */
+
+    (function (global, factory) {
+       factory(exports) ;
+    })(commonjsGlobal, (function (exports) {
+      function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+
+      function _createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) _defineProperties(Constructor, staticProps);
+        Object.defineProperty(Constructor, "prototype", {
+          writable: false
+        });
+        return Constructor;
+      }
+
+      function _unsupportedIterableToArray(o, minLen) {
+        if (!o) return;
+        if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+        var n = Object.prototype.toString.call(o).slice(8, -1);
+        if (n === "Object" && o.constructor) n = o.constructor.name;
+        if (n === "Map" || n === "Set") return Array.from(o);
+        if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+      }
+
+      function _arrayLikeToArray(arr, len) {
+        if (len == null || len > arr.length) len = arr.length;
+
+        for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+        return arr2;
+      }
+
+      function _createForOfIteratorHelperLoose(o, allowArrayLike) {
+        var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+        if (it) return (it = it.call(o)).next.bind(it);
+
+        if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+          if (it) o = it;
+          var i = 0;
+          return function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          };
+        }
+
+        throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+      }
+
+      function getDefaults() {
+        return {
+          baseUrl: null,
+          breaks: false,
+          extensions: null,
+          gfm: true,
+          headerIds: true,
+          headerPrefix: '',
+          highlight: null,
+          langPrefix: 'language-',
+          mangle: true,
+          pedantic: false,
+          renderer: null,
+          sanitize: false,
+          sanitizer: null,
+          silent: false,
+          smartLists: false,
+          smartypants: false,
+          tokenizer: null,
+          walkTokens: null,
+          xhtml: false
+        };
+      }
+      exports.defaults = getDefaults();
+      function changeDefaults(newDefaults) {
+        exports.defaults = newDefaults;
+      }
+
+      /**
+       * Helpers
+       */
+      var escapeTest = /[&<>"']/;
+      var escapeReplace = /[&<>"']/g;
+      var escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
+      var escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g;
+      var escapeReplacements = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+
+      var getEscapeReplacement = function getEscapeReplacement(ch) {
+        return escapeReplacements[ch];
+      };
+
+      function escape(html, encode) {
+        if (encode) {
+          if (escapeTest.test(html)) {
+            return html.replace(escapeReplace, getEscapeReplacement);
+          }
+        } else {
+          if (escapeTestNoEncode.test(html)) {
+            return html.replace(escapeReplaceNoEncode, getEscapeReplacement);
+          }
+        }
+
+        return html;
+      }
+      var unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
+      function unescape(html) {
+        // explicitly match decimal, hex, and named HTML entities
+        return html.replace(unescapeTest, function (_, n) {
+          n = n.toLowerCase();
+          if (n === 'colon') return ':';
+
+          if (n.charAt(0) === '#') {
+            return n.charAt(1) === 'x' ? String.fromCharCode(parseInt(n.substring(2), 16)) : String.fromCharCode(+n.substring(1));
+          }
+
+          return '';
+        });
+      }
+      var caret = /(^|[^\[])\^/g;
+      function edit(regex, opt) {
+        regex = regex.source || regex;
+        opt = opt || '';
+        var obj = {
+          replace: function replace(name, val) {
+            val = val.source || val;
+            val = val.replace(caret, '$1');
+            regex = regex.replace(name, val);
+            return obj;
+          },
+          getRegex: function getRegex() {
+            return new RegExp(regex, opt);
+          }
+        };
+        return obj;
+      }
+      var nonWordAndColonTest = /[^\w:]/g;
+      var originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
+      function cleanUrl(sanitize, base, href) {
+        if (sanitize) {
+          var prot;
+
+          try {
+            prot = decodeURIComponent(unescape(href)).replace(nonWordAndColonTest, '').toLowerCase();
+          } catch (e) {
+            return null;
+          }
+
+          if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0 || prot.indexOf('data:') === 0) {
+            return null;
+          }
+        }
+
+        if (base && !originIndependentUrl.test(href)) {
+          href = resolveUrl(base, href);
+        }
+
+        try {
+          href = encodeURI(href).replace(/%25/g, '%');
+        } catch (e) {
+          return null;
+        }
+
+        return href;
+      }
+      var baseUrls = {};
+      var justDomain = /^[^:]+:\/*[^/]*$/;
+      var protocol = /^([^:]+:)[\s\S]*$/;
+      var domain = /^([^:]+:\/*[^/]*)[\s\S]*$/;
+      function resolveUrl(base, href) {
+        if (!baseUrls[' ' + base]) {
+          // we can ignore everything in base after the last slash of its path component,
+          // but we might need to add _that_
+          // https://tools.ietf.org/html/rfc3986#section-3
+          if (justDomain.test(base)) {
+            baseUrls[' ' + base] = base + '/';
+          } else {
+            baseUrls[' ' + base] = rtrim(base, '/', true);
+          }
+        }
+
+        base = baseUrls[' ' + base];
+        var relativeBase = base.indexOf(':') === -1;
+
+        if (href.substring(0, 2) === '//') {
+          if (relativeBase) {
+            return href;
+          }
+
+          return base.replace(protocol, '$1') + href;
+        } else if (href.charAt(0) === '/') {
+          if (relativeBase) {
+            return href;
+          }
+
+          return base.replace(domain, '$1') + href;
+        } else {
+          return base + href;
+        }
+      }
+      var noopTest = {
+        exec: function noopTest() {}
+      };
+      function merge(obj) {
+        var i = 1,
+            target,
+            key;
+
+        for (; i < arguments.length; i++) {
+          target = arguments[i];
+
+          for (key in target) {
+            if (Object.prototype.hasOwnProperty.call(target, key)) {
+              obj[key] = target[key];
+            }
+          }
+        }
+
+        return obj;
+      }
+      function splitCells(tableRow, count) {
+        // ensure that every cell-delimiting pipe has a space
+        // before it to distinguish it from an escaped pipe
+        var row = tableRow.replace(/\|/g, function (match, offset, str) {
+          var escaped = false,
+              curr = offset;
+
+          while (--curr >= 0 && str[curr] === '\\') {
+            escaped = !escaped;
+          }
+
+          if (escaped) {
+            // odd number of slashes means | is escaped
+            // so we leave it alone
+            return '|';
+          } else {
+            // add space before unescaped |
+            return ' |';
+          }
+        }),
+            cells = row.split(/ \|/);
+        var i = 0; // First/last cell in a row cannot be empty if it has no leading/trailing pipe
+
+        if (!cells[0].trim()) {
+          cells.shift();
+        }
+
+        if (cells.length > 0 && !cells[cells.length - 1].trim()) {
+          cells.pop();
+        }
+
+        if (cells.length > count) {
+          cells.splice(count);
+        } else {
+          while (cells.length < count) {
+            cells.push('');
+          }
+        }
+
+        for (; i < cells.length; i++) {
+          // leading or trailing whitespace is ignored per the gfm spec
+          cells[i] = cells[i].trim().replace(/\\\|/g, '|');
+        }
+
+        return cells;
+      } // Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
+      // /c*$/ is vulnerable to REDOS.
+      // invert: Remove suffix of non-c chars instead. Default falsey.
+
+      function rtrim(str, c, invert) {
+        var l = str.length;
+
+        if (l === 0) {
+          return '';
+        } // Length of suffix matching the invert condition.
+
+
+        var suffLen = 0; // Step left until we fail to match the invert condition.
+
+        while (suffLen < l) {
+          var currChar = str.charAt(l - suffLen - 1);
+
+          if (currChar === c && !invert) {
+            suffLen++;
+          } else if (currChar !== c && invert) {
+            suffLen++;
+          } else {
+            break;
+          }
+        }
+
+        return str.substr(0, l - suffLen);
+      }
+      function findClosingBracket(str, b) {
+        if (str.indexOf(b[1]) === -1) {
+          return -1;
+        }
+
+        var l = str.length;
+        var level = 0,
+            i = 0;
+
+        for (; i < l; i++) {
+          if (str[i] === '\\') {
+            i++;
+          } else if (str[i] === b[0]) {
+            level++;
+          } else if (str[i] === b[1]) {
+            level--;
+
+            if (level < 0) {
+              return i;
+            }
+          }
+        }
+
+        return -1;
+      }
+      function checkSanitizeDeprecation(opt) {
+        if (opt && opt.sanitize && !opt.silent) {
+          console.warn('marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options');
+        }
+      } // copied from https://stackoverflow.com/a/5450113/806777
+
+      function repeatString(pattern, count) {
+        if (count < 1) {
+          return '';
+        }
+
+        var result = '';
+
+        while (count > 1) {
+          if (count & 1) {
+            result += pattern;
+          }
+
+          count >>= 1;
+          pattern += pattern;
+        }
+
+        return result + pattern;
+      }
+
+      function outputLink(cap, link, raw, lexer) {
+        var href = link.href;
+        var title = link.title ? escape(link.title) : null;
+        var text = cap[1].replace(/\\([\[\]])/g, '$1');
+
+        if (cap[0].charAt(0) !== '!') {
+          lexer.state.inLink = true;
+          var token = {
+            type: 'link',
+            raw: raw,
+            href: href,
+            title: title,
+            text: text,
+            tokens: lexer.inlineTokens(text, [])
+          };
+          lexer.state.inLink = false;
+          return token;
+        } else {
+          return {
+            type: 'image',
+            raw: raw,
+            href: href,
+            title: title,
+            text: escape(text)
+          };
+        }
+      }
+
+      function indentCodeCompensation(raw, text) {
+        var matchIndentToCode = raw.match(/^(\s+)(?:```)/);
+
+        if (matchIndentToCode === null) {
+          return text;
+        }
+
+        var indentToCode = matchIndentToCode[1];
+        return text.split('\n').map(function (node) {
+          var matchIndentInNode = node.match(/^\s+/);
+
+          if (matchIndentInNode === null) {
+            return node;
+          }
+
+          var indentInNode = matchIndentInNode[0];
+
+          if (indentInNode.length >= indentToCode.length) {
+            return node.slice(indentToCode.length);
+          }
+
+          return node;
+        }).join('\n');
+      }
+      /**
+       * Tokenizer
+       */
+
+
+      var Tokenizer = /*#__PURE__*/function () {
+        function Tokenizer(options) {
+          this.options = options || exports.defaults;
+        }
+
+        var _proto = Tokenizer.prototype;
+
+        _proto.space = function space(src) {
+          var cap = this.rules.block.newline.exec(src);
+
+          if (cap && cap[0].length > 0) {
+            return {
+              type: 'space',
+              raw: cap[0]
+            };
+          }
+        };
+
+        _proto.code = function code(src) {
+          var cap = this.rules.block.code.exec(src);
+
+          if (cap) {
+            var text = cap[0].replace(/^ {1,4}/gm, '');
+            return {
+              type: 'code',
+              raw: cap[0],
+              codeBlockStyle: 'indented',
+              text: !this.options.pedantic ? rtrim(text, '\n') : text
+            };
+          }
+        };
+
+        _proto.fences = function fences(src) {
+          var cap = this.rules.block.fences.exec(src);
+
+          if (cap) {
+            var raw = cap[0];
+            var text = indentCodeCompensation(raw, cap[3] || '');
+            return {
+              type: 'code',
+              raw: raw,
+              lang: cap[2] ? cap[2].trim() : cap[2],
+              text: text
+            };
+          }
+        };
+
+        _proto.heading = function heading(src) {
+          var cap = this.rules.block.heading.exec(src);
+
+          if (cap) {
+            var text = cap[2].trim(); // remove trailing #s
+
+            if (/#$/.test(text)) {
+              var trimmed = rtrim(text, '#');
+
+              if (this.options.pedantic) {
+                text = trimmed.trim();
+              } else if (!trimmed || / $/.test(trimmed)) {
+                // CommonMark requires space before trailing #s
+                text = trimmed.trim();
+              }
+            }
+
+            var token = {
+              type: 'heading',
+              raw: cap[0],
+              depth: cap[1].length,
+              text: text,
+              tokens: []
+            };
+            this.lexer.inline(token.text, token.tokens);
+            return token;
+          }
+        };
+
+        _proto.hr = function hr(src) {
+          var cap = this.rules.block.hr.exec(src);
+
+          if (cap) {
+            return {
+              type: 'hr',
+              raw: cap[0]
+            };
+          }
+        };
+
+        _proto.blockquote = function blockquote(src) {
+          var cap = this.rules.block.blockquote.exec(src);
+
+          if (cap) {
+            var text = cap[0].replace(/^ *> ?/gm, '');
+            return {
+              type: 'blockquote',
+              raw: cap[0],
+              tokens: this.lexer.blockTokens(text, []),
+              text: text
+            };
+          }
+        };
+
+        _proto.list = function list(src) {
+          var cap = this.rules.block.list.exec(src);
+
+          if (cap) {
+            var raw, istask, ischecked, indent, i, blankLine, endsWithBlankLine, line, nextLine, rawLine, itemContents, endEarly;
+            var bull = cap[1].trim();
+            var isordered = bull.length > 1;
+            var list = {
+              type: 'list',
+              raw: '',
+              ordered: isordered,
+              start: isordered ? +bull.slice(0, -1) : '',
+              loose: false,
+              items: []
+            };
+            bull = isordered ? "\\d{1,9}\\" + bull.slice(-1) : "\\" + bull;
+
+            if (this.options.pedantic) {
+              bull = isordered ? bull : '[*+-]';
+            } // Get next list item
+
+
+            var itemRegex = new RegExp("^( {0,3}" + bull + ")((?: [^\\n]*)?(?:\\n|$))"); // Check if current bullet point can start a new List Item
+
+            while (src) {
+              endEarly = false;
+
+              if (!(cap = itemRegex.exec(src))) {
+                break;
+              }
+
+              if (this.rules.block.hr.test(src)) {
+                // End list if bullet was actually HR (possibly move into itemRegex?)
+                break;
+              }
+
+              raw = cap[0];
+              src = src.substring(raw.length);
+              line = cap[2].split('\n', 1)[0];
+              nextLine = src.split('\n', 1)[0];
+
+              if (this.options.pedantic) {
+                indent = 2;
+                itemContents = line.trimLeft();
+              } else {
+                indent = cap[2].search(/[^ ]/); // Find first non-space char
+
+                indent = indent > 4 ? 1 : indent; // Treat indented code blocks (> 4 spaces) as having only 1 indent
+
+                itemContents = line.slice(indent);
+                indent += cap[1].length;
+              }
+
+              blankLine = false;
+
+              if (!line && /^ *$/.test(nextLine)) {
+                // Items begin with at most one blank line
+                raw += nextLine + '\n';
+                src = src.substring(nextLine.length + 1);
+                endEarly = true;
+              }
+
+              if (!endEarly) {
+                var nextBulletRegex = new RegExp("^ {0," + Math.min(3, indent - 1) + "}(?:[*+-]|\\d{1,9}[.)])"); // Check if following lines should be included in List Item
+
+                while (src) {
+                  rawLine = src.split('\n', 1)[0];
+                  line = rawLine; // Re-align to follow commonmark nesting rules
+
+                  if (this.options.pedantic) {
+                    line = line.replace(/^ {1,4}(?=( {4})*[^ ])/g, '  ');
+                  } // End list item if found start of new bullet
+
+
+                  if (nextBulletRegex.test(line)) {
+                    break;
+                  }
+
+                  if (line.search(/[^ ]/) >= indent || !line.trim()) {
+                    // Dedent if possible
+                    itemContents += '\n' + line.slice(indent);
+                  } else if (!blankLine) {
+                    // Until blank line, item doesn't need indentation
+                    itemContents += '\n' + line;
+                  } else {
+                    // Otherwise, improper indentation ends this item
+                    break;
+                  }
+
+                  if (!blankLine && !line.trim()) {
+                    // Check if current line is blank
+                    blankLine = true;
+                  }
+
+                  raw += rawLine + '\n';
+                  src = src.substring(rawLine.length + 1);
+                }
+              }
+
+              if (!list.loose) {
+                // If the previous item ended with a blank line, the list is loose
+                if (endsWithBlankLine) {
+                  list.loose = true;
+                } else if (/\n *\n *$/.test(raw)) {
+                  endsWithBlankLine = true;
+                }
+              } // Check for task list items
+
+
+              if (this.options.gfm) {
+                istask = /^\[[ xX]\] /.exec(itemContents);
+
+                if (istask) {
+                  ischecked = istask[0] !== '[ ] ';
+                  itemContents = itemContents.replace(/^\[[ xX]\] +/, '');
+                }
+              }
+
+              list.items.push({
+                type: 'list_item',
+                raw: raw,
+                task: !!istask,
+                checked: ischecked,
+                loose: false,
+                text: itemContents
+              });
+              list.raw += raw;
+            } // Do not consume newlines at end of final item. Alternatively, make itemRegex *start* with any newlines to simplify/speed up endsWithBlankLine logic
+
+
+            list.items[list.items.length - 1].raw = raw.trimRight();
+            list.items[list.items.length - 1].text = itemContents.trimRight();
+            list.raw = list.raw.trimRight();
+            var l = list.items.length; // Item child tokens handled here at end because we needed to have the final item to trim it first
+
+            for (i = 0; i < l; i++) {
+              this.lexer.state.top = false;
+              list.items[i].tokens = this.lexer.blockTokens(list.items[i].text, []);
+              var spacers = list.items[i].tokens.filter(function (t) {
+                return t.type === 'space';
+              });
+              var hasMultipleLineBreaks = spacers.every(function (t) {
+                var chars = t.raw.split('');
+                var lineBreaks = 0;
+
+                for (var _iterator = _createForOfIteratorHelperLoose(chars), _step; !(_step = _iterator()).done;) {
+                  var _char = _step.value;
+
+                  if (_char === '\n') {
+                    lineBreaks += 1;
+                  }
+
+                  if (lineBreaks > 1) {
+                    return true;
+                  }
+                }
+
+                return false;
+              });
+
+              if (!list.loose && spacers.length && hasMultipleLineBreaks) {
+                // Having a single line break doesn't mean a list is loose. A single line break is terminating the last list item
+                list.loose = true;
+                list.items[i].loose = true;
+              }
+            }
+
+            return list;
+          }
+        };
+
+        _proto.html = function html(src) {
+          var cap = this.rules.block.html.exec(src);
+
+          if (cap) {
+            var token = {
+              type: 'html',
+              raw: cap[0],
+              pre: !this.options.sanitizer && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
+              text: cap[0]
+            };
+
+            if (this.options.sanitize) {
+              token.type = 'paragraph';
+              token.text = this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]);
+              token.tokens = [];
+              this.lexer.inline(token.text, token.tokens);
+            }
+
+            return token;
+          }
+        };
+
+        _proto.def = function def(src) {
+          var cap = this.rules.block.def.exec(src);
+
+          if (cap) {
+            if (cap[3]) cap[3] = cap[3].substring(1, cap[3].length - 1);
+            var tag = cap[1].toLowerCase().replace(/\s+/g, ' ');
+            return {
+              type: 'def',
+              tag: tag,
+              raw: cap[0],
+              href: cap[2],
+              title: cap[3]
+            };
+          }
+        };
+
+        _proto.table = function table(src) {
+          var cap = this.rules.block.table.exec(src);
+
+          if (cap) {
+            var item = {
+              type: 'table',
+              header: splitCells(cap[1]).map(function (c) {
+                return {
+                  text: c
+                };
+              }),
+              align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
+              rows: cap[3] && cap[3].trim() ? cap[3].replace(/\n[ \t]*$/, '').split('\n') : []
+            };
+
+            if (item.header.length === item.align.length) {
+              item.raw = cap[0];
+              var l = item.align.length;
+              var i, j, k, row;
+
+              for (i = 0; i < l; i++) {
+                if (/^ *-+: *$/.test(item.align[i])) {
+                  item.align[i] = 'right';
+                } else if (/^ *:-+: *$/.test(item.align[i])) {
+                  item.align[i] = 'center';
+                } else if (/^ *:-+ *$/.test(item.align[i])) {
+                  item.align[i] = 'left';
+                } else {
+                  item.align[i] = null;
+                }
+              }
+
+              l = item.rows.length;
+
+              for (i = 0; i < l; i++) {
+                item.rows[i] = splitCells(item.rows[i], item.header.length).map(function (c) {
+                  return {
+                    text: c
+                  };
+                });
+              } // parse child tokens inside headers and cells
+              // header child tokens
+
+
+              l = item.header.length;
+
+              for (j = 0; j < l; j++) {
+                item.header[j].tokens = [];
+                this.lexer.inlineTokens(item.header[j].text, item.header[j].tokens);
+              } // cell child tokens
+
+
+              l = item.rows.length;
+
+              for (j = 0; j < l; j++) {
+                row = item.rows[j];
+
+                for (k = 0; k < row.length; k++) {
+                  row[k].tokens = [];
+                  this.lexer.inlineTokens(row[k].text, row[k].tokens);
+                }
+              }
+
+              return item;
+            }
+          }
+        };
+
+        _proto.lheading = function lheading(src) {
+          var cap = this.rules.block.lheading.exec(src);
+
+          if (cap) {
+            var token = {
+              type: 'heading',
+              raw: cap[0],
+              depth: cap[2].charAt(0) === '=' ? 1 : 2,
+              text: cap[1],
+              tokens: []
+            };
+            this.lexer.inline(token.text, token.tokens);
+            return token;
+          }
+        };
+
+        _proto.paragraph = function paragraph(src) {
+          var cap = this.rules.block.paragraph.exec(src);
+
+          if (cap) {
+            var token = {
+              type: 'paragraph',
+              raw: cap[0],
+              text: cap[1].charAt(cap[1].length - 1) === '\n' ? cap[1].slice(0, -1) : cap[1],
+              tokens: []
+            };
+            this.lexer.inline(token.text, token.tokens);
+            return token;
+          }
+        };
+
+        _proto.text = function text(src) {
+          var cap = this.rules.block.text.exec(src);
+
+          if (cap) {
+            var token = {
+              type: 'text',
+              raw: cap[0],
+              text: cap[0],
+              tokens: []
+            };
+            this.lexer.inline(token.text, token.tokens);
+            return token;
+          }
+        };
+
+        _proto.escape = function escape$1(src) {
+          var cap = this.rules.inline.escape.exec(src);
+
+          if (cap) {
+            return {
+              type: 'escape',
+              raw: cap[0],
+              text: escape(cap[1])
+            };
+          }
+        };
+
+        _proto.tag = function tag(src) {
+          var cap = this.rules.inline.tag.exec(src);
+
+          if (cap) {
+            if (!this.lexer.state.inLink && /^<a /i.test(cap[0])) {
+              this.lexer.state.inLink = true;
+            } else if (this.lexer.state.inLink && /^<\/a>/i.test(cap[0])) {
+              this.lexer.state.inLink = false;
+            }
+
+            if (!this.lexer.state.inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+              this.lexer.state.inRawBlock = true;
+            } else if (this.lexer.state.inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+              this.lexer.state.inRawBlock = false;
+            }
+
+            return {
+              type: this.options.sanitize ? 'text' : 'html',
+              raw: cap[0],
+              inLink: this.lexer.state.inLink,
+              inRawBlock: this.lexer.state.inRawBlock,
+              text: this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]) : cap[0]
+            };
+          }
+        };
+
+        _proto.link = function link(src) {
+          var cap = this.rules.inline.link.exec(src);
+
+          if (cap) {
+            var trimmedUrl = cap[2].trim();
+
+            if (!this.options.pedantic && /^</.test(trimmedUrl)) {
+              // commonmark requires matching angle brackets
+              if (!/>$/.test(trimmedUrl)) {
+                return;
+              } // ending angle bracket cannot be escaped
+
+
+              var rtrimSlash = rtrim(trimmedUrl.slice(0, -1), '\\');
+
+              if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
+                return;
+              }
+            } else {
+              // find closing parenthesis
+              var lastParenIndex = findClosingBracket(cap[2], '()');
+
+              if (lastParenIndex > -1) {
+                var start = cap[0].indexOf('!') === 0 ? 5 : 4;
+                var linkLen = start + cap[1].length + lastParenIndex;
+                cap[2] = cap[2].substring(0, lastParenIndex);
+                cap[0] = cap[0].substring(0, linkLen).trim();
+                cap[3] = '';
+              }
+            }
+
+            var href = cap[2];
+            var title = '';
+
+            if (this.options.pedantic) {
+              // split pedantic href and title
+              var link = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href);
+
+              if (link) {
+                href = link[1];
+                title = link[3];
+              }
+            } else {
+              title = cap[3] ? cap[3].slice(1, -1) : '';
+            }
+
+            href = href.trim();
+
+            if (/^</.test(href)) {
+              if (this.options.pedantic && !/>$/.test(trimmedUrl)) {
+                // pedantic allows starting angle bracket without ending angle bracket
+                href = href.slice(1);
+              } else {
+                href = href.slice(1, -1);
+              }
+            }
+
+            return outputLink(cap, {
+              href: href ? href.replace(this.rules.inline._escapes, '$1') : href,
+              title: title ? title.replace(this.rules.inline._escapes, '$1') : title
+            }, cap[0], this.lexer);
+          }
+        };
+
+        _proto.reflink = function reflink(src, links) {
+          var cap;
+
+          if ((cap = this.rules.inline.reflink.exec(src)) || (cap = this.rules.inline.nolink.exec(src))) {
+            var link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
+            link = links[link.toLowerCase()];
+
+            if (!link || !link.href) {
+              var text = cap[0].charAt(0);
+              return {
+                type: 'text',
+                raw: text,
+                text: text
+              };
+            }
+
+            return outputLink(cap, link, cap[0], this.lexer);
+          }
+        };
+
+        _proto.emStrong = function emStrong(src, maskedSrc, prevChar) {
+          if (prevChar === void 0) {
+            prevChar = '';
+          }
+
+          var match = this.rules.inline.emStrong.lDelim.exec(src);
+          if (!match) return; // _ can't be between two alphanumerics. \p{L}\p{N} includes non-english alphabet/numbers as well
+
+          if (match[3] && prevChar.match(/(?:[0-9A-Za-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05D0-\u05EA\u05EF-\u05F2\u0620-\u064A\u0660-\u0669\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u0870-\u0887\u0889-\u088E\u08A0-\u08C9\u0904-\u0939\u093D\u0950\u0958-\u0961\u0966-\u096F\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A66-\u0A6F\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AE6-\u0AEF\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B66-\u0B6F\u0B71-\u0B77\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0BE6-\u0BF2\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C5D\u0C60\u0C61\u0C66-\u0C6F\u0C78-\u0C7E\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDD\u0CDE\u0CE0\u0CE1\u0CE6-\u0CEF\u0CF1\u0CF2\u0D04-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D58-\u0D61\u0D66-\u0D78\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DE6-\u0DEF\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F-\u1049\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u1711\u171F-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A16\u1A20-\u1A54\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1B05-\u1B33\u1B45-\u1B4C\u1B50-\u1B59\u1B83-\u1BA0\u1BAE-\u1BE5\u1C00-\u1C23\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2150-\u2189\u2460-\u249B\u24EA-\u24FF\u2776-\u2793\u2C00-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7CA\uA7D0\uA7D1\uA7D3\uA7D5-\uA7D9\uA7F2-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA830-\uA835\uA840-\uA873\uA882-\uA8B3\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD\uA8FE\uA900-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF-\uA9D9\uA9E0-\uA9E4\uA9E6-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA50-\uAA59\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABE2\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDD70-\uDD7A\uDD7C-\uDD8A\uDD8C-\uDD92\uDD94\uDD95\uDD97-\uDDA1\uDDA3-\uDDB1\uDDB3-\uDDB9\uDDBB\uDDBC\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67\uDF80-\uDF85\uDF87-\uDFB0\uDFB2-\uDFBA]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD23\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDF70-\uDF81\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC03-\uDC37\uDC52-\uDC6F\uDC71\uDC72\uDC75\uDC83-\uDCAF\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD03-\uDD26\uDD36-\uDD3F\uDD44\uDD47\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDD0-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE2B\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDEF0-\uDEF9\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE50-\uDE59\uDE80-\uDEAA\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF30-\uDF3B\uDF40-\uDF46]|\uD806[\uDC00-\uDC2B\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD2F\uDD3F\uDD41\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD0\uDDE1\uDDE3\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE89\uDE9D\uDEB0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD89\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF2\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|\uD80B[\uDF90-\uDFF0]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDE70-\uDEBE\uDEC0-\uDEC9\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF50\uDF93-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82B[\uDFF0-\uDFF3\uDFF5-\uDFFB\uDFFD\uDFFE]|\uD82C[\uDC00-\uDD22\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD837[\uDF00-\uDF1E]|\uD838[\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDE90-\uDEAD\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD839[\uDFE0-\uDFE6\uDFE8-\uDFEB\uDFED\uDFEE\uDFF0-\uDFFE]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDF\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF38\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])/)) return;
+          var nextChar = match[1] || match[2] || '';
+
+          if (!nextChar || nextChar && (prevChar === '' || this.rules.inline.punctuation.exec(prevChar))) {
+            var lLength = match[0].length - 1;
+            var rDelim,
+                rLength,
+                delimTotal = lLength,
+                midDelimTotal = 0;
+            var endReg = match[0][0] === '*' ? this.rules.inline.emStrong.rDelimAst : this.rules.inline.emStrong.rDelimUnd;
+            endReg.lastIndex = 0; // Clip maskedSrc to same section of string as src (move to lexer?)
+
+            maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
+
+            while ((match = endReg.exec(maskedSrc)) != null) {
+              rDelim = match[1] || match[2] || match[3] || match[4] || match[5] || match[6];
+              if (!rDelim) continue; // skip single * in __abc*abc__
+
+              rLength = rDelim.length;
+
+              if (match[3] || match[4]) {
+                // found another Left Delim
+                delimTotal += rLength;
+                continue;
+              } else if (match[5] || match[6]) {
+                // either Left or Right Delim
+                if (lLength % 3 && !((lLength + rLength) % 3)) {
+                  midDelimTotal += rLength;
+                  continue; // CommonMark Emphasis Rules 9-10
+                }
+              }
+
+              delimTotal -= rLength;
+              if (delimTotal > 0) continue; // Haven't found enough closing delimiters
+              // Remove extra characters. *a*** -> *a*
+
+              rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal); // Create `em` if smallest delimiter has odd char count. *a***
+
+              if (Math.min(lLength, rLength) % 2) {
+                var _text = src.slice(1, lLength + match.index + rLength);
+
+                return {
+                  type: 'em',
+                  raw: src.slice(0, lLength + match.index + rLength + 1),
+                  text: _text,
+                  tokens: this.lexer.inlineTokens(_text, [])
+                };
+              } // Create 'strong' if smallest delimiter has even char count. **a***
+
+
+              var text = src.slice(2, lLength + match.index + rLength - 1);
+              return {
+                type: 'strong',
+                raw: src.slice(0, lLength + match.index + rLength + 1),
+                text: text,
+                tokens: this.lexer.inlineTokens(text, [])
+              };
+            }
+          }
+        };
+
+        _proto.codespan = function codespan(src) {
+          var cap = this.rules.inline.code.exec(src);
+
+          if (cap) {
+            var text = cap[2].replace(/\n/g, ' ');
+            var hasNonSpaceChars = /[^ ]/.test(text);
+            var hasSpaceCharsOnBothEnds = /^ /.test(text) && / $/.test(text);
+
+            if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
+              text = text.substring(1, text.length - 1);
+            }
+
+            text = escape(text, true);
+            return {
+              type: 'codespan',
+              raw: cap[0],
+              text: text
+            };
+          }
+        };
+
+        _proto.br = function br(src) {
+          var cap = this.rules.inline.br.exec(src);
+
+          if (cap) {
+            return {
+              type: 'br',
+              raw: cap[0]
+            };
+          }
+        };
+
+        _proto.del = function del(src) {
+          var cap = this.rules.inline.del.exec(src);
+
+          if (cap) {
+            return {
+              type: 'del',
+              raw: cap[0],
+              text: cap[2],
+              tokens: this.lexer.inlineTokens(cap[2], [])
+            };
+          }
+        };
+
+        _proto.autolink = function autolink(src, mangle) {
+          var cap = this.rules.inline.autolink.exec(src);
+
+          if (cap) {
+            var text, href;
+
+            if (cap[2] === '@') {
+              text = escape(this.options.mangle ? mangle(cap[1]) : cap[1]);
+              href = 'mailto:' + text;
+            } else {
+              text = escape(cap[1]);
+              href = text;
+            }
+
+            return {
+              type: 'link',
+              raw: cap[0],
+              text: text,
+              href: href,
+              tokens: [{
+                type: 'text',
+                raw: text,
+                text: text
+              }]
+            };
+          }
+        };
+
+        _proto.url = function url(src, mangle) {
+          var cap;
+
+          if (cap = this.rules.inline.url.exec(src)) {
+            var text, href;
+
+            if (cap[2] === '@') {
+              text = escape(this.options.mangle ? mangle(cap[0]) : cap[0]);
+              href = 'mailto:' + text;
+            } else {
+              // do extended autolink path validation
+              var prevCapZero;
+
+              do {
+                prevCapZero = cap[0];
+                cap[0] = this.rules.inline._backpedal.exec(cap[0])[0];
+              } while (prevCapZero !== cap[0]);
+
+              text = escape(cap[0]);
+
+              if (cap[1] === 'www.') {
+                href = 'http://' + text;
+              } else {
+                href = text;
+              }
+            }
+
+            return {
+              type: 'link',
+              raw: cap[0],
+              text: text,
+              href: href,
+              tokens: [{
+                type: 'text',
+                raw: text,
+                text: text
+              }]
+            };
+          }
+        };
+
+        _proto.inlineText = function inlineText(src, smartypants) {
+          var cap = this.rules.inline.text.exec(src);
+
+          if (cap) {
+            var text;
+
+            if (this.lexer.state.inRawBlock) {
+              text = this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]) : cap[0];
+            } else {
+              text = escape(this.options.smartypants ? smartypants(cap[0]) : cap[0]);
+            }
+
+            return {
+              type: 'text',
+              raw: cap[0],
+              text: text
+            };
+          }
+        };
+
+        return Tokenizer;
+      }();
+
+      /**
+       * Block-Level Grammar
+       */
+
+      var block = {
+        newline: /^(?: *(?:\n|$))+/,
+        code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
+        fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,
+        hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
+        heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,
+        blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
+        list: /^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,
+        html: '^ {0,3}(?:' // optional indentation
+        + '<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
+        + '|comment[^\\n]*(\\n+|$)' // (2)
+        + '|<\\?[\\s\\S]*?(?:\\?>\\n*|$)' // (3)
+        + '|<![A-Z][\\s\\S]*?(?:>\\n*|$)' // (4)
+        + '|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)' // (5)
+        + '|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (6)
+        + '|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) open tag
+        + '|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) closing tag
+        + ')',
+        def: /^ {0,3}\[(label)\]: *(?:\n *)?<?([^\s>]+)>?(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/,
+        table: noopTest,
+        lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
+        // regex template, placeholders will be replaced according to different paragraph
+        // interruption rules of commonmark and the original markdown spec:
+        _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,
+        text: /^[^\n]+/
+      };
+      block._label = /(?!\s*\])(?:\\.|[^\[\]\\])+/;
+      block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
+      block.def = edit(block.def).replace('label', block._label).replace('title', block._title).getRegex();
+      block.bullet = /(?:[*+-]|\d{1,9}[.)])/;
+      block.listItemStart = edit(/^( *)(bull) */).replace('bull', block.bullet).getRegex();
+      block.list = edit(block.list).replace(/bull/g, block.bullet).replace('hr', '\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))').replace('def', '\\n+(?=' + block.def.source + ')').getRegex();
+      block._tag = 'address|article|aside|base|basefont|blockquote|body|caption' + '|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption' + '|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe' + '|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option' + '|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr' + '|track|ul';
+      block._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
+      block.html = edit(block.html, 'i').replace('comment', block._comment).replace('tag', block._tag).replace('attribute', / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+      block.paragraph = edit(block._paragraph).replace('hr', block.hr).replace('heading', ' {0,3}#{1,6} ').replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+      .replace('|table', '').replace('blockquote', ' {0,3}>').replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n').replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+      .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)').replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
+      .getRegex();
+      block.blockquote = edit(block.blockquote).replace('paragraph', block.paragraph).getRegex();
+      /**
+       * Normal Block Grammar
+       */
+
+      block.normal = merge({}, block);
+      /**
+       * GFM Block Grammar
+       */
+
+      block.gfm = merge({}, block.normal, {
+        table: '^ *([^\\n ].*\\|.*)\\n' // Header
+        + ' {0,3}(?:\\| *)?(:?-+:? *(?:\\| *:?-+:? *)*)(?:\\| *)?' // Align
+        + '(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)' // Cells
+
+      });
+      block.gfm.table = edit(block.gfm.table).replace('hr', block.hr).replace('heading', ' {0,3}#{1,6} ').replace('blockquote', ' {0,3}>').replace('code', ' {4}[^\\n]').replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n').replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+      .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)').replace('tag', block._tag) // tables can be interrupted by type (6) html blocks
+      .getRegex();
+      block.gfm.paragraph = edit(block._paragraph).replace('hr', block.hr).replace('heading', ' {0,3}#{1,6} ').replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+      .replace('table', block.gfm.table) // interrupt paragraphs with table
+      .replace('blockquote', ' {0,3}>').replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n').replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+      .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)').replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
+      .getRegex();
+      /**
+       * Pedantic grammar (original John Gruber's loose markdown specification)
+       */
+
+      block.pedantic = merge({}, block.normal, {
+        html: edit('^ *(?:comment *(?:\\n|\\s*$)' + '|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)' // closed tag
+        + '|<tag(?:"[^"]*"|\'[^\']*\'|\\s[^\'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))').replace('comment', block._comment).replace(/tag/g, '(?!(?:' + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub' + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)' + '\\b)\\w+(?!:|[^\\w\\s@]*@)\\b').getRegex(),
+        def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
+        heading: /^(#{1,6})(.*)(?:\n+|$)/,
+        fences: noopTest,
+        // fences not supported
+        paragraph: edit(block.normal._paragraph).replace('hr', block.hr).replace('heading', ' *#{1,6} *[^\n]').replace('lheading', block.lheading).replace('blockquote', ' {0,3}>').replace('|fences', '').replace('|list', '').replace('|html', '').getRegex()
+      });
+      /**
+       * Inline-Level Grammar
+       */
+
+      var inline = {
+        escape: /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,
+        autolink: /^<(scheme:[^\s\x00-\x1f<>]*|email)>/,
+        url: noopTest,
+        tag: '^comment' + '|^</[a-zA-Z][\\w:-]*\\s*>' // self-closing tag
+        + '|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>' // open tag
+        + '|^<\\?[\\s\\S]*?\\?>' // processing instruction, e.g. <?php ?>
+        + '|^<![a-zA-Z]+\\s[\\s\\S]*?>' // declaration, e.g. <!DOCTYPE html>
+        + '|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>',
+        // CDATA section
+        link: /^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,
+        reflink: /^!?\[(label)\]\[(ref)\]/,
+        nolink: /^!?\[(ref)\](?:\[\])?/,
+        reflinkSearch: 'reflink|nolink(?!\\()',
+        emStrong: {
+          lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
+          //        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.
+          //        () Skip orphan delim inside strong    (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
+          rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+          rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
+
+        },
+        code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
+        br: /^( {2,}|\\)\n(?!\s*$)/,
+        del: noopTest,
+        text: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,
+        punctuation: /^([\spunctuation])/
+      }; // list of punctuation marks from CommonMark spec
+      // without * and _ to handle the different emphasis markers * and _
+
+      inline._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~';
+      inline.punctuation = edit(inline.punctuation).replace(/punctuation/g, inline._punctuation).getRegex(); // sequences em should skip over [title](link), `code`, <html>
+
+      inline.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
+      inline.escapedEmSt = /\\\*|\\_/g;
+      inline._comment = edit(block._comment).replace('(?:-->|$)', '-->').getRegex();
+      inline.emStrong.lDelim = edit(inline.emStrong.lDelim).replace(/punct/g, inline._punctuation).getRegex();
+      inline.emStrong.rDelimAst = edit(inline.emStrong.rDelimAst, 'g').replace(/punct/g, inline._punctuation).getRegex();
+      inline.emStrong.rDelimUnd = edit(inline.emStrong.rDelimUnd, 'g').replace(/punct/g, inline._punctuation).getRegex();
+      inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
+      inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
+      inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
+      inline.autolink = edit(inline.autolink).replace('scheme', inline._scheme).replace('email', inline._email).getRegex();
+      inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
+      inline.tag = edit(inline.tag).replace('comment', inline._comment).replace('attribute', inline._attribute).getRegex();
+      inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+      inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
+      inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
+      inline.link = edit(inline.link).replace('label', inline._label).replace('href', inline._href).replace('title', inline._title).getRegex();
+      inline.reflink = edit(inline.reflink).replace('label', inline._label).replace('ref', block._label).getRegex();
+      inline.nolink = edit(inline.nolink).replace('ref', block._label).getRegex();
+      inline.reflinkSearch = edit(inline.reflinkSearch, 'g').replace('reflink', inline.reflink).replace('nolink', inline.nolink).getRegex();
+      /**
+       * Normal Inline Grammar
+       */
+
+      inline.normal = merge({}, inline);
+      /**
+       * Pedantic Inline Grammar
+       */
+
+      inline.pedantic = merge({}, inline.normal, {
+        strong: {
+          start: /^__|\*\*/,
+          middle: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
+          endAst: /\*\*(?!\*)/g,
+          endUnd: /__(?!_)/g
+        },
+        em: {
+          start: /^_|\*/,
+          middle: /^()\*(?=\S)([\s\S]*?\S)\*(?!\*)|^_(?=\S)([\s\S]*?\S)_(?!_)/,
+          endAst: /\*(?!\*)/g,
+          endUnd: /_(?!_)/g
+        },
+        link: edit(/^!?\[(label)\]\((.*?)\)/).replace('label', inline._label).getRegex(),
+        reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace('label', inline._label).getRegex()
+      });
+      /**
+       * GFM Inline Grammar
+       */
+
+      inline.gfm = merge({}, inline.normal, {
+        escape: edit(inline.escape).replace('])', '~|])').getRegex(),
+        _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
+        url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
+        _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
+        del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
+        text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
+      });
+      inline.gfm.url = edit(inline.gfm.url, 'i').replace('email', inline.gfm._extended_email).getRegex();
+      /**
+       * GFM + Line Breaks Inline Grammar
+       */
+
+      inline.breaks = merge({}, inline.gfm, {
+        br: edit(inline.br).replace('{2,}', '*').getRegex(),
+        text: edit(inline.gfm.text).replace('\\b_', '\\b_| {2,}\\n').replace(/\{2,\}/g, '*').getRegex()
+      });
+
+      /**
+       * smartypants text replacement
+       */
+
+      function smartypants(text) {
+        return text // em-dashes
+        .replace(/---/g, "\u2014") // en-dashes
+        .replace(/--/g, "\u2013") // opening singles
+        .replace(/(^|[-\u2014/(\[{"\s])'/g, "$1\u2018") // closing singles & apostrophes
+        .replace(/'/g, "\u2019") // opening doubles
+        .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, "$1\u201C") // closing doubles
+        .replace(/"/g, "\u201D") // ellipses
+        .replace(/\.{3}/g, "\u2026");
+      }
+      /**
+       * mangle email addresses
+       */
+
+
+      function mangle(text) {
+        var out = '',
+            i,
+            ch;
+        var l = text.length;
+
+        for (i = 0; i < l; i++) {
+          ch = text.charCodeAt(i);
+
+          if (Math.random() > 0.5) {
+            ch = 'x' + ch.toString(16);
+          }
+
+          out += '&#' + ch + ';';
+        }
+
+        return out;
+      }
+      /**
+       * Block Lexer
+       */
+
+
+      var Lexer = /*#__PURE__*/function () {
+        function Lexer(options) {
+          this.tokens = [];
+          this.tokens.links = Object.create(null);
+          this.options = options || exports.defaults;
+          this.options.tokenizer = this.options.tokenizer || new Tokenizer();
+          this.tokenizer = this.options.tokenizer;
+          this.tokenizer.options = this.options;
+          this.tokenizer.lexer = this;
+          this.inlineQueue = [];
+          this.state = {
+            inLink: false,
+            inRawBlock: false,
+            top: true
+          };
+          var rules = {
+            block: block.normal,
+            inline: inline.normal
+          };
+
+          if (this.options.pedantic) {
+            rules.block = block.pedantic;
+            rules.inline = inline.pedantic;
+          } else if (this.options.gfm) {
+            rules.block = block.gfm;
+
+            if (this.options.breaks) {
+              rules.inline = inline.breaks;
+            } else {
+              rules.inline = inline.gfm;
+            }
+          }
+
+          this.tokenizer.rules = rules;
+        }
+        /**
+         * Expose Rules
+         */
+
+
+        /**
+         * Static Lex Method
+         */
+        Lexer.lex = function lex(src, options) {
+          var lexer = new Lexer(options);
+          return lexer.lex(src);
+        }
+        /**
+         * Static Lex Inline Method
+         */
+        ;
+
+        Lexer.lexInline = function lexInline(src, options) {
+          var lexer = new Lexer(options);
+          return lexer.inlineTokens(src);
+        }
+        /**
+         * Preprocessing
+         */
+        ;
+
+        var _proto = Lexer.prototype;
+
+        _proto.lex = function lex(src) {
+          src = src.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
+          this.blockTokens(src, this.tokens);
+          var next;
+
+          while (next = this.inlineQueue.shift()) {
+            this.inlineTokens(next.src, next.tokens);
+          }
+
+          return this.tokens;
+        }
+        /**
+         * Lexing
+         */
+        ;
+
+        _proto.blockTokens = function blockTokens(src, tokens) {
+          var _this = this;
+
+          if (tokens === void 0) {
+            tokens = [];
+          }
+
+          if (this.options.pedantic) {
+            src = src.replace(/^ +$/gm, '');
+          }
+
+          var token, lastToken, cutSrc, lastParagraphClipped;
+
+          while (src) {
+            if (this.options.extensions && this.options.extensions.block && this.options.extensions.block.some(function (extTokenizer) {
+              if (token = extTokenizer.call({
+                lexer: _this
+              }, src, tokens)) {
+                src = src.substring(token.raw.length);
+                tokens.push(token);
+                return true;
+              }
+
+              return false;
+            })) {
+              continue;
+            } // newline
+
+
+            if (token = this.tokenizer.space(src)) {
+              src = src.substring(token.raw.length);
+
+              if (token.raw.length === 1 && tokens.length > 0) {
+                // if there's a single \n as a spacer, it's terminating the last line,
+                // so move it there so that we don't get unecessary paragraph tags
+                tokens[tokens.length - 1].raw += '\n';
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // code
+
+
+            if (token = this.tokenizer.code(src)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1]; // An indented code block cannot interrupt a paragraph.
+
+              if (lastToken && (lastToken.type === 'paragraph' || lastToken.type === 'text')) {
+                lastToken.raw += '\n' + token.raw;
+                lastToken.text += '\n' + token.text;
+                this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // fences
+
+
+            if (token = this.tokenizer.fences(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // heading
+
+
+            if (token = this.tokenizer.heading(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // hr
+
+
+            if (token = this.tokenizer.hr(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // blockquote
+
+
+            if (token = this.tokenizer.blockquote(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // list
+
+
+            if (token = this.tokenizer.list(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // html
+
+
+            if (token = this.tokenizer.html(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // def
+
+
+            if (token = this.tokenizer.def(src)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && (lastToken.type === 'paragraph' || lastToken.type === 'text')) {
+                lastToken.raw += '\n' + token.raw;
+                lastToken.text += '\n' + token.raw;
+                this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+              } else if (!this.tokens.links[token.tag]) {
+                this.tokens.links[token.tag] = {
+                  href: token.href,
+                  title: token.title
+                };
+              }
+
+              continue;
+            } // table (gfm)
+
+
+            if (token = this.tokenizer.table(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // lheading
+
+
+            if (token = this.tokenizer.lheading(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // top-level paragraph
+            // prevent paragraph consuming extensions by clipping 'src' to extension start
+
+
+            cutSrc = src;
+
+            if (this.options.extensions && this.options.extensions.startBlock) {
+              (function () {
+                var startIndex = Infinity;
+                var tempSrc = src.slice(1);
+                var tempStart = void 0;
+
+                _this.options.extensions.startBlock.forEach(function (getStartIndex) {
+                  tempStart = getStartIndex.call({
+                    lexer: this
+                  }, tempSrc);
+
+                  if (typeof tempStart === 'number' && tempStart >= 0) {
+                    startIndex = Math.min(startIndex, tempStart);
+                  }
+                });
+
+                if (startIndex < Infinity && startIndex >= 0) {
+                  cutSrc = src.substring(0, startIndex + 1);
+                }
+              })();
+            }
+
+            if (this.state.top && (token = this.tokenizer.paragraph(cutSrc))) {
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastParagraphClipped && lastToken.type === 'paragraph') {
+                lastToken.raw += '\n' + token.raw;
+                lastToken.text += '\n' + token.text;
+                this.inlineQueue.pop();
+                this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+              } else {
+                tokens.push(token);
+              }
+
+              lastParagraphClipped = cutSrc.length !== src.length;
+              src = src.substring(token.raw.length);
+              continue;
+            } // text
+
+
+            if (token = this.tokenizer.text(src)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && lastToken.type === 'text') {
+                lastToken.raw += '\n' + token.raw;
+                lastToken.text += '\n' + token.text;
+                this.inlineQueue.pop();
+                this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            }
+
+            if (src) {
+              var errMsg = 'Infinite loop on byte: ' + src.charCodeAt(0);
+
+              if (this.options.silent) {
+                console.error(errMsg);
+                break;
+              } else {
+                throw new Error(errMsg);
+              }
+            }
+          }
+
+          this.state.top = true;
+          return tokens;
+        };
+
+        _proto.inline = function inline(src, tokens) {
+          this.inlineQueue.push({
+            src: src,
+            tokens: tokens
+          });
+        }
+        /**
+         * Lexing/Compiling
+         */
+        ;
+
+        _proto.inlineTokens = function inlineTokens(src, tokens) {
+          var _this2 = this;
+
+          if (tokens === void 0) {
+            tokens = [];
+          }
+
+          var token, lastToken, cutSrc; // String with links masked to avoid interference with em and strong
+
+          var maskedSrc = src;
+          var match;
+          var keepPrevChar, prevChar; // Mask out reflinks
+
+          if (this.tokens.links) {
+            var links = Object.keys(this.tokens.links);
+
+            if (links.length > 0) {
+              while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(maskedSrc)) != null) {
+                if (links.includes(match[0].slice(match[0].lastIndexOf('[') + 1, -1))) {
+                  maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
+                }
+              }
+            }
+          } // Mask out other blocks
+
+
+          while ((match = this.tokenizer.rules.inline.blockSkip.exec(maskedSrc)) != null) {
+            maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
+          } // Mask out escaped em & strong delimiters
+
+
+          while ((match = this.tokenizer.rules.inline.escapedEmSt.exec(maskedSrc)) != null) {
+            maskedSrc = maskedSrc.slice(0, match.index) + '++' + maskedSrc.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);
+          }
+
+          while (src) {
+            if (!keepPrevChar) {
+              prevChar = '';
+            }
+
+            keepPrevChar = false; // extensions
+
+            if (this.options.extensions && this.options.extensions.inline && this.options.extensions.inline.some(function (extTokenizer) {
+              if (token = extTokenizer.call({
+                lexer: _this2
+              }, src, tokens)) {
+                src = src.substring(token.raw.length);
+                tokens.push(token);
+                return true;
+              }
+
+              return false;
+            })) {
+              continue;
+            } // escape
+
+
+            if (token = this.tokenizer.escape(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // tag
+
+
+            if (token = this.tokenizer.tag(src)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && token.type === 'text' && lastToken.type === 'text') {
+                lastToken.raw += token.raw;
+                lastToken.text += token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // link
+
+
+            if (token = this.tokenizer.link(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // reflink, nolink
+
+
+            if (token = this.tokenizer.reflink(src, this.tokens.links)) {
+              src = src.substring(token.raw.length);
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && token.type === 'text' && lastToken.type === 'text') {
+                lastToken.raw += token.raw;
+                lastToken.text += token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            } // em & strong
+
+
+            if (token = this.tokenizer.emStrong(src, maskedSrc, prevChar)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // code
+
+
+            if (token = this.tokenizer.codespan(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // br
+
+
+            if (token = this.tokenizer.br(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // del (gfm)
+
+
+            if (token = this.tokenizer.del(src)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // autolink
+
+
+            if (token = this.tokenizer.autolink(src, mangle)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // url (gfm)
+
+
+            if (!this.state.inLink && (token = this.tokenizer.url(src, mangle))) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              continue;
+            } // text
+            // prevent inlineText consuming extensions by clipping 'src' to extension start
+
+
+            cutSrc = src;
+
+            if (this.options.extensions && this.options.extensions.startInline) {
+              (function () {
+                var startIndex = Infinity;
+                var tempSrc = src.slice(1);
+                var tempStart = void 0;
+
+                _this2.options.extensions.startInline.forEach(function (getStartIndex) {
+                  tempStart = getStartIndex.call({
+                    lexer: this
+                  }, tempSrc);
+
+                  if (typeof tempStart === 'number' && tempStart >= 0) {
+                    startIndex = Math.min(startIndex, tempStart);
+                  }
+                });
+
+                if (startIndex < Infinity && startIndex >= 0) {
+                  cutSrc = src.substring(0, startIndex + 1);
+                }
+              })();
+            }
+
+            if (token = this.tokenizer.inlineText(cutSrc, smartypants)) {
+              src = src.substring(token.raw.length);
+
+              if (token.raw.slice(-1) !== '_') {
+                // Track prevChar before string of ____ started
+                prevChar = token.raw.slice(-1);
+              }
+
+              keepPrevChar = true;
+              lastToken = tokens[tokens.length - 1];
+
+              if (lastToken && lastToken.type === 'text') {
+                lastToken.raw += token.raw;
+                lastToken.text += token.text;
+              } else {
+                tokens.push(token);
+              }
+
+              continue;
+            }
+
+            if (src) {
+              var errMsg = 'Infinite loop on byte: ' + src.charCodeAt(0);
+
+              if (this.options.silent) {
+                console.error(errMsg);
+                break;
+              } else {
+                throw new Error(errMsg);
+              }
+            }
+          }
+
+          return tokens;
+        };
+
+        _createClass(Lexer, null, [{
+          key: "rules",
+          get: function get() {
+            return {
+              block: block,
+              inline: inline
+            };
+          }
+        }]);
+
+        return Lexer;
+      }();
+
+      /**
+       * Renderer
+       */
+
+      var Renderer = /*#__PURE__*/function () {
+        function Renderer(options) {
+          this.options = options || exports.defaults;
+        }
+
+        var _proto = Renderer.prototype;
+
+        _proto.code = function code(_code, infostring, escaped) {
+          var lang = (infostring || '').match(/\S*/)[0];
+
+          if (this.options.highlight) {
+            var out = this.options.highlight(_code, lang);
+
+            if (out != null && out !== _code) {
+              escaped = true;
+              _code = out;
+            }
+          }
+
+          _code = _code.replace(/\n$/, '') + '\n';
+
+          if (!lang) {
+            return '<pre><code>' + (escaped ? _code : escape(_code, true)) + '</code></pre>\n';
+          }
+
+          return '<pre><code class="' + this.options.langPrefix + escape(lang, true) + '">' + (escaped ? _code : escape(_code, true)) + '</code></pre>\n';
+        };
+
+        _proto.blockquote = function blockquote(quote) {
+          return '<blockquote>\n' + quote + '</blockquote>\n';
+        };
+
+        _proto.html = function html(_html) {
+          return _html;
+        };
+
+        _proto.heading = function heading(text, level, raw, slugger) {
+          if (this.options.headerIds) {
+            return '<h' + level + ' id="' + this.options.headerPrefix + slugger.slug(raw) + '">' + text + '</h' + level + '>\n';
+          } // ignore IDs
+
+
+          return '<h' + level + '>' + text + '</h' + level + '>\n';
+        };
+
+        _proto.hr = function hr() {
+          return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
+        };
+
+        _proto.list = function list(body, ordered, start) {
+          var type = ordered ? 'ol' : 'ul',
+              startatt = ordered && start !== 1 ? ' start="' + start + '"' : '';
+          return '<' + type + startatt + '>\n' + body + '</' + type + '>\n';
+        };
+
+        _proto.listitem = function listitem(text) {
+          return '<li>' + text + '</li>\n';
+        };
+
+        _proto.checkbox = function checkbox(checked) {
+          return '<input ' + (checked ? 'checked="" ' : '') + 'disabled="" type="checkbox"' + (this.options.xhtml ? ' /' : '') + '> ';
+        };
+
+        _proto.paragraph = function paragraph(text) {
+          return '<p>' + text + '</p>\n';
+        };
+
+        _proto.table = function table(header, body) {
+          if (body) body = '<tbody>' + body + '</tbody>';
+          return '<table>\n' + '<thead>\n' + header + '</thead>\n' + body + '</table>\n';
+        };
+
+        _proto.tablerow = function tablerow(content) {
+          return '<tr>\n' + content + '</tr>\n';
+        };
+
+        _proto.tablecell = function tablecell(content, flags) {
+          var type = flags.header ? 'th' : 'td';
+          var tag = flags.align ? '<' + type + ' align="' + flags.align + '">' : '<' + type + '>';
+          return tag + content + '</' + type + '>\n';
+        } // span level renderer
+        ;
+
+        _proto.strong = function strong(text) {
+          return '<strong>' + text + '</strong>';
+        };
+
+        _proto.em = function em(text) {
+          return '<em>' + text + '</em>';
+        };
+
+        _proto.codespan = function codespan(text) {
+          return '<code>' + text + '</code>';
+        };
+
+        _proto.br = function br() {
+          return this.options.xhtml ? '<br/>' : '<br>';
+        };
+
+        _proto.del = function del(text) {
+          return '<del>' + text + '</del>';
+        };
+
+        _proto.link = function link(href, title, text) {
+          href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
+
+          if (href === null) {
+            return text;
+          }
+
+          var out = '<a href="' + escape(href) + '"';
+
+          if (title) {
+            out += ' title="' + title + '"';
+          }
+
+          out += '>' + text + '</a>';
+          return out;
+        };
+
+        _proto.image = function image(href, title, text) {
+          href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
+
+          if (href === null) {
+            return text;
+          }
+
+          var out = '<img src="' + href + '" alt="' + text + '"';
+
+          if (title) {
+            out += ' title="' + title + '"';
+          }
+
+          out += this.options.xhtml ? '/>' : '>';
+          return out;
+        };
+
+        _proto.text = function text(_text) {
+          return _text;
+        };
+
+        return Renderer;
+      }();
+
+      /**
+       * TextRenderer
+       * returns only the textual part of the token
+       */
+      var TextRenderer = /*#__PURE__*/function () {
+        function TextRenderer() {}
+
+        var _proto = TextRenderer.prototype;
+
+        // no need for block level renderers
+        _proto.strong = function strong(text) {
+          return text;
+        };
+
+        _proto.em = function em(text) {
+          return text;
+        };
+
+        _proto.codespan = function codespan(text) {
+          return text;
+        };
+
+        _proto.del = function del(text) {
+          return text;
+        };
+
+        _proto.html = function html(text) {
+          return text;
+        };
+
+        _proto.text = function text(_text) {
+          return _text;
+        };
+
+        _proto.link = function link(href, title, text) {
+          return '' + text;
+        };
+
+        _proto.image = function image(href, title, text) {
+          return '' + text;
+        };
+
+        _proto.br = function br() {
+          return '';
+        };
+
+        return TextRenderer;
+      }();
+
+      /**
+       * Slugger generates header id
+       */
+      var Slugger = /*#__PURE__*/function () {
+        function Slugger() {
+          this.seen = {};
+        }
+
+        var _proto = Slugger.prototype;
+
+        _proto.serialize = function serialize(value) {
+          return value.toLowerCase().trim() // remove html tags
+          .replace(/<[!\/a-z].*?>/ig, '') // remove unwanted chars
+          .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g, '').replace(/\s/g, '-');
+        }
+        /**
+         * Finds the next safe (unique) slug to use
+         */
+        ;
+
+        _proto.getNextSafeSlug = function getNextSafeSlug(originalSlug, isDryRun) {
+          var slug = originalSlug;
+          var occurenceAccumulator = 0;
+
+          if (this.seen.hasOwnProperty(slug)) {
+            occurenceAccumulator = this.seen[originalSlug];
+
+            do {
+              occurenceAccumulator++;
+              slug = originalSlug + '-' + occurenceAccumulator;
+            } while (this.seen.hasOwnProperty(slug));
+          }
+
+          if (!isDryRun) {
+            this.seen[originalSlug] = occurenceAccumulator;
+            this.seen[slug] = 0;
+          }
+
+          return slug;
+        }
+        /**
+         * Convert string to unique id
+         * @param {object} options
+         * @param {boolean} options.dryrun Generates the next unique slug without updating the internal accumulator.
+         */
+        ;
+
+        _proto.slug = function slug(value, options) {
+          if (options === void 0) {
+            options = {};
+          }
+
+          var slug = this.serialize(value);
+          return this.getNextSafeSlug(slug, options.dryrun);
+        };
+
+        return Slugger;
+      }();
+
+      /**
+       * Parsing & Compiling
+       */
+
+      var Parser = /*#__PURE__*/function () {
+        function Parser(options) {
+          this.options = options || exports.defaults;
+          this.options.renderer = this.options.renderer || new Renderer();
+          this.renderer = this.options.renderer;
+          this.renderer.options = this.options;
+          this.textRenderer = new TextRenderer();
+          this.slugger = new Slugger();
+        }
+        /**
+         * Static Parse Method
+         */
+
+
+        Parser.parse = function parse(tokens, options) {
+          var parser = new Parser(options);
+          return parser.parse(tokens);
+        }
+        /**
+         * Static Parse Inline Method
+         */
+        ;
+
+        Parser.parseInline = function parseInline(tokens, options) {
+          var parser = new Parser(options);
+          return parser.parseInline(tokens);
+        }
+        /**
+         * Parse Loop
+         */
+        ;
+
+        var _proto = Parser.prototype;
+
+        _proto.parse = function parse(tokens, top) {
+          if (top === void 0) {
+            top = true;
+          }
+
+          var out = '',
+              i,
+              j,
+              k,
+              l2,
+              l3,
+              row,
+              cell,
+              header,
+              body,
+              token,
+              ordered,
+              start,
+              loose,
+              itemBody,
+              item,
+              checked,
+              task,
+              checkbox,
+              ret;
+          var l = tokens.length;
+
+          for (i = 0; i < l; i++) {
+            token = tokens[i]; // Run any renderer extensions
+
+            if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
+              ret = this.options.extensions.renderers[token.type].call({
+                parser: this
+              }, token);
+
+              if (ret !== false || !['space', 'hr', 'heading', 'code', 'table', 'blockquote', 'list', 'html', 'paragraph', 'text'].includes(token.type)) {
+                out += ret || '';
+                continue;
+              }
+            }
+
+            switch (token.type) {
+              case 'space':
+                {
+                  continue;
+                }
+
+              case 'hr':
+                {
+                  out += this.renderer.hr();
+                  continue;
+                }
+
+              case 'heading':
+                {
+                  out += this.renderer.heading(this.parseInline(token.tokens), token.depth, unescape(this.parseInline(token.tokens, this.textRenderer)), this.slugger);
+                  continue;
+                }
+
+              case 'code':
+                {
+                  out += this.renderer.code(token.text, token.lang, token.escaped);
+                  continue;
+                }
+
+              case 'table':
+                {
+                  header = ''; // header
+
+                  cell = '';
+                  l2 = token.header.length;
+
+                  for (j = 0; j < l2; j++) {
+                    cell += this.renderer.tablecell(this.parseInline(token.header[j].tokens), {
+                      header: true,
+                      align: token.align[j]
+                    });
+                  }
+
+                  header += this.renderer.tablerow(cell);
+                  body = '';
+                  l2 = token.rows.length;
+
+                  for (j = 0; j < l2; j++) {
+                    row = token.rows[j];
+                    cell = '';
+                    l3 = row.length;
+
+                    for (k = 0; k < l3; k++) {
+                      cell += this.renderer.tablecell(this.parseInline(row[k].tokens), {
+                        header: false,
+                        align: token.align[k]
+                      });
+                    }
+
+                    body += this.renderer.tablerow(cell);
+                  }
+
+                  out += this.renderer.table(header, body);
+                  continue;
+                }
+
+              case 'blockquote':
+                {
+                  body = this.parse(token.tokens);
+                  out += this.renderer.blockquote(body);
+                  continue;
+                }
+
+              case 'list':
+                {
+                  ordered = token.ordered;
+                  start = token.start;
+                  loose = token.loose;
+                  l2 = token.items.length;
+                  body = '';
+
+                  for (j = 0; j < l2; j++) {
+                    item = token.items[j];
+                    checked = item.checked;
+                    task = item.task;
+                    itemBody = '';
+
+                    if (item.task) {
+                      checkbox = this.renderer.checkbox(checked);
+
+                      if (loose) {
+                        if (item.tokens.length > 0 && item.tokens[0].type === 'paragraph') {
+                          item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
+
+                          if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
+                            item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
+                          }
+                        } else {
+                          item.tokens.unshift({
+                            type: 'text',
+                            text: checkbox
+                          });
+                        }
+                      } else {
+                        itemBody += checkbox;
+                      }
+                    }
+
+                    itemBody += this.parse(item.tokens, loose);
+                    body += this.renderer.listitem(itemBody, task, checked);
+                  }
+
+                  out += this.renderer.list(body, ordered, start);
+                  continue;
+                }
+
+              case 'html':
+                {
+                  // TODO parse inline content if parameter markdown=1
+                  out += this.renderer.html(token.text);
+                  continue;
+                }
+
+              case 'paragraph':
+                {
+                  out += this.renderer.paragraph(this.parseInline(token.tokens));
+                  continue;
+                }
+
+              case 'text':
+                {
+                  body = token.tokens ? this.parseInline(token.tokens) : token.text;
+
+                  while (i + 1 < l && tokens[i + 1].type === 'text') {
+                    token = tokens[++i];
+                    body += '\n' + (token.tokens ? this.parseInline(token.tokens) : token.text);
+                  }
+
+                  out += top ? this.renderer.paragraph(body) : body;
+                  continue;
+                }
+
+              default:
+                {
+                  var errMsg = 'Token with "' + token.type + '" type was not found.';
+
+                  if (this.options.silent) {
+                    console.error(errMsg);
+                    return;
+                  } else {
+                    throw new Error(errMsg);
+                  }
+                }
+            }
+          }
+
+          return out;
+        }
+        /**
+         * Parse Inline Tokens
+         */
+        ;
+
+        _proto.parseInline = function parseInline(tokens, renderer) {
+          renderer = renderer || this.renderer;
+          var out = '',
+              i,
+              token,
+              ret;
+          var l = tokens.length;
+
+          for (i = 0; i < l; i++) {
+            token = tokens[i]; // Run any renderer extensions
+
+            if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
+              ret = this.options.extensions.renderers[token.type].call({
+                parser: this
+              }, token);
+
+              if (ret !== false || !['escape', 'html', 'link', 'image', 'strong', 'em', 'codespan', 'br', 'del', 'text'].includes(token.type)) {
+                out += ret || '';
+                continue;
+              }
+            }
+
+            switch (token.type) {
+              case 'escape':
+                {
+                  out += renderer.text(token.text);
+                  break;
+                }
+
+              case 'html':
+                {
+                  out += renderer.html(token.text);
+                  break;
+                }
+
+              case 'link':
+                {
+                  out += renderer.link(token.href, token.title, this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'image':
+                {
+                  out += renderer.image(token.href, token.title, token.text);
+                  break;
+                }
+
+              case 'strong':
+                {
+                  out += renderer.strong(this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'em':
+                {
+                  out += renderer.em(this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'codespan':
+                {
+                  out += renderer.codespan(token.text);
+                  break;
+                }
+
+              case 'br':
+                {
+                  out += renderer.br();
+                  break;
+                }
+
+              case 'del':
+                {
+                  out += renderer.del(this.parseInline(token.tokens, renderer));
+                  break;
+                }
+
+              case 'text':
+                {
+                  out += renderer.text(token.text);
+                  break;
+                }
+
+              default:
+                {
+                  var errMsg = 'Token with "' + token.type + '" type was not found.';
+
+                  if (this.options.silent) {
+                    console.error(errMsg);
+                    return;
+                  } else {
+                    throw new Error(errMsg);
+                  }
+                }
+            }
+          }
+
+          return out;
+        };
+
+        return Parser;
+      }();
+
+      /**
+       * Marked
+       */
+
+      function marked(src, opt, callback) {
+        // throw error in case of non string input
+        if (typeof src === 'undefined' || src === null) {
+          throw new Error('marked(): input parameter is undefined or null');
+        }
+
+        if (typeof src !== 'string') {
+          throw new Error('marked(): input parameter is of type ' + Object.prototype.toString.call(src) + ', string expected');
+        }
+
+        if (typeof opt === 'function') {
+          callback = opt;
+          opt = null;
+        }
+
+        opt = merge({}, marked.defaults, opt || {});
+        checkSanitizeDeprecation(opt);
+
+        if (callback) {
+          var highlight = opt.highlight;
+          var tokens;
+
+          try {
+            tokens = Lexer.lex(src, opt);
+          } catch (e) {
+            return callback(e);
+          }
+
+          var done = function done(err) {
+            var out;
+
+            if (!err) {
+              try {
+                if (opt.walkTokens) {
+                  marked.walkTokens(tokens, opt.walkTokens);
+                }
+
+                out = Parser.parse(tokens, opt);
+              } catch (e) {
+                err = e;
+              }
+            }
+
+            opt.highlight = highlight;
+            return err ? callback(err) : callback(null, out);
+          };
+
+          if (!highlight || highlight.length < 3) {
+            return done();
+          }
+
+          delete opt.highlight;
+          if (!tokens.length) return done();
+          var pending = 0;
+          marked.walkTokens(tokens, function (token) {
+            if (token.type === 'code') {
+              pending++;
+              setTimeout(function () {
+                highlight(token.text, token.lang, function (err, code) {
+                  if (err) {
+                    return done(err);
+                  }
+
+                  if (code != null && code !== token.text) {
+                    token.text = code;
+                    token.escaped = true;
+                  }
+
+                  pending--;
+
+                  if (pending === 0) {
+                    done();
+                  }
+                });
+              }, 0);
+            }
+          });
+
+          if (pending === 0) {
+            done();
+          }
+
+          return;
+        }
+
+        try {
+          var _tokens = Lexer.lex(src, opt);
+
+          if (opt.walkTokens) {
+            marked.walkTokens(_tokens, opt.walkTokens);
+          }
+
+          return Parser.parse(_tokens, opt);
+        } catch (e) {
+          e.message += '\nPlease report this to https://github.com/markedjs/marked.';
+
+          if (opt.silent) {
+            return '<p>An error occurred:</p><pre>' + escape(e.message + '', true) + '</pre>';
+          }
+
+          throw e;
+        }
+      }
+      /**
+       * Options
+       */
+
+      marked.options = marked.setOptions = function (opt) {
+        merge(marked.defaults, opt);
+        changeDefaults(marked.defaults);
+        return marked;
+      };
+
+      marked.getDefaults = getDefaults;
+      marked.defaults = exports.defaults;
+      /**
+       * Use Extension
+       */
+
+      marked.use = function () {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        var opts = merge.apply(void 0, [{}].concat(args));
+        var extensions = marked.defaults.extensions || {
+          renderers: {},
+          childTokens: {}
+        };
+        var hasExtensions;
+        args.forEach(function (pack) {
+          // ==-- Parse "addon" extensions --== //
+          if (pack.extensions) {
+            hasExtensions = true;
+            pack.extensions.forEach(function (ext) {
+              if (!ext.name) {
+                throw new Error('extension name required');
+              }
+
+              if (ext.renderer) {
+                // Renderer extensions
+                var prevRenderer = extensions.renderers ? extensions.renderers[ext.name] : null;
+
+                if (prevRenderer) {
+                  // Replace extension with func to run new extension but fall back if false
+                  extensions.renderers[ext.name] = function () {
+                    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                      args[_key2] = arguments[_key2];
+                    }
+
+                    var ret = ext.renderer.apply(this, args);
+
+                    if (ret === false) {
+                      ret = prevRenderer.apply(this, args);
+                    }
+
+                    return ret;
+                  };
+                } else {
+                  extensions.renderers[ext.name] = ext.renderer;
+                }
+              }
+
+              if (ext.tokenizer) {
+                // Tokenizer Extensions
+                if (!ext.level || ext.level !== 'block' && ext.level !== 'inline') {
+                  throw new Error("extension level must be 'block' or 'inline'");
+                }
+
+                if (extensions[ext.level]) {
+                  extensions[ext.level].unshift(ext.tokenizer);
+                } else {
+                  extensions[ext.level] = [ext.tokenizer];
+                }
+
+                if (ext.start) {
+                  // Function to check for start of token
+                  if (ext.level === 'block') {
+                    if (extensions.startBlock) {
+                      extensions.startBlock.push(ext.start);
+                    } else {
+                      extensions.startBlock = [ext.start];
+                    }
+                  } else if (ext.level === 'inline') {
+                    if (extensions.startInline) {
+                      extensions.startInline.push(ext.start);
+                    } else {
+                      extensions.startInline = [ext.start];
+                    }
+                  }
+                }
+              }
+
+              if (ext.childTokens) {
+                // Child tokens to be visited by walkTokens
+                extensions.childTokens[ext.name] = ext.childTokens;
+              }
+            });
+          } // ==-- Parse "overwrite" extensions --== //
+
+
+          if (pack.renderer) {
+            (function () {
+              var renderer = marked.defaults.renderer || new Renderer();
+
+              var _loop = function _loop(prop) {
+                var prevRenderer = renderer[prop]; // Replace renderer with func to run extension, but fall back if false
+
+                renderer[prop] = function () {
+                  for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+                    args[_key3] = arguments[_key3];
+                  }
+
+                  var ret = pack.renderer[prop].apply(renderer, args);
+
+                  if (ret === false) {
+                    ret = prevRenderer.apply(renderer, args);
+                  }
+
+                  return ret;
+                };
+              };
+
+              for (var prop in pack.renderer) {
+                _loop(prop);
+              }
+
+              opts.renderer = renderer;
+            })();
+          }
+
+          if (pack.tokenizer) {
+            (function () {
+              var tokenizer = marked.defaults.tokenizer || new Tokenizer();
+
+              var _loop2 = function _loop2(prop) {
+                var prevTokenizer = tokenizer[prop]; // Replace tokenizer with func to run extension, but fall back if false
+
+                tokenizer[prop] = function () {
+                  for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+                    args[_key4] = arguments[_key4];
+                  }
+
+                  var ret = pack.tokenizer[prop].apply(tokenizer, args);
+
+                  if (ret === false) {
+                    ret = prevTokenizer.apply(tokenizer, args);
+                  }
+
+                  return ret;
+                };
+              };
+
+              for (var prop in pack.tokenizer) {
+                _loop2(prop);
+              }
+
+              opts.tokenizer = tokenizer;
+            })();
+          } // ==-- Parse WalkTokens extensions --== //
+
+
+          if (pack.walkTokens) {
+            var _walkTokens = marked.defaults.walkTokens;
+
+            opts.walkTokens = function (token) {
+              pack.walkTokens.call(this, token);
+
+              if (_walkTokens) {
+                _walkTokens.call(this, token);
+              }
+            };
+          }
+
+          if (hasExtensions) {
+            opts.extensions = extensions;
+          }
+
+          marked.setOptions(opts);
+        });
+      };
+      /**
+       * Run callback for every token
+       */
+
+
+      marked.walkTokens = function (tokens, callback) {
+        var _loop3 = function _loop3() {
+          var token = _step.value;
+          callback.call(marked, token);
+
+          switch (token.type) {
+            case 'table':
+              {
+                for (var _iterator2 = _createForOfIteratorHelperLoose(token.header), _step2; !(_step2 = _iterator2()).done;) {
+                  var cell = _step2.value;
+                  marked.walkTokens(cell.tokens, callback);
+                }
+
+                for (var _iterator3 = _createForOfIteratorHelperLoose(token.rows), _step3; !(_step3 = _iterator3()).done;) {
+                  var row = _step3.value;
+
+                  for (var _iterator4 = _createForOfIteratorHelperLoose(row), _step4; !(_step4 = _iterator4()).done;) {
+                    var _cell = _step4.value;
+                    marked.walkTokens(_cell.tokens, callback);
+                  }
+                }
+
+                break;
+              }
+
+            case 'list':
+              {
+                marked.walkTokens(token.items, callback);
+                break;
+              }
+
+            default:
+              {
+                if (marked.defaults.extensions && marked.defaults.extensions.childTokens && marked.defaults.extensions.childTokens[token.type]) {
+                  // Walk any extensions
+                  marked.defaults.extensions.childTokens[token.type].forEach(function (childTokens) {
+                    marked.walkTokens(token[childTokens], callback);
+                  });
+                } else if (token.tokens) {
+                  marked.walkTokens(token.tokens, callback);
+                }
+              }
+          }
+        };
+
+        for (var _iterator = _createForOfIteratorHelperLoose(tokens), _step; !(_step = _iterator()).done;) {
+          _loop3();
+        }
+      };
+      /**
+       * Parse Inline
+       */
+
+
+      marked.parseInline = function (src, opt) {
+        // throw error in case of non string input
+        if (typeof src === 'undefined' || src === null) {
+          throw new Error('marked.parseInline(): input parameter is undefined or null');
+        }
+
+        if (typeof src !== 'string') {
+          throw new Error('marked.parseInline(): input parameter is of type ' + Object.prototype.toString.call(src) + ', string expected');
+        }
+
+        opt = merge({}, marked.defaults, opt || {});
+        checkSanitizeDeprecation(opt);
+
+        try {
+          var tokens = Lexer.lexInline(src, opt);
+
+          if (opt.walkTokens) {
+            marked.walkTokens(tokens, opt.walkTokens);
+          }
+
+          return Parser.parseInline(tokens, opt);
+        } catch (e) {
+          e.message += '\nPlease report this to https://github.com/markedjs/marked.';
+
+          if (opt.silent) {
+            return '<p>An error occurred:</p><pre>' + escape(e.message + '', true) + '</pre>';
+          }
+
+          throw e;
+        }
+      };
+      /**
+       * Expose
+       */
+
+
+      marked.Parser = Parser;
+      marked.parser = Parser.parse;
+      marked.Renderer = Renderer;
+      marked.TextRenderer = TextRenderer;
+      marked.Lexer = Lexer;
+      marked.lexer = Lexer.lex;
+      marked.Tokenizer = Tokenizer;
+      marked.Slugger = Slugger;
+      marked.parse = marked;
+      var options = marked.options;
+      var setOptions = marked.setOptions;
+      var use = marked.use;
+      var walkTokens = marked.walkTokens;
+      var parseInline = marked.parseInline;
+      var parse = marked;
+      var parser = Parser.parse;
+      var lexer = Lexer.lex;
+
+      exports.Lexer = Lexer;
+      exports.Parser = Parser;
+      exports.Renderer = Renderer;
+      exports.Slugger = Slugger;
+      exports.TextRenderer = TextRenderer;
+      exports.Tokenizer = Tokenizer;
+      exports.getDefaults = getDefaults;
+      exports.lexer = lexer;
+      exports.marked = marked;
+      exports.options = options;
+      exports.parse = parse;
+      exports.parseInline = parseInline;
+      exports.parser = parser;
+      exports.setOptions = setOptions;
+      exports.use = use;
+      exports.walkTokens = walkTokens;
+
+      Object.defineProperty(exports, '__esModule', { value: true });
+
+    }));
+    });
+
+    var marked = unwrapExports(marked_umd);
+
+    /* src/components/modals/BlogPostModal.svelte generated by Svelte v3.24.1 */
+    const file$a = "src/components/modals/BlogPostModal.svelte";
+
+    // (27:8) {#if updated}
+    function create_if_block$3(ctx) {
+    	let h3;
+    	let t0;
+    	let b;
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			h3 = element("h3");
+    			t0 = text("Updated: ");
+    			b = element("b");
+    			t1 = text(/*updated*/ ctx[3]);
+    			attr_dev(b, "class", "date-string svelte-zkl2k0");
+    			add_location(b, file$a, 27, 70, 908);
+    			attr_dev(h3, "class", "blog-date svelte-zkl2k0");
+    			set_style(h3, "text-align", "center");
+    			add_location(h3, file$a, 27, 12, 850);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h3, anchor);
+    			append_dev(h3, t0);
+    			append_dev(h3, b);
+    			append_dev(b, t1);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*updated*/ 8) set_data_dev(t1, /*updated*/ ctx[3]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h3);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$3.name,
+    		type: "if",
+    		source: "(27:8) {#if updated}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$a(ctx) {
+    	let div3;
+    	let div0;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let h30;
+    	let t2;
+    	let b0;
+    	let t3;
+    	let t4;
+    	let h31;
+    	let t5;
+    	let b1;
+    	let t6;
+    	let t7;
+    	let t8;
+    	let div1;
+    	let raw_value = marked.parse(/*postContent*/ ctx[4]) + "";
+    	let t9;
+    	let div2;
+    	let h2;
+    	let b2;
+    	let t11_value = /*author*/ ctx[1].split(" ")[0] + "";
+    	let t11;
+    	let t12;
+    	let applause_button;
+    	let if_block = /*updated*/ ctx[3] && create_if_block$3(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div3 = element("div");
+    			div0 = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*title*/ ctx[0]);
+    			t1 = space();
+    			h30 = element("h3");
+    			t2 = text("Author: ");
+    			b0 = element("b");
+    			t3 = text(/*author*/ ctx[1]);
+    			t4 = space();
+    			h31 = element("h3");
+    			t5 = text("Written: ");
+    			b1 = element("b");
+    			t6 = text(/*date*/ ctx[2]);
+    			t7 = space();
+    			if (if_block) if_block.c();
+    			t8 = space();
+    			div1 = element("div");
+    			t9 = space();
+    			div2 = element("div");
+    			h2 = element("h2");
+    			b2 = element("b");
+    			b2.textContent = "-";
+    			t11 = text(t11_value);
+    			t12 = space();
+    			applause_button = element("applause-button");
+    			attr_dev(h1, "class", "blog-title svelte-zkl2k0");
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$a, 23, 8, 540);
+    			attr_dev(b0, "class", "author-name svelte-zkl2k0");
+    			add_location(b0, file$a, 24, 67, 670);
+    			attr_dev(h30, "class", "blog-author svelte-zkl2k0");
+    			set_style(h30, "text-align", "center");
+    			add_location(h30, file$a, 24, 8, 611);
+    			attr_dev(b1, "class", "date-string svelte-zkl2k0");
+    			add_location(b1, file$a, 25, 66, 777);
+    			attr_dev(h31, "class", "blog-date svelte-zkl2k0");
+    			set_style(h31, "text-align", "center");
+    			add_location(h31, file$a, 25, 8, 719);
+    			attr_dev(div0, "class", "blog-header svelte-zkl2k0");
+    			add_location(div0, file$a, 22, 4, 506);
+    			attr_dev(div1, "class", "blog-content svelte-zkl2k0");
+    			add_location(div1, file$a, 30, 4, 979);
+    			set_style(b2, "font-weight", "300");
+    			add_location(b2, file$a, 32, 30, 1105);
+    			attr_dev(h2, "class", "signature svelte-zkl2k0");
+    			add_location(h2, file$a, 32, 8, 1083);
+    			set_custom_element_data(applause_button, "url", /*postUrl*/ ctx[5]);
+    			set_custom_element_data(applause_button, "multiclap", "true");
+    			set_custom_element_data(applause_button, "color", "var(--main-green)");
+    			set_custom_element_data(applause_button, "class", "svelte-zkl2k0");
+    			add_location(applause_button, file$a, 33, 8, 1174);
+    			attr_dev(div2, "class", "blog-footer svelte-zkl2k0");
+    			add_location(div2, file$a, 31, 4, 1049);
+    			attr_dev(div3, "class", "blog-modal svelte-zkl2k0");
+    			add_location(div3, file$a, 21, 0, 477);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, div0);
+    			append_dev(div0, h1);
+    			append_dev(h1, t0);
+    			append_dev(div0, t1);
+    			append_dev(div0, h30);
+    			append_dev(h30, t2);
+    			append_dev(h30, b0);
+    			append_dev(b0, t3);
+    			append_dev(div0, t4);
+    			append_dev(div0, h31);
+    			append_dev(h31, t5);
+    			append_dev(h31, b1);
+    			append_dev(b1, t6);
+    			append_dev(div0, t7);
+    			if (if_block) if_block.m(div0, null);
+    			append_dev(div3, t8);
+    			append_dev(div3, div1);
+    			div1.innerHTML = raw_value;
+    			append_dev(div3, t9);
+    			append_dev(div3, div2);
+    			append_dev(div2, h2);
+    			append_dev(h2, b2);
+    			append_dev(h2, t11);
+    			append_dev(div2, t12);
+    			append_dev(div2, applause_button);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*title*/ 1) set_data_dev(t0, /*title*/ ctx[0]);
+    			if (dirty & /*author*/ 2) set_data_dev(t3, /*author*/ ctx[1]);
+    			if (dirty & /*date*/ 4) set_data_dev(t6, /*date*/ ctx[2]);
+
+    			if (/*updated*/ ctx[3]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block$3(ctx);
+    					if_block.c();
+    					if_block.m(div0, null);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*postContent*/ 16 && raw_value !== (raw_value = marked.parse(/*postContent*/ ctx[4]) + "")) div1.innerHTML = raw_value;			if (dirty & /*author*/ 2 && t11_value !== (t11_value = /*author*/ ctx[1].split(" ")[0] + "")) set_data_dev(t11, t11_value);
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div3);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$a.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$a($$self, $$props, $$invalidate) {
+    	let { id } = $$props;
+    	let { title } = $$props;
+    	let { author } = $$props;
+    	let { date } = $$props;
+    	let { updated } = $$props;
+    	let { content } = $$props;
+    	const postUrl = `https://maxeisen.me/blog/${id}`; // fake URL for storing claps
+    	var postContent = "Loading...";
+
+    	fetch(`../content/blog/${content}.md`).then(content => content.text()).then(data => {
+    		$$invalidate(4, postContent = data);
+    	});
+
+    	const writable_props = ["id", "title", "author", "date", "updated", "content"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<BlogPostModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("BlogPostModal", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("id" in $$props) $$invalidate(6, id = $$props.id);
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("author" in $$props) $$invalidate(1, author = $$props.author);
+    		if ("date" in $$props) $$invalidate(2, date = $$props.date);
+    		if ("updated" in $$props) $$invalidate(3, updated = $$props.updated);
+    		if ("content" in $$props) $$invalidate(7, content = $$props.content);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		marked,
+    		id,
+    		title,
+    		author,
+    		date,
+    		updated,
+    		content,
+    		postUrl,
+    		postContent
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("id" in $$props) $$invalidate(6, id = $$props.id);
+    		if ("title" in $$props) $$invalidate(0, title = $$props.title);
+    		if ("author" in $$props) $$invalidate(1, author = $$props.author);
+    		if ("date" in $$props) $$invalidate(2, date = $$props.date);
+    		if ("updated" in $$props) $$invalidate(3, updated = $$props.updated);
+    		if ("content" in $$props) $$invalidate(7, content = $$props.content);
+    		if ("postContent" in $$props) $$invalidate(4, postContent = $$props.postContent);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [title, author, date, updated, postContent, postUrl, id, content];
+    }
+
+    class BlogPostModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$a, create_fragment$a, safe_not_equal, {
+    			id: 6,
+    			title: 0,
+    			author: 1,
+    			date: 2,
+    			updated: 3,
+    			content: 7
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "BlogPostModal",
+    			options,
+    			id: create_fragment$a.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*id*/ ctx[6] === undefined && !("id" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'id'");
+    		}
+
+    		if (/*title*/ ctx[0] === undefined && !("title" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'title'");
+    		}
+
+    		if (/*author*/ ctx[1] === undefined && !("author" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'author'");
+    		}
+
+    		if (/*date*/ ctx[2] === undefined && !("date" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'date'");
+    		}
+
+    		if (/*updated*/ ctx[3] === undefined && !("updated" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'updated'");
+    		}
+
+    		if (/*content*/ ctx[7] === undefined && !("content" in props)) {
+    			console.warn("<BlogPostModal> was created without expected prop 'content'");
+    		}
+    	}
+
+    	get id() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set id(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get title() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set title(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get author() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set author(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get date() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set date(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get updated() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set updated(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get content() {
+    		throw new Error("<BlogPostModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set content(value) {
+    		throw new Error("<BlogPostModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/modals/CloseButton.svelte generated by Svelte v3.24.1 */
+
+    const file$b = "src/components/modals/CloseButton.svelte";
+
+    function create_fragment$b(ctx) {
+    	let button;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			button = element("button");
+    			button.textContent = "Custom Close Button";
+    			add_location(button, file$b, 4, 0, 41);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, button, anchor);
+
+    			if (!mounted) {
+    				dispose = listen_dev(
+    					button,
+    					"click",
+    					function () {
+    						if (is_function(/*onClose*/ ctx[0])) /*onClose*/ ctx[0].apply(this, arguments);
+    					},
+    					false,
+    					false,
+    					false
+    				);
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, [dirty]) {
+    			ctx = new_ctx;
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(button);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$b.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$b($$self, $$props, $$invalidate) {
+    	let { onClose } = $$props;
+    	const writable_props = ["onClose"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<CloseButton> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("CloseButton", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("onClose" in $$props) $$invalidate(0, onClose = $$props.onClose);
+    	};
+
+    	$$self.$capture_state = () => ({ onClose });
+
+    	$$self.$inject_state = $$props => {
+    		if ("onClose" in $$props) $$invalidate(0, onClose = $$props.onClose);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [onClose];
+    }
+
+    class CloseButton extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$b, create_fragment$b, safe_not_equal, { onClose: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "CloseButton",
+    			options,
+    			id: create_fragment$b.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*onClose*/ ctx[0] === undefined && !("onClose" in props)) {
+    			console.warn("<CloseButton> was created without expected prop 'onClose'");
+    		}
+    	}
+
+    	get onClose() {
+    		throw new Error("<CloseButton>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set onClose(value) {
+    		throw new Error("<CloseButton>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    const blogPosts = 
+    [
+        {
+            published: true,
+            postId: 0,
+            title: "Creating the Blog Component",
+            author: "Max Eisen",
+            date: "March 3, 2021",
+            description: "How I created this blog component on my site from scratch (it was a pain).",
+            content: "creating-the-blog-component"
+        },
+        {
+            published: true,
+            postId: 1,
+            title: "My Sense of Design",
+            author: "Max Eisen",
+            date: "April 14, 2021",
+            updated: "May 14, 2021",
+            description: "Take a peek into the things that have influenced and currently define my sense of design.",
+            content: "sense-of-design"
+        },
+    ];
+
+    /* src/components/Blog.svelte generated by Svelte v3.24.1 */
+    const file$c = "src/components/Blog.svelte";
+
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[4] = list[i];
+    	return child_ctx;
+    }
+
+    // (55:8) {#if post.published == true}
+    function create_if_block$4(ctx) {
+    	let div;
+    	let h20;
+    	let t0_value = /*post*/ ctx[4].title + "";
+    	let t0;
+    	let t1;
+    	let h21;
+    	let t2_value = /*post*/ ctx[4].date + "";
+    	let t2;
+    	let t3;
+    	let h22;
+    	let t4_value = /*post*/ ctx[4].description + "";
+    	let t4;
+    	let t5;
+    	let mounted;
+    	let dispose;
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[1](/*post*/ ctx[4], ...args);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h20 = element("h2");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			h21 = element("h2");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			h22 = element("h2");
+    			t4 = text(t4_value);
+    			t5 = space();
+    			attr_dev(h20, "class", "blog-name svelte-1ejqdqo");
+    			add_location(h20, file$c, 56, 16, 2167);
+    			attr_dev(h21, "class", "blog-date svelte-1ejqdqo");
+    			add_location(h21, file$c, 57, 16, 2223);
+    			attr_dev(h22, "class", "blog-description svelte-1ejqdqo");
+    			add_location(h22, file$c, 58, 16, 2278);
+    			attr_dev(div, "class", "blog-item");
+    			attr_dev(div, "tabindex", "0");
+    			add_location(div, file$c, 55, 12, 2006);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h20);
+    			append_dev(h20, t0);
+    			append_dev(div, t1);
+    			append_dev(div, h21);
+    			append_dev(h21, t2);
+    			append_dev(div, t3);
+    			append_dev(div, h22);
+    			append_dev(h22, t4);
+    			append_dev(div, t5);
+
+    			if (!mounted) {
+    				dispose = listen_dev(div, "click", click_handler, false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$4.name,
+    		type: "if",
+    		source: "(55:8) {#if post.published == true}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (54:4) {#each blogPosts as post}
+    function create_each_block(ctx) {
+    	let if_block_anchor;
+    	let if_block = /*post*/ ctx[4].published == true && create_if_block$4(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*post*/ ctx[4].published == true) if_block.p(ctx, dirty);
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(54:4) {#each blogPosts as post}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$c(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+    	let each_value = blogPosts;
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Blog";
+    			t1 = space();
+    			div = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "blog");
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$c, 51, 0, 1825);
+    			attr_dev(div, "class", "blog-subsection");
+    			add_location(div, file$c, 52, 0, 1897);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*blogPostModal, blogPosts*/ 1) {
+    				each_value = blogPosts;
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$c.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$c($$self, $$props, $$invalidate) {
+    	const userQuery = queryString.parse(window.location.search);
+
+    	blogPosts.sort(function (a, b) {
+    		return b.postId - a.postId;
+    	});
+
+    	const { open } = getContext("simple-modal");
+
+    	const blogPostModal = (postId, title, author, date, updated, content) => {
+    		open(
+    			BlogPostModal,
+    			{
+    				id: postId,
+    				title,
+    				author,
+    				date,
+    				updated,
+    				content
+    			},
+    			{
+    				closeButton: CloseButton,
+    				styleWindow: {
+    					width: "950px",
+    					padding: "5px",
+    					maxHeight: "92.5%"
+    				}
+    			},
+    			{
+    				onOpen: () => {
+    					window.history.replaceState({}, title + " | MaxEisen.me", "/?blog=true&postId=" + postId);
+    					document.title = title + " | MaxEisen.me";
+    					document.body.style.overflow = "hidden";
+    				},
+    				onClose: () => {
+    					window.history.replaceState({}, "Get to Know Max Eisen | MaxEisen.me", "/");
+    					document.title = "Get to Know Max Eisen | MaxEisen.me";
+    					document.body.style.overflowY = "scroll";
+    				}
+    			}
+    		);
+    	};
+
+    	onMount(async () => {
+    		if (userQuery.blog == "true") {
+    			if (userQuery.postId) {
+    				var blogPost = blogPosts.find(post => {
+    					return post.postId == userQuery.postId;
+    				});
+
+    				blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.updated, blogPost.content);
+    			}
+    		}
+    	});
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Blog> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Blog", $$slots, []);
+    	const click_handler = post => blogPostModal(post.postId, post.title, post.author, post.date, post.updated, post.content);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		onMount,
+    		qs: queryString,
+    		BlogPostModal,
+    		CloseButton,
+    		blogPosts,
+    		userQuery,
+    		open,
+    		blogPostModal
+    	});
+
+    	return [blogPostModal, click_handler];
+    }
+
+    class Blog extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$c, create_fragment$c, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Blog",
+    			options,
+    			id: create_fragment$c.name
+    		});
+    	}
+    }
+
+    /* src/components/modals/ExperienceModal.svelte generated by Svelte v3.24.1 */
+
+    const file$d = "src/components/modals/ExperienceModal.svelte";
+
+    // (16:8) {:else}
+    function create_else_block_1(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text(/*company*/ ctx[1]);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*company*/ 2) set_data_dev(t, /*company*/ ctx[1]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_1.name,
+    		type: "else",
+    		source: "(16:8) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (14:8) {#if companyLink}
+    function create_if_block_1$1(ctx) {
+    	let a;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			t = text(/*company*/ ctx[1]);
+    			attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			attr_dev(a, "rel", "noreferrer");
+    			attr_dev(a, "target", "_blank");
+    			attr_dev(a, "class", "svelte-1uko5iu");
+    			add_location(a, file$d, 14, 12, 375);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+    			append_dev(a, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*company*/ 2) set_data_dev(t, /*company*/ ctx[1]);
+
+    			if (dirty & /*companyLink*/ 4) {
+    				attr_dev(a, "href", /*companyLink*/ ctx[2]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$1.name,
+    		type: "if",
+    		source: "(14:8) {#if companyLink}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (23:4) {:else}
+    function create_else_block(ctx) {
+    	let h3;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			h3 = element("h3");
+    			t = text(/*startDate*/ ctx[3]);
+    			attr_dev(h3, "class", "modal-description svelte-1uko5iu");
+    			set_style(h3, "text-align", "center");
+    			add_location(h3, file$d, 23, 8, 725);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h3, anchor);
+    			append_dev(h3, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*startDate*/ 8) set_data_dev(t, /*startDate*/ ctx[3]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h3);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block.name,
+    		type: "else",
+    		source: "(23:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (21:4) {#if endDate}
+    function create_if_block$5(ctx) {
+    	let h3;
+    	let t0;
+    	let t1;
+    	let t2;
+
+    	const block = {
+    		c: function create() {
+    			h3 = element("h3");
+    			t0 = text(/*startDate*/ ctx[3]);
+    			t1 = text("-");
+    			t2 = text(/*endDate*/ ctx[4]);
+    			attr_dev(h3, "class", "modal-description svelte-1uko5iu");
+    			set_style(h3, "text-align", "center");
+    			add_location(h3, file$d, 21, 8, 621);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h3, anchor);
+    			append_dev(h3, t0);
+    			append_dev(h3, t1);
+    			append_dev(h3, t2);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*startDate*/ 8) set_data_dev(t0, /*startDate*/ ctx[3]);
+    			if (dirty & /*endDate*/ 16) set_data_dev(t2, /*endDate*/ ctx[4]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h3);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$5.name,
+    		type: "if",
+    		source: "(21:4) {#if endDate}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$d(ctx) {
+    	let div;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let h2;
+    	let t2;
+    	let b;
+    	let t4;
+    	let t5;
+    	let t6;
+    	let t7;
+    	let p;
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*companyLink*/ ctx[2]) return create_if_block_1$1;
+    		return create_else_block_1;
+    	}
+
+    	let current_block_type = select_block_type(ctx);
+    	let if_block0 = current_block_type(ctx);
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*endDate*/ ctx[4]) return create_if_block$5;
+    		return create_else_block;
+    	}
+
+    	let current_block_type_1 = select_block_type_1(ctx);
+    	let if_block1 = current_block_type_1(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*position*/ ctx[0]);
+    			t1 = space();
+    			h2 = element("h2");
+    			if_block0.c();
+    			t2 = space();
+    			b = element("b");
+    			b.textContent = "in";
+    			t4 = space();
+    			t5 = text(/*location*/ ctx[5]);
+    			t6 = space();
+    			if_block1.c();
+    			t7 = space();
+    			p = element("p");
+    			attr_dev(h1, "class", "modal-position svelte-1uko5iu");
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$d, 11, 4, 235);
+    			set_style(b, "color", "var(--paragraph-colour)");
+    			set_style(b, "font-weight", "300");
+    			add_location(b, file$d, 18, 8, 507);
+    			attr_dev(h2, "class", "modal-company svelte-1uko5iu");
+    			add_location(h2, file$d, 12, 4, 310);
+    			attr_dev(p, "class", "modal-description svelte-1uko5iu");
+    			add_location(p, file$d, 25, 4, 813);
+    			attr_dev(div, "class", "experience-modal svelte-1uko5iu");
+    			add_location(div, file$d, 10, 0, 200);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h1);
+    			append_dev(h1, t0);
+    			append_dev(div, t1);
+    			append_dev(div, h2);
+    			if_block0.m(h2, null);
+    			append_dev(h2, t2);
+    			append_dev(h2, b);
+    			append_dev(h2, t4);
+    			append_dev(h2, t5);
+    			append_dev(div, t6);
+    			if_block1.m(div, null);
+    			append_dev(div, t7);
+    			append_dev(div, p);
+    			p.innerHTML = /*description*/ ctx[6];
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*position*/ 1) set_data_dev(t0, /*position*/ ctx[0]);
+
+    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block0) {
+    				if_block0.p(ctx, dirty);
+    			} else {
+    				if_block0.d(1);
+    				if_block0 = current_block_type(ctx);
+
+    				if (if_block0) {
+    					if_block0.c();
+    					if_block0.m(h2, t2);
+    				}
+    			}
+
+    			if (dirty & /*location*/ 32) set_data_dev(t5, /*location*/ ctx[5]);
+
+    			if (current_block_type_1 === (current_block_type_1 = select_block_type_1(ctx)) && if_block1) {
+    				if_block1.p(ctx, dirty);
+    			} else {
+    				if_block1.d(1);
+    				if_block1 = current_block_type_1(ctx);
+
+    				if (if_block1) {
+    					if_block1.c();
+    					if_block1.m(div, t7);
+    				}
+    			}
+
+    			if (dirty & /*description*/ 64) p.innerHTML = /*description*/ ctx[6];		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			if_block0.d();
+    			if_block1.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$d.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$d($$self, $$props, $$invalidate) {
+    	let { position } = $$props;
+    	let { company } = $$props;
+    	let { companyLink } = $$props;
+    	let { startDate } = $$props;
+    	let { endDate } = $$props;
+    	let { location } = $$props;
+    	let { description } = $$props;
+
+    	const writable_props = [
+    		"position",
+    		"company",
+    		"companyLink",
+    		"startDate",
+    		"endDate",
+    		"location",
+    		"description"
+    	];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ExperienceModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("ExperienceModal", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("position" in $$props) $$invalidate(0, position = $$props.position);
+    		if ("company" in $$props) $$invalidate(1, company = $$props.company);
+    		if ("companyLink" in $$props) $$invalidate(2, companyLink = $$props.companyLink);
+    		if ("startDate" in $$props) $$invalidate(3, startDate = $$props.startDate);
+    		if ("endDate" in $$props) $$invalidate(4, endDate = $$props.endDate);
+    		if ("location" in $$props) $$invalidate(5, location = $$props.location);
+    		if ("description" in $$props) $$invalidate(6, description = $$props.description);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		position,
+    		company,
+    		companyLink,
+    		startDate,
+    		endDate,
+    		location,
+    		description
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("position" in $$props) $$invalidate(0, position = $$props.position);
+    		if ("company" in $$props) $$invalidate(1, company = $$props.company);
+    		if ("companyLink" in $$props) $$invalidate(2, companyLink = $$props.companyLink);
+    		if ("startDate" in $$props) $$invalidate(3, startDate = $$props.startDate);
+    		if ("endDate" in $$props) $$invalidate(4, endDate = $$props.endDate);
+    		if ("location" in $$props) $$invalidate(5, location = $$props.location);
+    		if ("description" in $$props) $$invalidate(6, description = $$props.description);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [position, company, companyLink, startDate, endDate, location, description];
+    }
+
+    class ExperienceModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$d, create_fragment$d, safe_not_equal, {
+    			position: 0,
+    			company: 1,
+    			companyLink: 2,
+    			startDate: 3,
+    			endDate: 4,
+    			location: 5,
+    			description: 6
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ExperienceModal",
+    			options,
+    			id: create_fragment$d.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*position*/ ctx[0] === undefined && !("position" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'position'");
+    		}
+
+    		if (/*company*/ ctx[1] === undefined && !("company" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'company'");
+    		}
+
+    		if (/*companyLink*/ ctx[2] === undefined && !("companyLink" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'companyLink'");
+    		}
+
+    		if (/*startDate*/ ctx[3] === undefined && !("startDate" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'startDate'");
+    		}
+
+    		if (/*endDate*/ ctx[4] === undefined && !("endDate" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'endDate'");
+    		}
+
+    		if (/*location*/ ctx[5] === undefined && !("location" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'location'");
+    		}
+
+    		if (/*description*/ ctx[6] === undefined && !("description" in props)) {
+    			console.warn("<ExperienceModal> was created without expected prop 'description'");
+    		}
+    	}
+
+    	get position() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set position(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get company() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set company(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get companyLink() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set companyLink(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get startDate() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set startDate(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get endDate() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set endDate(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get location() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get description() {
+    		throw new Error("<ExperienceModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set description(value) {
+    		throw new Error("<ExperienceModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    const experience = 
+    [
+        {
+            shortPosition: "Software Engineer",
+            position: "Software Development Engineer",
+            shortCompany: "Amazon",
+            company: "Amazon Web Services (AWS)",
+            companyLink: "https://aws.amazon.com/",
+            shortDate: "Sep. 2022-Present",
+            startDate: "September 2022",
+            endDate: "Present",
+            location: "Toronto, ON",
+            shortDescription: "Working with the world's largest cloud services provider to maintain their low-latency global CDN",
+            longDescription:
+            `<ul>
+            <li>Working with the CloudFront FleetHealth team to maintain capacity and operational health of the global, low-latency content delivery network</li>
+            <li>Owning features to ensure the successful monitoring, maintenance, and operation of POPs around the world</li>
+            <li>Ensuring highest possible availability for major clients using our service</li>
+        </ul>`
+        },
+        {
+            shortPosition: "Software Engineer",
+            position: "Software Development Engineer",
+            shortCompany: "Publicis Sapient",
+            company: "Publicis Sapient",
+            companyLink: "https://www.publicissapient.com/",
+            shortDate: "Sep. 2021-Sep. 2022",
+            startDate: "September 2021",
+            endDate: "September 2022",
+            location: "Toronto, ON",
+            shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
+            longDescription:
+            `<ul>
+            <li>Contracted out through digital transformation giant Publicis Sapient, operating in 20 countries across the world</li>
+            <li>Worked with client Goldman Sachs, owning and developing major features for advisor web tools</li>
+            <li>Collaborated with teams to design, develop, and engineer over 5 different projects for production</li>
+            <li>Promoted to L1 engineer after only 1 year, marking a major boost in role and responsibilities</li>
+        </ul>`
+        },
+        {
+            shortPosition: "CS Teaching Assistant",
+            position: "Computer Science Teaching Assistant",
+            shortCompany: "Queen's University",
+            company: "Queen's University",
+            shortDate: "Sep. 2019-Jul. 2021",
+            companyLink: "https://cs.queensu.ca/",
+            startDate: "September 2019",
+            endDate: "July 2021",
+            location: "Kingston, ON",
+            shortDescription: "Assisted in the teaching and grading of several intermediate to advanced programming courses",
+            longDescription:
+            `<ul>
+            <li>Selected as a teaching assistant for three differenmt programming courses, having previously obtained exceptional grades</li>
+            <li>Held weekly office hours to guide students in completing assignments and projects</li>
+            <li>Assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, a 250-student Java course, and a 200-student Python course</li>
+        </ul>`
+        },
+        {
+            position: "Product Manager",
+            shortCompany: "QTMA",
+            company: "Queen's Technology and Media Association",
+            companyLink: "https://qtma.ca/",
+            shortDate: "Mar. 2020-Apr. 2021",
+            startDate: "March 2020",
+            endDate: "April 2021",
+            location: "Kingston, ON",
+            shortDescription: "Managed a talented team of Queen's students to ideate, develop, and market a software product",
+            longDescription:
+            `<ul>
+            <li>Managed a team of talented developers and business analysts to ideate, build, and market a software product</li>
+            <li>Led team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
+        </ul>`
+        },
+        {
+            shortPosition: "Technical Developer",
+            position: "Technical Developer Co-op",
+            shortCompany: "Jonah Group",
+            company: "Jonah Group",
+            companyLink: "https://www.jonahgroup.com/",
+            shortDate: "May-Sep. 2020",
+            startDate: "May",
+            endDate: "September 2020",
+            location: "Toronto, ON",
+            shortDescription: "Worked with a fantastic team of developers to create large-scale software products for companies",
+            longDescription:
+            `<ul>
+            <li>Used React, Spring Boot, and Postgres in my summer internship to build custom, high-performance software for companies</li>
+            <li>Full stack developer on an agile team, developing a decision engine to be implemented for client companies</li>
+        </ul>`
+        },
+        {
+            shortPosition: "Director of Technology",
+            position: "Founder, Director of Technology",
+            shortCompany: "TechTrainers",
+            company: "TechTrainers",
+            shortDate: "May 2019-Jan. 2021",
+            startDate: "May 2019",
+            endDate: "January 2021",
+            location: "Toronto, ON",
+            shortDescription: "Created a network of in-person and online quality tech help and tutoring around the GTA",
+            longDescription:
+            `<ul>
+            <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>
+            <li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li>
+            <li>Company was able to turn a profit in first month of operations</li>
+        </ul>`
+        },
+    ];
+
+    /* src/components/Experience.svelte generated by Svelte v3.24.1 */
+    const file$e = "src/components/Experience.svelte";
+
+    function get_each_context$1(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[3] = list[i];
+    	return child_ctx;
+    }
+
+    // (23:12) {:else}
+    function create_else_block_1$1(ctx) {
+    	let h2;
+    	let div;
+    	let t_value = /*exp*/ ctx[3].position + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			h2 = element("h2");
+    			div = element("div");
+    			t = text(t_value);
+    			attr_dev(div, "class", "experience-position svelte-1y5zmi7");
+    			add_location(div, file$e, 23, 45, 1123);
+    			attr_dev(h2, "class", "experience-title svelte-1y5zmi7");
+    			add_location(h2, file$e, 23, 16, 1094);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h2, anchor);
+    			append_dev(h2, div);
+    			append_dev(div, t);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_1$1.name,
+    		type: "else",
+    		source: "(23:12) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (21:12) {#if exp.shortPosition}
+    function create_if_block_1$2(ctx) {
+    	let h2;
+    	let div;
+    	let t_value = /*exp*/ ctx[3].shortPosition + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			h2 = element("h2");
+    			div = element("div");
+    			t = text(t_value);
+    			attr_dev(div, "class", "experience-position svelte-1y5zmi7");
+    			add_location(div, file$e, 21, 45, 994);
+    			attr_dev(h2, "class", "experience-title svelte-1y5zmi7");
+    			add_location(h2, file$e, 21, 16, 965);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h2, anchor);
+    			append_dev(h2, div);
+    			append_dev(div, t);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$2.name,
+    		type: "if",
+    		source: "(21:12) {#if exp.shortPosition}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (28:12) {:else}
+    function create_else_block$1(ctx) {
+    	let h2;
+    	let t_value = /*exp*/ ctx[3].company + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			h2 = element("h2");
+    			t = text(t_value);
+    			attr_dev(h2, "class", "experience-company svelte-1y5zmi7");
+    			add_location(h2, file$e, 28, 16, 1342);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h2, anchor);
+    			append_dev(h2, t);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$1.name,
+    		type: "else",
+    		source: "(28:12) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (26:12) {#if exp.shortCompany}
+    function create_if_block$6(ctx) {
+    	let h2;
+    	let t_value = /*exp*/ ctx[3].shortCompany + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			h2 = element("h2");
+    			t = text(t_value);
+    			attr_dev(h2, "class", "experience-company svelte-1y5zmi7");
+    			add_location(h2, file$e, 26, 16, 1251);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h2, anchor);
+    			append_dev(h2, t);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$6.name,
+    		type: "if",
+    		source: "(26:12) {#if exp.shortCompany}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (18:4) {#each experience as exp}
+    function create_each_block$1(ctx) {
+    	let div2;
+    	let t0;
+    	let t1;
+    	let p;
+    	let t2_value = /*exp*/ ctx[3].shortDescription + "";
+    	let t2;
+    	let t3;
+    	let h1;
+    	let div0;
+    	let t4_value = /*exp*/ ctx[3].shortDate + "";
+    	let t4;
+    	let div1;
+    	let t5_value = /*exp*/ ctx[3].location + "";
+    	let t5;
+    	let t6;
+    	let mounted;
+    	let dispose;
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*exp*/ ctx[3].shortPosition) return create_if_block_1$2;
+    		return create_else_block_1$1;
+    	}
+
+    	let current_block_type = select_block_type(ctx);
+    	let if_block0 = current_block_type(ctx);
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*exp*/ ctx[3].shortCompany) return create_if_block$6;
+    		return create_else_block$1;
+    	}
+
+    	let current_block_type_1 = select_block_type_1(ctx);
+    	let if_block1 = current_block_type_1(ctx);
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[1](/*exp*/ ctx[3], ...args);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div2 = element("div");
+    			if_block0.c();
+    			t0 = space();
+    			if_block1.c();
+    			t1 = space();
+    			p = element("p");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			h1 = element("h1");
+    			div0 = element("div");
+    			t4 = text(t4_value);
+    			div1 = element("div");
+    			t5 = text(t5_value);
+    			t6 = space();
+    			add_location(p, file$e, 30, 12, 1422);
+    			attr_dev(div0, "class", "experience-date svelte-1y5zmi7");
+    			add_location(div0, file$e, 31, 49, 1501);
+    			attr_dev(div1, "class", "experience-location svelte-1y5zmi7");
+    			add_location(div1, file$e, 31, 99, 1551);
+    			attr_dev(h1, "class", "experience-date-location svelte-1y5zmi7");
+    			add_location(h1, file$e, 31, 12, 1464);
+    			attr_dev(div2, "class", "experience-item");
+    			attr_dev(div2, "tabindex", "0");
+    			add_location(div2, file$e, 18, 2, 722);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div2, anchor);
+    			if_block0.m(div2, null);
+    			append_dev(div2, t0);
+    			if_block1.m(div2, null);
+    			append_dev(div2, t1);
+    			append_dev(div2, p);
+    			append_dev(p, t2);
+    			append_dev(div2, t3);
+    			append_dev(div2, h1);
+    			append_dev(h1, div0);
+    			append_dev(div0, t4);
+    			append_dev(h1, div1);
+    			append_dev(div1, t5);
+    			append_dev(div2, t6);
+
+    			if (!mounted) {
+    				dispose = listen_dev(div2, "click", click_handler, false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    			if_block0.p(ctx, dirty);
+    			if_block1.p(ctx, dirty);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div2);
+    			if_block0.d();
+    			if_block1.d();
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$1.name,
+    		type: "each",
+    		source: "(18:4) {#each experience as exp}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$e(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+    	let each_value = experience;
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Experience";
+    			t1 = space();
+    			div = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "experience");
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$e, 15, 0, 570);
+    			attr_dev(div, "class", "experience-subsection");
+    			add_location(div, file$e, 16, 0, 654);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*experienceModal, experience*/ 1) {
+    				each_value = experience;
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$1(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$1(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$e.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$e($$self, $$props, $$invalidate) {
+    	const { open } = getContext("simple-modal");
+
+    	const experienceModal = (position, company, companyLink, startDate, endDate, location, description) => {
+    		open(ExperienceModal, {
+    			position,
+    			company,
+    			companyLink,
+    			startDate,
+    			endDate,
+    			location,
+    			description
+    		});
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Experience> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Experience", $$slots, []);
+    	const click_handler = exp => experienceModal(exp.position, exp.company, exp.companyLink, exp.startDate, exp.endDate, exp.location, exp.longDescription);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		ExperienceModal,
+    		experience,
+    		open,
+    		experienceModal
+    	});
+
+    	return [experienceModal, click_handler];
+    }
+
+    class Experience extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$e, create_fragment$e, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Experience",
+    			options,
+    			id: create_fragment$e.name
+    		});
+    	}
+    }
+
+    /* node_modules/svelte-icons/io/IoMdOpen.svelte generated by Svelte v3.24.1 */
+    const file$f = "node_modules/svelte-icons/io/IoMdOpen.svelte";
+
+    // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
+    function create_default_slot$5(ctx) {
+    	let path;
+
+    	const block = {
+    		c: function create() {
+    			path = svg_element("path");
+    			attr_dev(path, "d", "M405.34 405.332H106.66V106.668H240V64H106.66C83.191 64 64 83.197 64 106.668v298.664C64 428.803 83.191 448 106.66 448h298.68c23.469 0 42.66-19.197 42.66-42.668V272h-42.66v133.332zM288 64v42.668h87.474L159.999 322.133l29.866 29.866 215.476-215.47V224H448V64H288z");
+    			add_location(path, file$f, 4, 10, 153);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, path, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(path);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$5.name,
+    		type: "slot",
+    		source: "(4:8) <IconBase viewBox=\\\"0 0 512 512\\\" {...$$props}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$f(ctx) {
+    	let iconbase;
+    	let current;
+    	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
+
+    	let iconbase_props = {
+    		$$slots: { default: [create_default_slot$5] },
+    		$$scope: { ctx }
+    	};
+
+    	for (let i = 0; i < iconbase_spread_levels.length; i += 1) {
+    		iconbase_props = assign(iconbase_props, iconbase_spread_levels[i]);
+    	}
+
+    	iconbase = new IconBase({ props: iconbase_props, $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(iconbase.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(iconbase, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const iconbase_changes = (dirty & /*$$props*/ 1)
+    			? get_spread_update(iconbase_spread_levels, [iconbase_spread_levels[0], get_spread_object(/*$$props*/ ctx[0])])
+    			: {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				iconbase_changes.$$scope = { dirty, ctx };
+    			}
+
+    			iconbase.$set(iconbase_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(iconbase.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(iconbase.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(iconbase, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$f.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$f($$self, $$props, $$invalidate) {
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IoMdOpen", $$slots, []);
+
+    	$$self.$$set = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+    	};
+
+    	$$self.$capture_state = () => ({ IconBase });
+
+    	$$self.$inject_state = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$props = exclude_internal_props($$props);
+    	return [$$props];
+    }
+
+    class IoMdOpen extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$f, create_fragment$f, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IoMdOpen",
+    			options,
+    			id: create_fragment$f.name
+    		});
+    	}
+    }
+
+    /* node_modules/svelte-icons/io/IoIosCode.svelte generated by Svelte v3.24.1 */
+    const file$g = "node_modules/svelte-icons/io/IoIosCode.svelte";
+
+    // (4:8) <IconBase viewBox="0 0 512 512" {...$$props}>
+    function create_default_slot$6(ctx) {
+    	let path;
+
+    	const block = {
+    		c: function create() {
+    			path = svg_element("path");
+    			attr_dev(path, "d", "M332 142.7c-1.2-1.1-2.7-1.7-4.1-1.7s-3 .6-4.1 1.7L310 155.9c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l95.8 91.5-95.8 91.5c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l13.8 13.2c1.2 1.1 2.6 1.7 4.1 1.7 1.5 0 3-.6 4.1-1.7l114.2-109c1.2-1.1 1.9-2.7 1.9-4.3 0-1.6-.7-3.2-1.9-4.3L332 142.7zM204 160.2c0-1.6-.7-3.2-1.9-4.3l-13.8-13.2c-1.2-1.1-2.7-1.7-4.1-1.7s-3 .6-4.1 1.7l-114.2 109c-1.2 1.1-1.9 2.7-1.9 4.3 0 1.6.7 3.2 1.9 4.3l114.2 109c1.2 1.1 2.7 1.7 4.1 1.7 1.5 0 3-.6 4.1-1.7l13.8-13.2c1.2-1.1 1.9-2.7 1.9-4.3 0-1.6-.7-3.2-1.9-4.3L106.3 256l95.8-91.5c1.2-1.1 1.9-2.7 1.9-4.3z");
+    			add_location(path, file$g, 4, 10, 153);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, path, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(path);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$6.name,
+    		type: "slot",
+    		source: "(4:8) <IconBase viewBox=\\\"0 0 512 512\\\" {...$$props}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$g(ctx) {
+    	let iconbase;
+    	let current;
+    	const iconbase_spread_levels = [{ viewBox: "0 0 512 512" }, /*$$props*/ ctx[0]];
+
+    	let iconbase_props = {
+    		$$slots: { default: [create_default_slot$6] },
+    		$$scope: { ctx }
+    	};
+
+    	for (let i = 0; i < iconbase_spread_levels.length; i += 1) {
+    		iconbase_props = assign(iconbase_props, iconbase_spread_levels[i]);
+    	}
+
+    	iconbase = new IconBase({ props: iconbase_props, $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(iconbase.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(iconbase, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const iconbase_changes = (dirty & /*$$props*/ 1)
+    			? get_spread_update(iconbase_spread_levels, [iconbase_spread_levels[0], get_spread_object(/*$$props*/ ctx[0])])
+    			: {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				iconbase_changes.$$scope = { dirty, ctx };
+    			}
+
+    			iconbase.$set(iconbase_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(iconbase.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(iconbase.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(iconbase, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$g.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$g($$self, $$props, $$invalidate) {
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("IoIosCode", $$slots, []);
+
+    	$$self.$$set = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+    	};
+
+    	$$self.$capture_state = () => ({ IconBase });
+
+    	$$self.$inject_state = $$new_props => {
+    		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$props = exclude_internal_props($$props);
+    	return [$$props];
+    }
+
+    class IoIosCode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$g, create_fragment$g, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "IoIosCode",
+    			options,
+    			id: create_fragment$g.name
+    		});
+    	}
+    }
+
+    /* src/components/modals/ProjectModal.svelte generated by Svelte v3.24.1 */
+    const file$h = "src/components/modals/ProjectModal.svelte";
+
+    // (18:8) {#if projectLink}
+    function create_if_block_1$3(ctx) {
+    	let a;
+    	let openlogo;
+    	let current;
+    	openlogo = new IoMdOpen({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			create_component(openlogo.$$.fragment);
+    			attr_dev(a, "class", "project-link svelte-18eo4k3");
+    			attr_dev(a, "href", /*projectLink*/ ctx[5]);
+    			attr_dev(a, "rel", "noreferrer");
+    			attr_dev(a, "target", "_blank");
+    			add_location(a, file$h, 18, 12, 633);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+    			mount_component(openlogo, a, null);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			if (!current || dirty & /*projectLink*/ 32) {
+    				attr_dev(a, "href", /*projectLink*/ ctx[5]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(openlogo.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(openlogo.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    			destroy_component(openlogo);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$3.name,
+    		type: "if",
+    		source: "(18:8) {#if projectLink}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (21:8) {#if githubLink}
+    function create_if_block$7(ctx) {
+    	let a;
+    	let codelogo;
+    	let current;
+    	codelogo = new IoIosCode({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			create_component(codelogo.$$.fragment);
+    			attr_dev(a, "class", "project-link svelte-18eo4k3");
+    			attr_dev(a, "href", /*githubLink*/ ctx[4]);
+    			attr_dev(a, "rel", "noreferrer");
+    			attr_dev(a, "target", "_blank");
+    			add_location(a, file$h, 21, 12, 777);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+    			mount_component(codelogo, a, null);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			if (!current || dirty & /*githubLink*/ 16) {
+    				attr_dev(a, "href", /*githubLink*/ ctx[4]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(codelogo.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(codelogo.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    			destroy_component(codelogo);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$7.name,
+    		type: "if",
+    		source: "(21:8) {#if githubLink}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$h(ctx) {
+    	let div1;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let t4;
+    	let h3;
+    	let t5;
+    	let b;
+    	let t6;
+    	let t7;
+    	let div0;
+    	let t8;
+    	let t9;
+    	let p;
+    	let t10;
+    	let picture;
+    	let source0;
+    	let source0_srcset_value;
+    	let t11;
+    	let source1;
+    	let source1_srcset_value;
+    	let t12;
+    	let img;
+    	let img_src_value;
+    	let img_alt_value;
+    	let current;
+    	let if_block0 = /*projectLink*/ ctx[5] && create_if_block_1$3(ctx);
+    	let if_block1 = /*githubLink*/ ctx[4] && create_if_block$7(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div1 = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*name*/ ctx[0]);
+    			t1 = text(" (");
+    			t2 = text(/*year*/ ctx[2]);
+    			t3 = text(")");
+    			t4 = space();
+    			h3 = element("h3");
+    			t5 = text("Developed with: ");
+    			b = element("b");
+    			t6 = text(/*technologies*/ ctx[1]);
+    			t7 = space();
+    			div0 = element("div");
+    			if (if_block0) if_block0.c();
+    			t8 = space();
+    			if (if_block1) if_block1.c();
+    			t9 = space();
+    			p = element("p");
+    			t10 = space();
+    			picture = element("picture");
+    			source0 = element("source");
+    			t11 = space();
+    			source1 = element("source");
+    			t12 = space();
+    			img = element("img");
+    			attr_dev(h1, "class", "modal-name svelte-18eo4k3");
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$h, 14, 4, 355);
+    			attr_dev(b, "class", "technologies svelte-18eo4k3");
+    			add_location(b, file$h, 15, 78, 505);
+    			attr_dev(h3, "class", "modal-description svelte-18eo4k3");
+    			set_style(h3, "text-align", "center");
+    			add_location(h3, file$h, 15, 4, 431);
+    			attr_dev(div0, "class", "project-links-container svelte-18eo4k3");
+    			add_location(div0, file$h, 16, 4, 557);
+    			attr_dev(p, "class", "modal-description svelte-18eo4k3");
+    			add_location(p, file$h, 24, 4, 898);
+    			attr_dev(source0, "srcset", source0_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".webp");
+    			attr_dev(source0, "type", "image/webp");
+    			add_location(source0, file$h, 26, 8, 973);
+    			attr_dev(source1, "srcset", source1_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".jpg");
+    			attr_dev(source1, "type", "image/jpeg");
+    			add_location(source1, file$h, 27, 8, 1053);
+    			attr_dev(img, "class", "screenshot svelte-18eo4k3");
+    			if (img.src !== (img_src_value = "" + (/*screenshot*/ ctx[6] + ".webp"))) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"));
+    			add_location(img, file$h, 28, 8, 1132);
+    			add_location(picture, file$h, 25, 4, 955);
+    			attr_dev(div1, "class", "project-modal svelte-18eo4k3");
+    			add_location(div1, file$h, 13, 0, 323);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, h1);
+    			append_dev(h1, t0);
+    			append_dev(h1, t1);
+    			append_dev(h1, t2);
+    			append_dev(h1, t3);
+    			append_dev(div1, t4);
+    			append_dev(div1, h3);
+    			append_dev(h3, t5);
+    			append_dev(h3, b);
+    			append_dev(b, t6);
+    			append_dev(div1, t7);
+    			append_dev(div1, div0);
+    			if (if_block0) if_block0.m(div0, null);
+    			append_dev(div0, t8);
+    			if (if_block1) if_block1.m(div0, null);
+    			append_dev(div1, t9);
+    			append_dev(div1, p);
+    			p.innerHTML = /*description*/ ctx[3];
+    			append_dev(div1, t10);
+    			append_dev(div1, picture);
+    			append_dev(picture, source0);
+    			append_dev(picture, t11);
+    			append_dev(picture, source1);
+    			append_dev(picture, t12);
+    			append_dev(picture, img);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (!current || dirty & /*name*/ 1) set_data_dev(t0, /*name*/ ctx[0]);
+    			if (!current || dirty & /*year*/ 4) set_data_dev(t2, /*year*/ ctx[2]);
+    			if (!current || dirty & /*technologies*/ 2) set_data_dev(t6, /*technologies*/ ctx[1]);
+
+    			if (/*projectLink*/ ctx[5]) {
+    				if (if_block0) {
+    					if_block0.p(ctx, dirty);
+
+    					if (dirty & /*projectLink*/ 32) {
+    						transition_in(if_block0, 1);
+    					}
+    				} else {
+    					if_block0 = create_if_block_1$3(ctx);
+    					if_block0.c();
+    					transition_in(if_block0, 1);
+    					if_block0.m(div0, t8);
+    				}
+    			} else if (if_block0) {
+    				group_outros();
+
+    				transition_out(if_block0, 1, 1, () => {
+    					if_block0 = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			if (/*githubLink*/ ctx[4]) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+
+    					if (dirty & /*githubLink*/ 16) {
+    						transition_in(if_block1, 1);
+    					}
+    				} else {
+    					if_block1 = create_if_block$7(ctx);
+    					if_block1.c();
+    					transition_in(if_block1, 1);
+    					if_block1.m(div0, null);
+    				}
+    			} else if (if_block1) {
+    				group_outros();
+
+    				transition_out(if_block1, 1, 1, () => {
+    					if_block1 = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			if (!current || dirty & /*description*/ 8) p.innerHTML = /*description*/ ctx[3];
+    			if (!current || dirty & /*screenshot*/ 64 && source0_srcset_value !== (source0_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".webp")) {
+    				attr_dev(source0, "srcset", source0_srcset_value);
+    			}
+
+    			if (!current || dirty & /*screenshot*/ 64 && source1_srcset_value !== (source1_srcset_value = "./img/screenshots/" + /*screenshot*/ ctx[6] + ".jpg")) {
+    				attr_dev(source1, "srcset", source1_srcset_value);
+    			}
+
+    			if (!current || dirty & /*screenshot*/ 64 && img.src !== (img_src_value = "" + (/*screenshot*/ ctx[6] + ".webp"))) {
+    				attr_dev(img, "src", img_src_value);
+    			}
+
+    			if (!current || dirty & /*name*/ 1 && img_alt_value !== (img_alt_value = "" + (/*name*/ ctx[0] + " screenshot"))) {
+    				attr_dev(img, "alt", img_alt_value);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block0);
+    			transition_in(if_block1);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block0);
+    			transition_out(if_block1);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div1);
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$h.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$h($$self, $$props, $$invalidate) {
+    	let { name } = $$props;
+    	let { technologies } = $$props;
+    	let { year } = $$props;
+    	let { description } = $$props;
+    	let { githubLink } = $$props;
+    	let { projectLink } = $$props;
+    	let { screenshot } = $$props;
+
+    	const writable_props = [
+    		"name",
+    		"technologies",
+    		"year",
+    		"description",
+    		"githubLink",
+    		"projectLink",
+    		"screenshot"
+    	];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ProjectModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("ProjectModal", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("name" in $$props) $$invalidate(0, name = $$props.name);
+    		if ("technologies" in $$props) $$invalidate(1, technologies = $$props.technologies);
+    		if ("year" in $$props) $$invalidate(2, year = $$props.year);
+    		if ("description" in $$props) $$invalidate(3, description = $$props.description);
+    		if ("githubLink" in $$props) $$invalidate(4, githubLink = $$props.githubLink);
+    		if ("projectLink" in $$props) $$invalidate(5, projectLink = $$props.projectLink);
+    		if ("screenshot" in $$props) $$invalidate(6, screenshot = $$props.screenshot);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		OpenLogo: IoMdOpen,
+    		CodeLogo: IoIosCode,
+    		name,
+    		technologies,
+    		year,
+    		description,
+    		githubLink,
+    		projectLink,
+    		screenshot
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("name" in $$props) $$invalidate(0, name = $$props.name);
+    		if ("technologies" in $$props) $$invalidate(1, technologies = $$props.technologies);
+    		if ("year" in $$props) $$invalidate(2, year = $$props.year);
+    		if ("description" in $$props) $$invalidate(3, description = $$props.description);
+    		if ("githubLink" in $$props) $$invalidate(4, githubLink = $$props.githubLink);
+    		if ("projectLink" in $$props) $$invalidate(5, projectLink = $$props.projectLink);
+    		if ("screenshot" in $$props) $$invalidate(6, screenshot = $$props.screenshot);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [name, technologies, year, description, githubLink, projectLink, screenshot];
+    }
+
+    class ProjectModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$h, create_fragment$h, safe_not_equal, {
+    			name: 0,
+    			technologies: 1,
+    			year: 2,
+    			description: 3,
+    			githubLink: 4,
+    			projectLink: 5,
+    			screenshot: 6
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ProjectModal",
+    			options,
+    			id: create_fragment$h.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*name*/ ctx[0] === undefined && !("name" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'name'");
+    		}
+
+    		if (/*technologies*/ ctx[1] === undefined && !("technologies" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'technologies'");
+    		}
+
+    		if (/*year*/ ctx[2] === undefined && !("year" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'year'");
+    		}
+
+    		if (/*description*/ ctx[3] === undefined && !("description" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'description'");
+    		}
+
+    		if (/*githubLink*/ ctx[4] === undefined && !("githubLink" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'githubLink'");
+    		}
+
+    		if (/*projectLink*/ ctx[5] === undefined && !("projectLink" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'projectLink'");
+    		}
+
+    		if (/*screenshot*/ ctx[6] === undefined && !("screenshot" in props)) {
+    			console.warn("<ProjectModal> was created without expected prop 'screenshot'");
+    		}
+    	}
+
+    	get name() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set name(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get technologies() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set technologies(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get year() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set year(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get description() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set description(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get githubLink() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set githubLink(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get projectLink() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set projectLink(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get screenshot() {
+    		throw new Error("<ProjectModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set screenshot(value) {
+    		throw new Error("<ProjectModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    const projects = 
+    [
+        {
+            name: "Convoke",
+            emoji: "🤔",
+            technologies: "Next.js, OpenAI GPT-3, Vercel",
+            year: "2022-Present",
+            shortDescription: "A web-based game designed to provoke abstract conversation and deep thought",
+            longDescription:
+            `<ul>
+            <li>A game made as an alternative to many classic social games played over a few drinks, to provoke thought and conversation</li>
+            <li>Using <a href=\"https://openai.com/blog/openai-api/\" rel=\"noreferrer\" target=\"_blank\">Open-AI's GPT-3 API</a>, thought-provoking questions are generated each round, posed to your group, and a best response is selected</li>
+            <li>Scores are kept track of by the web app and a winner is declared after three rounds</li>
+            <li>Alternatively a more personal <a href=\"https://convoke.app/daily\" rel=\"noreferrer\" target=\"_blank\">daily question</a> can be answered by an individual user, with responses saved to local storage</li>
+            <li>Developed in two weeks after inspiration struck</li>
+            <li>Ranked #7 on launch day on <a href=\"https://www.producthunt.com/posts/convoke\" rel=\"noreferrer\" target=\"_blank\">Product Hunt</a></li>
+            <li>Currently closed-source as opportunities for expansion and monetization are explored</li>
+        </ul>`,
+            projectLink: "https://convoke.app",
+            screenshot: "convoke",
+        },
+        {
+            name: "NFTokenator",
+            emoji: "&#129689;",
+            technologies: "Python, Pillow, NumPy",
+            year: "2022-Present",
+            shortDescription: "A Python script to programatically generate NFT images from provided assets",
+            longDescription:
+            `<ul>
+            <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
+            <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
+            <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
+            <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
+            <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/nftokenator",
+            screenshot: "nftokenator",
+        },
+        {
+            name: "WhatToTip",
+            emoji: "&#128184;",
+            technologies: "Next.js, OpenAI GPT-3, Python, Vercel",
+            year: "2022-Present",
+            shortDescription: "A web app to helping travellers save money on their next trip",
+            longDescription:
+            `<ul>
+            <li>A minimalistic web app that helps travellers by providing short but informative tips for saving in every country across the globe</li>
+            <li>Next.js server-side rendering makes for fast and responsive user interactions and loading of static content</li>
+            <li>A Python script was developed to leverage OpenAI's GPT-3 engine to generate tips for every country in our list</li>
+            <li>Vercel is used to continously deploy the site from the GitHub repository</li>
+            <li>Originally developed to inform travellers on how to tip in different countries around the world, hence the name "WhatToTip"</li>
+        </ul>`,
+            projectLink: "https://whattotip.in",
+            screenshot: "whattotip",
+        },
+        {
+            name: "NuHealth",
+            emoji: "&#129659;",
+            technologies: "Next.js, Firebase, Vercel",
+            year: "2022",
+            shortDescription: "A web app to resolve the bottlenecks in socialized healthcare",
+            longDescription:
+            `<ul>
+            <li>A dual-purpose web app aimed at helping patient's manage access to their health information, and providing EMTs with crucial medical data</li>
+            <li>Next.js server-side rendering allows for quick response times when querying the Firestore database to access patient health information</li>
+            <li>Firebase is used to store patient health information and to authenticate EMTs</li>
+            <li>Patient's also have the ability to specify who should be able to access their health information</li>
+            <li>Built in <48 hours by a team of 4, for the <a href=\"https://publicissapient.com/\" rel=\"noreferrer\" target=\"_blank\">Publicis Sapient</a> Aspire SPEED Hackathon <b>(top 10 finalist)</b></li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/nuhealth_public",
+            projectLink: "https://nuhealth.vercel.app",
+            screenshot: "nuhealth",
+        },
+        {
+            name: "PupBot",
+            emoji: "&#128054;",
+            technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
+            year: "2021-Present",
+            shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
+            longDescription:
+            `<ul>
+            <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
+            <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
+            <li>Matplotlib generates beautiful 12-hour price charts</li>
+            <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
+            <li>Deployed to Heroku and scheduled to run each hour</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/pup-bot",
+            projectLink: "https://twitter.com/PuppyCoinBot",
+            screenshot: "pupbot",
+        },
+        {
+            name: "Eagle",
+            emoji: "&#129413;",
+            technologies: "React Native, Firebase, Netlify",
+            year: "2020-2021",
+            shortDescription: "A delivery service comparison platform to help food-lovers get the best deal",
+            longDescription:
+            `<ul>
+            <li>A mobile application to help users compare pricing, delivery times, and reviews of the same restaurant across four different delivery services</li>
+            <li>Ideated, developed, marketed, and pitched by an awesome team of 10 QTMA team members under my guidance as product manager</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/eagle_public",
+            projectLink: "https://www.qtma.ca/product/Eagle",
+            screenshot: "eagle",
+        },
+        // {
+        //     name: "MaxEisen.me",
+        //     emoji: "&#128587;&#8205;&#9794;&#65039;",
+        //     technologies: "Svelte, Netlify, HTML5, CSS3",
+        //     year: "2020-Present",
+        //     shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+        //     longDescription:
+        //     `<ul>
+        //         <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+        //         <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+        //     </ul>`,
+        //     githubLink: "https://github.com/maxeisen/MaxEisen.me",
+        //     screenshot: "maxeisenme",
+        // },
+        {
+            name: "Studii",
+            emoji: "&#128218;",
+            technologies: "React, Django, MongoDB, HTML5, CSS3",
+            year: "2019-2020",
+            shortDescription: "A collaborative, all-in-one study space made for students, by students",
+            longDescription:
+            `<ul>
+            <li>A real-time, affordable, peer and tutor support forum for students who can't find a study method that works for them and/or don't have classmates to study with</li>
+            <li>Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/studii_public",
+            projectLink: "https://www.qtma.ca/product/Studii",
+            screenshot: "studii",
+        },
+        {
+            name: "QHacks",
+            emoji: "&#128187;",
+            technologies: "React, Gatsby, MongoDB, HTML5, CSS3",
+            year: "2019-2020",
+            shortDescription: "The official website for Queen's University's 2020 MLH hackathon",
+            longDescription:
+            `<ul>
+            <li>The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby</li>
+            <li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
+            projectLink: "https://2020.qhacks.io",
+            screenshot: "qhacks",
+        },
+        {
+            name: "Spotilizer",
+            emoji: "&#127925;",
+            technologies: "Python, Tkinter, Spotify Web API",
+            year: "2019",
+            shortDescription: "A customizable, data-centric Spotify music visualizer built in Python",
+            longDescription:
+            `<ul>
+            <li>A visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors</li>
+            <li>Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/spotilizer",
+            screenshot: "spotilizer",
+        },
+        {
+            name: "Glitch",
+            emoji: "&#127918;",
+            technologies: "Unity Game Engine, C#",
+            year: "2018-2019",
+            shortDescription: "A unique, monochromatic platformer game for observant minimalists",
+            longDescription:
+            `<ul>
+            <li>A monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win</li>
+            <li>Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University</li>
+        </ul>`,
+            githubLink: "https://github.com/maxeisen/Glitch",
+            projectLink: "https://tamirarnesty.github.io/glitchGame/",
+            screenshot: "glitch",
+        },
+        // {
+        //     name: "TicTacToe",
+        //     emoji: "&#10060;",
+        //     technologies: "Python",
+        //     year: "2017",
+        //     shortDescription: "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+        //     longDescription:
+        //     `<ul>
+        //         <li>An extremely basic, text-based version of tic-tac-toe</li>
+        //         <li>One of my earliest coding projects, developed in about an hour on a flight without access to any online resources</li>
+        //         <li>Initially written in Python 2 and ported to Python 3</li>
+        //     </ul>`,
+        //     githubLink: "https://github.com/maxeisen/TicTacToe",
+        //     screenshot: "tictactoe",
+        // }
+    ];
+
+    /* src/components/Projects.svelte generated by Svelte v3.24.1 */
+    const file$i = "src/components/Projects.svelte";
+
+    function get_each_context$2(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[3] = list[i];
+    	return child_ctx;
+    }
+
+    // (18:4) {#each projects as proj}
+    function create_each_block$2(ctx) {
+    	let div;
+    	let h20;
+    	let t0_value = /*proj*/ ctx[3].name + "";
+    	let t0;
+    	let t1;
+    	let html_tag;
+    	let raw_value = /*proj*/ ctx[3].emoji + "";
+    	let t2;
+    	let h21;
+    	let t3_value = /*proj*/ ctx[3].year + "";
+    	let t3;
+    	let t4;
+    	let h22;
+    	let t5_value = /*proj*/ ctx[3].technologies + "";
+    	let t5;
+    	let t6;
+    	let p;
+    	let t7_value = /*proj*/ ctx[3].shortDescription + "";
+    	let t7;
+    	let t8;
+    	let mounted;
+    	let dispose;
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[1](/*proj*/ ctx[3], ...args);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h20 = element("h2");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			t2 = space();
+    			h21 = element("h2");
+    			t3 = text(t3_value);
+    			t4 = space();
+    			h22 = element("h2");
+    			t5 = text(t5_value);
+    			t6 = space();
+    			p = element("p");
+    			t7 = text(t7_value);
+    			t8 = space();
+    			html_tag = new HtmlTag(null);
+    			attr_dev(h20, "class", "project-name svelte-1145ne2");
+    			add_location(h20, file$i, 20, 12, 990);
+    			attr_dev(h21, "class", "project-year svelte-1145ne2");
+    			add_location(h21, file$i, 21, 12, 1063);
+    			attr_dev(h22, "class", "project-tech svelte-1145ne2");
+    			add_location(h22, file$i, 22, 12, 1117);
+    			add_location(p, file$i, 23, 12, 1179);
+    			attr_dev(div, "class", "project-item");
+    			attr_dev(div, "tabindex", "0");
+    			set_style(div, "background-image", "url('./img/screenshots/" + /*proj*/ ctx[3].screenshot + ".webp')");
+    			add_location(div, file$i, 18, 8, 711);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h20);
+    			append_dev(h20, t0);
+    			append_dev(h20, t1);
+    			html_tag.m(raw_value, h20);
+    			append_dev(div, t2);
+    			append_dev(div, h21);
+    			append_dev(h21, t3);
+    			append_dev(div, t4);
+    			append_dev(div, h22);
+    			append_dev(h22, t5);
+    			append_dev(div, t6);
+    			append_dev(div, p);
+    			append_dev(p, t7);
+    			append_dev(div, t8);
+
+    			if (!mounted) {
+    				dispose = listen_dev(div, "click", click_handler, false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$2.name,
+    		type: "each",
+    		source: "(18:4) {#each projects as proj}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$i(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+    	let each_value = projects;
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Projects";
+    			t1 = space();
+    			div = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "projects");
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$i, 15, 0, 561);
+    			attr_dev(div, "class", "project-subsection");
+    			add_location(div, file$i, 16, 0, 641);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*projects, projectModal*/ 1) {
+    				each_value = projects;
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$2(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$2(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$i.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$i($$self, $$props, $$invalidate) {
+    	const { open } = getContext("simple-modal");
+
+    	const projectModal = (name, technologies, year, description, githubLink, projectLink, screenshot) => {
+    		open(ProjectModal, {
+    			name,
+    			technologies,
+    			year,
+    			description,
+    			githubLink,
+    			projectLink,
+    			screenshot
+    		});
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Projects> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Projects", $$slots, []);
+    	const click_handler = proj => projectModal(proj.name, proj.technologies, proj.year, proj.longDescription, proj.githubLink, proj.projectLink, proj.screenshot);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		ProjectModal,
+    		projects,
+    		open,
+    		projectModal
+    	});
+
+    	return [projectModal, click_handler];
+    }
+
+    class Projects extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$i, create_fragment$i, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Projects",
+    			options,
+    			id: create_fragment$i.name
+    		});
+    	}
+    }
+
+    /* src/components/modals/EducationModal.svelte generated by Svelte v3.24.1 */
+
+    const file$j = "src/components/modals/EducationModal.svelte";
+
+    function create_fragment$j(ctx) {
+    	let div;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let t4;
+    	let h2;
+    	let t5;
+    	let h30;
+    	let t6;
+    	let h31;
+    	let t7;
+    	let t8;
+    	let p0;
+    	let b0;
+    	let t10;
+    	let t11;
+    	let p1;
+    	let b1;
+    	let t13;
+    	let t14;
+    	let p2;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*school*/ ctx[0]);
+    			t1 = text(" (");
+    			t2 = text(/*location*/ ctx[1]);
+    			t3 = text(")");
+    			t4 = space();
+    			h2 = element("h2");
+    			t5 = space();
+    			h30 = element("h3");
+    			t6 = space();
+    			h31 = element("h3");
+    			t7 = text(/*years*/ ctx[4]);
+    			t8 = space();
+    			p0 = element("p");
+    			b0 = element("b");
+    			b0.textContent = "Relevant Courses: ";
+    			t10 = text(/*courses*/ ctx[5]);
+    			t11 = space();
+    			p1 = element("p");
+    			b1 = element("b");
+    			b1.textContent = "Committees: ";
+    			t13 = text(/*committees*/ ctx[6]);
+    			t14 = space();
+    			p2 = element("p");
+    			p2.textContent = "*Acted as a Teaching Assistant (courses) or Executive (committees)";
+    			attr_dev(h1, "class", "modal-school svelte-14ryp3n");
+    			set_style(h1, "text-align", "center");
+    			add_location(h1, file$j, 11, 4, 220);
+    			attr_dev(h2, "class", "modal-degree svelte-14ryp3n");
+    			set_style(h2, "text-align", "center");
+    			add_location(h2, file$j, 12, 4, 304);
+    			attr_dev(h30, "class", "modal-major svelte-14ryp3n");
+    			set_style(h30, "text-align", "center");
+    			add_location(h30, file$j, 13, 4, 381);
+    			attr_dev(h31, "class", "modal-years svelte-14ryp3n");
+    			set_style(h31, "text-align", "center");
+    			add_location(h31, file$j, 14, 4, 456);
+    			add_location(b0, file$j, 15, 32, 553);
+    			attr_dev(p0, "class", "modal-committees svelte-14ryp3n");
+    			add_location(p0, file$j, 15, 4, 525);
+    			add_location(b1, file$j, 16, 32, 624);
+    			attr_dev(p1, "class", "modal-committees svelte-14ryp3n");
+    			add_location(p1, file$j, 16, 4, 596);
+    			attr_dev(p2, "class", "ta-note svelte-14ryp3n");
+    			add_location(p2, file$j, 17, 4, 664);
+    			attr_dev(div, "class", "education-modal svelte-14ryp3n");
+    			add_location(div, file$j, 10, 0, 186);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h1);
+    			append_dev(h1, t0);
+    			append_dev(h1, t1);
+    			append_dev(h1, t2);
+    			append_dev(h1, t3);
+    			append_dev(div, t4);
+    			append_dev(div, h2);
+    			h2.innerHTML = /*degree*/ ctx[2];
+    			append_dev(div, t5);
+    			append_dev(div, h30);
+    			h30.innerHTML = /*major*/ ctx[3];
+    			append_dev(div, t6);
+    			append_dev(div, h31);
+    			append_dev(h31, t7);
+    			append_dev(div, t8);
+    			append_dev(div, p0);
+    			append_dev(p0, b0);
+    			append_dev(p0, t10);
+    			append_dev(div, t11);
+    			append_dev(div, p1);
+    			append_dev(p1, b1);
+    			append_dev(p1, t13);
+    			append_dev(div, t14);
+    			append_dev(div, p2);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*school*/ 1) set_data_dev(t0, /*school*/ ctx[0]);
+    			if (dirty & /*location*/ 2) set_data_dev(t2, /*location*/ ctx[1]);
+    			if (dirty & /*degree*/ 4) h2.innerHTML = /*degree*/ ctx[2];			if (dirty & /*major*/ 8) h30.innerHTML = /*major*/ ctx[3];			if (dirty & /*years*/ 16) set_data_dev(t7, /*years*/ ctx[4]);
+    			if (dirty & /*courses*/ 32) set_data_dev(t10, /*courses*/ ctx[5]);
+    			if (dirty & /*committees*/ 64) set_data_dev(t13, /*committees*/ ctx[6]);
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$j.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$j($$self, $$props, $$invalidate) {
+    	let { school } = $$props;
+    	let { location } = $$props;
+    	let { degree } = $$props;
+    	let { major } = $$props;
+    	let { years } = $$props;
+    	let { courses } = $$props;
+    	let { committees } = $$props;
+    	const writable_props = ["school", "location", "degree", "major", "years", "courses", "committees"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<EducationModal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("EducationModal", $$slots, []);
+
+    	$$self.$$set = $$props => {
+    		if ("school" in $$props) $$invalidate(0, school = $$props.school);
+    		if ("location" in $$props) $$invalidate(1, location = $$props.location);
+    		if ("degree" in $$props) $$invalidate(2, degree = $$props.degree);
+    		if ("major" in $$props) $$invalidate(3, major = $$props.major);
+    		if ("years" in $$props) $$invalidate(4, years = $$props.years);
+    		if ("courses" in $$props) $$invalidate(5, courses = $$props.courses);
+    		if ("committees" in $$props) $$invalidate(6, committees = $$props.committees);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		school,
+    		location,
+    		degree,
+    		major,
+    		years,
+    		courses,
+    		committees
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("school" in $$props) $$invalidate(0, school = $$props.school);
+    		if ("location" in $$props) $$invalidate(1, location = $$props.location);
+    		if ("degree" in $$props) $$invalidate(2, degree = $$props.degree);
+    		if ("major" in $$props) $$invalidate(3, major = $$props.major);
+    		if ("years" in $$props) $$invalidate(4, years = $$props.years);
+    		if ("courses" in $$props) $$invalidate(5, courses = $$props.courses);
+    		if ("committees" in $$props) $$invalidate(6, committees = $$props.committees);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [school, location, degree, major, years, courses, committees];
+    }
+
+    class EducationModal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$j, create_fragment$j, safe_not_equal, {
+    			school: 0,
+    			location: 1,
+    			degree: 2,
+    			major: 3,
+    			years: 4,
+    			courses: 5,
+    			committees: 6
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "EducationModal",
+    			options,
+    			id: create_fragment$j.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*school*/ ctx[0] === undefined && !("school" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'school'");
+    		}
+
+    		if (/*location*/ ctx[1] === undefined && !("location" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'location'");
+    		}
+
+    		if (/*degree*/ ctx[2] === undefined && !("degree" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'degree'");
+    		}
+
+    		if (/*major*/ ctx[3] === undefined && !("major" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'major'");
+    		}
+
+    		if (/*years*/ ctx[4] === undefined && !("years" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'years'");
+    		}
+
+    		if (/*courses*/ ctx[5] === undefined && !("courses" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'courses'");
+    		}
+
+    		if (/*committees*/ ctx[6] === undefined && !("committees" in props)) {
+    			console.warn("<EducationModal> was created without expected prop 'committees'");
+    		}
+    	}
+
+    	get school() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set school(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get location() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get degree() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set degree(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get major() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set major(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get years() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set years(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get courses() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set courses(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get committees() {
+    		throw new Error("<EducationModal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set committees(value) {
+    		throw new Error("<EducationModal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    const education = 
+    [
+        {
+            school: "Queen's University",
+            location: "Kingston, ON",
+            degreeShort: "Bachelor of Computing, Honours",
+            degreeLong: "Bachelor of Computing, Honours (<a href=\"https://www.queensu.ca/admission/programs/computing\" rel=\"noreferrer\" target=\"_blank\">BCmpH</a>)",
+            majorShort: "Computer Science",
+            majorLong: "Computer Science (<a href=\"http://www.cips.ca/\" rel=\"noreferrer\" target=\"_blank\">CIPS</a> Accredited)",
+            years: "2017 - 2021",
+            courses: "Elements of Computing I* and II*, Linear Algebra, Fundamentals of Software Development (Agile)*, Software Architecture, Algorithms, Data Structures, Database Management Systems, Formal Methods in Software Engineering",
+            committees: "QTMA*, QHacks*, TEDxQueensU*, QWEB, Residence Society, Computing DSC, Math DSC, Residence Life Council"
+        }
+    ];
+
+    /* src/components/Education.svelte generated by Svelte v3.24.1 */
+    const file$k = "src/components/Education.svelte";
+
+    function create_fragment$k(ctx) {
+    	let h1;
+    	let t1;
+    	let div1;
+    	let div0;
+    	let h20;
+    	let t3;
+    	let h21;
+    	let t5;
+    	let h22;
+    	let t7;
+    	let h23;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Education";
+    			t1 = space();
+    			div1 = element("div");
+    			div0 = element("div");
+    			h20 = element("h2");
+    			h20.textContent = `${education[0].school}`;
+    			t3 = space();
+    			h21 = element("h2");
+    			h21.textContent = `${education[0].degreeShort}`;
+    			t5 = space();
+    			h22 = element("h2");
+    			h22.textContent = `${education[0].majorShort}`;
+    			t7 = space();
+    			h23 = element("h2");
+    			h23.textContent = `${education[0].years}`;
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "education");
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$k, 14, 0, 521);
+    			attr_dev(h20, "class", "school-name svelte-ouixgn");
+    			add_location(h20, file$k, 18, 8, 888);
+    			attr_dev(h21, "class", "degree-info svelte-ouixgn");
+    			add_location(h21, file$k, 19, 8, 947);
+    			attr_dev(h22, "class", "major-info svelte-ouixgn");
+    			add_location(h22, file$k, 20, 8, 1011);
+    			attr_dev(h23, "class", "degree-years svelte-ouixgn");
+    			add_location(h23, file$k, 21, 8, 1073);
+    			attr_dev(div0, "class", "education-item");
+    			attr_dev(div0, "tabindex", "0");
+    			add_location(div0, file$k, 16, 4, 642);
+    			attr_dev(div1, "class", "education-subsection");
+    			add_location(div1, file$k, 15, 0, 603);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, div0);
+    			append_dev(div0, h20);
+    			append_dev(div0, t3);
+    			append_dev(div0, h21);
+    			append_dev(div0, t5);
+    			append_dev(div0, h22);
+    			append_dev(div0, t7);
+    			append_dev(div0, h23);
+
+    			if (!mounted) {
+    				dispose = listen_dev(div0, "click", /*click_handler*/ ctx[1], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div1);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$k.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$k($$self, $$props, $$invalidate) {
+    	const { open } = getContext("simple-modal");
+
+    	const educationModal = (school, location, degree, major, years, courses, committees) => {
+    		open(EducationModal, {
+    			school,
+    			location,
+    			degree,
+    			major,
+    			years,
+    			courses,
+    			committees
+    		});
+    	};
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Education> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Education", $$slots, []);
+    	const click_handler = () => educationModal(education[0].school, education[0].location, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].courses, education[0].committees);
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		EducationModal,
+    		education,
+    		open,
+    		educationModal
+    	});
+
+    	return [educationModal, click_handler];
+    }
+
+    class Education extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$k, create_fragment$k, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Education",
+    			options,
+    			id: create_fragment$k.name
+    		});
+    	}
+    }
+
+    const skills = [
+      'JavaScript',
+      'Python',
+      'Java',
+      'HTML5',
+      'CSS3',
+      'Git',
+      'SQL',
+      'C++',
+      'React',
+      'Next.js',
+      'React Native',
+      'Svelte',
+      'Node.js',
+      'Spring',
+      'Azure',
+      'AWS',
+    ];
+
+    /* src/components/Skills.svelte generated by Svelte v3.24.1 */
+    const file$l = "src/components/Skills.svelte";
+
+    function get_each_context$3(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[0] = list[i];
+    	return child_ctx;
+    }
+
+    // (8:8) {#each skills as skill}
+    function create_each_block$3(ctx) {
+    	let li;
+    	let t_value = /*skill*/ ctx[0] + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			li = element("li");
+    			t = text(t_value);
+    			attr_dev(li, "class", "svelte-1vlexz");
+    			add_location(li, file$l, 8, 12, 242);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, li, anchor);
+    			append_dev(li, t);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(li);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$3.name,
+    		type: "each",
+    		source: "(8:8) {#each skills as skill}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$l(ctx) {
+    	let h1;
+    	let t1;
+    	let div;
+    	let ul;
+    	let each_value = skills;
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$3(get_each_context$3(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			h1 = element("h1");
+    			h1.textContent = "Skills";
+    			t1 = space();
+    			div = element("div");
+    			ul = element("ul");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(h1, "class", "section-title");
+    			attr_dev(h1, "id", "skills");
+    			set_style(h1, "text-align", "left");
+    			add_location(h1, file$l, 4, 0, 81);
+    			attr_dev(ul, "class", "svelte-1vlexz");
+    			add_location(ul, file$l, 6, 4, 193);
+    			attr_dev(div, "class", "skills-subsection");
+    			add_location(div, file$l, 5, 0, 157);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h1, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div, anchor);
+    			append_dev(div, ul);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(ul, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*skills*/ 0) {
+    				each_value = skills;
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$3(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$3(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(ul, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h1);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$l.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$l($$self, $$props, $$invalidate) {
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Skills> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Skills", $$slots, []);
+    	$$self.$capture_state = () => ({ skills });
+    	return [];
+    }
+
+    class Skills extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$l, create_fragment$l, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Skills",
+    			options,
+    			id: create_fragment$l.name
+    		});
+    	}
+    }
+
+    /* src/components/Footer.svelte generated by Svelte v3.24.1 */
+
+    const file$m = "src/components/Footer.svelte";
+
+    function create_fragment$m(ctx) {
+    	let h2;
+    	let a;
+    	let t0;
+    	let b;
+
+    	const block = {
+    		c: function create() {
+    			h2 = element("h2");
+    			a = element("a");
+    			t0 = text("Made at 🏠 by Max Eisen ");
+    			b = element("b");
+    			b.textContent = `©${new Date().getFullYear()}`;
+    			set_style(b, "font-size", "14px");
+    			set_style(b, "color", "var(--header-colour)");
+    			add_location(b, file$m, 0, 133, 133);
+    			attr_dev(a, "href", "https://github.com/maxeisen/MaxEisen.me/");
+    			attr_dev(a, "rel", "noreferrer");
+    			attr_dev(a, "class", "footer");
+    			add_location(a, file$m, 0, 19, 19);
+    			attr_dev(h2, "class", "footer");
+    			add_location(h2, file$m, 0, 0, 0);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, h2, anchor);
+    			append_dev(h2, a);
+    			append_dev(a, t0);
+    			append_dev(a, b);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(h2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$m.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$m($$self, $$props) {
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Footer> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Footer", $$slots, []);
+    	return [];
+    }
+
+    class Footer extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$m, create_fragment$m, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Footer",
+    			options,
+    			id: create_fragment$m.name
+    		});
+    	}
+    }
+
+    function fade(node, { delay = 0, duration = 400, easing = identity }) {
+        const o = +getComputedStyle(node).opacity;
+        return {
+            delay,
+            duration,
+            easing,
+            css: t => `opacity: ${t * o}`
+        };
+    }
+
+    /* node_modules/svelte-simple-modal/src/Modal.svelte generated by Svelte v3.24.1 */
+
+    const { Object: Object_1 } = globals;
+    const file$n = "node_modules/svelte-simple-modal/src/Modal.svelte";
+
+    // (213:0) {#if Component}
+    function create_if_block$8(ctx) {
+    	let div3;
+    	let div2;
+    	let div1;
+    	let t;
+    	let div0;
+    	let switch_instance;
+    	let div1_transition;
+    	let div3_transition;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	let if_block = /*state*/ ctx[0].closeButton && create_if_block_1$4(ctx);
+    	const switch_instance_spread_levels = [/*props*/ ctx[2]];
+    	var switch_value = /*Component*/ ctx[1];
+
+    	function switch_props(ctx) {
+    		let switch_instance_props = {};
+
+    		for (let i = 0; i < switch_instance_spread_levels.length; i += 1) {
+    			switch_instance_props = assign(switch_instance_props, switch_instance_spread_levels[i]);
+    		}
+
+    		return {
+    			props: switch_instance_props,
+    			$$inline: true
+    		};
+    	}
+
+    	if (switch_value) {
+    		switch_instance = new switch_value(switch_props());
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div3 = element("div");
+    			div2 = element("div");
+    			div1 = element("div");
+    			if (if_block) if_block.c();
+    			t = space();
+    			div0 = element("div");
+    			if (switch_instance) create_component(switch_instance.$$.fragment);
+    			attr_dev(div0, "class", "content svelte-fnsfcv");
+    			attr_dev(div0, "style", /*cssContent*/ ctx[11]);
+    			add_location(div0, file$n, 233, 8, 5379);
+    			attr_dev(div1, "class", "window svelte-fnsfcv");
+    			attr_dev(div1, "style", /*cssWindow*/ ctx[10]);
+    			add_location(div1, file$n, 221, 6, 5006);
+    			attr_dev(div2, "class", "window-wrap svelte-fnsfcv");
+    			add_location(div2, file$n, 220, 4, 4957);
+    			attr_dev(div3, "class", "bg svelte-fnsfcv");
+    			attr_dev(div3, "style", /*cssBg*/ ctx[9]);
+    			add_location(div3, file$n, 213, 2, 4791);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, div2);
+    			append_dev(div2, div1);
+    			if (if_block) if_block.m(div1, null);
+    			append_dev(div1, t);
+    			append_dev(div1, div0);
+
+    			if (switch_instance) {
+    				mount_component(switch_instance, div0, null);
+    			}
+
+    			/*div2_binding*/ ctx[31](div2);
+    			/*div3_binding*/ ctx[32](div3);
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = [
+    					listen_dev(
+    						div1,
+    						"introstart",
+    						function () {
+    							if (is_function(/*onOpen*/ ctx[5])) /*onOpen*/ ctx[5].apply(this, arguments);
+    						},
+    						false,
+    						false,
+    						false
+    					),
+    					listen_dev(
+    						div1,
+    						"outrostart",
+    						function () {
+    							if (is_function(/*onClose*/ ctx[6])) /*onClose*/ ctx[6].apply(this, arguments);
+    						},
+    						false,
+    						false,
+    						false
+    					),
+    					listen_dev(
+    						div1,
+    						"introend",
+    						function () {
+    							if (is_function(/*onOpened*/ ctx[7])) /*onOpened*/ ctx[7].apply(this, arguments);
+    						},
+    						false,
+    						false,
+    						false
+    					),
+    					listen_dev(
+    						div1,
+    						"outroend",
+    						function () {
+    							if (is_function(/*onClosed*/ ctx[8])) /*onClosed*/ ctx[8].apply(this, arguments);
+    						},
+    						false,
+    						false,
+    						false
+    					),
+    					listen_dev(div3, "click", /*handleOuterClick*/ ctx[16], false, false, false)
+    				];
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+
+    			if (/*state*/ ctx[0].closeButton) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_1$4(ctx);
+    					if_block.c();
+    					if_block.m(div1, t);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			const switch_instance_changes = (dirty[0] & /*props*/ 4)
+    			? get_spread_update(switch_instance_spread_levels, [get_spread_object(/*props*/ ctx[2])])
+    			: {};
+
+    			if (switch_value !== (switch_value = /*Component*/ ctx[1])) {
+    				if (switch_instance) {
+    					group_outros();
+    					const old_component = switch_instance;
+
+    					transition_out(old_component.$$.fragment, 1, 0, () => {
+    						destroy_component(old_component, 1);
+    					});
+
+    					check_outros();
+    				}
+
+    				if (switch_value) {
+    					switch_instance = new switch_value(switch_props());
+    					create_component(switch_instance.$$.fragment);
+    					transition_in(switch_instance.$$.fragment, 1);
+    					mount_component(switch_instance, div0, null);
+    				} else {
+    					switch_instance = null;
+    				}
+    			} else if (switch_value) {
+    				switch_instance.$set(switch_instance_changes);
+    			}
+
+    			if (!current || dirty[0] & /*cssContent*/ 2048) {
+    				attr_dev(div0, "style", /*cssContent*/ ctx[11]);
+    			}
+
+    			if (!current || dirty[0] & /*cssWindow*/ 1024) {
+    				attr_dev(div1, "style", /*cssWindow*/ ctx[10]);
+    			}
+
+    			if (!current || dirty[0] & /*cssBg*/ 512) {
+    				attr_dev(div3, "style", /*cssBg*/ ctx[9]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			if (switch_instance) transition_in(switch_instance.$$.fragment, local);
+
+    			add_render_callback(() => {
+    				if (!div1_transition) div1_transition = create_bidirectional_transition(div1, /*currentTransitionWindow*/ ctx[13], /*state*/ ctx[0].transitionWindowProps, true);
+    				div1_transition.run(1);
+    			});
+
+    			add_render_callback(() => {
+    				if (!div3_transition) div3_transition = create_bidirectional_transition(div3, /*currentTransitionBg*/ ctx[12], /*state*/ ctx[0].transitionBgProps, true);
+    				div3_transition.run(1);
+    			});
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			if (switch_instance) transition_out(switch_instance.$$.fragment, local);
+    			if (!div1_transition) div1_transition = create_bidirectional_transition(div1, /*currentTransitionWindow*/ ctx[13], /*state*/ ctx[0].transitionWindowProps, false);
+    			div1_transition.run(0);
+    			if (!div3_transition) div3_transition = create_bidirectional_transition(div3, /*currentTransitionBg*/ ctx[12], /*state*/ ctx[0].transitionBgProps, false);
+    			div3_transition.run(0);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div3);
+    			if (if_block) if_block.d();
+    			if (switch_instance) destroy_component(switch_instance);
+    			if (detaching && div1_transition) div1_transition.end();
+    			/*div2_binding*/ ctx[31](null);
+    			/*div3_binding*/ ctx[32](null);
+    			if (detaching && div3_transition) div3_transition.end();
+    			mounted = false;
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$8.name,
+    		type: "if",
+    		source: "(213:0) {#if Component}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (231:8) {#if state.closeButton}
+    function create_if_block_1$4(ctx) {
+    	let button;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			button = element("button");
+    			attr_dev(button, "class", "close svelte-fnsfcv");
+    			add_location(button, file$n, 231, 10, 5308);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, button, anchor);
+
+    			if (!mounted) {
+    				dispose = listen_dev(button, "click", /*close*/ ctx[14], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(button);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$4.name,
+    		type: "if",
+    		source: "(231:8) {#if state.closeButton}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$n(ctx) {
+    	let t;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	let if_block = /*Component*/ ctx[1] && create_if_block$8(ctx);
+    	const default_slot_template = /*$$slots*/ ctx[30].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[29], null);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			t = space();
+    			if (default_slot) default_slot.c();
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, t, anchor);
+
+    			if (default_slot) {
+    				default_slot.m(target, anchor);
+    			}
+
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(window, "keyup", /*handleKeyup*/ ctx[15], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*Component*/ ctx[1]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+
+    					if (dirty[0] & /*Component*/ 2) {
+    						transition_in(if_block, 1);
+    					}
+    				} else {
+    					if_block = create_if_block$8(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(t.parentNode, t);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			if (default_slot) {
+    				if (default_slot.p && dirty[0] & /*$$scope*/ 536870912) {
+    					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[29], dirty, null, null);
+    				}
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			transition_in(default_slot, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			transition_out(default_slot, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(t);
+    			if (default_slot) default_slot.d(detaching);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$n.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$n($$self, $$props, $$invalidate) {
+    	let { key = "simple-modal" } = $$props;
+    	let { closeButton = true } = $$props;
+    	let { closeOnEsc = true } = $$props;
+    	let { closeOnOuterClick = true } = $$props;
+    	let { styleBg = { top: 0, left: 0 } } = $$props;
+    	let { styleWindow = {} } = $$props;
+    	let { styleContent = {} } = $$props;
+    	let { setContext: setContext$1 = setContext } = $$props;
+    	let { transitionBg = fade } = $$props;
+    	let { transitionBgProps = { duration: 250 } } = $$props;
+    	let { transitionWindow = transitionBg } = $$props;
+    	let { transitionWindowProps = transitionBgProps } = $$props;
+
+    	const defaultState = {
+    		closeButton,
+    		closeOnEsc,
+    		closeOnOuterClick,
+    		styleBg,
+    		styleWindow,
+    		styleContent,
+    		transitionBg,
+    		transitionBgProps,
+    		transitionWindow,
+    		transitionWindowProps
+    	};
+
+    	let state = { ...defaultState };
+    	let Component = null;
+    	let props = null;
+    	let background;
+    	let wrap;
+    	const camelCaseToDash = str => str.replace(/([a-zA-Z])(?=[A-Z])/g, "$1-").toLowerCase();
+    	const toCssString = props => Object.keys(props).reduce((str, key) => `${str}; ${camelCaseToDash(key)}: ${props[key]}`, "");
+
+    	const toVoid = () => {
+    		
+    	};
+
+    	let onOpen = toVoid;
+    	let onClose = toVoid;
+    	let onOpened = toVoid;
+    	let onClosed = toVoid;
+
+    	const open = (NewComponent, newProps = {}, options = {}, callback = {}) => {
+    		$$invalidate(1, Component = NewComponent);
+    		$$invalidate(2, props = newProps);
+    		$$invalidate(0, state = { ...defaultState, ...options });
+    		$$invalidate(5, onOpen = callback.onOpen || toVoid);
+    		$$invalidate(6, onClose = callback.onClose || toVoid);
+    		$$invalidate(7, onOpened = callback.onOpened || toVoid);
+    		$$invalidate(8, onClosed = callback.onClosed || toVoid);
+    	};
+
+    	const close = (callback = {}) => {
+    		$$invalidate(6, onClose = callback.onClose || onClose);
+    		$$invalidate(8, onClosed = callback.onClosed || onClosed);
+    		$$invalidate(1, Component = null);
+    		$$invalidate(2, props = null);
+    	};
+
+    	const handleKeyup = event => {
+    		if (state.closeOnEsc && Component && event.key === "Escape") {
+    			event.preventDefault();
+    			close();
+    		}
+    	};
+
+    	const handleOuterClick = event => {
+    		if (state.closeOnOuterClick && (event.target === background || event.target === wrap)) {
+    			event.preventDefault();
+    			close();
+    		}
+    	};
+
+    	setContext$1(key, { open, close });
+
+    	const writable_props = [
+    		"key",
+    		"closeButton",
+    		"closeOnEsc",
+    		"closeOnOuterClick",
+    		"styleBg",
+    		"styleWindow",
+    		"styleContent",
+    		"setContext",
+    		"transitionBg",
+    		"transitionBgProps",
+    		"transitionWindow",
+    		"transitionWindowProps"
+    	];
+
+    	Object_1.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Modal> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("Modal", $$slots, ['default']);
+
+    	function div2_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			wrap = $$value;
+    			$$invalidate(4, wrap);
+    		});
+    	}
+
+    	function div3_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			background = $$value;
+    			$$invalidate(3, background);
+    		});
+    	}
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(17, key = $$props.key);
+    		if ("closeButton" in $$props) $$invalidate(18, closeButton = $$props.closeButton);
+    		if ("closeOnEsc" in $$props) $$invalidate(19, closeOnEsc = $$props.closeOnEsc);
+    		if ("closeOnOuterClick" in $$props) $$invalidate(20, closeOnOuterClick = $$props.closeOnOuterClick);
+    		if ("styleBg" in $$props) $$invalidate(21, styleBg = $$props.styleBg);
+    		if ("styleWindow" in $$props) $$invalidate(22, styleWindow = $$props.styleWindow);
+    		if ("styleContent" in $$props) $$invalidate(23, styleContent = $$props.styleContent);
+    		if ("setContext" in $$props) $$invalidate(24, setContext$1 = $$props.setContext);
+    		if ("transitionBg" in $$props) $$invalidate(25, transitionBg = $$props.transitionBg);
+    		if ("transitionBgProps" in $$props) $$invalidate(26, transitionBgProps = $$props.transitionBgProps);
+    		if ("transitionWindow" in $$props) $$invalidate(27, transitionWindow = $$props.transitionWindow);
+    		if ("transitionWindowProps" in $$props) $$invalidate(28, transitionWindowProps = $$props.transitionWindowProps);
+    		if ("$$scope" in $$props) $$invalidate(29, $$scope = $$props.$$scope);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		baseSetContext: setContext,
+    		fade,
+    		key,
+    		closeButton,
+    		closeOnEsc,
+    		closeOnOuterClick,
+    		styleBg,
+    		styleWindow,
+    		styleContent,
+    		setContext: setContext$1,
+    		transitionBg,
+    		transitionBgProps,
+    		transitionWindow,
+    		transitionWindowProps,
+    		defaultState,
+    		state,
+    		Component,
+    		props,
+    		background,
+    		wrap,
+    		camelCaseToDash,
+    		toCssString,
+    		toVoid,
+    		onOpen,
+    		onClose,
+    		onOpened,
+    		onClosed,
+    		open,
+    		close,
+    		handleKeyup,
+    		handleOuterClick,
+    		cssBg,
+    		cssWindow,
+    		cssContent,
+    		currentTransitionBg,
+    		currentTransitionWindow
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(17, key = $$props.key);
+    		if ("closeButton" in $$props) $$invalidate(18, closeButton = $$props.closeButton);
+    		if ("closeOnEsc" in $$props) $$invalidate(19, closeOnEsc = $$props.closeOnEsc);
+    		if ("closeOnOuterClick" in $$props) $$invalidate(20, closeOnOuterClick = $$props.closeOnOuterClick);
+    		if ("styleBg" in $$props) $$invalidate(21, styleBg = $$props.styleBg);
+    		if ("styleWindow" in $$props) $$invalidate(22, styleWindow = $$props.styleWindow);
+    		if ("styleContent" in $$props) $$invalidate(23, styleContent = $$props.styleContent);
+    		if ("setContext" in $$props) $$invalidate(24, setContext$1 = $$props.setContext);
+    		if ("transitionBg" in $$props) $$invalidate(25, transitionBg = $$props.transitionBg);
+    		if ("transitionBgProps" in $$props) $$invalidate(26, transitionBgProps = $$props.transitionBgProps);
+    		if ("transitionWindow" in $$props) $$invalidate(27, transitionWindow = $$props.transitionWindow);
+    		if ("transitionWindowProps" in $$props) $$invalidate(28, transitionWindowProps = $$props.transitionWindowProps);
+    		if ("state" in $$props) $$invalidate(0, state = $$props.state);
+    		if ("Component" in $$props) $$invalidate(1, Component = $$props.Component);
+    		if ("props" in $$props) $$invalidate(2, props = $$props.props);
+    		if ("background" in $$props) $$invalidate(3, background = $$props.background);
+    		if ("wrap" in $$props) $$invalidate(4, wrap = $$props.wrap);
+    		if ("onOpen" in $$props) $$invalidate(5, onOpen = $$props.onOpen);
+    		if ("onClose" in $$props) $$invalidate(6, onClose = $$props.onClose);
+    		if ("onOpened" in $$props) $$invalidate(7, onOpened = $$props.onOpened);
+    		if ("onClosed" in $$props) $$invalidate(8, onClosed = $$props.onClosed);
+    		if ("cssBg" in $$props) $$invalidate(9, cssBg = $$props.cssBg);
+    		if ("cssWindow" in $$props) $$invalidate(10, cssWindow = $$props.cssWindow);
+    		if ("cssContent" in $$props) $$invalidate(11, cssContent = $$props.cssContent);
+    		if ("currentTransitionBg" in $$props) $$invalidate(12, currentTransitionBg = $$props.currentTransitionBg);
+    		if ("currentTransitionWindow" in $$props) $$invalidate(13, currentTransitionWindow = $$props.currentTransitionWindow);
+    	};
+
+    	let cssBg;
+    	let cssWindow;
+    	let cssContent;
+    	let currentTransitionBg;
+    	let currentTransitionWindow;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(9, cssBg = toCssString(state.styleBg));
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(10, cssWindow = toCssString(state.styleWindow));
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(11, cssContent = toCssString(state.styleContent));
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(12, currentTransitionBg = state.transitionBg);
+    		}
+
+    		if ($$self.$$.dirty[0] & /*state*/ 1) {
+    			 $$invalidate(13, currentTransitionWindow = state.transitionWindow);
+    		}
+    	};
+
+    	return [
+    		state,
+    		Component,
+    		props,
+    		background,
+    		wrap,
+    		onOpen,
+    		onClose,
+    		onOpened,
+    		onClosed,
+    		cssBg,
+    		cssWindow,
+    		cssContent,
+    		currentTransitionBg,
+    		currentTransitionWindow,
+    		close,
+    		handleKeyup,
+    		handleOuterClick,
+    		key,
+    		closeButton,
+    		closeOnEsc,
+    		closeOnOuterClick,
+    		styleBg,
+    		styleWindow,
+    		styleContent,
+    		setContext$1,
+    		transitionBg,
+    		transitionBgProps,
+    		transitionWindow,
+    		transitionWindowProps,
+    		$$scope,
+    		$$slots,
+    		div2_binding,
+    		div3_binding
+    	];
+    }
+
+    class Modal extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(
+    			this,
+    			options,
+    			instance$n,
+    			create_fragment$n,
+    			safe_not_equal,
+    			{
+    				key: 17,
+    				closeButton: 18,
+    				closeOnEsc: 19,
+    				closeOnOuterClick: 20,
+    				styleBg: 21,
+    				styleWindow: 22,
+    				styleContent: 23,
+    				setContext: 24,
+    				transitionBg: 25,
+    				transitionBgProps: 26,
+    				transitionWindow: 27,
+    				transitionWindowProps: 28
+    			},
+    			[-1, -1]
+    		);
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Modal",
+    			options,
+    			id: create_fragment$n.name
+    		});
+    	}
+
+    	get key() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get closeButton() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set closeButton(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get closeOnEsc() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set closeOnEsc(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get closeOnOuterClick() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set closeOnOuterClick(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get styleBg() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set styleBg(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get styleWindow() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set styleWindow(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get styleContent() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set styleContent(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get setContext() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set setContext(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionBg() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionBg(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionBgProps() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionBgProps(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionWindow() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionWindow(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transitionWindowProps() {
+    		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transitionWindowProps(value) {
+    		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/App.svelte generated by Svelte v3.24.1 */
+    const file$o = "src/App.svelte";
+
+    // (19:4) {#if (screenSize.matches)}
+    function create_if_block$9(ctx) {
+    	let menubar;
+    	let current;
+    	menubar = new MenuBar({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(menubar.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(menubar, target, anchor);
+    			current = true;
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(menubar.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(menubar.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(menubar, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$9.name,
+    		type: "if",
+    		source: "(19:4) {#if (screenSize.matches)}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (17:0) <Modal>
+    function create_default_slot$7(ctx) {
+    	let t0;
+    	let div3;
+    	let div0;
+    	let profile;
+    	let t1;
+    	let div2;
+    	let div1;
+    	let intro;
+    	let t2;
+    	let experience;
+    	let t3;
+    	let projects;
+    	let t4;
+    	let blog;
+    	let t5;
+    	let education;
+    	let t6;
+    	let skills;
+    	let t7;
+    	let footer;
+    	let current;
+    	let if_block = /*screenSize*/ ctx[0].matches && create_if_block$9(ctx);
+    	profile = new Profile({ $$inline: true });
+    	intro = new Intro({ $$inline: true });
+    	experience = new Experience({ $$inline: true });
+    	projects = new Projects({ $$inline: true });
+    	blog = new Blog({ $$inline: true });
+    	education = new Education({ $$inline: true });
+    	skills = new Skills({ $$inline: true });
+    	footer = new Footer({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			t0 = space();
+    			div3 = element("div");
+    			div0 = element("div");
+    			create_component(profile.$$.fragment);
+    			t1 = space();
+    			div2 = element("div");
+    			div1 = element("div");
+    			create_component(intro.$$.fragment);
+    			t2 = space();
+    			create_component(experience.$$.fragment);
+    			t3 = space();
+    			create_component(projects.$$.fragment);
+    			t4 = space();
+    			create_component(blog.$$.fragment);
+    			t5 = space();
+    			create_component(education.$$.fragment);
+    			t6 = space();
+    			create_component(skills.$$.fragment);
+    			t7 = space();
+    			create_component(footer.$$.fragment);
+    			attr_dev(div0, "class", "profile-section");
+    			add_location(div0, file$o, 22, 8, 850);
+    			attr_dev(div1, "class", "info-section-inner");
+    			add_location(div1, file$o, 26, 12, 970);
+    			attr_dev(div2, "class", "info-section-main");
+    			add_location(div2, file$o, 25, 8, 926);
+    			attr_dev(div3, "class", "grid-container");
+    			add_location(div3, file$o, 21, 4, 813);
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, div0);
+    			mount_component(profile, div0, null);
+    			append_dev(div3, t1);
+    			append_dev(div3, div2);
+    			append_dev(div2, div1);
+    			mount_component(intro, div1, null);
+    			append_dev(div1, t2);
+    			mount_component(experience, div1, null);
+    			append_dev(div1, t3);
+    			mount_component(projects, div1, null);
+    			append_dev(div1, t4);
+    			mount_component(blog, div1, null);
+    			append_dev(div1, t5);
+    			mount_component(education, div1, null);
+    			append_dev(div1, t6);
+    			mount_component(skills, div1, null);
+    			append_dev(div2, t7);
+    			mount_component(footer, div2, null);
+    			current = true;
+    		},
+    		p: noop,
+    		i: function intro$1(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			transition_in(profile.$$.fragment, local);
+    			transition_in(intro.$$.fragment, local);
+    			transition_in(experience.$$.fragment, local);
+    			transition_in(projects.$$.fragment, local);
+    			transition_in(blog.$$.fragment, local);
+    			transition_in(education.$$.fragment, local);
+    			transition_in(skills.$$.fragment, local);
+    			transition_in(footer.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			transition_out(profile.$$.fragment, local);
+    			transition_out(intro.$$.fragment, local);
+    			transition_out(experience.$$.fragment, local);
+    			transition_out(projects.$$.fragment, local);
+    			transition_out(blog.$$.fragment, local);
+    			transition_out(education.$$.fragment, local);
+    			transition_out(skills.$$.fragment, local);
+    			transition_out(footer.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(div3);
+    			destroy_component(profile);
+    			destroy_component(intro);
+    			destroy_component(experience);
+    			destroy_component(projects);
+    			destroy_component(blog);
+    			destroy_component(education);
+    			destroy_component(skills);
+    			destroy_component(footer);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$7.name,
+    		type: "slot",
+    		source: "(17:0) <Modal>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$o(ctx) {
+    	let modal;
+    	let current;
+
+    	modal = new Modal({
+    			props: {
+    				$$slots: { default: [create_default_slot$7] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(modal.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(modal, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const modal_changes = {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				modal_changes.$$scope = { dirty, ctx };
+    			}
+
+    			modal.$set(modal_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(modal.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(modal.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(modal, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$o.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$o($$self, $$props, $$invalidate) {
+    	var screenSize = window.matchMedia("(min-width: 860px)");
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<App> was created with unknown prop '${key}'`);
+    	});
+
+    	let { $$slots = {}, $$scope } = $$props;
+    	validate_slots("App", $$slots, []);
+
+    	$$self.$capture_state = () => ({
+    		MenuBar,
+    		Profile,
+    		Intro,
+    		Blog,
+    		Experience,
+    		Projects,
+    		Education,
+    		Skills,
+    		Footer,
+    		Modal,
+    		screenSize
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("screenSize" in $$props) $$invalidate(0, screenSize = $$props.screenSize);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [screenSize];
+    }
+
+    class App extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$o, create_fragment$o, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "App",
+    			options,
+    			id: create_fragment$o.name
+    		});
+    	}
+    }
+
+    const app = new App({
+    	target: document.body
+    });
+
+    return app;
+
+}());
