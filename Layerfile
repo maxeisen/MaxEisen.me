@@ -15,5 +15,5 @@ RUN ls
 # their requests to it.
 RUN npm install
 RUN npm run build
-RUN BACKGROUND npm run start
+RUN npm run start
 EXPOSE WEBSITE http://localhost:5000
