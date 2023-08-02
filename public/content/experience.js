@@ -50,7 +50,7 @@ export const experience =
         shortDescription: "Assisted in the teaching and grading of several intermediate to advanced programming courses",
         longDescription:
         `<ul>
-            <li>Selected as a teaching assistant for three differenmt programming courses, having previously obtained exceptional grades</li>
+            <li>Selected as a teaching assistant for three different programming courses, having previously obtained exceptional grades</li>
             <li>Held weekly office hours to guide students in completing assignments and projects</li>
             <li>Assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, a 250-student Java course, and a 200-student Python course</li>
         </ul>`
