@@ -1,4 +1,5 @@
 export const skills = [
+  'AWS',
   'JavaScript',
   'Python',
   'Java',
@@ -13,6 +14,5 @@ export const skills = [
   'Svelte',
   'Node.js',
   'Spring',
-  'Azure',
-  'AWS',
+  'Azure'
 ]

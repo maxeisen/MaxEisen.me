@@ -13,7 +13,7 @@ export const experience =
         shortDescription: "Working with the world's largest cloud services provider to maintain their low-latency global CDN",
         longDescription:
         `<ul>
-            <li>Working with the CloudFront FleetHealth team to maintain capacity and operational health of the global, low-latency content delivery network</li>
+            <li>Working on tier-1 service CloudFront, to maintain capacity and operational health of the global, low-latency content delivery network</li>
             <li>Owning features to ensure the successful monitoring, maintenance, and operation of POPs around the world</li>
             <li>Ensuring highest possible availability for major clients using our service</li>
         </ul>`

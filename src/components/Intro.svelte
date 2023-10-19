@@ -91,7 +91,7 @@
         <p>Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
         As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver.</p>
         
-        <p>In my free time, I love to <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={droneModal}>drone</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>,
+        <p>In my free time, I love to <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={droneModal}>fly drones</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>,
         <activity tabindex="0" on:click={skiingModal}>ski</activity>, <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>

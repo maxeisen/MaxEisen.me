@@ -19,23 +19,23 @@ export const projects =
         projectLink: "https://convoke.app",
         screenshot: "convoke",
     },
-    {
-        name: "NFTokenator",
-        emoji: "&#129689;",
-        technologies: "Python, Pillow, NumPy",
-        year: "2022-Present",
-        shortDescription: "A Python script to programatically generate NFT images from provided assets",
-        longDescription:
-        `<ul>
-            <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
-            <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
-            <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
-            <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
-            <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/nftokenator",
-        screenshot: "nftokenator",
-    },
+    // {
+    //     name: "NFTokenator",
+    //     emoji: "&#129689;",
+    //     technologies: "Python, Pillow, NumPy",
+    //     year: "2022-Present",
+    //     shortDescription: "A Python script to programatically generate NFT images from provided assets",
+    //     longDescription:
+    //     `<ul>
+    //         <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
+    //         <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
+    //         <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
+    //         <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
+    //         <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
+    //     </ul>`,
+    //     githubLink: "https://github.com/maxeisen/nftokenator",
+    //     screenshot: "nftokenator",
+    // },
     {
         name: "WhatToTip",
         emoji: "&#128184;",
@@ -104,20 +104,20 @@ export const projects =
         projectLink: "https://www.qtma.ca/product/Eagle",
         screenshot: "eagle",
     },
-    // {
-    //     name: "MaxEisen.me",
-    //     emoji: "&#128587;&#8205;&#9794;&#65039;",
-    //     technologies: "Svelte, Netlify, HTML5, CSS3",
-    //     year: "2020-Present",
-    //     shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
-    //     longDescription:
-    //     `<ul>
-    //         <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
-    //         <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
-    //     </ul>`,
-    //     githubLink: "https://github.com/maxeisen/MaxEisen.me",
-    //     screenshot: "maxeisenme",
-    // },
+    {
+        name: "MaxEisen.me",
+        emoji: "&#128587;&#8205;&#9794;&#65039;",
+        technologies: "Svelte, Netlify, HTML5, CSS3",
+        year: "2020-Present",
+        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+        longDescription:
+        `<ul>
+            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/MaxEisen.me",
+        screenshot: "maxeisenme",
+    },
     {
         name: "Studii",
         emoji: "&#128218;",
