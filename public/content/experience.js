@@ -28,12 +28,12 @@ export const experience =
         startDate: "September 2022",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Working with the world's largest cloud services provider to maintain their low-latency global CDN",
+        shortDescription: "Worked with the world's largest cloud services provider to maintain their low-latency global CDN",
         longDescription:
         `<ul>
-            <li>Working on tier-1 service CloudFront, to maintain capacity and operational health of the global, low-latency content delivery network</li>
-            <li>Owning features to ensure the successful monitoring, maintenance, and operation of POPs around the world</li>
-            <li>Ensuring highest possible availability for major clients using our service</li>
+            <li>Worked on tier-1 service CloudFront, to maintain capacity and operational health of the global, low-latency content delivery network</li>
+            <li>Owned features to ensure the successful monitoring, maintenance, and operation of POPs around the world</li>
+            <li>Ensured highest possible availability for major clients using our service</li>
         </ul>`
     },
     {
@@ -46,7 +46,7 @@ export const experience =
         startDate: "September 2021",
         endDate: "September 2022",
         location: "Toronto, ON",
-        shortDescription: "Consulting with companies and engineering software to digitally transform businesses around the globe",
+        shortDescription: "Developed software for Goldman Sachs to improve experience for high-value investment tools",
         longDescription:
         `<ul>
             <li>Contracted out through digital transformation giant Publicis Sapient, operating in 20 countries across the world</li>
