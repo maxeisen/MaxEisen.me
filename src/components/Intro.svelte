@@ -84,7 +84,7 @@
 <div class="intro-container">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I am a Software Development Engineer at <a class="intro-link" href="https://aws.amazon.com/" rel="noreferrer" target="_blank">Amazon</a>
+        <p class="title-extension">I am a Software Development Engineer, working on <a class="intro-link" href="https://sell.amazon.com/fulfillment-by-amazon" rel="noreferrer" target="_blank">FBA</a> at Amazon,
         and a Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
         with a creative and curious mind, a passion for adventure, and a fascination for all technology.</p>
 

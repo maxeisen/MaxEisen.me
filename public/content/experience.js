@@ -4,6 +4,24 @@ export const experience =
         shortPosition: "Software Engineer",
         position: "Software Development Engineer",
         shortCompany: "Amazon",
+        company: "Amazon (FBA)",
+        companyLink: "https://sell.amazon.com/fulfillment-by-amazon",
+        shortDate: "Jul. 2024-Present",
+        startDate: "July 2024",
+        endDate: "Present",
+        location: "Toronto, ON",
+        shortDescription: "Building out the software behind Fulfillment By Amazon, helping sellers expand their businesses",
+        longDescription:
+        `<ul>
+            <li>Developing features for Amazon FBA, the service allowing sellers to fulfill their orders using Amazon's global network</li>
+            <li>Owning projects that help sellers successfully and safely inbound their inventory to Amazon</li>
+            <li>Contributing to the development of new initiatives to expand FBA to new categories of e-commerce</li>
+        </ul>`
+    },
+    {
+        shortPosition: "Software Engineer",
+        position: "Software Development Engineer",
+        shortCompany: "Amazon",
         company: "Amazon Web Services (AWS)",
         companyLink: "https://aws.amazon.com/",
         shortDate: "Sep. 2022-Present",
@@ -56,22 +74,6 @@ export const experience =
         </ul>`
     },
     {
-        position: "Product Manager",
-        shortCompany: "QTMA",
-        company: "Queen's Technology and Media Association",
-        companyLink: "https://qtma.ca/",
-        shortDate: "Mar. 2020-Apr. 2021",
-        startDate: "March 2020",
-        endDate: "April 2021",
-        location: "Kingston, ON",
-        shortDescription: "Managed a talented team of Queen's students to ideate, develop, and market a software product",
-        longDescription:
-        `<ul>
-            <li>Managed a team of talented developers and business analysts to ideate, build, and market a software product</li>
-            <li>Led team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
-        </ul>`
-    },
-    {
         shortPosition: "Technical Developer",
         position: "Technical Developer Co-op",
         shortCompany: "Jonah Group",
@@ -108,6 +110,22 @@ export const experience =
 ]
 
 const additional = [
+    {
+        position: "Product Manager",
+        shortCompany: "QTMA",
+        company: "Queen's Technology and Media Association",
+        companyLink: "https://qtma.ca/",
+        shortDate: "Mar. 2020-Apr. 2021",
+        startDate: "March 2020",
+        endDate: "April 2021",
+        location: "Kingston, ON",
+        shortDescription: "Managed a talented team of Queen's students to ideate, develop, and market a software product",
+        longDescription:
+        `<ul>
+            <li>Managed a team of talented developers and business analysts to ideate, build, and market a software product</li>
+            <li>Led team presentations and product pitches to students, professors, and potential investors throughout the school year</li>
+        </ul>`
+    },
     {
         shortPosition: "Software Developer",
         position: "Software Developer, Technical Coordinator",
