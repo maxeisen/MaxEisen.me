@@ -21,7 +21,7 @@ export const experience =
     {
         shortPosition: "Software Engineer",
         position: "Software Development Engineer",
-        shortCompany: "Amazon",
+        shortCompany: "AWS",
         company: "Amazon Web Services (AWS)",
         companyLink: "https://aws.amazon.com/",
         shortDate: "Sep. 2022-Present",
