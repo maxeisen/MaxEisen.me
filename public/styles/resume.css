@@ -319,7 +319,7 @@ img.social-icon {
 .in-left-skills {
     font-size: 14px;
     margin: 5px 20px 0 20px;
-    padding-bottom: 10px;
+    padding-bottom: 0;
     border-bottom: 2px solid var(--main-green);
     grid-area: in-left-skills;
 }
