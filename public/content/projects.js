@@ -58,7 +58,7 @@ export const projects =
         emoji: "&#129659;",
         technologies: "Next.js, Firebase, Vercel",
         year: "2022",
-        shortDescription: "A web app to resolve the bottlenecks in socialized healthcare",
+        shortDescription: "A web app to resolve the bottlenecks in Canada's socialized healthcare system",
         longDescription:
         `<ul>
             <li>A dual-purpose web app aimed at helping patient's manage access to their health information, and providing EMTs with crucial medical data</li>
@@ -145,7 +145,7 @@ export const projects =
             <li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
-        projectLink: "https://2020.qhacks.io",
+        projectLink: "https://qhacks.io",
         screenshot: "qhacks",
     },
     {
