@@ -24,9 +24,9 @@ export const experience =
         shortCompany: "AWS",
         company: "Amazon Web Services (AWS)",
         companyLink: "https://aws.amazon.com/",
-        shortDate: "Sep. 2022-Present",
+        shortDate: "Sep. 2022-Jul. 2024",
         startDate: "September 2022",
-        endDate: "Present",
+        endDate: "July 2024",
         location: "Toronto, ON",
         shortDescription: "Worked with the world's largest cloud services provider to maintain their low-latency global CDN",
         longDescription:
