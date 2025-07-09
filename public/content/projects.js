@@ -19,23 +19,23 @@ export const projects =
         projectLink: "https://convoke.app",
         screenshot: "convoke",
     },
-    // {
-    //     name: "NFTokenator",
-    //     emoji: "&#129689;",
-    //     technologies: "Python, Pillow, NumPy",
-    //     year: "2022-Present",
-    //     shortDescription: "A Python script to programatically generate NFT images from provided assets",
-    //     longDescription:
-    //     `<ul>
-    //         <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
-    //         <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
-    //         <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
-    //         <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
-    //         <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
-    //     </ul>`,
-    //     githubLink: "https://github.com/maxeisen/nftokenator",
-    //     screenshot: "nftokenator",
-    // },
+    {
+        name: "NFTokenator",
+        emoji: "&#129689;",
+        technologies: "Python, Pillow, NumPy",
+        year: "2022-Present",
+        shortDescription: "A Python script to programatically generate NFT images from provided assets",
+        longDescription:
+        `<ul>
+            <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
+            <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
+            <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
+            <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
+            <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/nftokenator",
+        screenshot: "nftokenator",
+    },
     {
         name: "WhatToTip",
         emoji: "&#128184;",
@@ -71,24 +71,24 @@ export const projects =
         projectLink: "https://nuhealth.vercel.app",
         screenshot: "nuhealth",
     },
-    {
-        name: "PupBot",
-        emoji: "&#128054;",
-        technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
-        year: "2021-Present",
-        shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
-        longDescription:
-        `<ul>
-            <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
-            <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
-            <li>Matplotlib generates beautiful 12-hour price charts</li>
-            <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
-            <li>Deployed to Heroku and scheduled to run each hour</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/pup-bot",
-        projectLink: "https://twitter.com/PuppyCoinBot",
-        screenshot: "pupbot",
-    },
+    // {
+    //     name: "PupBot",
+    //     emoji: "&#128054;",
+    //     technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
+    //     year: "2021-Present",
+    //     shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
+    //     longDescription:
+    //     `<ul>
+    //         <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
+    //         <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
+    //         <li>Matplotlib generates beautiful 12-hour price charts</li>
+    //         <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
+    //         <li>Deployed to Heroku and scheduled to run each hour</li>
+    //     </ul>`,
+    //     githubLink: "https://github.com/maxeisen/pup-bot",
+    //     projectLink: "https://twitter.com/PuppyCoinBot",
+    //     screenshot: "pupbot",
+    // },
     {
         name: "Eagle",
         emoji: "&#129413;",
