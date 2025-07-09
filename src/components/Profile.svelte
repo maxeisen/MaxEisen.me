@@ -2,7 +2,6 @@
     let headshotPath = './img/headshots/clean_headshot';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
-    import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte';
     import MailIcon from 'svelte-icons/io/IoIosMail.svelte';
 
     import Annotation from 'svelte-rough-notation';
