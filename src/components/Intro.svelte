@@ -13,7 +13,7 @@
         description: "Me running the 2025 Toronto Waterfront Half Marathon</iframe>"
     };
     const cycle = {
-        image: "cycle",
+        image: "cycle2",
         description: "Me crossing the finish line of the 122km <a href=\"https://www.rbcgranfondo.com/whistler/\" rel=\"noreferrer\" target=\"_blank\"> 2023 GranFondo Whistler</a> and my latest rides (below)</br></br><iframe height='160' width='85%' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/92118908/activity-summary/dc478a7fc29bd0ba2e32f9cf7fb702d2f7e31df4'></iframe>"
     };
     const drone = {
