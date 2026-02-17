@@ -8,9 +8,13 @@
         video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
         description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (~79,000 viewers strong)"
     };
+    const run = {
+        image: "run",
+        description: "Me running the 2025 Toronto Waterfront Half Marathon</iframe>"
+    };
     const cycle = {
         image: "cycle",
-        description: "Me crossing the finish line of the 122km <a href=\"https://www.rbcgranfondo.com/whistler/\" rel=\"noreferrer\" target=\"_blank\"> 2022 GranFondo Whistler</a> and my latest rides (below)</br></br><iframe height='160' width='85%' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/92118908/activity-summary/dc478a7fc29bd0ba2e32f9cf7fb702d2f7e31df4'></iframe>"
+        description: "Me crossing the finish line of the 122km <a href=\"https://www.rbcgranfondo.com/whistler/\" rel=\"noreferrer\" target=\"_blank\"> 2023 GranFondo Whistler</a> and my latest rides (below)</br></br><iframe height='160' width='85%' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/92118908/activity-summary/dc478a7fc29bd0ba2e32f9cf7fb702d2f7e31df4'></iframe>"
     };
     const drone = {
         video: "https://www.youtube.com/embed/fULlZkgpw50?",
@@ -42,6 +46,11 @@
     const appstorereviewersModal = () => {
         open(ActivityModal, {
             video: appstorereviewers.video, description: appstorereviewers.description
+        });
+    };
+    const runModal = () => {
+        open(ActivityModal, {
+            image: run.image, description: run.description
         });
     };
     const cycleModal = () => {
@@ -84,14 +93,14 @@
 <div class="intro-container">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I am a Software Development Engineer, working on <a class="intro-link" href="https://sell.amazon.com/fulfillment-by-amazon" rel="noreferrer" target="_blank">FBA</a> at Amazon,
+        <p class="title-extension">I am a Software Development Engineer, at <a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a>,
         and a Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
         with a creative and curious mind, a passion for adventure, and a fascination for all technology.</p>
 
         <p>Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
         As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver.</p>
         
-        <p>In my free time, I love to <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={droneModal}>fly drones</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>,
+        <p>In my free time, I love to <activity tabindex="0" on:click={runModal}>run</activity>, <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>, <activity tabindex="0" on:click={droneModal}>fly drones</activity>,
         <activity tabindex="0" on:click={skiingModal}>ski</activity>, <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
         
         <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
