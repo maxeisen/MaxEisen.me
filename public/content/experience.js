@@ -2,20 +2,55 @@ export const experience =
 [
     {
         shortPosition: "Software Engineer",
+        position: "Software Developer 2",
+        shortCompany: "Wealthsimple",
+        company: "Wealthsimple",
+        companyLink: "https://wealthsimple.com/",
+        shortDate: "Feb. 2026-Present",
+        startDate: "February 2026",
+        endDate: "Present",
+        location: "Toronto, ON",
+        shortDescription: "Working on the handling of Corporate Actions for one of Canada's unicorns",
+        longDescription:
+        `<ul>
+            <li>Working with the Corporate Actions team to build out workflows to handle major listed company changes</li>
+            <li>Serving the Operations organization within the company to ensure they have the tools they need</li>
+        </ul>`
+    },
+    {
+        shortPosition: "Software Engineer",
         position: "Software Development Engineer",
-        shortCompany: "Amazon",
-        company: "Amazon (FBA)",
+        shortCompany: "Goodreads",
+        company: "Goodreads (An Amazon Company)",
+        companyLink: "https://www.goodreads.com/",
+        shortDate: "Jul. 2025-Feb. 2026",
+        startDate: "July 2025",
+        endDate: "February 2026",
+        location: "Toronto, ON",
+        shortDescription: "Developed community and revenue features for the world's largest community of book readers",
+        longDescription:
+        `<ul>
+            <li>Integrated a new payment system into the Goodreads Giveaway feature, allowing authors to promote their books</li>
+            <li>Led initiatives around Brand Safety for advertisers reaching over 1 million customers per month</li>
+            <li>Improved major parts of the user interface and experience across community features like groups, discussions, and user profiles</li>
+        </ul>`
+    },
+    {
+        shortPosition: "Software Engineer",
+        position: "Software Development Engineer",
+        shortCompany: "Amazon (FBA)",
+        company: "Amazon (Fulfillment By Amazon)",
         companyLink: "https://sell.amazon.com/fulfillment-by-amazon",
         shortDate: "Jul. 2024-Present",
         startDate: "July 2024",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Building out the software behind Fulfillment By Amazon, helping sellers expand their businesses",
+        shortDescription: "Built out the software behind Fulfillment By Amazon, helping sellers expand their businesses",
         longDescription:
         `<ul>
-            <li>Developing features for Amazon FBA, the service allowing sellers to fulfill their orders using Amazon's global network</li>
-            <li>Owning projects that help sellers successfully and safely inbound their inventory to Amazon</li>
-            <li>Contributing to the development of new initiatives to expand FBA to new categories of e-commerce</li>
+            <li>Developed features for FBA, the service allowing sellers to fulfill their orders using Amazon Prime</li>
+            <li>Owned projects that helped sellers successfully and safely inbound their inventory to Amazon</li>
+            <li>Contributed to the development of new initiatives to expand FBA to new categories of e-commerce</li>
         </ul>`
     },
     {
@@ -73,6 +108,9 @@ export const experience =
             <li>Assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, a 250-student Java course, and a 200-student Python course</li>
         </ul>`
     },
+]
+
+const additional = [
     {
         shortPosition: "Technical Developer",
         position: "Technical Developer Co-op",
@@ -90,26 +128,6 @@ export const experience =
             <li>Full stack developer on an agile team, developing a decision engine to be implemented for client companies</li>
         </ul>`
     },
-    {
-        shortPosition: "Director of Technology",
-        position: "Founder, Director of Technology",
-        shortCompany: "TechTrainers",
-        company: "TechTrainers",
-        shortDate: "May 2019-Jan. 2021",
-        startDate: "May 2019",
-        endDate: "January 2021",
-        location: "Toronto, ON",
-        shortDescription: "Created a network of in-person and online quality tech help and tutoring around the GTA",
-        longDescription:
-        `<ul>
-            <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>
-            <li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li>
-            <li>Company was able to turn a profit in first month of operations</li>
-        </ul>`
-    },
-]
-
-const additional = [
     {
         position: "Product Manager",
         shortCompany: "QTMA",
@@ -142,5 +160,22 @@ const additional = [
             <li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li>
             <li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li>
         </ul>`
-    }
+    },
+        {
+        shortPosition: "Director of Technology",
+        position: "Founder, Director of Technology",
+        shortCompany: "TechTrainers",
+        company: "TechTrainers",
+        shortDate: "May 2019-Jan. 2021",
+        startDate: "May 2019",
+        endDate: "January 2021",
+        location: "Toronto, ON",
+        shortDescription: "Created a network of in-person and online quality tech help and tutoring around the GTA",
+        longDescription:
+        `<ul>
+            <li>Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto</li>
+            <li>Overseeing all technical aspects of operations, including web development, database management, and session scheduling</li>
+            <li>Company was able to turn a profit in first month of operations</li>
+        </ul>`
+    },
 ]
