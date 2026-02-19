@@ -1,6 +1,20 @@
 export const projects = 
 [
     {
+        name: "MaxEisen.me",
+        emoji: "&#128587;&#8205;&#9794;&#65039;",
+        technologies: "Svelte, Netlify, HTML5, CSS3",
+        year: "2020-Present",
+        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
+        longDescription:
+        `<ul>
+            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
+            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/MaxEisen.me",
+        screenshot: "maxeisenme",
+    },
+    {
         name: "Convoke",
         emoji: "🤔",
         technologies: "Next.js, OpenAI GPT-3, Vercel",
@@ -19,28 +33,11 @@ export const projects =
         projectLink: "https://convoke.app",
         screenshot: "convoke",
     },
-    // {
-    //     name: "NFTokenator",
-    //     emoji: "&#129689;",
-    //     technologies: "Python, Pillow, NumPy",
-    //     year: "2022-Present",
-    //     shortDescription: "A Python script to programatically generate NFT images from provided assets",
-    //     longDescription:
-    //     `<ul>
-    //         <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
-    //         <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
-    //         <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
-    //         <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
-    //         <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
-    //     </ul>`,
-    //     githubLink: "https://github.com/maxeisen/nftokenator",
-    //     screenshot: "nftokenator",
-    // },
     {
         name: "WhatToTip",
         emoji: "&#128184;",
         technologies: "Next.js, OpenAI GPT-3, Python, Vercel",
-        year: "2022-Present",
+        year: "2022-2023",
         shortDescription: "A web app to helping travellers save money on their next trip",
         longDescription:
         `<ul>
@@ -54,11 +51,28 @@ export const projects =
         screenshot: "whattotip",
     },
     {
+        name: "NFTokenator",
+        emoji: "&#129689;",
+        technologies: "Python, Pillow, NumPy",
+        year: "2022",
+        shortDescription: "A Python script to programatically generate NFT images from provided assets",
+        longDescription:
+        `<ul>
+            <li>An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets</li>
+            <li>Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities</li>
+            <li>Pillow is used to stack layers that are selected at random based on provided weights</li>
+            <li>A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities</li>
+            <li>Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project</li>
+        </ul>`,
+        githubLink: "https://github.com/maxeisen/nftokenator",
+        screenshot: "nftokenator",
+    },
+    {
         name: "NuHealth",
         emoji: "&#129659;",
         technologies: "Next.js, Firebase, Vercel",
         year: "2022",
-        shortDescription: "A web app to resolve the bottlenecks in socialized healthcare",
+        shortDescription: "A web app to resolve the bottlenecks in Canada's socialized healthcare system",
         longDescription:
         `<ul>
             <li>A dual-purpose web app aimed at helping patient's manage access to their health information, and providing EMTs with crucial medical data</li>
@@ -71,24 +85,24 @@ export const projects =
         projectLink: "https://nuhealth.vercel.app",
         screenshot: "nuhealth",
     },
-    {
-        name: "PupBot",
-        emoji: "&#128054;",
-        technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
-        year: "2021-Present",
-        shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
-        longDescription:
-        `<ul>
-            <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
-            <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
-            <li>Matplotlib generates beautiful 12-hour price charts</li>
-            <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
-            <li>Deployed to Heroku and scheduled to run each hour</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/pup-bot",
-        projectLink: "https://twitter.com/PuppyCoinBot",
-        screenshot: "pupbot",
-    },
+    // {
+    //     name: "PupBot",
+    //     emoji: "&#128054;",
+    //     technologies: "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
+    //     year: "2021-Present",
+    //     shortDescription: "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
+    //     longDescription:
+    //     `<ul>
+    //         <li>A bot developed from scratch to fetch and post hourly price "pupdates" for Puppy Coin, a community-driven, Ethereum-based altcoin</li>
+    //         <li>Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices</li>
+    //         <li>Matplotlib generates beautiful 12-hour price charts</li>
+    //         <li>On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers</li>
+    //         <li>Deployed to Heroku and scheduled to run each hour</li>
+    //     </ul>`,
+    //     githubLink: "https://github.com/maxeisen/pup-bot",
+    //     projectLink: "https://twitter.com/PuppyCoinBot",
+    //     screenshot: "pupbot",
+    // },
     {
         name: "Eagle",
         emoji: "&#129413;",
@@ -103,20 +117,6 @@ export const projects =
         githubLink: "https://github.com/maxeisen/eagle_public",
         projectLink: "https://www.qtma.ca/product/Eagle",
         screenshot: "eagle",
-    },
-    {
-        name: "MaxEisen.me",
-        emoji: "&#128587;&#8205;&#9794;&#65039;",
-        technologies: "Svelte, Netlify, HTML5, CSS3",
-        year: "2020-Present",
-        shortDescription: "My personal portfolio website (the one you're currently on), developed from scratch",
-        longDescription:
-        `<ul>
-            <li>A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more</li>
-            <li>Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills</li>
-        </ul>`,
-        githubLink: "https://github.com/maxeisen/MaxEisen.me",
-        screenshot: "maxeisenme",
     },
     {
         name: "Studii",
@@ -145,7 +145,7 @@ export const projects =
             <li>Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event</li>
         </ul>`,
         githubLink: "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
-        projectLink: "https://2020.qhacks.io",
+        projectLink: "https://qhacks.io",
         screenshot: "qhacks",
     },
     {
