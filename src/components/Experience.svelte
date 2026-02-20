@@ -1,7 +1,7 @@
 <script>
     import { getContext } from 'svelte';
     import ExperienceModal from './modals/ExperienceModal.svelte';
-    import { experience } from '../../public/content/experience.js';
+    import { experience } from '@content/experience.js';
 
     const { open } = getContext('simple-modal');
 

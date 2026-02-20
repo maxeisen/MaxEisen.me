@@ -27,12 +27,12 @@
 </div>
 
 <style>
-    .activity-modal {
+    :global(.activity-modal) {
         color: black;
         text-align: center;
     }
 
-    .activity-image {
+    :global(.activity-modal .activity-image) {
         width: 80%;
         height: auto;
         border-radius: 5px;
@@ -40,11 +40,11 @@
         margin: 20px auto 0 auto;
     }
 
-    .activity-audio {
+    :global(.activity-modal .activity-audio) {
         margin: 20px auto 0 auto;
     }
 
-    .activity-description {
+    :global(.activity-modal .activity-description) {
         font-weight: 300;
         margin: 10px auto 10px auto;
         padding-left: 20px;

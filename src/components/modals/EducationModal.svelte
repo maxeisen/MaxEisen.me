@@ -19,17 +19,17 @@
 </div>
 
 <style>
-    .education-modal {
+    :global(.education-modal) {
         color: black;
     }
 
-    .modal-school {
+    :global(.education-modal .modal-school) {
         font-size: 35px;
         margin: 15px auto 5px auto;
         color: var(--modal-title-colour);
     }
 
-    .modal-degree {
+    :global(.education-modal .modal-degree) {
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
@@ -38,28 +38,27 @@
         color: var(--modal-title-colour);
         font-size: 25px;
         margin: 0px auto 5px auto;
-
     }
 
-    .modal-degree:hover {
+    :global(.education-modal .modal-degree:hover) {
         font-size: 25px;
         margin-top: 5px;
     }
 
-    .modal-major {
+    :global(.education-modal .modal-major) {
         font-size: 20px;
         margin: 0 auto 0 auto;
         color: var(--modal-title-colour);
         line-height: 1.4;
     }
 
-    .modal-years {
+    :global(.education-modal .modal-years) {
         margin: 10px auto 10px auto;
         color: var(--modal-subtitle-colour);
         line-height: 1.4;
     }
 
-    .modal-committees {
+    :global(.education-modal .modal-committees) {
         font-size: 15px;
         text-align: center;
         margin: 10px auto 10px auto;
@@ -67,7 +66,7 @@
         line-height: 1.4;
     }
 
-    .ta-note {
+    :global(.education-modal .ta-note) {
         margin-top: 20px;
         font-size: 11px;
     }

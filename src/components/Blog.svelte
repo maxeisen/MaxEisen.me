@@ -3,7 +3,7 @@
     import qs from 'query-string';
     import BlogPostModal from './modals/BlogPostModal.svelte';
     import CloseButton from './modals/CloseButton.svelte';
-    import { blogPosts } from '../../public/content/blogPostMeta.js';
+    import { blogPosts } from '@content/blogPostMeta.js';
 
     const userQuery = qs.parse(window.location.search);
 
@@ -13,19 +13,14 @@
 
     const { open } = getContext('simple-modal');
     const blogPostModal = (postId, title, author, date, updated, content) => {
-        open(BlogPostModal,
-        {
+        open(BlogPostModal, {
             id: postId, title: title, author: author, date: date, updated: updated, content: content
-        },
-        {
+        }, {
             closeButton: CloseButton,
             styleWindow: {
-                width: "950px",
                 padding: "5px",
                 maxHeight: "92.5%"
-            }
-        },
-        {
+            },
             onOpen: () => {
                 window.history.replaceState({}, title+" | MaxEisen.me", "/?blog=true&postId="+postId);
                 document.title = title+" | MaxEisen.me";

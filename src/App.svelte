@@ -9,12 +9,12 @@
     import Education from './components/Education.svelte';
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
-    import Modal from 'svelte-simple-modal';
+    import ModalProvider from './components/ModalProvider.svelte';
 
     var screenSize = window.matchMedia("(min-width: 860px)")
 </script>
 
-<Modal>
+<ModalProvider>
     <!-- <ThemeToggle on:change="{toggleTheme()}"/> -->
     {#if (screenSize.matches)}
         <MenuBar/>
@@ -35,4 +35,4 @@
                 <Footer/>
         </div>
     </div>
-</Modal>
+</ModalProvider>

@@ -26,16 +26,17 @@
     <picture>
         <source srcset="./img/screenshots/{screenshot}.webp" type="image/webp">
         <source srcset="./img/screenshots/{screenshot}.jpg" type="image/jpeg">
-        <img class="screenshot" src="{screenshot}.webp" alt="{name} screenshot">
+        <img class="screenshot" src="./img/screenshots/{screenshot}.webp" alt="{name} screenshot">
     </picture>
 </div>
 
 <style>
-    .project-modal {
+    /* :global() so styles apply when modal is rendered via dynamic component */
+    :global(.project-modal) {
         color: black;
     }
 
-    .modal-name {
+    :global(.project-modal .modal-name) {
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
@@ -47,33 +48,36 @@
         color: var(--modal-title-colour);
     }
 
-    .technologies {
+    :global(.project-modal .technologies) {
         font-weight: 300;
     }
 
-    .modal-description {
+    :global(.project-modal .modal-description) {
         margin: 10px auto 10px auto;
         color: var(--modal-text-colour);
         line-height: 1.4;
     }
 
-    .screenshot {
-        width: 100%;
+    :global(.project-modal .screenshot) {
+        display: block;
+        max-width: 100%;
+        max-height: min(42vh, 340px);
+        width: auto;
         height: auto;
+        object-fit: contain;
         border-radius: 5px;
         box-shadow: 0px 0px 10px #0000009a;
         margin: 20px auto 0 auto;
     }
 
-    .project-links-container {
+    :global(.project-modal .project-links-container) {
         display: flex;
         margin: auto;
-        padding-top: 20px;
         padding-top: 10px;
         justify-content: center;
     }
 
-    .project-link {
+    :global(.project-modal .project-link) {
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
@@ -85,7 +89,7 @@
         margin: 0 10px 0 10px;
     }
 
-    .project-link:hover {
+    :global(.project-modal .project-link:hover) {
         color: var(--link-hover-colour);
     }
 </style>
