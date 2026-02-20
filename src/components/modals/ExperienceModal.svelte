@@ -27,17 +27,17 @@
 </div>
 
 <style>
-    .experience-modal {
+    :global(.experience-modal) {
         color: black;
     }
 
-    .modal-position {
+    :global(.experience-modal .modal-position) {
         font-size: 35px;
         margin: 15px 15px 10px 15px;
         color: var(--modal-title-colour);
     }
 
-    .modal-company {
+    :global(.experience-modal .modal-company) {
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
@@ -50,15 +50,15 @@
         text-align: center;
     }
 
-    .modal-company a {
+    :global(.experience-modal .modal-company a) {
         color: var(--modal-link-colour);
     }
 
-    .modal-company a:hover {
+    :global(.experience-modal .modal-company a:hover) {
         color: var(--link-hover-colour);
     }
 
-    .modal-description {
+    :global(.experience-modal .modal-description) {
         margin: 8px auto 10px auto;
         color: var(--modal-text-colour);
         line-height: 1.4;

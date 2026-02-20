@@ -17,7 +17,7 @@
 <div class="header-container">
     <header id="header">
         <div class="home-icon-container">
-            <a href="/#" aria-label="Home" onclick=toggleTheme()>
+            <a href="/#" aria-label="Home" onclick={() => typeof window.toggleTheme === 'function' && window.toggleTheme()}>
                 <img class="home-icon-mobile" src='./img/additional/memoji_cycle_small.gif' width="75px" height="88px" alt="Memoji gif for mobile">
                 <video class="home-icon" poster='./img/additional/memoji_cycle_small.gif' autoplay loop muted playsinline>  
                     {#if !isSafari}
@@ -35,7 +35,7 @@
                     <li id="nav-bar-item"><a href="#blog">Blog</a></li>
                     <li id="nav-bar-item"><a href="#education">Education</a></li>
                     <li id="nav-bar-item"><a href="#skills">Skills</a></li>
-                    <li id="nav-bar-item"><a href="/resume"><b>Resume</b></a></li>
+                    <li id="nav-bar-item"><a href="/resume.html"><b>Resume</b></a></li>
                 </ul>
             </nav>
         </div>

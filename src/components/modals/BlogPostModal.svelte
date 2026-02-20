@@ -1,5 +1,5 @@
 <script>
-    import marked from 'marked';
+    import { marked } from 'marked';
 
     export let id;
     export let title;
@@ -31,12 +31,11 @@
     <div class="blog-content">{@html marked.parse(postContent)}</div>
     <div class="blog-footer">
         <h2 class="signature"><b style="font-weight: 300">-</b>{author.split(" ")[0]}</h2>
-        <applause-button url={postUrl} multiclap="true" color="var(--main-green)"/>
     </div>
 </div>
 
 <style>
-    .blog-modal {
+    :global(.blog-modal) {
         color: var(--paragraph-colour);
         text-align: left;
         max-height: 80vh;
@@ -45,7 +44,7 @@
         overflow-x: hidden;
     }
 
-    .blog-header {
+    :global(.blog-modal .blog-header) {
         padding-top: 10px;
         padding-bottom: 10px;
         top: -18px;
@@ -54,7 +53,7 @@
         opacity: 0.99;
     }
 
-    .blog-title {
+    :global(.blog-modal .blog-title) {
         -webkit-transition: all .2s ease-in;
         -moz-transition: all .2s ease-in;
         -o-transition: all .2s ease-in;
@@ -66,63 +65,65 @@
         color: var(--modal-title-colour);
     }
 
-    .blog-author, .blog-date {
+    :global(.blog-modal .blog-author),
+    :global(.blog-modal .blog-date) {
         font-size: 20px;
         margin-top: 8px;
         margin-bottom: 5px;
     }
 
-    .author-name, .date-string {
+    :global(.blog-modal .author-name),
+    :global(.blog-modal .date-string) {
         font-weight: 300;
     }
 
-    .blog-date {
+    :global(.blog-modal .blog-date) {
         font-size: 16px;
         margin: 8px auto 8px auto;
         color: var(--modal-text-colour);
         line-height: 1.4;
     }
 
-    .blog-content {
+    :global(.blog-modal .blog-content) {
         line-height: 2.0;
     }
 
-    .blog-footer {
+    :global(.blog-modal .blog-footer) {
         display: flex;
         justify-content: space-between;
         padding-top: 30px;
     }
 
-    .signature {
+    :global(.blog-modal .signature) {
         text-shadow: 2px 2px 8px var(--nav-background);
     }
 
-    applause-button {
+    :global(.blog-modal applause-button) {
         width: 65px;
         height: 65px;
         right: 3%;
     }
 
     @media only screen and (max-width: 620px) {
-        .blog-modal {
+        :global(.blog-modal) {
             font-size: smaller;
         }
-        .blog-content {
+        :global(.blog-modal .blog-content) {
             line-height: 1.8;
         }
     }
-    
+
     @media only screen and (max-width: 460px) {
-        .blog-modal {
+        :global(.blog-modal) {
             padding: 5px;
             overflow-x: hidden;
         }
 
-        .blog-header {
+        :global(.blog-modal .blog-header) {
             position: relative;
         }
 
-        applause-button {
+        :global(.blog-modal applause-button) {
             width: 55px;
             height: 55px;
         }

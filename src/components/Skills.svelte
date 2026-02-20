@@ -1,5 +1,5 @@
 <script>
-    import { skills } from '../../public/content/skills.js';
+    import { skills } from '@content/skills.js';
 </script>
 
 <h1 class="section-title" id="skills" style="text-align: left;">Skills</h1>

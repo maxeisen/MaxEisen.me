@@ -1,7 +1,7 @@
 <script>
     import { getContext } from 'svelte';
     import ProjectModal from './modals/ProjectModal.svelte';
-    import { projects } from '../../public/content/projects.js';
+    import { projects } from '@content/projects.js';
     
     const { open } = getContext('simple-modal');
 
