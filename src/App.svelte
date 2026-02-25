@@ -10,10 +10,18 @@
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
     import ModalProvider from './components/ModalProvider.svelte';
+    import PassGenerator from './components/PassGenerator.svelte';
 
-    var screenSize = window.matchMedia("(min-width: 860px)")
+    var screenSize = window.matchMedia("(min-width: 860px)");
+    let pathname = $state(typeof window !== 'undefined' ? window.location.pathname : '');
+    if (typeof window !== 'undefined') {
+        window.addEventListener('popstate', () => { pathname = window.location.pathname; });
+    }
 </script>
 
+{#if pathname === '/pass-generator'}
+    <PassGenerator />
+{:else}
 <ModalProvider>
     <!-- <ThemeToggle on:change="{toggleTheme()}"/> -->
     {#if (screenSize.matches)}
@@ -36,3 +44,4 @@
         </div>
     </div>
 </ModalProvider>
+{/if}

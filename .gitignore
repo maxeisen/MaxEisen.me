@@ -2,3 +2,7 @@
 /node_modules/
 ignore
 Icon
+.worktrees
+.env
+# Local Netlify folder
+.netlify

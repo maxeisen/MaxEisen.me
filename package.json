@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "vite preview --port 6808"
+    "start": "vite preview --port 6808",
+    "dev:netlify": "npx --yes --verbose netlify dev"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
@@ -15,8 +16,10 @@
   },
   "dependencies": {
     "marked": "^4.0.12",
+    "passkit-generator": "^3.5.7",
     "path-parse": "^1.0.7",
     "query-string": "^6.14.1",
+    "sharp": "^0.34.5",
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.4"
   }
