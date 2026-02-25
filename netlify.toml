@@ -10,3 +10,16 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[plugins]]
+package = "netlify-plugin-inline-functions-env"
+  [plugins.inputs]
+  include = [
+    "PASS_GENERATOR_PASSWORD",
+    "PASSKIT_PASS_TYPE_ID",
+    "PASSKIT_TEAM_ID",
+    "PASSKIT_ORGANIZATION_NAME",
+    "PASSKIT_SIGNER_CERT",
+    "PASSKIT_SIGNER_KEY",
+    "PASSKIT_SIGNER_KEY_PASSPHRASE"
+  ]
