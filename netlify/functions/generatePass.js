@@ -195,8 +195,16 @@ export default async function handler(req) {
 	const signerKeyPassphrase = getEnv("PASSKIT_SIGNER_KEY_PASSPHRASE") || undefined;
 	let wwdrCert = getEnv("PASSKIT_WWDR_CERT");
 
+	// WWDR G4 is public; bundle in repo to save env size (AWS Lambda 4KB env limit)
+	if (!wwdrCert || !wwdrCert.trim()) {
+		const wwdrPath = path.join(functionDir, "assets", "wwdr-g4.pem");
+		if (fs.existsSync(wwdrPath)) {
+			wwdrCert = fs.readFileSync(wwdrPath, "utf8").trim();
+		}
+	}
+
 	if (!passTypeId || !teamId || !orgName || !signerCert || !signerKey || !wwdrCert) {
-		console.error("Missing passkit env: passTypeId, teamId, orgName, signerCert, signerKey, or wwdrCert");
+		console.error("Missing passkit env: passTypeId, teamId, orgName, signerCert, signerKey; wwdrCert or bundled assets/wwdr-g4.pem");
 		return jsonResponse({ error: "Something went wrong." }, 500);
 	}
 

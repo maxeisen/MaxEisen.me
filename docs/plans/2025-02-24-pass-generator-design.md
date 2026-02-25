@@ -52,7 +52,7 @@ These are **runtime** secrets for the serverless function. Do **not** put them i
 | `PASSKIT_SIGNER_CERT` | Signer certificate (PEM). Paste full PEM including `-----BEGIN CERTIFICATE-----` / `-----END CERTIFICATE-----`. Can be base64-encoded in env. | Contents of `.pem` cert file |
 | `PASSKIT_SIGNER_KEY` | Signer **private key** (PEM). Must start with `-----BEGIN PRIVATE KEY-----`, `-----BEGIN RSA PRIVATE KEY-----`, or `-----BEGIN ENCRYPTED PRIVATE KEY-----`. Paste full PEM; can be base64-encoded in env. If you have a `.p12`, export the key: `openssl pkcs12 -in cert.p12 -nocerts -nodes -out key.pem` | Contents of `.pem` key file |
 | `PASSKIT_SIGNER_KEY_PASSPHRASE` | (Optional) Passphrase if the key is encrypted | String or leave unset |
-| `PASSKIT_WWDR_CERT` | Apple WWDR G4 certificate (PEM) | Download from [Apple PKI](https://www.apple.com/certificateauthority/) |
+| `PASSKIT_WWDR_CERT` | (Optional) Apple WWDR G4 certificate (PEM). **Omit to save env size:** the repo bundles `netlify/functions/assets/wwdr-g4.pem`. | Download from [Apple PKI](https://www.apple.com/certificateauthority/) if not using bundled file |
 
 **Certificate setup (avoid “PassKit Certificate has an incorrect value”)**
 
@@ -156,7 +156,7 @@ Go to **Site configuration** (or **Site settings**) → **Environment variables*
 | `PASSKIT_SIGNER_CERT` | Yes | Full PEM of the Pass Type ID certificate (including `-----BEGIN CERTIFICATE-----` / `-----END CERTIFICATE-----`). |
 | `PASSKIT_SIGNER_KEY` | Yes | Full PEM of the **private key** for that certificate (`-----BEGIN PRIVATE KEY-----` or `-----BEGIN RSA PRIVATE KEY-----`). |
 | `PASSKIT_SIGNER_KEY_PASSPHRASE` | No | Only if the key is encrypted. |
-| `PASSKIT_WWDR_CERT` | Yes | Apple WWDR G4 certificate in PEM form. |
+| `PASSKIT_WWDR_CERT` | No | Optional. WWDR G4 is bundled in `netlify/functions/assets/wwdr-g4.pem`. Set only if you need to override (e.g. newer cert). **Omit to stay under the 4KB Lambda env limit.** |
 
 - For **sensitive** values (password, signer cert, signer key, passphrase), mark them **Secret** or **Sensitive** in the UI so they are masked and not shown in logs.
 - For multi-line PEMs you can paste with real newlines, or use `\n` in a single line; the function normalizes both.
@@ -179,7 +179,8 @@ Go to **Site configuration** (or **Site settings**) → **Environment variables*
 
 - **404 on /pass-generator:** Confirm the SPA redirect is in place (`/*` → `/index.html` with status 200). Confirm the latest deploy published the `dist` that contains the pass-generator route.
 - **401 from the functions:** Check that `PASS_GENERATOR_PASSWORD` is set in Netlify and that its scope includes **Functions**. Redeploy after changing env vars if Netlify doesn’t pick them up automatically.
-- **500 from generatePass:** Check Netlify **Functions** log for the error. Usually missing or invalid `PASSKIT_*` env (cert, key, WWDR). Ensure PEMs are complete and that the signer cert is the **Pass Type ID** certificate, not a generic dev/dist cert.
+- **500 from generatePass:** Check Netlify **Functions** log for the error. Usually missing or invalid `PASSKIT_*` env (cert, key). WWDR is bundled in repo so only set if overriding. Ensure PEMs are complete and that the signer cert is the **Pass Type ID** certificate, not a generic dev/dist cert.
+- **Deploy fails with "environment variables exceed the 4KB limit" (AWS Lambda):** Do **not** set `PASSKIT_WWDR_CERT` in Netlify; the repo bundles `netlify/functions/assets/wwdr-g4.pem`. If still over 4KB, use minimal PEMs (no extra newlines, or base64 single-line) for cert and key.
 - **Build fails:** Ensure `npm run build` and `npm install` succeed locally. Netlify runs `npm install` then your build command; if sharp or other native deps fail, you may need to set **NODE_VERSION** (e.g. `18` or `20`) in environment variables to match what you use locally.
 
 ### Checklist before launch

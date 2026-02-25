@@ -28,8 +28,8 @@ export default async function handler(req) {
 	const expected = getEnv("PASS_GENERATOR_PASSWORD");
 
 	if (!expected) {
-		console.error("PASS_GENERATOR_PASSWORD env var is not set");
-		return jsonResponse({ error: "Unauthorized" }, 401);
+		console.error("PASS_GENERATOR_PASSWORD env var is not set in Netlify. Set it in Site configuration → Environment variables with Functions scope and redeploy.");
+		return jsonResponse({ error: "Service unavailable. Try again later." }, 503);
 	}
 
 	if (password !== expected) {
