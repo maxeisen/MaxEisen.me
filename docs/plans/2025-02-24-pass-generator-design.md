@@ -49,10 +49,48 @@ These are **runtime** secrets for the serverless function. Do **not** put them i
 | `PASSKIT_PASS_TYPE_ID` | Pass Type Identifier (reverse-DNS, e.g. `pass.com.yourdomain.businesscard`) | From Apple Developer > Certificates, IDs & Profiles > Identifiers |
 | `PASSKIT_TEAM_ID` | Apple Developer Team ID | 10-character string |
 | `PASSKIT_ORGANIZATION_NAME` | Name shown under the pass in Wallet | Your name or brand |
-| `PASSKIT_SIGNER_CERT` | Signer certificate (PEM). Paste full PEM including `-----BEGIN CERTIFICATE-----` / `-----END CERTIFICATE-----`. Can be base64-encoded in env. | Contents of `.pem` cert file |
-| `PASSKIT_SIGNER_KEY` | Signer **private key** (PEM). Must start with `-----BEGIN PRIVATE KEY-----`, `-----BEGIN RSA PRIVATE KEY-----`, or `-----BEGIN ENCRYPTED PRIVATE KEY-----`. Paste full PEM; can be base64-encoded in env. If you have a `.p12`, export the key: `openssl pkcs12 -in cert.p12 -nocerts -nodes -out key.pem` | Contents of `.pem` key file |
+| **One of:** encrypted file, BUNDLE, or cert+key below | | |
+| `PASSKIT_SIGNER_SECRET` | (Optional) **Recommended for 4KB limit.** 32-byte decryption key (base64). Used with `signer.enc`; only this small value is in env. See "Encrypted signer file (recommended)" below. | Output of `scripts/create-signer-enc.js` |
+| `PASSKIT_SIGNER_BUNDLE` | (Optional) Single var = base64(Brotli/gzip(cert + `\n---KEY---\n` + key)). Do not set when using SIGNER_SECRET + signer.enc. | See "Creating PASSKIT_SIGNER_BUNDLE" below |
+| `PASSKIT_SIGNER_CERT` | Signer certificate (PEM). Use if not using SIGNER_SECRET or BUNDLE. | Contents of `.pem` cert file |
+| `PASSKIT_SIGNER_KEY` | Signer **private key** (PEM). Use if not using SIGNER_SECRET or BUNDLE. | Contents of `.pem` key file |
 | `PASSKIT_SIGNER_KEY_PASSPHRASE` | (Optional) Passphrase if the key is encrypted | String or leave unset |
-| `PASSKIT_WWDR_CERT` | (Optional) Apple WWDR G4 certificate (PEM). **Omit to save env size:** the repo bundles `netlify/functions/assets/wwdr-g4.pem`. | Download from [Apple PKI](https://www.apple.com/certificateauthority/) if not using bundled file |
+| `PASSKIT_WWDR_CERT` | (Optional) **Omit to save env size:** the repo bundles `netlify/functions/assets/wwdr-g4.pem`. | Download from [Apple PKI](https://www.apple.com/certificateauthority/) if overriding |
+
+**Encrypted signer file (recommended for 4KB limit)**
+
+Signer cert + key are stored in an **encrypted file** in the repo (`netlify/functions/assets/signer.enc`). Only a **32-byte key** lives in Netlify env as `PASSKIT_SIGNER_SECRET`, so Functions stay under the AWS Lambda 4KB env limit. The function decrypts at runtime (AES-256-GCM + Brotli).
+
+**Create the key and encrypted file (one-time)**
+
+1. **Get PEMs** for your Pass Type ID:
+   - If you have a `.p12`:  
+     `openssl pkcs12 -in YourPass.p12 -clcerts -nokeys -out signer-cert.pem`  
+     `openssl pkcs12 -in YourPass.p12 -nocerts -nodes -out signer-key.pem`  
+     (Key files with "Bag Attributes" from pkcs12 are accepted; the function strips them.)
+   - Or use existing `signer-cert.pem` and `signer-key.pem` (cert first, key second).
+
+2. **Run the script** (from repo root):  
+   `node scripts/create-signer-enc.js <cert.pem> <key.pem>`  
+   Example: `node scripts/create-signer-enc.js scripts/signer-cert.pem scripts/signer-key.pem`  
+   The script writes `netlify/functions/assets/signer.enc` and **prints a single base64 line** (the 32-byte key).
+
+3. **Set the key in env:** Add that base64 line as `PASSKIT_SIGNER_SECRET` in Netlify (Functions scope) and in local `.env`. Do **not** commit the key or put it in the repo.
+
+4. **Commit the encrypted file:** Commit `signer.enc`. The file is encrypted; only someone with `PASSKIT_SIGNER_SECRET` can recover the signer.
+
+Use **only one** signer method: either SIGNER_SECRET + signer.enc, or BUNDLE, or CERT + KEY. If `PASSKIT_SIGNER_BUNDLE` is set but invalid (e.g. wrong paste), the function falls back to signer.enc when available.
+
+**Creating PASSKIT_SIGNER_BUNDLE (alternative)**
+
+Use **one** env var instead of separate CERT + KEY. The value is base64(compressed(cert + `\n---KEY---\n` + key)). This still counts toward the 4KB env limit; for minimal env size, use the encrypted signer file above.
+
+- **Brotli (smaller):** From the directory with your PEM files (project uses ESM, so use a small script or):  
+  `node -e "const z=require('zlib'),f=require('fs'),c=f.readFileSync('signer-cert.pem','utf8'),k=f.readFileSync('signer-key.pem','utf8');console.log(z.brotliCompressSync(Buffer.from(c+'\\n---KEY---\\n'+k)).toString('base64'))"`  
+  Paste the full output into Netlify as `PASSKIT_SIGNER_BUNDLE` (no quotes in env).
+- **Gzip (also supported):**  
+  `( cat signer-cert.pem; echo "---KEY---"; cat signer-key.pem ) | gzip -n | base64 -w0`  
+  (On macOS without `-w0`, use `base64` and trim newlines when pasting.)
 
 **Certificate setup (avoid “PassKit Certificate has an incorrect value”)**
 

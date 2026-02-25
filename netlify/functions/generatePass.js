@@ -3,6 +3,8 @@ import sharp from "sharp";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import zlib from "zlib";
+import crypto from "crypto";
 
 const functionDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -106,6 +108,12 @@ function jsonResponse(body, status = 200) {
 	});
 }
 
+const isDev = process.env.NODE_ENV !== "production" || process.env.NETLIFY_DEV === "true";
+function errResponse(genericMsg, devDetail) {
+	const message = isDev && devDetail ? devDetail : genericMsg;
+	return jsonResponse({ error: message }, 500);
+}
+
 export default async function handler(req) {
 	if (req.method !== "POST") {
 		return new Response(JSON.stringify({ error: "Method not allowed" }), {
@@ -190,10 +198,79 @@ export default async function handler(req) {
 	const passTypeId = getEnv("PASSKIT_PASS_TYPE_ID");
 	const teamId = getEnv("PASSKIT_TEAM_ID");
 	const orgName = getEnv("PASSKIT_ORGANIZATION_NAME");
+	const signerBundleB64 = getEnv("PASSKIT_SIGNER_BUNDLE");
 	let signerCert = getEnv("PASSKIT_SIGNER_CERT");
 	let signerKey = getEnv("PASSKIT_SIGNER_KEY");
 	const signerKeyPassphrase = getEnv("PASSKIT_SIGNER_KEY_PASSPHRASE") || undefined;
 	let wwdrCert = getEnv("PASSKIT_WWDR_CERT");
+
+	// Optional: single env var = base64(compressed(cert + "\n---KEY---\n" + key)). Brotli is smaller than gzip.
+	if (signerBundleB64 && signerBundleB64.trim()) {
+		try {
+			const rawBuf = Buffer.from(signerBundleB64.trim(), "base64");
+			let raw;
+			try {
+				raw = zlib.brotliDecompressSync(rawBuf).toString("utf8");
+			} catch {
+				raw = zlib.gunzipSync(rawBuf).toString("utf8");
+			}
+			const sep = "\n---KEY---\n";
+			const idx = raw.indexOf(sep);
+			if (idx !== -1) {
+				signerCert = raw.slice(0, idx).trim();
+				signerKey = raw.slice(idx + sep.length).trim();
+			}
+		} catch (e) {
+			// e.g. "incorrect header check" = BUNDLE contains wrong data (e.g. PASSKIT_SIGNER_SECRET pasted by mistake). Fall through to signer.enc.
+			console.warn("PASSKIT_SIGNER_BUNDLE decode failed:", e?.message || e, "- will try signer.enc or CERT+KEY");
+		}
+	}
+
+	// Optional: encrypted file in repo + 32-byte key in env (stays under 4KB). File = iv(12) + ciphertext + tag(16).
+	if (!signerCert || !signerKey) {
+		const secretB64 = getEnv("PASSKIT_SIGNER_SECRET");
+		const encPath = path.join(functionDir, "assets", "signer.enc");
+		if (secretB64 && secretB64.trim() && fs.existsSync(encPath)) {
+			console.log("[signer.enc] Attempting decrypt: file exists, secret length", secretB64.trim().length);
+			try {
+				let secret = secretB64.trim();
+				if (secret.startsWith('"') && secret.endsWith('"')) secret = secret.slice(1, -1).trim();
+				if (secret.startsWith("'") && secret.endsWith("'")) secret = secret.slice(1, -1).trim();
+				const key = Buffer.from(secret, "base64");
+				console.log("[signer.enc] Decoded secret key length:", key.length, "(expected 32)");
+				if (key.length !== 32) throw new Error("PASSKIT_SIGNER_SECRET must be 32 bytes (base64)");
+				const enc = fs.readFileSync(encPath);
+				const iv = enc.subarray(0, 12);
+				const tag = enc.subarray(enc.length - 16);
+				const ciphertext = enc.subarray(12, enc.length - 16);
+				const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+				decipher.setAuthTag(tag);
+				const compressed = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+				const raw = zlib.brotliDecompressSync(compressed).toString("utf8");
+				const sep = "\n---KEY---\n";
+				const idx = raw.indexOf(sep);
+				console.log("[signer.enc] Decrypt+decompress ok. Raw length:", raw.length, "separator found:", idx !== -1);
+				if (idx !== -1) {
+					signerCert = raw.slice(0, idx).trim().replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+					signerKey = raw.slice(idx + sep.length).trim().replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+					// If user ran create-signer-enc.js with key.pem first, cert.pem second, swap.
+					if (signerKey.startsWith("-----BEGIN CERTIFICATE-----") && (signerCert.startsWith("-----BEGIN PRIVATE KEY-----") || signerCert.startsWith("-----BEGIN RSA PRIVATE KEY-----") || signerCert.startsWith("-----BEGIN ENCRYPTED PRIVATE KEY-----"))) {
+						[signerCert, signerKey] = [signerKey, signerCert];
+					}
+					console.log("[signer.enc] Cert starts with:", signerCert.slice(0, 50));
+					console.log("[signer.enc] Key starts with:", signerKey.slice(0, 50));
+				} else {
+					console.error("[signer.enc] Separator not found. Raw starts with:", JSON.stringify(raw.slice(0, 120)));
+				}
+			} catch (e) {
+				console.error("signer.enc decrypt failed:", e.message || e);
+				return errResponse("Something went wrong.", "signer.enc decrypt failed: " + (e?.message || e));
+			}
+		} else {
+			if (!secretB64 || !secretB64.trim()) console.log("[signer.enc] Skipped: PASSKIT_SIGNER_SECRET not set");
+			else if (!fs.existsSync(encPath)) console.log("[signer.enc] Skipped: signer.enc not found at", encPath);
+		}
+	}
 
 	// WWDR G4 is public; bundle in repo to save env size (AWS Lambda 4KB env limit)
 	if (!wwdrCert || !wwdrCert.trim()) {
@@ -204,20 +281,38 @@ export default async function handler(req) {
 	}
 
 	if (!passTypeId || !teamId || !orgName || !signerCert || !signerKey || !wwdrCert) {
-		console.error("Missing passkit env: passTypeId, teamId, orgName, signerCert, signerKey; wwdrCert or bundled assets/wwdr-g4.pem");
-		return jsonResponse({ error: "Something went wrong." }, 500);
+		const missing = [
+			!passTypeId && "PASSKIT_PASS_TYPE_ID",
+			!teamId && "PASSKIT_TEAM_ID",
+			!orgName && "PASSKIT_ORGANIZATION_NAME",
+			!signerCert && "signer cert",
+			!signerKey && "signer key",
+			!wwdrCert && "WWDR",
+		].filter(Boolean);
+		console.error("Missing passkit:", missing.join(", "));
+		return errResponse("Something went wrong.", "Missing: " + missing.join(", ") + ". Set SIGNER_SECRET+signer.enc, or BUNDLE, or CERT+KEY. See docs/plans/2025-02-24-pass-generator-design.md.");
 	}
 
-	// Normalize PEM from env: strip quotes, base64 decode if needed, fix literal \n, line endings
+	// Normalize PEM from env: strip quotes, base64 decode if needed, fix literal \n, line endings, BOM, leading junk (e.g. "Bag Attributes" from openssl pkcs12)
 	function ensurePem(value) {
 		if (!value || typeof value !== "string") return value;
-		let s = value.trim();
+		let s = value.trim().replace(/^\uFEFF/, "");
 		// Strip surrounding double quotes if env loader included them
 		if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1).trim();
 		// Replace literal \n (e.g. from .env single-line paste) with real newlines
 		s = s.replace(/\\n/g, "\n");
 		s = s.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 		s = s.trim();
+		// Normalize Unicode dashes to ASCII (some exports use en-dash U+2013, em-dash U+2014)
+		s = s.replace(/[\u2010-\u2015\u2212]/g, "-");
+		// If PEM is not at start (e.g. "Bag Attributes" from pkcs12 export), take from first -----BEGIN
+		const beginIdx = s.indexOf("-----BEGIN");
+		if (beginIdx > 0) s = s.slice(beginIdx);
+		// Extract first complete PEM block if there's leading/trailing junk (e.g. "Bag Attributes" from openssl pkcs12)
+		const privateKeyBlock = s.match(/-----BEGIN (?:RSA |ENCRYPTED )?PRIVATE KEY-----[\s\S]+?-----END (?:RSA |ENCRYPTED )?PRIVATE KEY-----/);
+		const certBlock = s.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/);
+		if (privateKeyBlock) s = privateKeyBlock[0];
+		else if (certBlock) s = certBlock[0];
 		if (s.startsWith("-----BEGIN")) return s;
 		try {
 			const decoded = Buffer.from(s, "base64").toString("utf8");
@@ -232,7 +327,8 @@ export default async function handler(req) {
 	const validKeyHeaders = ["-----BEGIN PRIVATE KEY-----", "-----BEGIN RSA PRIVATE KEY-----", "-----BEGIN ENCRYPTED PRIVATE KEY-----"];
 	if (!validKeyHeaders.some((h) => signerKey.startsWith(h))) {
 		const firstLine = signerKey.slice(0, 80);
-		console.error("PASSKIT_SIGNER_KEY invalid header. Got:", firstLine);
+		console.error("PASSKIT_SIGNER_KEY invalid header. Got (first 80):", firstLine);
+		console.error("PASSKIT_SIGNER_KEY length:", signerKey.length, "cert length:", signerCert.length);
 		if (signerKey.includes("BEGIN CERTIFICATE")) {
 			return jsonResponse({ error: "PASSKIT_SIGNER_KEY contains a certificate, not a private key. Put the private key (-----BEGIN ENCRYPTED PRIVATE KEY----- or -----BEGIN RSA PRIVATE KEY-----) in PASSKIT_SIGNER_KEY and the certificate (-----BEGIN CERTIFICATE-----) in PASSKIT_SIGNER_CERT. If your .env has multi-line values, check that each variable ends with its closing quote so values do not get mixed." }, 500);
 		}
@@ -330,6 +426,6 @@ export default async function handler(req) {
 				error: "Signer key invalid. Ensure PASSKIT_SIGNER_KEY is the full PEM (-----BEGIN ... / -----END ...). Use RSA format; in .env use real newlines or \\n. See docs/plans/2025-02-24-pass-generator-design.md.",
 			}, 500);
 		}
-		return jsonResponse({ error: "Something went wrong." }, 500);
+		return errResponse("Something went wrong.", "Pass generation error: " + msg);
 	}
 }
