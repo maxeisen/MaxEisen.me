@@ -7,3 +7,4 @@ Icon
 package-lock.json
 *.pem
 .netlify
+dist

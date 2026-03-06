@@ -4,7 +4,9 @@
   functions = "netlify/functions"
 
 [dev]
+  command = "vite"
   targetPort = 6808
+  autoLaunch = true
 
 [[redirects]]
   from = "/*"

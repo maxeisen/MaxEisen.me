@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "netlify dev",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "vite preview --port 6808",
-    "dev:netlify": "npx --yes --verbose netlify dev"
+    "start": "vite preview --port 6808"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "netlify-cli": "^24.0.1",
     "svelte": "^5.0.0",
     "vite": "^6.0.0"
   },
