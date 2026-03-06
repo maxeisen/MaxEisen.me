@@ -1,5 +1,5 @@
 <script>
-    // import ThemeToggle from './components/ThemeToggle.svelte'
+    import ThemeToggle from './components/ThemeToggle.svelte';
     import MenuBar from './components/MenuBar.svelte';
     import Profile from './components/Profile.svelte';
     import Intro from './components/Intro.svelte';
@@ -22,8 +22,8 @@
 {#if pathname === '/pass-generator'}
     <PassGenerator />
 {:else}
+<ThemeToggle />
 <ModalProvider>
-    <!-- <ThemeToggle on:change="{toggleTheme()}"/> -->
     {#if (screenSize.matches)}
         <MenuBar/>
     {/if}
