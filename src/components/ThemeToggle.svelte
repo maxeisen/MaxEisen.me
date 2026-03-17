@@ -1,4 +1,6 @@
 <script>
+    import { onMount } from 'svelte';
+
     let isDark = $state(document.documentElement.getAttribute('data-theme') === 'dark');
 
     function toggle() {
@@ -7,6 +9,22 @@
         }
         isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     }
+
+    onMount(() => {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        function onSystemChange(e) {
+            // Only follow system if the user hasn't manually set a preference
+            if (!localStorage.getItem('theme')) {
+                const theme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+                isDark = e.matches;
+            } else {
+                isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            }
+        }
+        mq.addEventListener('change', onSystemChange);
+        return () => mq.removeEventListener('change', onSystemChange);
+    });
 </script>
 
 <button
@@ -14,9 +32,9 @@
     onclick={toggle}
     aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
 >
-    <span class="toggle-track">
-        <!-- Sun icon -->
-        <svg class="icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    {#if isDark}
+        <!-- Sun: switch to light -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -27,12 +45,12 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
-        <!-- Moon icon -->
-        <svg class="icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    {:else}
+        <!-- Moon: switch to dark -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
-        <span class="toggle-thumb" class:slide-right={isDark}></span>
-    </span>
+    {/if}
 </button>
 
 <style>
@@ -41,86 +59,47 @@
         top: 16px;
         right: 16px;
         z-index: 9998;
-        background: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
         border: none;
-        padding: 0;
         cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .toggle-track {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        width: 50px;
-        height: 26px;
-        border-radius: 13px;
-        background: var(--toggle-bg, rgba(120, 120, 120, 0.3));
+        justify-content: center;
+        background: rgba(120, 120, 120, 0.25);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        padding: 0 4px;
-        position: relative;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        color: var(--text-primary, currentColor);
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.2s ease, transform 0.1s ease;
     }
 
-    .toggle-thumb {
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: white;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease;
+    .theme-toggle:hover {
+        background: rgba(120, 120, 120, 0.4);
     }
 
-    .toggle-thumb.slide-right {
-        transform: translateX(24px);
+    .theme-toggle:active {
+        transform: scale(0.92);
     }
 
-    .icon {
-        width: 14px;
-        height: 14px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .sun {
-        color: #f59e0b;
-    }
-
-    .moon {
-        color: #6366f1;
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
     }
 
     @media (max-width: 460px) {
         .theme-toggle {
             top: 12px;
             right: 12px;
+            width: 32px;
+            height: 32px;
         }
 
-        .toggle-track {
-            width: 44px;
-            height: 23px;
-            border-radius: 12px;
-            padding: 0 3px;
-        }
-
-        .toggle-thumb {
-            width: 17px;
-            height: 17px;
-            top: 3px;
-            left: 3px;
-        }
-
-        .toggle-thumb.slide-right {
-            transform: translateX(21px);
-        }
-
-        .icon {
-            width: 12px;
-            height: 12px;
+        .theme-toggle svg {
+            width: 16px;
+            height: 16px;
         }
     }
 </style>
