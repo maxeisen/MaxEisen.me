@@ -2,7 +2,6 @@
     let headshotPath = './img/headshots/clean_headshot';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
-    import TwitterLogo from 'svelte-icons/io/IoLogoTwitter.svelte';
     import MailIcon from 'svelte-icons/io/IoIosMail.svelte';
 
     import Annotation from 'svelte-rough-notation';
@@ -22,7 +21,6 @@
 <div class="social-links-container">
     <a class="social-link linkedin-link" aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a>
     <a class="social-link github-link" aria-label="GitHub" href="https://github.com/maxeisen/" rel="noreferrer" target="_blank"><GitHubLogo /></a>
-    <a class="social-link twitter-link" aria-label="Twitter" href="https://twitter.com/maxeisen/" rel="noreferrer" target="_blank"><TwitterLogo /></a>
     <a class="social-link" aria-label="Email" href="mailto:profile@maxeisen.me" rel="noreferrer" target="_blank"><MailIcon /></a>
 </div>
 
