@@ -1,5 +1,5 @@
 <script>
-    let headshotPath = './img/headshots/clean_headshot';
+    let headshotPath = './img/headshots/2026_amazon_headshot';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
     import MailIcon from 'svelte-icons/io/IoIosMail.svelte';
