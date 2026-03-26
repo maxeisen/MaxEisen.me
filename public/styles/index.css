@@ -214,6 +214,9 @@ video::-webkit-media-controls-overlay-play-button {
     grid-template-rows: 1fr auto;
     gap: 1px;
     grid-template-areas: "profile-section info-section info-section" "profile-section info-section info-section";
+    max-width: 1800px;
+    margin-left: auto;
+    margin-right: auto;
 }
   
 .profile-section {
