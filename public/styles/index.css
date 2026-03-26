@@ -596,3 +596,9 @@ button.close.svelte-fnsfcv {
         margin-right: 0;
     }
 }
+
+@media (min-width: 2800px) {
+    .profile-section {
+        margin-left: calc((100vw - 1800px) / 2 + 60px);
+    }
+}
