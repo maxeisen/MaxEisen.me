@@ -36,7 +36,7 @@
                 <Intro/>
                 <Experience/>
                 <Projects/>
-                <Blog/>
+                <!-- <Blog/> -->
                 <Education/>
                 <Skills/>
             </div>
