@@ -8,3 +8,6 @@ package-lock.json
 *.pem
 .netlify
 dist
+/public/build/
+/.superpowers/
+/docs/
