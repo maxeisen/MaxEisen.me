@@ -50,11 +50,11 @@ div.header-container {
 }
 
 header {
-    width: 95.5%;
-    display: flex;
+    display: grid;
+    grid-template-columns: 0.75fr 2fr;
+    max-width: 1800px;
+    margin: 0 auto 30px auto;
     align-items: center;
-    justify-content: space-between;
-    margin: 0 20px 30px 20px;
     font-size: 30px;
     line-height: 1;
     color: var(--nav-background);
@@ -94,6 +94,8 @@ header a:hover {
 .nav-bar {
     margin-right: 20px;
     margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .nav-bar-list {
@@ -155,6 +157,9 @@ a:hover {
 
 .home-icon-container {
     height: 115px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .home-icon {
@@ -164,7 +169,7 @@ a:hover {
     -ms-transition: all 0.1s ease-in;
     transition: all 0.1s ease-in;
     margin-top: 10px;
-    margin-left: 180px;
+    margin-right: 60px;
     width: 85px;
 }
 
