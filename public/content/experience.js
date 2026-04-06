@@ -10,7 +10,7 @@ export const experience =
         startDate: "February 2026",
         endDate: "Present",
         location: "Toronto, ON",
-        shortDescription: "Working on the handling of Corporate Actions for one of Canada's unicorns",
+        shortDescription: "Working on trade side of Canada's trading platform unicorn, with over $100 billion in AUA",
         longDescription:
         `<ul>
             <li>Working with the Corporate Actions team to build out workflows to handle major listed company changes</li>
@@ -108,10 +108,7 @@ export const experience =
             <li>Assisted in the teaching of Fundamentals of Software Development (Agile Methodologies) in C++, a 250-student Java course, and a 200-student Python course</li>
         </ul>`
     },
-]
-
-const additional = [
-    {
+        {
         shortPosition: "Technical Developer",
         position: "Technical Developer Co-op",
         shortCompany: "Jonah Group",
@@ -160,8 +157,11 @@ const additional = [
             <li>Worked on digital dashboard for use by 700+ applicants in time leading up to, and during event</li>
             <li>Oversaw technology operations during the hackathon, helping teams in completing their projects, and keeping all information up-to-date</li>
         </ul>`
-    },
-        {
+    }
+]
+
+const additional = [
+    {
         shortPosition: "Director of Technology",
         position: "Founder, Director of Technology",
         shortCompany: "TechTrainers",
