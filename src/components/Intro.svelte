@@ -90,7 +90,7 @@
     };    
 </script>
 
-<div class="intro-container">
+<div class="intro-container" id="intro">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
         <p class="title-extension">I am a Software Development Engineer at <a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a>,

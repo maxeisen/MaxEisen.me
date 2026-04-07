@@ -30,11 +30,12 @@
         <div class="nav-bar" id="nav-bar">
             <nav>
                 <ul class="nav-bar-list" id="nav-bar-list">
+                    <li id="nav-bar-item"><a href="#intro">Intro</a></li>
                     <li id="nav-bar-item"><a href="#experience">Experience</a></li>
                     <li id="nav-bar-item"><a href="#projects">Projects</a></li>
                     <!-- <li id="nav-bar-item"><a href="#blog">Blog</a></li> -->
                     <li id="nav-bar-item"><a href="#education">Education</a></li>
-                    <li id="nav-bar-item"><a href="#skills">Skills</a></li>
+                    <!-- <li id="nav-bar-item"><a href="#skills">Skills</a></li> -->
                     <li id="nav-bar-item"><a href="/resume.html"><b>Resume</b></a></li>
                 </ul>
             </nav>
