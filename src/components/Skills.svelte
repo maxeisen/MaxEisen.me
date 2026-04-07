@@ -2,7 +2,6 @@
     import skills from '@content/skills.json';
 </script>
 
-<h1 class="section-title" id="skills" style="text-align: left;">Skills</h1>
 <div class="skills-subsection">
     <ul>
         {#each skills as skill}
@@ -13,30 +12,13 @@
 
 <style>
     ul {
-        text-align: left;
+        text-align: center;
         color: var(--paragraph-colour);
         font-size: 20px;
         list-style: none;
         -webkit-column-count: 4;
         -moz-column-count: 4;
         column-count: 4;
-    }
-
-    ul li::before {
-        -webkit-transition: all .1s ease-in;
-        -moz-transition: all .1s ease-in;
-        -o-transition: all .1s ease-in;
-        -ms-transition: all .1s ease-in;
-        transition: all .1s ease-in;
-        content: "\2022";
-        color: var(--skill-bullet-colour);
-        display: inline-block;
-        width: 1em;
-        margin-left: -0.5em;
-    }
-
-    ul li:hover::before {
-        color: var(--main-green);
     }
 
     @media only screen and (max-width: 1270px) {
