@@ -1,7 +1,7 @@
 <script>
     import { getContext } from 'svelte';
     import EducationModal from './modals/EducationModal.svelte';
-    import { education } from '@content/education.js';
+    import education from '@content/education.json';
 
     const { open } = getContext('simple-modal');
 

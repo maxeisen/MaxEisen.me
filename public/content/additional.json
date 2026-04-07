@@ -1,0 +1,52 @@
+{
+    "experience": [
+        {
+            "shortPosition": "Director of Technology",
+            "position": "Founder, Director of Technology",
+            "shortCompany": "TechTrainers",
+            "company": "TechTrainers",
+            "startDate": "May 2019",
+            "endDate": "January 2021",
+            "location": "Toronto, ON",
+            "shortDescription": "Created a network of in-person and online quality tech help and tutoring around the GTA",
+            "bullets": [
+                "Co-founded technology help company, providing tech tutoring and support to 20+ customers in the first 3 months of operation across Toronto",
+                "Overseeing all technical aspects of operations, including web development, database management, and session scheduling",
+                "Company was able to turn a profit in first month of operations"
+            ]
+        }
+    ],
+    "projects": [
+        {
+            "name": "PupBot",
+            "emoji": "&#128054;",
+            "technologies": "Python, Matplotlib, Selenium, Twitter API, Twilio API, Heroku",
+            "year": "2021-Present",
+            "shortDescription": "A Twitter and Twilio bot tweeting hourly price updates of an ETH-based altcoin",
+            "bullets": [
+                "A bot developed from scratch to fetch and post hourly price \"pupdates\" for Puppy Coin, a community-driven, Ethereum-based altcoin",
+                "Selenium and CryptoCompare API fetch Puppy Coin and Ethereum prices",
+                "Matplotlib generates beautiful 12-hour price charts",
+                "On the hour, Twitter and Twilio APIs tweet updates and send position values to specified Twitter users and phone numbers",
+                "Deployed to Heroku and scheduled to run each hour"
+            ],
+            "githubLink": "https://github.com/maxeisen/pup-bot",
+            "projectLink": "https://twitter.com/PuppyCoinBot",
+            "screenshot": "pupbot"
+        },
+        {
+            "name": "TicTacToe",
+            "emoji": "&#10060;",
+            "technologies": "Python",
+            "year": "2017",
+            "shortDescription": "A basic, text-based, Pythonic version of tic-tac-toe made in under an hour",
+            "bullets": [
+                "An extremely basic, text-based version of tic-tac-toe",
+                "One of my earliest coding projects, developed in about an hour on a flight without access to any online resources",
+                "Initially written in Python 2 and ported to Python 3"
+            ],
+            "githubLink": "https://github.com/maxeisen/TicTacToe",
+            "screenshot": "tictactoe"
+        }
+    ]
+}

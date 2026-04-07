@@ -1,13 +1,13 @@
 <script>
     import { getContext } from 'svelte';
     import ProjectModal from './modals/ProjectModal.svelte';
-    import { projects } from '@content/projects.js';
+    import projects from '@content/projects.json';
     
     const { open } = getContext('simple-modal');
 
-    const projectModal = (name, technologies, year, description, githubLink, projectLink, screenshot) => {
+    const projectModal = (name, technologies, year, bullets, githubLink, projectLink, screenshot) => {
         open(ProjectModal, {
-            name: name, technologies: technologies, year: year, description: description, githubLink: githubLink, projectLink: projectLink, screenshot: screenshot
+            name: name, technologies: technologies, year: year, bullets: bullets, githubLink: githubLink, projectLink: projectLink, screenshot: screenshot
         });
     };
 
@@ -17,7 +17,7 @@
 <div class="project-subsection">
     {#each projects as proj}
         <div class="project-item" tabindex="0" style="background-image: url('./img/screenshots/{proj.screenshot}.webp')"
-        on:click={() => projectModal(proj.name, proj.technologies, proj.year, proj.longDescription, proj.githubLink, proj.projectLink, proj.screenshot)}>
+        on:click={() => projectModal(proj.name, proj.technologies, proj.year, proj.bullets, proj.githubLink, proj.projectLink, proj.screenshot)}>
             <h2 class="project-name">{proj.name} {@html proj.emoji}</h2>
             <h2 class="project-year">{proj.year}</h2>
             <h2 class="project-tech">{proj.technologies}</h2>

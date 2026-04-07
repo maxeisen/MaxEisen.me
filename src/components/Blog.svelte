@@ -3,7 +3,7 @@
     import qs from 'query-string';
     import BlogPostModal from './modals/BlogPostModal.svelte';
     import CloseButton from './modals/CloseButton.svelte';
-    import { blogPosts } from '@content/blogPostMeta.js';
+    import blogPosts from '@content/blogPostMeta.json';
 
     const userQuery = qs.parse(window.location.search);
 

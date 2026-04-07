@@ -5,7 +5,7 @@
     export let startDate;
     export let endDate;
     export let location;
-    export let description;
+    export let bullets;
 </script>
 
 <div class="experience-modal">
@@ -19,11 +19,15 @@
         <b style="color: var(--paragraph-colour); font-weight: 300">in</b> {location}
     </h2>
     {#if endDate}
-        <h3 class="modal-description" style="text-align: center">{startDate}-{endDate}</h3>
+        <h3 class="modal-description" style="text-align: center">{startDate} - {endDate}</h3>
     {:else}
         <h3 class="modal-description" style="text-align: center">{startDate}</h3>
     {/if}
-    <p class="modal-description">{@html description}</p>
+    <ul class="modal-description">
+        {#each bullets as bullet}
+            <li>{bullet}</li>
+        {/each}
+    </ul>
 </div>
 
 <style>
