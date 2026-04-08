@@ -93,19 +93,16 @@
 <div class="intro-container" id="intro">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I am a Software Development Engineer at <a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a>,
-        and a Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
-        with a creative and curious mind, a passion for adventure, and a fascination for all technology.</p>
+        <p class="title-extension">I'm a Software Engineer at <a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a>,
+        a Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
+        and someone who genuinely loves what he does - building things that work, work well, and work at scale.</p>
 
-        <p>Also a computational thinker, I am experienced in software and web development, hardware repair, agile methodologies, UI/UX design, and <activity tabindex="0" on:click={appstorereviewersModal}>iOS app reviewing</activity>.
-        As a software engineer by day, I enjoy working with teams and being around like-minded people. With every new role I take on, I strive to communicate effectively and confidently, and lead the team as a creative problem solver.</p>
-        
-        <p>In my free time, I love to <activity tabindex="0" on:click={runModal}>run</activity>, <activity tabindex="0" on:click={cycleModal}>cycle</activity>, <activity tabindex="0" on:click={musicModal}>play guitar</activity>, <activity tabindex="0" on:click={droneModal}>fly drones</activity>,
-        <activity tabindex="0" on:click={skiingModal}>ski</activity>, <activity tabindex="0" on:click={hikingModal}>hike</activity>, <activity tabindex="0" on:click={travellingModal}>travel</activity>, and <activity tabindex="0" on:click={techModal}>work with cool technology</activity>.</p>
-        
-        <p>Please explore and enjoy my portfolio website, click on things for more information, and <a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">email me</a> if you have any questions or comments.</p>
-        
-        <p>If you are <span class=static-highlight>recruiting</span>, please view and download (print to PDF) my <a class="intro-link" href="/resume">resume</a>.</p>
+        <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about craft, and thrive in environments where engineers are expected to own their work end to end.</p>
+
+        <p>Outside of work, you'll find me <activity tabindex="0" on:click={runModal}>running</activity>, <activity tabindex="0" on:click={cycleModal}>cycling</activity>, <activity tabindex="0" on:click={musicModal}>playing guitar</activity>, <activity tabindex="0" on:click={droneModal}>flying drones</activity>,
+        <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, or tinkering with <activity tabindex="0" on:click={techModal}>cool technology</activity>.</p>
+
+        <p>Feel free to click around (most things are interactive). <a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume.html">resume</a> if you're <span class=static-highlight>recruiting</span>.</p>
     </div>
 </div>
 
