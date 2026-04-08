@@ -12,7 +12,7 @@
     };
 </script>
 
-<h1 class="section-title" id="education" style="text-align: left;">Education</h1>
+<h1 class="section-title" id="foundations" style="text-align: left;">Foundations</h1>
 <div class="education-subsection">
     <div class="education-item" tabindex="0"
     on:click={() => educationModal(education[0].school, education[0].location, education[0].degreeLong, education[0].majorLong, education[0].years, education[0].courses, education[0].committees)}>

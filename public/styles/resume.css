@@ -564,6 +564,11 @@ a.company-long {
         --main-green: #00bba2;
     }
 
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
     .print {
         display: block !important;
     }

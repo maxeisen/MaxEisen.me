@@ -6,7 +6,7 @@
     import Blog from './components/Blog.svelte';
     import Experience from './components/Experience.svelte';
     import Projects from './components/Projects.svelte';
-    import Education from './components/Education.svelte';
+    import Foundations from './components/Foundations.svelte';
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
     import ModalProvider from './components/ModalProvider.svelte';
@@ -37,7 +37,7 @@
                 <Experience/>
                 <Projects/>
                 <!-- <Blog/> -->
-                <Education/>
+                <Foundations/>
                 <Skills/>
             </div>
                 <Footer/>

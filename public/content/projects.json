@@ -6,26 +6,23 @@
         "year": "2020-Present",
         "shortDescription": "My personal portfolio website (the one you're currently on), developed from scratch",
         "bullets": [
-            "A personal portfolio website built from scratch to showcase my work experience, projects, skills, and more",
-            "Initally a web version of my resume, this became a larger project that constantly allows me to improve my design and development skills"
+            "A personal portfolio website built from scratch in Svelte to showcase my experience, projects, and skills",
+            "Continuously iterated on over the years, serving as a living canvas for improving my design and front-end development skills",
+            "Deployed via Netlify with automatic builds on every push to the main branch"
         ],
         "githubLink": "https://github.com/maxeisen/MaxEisen.me",
         "screenshot": "maxeisenme"
     },
     {
         "name": "Convoke",
-        "emoji": "🤔",
+        "emoji": "&#129300;",
         "technologies": "Next.js, OpenAI GPT-3, Vercel",
         "year": "2022-Present",
         "shortDescription": "A web-based game designed to provoke abstract conversation and deep thought",
         "bullets": [
-            "A game made as an alternative to many classic social games played over a few drinks, to provoke thought and conversation",
-            "Using <a href=\"https://openai.com/blog/openai-api/\" rel=\"noreferrer\" target=\"_blank\">Open-AI's GPT-3 API</a>, thought-provoking questions are generated each round, posed to your group, and a best response is selected",
-            "Scores are kept track of by the web app and a winner is declared after three rounds",
-            "Alternatively a more personal <a href=\"https://convoke.app/daily\" rel=\"noreferrer\" target=\"_blank\">daily question</a> can be answered by an individual user, with responses saved to local storage",
-            "Developed in two weeks after inspiration struck",
-            "Ranked #7 on launch day on <a href=\"https://www.producthunt.com/posts/convoke\" rel=\"noreferrer\" target=\"_blank\">Product Hunt</a>",
-            "Currently closed-source as opportunities for expansion and monetization are explored"
+            "A social party game built to spark abstract conversation, using <a href=\"https://openai.com/blog/openai-api/\" rel=\"noreferrer\" target=\"_blank\">OpenAI's GPT-3 API</a> to generate thought-provoking questions each round",
+            "Features a <a href=\"https://convoke.app/daily\" rel=\"noreferrer\" target=\"_blank\">daily question</a> mode for solo reflection, with responses persisted to local storage",
+            "Launched independently in two weeks, reaching #7 on <a href=\"https://www.producthunt.com/posts/convoke\" rel=\"noreferrer\" target=\"_blank\">Product Hunt</a> on launch day"
         ],
         "projectLink": "https://convoke.app",
         "screenshot": "convoke"
@@ -37,11 +34,9 @@
         "year": "2022-2023",
         "shortDescription": "A web app to helping travellers save money on their next trip",
         "bullets": [
-            "A minimalistic web app that helps travellers by providing short but informative tips for saving in every country across the globe",
-            "Next.js server-side rendering makes for fast and responsive user interactions and loading of static content",
-            "A Python script was developed to leverage OpenAI's GPT-3 engine to generate tips for every country in our list",
-            "Vercel is used to continously deploy the site from the GitHub repository",
-            "Originally developed to inform travellers on how to tip in different countries around the world, hence the name \"WhatToTip\""
+            "A minimalist travel companion app providing money-saving tips for every country, built with Next.js for fast, responsive interactions",
+            "Leveraged OpenAI's GPT-3 engine via a custom Python script to generate country-specific tips at scale",
+            "Continuously deployed from GitHub via Vercel, with static content served efficiently through server-side rendering"
         ],
         "projectLink": "https://whattotip.in",
         "screenshot": "whattotip"
@@ -53,11 +48,9 @@
         "year": "2022",
         "shortDescription": "A Python script to programatically generate NFT images from provided assets",
         "bullets": [
-            "An extensible, easy-to-use, customizable CLI-based NFT generator to create collections as large as allowed for by provided assets",
-            "Tens of thousands of NFT images can be generated in just minutes from specified assets and trait rarities",
-            "Pillow is used to stack layers that are selected at random based on provided weights",
-            "A folder is created containing all generated token images, as well as a file specifying actual occurences of different traits, which can be used to find rarities",
-            "Made to be user-friendly and easily forked with custom validation logic, assets, and traits for any NFT project"
+            "A CLI-based NFT image generator capable of producing tens of thousands of unique tokens in minutes from layered assets",
+            "Uses Pillow to composite randomized trait layers according to configurable rarity weights defined by the user",
+            "Designed to be easily forked and extended with custom assets, traits, and validation logic for any NFT collection"
         ],
         "githubLink": "https://github.com/maxeisen/nftokenator",
         "screenshot": "nftokenator"
@@ -69,11 +62,9 @@
         "year": "2022",
         "shortDescription": "A web app to resolve the bottlenecks in Canada's socialized healthcare system",
         "bullets": [
-            "A dual-purpose web app aimed at helping patient's manage access to their health information, and providing EMTs with crucial medical data",
-            "Next.js server-side rendering allows for quick response times when querying the Firestore database to access patient health information",
-            "Firebase is used to store patient health information and to authenticate EMTs",
-            "Patient's also have the ability to specify who should be able to access their health information",
-            "Built in <48 hours by a team of 4, for the <a href=\"https://publicissapient.com/\" rel=\"noreferrer\" target=\"_blank\">Publicis Sapient</a> Aspire SPEED Hackathon <b>(top 10 finalist)</b>"
+            "A dual-purpose health platform letting patients control access to their medical records while giving EMTs instant access to critical data in the field",
+            "Built with Next.js and Firebase, supporting real-time data access and secure authentication for first responders",
+            "Developed in under 48 hours by a team of 4 for the <a href=\"https://publicissapient.com/\" rel=\"noreferrer\" target=\"_blank\">Publicis Sapient</a> Aspire SPEED Hackathon, placing as a top 10 finalist"
         ],
         "githubLink": "https://github.com/maxeisen/nuhealth_public",
         "projectLink": "https://nuhealth.vercel.app",
@@ -86,8 +77,9 @@
         "year": "2020-2021",
         "shortDescription": "A delivery service comparison platform to help food-lovers get the best deal",
         "bullets": [
-            "A mobile application to help users compare pricing, delivery times, and reviews of the same restaurant across four different delivery services",
-            "Ideated, developed, marketed, and pitched by an awesome team of 10 QTMA team members under my guidance as product manager"
+            "A React Native mobile app that aggregates pricing, delivery times, and reviews for the same restaurant across four major delivery platforms",
+            "Ideated, built, and shipped by a team of 10 under my direction as product manager within QTMA",
+            "Designed to help users make informed delivery choices, cutting through fragmented platforms with a single unified view"
         ],
         "githubLink": "https://github.com/maxeisen/eagle_public",
         "projectLink": "https://www.qtma.ca/product/Eagle",
@@ -100,8 +92,9 @@
         "year": "2019-2020",
         "shortDescription": "A collaborative, all-in-one study space made for students, by students",
         "bullets": [
-            "A real-time, affordable, peer and tutor support forum for students who can't find a study method that works for them and/or don't have classmates to study with",
-            "Ideated, developed, marketed, and pitched by a super team of 8 QTMA team members"
+            "A real-time peer study platform connecting students who struggle to find effective study methods or compatible study partners",
+            "Built with React, Django, and MongoDB by a team of 8, handling live collaboration across courses and subjects",
+            "Conceived, developed, marketed, and pitched end-to-end as part of the QTMA product incubator program"
         ],
         "githubLink": "https://github.com/maxeisen/studii_public",
         "projectLink": "https://www.qtma.ca/product/Studii",
@@ -114,8 +107,9 @@
         "year": "2019-2020",
         "shortDescription": "The official website for Queen's University's 2020 MLH hackathon",
         "bullets": [
-            "The static website for Queen's University's official 2020 hackathon, developed with React and generated using Gatsby",
-            "Accessed thousands of times during the application phase (700+ applicants), as well as leading up to the event"
+            "The official static website for Queen's University's 2020 MLH-affiliated hackathon, built with React and Gatsby",
+            "Served as the primary hub for 700+ applicants and received thousands of visits throughout the application and pre-event period",
+            "Supported the full event lifecycle from application through to the day of, keeping hackers informed and engaged in real time"
         ],
         "githubLink": "https://github.com/maxeisen/qhacks-website/tree/dev-2020",
         "projectLink": "https://qhacks.io",
@@ -128,8 +122,9 @@
         "year": "2019",
         "shortDescription": "A customizable, data-centric Spotify music visualizer built in Python",
         "bullets": [
-            "A visualizer that links to a user's Spotify account and uses hundreds of data points from <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify's Web API</a> to generate visuals according to rhythm, energy, 'danceability', and many other factors",
-            "Developed by a team of 4 in 10 hours, winning 2nd place at Queen's University during MLH's 2019 Local Hack Day"
+            "A music visualizer that connects to a user's Spotify account and renders dynamic visuals driven by data from the <a href=\"https://developer.spotify.com/documentation/web-api/\" rel=\"noreferrer\" target=\"_blank\">Spotify Web API</a>",
+            "Translates audio features like energy, rhythm, and danceability into real-time visual output using Python and Tkinter",
+            "Built by a team of 4 in 10 hours at MLH's 2019 Local Hack Day at Queen's University, winning 2nd place"
         ],
         "githubLink": "https://github.com/maxeisen/spotilizer",
         "screenshot": "spotilizer"
@@ -141,8 +136,9 @@
         "year": "2018-2019",
         "shortDescription": "A unique, monochromatic platformer game for observant minimalists",
         "bullets": [
-            "A monochromatic platformer game, with a novel mechanic that allows the player to use two different states - glitched and default - at the press of a button to help them win",
-            "Developed by a group of 3 as a final course project for CISC 226 (Game Design) at Queen's University"
+            "A monochromatic Unity platformer built around a core mechanic where players toggle between two states — glitched and default — to navigate levels",
+            "Designed to reward observation and lateral thinking, with puzzles that only resolve when the player finds the right state combination",
+            "Developed by a team of 3 as a final project for CISC 226 (Game Design) at Queen's University"
         ],
         "githubLink": "https://github.com/maxeisen/Glitch",
         "projectLink": "https://tamirarnesty.github.io/glitchGame/",
