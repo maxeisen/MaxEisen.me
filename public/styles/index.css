@@ -235,6 +235,7 @@ video::-webkit-media-controls-overlay-play-button {
     background: var(--inner-background);
     box-shadow: var(--inner-box-shadow);
     grid-area: profile-section;
+    overflow: hidden;
 }
   
 .info-section-main {

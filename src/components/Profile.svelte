@@ -55,6 +55,34 @@
         height: 200px;
     }
 
+    div.headshot {
+        position: relative;
+        isolation: isolate;
+    }
+
+    div.headshot::before {
+        content: '';
+        position: absolute;
+        inset: -18px;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            var(--main-green) 90deg,
+            transparent 180deg,
+            var(--main-green) 270deg,
+            transparent 360deg
+        );
+        filter: blur(22px);
+        opacity: 0.4;
+        z-index: -1;
+        animation: headshot-glow 8s linear infinite;
+    }
+
+    @keyframes headshot-glow {
+        to { transform: rotate(360deg); }
+    }
+
     .social-links-container {
         display: flex;
         margin: auto;
