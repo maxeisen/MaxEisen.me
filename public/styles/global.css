@@ -16,6 +16,7 @@
     --link-hover-colour: var(--main-green);
 
     --intro-link-colour: #addeff;
+    --headshot-glow: rgba(210, 232, 255, 0.34);
     --intro-annotation-colour: rgba(0, 187, 162, 0.5);
     --intro-highlight-colour: rgba(0, 187, 162, 0.195);
 
@@ -59,6 +60,7 @@
     --link-hover-colour: var(--main-green);
 
     --intro-link-colour: #004e81;
+    --headshot-glow: rgba(0, 55, 95, 0.22);
     --intro-annotation-colour: rgba(0, 105, 91, 0.5);
     --intro-highlight-colour: rgba(0, 105, 91, 0.195);
 

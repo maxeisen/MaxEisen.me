@@ -63,24 +63,36 @@
     div.headshot::before {
         content: '';
         position: absolute;
-        inset: -18px;
+        inset: -32px;
         border-radius: 50%;
-        background: conic-gradient(
-            from 0deg,
-            transparent 0deg,
-            var(--main-green) 90deg,
-            transparent 180deg,
-            var(--main-green) 270deg,
-            transparent 360deg
+        background: radial-gradient(
+            circle at 50% 50%,
+            var(--headshot-glow) 0%,
+            transparent 72%
         );
-        filter: blur(22px);
-        opacity: 0.4;
+        filter: blur(18px);
         z-index: -1;
-        animation: headshot-glow 8s linear infinite;
+        transform-origin: center;
+        animation: headshot-glow-pulse 5s ease-in-out infinite alternate;
     }
 
-    @keyframes headshot-glow {
-        to { transform: rotate(360deg); }
+    @keyframes headshot-glow-pulse {
+        from {
+            opacity: 0.78;
+            transform: scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        div.headshot::before {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
     }
 
     .social-links-container {
