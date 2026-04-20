@@ -4,6 +4,15 @@
 
 	let current = $state(null);
 
+	$effect(() => {
+		if (!current) return;
+		const handleKeydown = (e) => {
+			if (e.key === 'Escape') close();
+		};
+		window.addEventListener('keydown', handleKeydown);
+		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
 	function open(Component, props = {}, options = {}) {
 		const {
 			closeButton: CloseButtonComponent,
@@ -37,14 +46,12 @@
 		class="modal-backdrop"
 		role="presentation"
 		onclick={close}
-		onkeydown={(e) => e.key === 'Escape' && close()}
 		transition:fade={{ duration: 200 }}
 	>
 		<div
 			class="modal-window {current.CloseButtonComponent ? 'modal-window--wide' : ''}"
 			style={Object.entries(current.styleWindow || {}).map(([k, v]) => `${k}: ${v}`).join('; ')}
 			onclick={(e) => e.stopPropagation()}
-			onkeydown={(e) => e.stopPropagation()}
 			role="dialog"
 			aria-modal="true"
 			tabindex="-1"
