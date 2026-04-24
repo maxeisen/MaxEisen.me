@@ -9,13 +9,13 @@
 </script>
 
 <div class="education-modal">
-    <h1 class="modal-school" style="text-align: center;">{school} ({location})</h1>
+    <h1 class="modal-school" style="text-align: center;">{school}</h1>
     <h2 class="modal-degree" style="text-align: center;">{@html degree}</h2>
     <h3 class="modal-major" style="text-align: center;">{@html major}</h3>
-    <h3 class="modal-years" style="text-align: center;">{years}</h3>
-    <p class="modal-committees"><b>Relevant Courses: </b>{courses}</p>
-    <p class="modal-committees"><b>Committees: </b>{committees}</p>
-    <p class="ta-note">*Acted as a Teaching Assistant (courses) or Executive (committees)</p>
+    <h3 class="modal-years" style="text-align: center;">{years} in {location}</h3>
+    <p class="modal-committees"><b>Relevant Courses:</b> {courses}</p>
+    <p class="modal-committees"><b>Committees:</b> {committees}</p>
+    <p class="ta-note">*Teaching Assistant or Executive position</p>
 </div>
 
 <style>
@@ -61,9 +61,9 @@
     :global(.education-modal .modal-committees) {
         font-size: 15px;
         text-align: center;
-        margin: 10px auto 10px auto;
+        margin: 14px auto 14px auto;
         color: var(--modal-text-colour);
-        line-height: 1.4;
+        line-height: 1.7;
     }
 
     :global(.education-modal .ta-note) {

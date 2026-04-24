@@ -26,13 +26,18 @@
 
     const formatDateRange = (startDate, endDate) => `${shortenDate(startDate)}-${shortenDate(endDate)}`;
 
+    const isCurrent = (exp) => exp.endDate === 'Present';
+    const sortedExperience = [...experience].sort((a, b) => Number(isCurrent(b)) - Number(isCurrent(a)));
 </script>
 
 <h1 class="section-title" id="experience" style="text-align: left;">Experience</h1>
 <div class="experience-subsection">
-    {#each experience as exp}
-		<div class="experience-item" tabindex="0"
+    {#each sortedExperience as exp}
+		<div class="experience-item {isCurrent(exp) ? 'experience-item--current' : ''}" tabindex="0"
         on:click={() => experienceModal(exp.position, exp.company, exp.companyLink, exp.startDate, exp.endDate, exp.location, exp.bullets)}>
+            {#if isCurrent(exp)}
+                <span class="experience-current-badge" aria-label="Current role">Current</span>
+            {/if}
             {#if exp.shortPosition}
                 <h2 class="experience-title"><div class="experience-position">{exp.shortPosition}</div></h2>
             {:else}
@@ -82,5 +87,35 @@
     .experience-location {
         color: var(--item-small-text);
         float: right;
+    }
+
+    :global(.experience-item--current) {
+        grid-column: 1 / -1;
+        position: relative;
+        border-color: var(--main-green) !important;
+        box-shadow: 0 0 0 1px var(--main-green), 0 0 18px var(--main-green-translucent);
+        background-image: linear-gradient(135deg, var(--main-green-translucent) 0%, transparent 55%);
+    }
+
+    .experience-current-badge {
+        position: absolute;
+        top: 12px;
+        left: 16px;
+        padding: 2px 10px;
+        border-radius: 999px;
+        background: var(--main-green);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media only screen and (max-width: 620px) {
+        .experience-current-badge {
+            position: static;
+            display: inline-block;
+            margin: 4px 0 2px 0;
+        }
     }
 </style>

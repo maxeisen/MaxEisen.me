@@ -59,7 +59,15 @@
     :global(.project-modal .modal-description) {
         margin: 10px auto 10px auto;
         color: var(--modal-text-colour);
-        line-height: 1.4;
+        line-height: 1.6;
+    }
+
+    :global(.project-modal ul.modal-description li) {
+        margin-bottom: 10px;
+    }
+
+    :global(.project-modal ul.modal-description li:last-child) {
+        margin-bottom: 0;
     }
 
     :global(.project-modal .screenshot) {

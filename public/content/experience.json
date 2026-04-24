@@ -8,7 +8,7 @@
         "startDate": "February 2026",
         "endDate": "Present",
         "location": "Toronto, ON",
-        "shortDescription": "Working on core investment technology for Canada's fintech unicorn, with over $100 billion in AUA",
+        "shortDescription": "Building corporate actions workflows, trade processing services, and internal operations tooling on the core investment technology team at Canada's fintech unicorn, with over $100 billion in AUA",
         "bullets": [
             "Designing and maintaining Corporate Actions workflows to handle major listed company events such as dividends, mergers, and stock splits",
             "Developing backend services to support reliable trade processing across Wealthsimple's investment products",
@@ -109,36 +109,6 @@
             "Built full-stack features using React, Spring Boot, and PostgreSQL as part of an agile team delivering custom enterprise software",
             "Co-developed a decision engine designed to be deployed across client companies, handling complex business logic at scale",
             "Contributed across the entire stack from UI to data layer, gaining hands-on experience across the software development lifecycle"
-        ]
-    },
-    {
-        "position": "Product Manager",
-        "shortCompany": "QTMA",
-        "company": "Queen's Technology and Media Association",
-        "companyLink": "https://qtma.ca/",
-        "startDate": "March 2020",
-        "endDate": "April 2021",
-        "location": "Kingston, ON",
-        "shortDescription": "Managed a talented team of Queen's students to ideate, develop, and market a software product",
-        "bullets": [
-            "Led a cross-functional team of developers and business analysts to ideate, build, and ship a software product from the ground up",
-            "Defined product roadmap and priorities, balancing technical feasibility with user needs and stakeholder expectations",
-            "Presented product pitches and progress updates to students, faculty, and potential investors throughout the academic year"
-        ]
-    },
-    {
-        "shortPosition": "Software Developer",
-        "position": "Software Developer, Technical Coordinator",
-        "company": "QHacks",
-        "companyLink": "https://qhacks.io/",
-        "startDate": "September 2019",
-        "endDate": "February 2020",
-        "location": "Kingston, ON",
-        "shortDescription": "Developed the website and other software for Queen's University's official MLH hackathon",
-        "bullets": [
-            "Built and deployed the official QHacks 2020 website using React and Gatsby, attracting over 10,000 unique visitors during the application cycle",
-            "Developed the applicant dashboard used by 700+ hackers in the weeks leading up to and during the event",
-            "Coordinated all technology operations on the day of the hackathon, supporting teams and keeping event information current in real time"
         ]
     }
 ]

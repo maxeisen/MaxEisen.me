@@ -1,6 +1,36 @@
 {
     "experience": [
         {
+            "position": "Product Manager",
+            "shortCompany": "QTMA",
+            "company": "Queen's Technology and Media Association",
+            "companyLink": "https://qtma.ca/",
+            "startDate": "March 2020",
+            "endDate": "April 2021",
+            "location": "Kingston, ON",
+            "shortDescription": "Managed a talented team of Queen's students to ideate, develop, and market a software product",
+            "bullets": [
+                "Led a cross-functional team of developers and business analysts to ideate, build, and ship a software product from the ground up",
+                "Defined product roadmap and priorities, balancing technical feasibility with user needs and stakeholder expectations",
+                "Presented product pitches and progress updates to students, faculty, and potential investors throughout the academic year"
+            ]
+        },
+        {
+            "shortPosition": "Software Developer",
+            "position": "Software Developer, Technical Coordinator",
+            "company": "QHacks",
+            "companyLink": "https://qhacks.io/",
+            "startDate": "September 2019",
+            "endDate": "February 2020",
+            "location": "Kingston, ON",
+            "shortDescription": "Developed the website and other software for Queen's University's official MLH hackathon",
+            "bullets": [
+                "Built and deployed the official QHacks 2020 website using React and Gatsby, attracting over 10,000 unique visitors during the application cycle",
+                "Developed the applicant dashboard used by 700+ hackers in the weeks leading up to and during the event",
+                "Coordinated all technology operations on the day of the hackathon, supporting teams and keeping event information current in real time"
+            ]
+        },
+        {
             "shortPosition": "Director of Technology",
             "position": "Founder, Director of Technology",
             "shortCompany": "TechTrainers",
