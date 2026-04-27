@@ -1,5 +1,5 @@
 <script>
-    let headshotPath = './img/headshots/2026_amazon_headshot';
+    let headshotPath = './img/headshots/2026_amazon_headshot_v2';
     import LinkedInLogo from 'svelte-icons/io/IoLogoLinkedin.svelte';
     import GitHubLogo from 'svelte-icons/io/IoLogoGithub.svelte';
     import MailIcon from 'svelte-icons/io/IoIosMail.svelte';
@@ -28,7 +28,7 @@
     <picture>
         <source class="headshot" srcset={`${headshotPath}.webp`} type="image/webp">
         <source class="headshot" srcset={`${headshotPath}.png`} type="image/png">
-        <img class="headshot" id="headshot" width="200px" height="200px" src={`${headshotPath}.webp`} alt="Current headshot"/>
+        <img class="headshot" id="headshot" width="220px" height="220px" src={`${headshotPath}.webp`} alt="Current headshot"/>
     </picture>
 </div>
 
@@ -51,8 +51,8 @@
         margin-left: auto;
         margin-right: auto;
         padding-top: 0;
-        width: 200px;
-        height: 200px;
+        width: 220px;
+        height: 220px;
     }
 
     div.headshot {
