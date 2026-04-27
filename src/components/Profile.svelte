@@ -95,6 +95,17 @@
         }
     }
 
+    @media only screen and (max-width: 860px) {
+        .headshot {
+            width: min(70vw, 320px);
+            height: min(70vw, 320px);
+        }
+
+        div.headshot::before {
+            inset: -40px;
+        }
+    }
+
     .social-links-container {
         display: flex;
         margin: auto;

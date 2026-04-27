@@ -1,8 +1,46 @@
 <script>
-    import { getContext } from 'svelte';
+    import { getContext, onMount } from 'svelte';
+    import Annotation from 'svelte-rough-notation';
     import ActivityModal from './modals/ActivityModal.svelte';
 
     const { open } = getContext('simple-modal');
+
+    let annotationsVisible = false;
+    let dollars = [];
+
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const j = (n, amount = 1.4) => +(n + rand(-amount, amount)).toFixed(2);
+
+    const buildBarPath = () =>
+        `M ${j(0, 0.8)} ${j(-11)} Q ${j(0, 1.6)} ${j(0)} ${j(0, 0.8)} ${j(12)}`;
+
+    const buildSPath = () =>
+        `M ${j(5.5)} ${j(-7)} C ${j(1)} ${j(-11)}, ${j(-6)} ${j(-9)}, ${j(-6.2)} ${j(-3)} C ${j(-6)} ${j(1)}, ${j(5)} ${j(2)}, ${j(5.2)} ${j(7)} C ${j(5)} ${j(11.5)}, ${j(-2)} ${j(12.5)}, ${j(-6.5)} ${j(9)}`;
+
+    const buildDollars = () => {
+        const count = 5;
+        const spread = 96;
+        return Array.from({ length: count }, (_, i) => {
+            const baseX = -spread / 2 + (spread / (count - 1)) * i;
+            return {
+                x: +(baseX + rand(-2.5, 2.5)).toFixed(2),
+                y: +rand(-3, 3).toFixed(2),
+                rot: +rand(-20, 20).toFixed(1),
+                scale: +rand(0.75, 1.1).toFixed(2),
+                strokeWidth: +rand(1.2, 2.0).toFixed(2),
+                delay: +(i * 0.1 + rand(-0.03, 0.03)).toFixed(2),
+                barPath: buildBarPath(),
+                sPath: buildSPath(),
+            };
+        });
+    };
+
+    onMount(() => {
+        dollars = buildDollars();
+        setTimeout(() => {
+            annotationsVisible = true;
+        }, 1200);
+    });
 
     const appstorereviewers = {
         video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
@@ -93,16 +131,16 @@
 <div class="intro-container" id="intro">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I'm a Software Engineer at <a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a>,
-        a Computer Science graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
+        <p class="title-extension">I'm a <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">Software Engineer</Annotation> at <span class="wealthsimple-wrap"><a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a><svg class="dollar-sprinkle" class:visible={annotationsVisible} viewBox="-60 -26 120 44" aria-hidden="true">{#each dollars as d}<g transform="translate({d.x} {d.y}) rotate({d.rot}) scale({d.scale})" stroke-width={d.strokeWidth} style="--draw-delay: {d.delay}s"><path d={d.barPath} pathLength="1" /><path d={d.sPath} pathLength="1" /></g>{/each}</svg></span>,
+        a <Annotation bind:visible={annotationsVisible} type="underline" color="var(--intro-annotation-colour)">Computer Science</Annotation> graduate from <a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a>,
         and someone who genuinely loves what he does - building things that work, work well, and work at scale.</p>
 
-        <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about craft, and thrive in environments where engineers are expected to own their work end to end.</p>
+        <p>I've spent the last several years shipping <Annotation bind:visible={annotationsVisible} type="box" color="var(--intro-annotation-colour)">ultra-large-scale</Annotation>, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--intro-annotation-colour)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--intro-annotation-colour)">end to end</Annotation>.</p>
 
         <p>Outside of work, you'll find me <activity tabindex="0" on:click={runModal}>running</activity>, <activity tabindex="0" on:click={cycleModal}>cycling</activity>, <activity tabindex="0" on:click={musicModal}>playing guitar</activity>, <activity tabindex="0" on:click={droneModal}>flying drones</activity>,
         <activity tabindex="0" on:click={skiingModal}>skiing</activity>, <activity tabindex="0" on:click={hikingModal}>hiking</activity>, <activity tabindex="0" on:click={travellingModal}>travelling</activity>, or tinkering with <activity tabindex="0" on:click={techModal}>cool technology</activity>.</p>
 
-        <p>Feel free to click around (most things are interactive). <a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume.html">resume</a> if you're <span class=static-highlight>recruiting</span>.</p>
+        <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume.html">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
     </div>
 </div>
 
@@ -122,11 +160,6 @@
         font-size: 18px;
         margin-bottom: 30px;
         line-height: 1.5;
-    }
-
-    .static-highlight {
-        font-weight: 400;
-        text-shadow: 6px 0px 6px var(--intro-annotation-colour), -6px 0px 6px var(--intro-annotation-colour), 9px 0px 9px var(--intro-annotation-colour), -9px 0px 9px var(--intro-annotation-colour);
     }
 
     activity {
@@ -150,6 +183,47 @@
 
     .intro-link:hover {
         color: var(--link-hover-colour);
+    }
+
+    .wealthsimple-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dollar-sprinkle {
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% - 8px);
+        transform: translateX(-50%);
+        width: 7em;
+        height: 1.7em;
+        overflow: visible;
+        pointer-events: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .dollar-sprinkle path {
+        fill: none;
+        stroke: var(--main-green);
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+    }
+
+    .dollar-sprinkle.visible path {
+        animation: dollar-draw 0.55s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        animation-delay: var(--draw-delay, 0s);
+    }
+
+    @keyframes dollar-draw {
+        to { stroke-dashoffset: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .dollar-sprinkle.visible path {
+            animation: none;
+            stroke-dashoffset: 0;
+        }
     }
 
     @media only screen and (max-width: 460px) {
