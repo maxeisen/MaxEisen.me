@@ -396,4 +396,16 @@
             font-size: 16px;
         }
     }
+
+    @media only screen and (max-width: 860px) {
+        .dollar-sprinkle,
+        .crown-sprinkle,
+        .activity-icon {
+            display: none;
+        }
+
+        :global(.intro-container .rough-annotation) {
+            display: none !important;
+        }
+    }
 </style>
