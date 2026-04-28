@@ -101,6 +101,8 @@
     --intro-highlight-colour: rgba(184, 168, 136, 0.18);
 
     --modal-link-colour: #e8dcc8;
+
+    --badge-text-colour: #1c1a17;
 }
 
 [data-theme="light"] {
@@ -117,4 +119,6 @@
     --intro-highlight-colour: rgba(107, 122, 90, 0.2);
 
     --modal-link-colour: #3d4a35;
+
+    --badge-text-colour: #ffffff;
 }

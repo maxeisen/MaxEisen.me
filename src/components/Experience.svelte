@@ -105,7 +105,7 @@
         padding: 2px 10px;
         border-radius: 999px;
         background: var(--main-green);
-        color: #fff;
+        color: var(--badge-text-colour);
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.08em;

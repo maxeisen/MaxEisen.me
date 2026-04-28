@@ -29,7 +29,7 @@
     {#if (screenSize.matches)}
         <MenuBar/>
     {/if}
-    <div class="grid-container">
+    <main class="grid-container">
         <div class="profile-section">
             <Profile/>
         </div>
@@ -44,6 +44,6 @@
             </div>
                 <Footer/>
         </div>
-    </div>
+    </main>
 </ModalProvider>
 {/if}
