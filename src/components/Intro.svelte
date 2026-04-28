@@ -141,7 +141,7 @@
         activityIcons = buildActivityIcons();
         setTimeout(() => {
             annotationsVisible = true;
-        }, 1200);
+        }, 250);
     });
 
     const appstorereviewers = {
@@ -317,6 +317,7 @@
         stroke: var(--main-green);
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
+        opacity: 0;
     }
 
     .activity-icon.visible path {
@@ -379,6 +380,7 @@
         stroke: var(--main-green);
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
+        opacity: 0;
     }
 
     .dollar-sprinkle.visible path,
@@ -388,7 +390,9 @@
     }
 
     @keyframes sprinkle-draw {
-        to { stroke-dashoffset: 0; }
+        0%   { opacity: 0; stroke-dashoffset: 1; }
+        1%   { opacity: 1; stroke-dashoffset: 1; }
+        100% { opacity: 1; stroke-dashoffset: 0; }
     }
 
     @media (prefers-reduced-motion: reduce) {
