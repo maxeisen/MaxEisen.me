@@ -152,6 +152,49 @@
             opacity: 0.7;
         }
 
+        .clock-progress {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 540px;
+            margin-top: 1.5rem;
+        }
+        .clock-progress-item { display: flex; flex-direction: column; gap: 0.35rem; }
+        .clock-progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--main-green);
+        }
+        .clock-progress-pct {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: -0.02em;
+            color: var(--header-colour);
+            text-transform: none;
+        }
+        .clock-progress-bar {
+            height: 3px;
+            background: var(--main-green-translucent);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .clock-progress-fill {
+            height: 100%;
+            background: var(--main-green);
+            border-radius: 999px;
+            transition: width 0.4s ease-out;
+        }
+        @media (max-width: 700px) {
+            .clock-progress { gap: 0.6rem; }
+        }
+
         /* === spotify === */
         .widget-spotify {
             grid-column: span 2;
@@ -290,7 +333,7 @@
         }
 
         .weather-left { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-        .weather-right { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .weather-right { flex: 1.25; min-width: 0; display: flex; flex-direction: column; }
 
         .weather-temp {
             font-family: 'Fraunces', serif;
@@ -328,8 +371,9 @@
         .sun-svg {
             width: 100%;
             height: auto;
-            max-height: 100px;
-            margin: 0 0 0.5rem 0;
+            max-height: 150px;
+            margin: 0.25rem 0 0.5rem 0;
+            flex-shrink: 0;
         }
 
         .sun-svg path.sun-arc {
@@ -342,8 +386,38 @@
         .sun-svg circle.sun-dot { fill: var(--main-green); }
         .sun-svg line.sun-horizon { stroke: var(--main-green-translucent); stroke-width: 1; }
 
-        .sun-times { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--paragraph-colour); margin-top: auto; }
+        .sun-times {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--paragraph-colour);
+            padding: 0 0.25rem;
+        }
         .sun-times-label { color: var(--main-green); font-weight: 600; margin-right: 0.4rem; }
+
+        .moon-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--main-green-translucent);
+        }
+        .moon-emoji { font-size: 1.6rem; line-height: 1; }
+        .moon-text { display: flex; flex-direction: column; min-width: 0; }
+        .moon-name {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--header-colour);
+            letter-spacing: -0.01em;
+        }
+        .moon-illum {
+            font-size: 0.75rem;
+            color: var(--paragraph-colour);
+            opacity: 0.7;
+            margin-top: 0.1rem;
+        }
 
         /* === strava === */
         .widget-strava { grid-column: span 2; }
@@ -565,49 +639,6 @@
             opacity: 1;
         }
 
-        /* === bike share === */
-        .bike-station {
-            font-family: 'Fraunces', serif;
-            font-weight: 600;
-            font-size: 1.05rem;
-            color: var(--header-colour);
-            letter-spacing: -0.02em;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        .bike-counts {
-            display: flex;
-            gap: 1.25rem;
-            margin-top: 0.5rem;
-        }
-
-        .bike-count strong {
-            font-family: 'Fraunces', serif;
-            font-weight: 600;
-            font-size: 1.6rem;
-            color: var(--header-colour);
-            letter-spacing: -0.02em;
-            display: block;
-            line-height: 1;
-        }
-
-        .bike-count span {
-            font-size: 0.7rem;
-            color: var(--main-green);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-top: 0.25rem;
-            display: block;
-        }
-
-        .bike-meta {
-            font-size: 0.75rem;
-            color: var(--paragraph-colour);
-            opacity: 0.6;
-            margin-top: auto;
-            padding-top: 0.5rem;
-        }
-
         /* === hacker news === */
         .widget-hn { gap: 0.5rem; }
         .hn-list { list-style: none; padding: 0; margin: 0.25rem 0 0 0; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; min-height: 0; overflow: hidden; }
@@ -682,6 +713,55 @@
         .home-link:hover { opacity: 1; }
         .home-link-arrow { display: none; }
 
+        /* === gallery === */
+        .widget-gallery {
+            grid-column: span 2;
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            background: var(--main-green-translucent);
+        }
+        .widget-gallery * { text-decoration: none; }
+        .gallery-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .gallery-img.loaded { opacity: 1; }
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.15) 50%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1;
+        }
+        .gallery-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #fff;
+            opacity: 0.9;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+        }
+        .gallery-cta {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+            letter-spacing: -0.01em;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+        }
+
         @media (max-width: 700px) {
             .home-link {
                 top: 0.5rem;
@@ -711,7 +791,7 @@
                 max-height: none;
                 overflow: visible;
             }
-            .widget-clock, .widget-spotify, .widget-weather, .widget-strava { grid-column: span 2; }
+            .widget-clock, .widget-spotify, .widget-weather, .widget-strava, .widget-gallery { grid-column: span 2; }
         }
 
         @media (max-width: 700px) {
@@ -720,7 +800,7 @@
                 gap: 1rem;
                 padding: 1rem;
             }
-            .widget-clock, .widget-spotify, .widget-weather, .widget-strava { grid-column: span 1; }
+            .widget-clock, .widget-spotify, .widget-weather, .widget-strava, .widget-gallery { grid-column: span 1; }
             .widget-weather { flex-direction: column; }
         }
     </style>
@@ -731,15 +811,38 @@
         <span class="home-link-arrow" aria-hidden="true">←</span>
     </a>
     <div class="dashboard">
-        <!-- Row 1: Clock + Date · Spotify -->
+        <!-- Row 1: Clock · Gallery -->
         <div class="widget widget-clock">
             <div class="clock-time" id="clock-time">--:--:--<span class="clock-meridiem" id="clock-meridiem"></span></div>
             <div class="clock-meta">
                 <div class="clock-greeting" id="clock-greeting">—</div>
                 <div class="clock-date" id="clock-date">—</div>
             </div>
+            <div class="clock-progress">
+                <div class="clock-progress-item">
+                    <div class="clock-progress-label"><span>Work Day</span><span class="clock-progress-pct" id="day-pct">—%</span></div>
+                    <div class="clock-progress-bar"><div class="clock-progress-fill" id="day-fill" style="width: 0%"></div></div>
+                </div>
+                <div class="clock-progress-item">
+                    <div class="clock-progress-label"><span>Work Week</span><span class="clock-progress-pct" id="week-pct">—%</span></div>
+                    <div class="clock-progress-bar"><div class="clock-progress-fill" id="week-fill" style="width: 0%"></div></div>
+                </div>
+                <div class="clock-progress-item">
+                    <div class="clock-progress-label"><span>Year</span><span class="clock-progress-pct" id="year-pct">—%</span></div>
+                    <div class="clock-progress-bar"><div class="clock-progress-fill" id="year-fill" style="width: 0%"></div></div>
+                </div>
+            </div>
         </div>
 
+        <a class="widget widget-gallery" href="/gallery" id="gallery-widget">
+            <img class="gallery-img" id="gallery-img" alt="" loading="lazy"/>
+            <div class="gallery-overlay">
+                <div class="gallery-label">Gallery</div>
+                <div class="gallery-cta">View all →</div>
+            </div>
+        </a>
+
+        <!-- Row 2: Weather · Spotify -->
         <div class="widget widget-weather">
             <div class="weather-left">
                 <div class="widget-label">Weather</div>
@@ -766,7 +869,7 @@
                 </div>
             </div>
             <div class="weather-right">
-                <div class="widget-label">Sun</div>
+                <div class="widget-label">Sun &amp; Moon</div>
                 <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
                     <line class="sun-horizon" x1="0" y1="80" x2="200" y2="80"/>
                     <path class="sun-arc" d="M 10 80 Q 100 -20, 190 80"/>
@@ -776,12 +879,18 @@
                     <span><span class="sun-times-label">↑</span><span id="sunrise">—</span></span>
                     <span><span class="sun-times-label">↓</span><span id="sunset">—</span></span>
                 </div>
+                <div class="moon-info">
+                    <div class="moon-emoji" id="moon-emoji">🌑</div>
+                    <div class="moon-text">
+                        <div class="moon-name" id="moon-name">—</div>
+                        <div class="moon-illum" id="moon-illum">—</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Row 2: Spotify · Strava -->
         <div class="widget widget-spotify">
-            <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
+            <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">Spotify ↗</a>
             <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
                 <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
                 <div class="spotify-info">
@@ -798,19 +907,19 @@
             </a>
         </div>
 
+        <!-- Row 3: Strava · GitHub · Hacker News -->
         <div class="widget widget-strava">
-            <a class="profile-link" href="https://www.strava.com/athletes/92118908" target="_blank" rel="noreferrer">@maxeisen</a>
-            <div class="widget-label">Recent Activity</div>
+            <a class="profile-link" href="https://www.strava.com/athletes/92118908" target="_blank" rel="noreferrer">Strava ↗</a>
+            <div class="widget-label">Physical Activity</div>
             <ol class="strava-list" id="strava-list">
                 <li class="widget-empty">Loading…</li>
             </ol>
         </div>
 
-        <!-- Row 3: GitHub · Bike Share · Hacker News · Year -->
         <div class="widget widget-github">
-            <a class="profile-link" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
+            <a class="profile-link" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">GitHub ↗</a>
             <a class="github-main" id="github-widget" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">
-                <div class="widget-label">GitHub</div>
+                <div class="widget-label">Code Activity</div>
                 <div class="github-repo" id="github-repo">—</div>
                 <div class="github-message" id="github-message">Loading latest commit…</div>
                 <div class="github-meta" id="github-meta">—</div>
@@ -827,34 +936,11 @@
             </a>
         </div>
 
-        <div class="widget widget-bike">
-            <div class="widget-label">Toronto Bike Share</div>
-            <div class="bike-station" id="bike-station">Locating nearest…</div>
-            <div class="bike-counts">
-                <div class="bike-count">
-                    <strong id="bike-bikes">—</strong>
-                    <span>bikes</span>
-                </div>
-                <div class="bike-count">
-                    <strong id="bike-docks">—</strong>
-                    <span>docks</span>
-                </div>
-            </div>
-            <div class="bike-meta" id="bike-meta">—</div>
-        </div>
-
         <div class="widget widget-hn">
             <div class="widget-label">Hacker News</div>
             <ol class="hn-list" id="hn-list">
                 <li class="widget-empty">Loading…</li>
             </ol>
-        </div>
-
-        <div class="widget widget-year">
-            <div class="widget-label">Year</div>
-            <div class="progress-percent" id="year-percent">—%</div>
-            <div class="progress-bar"><div class="progress-fill" id="year-fill" style="width: 0%"></div></div>
-            <div class="progress-context" id="year-context">—</div>
         </div>
     </div>
 
@@ -906,16 +992,71 @@
             $('clock-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
         }
 
-        // === year ===
-        function renderYearProgress() {
-            const now = new Date();
+        // === clock progress trackers ===
+        const WORKDAY_START_HOUR = 9;
+        const WORKDAY_END_HOUR = 17;
+
+        function dayProgress(now) {
+            const start = new Date(now); start.setHours(WORKDAY_START_HOUR, 0, 0, 0);
+            const end   = new Date(now); end.setHours(WORKDAY_END_HOUR, 0, 0, 0);
+            return Math.max(0, Math.min(1, (now - start) / (end - start)));
+        }
+
+        function weekProgress(now) {
+            const day = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+            if (day === 0 || day === 6) return 1; // weekend ⇒ already past Friday
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - day + 1);
+            monday.setHours(WORKDAY_START_HOUR, 0, 0, 0);
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+            friday.setHours(WORKDAY_END_HOUR, 0, 0, 0);
+            if (now < monday) return 0;
+            return Math.min(1, (now - monday) / (friday - monday));
+        }
+
+        function yearProgress(now) {
             const start = new Date(now.getFullYear(), 0, 1);
             const end = new Date(now.getFullYear() + 1, 0, 1);
-            const pct = (now - start) / (end - start);
-            const daysLeft = Math.ceil((end - now) / 86400000);
-            $('year-percent').textContent = (pct * 100).toFixed(1) + '%';
-            $('year-fill').style.width = (pct * 100).toFixed(2) + '%';
-            $('year-context').textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
+            return (now - start) / (end - start);
+        }
+
+        function renderClockProgress() {
+            const now = new Date();
+            const setBar = (pctEl, fillEl, pct) => {
+                $(pctEl).textContent = (pct * 100).toFixed(pct === 1 || pct === 0 ? 0 : 1) + '%';
+                $(fillEl).style.width = (pct * 100).toFixed(2) + '%';
+            };
+            setBar('day-pct',  'day-fill',  dayProgress(now));
+            setBar('week-pct', 'week-fill', weekProgress(now));
+            setBar('year-pct', 'year-fill', yearProgress(now));
+        }
+
+        // === gallery ===
+        const CLOUDINARY_CLOUD = 'decfdmwnw';
+        const CLOUDINARY_TAG = 'gallery';
+
+        function cloudinaryUrl(publicId, format, transforms) {
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${transforms}/${publicId}.${format}`;
+        }
+
+        async function loadGalleryPhoto() {
+            try {
+                const res = await fetch(`https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${CLOUDINARY_TAG}.json`);
+                if (!res.ok) throw new Error('gallery list failed');
+                const data = await res.json();
+                const photos = data.resources || [];
+                if (photos.length === 0) {
+                    document.querySelector('.widget-gallery').style.display = 'none';
+                    return;
+                }
+                const pick = photos[Math.floor(Math.random() * photos.length)];
+                const img = $('gallery-img');
+                img.onload = () => img.classList.add('loaded');
+                img.src = cloudinaryUrl(pick.public_id, pick.format, 'f_auto,q_auto,c_fill,w_600,h_600');
+            } catch {
+                document.querySelector('.widget-gallery').style.display = 'none';
+            }
         }
 
         // === sun ===
@@ -1021,19 +1162,16 @@
                 userLocation = { lat: 43.6532, lon: -79.3832 };
                 $('weather-meta').textContent = 'Geolocation unsupported';
                 loadWeather(userLocation.lat, userLocation.lon);
-                loadBikeShare();
                 return;
             }
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     userLocation = { lat: pos.coords.latitude, lon: pos.coords.longitude };
                     loadWeather(userLocation.lat, userLocation.lon);
-                    loadBikeShare();
                 },
                 () => {
                     userLocation = { lat: 43.6532, lon: -79.3832 };
                     loadWeather(userLocation.lat, userLocation.lon);
-                    loadBikeShare();
                 },
                 { timeout: 8000, maximumAge: 1000 * 60 * 30 }
             );
@@ -1284,41 +1422,32 @@
             }
         }
 
-        // === bike share (Toronto) ===
-        function distanceKm(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const toRad = (d) => d * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLon = toRad(lon2 - lon1);
-            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-            return 2 * R * Math.asin(Math.sqrt(a));
+        // === moon phase (purely from date, no API) ===
+        // Reference new moon: 2000-01-06 18:14 UTC. Synodic period: 29.530588853 days.
+        const MOON_PHASES = [
+            { emoji: '🌑', name: 'New Moon' },
+            { emoji: '🌒', name: 'Waxing Crescent' },
+            { emoji: '🌓', name: 'First Quarter' },
+            { emoji: '🌔', name: 'Waxing Gibbous' },
+            { emoji: '🌕', name: 'Full Moon' },
+            { emoji: '🌖', name: 'Waning Gibbous' },
+            { emoji: '🌗', name: 'Last Quarter' },
+            { emoji: '🌘', name: 'Waning Crescent' },
+        ];
+        function moonPhaseFor(date) {
+            const knownNew = Date.UTC(2000, 0, 6, 18, 14);
+            const days = (date.getTime() - knownNew) / 86400000;
+            let phase = (days / 29.530588853) % 1;
+            if (phase < 0) phase += 1;
+            const illumination = (1 - Math.cos(phase * 2 * Math.PI)) / 2;
+            const idx = Math.round(phase * 8) % 8;
+            return { phase, illumination, ...MOON_PHASES[idx] };
         }
-
-        async function loadBikeShare() {
-            if (!userLocation) return;
-            try {
-                const res = await fetch('/.netlify/functions/bikeShareToronto');
-                if (!res.ok) throw new Error('bike share fetch failed');
-                const data = await res.json();
-                if (!data.stations || data.stations.length === 0) throw new Error('no stations');
-                let nearest = null;
-                let nearestDist = Infinity;
-                for (const s of data.stations) {
-                    const d = distanceKm(userLocation.lat, userLocation.lon, s.lat, s.lon);
-                    if (d < nearestDist) {
-                        nearestDist = d;
-                        nearest = s;
-                    }
-                }
-                if (!nearest) throw new Error('no nearest');
-                $('bike-station').textContent = nearest.name;
-                $('bike-bikes').textContent = nearest.bikes;
-                $('bike-docks').textContent = nearest.docks;
-                $('bike-meta').textContent = `${(nearestDist * 1000).toFixed(0)} m away`;
-            } catch {
-                $('bike-station').textContent = 'Unavailable';
-                $('bike-meta').textContent = '';
-            }
+        function renderMoon() {
+            const m = moonPhaseFor(new Date());
+            $('moon-emoji').textContent = m.emoji;
+            $('moon-name').textContent = m.name;
+            $('moon-illum').textContent = `${Math.round(m.illumination * 100)}% illuminated`;
         }
 
         // === hacker news ===
@@ -1359,7 +1488,7 @@
         function tick() {
             renderClock();
             renderDate();
-            renderYearProgress();
+            renderClockProgress();
             renderSun();
             tickSpotifyProgress();
         }
@@ -1370,11 +1499,12 @@
         getLocation();
         setInterval(() => userLocation && loadWeather(userLocation.lat, userLocation.lon), 1000 * 60 * 15);
 
+        renderMoon(); setInterval(renderMoon, 1000 * 60 * 60); // re-evaluate hourly
         loadSpotify(); setInterval(loadSpotify, 1000 * 30);
         loadStrava();  setInterval(loadStrava,  1000 * 60 * 5);
         loadGitHub();  setInterval(loadGitHub,  1000 * 60 * 5);
-        setInterval(loadBikeShare, 1000 * 60 * 2);
         loadHackerNews(); setInterval(loadHackerNews, 1000 * 60 * 5);
+        loadGalleryPhoto(); setInterval(loadGalleryPhoto, 1000 * 60 * 10);
     </script>
 </body>
 </html>
