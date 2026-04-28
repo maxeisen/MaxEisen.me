@@ -34,7 +34,8 @@ export default async function handler() {
 	};
 
 	try {
-		// Anchor "today" at end-of-day UTC, walk back HEATMAP_WEEKS, snap to Sunday.
+		// Anchor "today" at end-of-day UTC, walk back HEATMAP_WEEKS, snap to Sunday
+		// so the GraphQL response aligns to whole weeks.
 		const today = new Date();
 		const endOfToday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 23, 59, 59));
 		const start = new Date(endOfToday);
@@ -42,18 +43,16 @@ export default async function handler() {
 		start.setUTCDate(start.getUTCDate() - start.getUTCDay());
 		start.setUTCHours(0, 0, 0, 0);
 
-		// commitContributionsByRepository is viewer-only and includes private repos.
-		// We aggregate counts by UTC date server-side; repo identifiers never leave
-		// this function.
+		// Public-only contribution calendar — no extra scope needed beyond default auth.
 		const query = `query($from: DateTime!, $to: DateTime!) {
-			viewer {
+			user(login: "${USERNAME}") {
 				contributionsCollection(from: $from, to: $to) {
-					totalCommitContributions
-					commitContributionsByRepository(maxRepositories: 100) {
-						contributions(first: 100) {
-							nodes {
-								occurredAt
-								commitCount
+					contributionCalendar {
+						totalContributions
+						weeks {
+							contributionDays {
+								date
+								contributionCount
 							}
 						}
 					}
@@ -79,46 +78,31 @@ export default async function handler() {
 			}),
 		]);
 
-		const todayKey = isoDate(endOfToday);
-		const commitsByDate = new Map(); // UTC ISO date → count
+		// Heatmap: array of weeks (oldest → newest), each with 7 days (Sun → Sat)
+		let heatmapWeeks = [];
 		let total = 0;
-
+		const todayKey = isoDate(endOfToday);
 		if (contribRes.ok) {
 			const contrib = await contribRes.json();
-			const collection = contrib?.data?.viewer?.contributionsCollection;
-			const repos = collection?.commitContributionsByRepository || [];
-			for (const r of repos) {
-				for (const node of (r.contributions?.nodes || [])) {
-					const date = (node.occurredAt || "").slice(0, 10);
-					if (!date) continue;
-					commitsByDate.set(date, (commitsByDate.get(date) || 0) + (node.commitCount || 0));
-				}
+			const calendar = contrib?.data?.user?.contributionsCollection?.contributionCalendar;
+			total = calendar?.totalContributions || 0;
+			heatmapWeeks = (calendar?.weeks || []).map((w) => ({
+				days: w.contributionDays.map((d) => ({
+					date: d.date,
+					count: d.contributionCount,
+					future: d.date > todayKey,
+				})),
+			}));
+			if (heatmapWeeks.length > HEATMAP_WEEKS) {
+				heatmapWeeks = heatmapWeeks.slice(heatmapWeeks.length - HEATMAP_WEEKS);
 			}
-			total = collection?.totalCommitContributions || 0;
 		} else {
 			console.error("GitHub GraphQL failed:", contribRes.status);
 		}
 
-		// Build heatmap from the per-repo commit map.
-		const heatmapWeeks = [];
-		for (let w = 0; w < HEATMAP_WEEKS; w++) {
-			const days = [];
-			for (let d = 0; d < 7; d++) {
-				const cell = new Date(start);
-				cell.setUTCDate(start.getUTCDate() + w * 7 + d);
-				const key = isoDate(cell);
-				days.push({
-					date: key,
-					count: commitsByDate.get(key) || 0,
-					future: key > todayKey,
-				});
-			}
-			heatmapWeeks.push({ days });
-		}
-
 		// 7-day total derived from the heatmap so it matches the visible cells.
-		const flat = heatmapWeeks.flatMap((w) => w.days);
-		const last7Total = flat.slice(-7).reduce((acc, d) => acc + (d.future ? 0 : d.count), 0);
+		const last7 = heatmapWeeks.flatMap((w) => w.days);
+		const last7Total = last7.slice(-7).reduce((acc, d) => acc + (d.future ? 0 : d.count), 0);
 
 		// Latest push event (public only by API design).
 		let latest = null;
