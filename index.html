@@ -34,7 +34,9 @@ https://github.com/maxeisen/
     <link rel='manifest' href='/manifest.json'>
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link href="/img/icons/site-icons/apple_touch_icon.png" rel="apple-touch-icon">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/img/icons/site-icons/apple_touch_icon.png">
 	<link defer rel="stylesheet" href="/styles/global.css">
 	<link defer rel="stylesheet" href="/styles/index.css">
     <link rel="prefetch alternate stylesheet" title="Maxwell Eisen Resume" href="/styles/resume.css">
@@ -116,6 +118,13 @@ https://github.com/maxeisen/
     </script>
 
     <script type="module" src="/src/main.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
 </head>
 <body>
     <div id="app"></div>

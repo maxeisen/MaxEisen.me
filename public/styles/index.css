@@ -247,7 +247,7 @@ video::-webkit-media-controls-overlay-play-button {
     padding: 24px 32px 0 32px;
     margin-top: auto;
     margin-bottom: auto;
-    margin-left: 60px;
+    margin-left: 100px;
     background: var(--inner-background);
     box-shadow: var(--inner-box-shadow);
     grid-area: profile-section;

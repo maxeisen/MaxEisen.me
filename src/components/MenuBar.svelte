@@ -1,5 +1,4 @@
 <script>
-    var isSafari = window.safari !== undefined;
     window.onscroll = function() {scrollFunction()};
     function scrollFunction() {
         if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
@@ -17,14 +16,18 @@
 <div class="header-container">
     <header id="header">
         <div class="home-icon-container">
-            <a href="/#" aria-label="Home">
-                <img class="home-icon-mobile" src='./img/additional/memoji_cycle_small.gif' width="75px" height="88px" alt="Memoji gif for mobile">
-                <video class="home-icon" poster='./img/additional/memoji_cycle_small.gif' autoplay loop muted playsinline>  
-                    {#if !isSafari}
-                        <source id="icon-video-webm" src='./img/additional/memoji_cycle.webm' type="video/webm">
-                        <source id="icon-video-mp4" src='./img/additional/memoji_cycle.mp4' type="video/mp4">
-                    {/if}
-                </video>
+            <a href="/#" aria-label="Home" class="home-logo-link">
+                <svg class="home-logo" viewBox="0 0 100 100" role="img" aria-label="Max Eisen">
+                    <circle cx="50" cy="50" r="48" fill="var(--main-green)"/>
+                    <text x="50" y="51"
+                          font-family="Fraunces, 'Iowan Old Style', 'Times New Roman', serif"
+                          font-weight="700"
+                          font-size="44"
+                          letter-spacing="-2"
+                          text-anchor="middle"
+                          dominant-baseline="central"
+                          fill="var(--background-one)">ME</text>
+                </svg>
             </a>
         </div>
         <div class="nav-bar" id="nav-bar">
@@ -44,3 +47,14 @@
         </div>
     </header>
 </div>
+
+<style>
+    .home-logo {
+        width: 80px;
+        height: 80px;
+        display: block;
+        transition: transform 0.1s ease-in;
+    }
+    .home-logo:hover { transform: scale(1.15); }
+    .home-logo:active { transform: scale(0.95); }
+</style>

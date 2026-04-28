@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Max Eisen">
+    <circle cx="50" cy="50" r="48" fill="currentColor"/>
+    <text x="50" y="50.5"
+          font-family="Fraunces, 'Iowan Old Style', 'Times New Roman', serif"
+          font-weight="600"
+          font-size="44"
+          letter-spacing="-2"
+          text-anchor="middle"
+          dominant-baseline="central"
+          fill="var(--logo-fg, #1c1a17)">ME</text>
+</svg>

@@ -6,17 +6,19 @@
     "scope": "/",
     "display": "standalone",
     "start_url": "/",
-    "background_color": "#002723",
-    "theme_color": "#002723",
-    "description": "Max Eisen's personal portfolio website",
-    "orientation": "portrait",
+    "background_color": "#1c1a17",
+    "theme_color": "#1c1a17",
+    "description": "Max Eisen's personal portfolio, photo gallery, and ambient dashboard",
+    "orientation": "any",
+    "categories": ["personal", "productivity"],
     "related_applications": [],
     "prefer_related_applications": false,
     "icons": [
         {
             "src": "/img/icons/site-icons/icon-192.png",
             "type": "image/png",
-            "sizes": "192x192"
+            "sizes": "192x192",
+            "purpose": "any"
         },
         {
             "src": "/img/icons/site-icons/icon-512.png",
@@ -25,6 +27,18 @@
             "purpose": "any maskable"
         }
     ],
-    "url": "https://maxeisen.me",
-    "screenshots": []
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "url": "/dashboard",
+            "icons": [{ "src": "/img/icons/site-icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Gallery",
+            "short_name": "Gallery",
+            "url": "/gallery",
+            "icons": [{ "src": "/img/icons/site-icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
 }
