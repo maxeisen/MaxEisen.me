@@ -102,6 +102,15 @@ header a:hover {
     animation: glow 1s ease-in-out infinite alternate;
 }
 
+/* Dim scroll-anchor nav links so the bold page-navigation links stand out. */
+header nav ul li a {
+    opacity: 0.6;
+}
+header nav ul li a:has(b),
+header nav ul li a:hover {
+    opacity: 1;
+}
+
 .nav-bar {
     margin-right: 20px;
     margin-top: 20px;

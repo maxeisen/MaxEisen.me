@@ -294,8 +294,9 @@
         const CLOUDINARY_CLOUD = 'decfdmwnw';
         const CLOUDINARY_TAG = 'gallery';
 
-        function cloudinaryUrl(publicId, format, transforms) {
-            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${transforms}/${publicId}.${format}`;
+        function cloudinaryUrl(publicId, transforms) {
+            // Omit the file extension so f_auto can negotiate WebP/AVIF based on Accept headers.
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${transforms}/${publicId}`;
         }
 
         function escapeHtml(str) {
@@ -329,13 +330,16 @@
                     document.getElementById('gallery-meta').textContent = '0 photos';
                     return;
                 }
-                // Newest first.
-                photos.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                // Randomize order on each load (Fisher-Yates).
+                for (let i = photos.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [photos[i], photos[j]] = [photos[j], photos[i]];
+                }
                 document.getElementById('gallery-meta').textContent =
                     `${photos.length} photo${photos.length === 1 ? '' : 's'}`;
                 grid.innerHTML = photos.map((p) => {
-                    const thumb = cloudinaryUrl(p.public_id, p.format, 'f_auto,q_auto,w_800');
-                    const full = cloudinaryUrl(p.public_id, p.format, 'f_auto,q_auto,w_2400');
+                    const thumb = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_800');
+                    const full = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_2400');
                     const ratio = p.width && p.height ? (p.height / p.width) * 100 : null;
                     const padding = ratio ? `style="padding-bottom: ${ratio.toFixed(2)}%; position: relative;"` : '';
                     const location = p.location ? escapeHtml(p.location) : '';
@@ -358,7 +362,7 @@
                 const prevBtn = document.getElementById('lightbox-prev');
                 const nextBtn = document.getElementById('lightbox-next');
 
-                const fullUrls = photos.map((p) => cloudinaryUrl(p.public_id, p.format, 'f_auto,q_auto,w_2400'));
+                const fullUrls = photos.map((p) => cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_2400'));
                 const locations = photos.map((p) => p.location || '');
                 const spinner = document.getElementById('lightbox-spinner');
                 const caption = document.getElementById('lightbox-caption');

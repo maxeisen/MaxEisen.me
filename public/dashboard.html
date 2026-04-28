@@ -1036,8 +1036,9 @@
         const CLOUDINARY_CLOUD = 'decfdmwnw';
         const CLOUDINARY_TAG = 'gallery';
 
-        function cloudinaryUrl(publicId, format, transforms) {
-            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${transforms}/${publicId}.${format}`;
+        function cloudinaryUrl(publicId, transforms) {
+            // Omit the file extension so f_auto can negotiate WebP/AVIF based on Accept headers.
+            return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${transforms}/${publicId}`;
         }
 
         async function loadGalleryPhoto() {
@@ -1053,7 +1054,7 @@
                 const pick = photos[Math.floor(Math.random() * photos.length)];
                 const img = $('gallery-img');
                 img.onload = () => img.classList.add('loaded');
-                img.src = cloudinaryUrl(pick.public_id, pick.format, 'f_auto,q_auto,c_fill,w_600,h_600');
+                img.src = cloudinaryUrl(pick.public_id, 'f_auto,q_auto,c_fill,g_auto,w_1600,h_1200');
             } catch {
                 document.querySelector('.widget-gallery').style.display = 'none';
             }
@@ -1127,7 +1128,7 @@
             try {
                 const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m,uv_index&daily=sunrise,sunset&timezone=auto&wind_speed_unit=kmh`;
                 const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi`;
-                const geoUrl = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1&language=en&format=json`;
+                const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
                 const [weather, aqi, geo] = await Promise.allSettled([
                     fetchJSON(weatherUrl), fetchJSON(aqiUrl), fetchJSON(geoUrl)
                 ]);
@@ -1142,8 +1143,17 @@
                 if (aqi.status === 'fulfilled') {
                     $('weather-aqi').textContent = aqiBand(aqi.value.current?.european_aqi);
                 }
-                const city = geo.status === 'fulfilled' ? geo.value.results?.[0]?.name : null;
-                $('weather-meta').textContent = city ? city : `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+                let cityLabel = null;
+                if (geo.status === 'fulfilled') {
+                    const g = geo.value;
+                    const place = g.city || g.locality || g.principalSubdivision;
+                    const region = g.principalSubdivision && place !== g.principalSubdivision
+                        ? g.principalSubdivision
+                        : g.countryName;
+                    if (place && region) cityLabel = `${place}, ${region}`;
+                    else if (place) cityLabel = place;
+                }
+                $('weather-meta').textContent = cityLabel || 'Location unavailable';
                 if (weather.value.daily) {
                     sunData = {
                         sunrise: new Date(weather.value.daily.sunrise[0]),
@@ -1504,7 +1514,7 @@
         loadStrava();  setInterval(loadStrava,  1000 * 60 * 5);
         loadGitHub();  setInterval(loadGitHub,  1000 * 60 * 5);
         loadHackerNews(); setInterval(loadHackerNews, 1000 * 60 * 5);
-        loadGalleryPhoto(); setInterval(loadGalleryPhoto, 1000 * 60 * 10);
+        loadGalleryPhoto(); setInterval(loadGalleryPhoto, 1000 * 60 * 2);
     </script>
 </body>
 </html>

@@ -4,9 +4,11 @@
         "emoji": "&#128587;&#8205;&#9794;&#65039;",
         "technologies": "Svelte, Netlify, HTML5, CSS3",
         "year": "2020-Present",
-        "shortDescription": "My personal portfolio website (the one you're currently on), developed from scratch",
+        "shortDescription": "My personal portfolio website (the one you're currently on) — built from scratch and home to a live photo gallery and ambient dashboard",
         "bullets": [
             "A personal portfolio website built from scratch in Svelte to showcase my experience, projects, and skills",
+            "Includes a <a href=\"/gallery\">photo gallery</a> backed by Cloudinary with location metadata, lazy-loaded masonry layout, and an arrow-key lightbox",
+            "Hosts an ambient <a href=\"/dashboard\">dashboard</a> wiring together live Spotify, Strava, GitHub, Hacker News, and weather data via Netlify functions",
             "Continuously iterated on over the years, serving as a living canvas for improving my design and front-end development skills",
             "Deployed via Netlify with automatic builds on every push to the main branch"
         ],

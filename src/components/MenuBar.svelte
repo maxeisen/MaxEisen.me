@@ -37,6 +37,8 @@
                     <li id="nav-bar-item"><a href="#foundations">Foundations</a></li>
                     <!-- <li id="nav-bar-item"><a href="#skills">Skills</a></li> -->
                     <li id="nav-bar-item"><a href="/resume.html"><b>Resume</b></a></li>
+                    <li id="nav-bar-item"><a href="/gallery"><b>Gallery</b></a></li>
+                    <li id="nav-bar-item"><a href="/dashboard"><b>Dashboard</b></a></li>
                 </ul>
             </nav>
         </div>

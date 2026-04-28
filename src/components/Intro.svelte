@@ -229,6 +229,8 @@
         {/snippet}
 
         <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume.html">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
+
+        <p class="intro-extras">While you're here, peek at my <a class="intro-link" href="/gallery">photo gallery</a> or my live <a class="intro-link" href="/dashboard">dashboard</a>.</p>
     </div>
 </div>
 
@@ -318,6 +320,12 @@
 
     .intro-link:hover {
         color: var(--link-hover-colour);
+    }
+
+    .intro-extras {
+        font-size: 0.9em;
+        opacity: 0.75;
+        margin-top: -0.4rem;
     }
 
     .wealthsimple-wrap,
