@@ -953,6 +953,17 @@
             document.documentElement.setAttribute('data-theme', theme);
         })();
 
+        // === back link: prefer history.back() when arriving from the same origin ===
+        document.querySelector('.home-link')?.addEventListener('click', (e) => {
+            try {
+                const fromSameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
+                if (fromSameOrigin && window.history.length > 1) {
+                    e.preventDefault();
+                    window.history.back();
+                }
+            } catch { /* fall through to href="/" */ }
+        });
+
         const $ = (id) => document.getElementById(id);
         const pad = (n) => String(n).padStart(2, '0');
 
