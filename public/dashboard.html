@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <title>Dashboard | MaxEisen.me</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="Max Eisen">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="robots" content="noindex"/>
+    <meta name="theme-color" content="#1c1a17"/>
+    <link rel="canonical" href="https://maxeisen.me/dashboard"/>
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles/global.css">
+    <style>
+        @font-face {
+            font-family: "Inter";
+            font-style: normal;
+            font-weight: 300 700;
+            font-display: swap;
+            src: url(/fonts/inter-latin.woff2) format("woff2");
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        @font-face {
+            font-family: "Fraunces";
+            font-style: normal;
+            font-weight: 500 700;
+            font-display: swap;
+            src: url(/fonts/fraunces-latin.woff2) format("woff2");
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            line-height: 1.4;
+            color: var(--paragraph-colour);
+            background-color: var(--background-one);
+            background-image:
+                radial-gradient(circle at 50% 50%, var(--background-glow) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, var(--background-accent) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, var(--background-two) 0%, transparent 55%),
+                radial-gradient(circle at 50% 50%, var(--background-two) 0%, transparent 60%);
+            background-size: 180% 180%, 200% 200%, 220% 220%, 270% 270%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            animation: drift 25s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
+            16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }
+            33%  { background-position: 45% 25%, 60% 80%, 78% 75%, 48% 22%; }
+            50%  { background-position: 80% 40%, 20% 65%, 38% 62%, 82% 38%; }
+            66%  { background-position: 30% 70%, 75% 30%, 68% 22%, 15% 72%; }
+            83%  { background-position: 65% 20%, 35% 75%, 22% 70%, 72% 45%; }
+            100% { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body { animation: none; }
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: 1.4fr 1fr;
+            gap: 1.25rem;
+            padding: 1.25rem;
+            min-height: 100vh;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .widget {
+            background: var(--inner-background, rgba(0, 0, 0, 0.25));
+            border: 1px solid var(--main-green-translucent);
+            border-radius: 20px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .widget-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .widget-clock { grid-column: span 2; align-items: center; justify-content: center; text-align: center; }
+        .widget-spotify { grid-column: span 2; flex-direction: row; align-items: center; gap: 1.25rem; }
+        .widget-spotify a { text-decoration: none; color: inherit; display: contents; }
+
+        .spotify-art {
+            width: clamp(70px, 9vw, 130px);
+            height: clamp(70px, 9vw, 130px);
+            border-radius: 12px;
+            background: var(--main-green-translucent);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .spotify-art-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--main-green);
+            font-size: 2.5rem;
+        }
+
+        .spotify-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .spotify-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .spotify-status .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--main-green);
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .spotify-track {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.1rem, 1.7vw, 1.7rem);
+            line-height: 1.15;
+            color: var(--header-colour);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .spotify-artist {
+            font-size: 0.95rem;
+            color: var(--paragraph-colour);
+            opacity: 0.8;
+            margin-top: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .spotify-empty {
+            color: var(--paragraph-colour);
+            opacity: 0.55;
+            font-size: 0.95rem;
+        }
+
+        .clock-time {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-feature-settings: "tnum";
+            font-size: clamp(4rem, 14vw, 13rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--header-colour);
+        }
+
+        .clock-meridiem {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            font-size: clamp(1rem, 1.6vw, 1.6rem);
+            margin-left: 0.5em;
+            color: var(--main-green);
+            vertical-align: middle;
+        }
+
+        .date-greeting {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.4rem, 2.4vw, 2.4rem);
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            color: var(--header-colour);
+            margin-bottom: 0.75rem;
+        }
+
+        .date-day {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--header-colour);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .date-full {
+            font-size: 0.95rem;
+            color: var(--paragraph-colour);
+            opacity: 0.75;
+        }
+
+        .weather-temp {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1;
+            color: var(--header-colour);
+            letter-spacing: -0.03em;
+        }
+
+        .weather-row {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin: 0.25rem 0 0.5rem 0;
+        }
+
+        .weather-cond {
+            font-size: 1rem;
+            color: var(--header-colour);
+            text-transform: capitalize;
+        }
+
+        .weather-meta {
+            font-size: 0.85rem;
+            color: var(--paragraph-colour);
+            opacity: 0.7;
+            margin-top: auto;
+        }
+
+        .sun-svg {
+            width: 100%;
+            height: auto;
+            margin: 0.5rem 0 0.75rem 0;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .sun-svg path.sun-arc {
+            stroke: var(--main-green);
+            stroke-width: 1.4;
+            fill: none;
+            opacity: 0.4;
+            stroke-dasharray: 3 4;
+        }
+
+        .sun-svg circle.sun-dot {
+            fill: var(--main-green);
+        }
+
+        .sun-svg line.sun-horizon {
+            stroke: var(--main-green-translucent);
+            stroke-width: 1;
+        }
+
+        .sun-times {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--paragraph-colour);
+        }
+
+        .sun-times .sun-times-label {
+            color: var(--main-green);
+            font-weight: 600;
+            margin-right: 0.4rem;
+        }
+
+        .progress-percent {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            line-height: 1;
+            color: var(--header-colour);
+            letter-spacing: -0.03em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--main-green-translucent);
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 0.75rem 0 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--main-green);
+            border-radius: 999px;
+            transition: width 0.4s ease-out;
+        }
+
+        .progress-context {
+            font-size: 0.85rem;
+            color: var(--paragraph-colour);
+            opacity: 0.75;
+            margin-top: auto;
+        }
+
+        .home-link {
+            position: fixed;
+            top: 1rem;
+            right: 1.25rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            text-decoration: none;
+            opacity: 0.45;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+        .home-link:hover { opacity: 1; }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .widget-clock,
+            .widget-spotify { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <a class="home-link" href="/">← back</a>
+    <div class="dashboard">
+        <div class="widget widget-clock">
+            <div class="clock-time" id="clock-time">--:--:--<span class="clock-meridiem" id="clock-meridiem"></span></div>
+        </div>
+
+        <a class="widget widget-spotify" id="spotify-widget" href="#" target="_blank" rel="noreferrer">
+            <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
+            <div class="spotify-info">
+                <div class="spotify-status" id="spotify-status">Now playing</div>
+                <div class="spotify-track" id="spotify-track">—</div>
+                <div class="spotify-artist" id="spotify-artist">—</div>
+            </div>
+        </a>
+
+        <div class="widget widget-weather">
+            <div class="widget-label">Weather</div>
+            <div class="weather-temp" id="weather-temp">—°</div>
+            <div class="weather-row">
+                <div class="weather-cond" id="weather-cond">—</div>
+            </div>
+            <div class="weather-meta" id="weather-meta">Locating…</div>
+        </div>
+
+        <div class="widget widget-date">
+            <div class="widget-label">Today</div>
+            <div class="date-greeting" id="date-greeting">—</div>
+            <div class="date-day" id="date-day">—</div>
+            <div class="date-full" id="date-full">—</div>
+        </div>
+
+        <div class="widget widget-sun">
+            <div class="widget-label">Sun</div>
+            <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <line class="sun-horizon" x1="0" y1="80" x2="200" y2="80"/>
+                <path class="sun-arc" d="M 10 80 Q 100 -20, 190 80"/>
+                <circle class="sun-dot" id="sun-dot" cx="100" cy="35" r="5"/>
+            </svg>
+            <div class="sun-times">
+                <span><span class="sun-times-label">↑</span><span id="sunrise">—</span></span>
+                <span><span class="sun-times-label">↓</span><span id="sunset">—</span></span>
+            </div>
+        </div>
+
+        <div class="widget widget-year">
+            <div class="widget-label">Year</div>
+            <div class="progress-percent" id="year-percent">—%</div>
+            <div class="progress-bar"><div class="progress-fill" id="year-fill" style="width: 0%"></div></div>
+            <div class="progress-context" id="year-context">—</div>
+        </div>
+    </div>
+
+    <script>
+        // === theme: respect system preference + localStorage from main site ===
+        (function applyTheme() {
+            const saved = localStorage.getItem('theme');
+            const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+
+        // === clock + greeting ===
+        const $ = (id) => document.getElementById(id);
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        function renderClock() {
+            const now = new Date();
+            const hr12 = ((now.getHours() + 11) % 12) + 1;
+            $('clock-time').firstChild.nodeValue = `${pad(hr12)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            $('clock-meridiem').textContent = now.getHours() < 12 ? 'AM' : 'PM';
+        }
+
+        function greetingFor(hour) {
+            if (hour < 5) return 'Late night';
+            if (hour < 12) return 'Good morning';
+            if (hour < 17) return 'Good afternoon';
+            if (hour < 21) return 'Good evening';
+            return 'Late night';
+        }
+
+        function renderDate() {
+            const now = new Date();
+            $('date-greeting').textContent = greetingFor(now.getHours()) + '.';
+            $('date-day').textContent = now.toLocaleDateString(undefined, { weekday: 'long' });
+            $('date-full').textContent = now.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+        }
+
+        // === year + workday progress ===
+        function renderYearProgress() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 1);
+            const end = new Date(now.getFullYear() + 1, 0, 1);
+            const pct = (now - start) / (end - start);
+            const daysLeft = Math.ceil((end - now) / 86400000);
+            $('year-percent').textContent = (pct * 100).toFixed(1) + '%';
+            $('year-fill').style.width = (pct * 100).toFixed(2) + '%';
+            $('year-context').textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left in ${now.getFullYear()}`;
+        }
+
+        // === spotify now playing ===
+        function timeAgo(iso) {
+            const ms = Date.now() - new Date(iso).getTime();
+            const m = Math.round(ms / 60000);
+            if (m < 1) return 'just now';
+            if (m < 60) return `${m}m ago`;
+            const h = Math.round(m / 60);
+            if (h < 24) return `${h}h ago`;
+            const d = Math.round(h / 24);
+            return `${d}d ago`;
+        }
+
+        async function loadSpotify() {
+            const widget = $('spotify-widget');
+            try {
+                const res = await fetch('/.netlify/functions/spotifyNowPlaying');
+                if (res.status === 503) {
+                    // not configured — hide gracefully
+                    widget.style.display = 'none';
+                    return;
+                }
+                if (!res.ok) throw new Error('spotify fetch failed');
+                const data = await res.json();
+                renderSpotify(data);
+            } catch (err) {
+                $('spotify-status').textContent = 'Spotify unavailable';
+                $('spotify-track').textContent = '—';
+                $('spotify-artist').textContent = '';
+            }
+        }
+
+        function renderSpotify(data) {
+            const widget = $('spotify-widget');
+            const artWrap = $('spotify-art-wrap');
+            if (!data || (!data.track && !data.playing)) {
+                $('spotify-status').textContent = 'Nothing playing';
+                $('spotify-track').textContent = '—';
+                $('spotify-artist').textContent = '';
+                widget.removeAttribute('href');
+                return;
+            }
+            if (data.url) {
+                widget.setAttribute('href', data.url);
+            } else {
+                widget.removeAttribute('href');
+            }
+            if (data.albumArt) {
+                artWrap.outerHTML = `<img id="spotify-art-wrap" class="spotify-art" src="${data.albumArt}" alt="${(data.album || data.track || '').replace(/"/g, '&quot;')}"/>`;
+            } else {
+                artWrap.outerHTML = `<div id="spotify-art-wrap" class="spotify-art spotify-art-placeholder">♪</div>`;
+            }
+            const status = $('spotify-status');
+            if (data.playing) {
+                status.innerHTML = `<span class="pulse"></span>Now playing`;
+            } else if (data.playedAt) {
+                status.textContent = `Last played · ${timeAgo(data.playedAt)}`;
+            } else {
+                status.textContent = 'Recently played';
+            }
+            $('spotify-track').textContent = data.track || '—';
+            $('spotify-artist').textContent = data.artist || '';
+        }
+
+        // === sun arc ===
+        let sunData = null; // { sunrise: Date, sunset: Date }
+
+        function bezierPoint(t, p0, p1, p2) {
+            const x = (1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0];
+            const y = (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1];
+            return [x, y];
+        }
+
+        function renderSun() {
+            const dot = $('sun-dot');
+            if (!sunData) return;
+            const now = new Date();
+            const total = sunData.sunset - sunData.sunrise;
+            const elapsed = now - sunData.sunrise;
+            let t = elapsed / total;
+            t = Math.max(0, Math.min(1, t));
+            const [x, y] = bezierPoint(t, [10, 80], [100, -20], [190, 80]);
+            dot.setAttribute('cx', x.toFixed(2));
+            dot.setAttribute('cy', y.toFixed(2));
+            dot.style.opacity = (now < sunData.sunrise || now > sunData.sunset) ? 0.25 : 1;
+            $('sunrise').textContent = sunData.sunrise.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            $('sunset').textContent = sunData.sunset.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        }
+
+        // === weather (Open-Meteo, no key needed) ===
+        // WMO weather code → label/emoji
+        const WMO = {
+            0: ['Clear', '☀️'],
+            1: ['Mainly clear', '🌤️'], 2: ['Partly cloudy', '⛅'], 3: ['Overcast', '☁️'],
+            45: ['Fog', '🌫️'], 48: ['Rime fog', '🌫️'],
+            51: ['Light drizzle', '🌦️'], 53: ['Drizzle', '🌦️'], 55: ['Heavy drizzle', '🌧️'],
+            56: ['Freezing drizzle', '🌧️'], 57: ['Freezing drizzle', '🌧️'],
+            61: ['Light rain', '🌦️'], 63: ['Rain', '🌧️'], 65: ['Heavy rain', '🌧️'],
+            66: ['Freezing rain', '🌧️'], 67: ['Freezing rain', '🌧️'],
+            71: ['Light snow', '🌨️'], 73: ['Snow', '🌨️'], 75: ['Heavy snow', '❄️'],
+            77: ['Snow grains', '🌨️'],
+            80: ['Rain showers', '🌦️'], 81: ['Rain showers', '🌧️'], 82: ['Heavy showers', '⛈️'],
+            85: ['Snow showers', '🌨️'], 86: ['Snow showers', '❄️'],
+            95: ['Thunderstorm', '⛈️'], 96: ['Thunderstorm + hail', '⛈️'], 99: ['Thunderstorm + hail', '⛈️'],
+        };
+
+        async function fetchWeather(lat, lon) {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature&daily=sunrise,sunset&timezone=auto`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('weather fetch failed');
+            return res.json();
+        }
+
+        async function fetchCityName(lat, lon) {
+            try {
+                const url = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1&language=en&format=json`;
+                const res = await fetch(url);
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data.results?.[0]?.name || null;
+            } catch { return null; }
+        }
+
+        async function loadWeather(lat, lon) {
+            try {
+                const [weather, city] = await Promise.all([fetchWeather(lat, lon), fetchCityName(lat, lon)]);
+                const c = weather.current;
+                const code = c.weather_code;
+                const [label, emoji] = WMO[code] || ['—', ''];
+                $('weather-temp').textContent = Math.round(c.temperature_2m) + '°';
+                $('weather-cond').textContent = `${emoji} ${label}`;
+                const feelsLike = Math.round(c.apparent_temperature);
+                const cityLabel = city ? city : `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+                $('weather-meta').textContent = `${cityLabel} · feels like ${feelsLike}°`;
+                if (weather.daily) {
+                    sunData = {
+                        sunrise: new Date(weather.daily.sunrise[0]),
+                        sunset: new Date(weather.daily.sunset[0]),
+                    };
+                    renderSun();
+                }
+            } catch (err) {
+                $('weather-meta').textContent = 'Unable to load weather';
+            }
+        }
+
+        function getLocation() {
+            if (!navigator.geolocation) {
+                $('weather-meta').textContent = 'Geolocation unsupported';
+                // fall back to Toronto
+                loadWeather(43.6532, -79.3832);
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
+                () => {
+                    $('weather-meta').textContent = 'Using default location';
+                    loadWeather(43.6532, -79.3832);
+                },
+                { timeout: 8000, maximumAge: 1000 * 60 * 30 }
+            );
+        }
+
+        // === wire up ===
+        function tick() {
+            renderClock();
+            renderDate();
+            renderYearProgress();
+            renderSun();
+        }
+
+        tick();
+        setInterval(tick, 1000);
+
+        getLocation();
+        setInterval(getLocation, 1000 * 60 * 15);
+
+        loadSpotify();
+        setInterval(loadSpotify, 1000 * 30);
+    </script>
+</body>
+</html>
