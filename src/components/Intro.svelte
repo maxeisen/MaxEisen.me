@@ -233,13 +233,13 @@
 <div class="intro-container" id="intro">
     <h1 class="section-title-intro">Who is Max?</h1>
     <div class="intro-paragraph">
-        <p class="title-extension">I'm a <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">Software Engineer</Annotation> at <span class="wealthsimple-wrap"><a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a><svg class="dollar-sprinkle" class:visible={annotationsVisible} viewBox="-60 -26 120 44" aria-hidden="true">{#each dollars as d}<g transform="translate({d.x} {d.y}) rotate({d.rot}) scale({d.scale})" stroke-width={d.strokeWidth} style="--draw-delay: {d.delay}s"><path d={d.barPath} pathLength="1" /><path d={d.sPath} pathLength="1" /></g>{/each}</svg></span>,
-        a <Annotation bind:visible={annotationsVisible} type="underline" color="var(--intro-annotation-colour)">Computer Science</Annotation> graduate from <span class="queens-wrap"><a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a><svg class="crown-sprinkle" class:visible={annotationsVisible} viewBox="-60 -22 120 36" aria-hidden="true">{#each crowns as c}<g transform="translate({c.x} {c.y}) rotate({c.rot}) scale({c.scale})" stroke-width={c.strokeWidth} style="--draw-delay: {c.delay}s"><path d={c.outlinePath} pathLength="1" /><path d={c.bandPath} pathLength="1" /></g>{/each}</svg></span>,
+        <p class="title-extension">I'm a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">Software Engineer</Annotation></span> at <span class="wealthsimple-wrap"><a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a><svg class="dollar-sprinkle" class:visible={annotationsVisible} viewBox="-60 -26 120 44" aria-hidden="true">{#each dollars as d}<g transform="translate({d.x} {d.y}) rotate({d.rot}) scale({d.scale})" stroke-width={d.strokeWidth} style="--draw-delay: {d.delay}s"><path d={d.barPath} pathLength="1" /><path d={d.sPath} pathLength="1" /></g>{/each}</svg></span>,
+        a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="underline" color="var(--intro-annotation-colour)">Computer Science</Annotation></span> graduate from <span class="queens-wrap"><a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a><svg class="crown-sprinkle" class:visible={annotationsVisible} viewBox="-60 -22 120 36" aria-hidden="true">{#each crowns as c}<g transform="translate({c.x} {c.y}) rotate({c.rot}) scale({c.scale})" stroke-width={c.strokeWidth} style="--draw-delay: {c.delay}s"><path d={c.outlinePath} pathLength="1" /><path d={c.bandPath} pathLength="1" /></g>{/each}</svg></span>,
         and someone who genuinely loves what he does - building things that work, work well, and work at scale.</p>
 
-        <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--intro-annotation-colour)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--intro-annotation-colour)">end to end</Annotation>.</p>
+        <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--intro-annotation-colour)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--intro-annotation-colour)">end to end</Annotation></span>.</p>
 
-        <p>Outside of work, you'll find me <activity tabindex="0" on:click={runModal}>running{@render activityIcon('running')}</activity>, <activity tabindex="0" on:click={cycleModal}>cycling{@render activityIcon('cycling')}</activity>, <activity tabindex="0" on:click={musicModal}>playing guitar{@render activityIcon('guitar')}</activity>, <activity tabindex="0" on:click={droneModal}>flying drones{@render activityIcon('drone')}</activity>,
+        <p class="activities-paragraph">Outside of work, you'll find me <activity tabindex="0" on:click={runModal}>running{@render activityIcon('running')}</activity>, <activity tabindex="0" on:click={cycleModal}>cycling{@render activityIcon('cycling')}</activity>, <activity tabindex="0" on:click={musicModal}>playing guitar{@render activityIcon('guitar')}</activity>, <activity tabindex="0" on:click={droneModal}>flying drones{@render activityIcon('drone')}</activity>,
         <activity tabindex="0" on:click={skiingModal}>skiing{@render activityIcon('skiing')}</activity>, <activity tabindex="0" on:click={hikingModal}>hiking{@render activityIcon('hiking')}</activity>, <activity tabindex="0" on:click={travellingModal}>travelling{@render activityIcon('travelling')}</activity>, or tinkering with <activity tabindex="0" on:click={techModal}>cool technology{@render activityIcon('tech')}</activity>.</p>
 
         {#snippet activityIcon(key)}
@@ -276,6 +276,14 @@
         line-height: 1.5;
     }
 
+    .nowrap {
+        white-space: nowrap;
+    }
+
+    .intro-paragraph .activities-paragraph {
+        line-height: 1.95;
+    }
+
     activity {
         position: relative;
         display: inline-block;
@@ -290,7 +298,7 @@
     .activity-icon {
         position: absolute;
         left: 50%;
-        bottom: calc(100% - 8px);
+        bottom: calc(100% - 14px);
         transform: translateX(-50%);
         width: 1.5em;
         height: 1.5em;

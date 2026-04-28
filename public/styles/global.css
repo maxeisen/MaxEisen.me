@@ -85,3 +85,36 @@
     --modal-link-colour: #004574;
     --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0);
 }
+
+/* === Modern neutral palette: warm sand + sage === */
+[data-theme="dark"] {
+    --main-green: #b8a888;
+    --main-green-translucent: rgba(184, 168, 136, 0.3);
+    --background-one: #1c1a17;
+    --background-two: #0d0c0a;
+    --background-accent: #3d2a18;
+    --background-glow: #4a3a55;
+
+    --intro-link-colour: #e8dcc8;
+    --headshot-glow: rgba(232, 220, 200, 0.28);
+    --intro-annotation-colour: rgba(184, 168, 136, 0.35);
+    --intro-highlight-colour: rgba(184, 168, 136, 0.18);
+
+    --modal-link-colour: #e8dcc8;
+}
+
+[data-theme="light"] {
+    --main-green: #6b7a5a;
+    --main-green-translucent: rgba(107, 122, 90, 0.3);
+    --background-one: #f0e7d6;
+    --background-two: #d8c9a3;
+    --background-accent: #b8c4a3;
+    --background-glow: #e6c8a8;
+
+    --intro-link-colour: #2a3528;
+    --headshot-glow: rgba(60, 70, 50, 0.18);
+    --intro-annotation-colour: rgba(107, 122, 90, 0.5);
+    --intro-highlight-colour: rgba(107, 122, 90, 0.2);
+
+    --modal-link-colour: #3d4a35;
+}
