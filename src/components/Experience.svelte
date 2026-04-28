@@ -34,7 +34,7 @@
 <h1 class="section-title" id="experience" style="text-align: left;">Experience</h1>
 <div class="experience-subsection">
     {#each sortedExperience as exp}
-		<div class="experience-item {isCurrent(exp) ? 'experience-item--current' : ''}" tabindex="0" use:tilt={{ max: 11, scale: 1.03 }}
+		<div class="experience-item {isCurrent(exp) ? 'experience-item--current' : ''}" tabindex="0" use:tilt={{ max: isCurrent(exp) ? 3 : 12, scale: 1.03 }}
         on:click={() => experienceModal(exp.position, exp.company, exp.companyLink, exp.startDate, exp.endDate, exp.location, exp.bullets)}>
             {#if isCurrent(exp)}
                 <span class="experience-current-badge" aria-label="Current role">Current</span>

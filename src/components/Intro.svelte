@@ -121,11 +121,10 @@
     };
 
     const buildActivityIcons = () => {
-        const order = ['running', 'cycling', 'guitar', 'drone', 'skiing', 'hiking', 'travelling', 'tech'];
         const icons = {};
-        order.forEach((key, i) => {
-            icons[key] = {
-                paths: iconBuilders[key](),
+        activities.forEach((a, i) => {
+            icons[a.icon] = {
+                paths: iconBuilders[a.icon](),
                 strokeWidth: +rand(1.3, 1.9).toFixed(2),
                 rot: +rand(-12, 12).toFixed(1),
                 scale: +rand(0.9, 1.05).toFixed(2),
@@ -144,90 +143,66 @@
         }, 250);
     });
 
-    const appstorereviewers = {
-        video: "https://www.youtube.com/embed/1raFNOEm5rA?start=171&",
-        description: "A compilation from my old iOS app reviewing YouTube channel, <a href=\"https://www.youtube.com/user/AppStoreReviewers/videos\" rel=\"noreferrer\" target=\"_blank\">AppStoreReviewers</a> (~79,000 viewers strong)"
-    };
-    const run = {
-        image: "run",
-        description: "Me running the 2025 Toronto Waterfront Half Marathon</iframe>"
-    };
-    const cycle = {
-        image: "cycle2",
-        description: "Me crossing the finish line of the 122km <a href=\"https://www.rbcgranfondo.com/whistler/\" rel=\"noreferrer\" target=\"_blank\"> 2023 GranFondo Whistler</a> and my latest rides (below)</br></br><iframe height='160' width='85%' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/92118908/activity-summary/dc478a7fc29bd0ba2e32f9cf7fb702d2f7e31df4'></iframe>"
-    };
-    const drone = {
-        video: "https://www.youtube.com/embed/fULlZkgpw50?",
-        description: "A promotional spot that I shot and edited of the new GV70 from <a href=\"https://www.genesisyorkdale.ca/\" rel=\"noreferrer\" target=\"_blank\">Genesis Yorkdale</a>"
-    };
-    const music = {
-        image: "guitar",
-        description: "Me playing guitar... duh"
-        // audio: "./media/audio/helplessly_hoping-max_eisen.mp3",
-        // description: "My cover of <a href=\"https://www.youtube.com/watch?v=kyquqw6GeXk\" rel=\"noreferrer\" target=\"_blank\">'Helplessly Hoping' by CSN</a>"
-    };
-    const skiing = {
-        image: "ski",
-        description: "Whistler, BC"
-    };
-    const hiking = {
-        image: "hike",
-        description: "Lake Country, BC"
-    };
-    const travelling = {
-        image: "travel2",
-        description: "St. Barths"
-    };
-    const tech = {
-        image: "frc",
-        description: "Captaining my high school robotics team at the 2016 FIRST Robotics Competition",
-    };
+    const openActivityModal = (modalProps) => open(ActivityModal, modalProps);
 
-    const appstorereviewersModal = () => {
-        open(ActivityModal, {
-            video: appstorereviewers.video, description: appstorereviewers.description
-        });
-    };
-    const runModal = () => {
-        open(ActivityModal, {
-            image: run.image, description: run.description
-        });
-    };
-    const cycleModal = () => {
-        open(ActivityModal, {
-            image: cycle.image, description: cycle.description
-        });
-    };
-    const droneModal = () => {
-        open(ActivityModal, {
-            video: drone.video, description: drone.description
-        });
-    };
-    const musicModal = () => {
-        open(ActivityModal, {
-            image: music.image, audio: music.audio, description: music.description
-        });
-    };
-    const skiingModal = () => {
-        open(ActivityModal, {
-            image: skiing.image, description: skiing.description
-        });
-    };
-    const hikingModal = () => {
-        open(ActivityModal, {
-            image: hiking.image, description: hiking.description
-        });
-    };
-    const travellingModal = () => {
-        open(ActivityModal, {
-            image: travelling.image, description: travelling.description
-        });
-    };
-    const techModal = () => {
-        open(ActivityModal, {
-            image: tech.image, description: tech.description
-        });
-    };    
+    // Single source of truth for the hobbies sentence: each entry drives the
+    // displayed text, click handler/modal, scribble icon, and stagger delay.
+    // Reorder this array to reorder everything.
+    const activities = [
+        {
+            label: 'running',
+            icon: 'running',
+            modal: {
+                image: 'run',
+                description: 'Running the 2025 <a href="https://www.torontowaterfrontmarathon.com/" rel="noreferrer" target="_blank">Toronto Waterfront Half Marathon</a>'
+            }
+        },
+        {
+            label: 'cycling',
+            icon: 'cycling',
+            modal: {
+                image: 'cycle',
+                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">GranFondo Whistler</a></br></br><iframe height=\'160\' width=\'85%\' frameborder=\'0\' allowtransparency=\'true\' scrolling=\'no\' src=\'https://www.strava.com/athletes/92118908/activity-summary/dc478a7fc29bd0ba2e32f9cf7fb702d2f7e31df4\'></iframe>'
+            }
+        },
+        {
+            label: 'skiing',
+            icon: 'skiing',
+            modal: { image: 'ski', description: 'Skiing in Whistler, BC' }
+        },
+        {
+            label: 'hiking',
+            icon: 'hiking',
+            modal: { image: 'hike', description: 'Hiking in Bergen, Norway' }
+        },
+        {
+            label: 'travelling',
+            icon: 'travelling',
+            modal: {
+                image: 'travel',
+                description: 'Post-landing at <a href="https://en.wikipedia.org/wiki/Gustaf_III_Airport" rel="noreferrer" target="_blank">Gustaf III Airport</a> in a DHC-6 Twin Otter'
+            }
+        },
+        {
+            label: 'playing guitar',
+            icon: 'guitar',
+            modal: { image: 'guitar', description: 'Playing guitar... duh' }
+        },
+        {
+            label: 'flying drones',
+            icon: 'drone',
+            modal: {
+                video: 'https://www.youtube.com/embed/fULlZkgpw50?',
+                description: 'A promotional spot of the GV70 for <a href="https://www.genesisyorkdale.ca/" rel="noreferrer" target="_blank">Genesis Yorkdale</a>'
+            }
+        },
+        {
+            label: 'cool technology',
+            icon: 'tech',
+            modal: { image: 'frc', description: '2016 FIRST Robotics Competition' },
+            separator: ', or tinkering with '
+        },
+    ];
 </script>
 
 <div class="intro-container" id="intro">
@@ -239,8 +214,7 @@
 
         <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--intro-annotation-colour)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--intro-annotation-colour)">end to end</Annotation></span>.</p>
 
-        <p class="activities-paragraph">Outside of work, you'll find me <activity tabindex="0" on:click={runModal}>running{@render activityIcon('running')}</activity>, <activity tabindex="0" on:click={cycleModal}>cycling{@render activityIcon('cycling')}</activity>, <activity tabindex="0" on:click={musicModal}>playing guitar{@render activityIcon('guitar')}</activity>, <activity tabindex="0" on:click={droneModal}>flying drones{@render activityIcon('drone')}</activity>,
-        <activity tabindex="0" on:click={skiingModal}>skiing{@render activityIcon('skiing')}</activity>, <activity tabindex="0" on:click={hikingModal}>hiking{@render activityIcon('hiking')}</activity>, <activity tabindex="0" on:click={travellingModal}>travelling{@render activityIcon('travelling')}</activity>, or tinkering with <activity tabindex="0" on:click={techModal}>cool technology{@render activityIcon('tech')}</activity>.</p>
+        <p class="activities-paragraph">Outside of work, you'll find me {#each activities as a, i}{#if i > 0}{a.separator ?? ', '}{/if}<activity tabindex="0" on:click={() => openActivityModal(a.modal)}>{a.label}{@render activityIcon(a.icon)}</activity>{/each}.</p>
 
         {#snippet activityIcon(key)}
             {#if activityIcons[key]}
@@ -418,10 +392,6 @@
         .crown-sprinkle,
         .activity-icon {
             display: none;
-        }
-
-        :global(.intro-container .rough-annotation) {
-            display: none !important;
         }
     }
 </style>

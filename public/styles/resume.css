@@ -728,6 +728,25 @@ a.company-long {
 
     .in-left-hobbies {
         border-bottom: none;
+        text-align: center;
+    }
+
+    .in-left-hobbies ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 6px 0 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px 14px;
+    }
+
+    .in-left-hobbies li::before {
+        display: none;
+    }
+
+    .in-left-hobbies li {
+        display: inline-block;
     }
 
     .social-placeholder, .qtma-title-compressed {
