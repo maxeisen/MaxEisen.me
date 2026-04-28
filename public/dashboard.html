@@ -680,6 +680,28 @@
             z-index: 10;
         }
         .home-link:hover { opacity: 1; }
+        .home-link-arrow { display: none; }
+
+        @media (max-width: 700px) {
+            .home-link {
+                top: 0.5rem;
+                right: 0.75rem;
+                font-size: 1.1rem;
+                width: 2rem;
+                height: 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--inner-background, rgba(0, 0, 0, 0.25));
+                border: 1px solid var(--main-green-translucent);
+                border-radius: 50%;
+                opacity: 0.7;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            .home-link-text { display: none; }
+            .home-link-arrow { display: block; }
+        }
 
         @media (max-width: 1100px) {
             .dashboard {
@@ -704,7 +726,10 @@
     </style>
 </head>
 <body>
-    <a class="home-link" href="/">← back</a>
+    <a class="home-link" href="/" aria-label="Back to homepage">
+        <span class="home-link-text">← back</span>
+        <span class="home-link-arrow" aria-hidden="true">←</span>
+    </a>
     <div class="dashboard">
         <!-- Row 1: Clock + Date · Spotify -->
         <div class="widget widget-clock">
