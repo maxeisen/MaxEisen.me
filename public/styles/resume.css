@@ -265,7 +265,7 @@ a:hover {
 }
 
 .logical-and:hover {
-    color: #00bba2;
+    color: var(--main-green);
 }
 
 .out-grid-container {
@@ -549,10 +549,10 @@ a.company-long {
 
 @keyframes constantGlow {
     from {
-      text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #00bba22f, 0 0 5px #00bba22f, 0 0 6px #00bba22f, 0 0 7px #00bba22f, 0 0 8px #00bba22f;
+      text-shadow: 0 0 2px #fff, 0 0 3px #fff, 0 0 4px #b8a8882f, 0 0 5px #b8a8882f, 0 0 6px #b8a8882f, 0 0 7px #b8a8882f, 0 0 8px #b8a8882f;
     }
     to {
-      text-shadow: 0 0 px #fff, 0 0 2px #02ffdd2f, 0 0 3px #02ffdd4d, 0 0 4px #02ffdd4d, 0 0 5px #02ffdd4d, 0 0 6px #02ffdd4d, 0 0 7px #02ffdd4d;
+      text-shadow: 0 0 px #fff, 0 0 2px #e8dcc82f, 0 0 3px #e8dcc84d, 0 0 4px #e8dcc84d, 0 0 5px #e8dcc84d, 0 0 6px #e8dcc84d, 0 0 7px #e8dcc84d;
     }
 }
 
@@ -572,7 +572,7 @@ a.company-long {
 
 @media print {
     :root {
-        --main-green: #00bba2;
+        --main-green: #6b7a5a;
     }
 
     * {
