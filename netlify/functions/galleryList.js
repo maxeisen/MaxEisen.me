@@ -22,9 +22,23 @@ export default async function handler() {
 	const apiKey = getEnv("CLOUDINARY_API_KEY");
 	const apiSecret = getEnv("CLOUDINARY_API_SECRET");
 	if (!apiKey || !apiSecret) {
-		const cloudinaryVarNames = Object.keys(process.env || {})
-			.filter((k) => k.toLowerCase().includes("cloudinary"))
+		const cloudyProcessEnv = Object.keys(process.env || {})
+			.filter((k) => k.toLowerCase().includes("cloud") || k.toLowerCase().includes("cld"))
 			.sort();
+		let netlifyEnvNames = null;
+		try {
+			if (typeof Netlify !== "undefined" && Netlify.env?.toObject) {
+				netlifyEnvNames = Object.keys(Netlify.env.toObject() || {})
+					.filter((k) => k.toLowerCase().includes("cloud") || k.toLowerCase().includes("cld"))
+					.sort();
+			} else if (typeof Netlify !== "undefined" && Netlify.env?.list) {
+				netlifyEnvNames = Object.keys(Netlify.env.list() || {})
+					.filter((k) => k.toLowerCase().includes("cloud") || k.toLowerCase().includes("cld"))
+					.sort();
+			}
+		} catch {
+			netlifyEnvNames = "list_unavailable";
+		}
 		return jsonResponse(
 			{
 				error: "not_configured",
@@ -33,7 +47,8 @@ export default async function handler() {
 					processEnvKeyCount: Object.keys(process.env || {}).length,
 					keyFound: !!apiKey,
 					secretFound: !!apiSecret,
-					cloudinaryEnvNames: cloudinaryVarNames,
+					cloudyProcessEnvNames: cloudyProcessEnv,
+					cloudyNetlifyEnvNames: netlifyEnvNames,
 				},
 			},
 			503,
