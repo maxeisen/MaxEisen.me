@@ -31,12 +31,7 @@
 
         *, *::before, *::after { box-sizing: border-box; }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            min-height: 100vh;
-        }
+        html, body { margin: 0; padding: 0; height: 100%; min-height: 100vh; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -65,14 +60,12 @@
             100% { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            body { animation: none; }
-        }
+        @media (prefers-reduced-motion: reduce) { body { animation: none; } }
 
         .dashboard {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: 1.4fr 1fr;
+            grid-template-rows: 1.3fr 1fr 0.85fr;
             gap: 1.25rem;
             padding: 1.25rem;
             min-height: 100vh;
@@ -81,15 +74,17 @@
         }
 
         .widget {
+            position: relative;
             background: var(--inner-background, rgba(0, 0, 0, 0.25));
             border: 1px solid var(--main-green-translucent);
             border-radius: 20px;
-            padding: 1.75rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             min-height: 0;
+            min-width: 0;
             overflow: hidden;
         }
 
@@ -102,9 +97,79 @@
             margin-bottom: 0.5rem;
         }
 
-        .widget-clock { grid-column: span 2; align-items: center; justify-content: center; text-align: center; }
-        .widget-spotify { grid-column: span 2; flex-direction: row; align-items: center; gap: 1.25rem; }
-        .widget-spotify a { text-decoration: none; color: inherit; display: contents; }
+        .span-2 { grid-column: span 2; }
+
+        /* === clock + date (combined) === */
+        .widget-clock {
+            grid-column: span 2;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .clock-time {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-feature-settings: "tnum";
+            font-size: clamp(3.5rem, 12vw, 11rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--header-colour);
+        }
+
+        .clock-meridiem {
+            font-family: 'Fraunces', serif;
+            font-weight: 500;
+            font-size: clamp(0.9rem, 1.4vw, 1.4rem);
+            margin-left: 0.4em;
+            color: var(--main-green);
+            vertical-align: middle;
+        }
+
+        .clock-meta {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 0.25rem;
+        }
+
+        .clock-greeting {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.1rem, 1.9vw, 1.9rem);
+            letter-spacing: -0.02em;
+            color: var(--header-colour);
+        }
+
+        .clock-date {
+            font-size: 0.95rem;
+            color: var(--paragraph-colour);
+            opacity: 0.7;
+        }
+
+        /* === spotify === */
+        .widget-spotify {
+            grid-column: span 2;
+            flex-direction: row;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .spotify-main {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 1.25rem;
+            text-decoration: none;
+            color: inherit;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .spotify-main * { text-decoration: none; }
 
         .spotify-art {
             width: clamp(70px, 9vw, 130px);
@@ -123,13 +188,7 @@
             font-size: 2.5rem;
         }
 
-        .spotify-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-width: 0;
-            flex: 1;
-        }
+        .spotify-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; flex: 1; }
 
         .spotify-status {
             font-size: 0.7rem;
@@ -144,9 +203,7 @@
         }
 
         .spotify-status .pulse {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+            width: 8px; height: 8px; border-radius: 50%;
             background: var(--main-green);
             animation: pulse 1.6s ease-in-out infinite;
         }
@@ -163,9 +220,7 @@
             line-height: 1.15;
             color: var(--header-colour);
             letter-spacing: -0.02em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         .spotify-artist {
@@ -173,59 +228,33 @@
             color: var(--paragraph-colour);
             opacity: 0.8;
             margin-top: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .spotify-empty {
-            color: var(--paragraph-colour);
-            opacity: 0.55;
-            font-size: 0.95rem;
-        }
-
-        .clock-time {
-            font-family: 'Fraunces', serif;
+        .spotify-profile-link {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.85rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            font-feature-settings: "tnum";
-            font-size: clamp(4rem, 14vw, 13rem);
-            line-height: 1;
-            letter-spacing: -0.04em;
-            color: var(--header-colour);
-        }
-
-        .clock-meridiem {
-            font-family: 'Fraunces', serif;
-            font-weight: 500;
-            font-size: clamp(1rem, 1.6vw, 1.6rem);
-            margin-left: 0.5em;
+            letter-spacing: 0.06em;
             color: var(--main-green);
-            vertical-align: middle;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+            z-index: 2;
+        }
+        .spotify-profile-link:hover { opacity: 1; }
+
+        /* === weather + sun (combined) === */
+        .widget-weather {
+            grid-column: span 2;
+            flex-direction: row;
+            gap: 1.25rem;
         }
 
-        .date-greeting {
-            font-family: 'Fraunces', serif;
-            font-weight: 600;
-            font-size: clamp(1.4rem, 2.4vw, 2.4rem);
-            line-height: 1.05;
-            letter-spacing: -0.02em;
-            color: var(--header-colour);
-            margin-bottom: 0.75rem;
-        }
-
-        .date-day {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--header-colour);
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-        }
-
-        .date-full {
-            font-size: 0.95rem;
-            color: var(--paragraph-colour);
-            opacity: 0.75;
-        }
+        .weather-left { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .weather-right { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
         .weather-temp {
             font-family: 'Fraunces', serif;
@@ -236,32 +265,35 @@
             letter-spacing: -0.03em;
         }
 
-        .weather-row {
-            display: flex;
-            align-items: baseline;
-            gap: 0.75rem;
-            margin: 0.25rem 0 0.5rem 0;
-        }
-
         .weather-cond {
             font-size: 1rem;
             color: var(--header-colour);
-            text-transform: capitalize;
+            margin-top: 0.4rem;
         }
 
-        .weather-meta {
-            font-size: 0.85rem;
-            color: var(--paragraph-colour);
-            opacity: 0.7;
+        .weather-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem 1rem;
             margin-top: auto;
+            padding-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+        .weather-stat-label { color: var(--main-green); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.65rem; }
+        .weather-stat-value { color: var(--paragraph-colour); }
+
+        .weather-meta {
+            font-size: 0.8rem;
+            color: var(--paragraph-colour);
+            opacity: 0.65;
+            margin-top: 0.4rem;
         }
 
         .sun-svg {
             width: 100%;
             height: auto;
-            margin: 0.5rem 0 0.75rem 0;
-            flex: 1 1 auto;
-            min-height: 0;
+            max-height: 100px;
+            margin: 0 0 0.5rem 0;
         }
 
         .sun-svg path.sun-arc {
@@ -271,33 +303,78 @@
             opacity: 0.4;
             stroke-dasharray: 3 4;
         }
+        .sun-svg circle.sun-dot { fill: var(--main-green); }
+        .sun-svg line.sun-horizon { stroke: var(--main-green-translucent); stroke-width: 1; }
 
-        .sun-svg circle.sun-dot {
-            fill: var(--main-green);
+        .sun-times { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--paragraph-colour); margin-top: auto; }
+        .sun-times-label { color: var(--main-green); font-weight: 600; margin-right: 0.4rem; }
+
+        /* === strava === */
+        .widget-strava {
+            grid-column: span 2;
+            flex-direction: row;
+            align-items: center;
+            gap: 1.25rem;
+            text-decoration: none;
+            color: inherit;
         }
+        .widget-strava * { text-decoration: none; }
 
-        .sun-svg line.sun-horizon {
-            stroke: var(--main-green-translucent);
-            stroke-width: 1;
-        }
-
-        .sun-times {
+        .strava-icon {
+            width: clamp(70px, 9vw, 130px);
+            height: clamp(70px, 9vw, 130px);
+            border-radius: 12px;
+            background: var(--main-green-translucent);
             display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
+            align-items: center;
+            justify-content: center;
+            color: var(--main-green);
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .strava-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; flex: 1; }
+
+        .strava-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            margin-bottom: 0.4rem;
+        }
+
+        .strava-name {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.1rem, 1.7vw, 1.7rem);
+            line-height: 1.15;
+            color: var(--header-colour);
+            letter-spacing: -0.02em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .strava-stats {
+            display: flex;
+            gap: 1.25rem;
+            margin-top: 0.4rem;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
             color: var(--paragraph-colour);
         }
-
-        .sun-times .sun-times-label {
-            color: var(--main-green);
+        .strava-stat strong {
+            font-family: 'Fraunces', serif;
             font-weight: 600;
-            margin-right: 0.4rem;
+            color: var(--header-colour);
+            font-size: 1.05rem;
+            margin-right: 0.25rem;
         }
 
+        /* === year progress === */
         .progress-percent {
             font-family: 'Fraunces', serif;
             font-weight: 600;
-            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-size: clamp(1.6rem, 3vw, 2.6rem);
             line-height: 1;
             color: var(--header-colour);
             letter-spacing: -0.03em;
@@ -305,11 +382,11 @@
 
         .progress-bar {
             width: 100%;
-            height: 6px;
+            height: 5px;
             background: var(--main-green-translucent);
             border-radius: 999px;
             overflow: hidden;
-            margin: 0.75rem 0 0.5rem 0;
+            margin: 0.5rem 0 0.4rem 0;
         }
 
         .progress-fill {
@@ -320,10 +397,120 @@
         }
 
         .progress-context {
+            font-size: 0.78rem;
+            color: var(--paragraph-colour);
+            opacity: 0.7;
+            margin-top: auto;
+        }
+
+        /* === github === */
+        .widget-github { text-decoration: none; color: inherit; }
+        .widget-github * { text-decoration: none; }
+
+        .github-repo {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--header-colour);
+            letter-spacing: -0.02em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .github-message {
             font-size: 0.85rem;
             color: var(--paragraph-colour);
-            opacity: 0.75;
+            opacity: 0.85;
+            margin-top: 0.35rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .github-meta {
+            font-size: 0.75rem;
+            color: var(--paragraph-colour);
+            opacity: 0.6;
             margin-top: auto;
+            padding-top: 0.5rem;
+        }
+
+        /* === bike share === */
+        .bike-station {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--header-colour);
+            letter-spacing: -0.02em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .bike-counts {
+            display: flex;
+            gap: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .bike-count strong {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 1.6rem;
+            color: var(--header-colour);
+            letter-spacing: -0.02em;
+            display: block;
+            line-height: 1;
+        }
+
+        .bike-count span {
+            font-size: 0.7rem;
+            color: var(--main-green);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .bike-meta {
+            font-size: 0.75rem;
+            color: var(--paragraph-colour);
+            opacity: 0.6;
+            margin-top: auto;
+            padding-top: 0.5rem;
+        }
+
+        /* === hacker news === */
+        .widget-hn { gap: 0.5rem; }
+        .hn-list { list-style: none; padding: 0; margin: 0.25rem 0 0 0; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-height: 0; overflow: hidden; }
+        .hn-item {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+        }
+        .hn-item a {
+            color: var(--paragraph-colour);
+            text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+        .hn-item a:hover { color: var(--main-green); }
+        .hn-score {
+            color: var(--main-green);
+            font-weight: 600;
+            min-width: 2.25rem;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* === shared === */
+        .widget-empty {
+            color: var(--paragraph-colour);
+            opacity: 0.55;
+            font-size: 0.9rem;
+            margin: auto 0;
         }
 
         .home-link {
@@ -341,84 +528,166 @@
         }
         .home-link:hover { opacity: 1; }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1100px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+            }
+            .widget-clock, .widget-spotify, .widget-weather, .widget-strava { grid-column: span 2; }
+        }
+
+        @media (max-width: 700px) {
             .dashboard {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto;
                 gap: 1rem;
                 padding: 1rem;
             }
-            .widget-clock,
-            .widget-spotify { grid-column: span 1; }
+            .widget-clock, .widget-spotify, .widget-weather, .widget-strava { grid-column: span 1; }
+            .widget-weather { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <a class="home-link" href="/">← back</a>
     <div class="dashboard">
+        <!-- Row 1: Clock + Date · Spotify -->
         <div class="widget widget-clock">
             <div class="clock-time" id="clock-time">--:--:--<span class="clock-meridiem" id="clock-meridiem"></span></div>
+            <div class="clock-meta">
+                <div class="clock-greeting" id="clock-greeting">—</div>
+                <div class="clock-date" id="clock-date">—</div>
+            </div>
         </div>
 
-        <a class="widget widget-spotify" id="spotify-widget" href="#" target="_blank" rel="noreferrer">
-            <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
-            <div class="spotify-info">
-                <div class="spotify-status" id="spotify-status">Now playing</div>
-                <div class="spotify-track" id="spotify-track">—</div>
-                <div class="spotify-artist" id="spotify-artist">—</div>
+        <div class="widget widget-spotify">
+            <a class="spotify-profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
+            <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
+                <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
+                <div class="spotify-info">
+                    <div class="spotify-status" id="spotify-status">Now playing</div>
+                    <div class="spotify-track" id="spotify-track">—</div>
+                    <div class="spotify-artist" id="spotify-artist">—</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Row 2: Weather + Sun · Strava -->
+        <div class="widget widget-weather">
+            <div class="weather-left">
+                <div class="widget-label">Weather</div>
+                <div class="weather-temp" id="weather-temp">—°</div>
+                <div class="weather-cond" id="weather-cond">—</div>
+                <div class="weather-meta" id="weather-meta">Locating…</div>
+                <div class="weather-stats">
+                    <div>
+                        <div class="weather-stat-label">Feels</div>
+                        <div class="weather-stat-value" id="weather-feels">—</div>
+                    </div>
+                    <div>
+                        <div class="weather-stat-label">Wind</div>
+                        <div class="weather-stat-value" id="weather-wind">—</div>
+                    </div>
+                    <div>
+                        <div class="weather-stat-label">UV</div>
+                        <div class="weather-stat-value" id="weather-uv">—</div>
+                    </div>
+                    <div>
+                        <div class="weather-stat-label">Air</div>
+                        <div class="weather-stat-value" id="weather-aqi">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="weather-right">
+                <div class="widget-label">Sun</div>
+                <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                    <line class="sun-horizon" x1="0" y1="80" x2="200" y2="80"/>
+                    <path class="sun-arc" d="M 10 80 Q 100 -20, 190 80"/>
+                    <circle class="sun-dot" id="sun-dot" cx="100" cy="35" r="5"/>
+                </svg>
+                <div class="sun-times">
+                    <span><span class="sun-times-label">↑</span><span id="sunrise">—</span></span>
+                    <span><span class="sun-times-label">↓</span><span id="sunset">—</span></span>
+                </div>
+            </div>
+        </div>
+
+        <a class="widget widget-strava" id="strava-widget" href="https://www.strava.com/athletes" target="_blank" rel="noreferrer">
+            <div class="strava-icon" id="strava-icon">🏃</div>
+            <div class="strava-info">
+                <div class="strava-status" id="strava-status">Last activity</div>
+                <div class="strava-name" id="strava-name">—</div>
+                <div class="strava-stats" id="strava-stats">
+                    <span class="strava-stat"><strong id="strava-stat-1">—</strong></span>
+                </div>
             </div>
         </a>
 
-        <div class="widget widget-weather">
-            <div class="widget-label">Weather</div>
-            <div class="weather-temp" id="weather-temp">—°</div>
-            <div class="weather-row">
-                <div class="weather-cond" id="weather-cond">—</div>
-            </div>
-            <div class="weather-meta" id="weather-meta">Locating…</div>
-        </div>
-
-        <div class="widget widget-date">
-            <div class="widget-label">Today</div>
-            <div class="date-greeting" id="date-greeting">—</div>
-            <div class="date-day" id="date-day">—</div>
-            <div class="date-full" id="date-full">—</div>
-        </div>
-
-        <div class="widget widget-sun">
-            <div class="widget-label">Sun</div>
-            <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                <line class="sun-horizon" x1="0" y1="80" x2="200" y2="80"/>
-                <path class="sun-arc" d="M 10 80 Q 100 -20, 190 80"/>
-                <circle class="sun-dot" id="sun-dot" cx="100" cy="35" r="5"/>
-            </svg>
-            <div class="sun-times">
-                <span><span class="sun-times-label">↑</span><span id="sunrise">—</span></span>
-                <span><span class="sun-times-label">↓</span><span id="sunset">—</span></span>
-            </div>
-        </div>
-
+        <!-- Row 3: Year · GitHub · Bike Share · Hacker News -->
         <div class="widget widget-year">
             <div class="widget-label">Year</div>
             <div class="progress-percent" id="year-percent">—%</div>
             <div class="progress-bar"><div class="progress-fill" id="year-fill" style="width: 0%"></div></div>
             <div class="progress-context" id="year-context">—</div>
         </div>
+
+        <a class="widget widget-github" id="github-widget" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">
+            <div class="widget-label">GitHub</div>
+            <div class="github-repo" id="github-repo">—</div>
+            <div class="github-message" id="github-message">Loading latest commit…</div>
+            <div class="github-meta" id="github-meta">—</div>
+        </a>
+
+        <div class="widget widget-bike">
+            <div class="widget-label">Bike Share</div>
+            <div class="bike-station" id="bike-station">Locating nearest…</div>
+            <div class="bike-counts">
+                <div class="bike-count">
+                    <strong id="bike-bikes">—</strong>
+                    <span>bikes</span>
+                </div>
+                <div class="bike-count">
+                    <strong id="bike-docks">—</strong>
+                    <span>docks</span>
+                </div>
+            </div>
+            <div class="bike-meta" id="bike-meta">—</div>
+        </div>
+
+        <div class="widget widget-hn">
+            <div class="widget-label">Hacker News</div>
+            <ol class="hn-list" id="hn-list">
+                <li class="widget-empty">Loading…</li>
+            </ol>
+        </div>
     </div>
 
     <script>
-        // === theme: respect system preference + localStorage from main site ===
+        // === theme ===
         (function applyTheme() {
             const saved = localStorage.getItem('theme');
             const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', theme);
         })();
 
-        // === clock + greeting ===
         const $ = (id) => document.getElementById(id);
+        const pad = (n) => String(n).padStart(2, '0');
 
-        function pad(n) { return String(n).padStart(2, '0'); }
+        function timeAgo(iso) {
+            const ms = Date.now() - new Date(iso).getTime();
+            const m = Math.round(ms / 60000);
+            if (m < 1) return 'just now';
+            if (m < 60) return `${m}m ago`;
+            const h = Math.round(m / 60);
+            if (h < 24) return `${h}h ago`;
+            const d = Math.round(h / 24);
+            return `${d}d ago`;
+        }
 
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // === clock + date (combined widget) ===
         function renderClock() {
             const now = new Date();
             const hr12 = ((now.getHours() + 11) % 12) + 1;
@@ -436,12 +705,11 @@
 
         function renderDate() {
             const now = new Date();
-            $('date-greeting').textContent = greetingFor(now.getHours()) + '.';
-            $('date-day').textContent = now.toLocaleDateString(undefined, { weekday: 'long' });
-            $('date-full').textContent = now.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+            $('clock-greeting').textContent = greetingFor(now.getHours()) + '.';
+            $('clock-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
         }
 
-        // === year + workday progress ===
+        // === year ===
         function renderYearProgress() {
             const now = new Date();
             const start = new Date(now.getFullYear(), 0, 1);
@@ -450,89 +718,23 @@
             const daysLeft = Math.ceil((end - now) / 86400000);
             $('year-percent').textContent = (pct * 100).toFixed(1) + '%';
             $('year-fill').style.width = (pct * 100).toFixed(2) + '%';
-            $('year-context').textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left in ${now.getFullYear()}`;
+            $('year-context').textContent = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
         }
 
-        // === spotify now playing ===
-        function timeAgo(iso) {
-            const ms = Date.now() - new Date(iso).getTime();
-            const m = Math.round(ms / 60000);
-            if (m < 1) return 'just now';
-            if (m < 60) return `${m}m ago`;
-            const h = Math.round(m / 60);
-            if (h < 24) return `${h}h ago`;
-            const d = Math.round(h / 24);
-            return `${d}d ago`;
-        }
-
-        async function loadSpotify() {
-            const widget = $('spotify-widget');
-            try {
-                const res = await fetch('/.netlify/functions/spotifyNowPlaying');
-                if (res.status === 503) {
-                    // not configured — hide gracefully
-                    widget.style.display = 'none';
-                    return;
-                }
-                if (!res.ok) throw new Error('spotify fetch failed');
-                const data = await res.json();
-                renderSpotify(data);
-            } catch (err) {
-                $('spotify-status').textContent = 'Spotify unavailable';
-                $('spotify-track').textContent = '—';
-                $('spotify-artist').textContent = '';
-            }
-        }
-
-        function renderSpotify(data) {
-            const widget = $('spotify-widget');
-            const artWrap = $('spotify-art-wrap');
-            if (!data || (!data.track && !data.playing)) {
-                $('spotify-status').textContent = 'Nothing playing';
-                $('spotify-track').textContent = '—';
-                $('spotify-artist').textContent = '';
-                widget.removeAttribute('href');
-                return;
-            }
-            if (data.url) {
-                widget.setAttribute('href', data.url);
-            } else {
-                widget.removeAttribute('href');
-            }
-            if (data.albumArt) {
-                artWrap.outerHTML = `<img id="spotify-art-wrap" class="spotify-art" src="${data.albumArt}" alt="${(data.album || data.track || '').replace(/"/g, '&quot;')}"/>`;
-            } else {
-                artWrap.outerHTML = `<div id="spotify-art-wrap" class="spotify-art spotify-art-placeholder">♪</div>`;
-            }
-            const status = $('spotify-status');
-            if (data.playing) {
-                status.innerHTML = `<span class="pulse"></span>Now playing`;
-            } else if (data.playedAt) {
-                status.textContent = `Last played · ${timeAgo(data.playedAt)}`;
-            } else {
-                status.textContent = 'Recently played';
-            }
-            $('spotify-track').textContent = data.track || '—';
-            $('spotify-artist').textContent = data.artist || '';
-        }
-
-        // === sun arc ===
-        let sunData = null; // { sunrise: Date, sunset: Date }
-
+        // === sun ===
+        let sunData = null;
         function bezierPoint(t, p0, p1, p2) {
             const x = (1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0];
             const y = (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1];
             return [x, y];
         }
-
         function renderSun() {
             const dot = $('sun-dot');
             if (!sunData) return;
             const now = new Date();
             const total = sunData.sunset - sunData.sunrise;
             const elapsed = now - sunData.sunrise;
-            let t = elapsed / total;
-            t = Math.max(0, Math.min(1, t));
+            let t = Math.max(0, Math.min(1, elapsed / total));
             const [x, y] = bezierPoint(t, [10, 80], [100, -20], [190, 80]);
             dot.setAttribute('cx', x.toFixed(2));
             dot.setAttribute('cy', y.toFixed(2));
@@ -541,8 +743,7 @@
             $('sunset').textContent = sunData.sunset.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         }
 
-        // === weather (Open-Meteo, no key needed) ===
-        // WMO weather code → label/emoji
+        // === weather ===
         const WMO = {
             0: ['Clear', '☀️'],
             1: ['Mainly clear', '🌤️'], 2: ['Partly cloudy', '⛅'], 3: ['Overcast', '☁️'],
@@ -558,38 +759,57 @@
             95: ['Thunderstorm', '⛈️'], 96: ['Thunderstorm + hail', '⛈️'], 99: ['Thunderstorm + hail', '⛈️'],
         };
 
-        async function fetchWeather(lat, lon) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature&daily=sunrise,sunset&timezone=auto`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('weather fetch failed');
-            return res.json();
+        function uvBand(uv) {
+            if (uv == null) return '—';
+            const v = Math.round(uv);
+            if (v <= 2) return `${v} · low`;
+            if (v <= 5) return `${v} · moderate`;
+            if (v <= 7) return `${v} · high`;
+            if (v <= 10) return `${v} · very high`;
+            return `${v} · extreme`;
         }
 
-        async function fetchCityName(lat, lon) {
-            try {
-                const url = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1&language=en&format=json`;
-                const res = await fetch(url);
-                if (!res.ok) return null;
-                const data = await res.json();
-                return data.results?.[0]?.name || null;
-            } catch { return null; }
+        function aqiBand(aqi) {
+            if (aqi == null) return '—';
+            const v = Math.round(aqi);
+            if (v <= 20) return `${v} · good`;
+            if (v <= 40) return `${v} · fair`;
+            if (v <= 60) return `${v} · moderate`;
+            if (v <= 80) return `${v} · poor`;
+            return `${v} · very poor`;
+        }
+
+        async function fetchJSON(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`fetch failed: ${url}`);
+            return res.json();
         }
 
         async function loadWeather(lat, lon) {
             try {
-                const [weather, city] = await Promise.all([fetchWeather(lat, lon), fetchCityName(lat, lon)]);
-                const c = weather.current;
-                const code = c.weather_code;
-                const [label, emoji] = WMO[code] || ['—', ''];
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m,uv_index&daily=sunrise,sunset&timezone=auto&wind_speed_unit=kmh`;
+                const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi`;
+                const geoUrl = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1&language=en&format=json`;
+                const [weather, aqi, geo] = await Promise.allSettled([
+                    fetchJSON(weatherUrl), fetchJSON(aqiUrl), fetchJSON(geoUrl)
+                ]);
+                if (weather.status !== 'fulfilled') throw new Error('weather failed');
+                const c = weather.value.current;
+                const [label, emoji] = WMO[c.weather_code] || ['—', ''];
                 $('weather-temp').textContent = Math.round(c.temperature_2m) + '°';
                 $('weather-cond').textContent = `${emoji} ${label}`;
-                const feelsLike = Math.round(c.apparent_temperature);
-                const cityLabel = city ? city : `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
-                $('weather-meta').textContent = `${cityLabel} · feels like ${feelsLike}°`;
-                if (weather.daily) {
+                $('weather-feels').textContent = Math.round(c.apparent_temperature) + '°';
+                $('weather-wind').textContent = Math.round(c.wind_speed_10m) + ' km/h';
+                $('weather-uv').textContent = uvBand(c.uv_index);
+                if (aqi.status === 'fulfilled') {
+                    $('weather-aqi').textContent = aqiBand(aqi.value.current?.european_aqi);
+                }
+                const city = geo.status === 'fulfilled' ? geo.value.results?.[0]?.name : null;
+                $('weather-meta').textContent = city ? city : `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+                if (weather.value.daily) {
                     sunData = {
-                        sunrise: new Date(weather.daily.sunrise[0]),
-                        sunset: new Date(weather.daily.sunset[0]),
+                        sunrise: new Date(weather.value.daily.sunrise[0]),
+                        sunset: new Date(weather.value.daily.sunset[0]),
                     };
                     renderSun();
                 }
@@ -598,21 +818,221 @@
             }
         }
 
+        let userLocation = null;
         function getLocation() {
             if (!navigator.geolocation) {
+                userLocation = { lat: 43.6532, lon: -79.3832 };
                 $('weather-meta').textContent = 'Geolocation unsupported';
-                // fall back to Toronto
-                loadWeather(43.6532, -79.3832);
+                loadWeather(userLocation.lat, userLocation.lon);
+                loadBikeShare();
                 return;
             }
             navigator.geolocation.getCurrentPosition(
-                (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
+                (pos) => {
+                    userLocation = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+                    loadWeather(userLocation.lat, userLocation.lon);
+                    loadBikeShare();
+                },
                 () => {
-                    $('weather-meta').textContent = 'Using default location';
-                    loadWeather(43.6532, -79.3832);
+                    userLocation = { lat: 43.6532, lon: -79.3832 };
+                    loadWeather(userLocation.lat, userLocation.lon);
+                    loadBikeShare();
                 },
                 { timeout: 8000, maximumAge: 1000 * 60 * 30 }
             );
+        }
+
+        // === spotify ===
+        async function loadSpotify() {
+            try {
+                const res = await fetch('/.netlify/functions/spotifyNowPlaying');
+                if (res.status === 503) {
+                    document.querySelector('.widget-spotify').style.display = 'none';
+                    return;
+                }
+                if (!res.ok) throw new Error('spotify fetch failed');
+                renderSpotify(await res.json());
+            } catch {
+                $('spotify-status').textContent = 'Spotify unavailable';
+                $('spotify-track').textContent = '—';
+                $('spotify-artist').textContent = '';
+            }
+        }
+
+        function renderSpotify(data) {
+            const main = $('spotify-main');
+            const artWrap = $('spotify-art-wrap');
+            if (!data || (!data.track && !data.playing)) {
+                $('spotify-status').textContent = 'Nothing playing';
+                $('spotify-track').textContent = '—';
+                $('spotify-artist').textContent = '';
+                main.removeAttribute('href');
+                return;
+            }
+            if (data.url) main.setAttribute('href', data.url);
+            else main.removeAttribute('href');
+            if (data.albumArt) {
+                artWrap.outerHTML = `<img id="spotify-art-wrap" class="spotify-art" src="${escapeHtml(data.albumArt)}" alt="${escapeHtml(data.album || data.track || '')}"/>`;
+            } else {
+                artWrap.outerHTML = `<div id="spotify-art-wrap" class="spotify-art spotify-art-placeholder">♪</div>`;
+            }
+            const status = $('spotify-status');
+            if (data.playing) status.innerHTML = `<span class="pulse"></span>Now playing`;
+            else if (data.playedAt) status.textContent = `Last played · ${timeAgo(data.playedAt)}`;
+            else status.textContent = 'Recently played';
+            $('spotify-track').textContent = data.track || '—';
+            $('spotify-artist').textContent = data.artist || '';
+        }
+
+        // === strava ===
+        const STRAVA_ICONS = {
+            Run: '🏃', TrailRun: '🏃', VirtualRun: '🏃', Walk: '🚶', Hike: '🥾',
+            Ride: '🚴', VirtualRide: '🚴', EBikeRide: '🚴', MountainBikeRide: '🚵',
+            Swim: '🏊', Workout: '💪', WeightTraining: '🏋️', Yoga: '🧘',
+            AlpineSki: '⛷️', BackcountrySki: '⛷️', NordicSki: '⛷️', Snowboard: '🏂',
+            Kayaking: '🛶', Rowing: '🚣',
+        };
+
+        function formatDistance(m) {
+            if (m == null) return '—';
+            const km = m / 1000;
+            return km >= 10 ? `${km.toFixed(1)} km` : `${km.toFixed(2)} km`;
+        }
+
+        function formatDuration(s) {
+            if (s == null) return '—';
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        }
+
+        function formatPace(distanceM, timeS, type) {
+            if (!distanceM || !timeS) return null;
+            const km = distanceM / 1000;
+            const isRun = /Run|Walk|Hike/.test(type || '');
+            if (isRun) {
+                const paceSecPerKm = timeS / km;
+                const m = Math.floor(paceSecPerKm / 60);
+                const s = Math.round(paceSecPerKm % 60);
+                return `${m}:${pad(s)} /km`;
+            }
+            // bike or other: km/h
+            const speed = km / (timeS / 3600);
+            return `${speed.toFixed(1)} km/h`;
+        }
+
+        async function loadStrava() {
+            try {
+                const res = await fetch('/.netlify/functions/stravaLatest');
+                if (res.status === 503) {
+                    document.querySelector('.widget-strava').style.display = 'none';
+                    return;
+                }
+                if (!res.ok) throw new Error('strava fetch failed');
+                const data = await res.json();
+                if (!data || !data.name) {
+                    $('strava-name').textContent = 'No recent activity';
+                    return;
+                }
+                $('strava-icon').textContent = STRAVA_ICONS[data.type] || '🏃';
+                $('strava-status').textContent = `${data.type || 'Activity'} · ${data.startDate ? timeAgo(data.startDate) : ''}`;
+                $('strava-name').textContent = data.name;
+                const stats = $('strava-stats');
+                const pace = formatPace(data.distance, data.movingTime, data.type);
+                stats.innerHTML = `
+                    <span class="strava-stat"><strong>${escapeHtml(formatDistance(data.distance))}</strong></span>
+                    <span class="strava-stat"><strong>${escapeHtml(formatDuration(data.movingTime))}</strong></span>
+                    ${pace ? `<span class="strava-stat"><strong>${escapeHtml(pace)}</strong></span>` : ''}
+                `;
+                if (data.id) {
+                    $('strava-widget').setAttribute('href', `https://www.strava.com/activities/${data.id}`);
+                }
+            } catch {
+                $('strava-name').textContent = 'Strava unavailable';
+            }
+        }
+
+        // === github ===
+        async function loadGitHub() {
+            try {
+                const res = await fetch('/.netlify/functions/githubLatest');
+                if (res.status === 503) {
+                    document.querySelector('.widget-github').style.display = 'none';
+                    return;
+                }
+                if (!res.ok) throw new Error('github fetch failed');
+                const data = await res.json();
+                if (!data || !data.repo) {
+                    $('github-message').textContent = 'No recent commits';
+                    $('github-meta').textContent = '';
+                    return;
+                }
+                $('github-repo').textContent = data.repo;
+                $('github-message').textContent = data.message || '—';
+                $('github-meta').textContent = `${data.commits || 1} commit${data.commits === 1 ? '' : 's'} · ${timeAgo(data.createdAt)}`;
+                if (data.url) $('github-widget').setAttribute('href', data.url);
+            } catch {
+                $('github-message').textContent = 'GitHub unavailable';
+                $('github-meta').textContent = '';
+            }
+        }
+
+        // === bike share (Toronto) ===
+        function distanceKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const toRad = (d) => d * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+            return 2 * R * Math.asin(Math.sqrt(a));
+        }
+
+        async function loadBikeShare() {
+            if (!userLocation) return;
+            try {
+                const res = await fetch('/.netlify/functions/bikeShareToronto');
+                if (!res.ok) throw new Error('bike share fetch failed');
+                const data = await res.json();
+                if (!data.stations || data.stations.length === 0) throw new Error('no stations');
+                let nearest = null;
+                let nearestDist = Infinity;
+                for (const s of data.stations) {
+                    const d = distanceKm(userLocation.lat, userLocation.lon, s.lat, s.lon);
+                    if (d < nearestDist) {
+                        nearestDist = d;
+                        nearest = s;
+                    }
+                }
+                if (!nearest) throw new Error('no nearest');
+                $('bike-station').textContent = nearest.name;
+                $('bike-bikes').textContent = nearest.bikes;
+                $('bike-docks').textContent = nearest.docks;
+                $('bike-meta').textContent = `${(nearestDist * 1000).toFixed(0)} m away`;
+            } catch {
+                $('bike-station').textContent = 'Unavailable';
+                $('bike-meta').textContent = '';
+            }
+        }
+
+        // === hacker news ===
+        async function loadHackerNews() {
+            try {
+                const idsRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+                if (!idsRes.ok) throw new Error('hn ids');
+                const ids = (await idsRes.json()).slice(0, 4);
+                const stories = await Promise.all(ids.map((id) =>
+                    fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then((r) => r.json())
+                ));
+                const list = $('hn-list');
+                list.innerHTML = stories.filter(Boolean).map((s) => `
+                    <li class="hn-item">
+                        <span class="hn-score">${s.score || 0}</span>
+                        <a href="${escapeHtml(s.url || `https://news.ycombinator.com/item?id=${s.id}`)}" target="_blank" rel="noreferrer">${escapeHtml(s.title || '—')}</a>
+                    </li>
+                `).join('');
+            } catch {
+                $('hn-list').innerHTML = '<li class="widget-empty">Unavailable</li>';
+            }
         }
 
         // === wire up ===
@@ -627,10 +1047,13 @@
         setInterval(tick, 1000);
 
         getLocation();
-        setInterval(getLocation, 1000 * 60 * 15);
+        setInterval(() => userLocation && loadWeather(userLocation.lat, userLocation.lon), 1000 * 60 * 15);
 
-        loadSpotify();
-        setInterval(loadSpotify, 1000 * 30);
+        loadSpotify(); setInterval(loadSpotify, 1000 * 30);
+        loadStrava();  setInterval(loadStrava,  1000 * 60 * 5);
+        loadGitHub();  setInterval(loadGitHub,  1000 * 60 * 5);
+        setInterval(loadBikeShare, 1000 * 60 * 2);
+        loadHackerNews(); setInterval(loadHackerNews, 1000 * 60 * 5);
     </script>
 </body>
 </html>
