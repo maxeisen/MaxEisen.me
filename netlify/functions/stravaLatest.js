@@ -51,6 +51,18 @@ async function getAccessToken() {
 	return cachedToken.token;
 }
 
+// Filters: walks ≥10km, runs ≥5km, rides ≥20km
+function passesFilter(activity) {
+	const type = activity.sport_type || activity.type || "";
+	const distance = activity.distance || 0;
+	if (/Walk|Hike/i.test(type)) return distance >= 10000;
+	if (/Run/i.test(type)) return distance >= 5000;
+	if (/Ride/i.test(type)) return distance >= 20000;
+	return false;
+}
+
+const MAX_RESULTS = 5;
+
 export default async function handler() {
 	let token;
 	try {
@@ -63,7 +75,7 @@ export default async function handler() {
 		return jsonResponse({ error: "auth_failed" }, 502);
 	}
 
-	const res = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=1", {
+	const res = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=30", {
 		headers: { "Authorization": `Bearer ${token}` },
 	});
 	if (!res.ok) {
@@ -72,16 +84,18 @@ export default async function handler() {
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
 	const activities = await res.json();
-	const a = activities[0];
-	if (!a) return jsonResponse({});
-	return jsonResponse({
-		id: a.id,
-		name: a.name,
-		type: a.sport_type || a.type,
-		distance: a.distance,            // metres
-		movingTime: a.moving_time,        // seconds
-		elapsedTime: a.elapsed_time,
-		elevationGain: a.total_elevation_gain,
-		startDate: a.start_date,
-	});
+	const filtered = activities
+		.filter(passesFilter)
+		.slice(0, MAX_RESULTS)
+		.map((a) => ({
+			id: a.id,
+			name: a.name,
+			type: a.sport_type || a.type,
+			distance: a.distance,
+			movingTime: a.moving_time,
+			elapsedTime: a.elapsed_time,
+			elevationGain: a.total_elevation_gain,
+			startDate: a.start_date,
+		}));
+	return jsonResponse({ activities: filtered });
 }

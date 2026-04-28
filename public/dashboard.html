@@ -66,9 +66,11 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: 1.3fr 1fr 0.85fr;
-            gap: 1.25rem;
-            padding: 1.25rem;
-            min-height: 100vh;
+            gap: 1rem;
+            padding: 1rem;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
             max-width: 1800px;
             margin: 0 auto;
         }
@@ -231,6 +233,40 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
+        .spotify-album {
+            font-size: 0.8rem;
+            color: var(--paragraph-colour);
+            opacity: 0.55;
+            margin-top: 0.2rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .spotify-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.65rem;
+            font-size: 0.7rem;
+            color: var(--paragraph-colour);
+            opacity: 0.7;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .spotify-progress-bar {
+            flex: 1;
+            height: 3px;
+            background: var(--main-green-translucent);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .spotify-progress-fill {
+            height: 100%;
+            background: var(--main-green);
+            border-radius: 999px;
+            transition: width 0.5s linear;
+        }
+
         .spotify-profile-link {
             position: absolute;
             top: 0.6rem;
@@ -310,64 +346,92 @@
         .sun-times-label { color: var(--main-green); font-weight: 600; margin-right: 0.4rem; }
 
         /* === strava === */
-        .widget-strava {
-            grid-column: span 2;
-            flex-direction: row;
+        .widget-strava { grid-column: span 2; }
+
+        .strava-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.25rem 0 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .strava-row {
+            display: flex;
             align-items: center;
-            gap: 1.25rem;
+            gap: 0.85rem;
             text-decoration: none;
             color: inherit;
+            padding: 0.4rem 0.5rem;
+            border-radius: 10px;
+            transition: background-color 0.15s ease;
         }
-        .widget-strava * { text-decoration: none; }
+        .strava-row:hover { background: var(--main-green-translucent); }
 
-        .strava-icon {
-            width: clamp(70px, 9vw, 130px);
-            height: clamp(70px, 9vw, 130px);
-            border-radius: 12px;
+        .strava-row-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             background: var(--main-green-translucent);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--main-green);
-            font-size: 3rem;
+            font-size: 1.4rem;
             flex-shrink: 0;
         }
 
-        .strava-info { display: flex; flex-direction: column; justify-content: center; min-width: 0; flex: 1; }
+        .strava-row-main { flex: 1; min-width: 0; }
 
-        .strava-status {
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--main-green);
-            margin-bottom: 0.4rem;
-        }
-
-        .strava-name {
+        .strava-row-name {
             font-family: 'Fraunces', serif;
             font-weight: 600;
-            font-size: clamp(1.1rem, 1.7vw, 1.7rem);
-            line-height: 1.15;
+            font-size: 1rem;
             color: var(--header-colour);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .strava-stats {
-            display: flex;
-            gap: 1.25rem;
-            margin-top: 0.4rem;
-            flex-wrap: wrap;
-            font-size: 0.95rem;
+        .strava-row-meta {
+            font-size: 0.78rem;
             color: var(--paragraph-colour);
+            opacity: 0.75;
+            margin-top: 0.15rem;
         }
-        .strava-stat strong {
+
+        .strava-row-stats {
+            display: flex;
+            gap: 0.85rem;
+            font-size: 0.85rem;
+            color: var(--paragraph-colour);
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .strava-row-stats strong {
             font-family: 'Fraunces', serif;
             font-weight: 600;
             color: var(--header-colour);
-            font-size: 1.05rem;
-            margin-right: 0.25rem;
+            display: block;
+            line-height: 1.2;
+        }
+        .strava-row-stats span {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--main-green);
+        }
+
+        /* Default: hide rows beyond the third on smaller screens. */
+        .strava-list li:nth-child(n+4) { display: none; }
+        @media (min-height: 850px) and (min-width: 1300px) {
+            .strava-list li:nth-child(n+4) { display: list-item; }
+        }
+        @media (min-height: 1000px) and (min-width: 1500px) {
+            .strava-list li:nth-child(n+4),
+            .strava-list li:nth-child(n+5) { display: list-item; }
         }
 
         /* === year progress === */
@@ -410,17 +474,17 @@
         .github-repo {
             font-family: 'Fraunces', serif;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--header-colour);
             letter-spacing: -0.02em;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         .github-message {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--paragraph-colour);
             opacity: 0.85;
-            margin-top: 0.35rem;
+            margin-top: 0.3rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -428,11 +492,70 @@
         }
 
         .github-meta {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--paragraph-colour);
             opacity: 0.6;
+            margin-top: 0.3rem;
+        }
+
+        .github-heatmap-wrap {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.4rem;
             margin-top: auto;
-            padding-top: 0.5rem;
+            padding-top: 0.6rem;
+        }
+        .github-heatmap-rows {
+            display: grid;
+            grid-template-rows: repeat(7, 1fr);
+            gap: 2px;
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: var(--paragraph-colour);
+            opacity: 0.55;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .github-heatmap-rows span {
+            display: flex;
+            align-items: center;
+            line-height: 1;
+        }
+        .github-heatmap {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(7, 1fr);
+            gap: 2px;
+            width: 100%;
+        }
+        .github-cell {
+            border-radius: 2px;
+            background: var(--main-green-translucent);
+            opacity: 0.35;
+            aspect-ratio: 1;
+        }
+        .github-cell.l1 { opacity: 0.55; background: var(--main-green); }
+        .github-cell.l2 { opacity: 0.7; background: var(--main-green); }
+        .github-cell.l3 { opacity: 0.85; background: var(--main-green); }
+        .github-cell.l4 { opacity: 1; background: var(--main-green); }
+        .github-cell.future { opacity: 0.12; }
+        .github-cell.today { box-shadow: 0 0 0 1.5px var(--header-colour); opacity: 1; }
+
+        .github-graph-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--paragraph-colour);
+            opacity: 0.7;
+        }
+        .github-graph-total {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            color: var(--header-colour);
+            font-size: 0.95rem;
+            opacity: 1;
         }
 
         /* === bike share === */
@@ -480,29 +603,52 @@
 
         /* === hacker news === */
         .widget-hn { gap: 0.5rem; }
-        .hn-list { list-style: none; padding: 0; margin: 0.25rem 0 0 0; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-height: 0; overflow: hidden; }
+        .hn-list { list-style: none; padding: 0; margin: 0.25rem 0 0 0; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; min-height: 0; overflow: hidden; }
         .hn-item {
             display: flex;
             gap: 0.5rem;
             font-size: 0.82rem;
+            align-items: flex-start;
         }
-        .hn-item a {
+        .hn-link {
             color: var(--paragraph-colour);
             text-decoration: none;
+            line-height: 1.3;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+            flex: 1;
+        }
+        .hn-link:hover .hn-title { color: var(--main-green); }
+        .hn-title {
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            line-height: 1.3;
         }
-        .hn-item a:hover { color: var(--main-green); }
+        .hn-domain {
+            font-size: 0.68rem;
+            color: var(--paragraph-colour);
+            opacity: 0.55;
+            text-transform: lowercase;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
         .hn-score {
             color: var(--main-green);
             font-weight: 600;
-            min-width: 2.25rem;
+            min-width: 2.5rem;
             font-variant-numeric: tabular-nums;
             text-align: right;
             flex-shrink: 0;
+            font-size: 0.78rem;
+            padding-top: 0.1rem;
+        }
+        .hn-score::before {
+            content: "▲";
+            font-size: 0.6rem;
+            margin-right: 0.15rem;
+            opacity: 0.7;
         }
 
         /* === shared === */
@@ -532,6 +678,9 @@
             .dashboard {
                 grid-template-columns: repeat(2, 1fr);
                 grid-template-rows: auto;
+                height: auto;
+                max-height: none;
+                overflow: visible;
             }
             .widget-clock, .widget-spotify, .widget-weather, .widget-strava { grid-column: span 2; }
         }
@@ -559,19 +708,6 @@
             </div>
         </div>
 
-        <div class="widget widget-spotify">
-            <a class="spotify-profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
-            <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
-                <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
-                <div class="spotify-info">
-                    <div class="spotify-status" id="spotify-status">Now playing</div>
-                    <div class="spotify-track" id="spotify-track">—</div>
-                    <div class="spotify-artist" id="spotify-artist">—</div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Row 2: Weather + Sun · Strava -->
         <div class="widget widget-weather">
             <div class="weather-left">
                 <div class="widget-label">Weather</div>
@@ -611,34 +747,52 @@
             </div>
         </div>
 
-        <a class="widget widget-strava" id="strava-widget" href="https://www.strava.com/athletes" target="_blank" rel="noreferrer">
-            <div class="strava-icon" id="strava-icon">🏃</div>
-            <div class="strava-info">
-                <div class="strava-status" id="strava-status">Last activity</div>
-                <div class="strava-name" id="strava-name">—</div>
-                <div class="strava-stats" id="strava-stats">
-                    <span class="strava-stat"><strong id="strava-stat-1">—</strong></span>
+        <!-- Row 2: Spotify · Strava -->
+        <div class="widget widget-spotify">
+            <a class="spotify-profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
+            <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
+                <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
+                <div class="spotify-info">
+                    <div class="spotify-status" id="spotify-status">Now playing</div>
+                    <div class="spotify-track" id="spotify-track">—</div>
+                    <div class="spotify-artist" id="spotify-artist">—</div>
+                    <div class="spotify-album" id="spotify-album"></div>
+                    <div class="spotify-progress" id="spotify-progress" hidden>
+                        <span id="spotify-elapsed">0:00</span>
+                        <div class="spotify-progress-bar"><div class="spotify-progress-fill" id="spotify-progress-fill" style="width: 0%"></div></div>
+                        <span id="spotify-duration">0:00</span>
+                    </div>
                 </div>
-            </div>
-        </a>
-
-        <!-- Row 3: Year · GitHub · Bike Share · Hacker News -->
-        <div class="widget widget-year">
-            <div class="widget-label">Year</div>
-            <div class="progress-percent" id="year-percent">—%</div>
-            <div class="progress-bar"><div class="progress-fill" id="year-fill" style="width: 0%"></div></div>
-            <div class="progress-context" id="year-context">—</div>
+            </a>
         </div>
 
+        <div class="widget widget-strava">
+            <div class="widget-label">Recent Activity</div>
+            <ol class="strava-list" id="strava-list">
+                <li class="widget-empty">Loading…</li>
+            </ol>
+        </div>
+
+        <!-- Row 3: GitHub · Bike Share · Hacker News · Year -->
         <a class="widget widget-github" id="github-widget" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">
             <div class="widget-label">GitHub</div>
             <div class="github-repo" id="github-repo">—</div>
             <div class="github-message" id="github-message">Loading latest commit…</div>
             <div class="github-meta" id="github-meta">—</div>
+            <div class="github-heatmap-wrap">
+                <div class="github-heatmap-rows" aria-hidden="true">
+                    <span></span><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span>
+                </div>
+                <div class="github-heatmap" id="github-heatmap"></div>
+            </div>
+            <div class="github-graph-meta">
+                <span><span class="github-graph-total" id="github-graph-total">—</span> contributions</span>
+                <span id="github-graph-range">—</span>
+            </div>
         </a>
 
         <div class="widget widget-bike">
-            <div class="widget-label">Bike Share</div>
+            <div class="widget-label">Toronto Bike Share</div>
             <div class="bike-station" id="bike-station">Locating nearest…</div>
             <div class="bike-counts">
                 <div class="bike-count">
@@ -658,6 +812,13 @@
             <ol class="hn-list" id="hn-list">
                 <li class="widget-empty">Loading…</li>
             </ol>
+        </div>
+
+        <div class="widget widget-year">
+            <div class="widget-label">Year</div>
+            <div class="progress-percent" id="year-percent">—%</div>
+            <div class="progress-bar"><div class="progress-fill" id="year-fill" style="width: 0%"></div></div>
+            <div class="progress-context" id="year-context">—</div>
         </div>
     </div>
 
@@ -859,13 +1020,27 @@
             }
         }
 
+        let spotifyState = null; // { progressMs, durationMs, fetchedAt, playing }
+
+        function fmtMs(ms) {
+            if (ms == null || ms < 0) ms = 0;
+            const total = Math.floor(ms / 1000);
+            const m = Math.floor(total / 60);
+            const s = total % 60;
+            return `${m}:${pad(s)}`;
+        }
+
         function renderSpotify(data) {
             const main = $('spotify-main');
             const artWrap = $('spotify-art-wrap');
+            const progress = $('spotify-progress');
             if (!data || (!data.track && !data.playing)) {
                 $('spotify-status').textContent = 'Nothing playing';
                 $('spotify-track').textContent = '—';
                 $('spotify-artist').textContent = '';
+                $('spotify-album').textContent = '';
+                progress.hidden = true;
+                spotifyState = null;
                 main.removeAttribute('href');
                 return;
             }
@@ -882,6 +1057,35 @@
             else status.textContent = 'Recently played';
             $('spotify-track').textContent = data.track || '—';
             $('spotify-artist').textContent = data.artist || '';
+            $('spotify-album').textContent = data.album || '';
+
+            if (data.playing && data.durationMs) {
+                spotifyState = {
+                    progressMs: data.progressMs || 0,
+                    durationMs: data.durationMs,
+                    fetchedAt: Date.now(),
+                    playing: true,
+                };
+                progress.hidden = false;
+                $('spotify-duration').textContent = fmtMs(data.durationMs);
+                tickSpotifyProgress();
+            } else {
+                spotifyState = null;
+                progress.hidden = true;
+            }
+        }
+
+        function tickSpotifyProgress() {
+            if (!spotifyState || !spotifyState.playing) return;
+            const elapsed = Math.min(spotifyState.durationMs, spotifyState.progressMs + (Date.now() - spotifyState.fetchedAt));
+            const pct = (elapsed / spotifyState.durationMs) * 100;
+            $('spotify-progress-fill').style.width = pct.toFixed(2) + '%';
+            $('spotify-elapsed').textContent = fmtMs(elapsed);
+            // Refetch a moment after the track is expected to finish.
+            if (elapsed >= spotifyState.durationMs - 500) {
+                spotifyState = null;
+                setTimeout(loadSpotify, 800);
+            }
         }
 
         // === strava ===
@@ -922,6 +1126,7 @@
         }
 
         async function loadStrava() {
+            const list = $('strava-list');
             try {
                 const res = await fetch('/.netlify/functions/stravaLatest');
                 if (res.status === 503) {
@@ -930,29 +1135,80 @@
                 }
                 if (!res.ok) throw new Error('strava fetch failed');
                 const data = await res.json();
-                if (!data || !data.name) {
-                    $('strava-name').textContent = 'No recent activity';
+                const activities = data?.activities || [];
+                if (activities.length === 0) {
+                    list.innerHTML = '<li class="widget-empty">No qualifying recent activity</li>';
                     return;
                 }
-                $('strava-icon').textContent = STRAVA_ICONS[data.type] || '🏃';
-                $('strava-status').textContent = `${data.type || 'Activity'} · ${data.startDate ? timeAgo(data.startDate) : ''}`;
-                $('strava-name').textContent = data.name;
-                const stats = $('strava-stats');
-                const pace = formatPace(data.distance, data.movingTime, data.type);
-                stats.innerHTML = `
-                    <span class="strava-stat"><strong>${escapeHtml(formatDistance(data.distance))}</strong></span>
-                    <span class="strava-stat"><strong>${escapeHtml(formatDuration(data.movingTime))}</strong></span>
-                    ${pace ? `<span class="strava-stat"><strong>${escapeHtml(pace)}</strong></span>` : ''}
-                `;
-                if (data.id) {
-                    $('strava-widget').setAttribute('href', `https://www.strava.com/activities/${data.id}`);
-                }
+                list.innerHTML = activities.map((a) => {
+                    const icon = STRAVA_ICONS[a.type] || '🏃';
+                    const pace = formatPace(a.distance, a.movingTime, a.type);
+                    const url = a.id ? `https://www.strava.com/activities/${a.id}` : '#';
+                    return `
+                        <li>
+                            <a class="strava-row" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">
+                                <div class="strava-row-icon">${icon}</div>
+                                <div class="strava-row-main">
+                                    <div class="strava-row-name">${escapeHtml(a.name || a.type || 'Activity')}</div>
+                                    <div class="strava-row-meta">${escapeHtml(a.type || '')} · ${a.startDate ? escapeHtml(timeAgo(a.startDate)) : ''}</div>
+                                </div>
+                                <div class="strava-row-stats">
+                                    <div>
+                                        <strong>${escapeHtml(formatDistance(a.distance))}</strong>
+                                        <span>${pace ? escapeHtml(pace) : escapeHtml(formatDuration(a.movingTime))}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    `;
+                }).join('');
             } catch {
-                $('strava-name').textContent = 'Strava unavailable';
+                list.innerHTML = '<li class="widget-empty">Strava unavailable</li>';
             }
         }
 
         // === github ===
+        function levelFor(count, max) {
+            if (count <= 0) return 0;
+            if (max <= 1) return 4;
+            const ratio = count / max;
+            if (ratio < 0.25) return 1;
+            if (ratio < 0.5) return 2;
+            if (ratio < 0.75) return 3;
+            return 4;
+        }
+
+        function renderGitHubHeatmap(weeks) {
+            const grid = $('github-heatmap');
+            if (!weeks || weeks.length === 0) {
+                grid.innerHTML = '';
+                return;
+            }
+            grid.style.gridTemplateColumns = `repeat(${weeks.length}, 1fr)`;
+            const max = Math.max(1, ...weeks.flatMap((w) => w.days.map((d) => d.count)));
+            const todayIso = new Date().toISOString().slice(0, 10);
+            const cells = [];
+            for (const w of weeks) {
+                for (const d of w.days) {
+                    if (d.future) {
+                        cells.push(`<div class="github-cell future" aria-hidden="true"></div>`);
+                        continue;
+                    }
+                    const lvl = levelFor(d.count, max);
+                    const classes = ['github-cell'];
+                    if (lvl > 0) classes.push(`l${lvl}`);
+                    if (d.date === todayIso) classes.push('today');
+                    const label = new Date(d.date + 'T00:00:00Z').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                    cells.push(`<div class="${classes.join(' ')}" title="${escapeHtml(label)}: ${d.count} contribution${d.count === 1 ? '' : 's'}"></div>`);
+                }
+            }
+            grid.innerHTML = cells.join('');
+        }
+
+        function shortDate(iso) {
+            return new Date(iso + 'T00:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        }
+
         async function loadGitHub() {
             try {
                 const res = await fetch('/.netlify/functions/githubLatest');
@@ -962,15 +1218,30 @@
                 }
                 if (!res.ok) throw new Error('github fetch failed');
                 const data = await res.json();
-                if (!data || !data.repo) {
-                    $('github-message').textContent = 'No recent commits';
+                const latest = data?.latest;
+                const contrib = data?.contributions;
+                if (latest) {
+                    $('github-repo').textContent = latest.repo || '—';
+                    $('github-message').textContent = latest.message || '—';
+                    $('github-meta').textContent = `${latest.commits || 1} commit${latest.commits === 1 ? '' : 's'} · ${timeAgo(latest.createdAt)}`;
+                    if (latest.url) $('github-widget').setAttribute('href', latest.url);
+                } else {
+                    $('github-repo').textContent = 'No recent public pushes';
+                    $('github-message').textContent = '';
                     $('github-meta').textContent = '';
-                    return;
                 }
-                $('github-repo').textContent = data.repo;
-                $('github-message').textContent = data.message || '—';
-                $('github-meta').textContent = `${data.commits || 1} commit${data.commits === 1 ? '' : 's'} · ${timeAgo(data.createdAt)}`;
-                if (data.url) $('github-widget').setAttribute('href', data.url);
+                if (contrib) {
+                    renderGitHubHeatmap(contrib.weeks);
+                    $('github-graph-total').textContent = contrib.total ?? 0;
+                    if (contrib.weeks?.length) {
+                        const firstDay = contrib.weeks[0].days[0]?.date;
+                        const lastWeek = contrib.weeks[contrib.weeks.length - 1].days;
+                        const lastDay = lastWeek[lastWeek.length - 1]?.date;
+                        if (firstDay && lastDay) {
+                            $('github-graph-range').textContent = `${shortDate(firstDay)} – ${shortDate(lastDay)}`;
+                        }
+                    }
+                }
             } catch {
                 $('github-message').textContent = 'GitHub unavailable';
                 $('github-meta').textContent = '';
@@ -1015,6 +1286,11 @@
         }
 
         // === hacker news ===
+        function hostnameOf(url) {
+            try { return new URL(url).hostname.replace(/^www\./, ''); }
+            catch { return null; }
+        }
+
         async function loadHackerNews() {
             try {
                 const idsRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
@@ -1024,12 +1300,20 @@
                     fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then((r) => r.json())
                 ));
                 const list = $('hn-list');
-                list.innerHTML = stories.filter(Boolean).map((s) => `
-                    <li class="hn-item">
-                        <span class="hn-score">${s.score || 0}</span>
-                        <a href="${escapeHtml(s.url || `https://news.ycombinator.com/item?id=${s.id}`)}" target="_blank" rel="noreferrer">${escapeHtml(s.title || '—')}</a>
-                    </li>
-                `).join('');
+                list.innerHTML = stories.filter(Boolean).map((s) => {
+                    const externalUrl = s.url;
+                    const href = externalUrl || `https://news.ycombinator.com/item?id=${s.id}`;
+                    const domain = externalUrl ? hostnameOf(externalUrl) : 'news.ycombinator.com';
+                    return `
+                        <li class="hn-item">
+                            <span class="hn-score" title="${s.score || 0} upvotes">${s.score || 0}</span>
+                            <a class="hn-link" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">
+                                <span class="hn-title">${escapeHtml(s.title || '—')}</span>
+                                ${domain ? `<span class="hn-domain">${escapeHtml(domain)}</span>` : ''}
+                            </a>
+                        </li>
+                    `;
+                }).join('');
             } catch {
                 $('hn-list').innerHTML = '<li class="widget-empty">Unavailable</li>';
             }
@@ -1041,6 +1325,7 @@
             renderDate();
             renderYearProgress();
             renderSun();
+            tickSpotifyProgress();
         }
 
         tick();
