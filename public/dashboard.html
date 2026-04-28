@@ -267,7 +267,7 @@
             transition: width 0.5s linear;
         }
 
-        .spotify-profile-link {
+        .profile-link {
             position: absolute;
             top: 0.6rem;
             right: 0.85rem;
@@ -280,7 +280,7 @@
             transition: opacity 0.2s ease;
             z-index: 2;
         }
-        .spotify-profile-link:hover { opacity: 1; }
+        .profile-link:hover { opacity: 1; }
 
         /* === weather + sun (combined) === */
         .widget-weather {
@@ -468,8 +468,15 @@
         }
 
         /* === github === */
-        .widget-github { text-decoration: none; color: inherit; }
-        .widget-github * { text-decoration: none; }
+        .github-main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            text-decoration: none;
+            color: inherit;
+        }
+        .github-main * { text-decoration: none; }
 
         .github-repo {
             font-family: 'Fraunces', serif;
@@ -749,7 +756,7 @@
 
         <!-- Row 2: Spotify · Strava -->
         <div class="widget widget-spotify">
-            <a class="spotify-profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
+            <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
             <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
                 <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
                 <div class="spotify-info">
@@ -767,6 +774,7 @@
         </div>
 
         <div class="widget widget-strava">
+            <a class="profile-link" href="https://www.strava.com/athletes/92118908" target="_blank" rel="noreferrer">@maxeisen</a>
             <div class="widget-label">Recent Activity</div>
             <ol class="strava-list" id="strava-list">
                 <li class="widget-empty">Loading…</li>
@@ -774,22 +782,25 @@
         </div>
 
         <!-- Row 3: GitHub · Bike Share · Hacker News · Year -->
-        <a class="widget widget-github" id="github-widget" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">
-            <div class="widget-label">GitHub</div>
-            <div class="github-repo" id="github-repo">—</div>
-            <div class="github-message" id="github-message">Loading latest commit…</div>
-            <div class="github-meta" id="github-meta">—</div>
-            <div class="github-heatmap-wrap">
-                <div class="github-heatmap-rows" aria-hidden="true">
-                    <span></span><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span>
+        <div class="widget widget-github">
+            <a class="profile-link" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">@maxeisen</a>
+            <a class="github-main" id="github-widget" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">
+                <div class="widget-label">GitHub</div>
+                <div class="github-repo" id="github-repo">—</div>
+                <div class="github-message" id="github-message">Loading latest commit…</div>
+                <div class="github-meta" id="github-meta">—</div>
+                <div class="github-heatmap-wrap">
+                    <div class="github-heatmap-rows" aria-hidden="true">
+                        <span></span><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span>
+                    </div>
+                    <div class="github-heatmap" id="github-heatmap"></div>
                 </div>
-                <div class="github-heatmap" id="github-heatmap"></div>
-            </div>
-            <div class="github-graph-meta">
-                <span><span class="github-graph-total" id="github-graph-total">—</span> contributions</span>
-                <span id="github-graph-range">—</span>
-            </div>
-        </a>
+                <div class="github-graph-meta">
+                    <span><span class="github-graph-total" id="github-graph-total">—</span> contributions</span>
+                    <span id="github-graph-range">—</span>
+                </div>
+            </a>
+        </div>
 
         <div class="widget widget-bike">
             <div class="widget-label">Toronto Bike Share</div>

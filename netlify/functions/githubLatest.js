@@ -45,8 +45,11 @@ export default async function handler() {
 
 		// Query as `viewer` (the token owner) so private contributions are included
 		// without depending on the public profile visibility setting.
+		// Also pull the public-only `user(login:)` view in parallel so the response
+		// can self-diagnose whether the token has elevated visibility.
 		const query = `query($from: DateTime!, $to: DateTime!) {
 			viewer {
+				login
 				contributionsCollection(from: $from, to: $to) {
 					contributionCalendar {
 						totalContributions
@@ -56,6 +59,13 @@ export default async function handler() {
 								contributionCount
 							}
 						}
+					}
+				}
+			}
+			user(login: "${USERNAME}") {
+				contributionsCollection(from: $from, to: $to) {
+					contributionCalendar {
+						totalContributions
 					}
 				}
 			}
@@ -82,6 +92,7 @@ export default async function handler() {
 		// Heatmap: array of weeks (oldest → newest), each with 7 days (Sun → Sat)
 		let heatmapWeeks = [];
 		let total = 0;
+		let diag = null;
 		const todayKey = isoDate(endOfToday);
 		if (contribRes.ok) {
 			const contrib = await contribRes.json();
@@ -98,8 +109,16 @@ export default async function handler() {
 			if (heatmapWeeks.length > HEATMAP_WEEKS) {
 				heatmapWeeks = heatmapWeeks.slice(heatmapWeeks.length - HEATMAP_WEEKS);
 			}
+			diag = {
+				viewerLogin: contrib?.data?.viewer?.login || null,
+				viewerTotal: total,
+				publicUserTotal: contrib?.data?.user?.contributionsCollection?.contributionCalendar?.totalContributions ?? null,
+				graphqlErrors: contrib?.errors || null,
+				oauthScopes: contribRes.headers.get("x-oauth-scopes") || null,
+			};
 		} else {
 			console.error("GitHub GraphQL failed:", contribRes.status, await contribRes.text());
+			diag = { httpStatus: contribRes.status };
 		}
 
 		// 7-day total derived from the heatmap so it matches what users see
@@ -133,6 +152,7 @@ export default async function handler() {
 				last7Total,
 				weeks: heatmapWeeks,
 			},
+			_diag: diag,
 		});
 	} catch (err) {
 		console.error(err);
