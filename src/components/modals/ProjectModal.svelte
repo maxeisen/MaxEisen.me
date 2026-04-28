@@ -50,6 +50,10 @@
         font-size: 35px;
         margin: 15px 15px 10px 15px;
         color: var(--modal-title-colour);
+        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+        font-weight: 600;
+        font-optical-sizing: auto;
+        letter-spacing: -0.02em;
     }
 
     :global(.project-modal .technologies) {

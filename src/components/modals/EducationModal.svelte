@@ -27,6 +27,10 @@
         font-size: 35px;
         margin: 15px auto 5px auto;
         color: var(--modal-title-colour);
+        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+        font-weight: 600;
+        font-optical-sizing: auto;
+        letter-spacing: -0.02em;
     }
 
     :global(.education-modal .modal-degree) {

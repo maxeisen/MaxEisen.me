@@ -15,7 +15,7 @@
     });
 </script>
 
-<h1><Annotation bind:visible type="highlight" color="var(--intro-highlight-colour)">Max Eisen</Annotation></h1>
+<h1 class="profile-name"><Annotation bind:visible type="highlight" color="var(--intro-highlight-colour)">Max Eisen</Annotation></h1>
 <h2 class="status">SDE <b style="color: var(--paragraph-colour); font-weight: 300">@</b> Wealthsimple</h2>
 <h2 class="location">Toronto, ON</h2>
 <div class="social-links-container">
@@ -33,6 +33,13 @@
 </div>
 
 <style>
+    .profile-name {
+        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+        font-weight: 600;
+        font-optical-sizing: auto;
+        letter-spacing: -0.025em;
+    }
+
     .status {
         font-size: 22px;
         margin-top: -20px;

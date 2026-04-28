@@ -263,6 +263,10 @@
         margin-top: 10px;
         margin-bottom: 10px;
         text-align: left;
+        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+        font-weight: 600;
+        font-optical-sizing: auto;
+        letter-spacing: -0.02em;
     }
 
     .title-extension {
