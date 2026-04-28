@@ -1,8 +1,10 @@
 [data-theme="dark"] {
-    --main-green: #00bba2;
-    --main-green-translucent: rgba(0, 187, 162, 0.4);
-    --background-one: #002723;
-    --background-two: #00071a;
+    --main-green: #b8a888;
+    --main-green-translucent: rgba(184, 168, 136, 0.4);
+    --background-one: #1c1a17;
+    --background-two: #0d0c0a;
+    --background-accent: #3d2a18;
+    --background-glow: #4a3a55;
     --nav-link: #cccccc;
     --nav-link-hover: white;
     --footer-colour: white;
@@ -12,10 +14,12 @@
 }
 
 [data-theme="light"] {
-    --main-green: #00bba2;
-    --main-green-translucent: rgba(0, 187, 162, 0.4);
-    --background-one: #01c5b2;
-    --background-two: #0076bb;
+    --main-green: #6b7a5a;
+    --main-green-translucent: rgba(107, 122, 90, 0.4);
+    --background-one: #f0e7d6;
+    --background-two: #d8c9a3;
+    --background-accent: #b8c4a3;
+    --background-glow: #e6c8a8;
     --nav-link: #ffffff;
     --nav-link-hover: #dadada;
     --footer-colour: black;
