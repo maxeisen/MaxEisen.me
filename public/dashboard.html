@@ -1058,6 +1058,10 @@
                 max-height: none;
                 overflow: visible;
             }
+            /* In responsive layouts the grid no longer defines slot heights, so
+               container-type: size would force slots to collapse. Switch to
+               inline-size (width-only queries) so slots size to their content. */
+            .slot { container-type: inline-size; }
             .slot-large, .slot-small { grid-column: span 2; }
             .widget-gallery { aspect-ratio: 16 / 9; }
         }
@@ -1219,6 +1223,7 @@
 
         <div class="slot slot-small" data-slot-index="6">
         <div class="widget widget-hn" data-widget="hn">
+            <a class="profile-link" href="https://news.ycombinator.com/" target="_blank" rel="noreferrer">HN ↗</a>
             <div class="widget-label">Hacker News</div>
             <ol class="hn-list" id="hn-list">
                 <li class="widget-empty">Loading…</li>
