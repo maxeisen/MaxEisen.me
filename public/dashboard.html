@@ -299,13 +299,40 @@
         }
         .spotify-viz.active {
             opacity: 0.55;
-            pointer-events: auto;
-            cursor: zoom-in;
         }
         .widget-spotify > .spotify-main {
             position: relative;
             z-index: 1;
         }
+
+        /* Small button to expand the visualizer fullscreen. Hidden until the
+           viz canvas is active so it doesn't show when there's no track art. */
+        .viz-fullscreen-btn {
+            position: absolute;
+            bottom: 0.6rem;
+            right: 0.85rem;
+            width: 32px;
+            height: 32px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--main-green-translucent);
+            border-radius: 50%;
+            color: var(--main-green);
+            font-size: 0.9rem;
+            line-height: 1;
+            padding: 0;
+            cursor: zoom-in;
+            opacity: 0.75;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 3;
+        }
+        .viz-fullscreen-btn:hover { opacity: 1; }
+        .viz-fullscreen-btn:active { transform: scale(0.92); }
+        .spotify-viz.active ~ .viz-fullscreen-btn { display: flex; }
 
         /* Fullscreen overlay state. */
         .viz-overlay {
@@ -1173,6 +1200,7 @@
         <div class="widget widget-spotify" data-widget="spotify">
             <canvas class="spotify-viz" id="spotify-viz" aria-hidden="true"></canvas>
             <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">Spotify ↗</a>
+            <button class="viz-fullscreen-btn" id="viz-fullscreen-btn" type="button" aria-label="Fullscreen visualizer" title="Fullscreen visualizer">⛶</button>
             <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
                 <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
                 <div class="spotify-info">
@@ -2217,7 +2245,10 @@
                 inlineViz = makeViz(inlineCanvas);
                 overlayViz = makeViz(overlayCanvas);
             }
-            inlineCanvas.addEventListener('click', (e) => {
+            const fsBtn = $('viz-fullscreen-btn');
+            // Stop pointerdown so the widget-drag handler doesn't claim the press.
+            fsBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+            fsBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (vizParams) openVizOverlay();
