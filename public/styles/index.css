@@ -112,7 +112,8 @@ header nav ul li a:hover {
 }
 
 .nav-bar {
-    margin-right: 20px;
+    grid-column: 2;
+    margin-right: 60px;
     margin-top: 20px;
     display: flex;
     justify-content: flex-end;
@@ -171,11 +172,18 @@ a:hover {
     color: var(--link-hover-colour);
 }
 
+/* Pin the logo to the same fixed coordinate system as .profile-section so the
+   ME monogram always sits centered above the profile card. */
 .home-icon-container {
-    height: 115px;
+    position: fixed;
+    top: 30px;
+    margin-left: 60px;
+    width: 284px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 3;
 }
 
 .home-icon {
@@ -247,7 +255,7 @@ video::-webkit-media-controls-overlay-play-button {
     padding: 24px 32px 0 32px;
     margin-top: auto;
     margin-bottom: auto;
-    margin-left: 100px;
+    margin-left: 60px;
     background: var(--inner-background);
     box-shadow: var(--inner-box-shadow);
     grid-area: profile-section;
@@ -431,8 +439,12 @@ button.close.svelte-fnsfcv {
         margin: 0;
     }
 
+    header,
     .grid-container {
         grid-template-columns: 0.75fr 1.5fr;
+    }
+
+    .grid-container {
         grid-template-rows: auto;
         grid-template-areas: "profile-section info-section" "profile-section info-section";
     }
@@ -445,8 +457,12 @@ button.close.svelte-fnsfcv {
 }
 
 @media only screen and (max-width: 1270px) {
+    header,
     .grid-container {
         grid-template-columns: 1fr 1.5fr;
+    }
+
+    .grid-container {
         grid-template-rows: auto;
         grid-template-areas: "profile-section info-section" "profile-section info-section";
     }
@@ -457,8 +473,12 @@ button.close.svelte-fnsfcv {
 }
 
 @media only screen and (max-width: 1100px) {
+    header,
     .grid-container {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-container {
         grid-template-rows: auto;
         grid-template-areas: "profile-section info-section" "profile-section info-section";
     }
@@ -503,6 +523,26 @@ button.close.svelte-fnsfcv {
 @media only screen and (max-width: 860px) {
     div.header-container {
         position: relative;
+    }
+
+    header {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        justify-items: center;
+    }
+
+    .home-icon-container {
+        position: static;
+        width: auto;
+        height: auto;
+        top: auto;
+        left: auto;
+    }
+
+    .nav-bar {
+        grid-column: 1;
+        margin: 0;
+        justify-content: center;
     }
 
     header nav ul {

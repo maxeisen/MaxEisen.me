@@ -519,40 +519,40 @@
         .weather-temp {
             font-family: 'Fraunces', serif;
             font-weight: 600;
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-size: clamp(2rem, 4vw, 3.5rem);
             line-height: 1;
             color: var(--header-colour);
             letter-spacing: -0.03em;
         }
 
         .weather-cond {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--header-colour);
-            margin-top: 0.4rem;
+            margin-top: 0.3rem;
         }
 
         .weather-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.5rem 1rem;
-            margin-top: auto;
-            padding-top: 0.75rem;
-            font-size: 0.95rem;
+            gap: 0.4rem 1rem;
+            margin-top: 0.6rem;
+            padding-top: 0.5rem;
+            font-size: 0.9rem;
         }
-        .weather-stat-label { color: var(--main-green); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.72rem; }
+        .weather-stat-label { color: var(--main-green); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.7rem; }
         .weather-stat-value { color: var(--paragraph-colour); }
 
         .weather-meta {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--paragraph-colour);
             opacity: 0.65;
-            margin-top: 0.4rem;
+            margin-top: 0.3rem;
         }
 
         .sun-svg {
             width: 100%;
             height: auto;
-            max-height: 150px;
+            max-height: 110px;
             margin: 0.25rem 0 0.5rem 0;
             flex-shrink: 0;
         }
@@ -580,8 +580,8 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-top: auto;
-            padding-top: 0.75rem;
+            margin-top: 0.6rem;
+            padding-top: 0.5rem;
             border-top: 1px solid var(--main-green-translucent);
         }
         .moon-emoji { font-size: 1.6rem; line-height: 1; }
@@ -679,17 +679,8 @@
             color: var(--main-green);
         }
 
-        /* List length keyed off viewport HEIGHT only — width can shrink without
-           collapsing the list. */
-        @media (max-height: 850px) {
-            .strava-list li:nth-child(n+5) { display: none; }
-        }
-        @media (max-height: 700px) {
-            .strava-list li:nth-child(n+4) { display: none; }
-        }
-        @media (max-height: 560px) {
-            .strava-list li:nth-child(n+3) { display: none; }
-        }
+        /* List length is trimmed dynamically in JS (trimListToFit) so partial
+           overflow rows are cleanly hidden. */
 
         /* === year progress === */
         .progress-percent {
@@ -742,6 +733,7 @@
             color: var(--header-colour);
             letter-spacing: -0.02em;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            flex-shrink: 0;
         }
 
         .github-message {
@@ -753,6 +745,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .github-meta {
@@ -760,14 +753,19 @@
             color: var(--paragraph-colour);
             opacity: 0.6;
             margin-top: 0.3rem;
+            flex-shrink: 0;
         }
 
         .github-heatmap-wrap {
             display: grid;
             grid-template-columns: auto 1fr;
             gap: 0.4rem;
-            margin-top: auto;
+            margin-top: 0.75rem;
             padding-top: 0.6rem;
+            flex: 1 1 0;
+            min-height: 0;
+            max-height: clamp(60px, 11vh, 120px);
+            overflow: hidden;
         }
         .github-heatmap-rows {
             display: grid;
@@ -791,12 +789,13 @@
             grid-template-rows: repeat(7, 1fr);
             gap: 2px;
             width: 100%;
+            height: 100%;
         }
         .github-cell {
             border-radius: 2px;
             background: var(--main-green-translucent);
             opacity: 0.35;
-            aspect-ratio: 1;
+            min-height: 0;
         }
         .github-cell.l1 { opacity: 0.55; background: var(--main-green); }
         .github-cell.l2 { opacity: 0.7; background: var(--main-green); }
@@ -813,6 +812,7 @@
             font-size: 0.7rem;
             color: var(--paragraph-colour);
             opacity: 0.7;
+            flex-shrink: 0;
         }
         .github-graph-total {
             font-family: 'Fraunces', serif;
@@ -872,17 +872,7 @@
             opacity: 0.7;
         }
 
-        /* Story count keyed off viewport HEIGHT only — width can shrink without
-           collapsing the list. */
-        @media (max-height: 850px) {
-            .hn-list li:nth-child(n+6) { display: none; }
-        }
-        @media (max-height: 700px) {
-            .hn-list li:nth-child(n+5) { display: none; }
-        }
-        @media (max-height: 560px) {
-            .hn-list li:nth-child(n+4) { display: none; }
-        }
+        /* Story count is trimmed dynamically in JS (trimListToFit). */
 
         /* === shared === */
         .widget-empty {
@@ -1208,6 +1198,31 @@
         function escapeHtml(str) {
             return String(str || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
+
+        // Hide list items that don't fully fit inside their container so partial
+        // rows aren't shown. Re-runs on layout changes (resize, content swap).
+        function trimListToFit(listEl) {
+            if (!listEl) return;
+            const items = Array.from(listEl.children);
+            items.forEach((item) => { item.style.display = ''; });
+            // Force a reflow so getBoundingClientRect reflects the freshly-revealed items.
+            void listEl.offsetHeight;
+            const listBottom = listEl.getBoundingClientRect().bottom;
+            items.forEach((item) => {
+                const rect = item.getBoundingClientRect();
+                if (rect.bottom > listBottom + 1) item.style.display = 'none';
+            });
+        }
+        function trimAllLists() {
+            trimListToFit($('strava-list'));
+            trimListToFit($('hn-list'));
+        }
+        // Debounced resize handler.
+        let trimResizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(trimResizeTimer);
+            trimResizeTimer = setTimeout(trimAllLists, 100);
+        });
 
         // === clock + date (combined widget) ===
         function renderClock() {
@@ -2029,6 +2044,7 @@
                         </li>
                     `;
                 }).join('');
+                requestAnimationFrame(() => trimListToFit(list));
             } catch {
                 list.innerHTML = '<li class="widget-empty">Strava unavailable</li>';
             }
@@ -2172,6 +2188,7 @@
                         </li>
                     `;
                 }).join('');
+                requestAnimationFrame(() => trimListToFit(list));
             } catch {
                 $('hn-list').innerHTML = '<li class="widget-empty">Unavailable</li>';
             }
