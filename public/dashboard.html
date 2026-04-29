@@ -78,6 +78,7 @@
             max-width: 1800px;
             margin: 0 auto;
         }
+        .dashboard.is-dragging { overflow: visible; }
 
         .widget {
             position: relative;
@@ -105,9 +106,85 @@
 
         .span-2 { grid-column: span 2; }
 
+        /* === slots: drag-and-drop containers that own the grid sizing === */
+        .slot {
+            display: flex;
+            min-width: 0;
+            min-height: 0;
+            position: relative;
+            border-radius: 20px;
+            transition: outline 0.15s ease;
+            outline: 2px dashed transparent;
+            outline-offset: -8px;
+            container-type: size;
+            container-name: slot;
+        }
+        .slot-large { grid-column: span 2; }
+        .slot-small { grid-column: span 1; }
+        .slot > .widget {
+            flex: 1 1 auto;
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .slot > .widget.dragging {
+            cursor: grabbing;
+            opacity: 0.92;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transition: box-shadow 0.15s ease;
+            pointer-events: none;
+        }
+        .slot.drop-target {
+            outline-color: var(--main-green);
+        }
+        .slot.swap-flash > .widget {
+            animation: slot-swap-flash 0.35s ease;
+        }
+        @keyframes slot-swap-flash {
+            0%   { transform: scale(0.96); }
+            60%  { transform: scale(1.015); }
+            100% { transform: scale(1); }
+        }
+
+        /* Compact overrides when widgets land in a 1-col slot. */
+        .slot-small .widget-clock { padding: 1.25rem 1rem; gap: 0.35rem; }
+        .slot-small .clock-time { font-size: clamp(2.25rem, 7vw, 4rem); }
+        .slot-small .clock-meridiem { font-size: clamp(0.7rem, 1.1vw, 1rem); }
+        .slot-small .clock-greeting { font-size: clamp(0.95rem, 1.4vw, 1.2rem); }
+        .slot-small .clock-date { font-size: 0.8rem; }
+        .slot-small .clock-meta { gap: 0.5rem; flex-direction: column; }
+        .slot-small .clock-progress {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            max-width: 100%;
+        }
+        .slot-small .clock-progress-pct { font-size: 0.85rem; }
+        .slot-small .clock-progress-label { font-size: 0.65rem; }
+
+        /* In the small (1-col) slot, the stats grid only has room for 2 cells.
+           Drop UV and Air; keep Feels and Wind. */
+        .slot-small .weather-stats > div:nth-child(n+3) { display: none; }
+
+        /* Weather compact mode: triggered by slot height, not width — covers
+           the row-3 large slot (where it would otherwise overflow) and the
+           row-3 small slots. Hides sun & moon, tightens the left column. */
+        @container slot (max-height: 300px) {
+            .widget-weather { flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
+            .widget-weather .weather-left { flex: 1 1 auto; gap: 0.4rem; }
+            .widget-weather .weather-right { display: none; }
+            .widget-weather .weather-temp { font-size: clamp(2rem, 4.5vw, 3rem); }
+            .widget-weather .weather-stats { grid-template-columns: 1fr 1fr; gap: 0.3rem 0.75rem; font-size: 0.78rem; }
+        }
+
         /* === clock + date (combined) === */
         .widget-clock {
-            grid-column: span 2;
             align-items: center;
             justify-content: center;
             text-align: center;
@@ -201,7 +278,6 @@
 
         /* === spotify === */
         .widget-spotify {
-            grid-column: span 2;
             flex-direction: row;
             align-items: center;
             gap: 1.25rem;
@@ -508,13 +584,12 @@
 
         /* === weather + sun (combined) === */
         .widget-weather {
-            grid-column: span 2;
             flex-direction: row;
             gap: 1.25rem;
         }
 
-        .weather-left { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-        .weather-right { flex: 1.25; min-width: 0; display: flex; flex-direction: column; }
+        .weather-left { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; }
+        .weather-right { flex: 1.25; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; }
 
         .weather-temp {
             font-family: 'Fraunces', serif;
@@ -523,6 +598,7 @@
             line-height: 1;
             color: var(--header-colour);
             letter-spacing: -0.03em;
+            margin-top: 0.25rem;
         }
 
         .weather-cond {
@@ -555,6 +631,12 @@
             max-height: 110px;
             margin: 0.25rem 0 0.5rem 0;
             flex-shrink: 0;
+        }
+
+        /* Bigger temp + sun graph only when the slot is tall enough (e.g. row 1). */
+        @container slot (min-height: 380px) {
+            .widget-weather .weather-temp { font-size: clamp(2.5rem, 5.5vw, 4.75rem); }
+            .widget-weather .sun-svg { max-height: 150px; }
         }
 
         .sun-svg path.sun-arc {
@@ -601,8 +683,6 @@
         }
 
         /* === strava === */
-        .widget-strava { grid-column: span 2; }
-
         .strava-list {
             list-style: none;
             padding: 0;
@@ -729,7 +809,7 @@
         .github-repo {
             font-family: 'Fraunces', serif;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: clamp(1rem, 1.25vw, 1.4rem);
             color: var(--header-colour);
             letter-spacing: -0.02em;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -737,7 +817,7 @@
         }
 
         .github-message {
-            font-size: 0.8rem;
+            font-size: clamp(0.8rem, 0.95vw, 1.05rem);
             color: var(--paragraph-colour);
             opacity: 0.85;
             margin-top: 0.3rem;
@@ -749,7 +829,7 @@
         }
 
         .github-meta {
-            font-size: 0.72rem;
+            font-size: clamp(0.72rem, 0.85vw, 0.92rem);
             color: var(--paragraph-colour);
             opacity: 0.6;
             margin-top: 0.3rem;
@@ -757,26 +837,27 @@
         }
 
         .github-heatmap-wrap {
-            display: grid;
-            grid-template-columns: auto 1fr;
+            display: flex;
+            align-items: stretch;
             gap: 0.4rem;
             margin-top: 0.75rem;
             padding-top: 0.6rem;
             flex: 1 1 0;
-            min-height: 0;
-            max-height: clamp(60px, 11vh, 120px);
+            min-height: 60px;
+            min-width: 0;
             overflow: hidden;
         }
         .github-heatmap-rows {
             display: grid;
             grid-template-rows: repeat(7, 1fr);
             gap: 2px;
-            font-size: 0.55rem;
+            font-size: clamp(0.55rem, 0.7vw, 0.78rem);
             font-weight: 600;
             color: var(--paragraph-colour);
             opacity: 0.55;
             text-transform: uppercase;
             letter-spacing: 0.04em;
+            flex: 0 0 auto;
         }
         .github-heatmap-rows span {
             display: flex;
@@ -786,15 +867,17 @@
         .github-heatmap {
             display: grid;
             grid-auto-flow: column;
-            grid-template-rows: repeat(7, 1fr);
+            grid-template-rows: repeat(7, minmax(0, 1fr));
             gap: 2px;
-            width: 100%;
+            flex: 1 1 0;
+            min-width: 0;
             height: 100%;
         }
         .github-cell {
             border-radius: 2px;
             background: var(--main-green-translucent);
             opacity: 0.35;
+            min-width: 0;
             min-height: 0;
         }
         .github-cell.l1 { opacity: 0.55; background: var(--main-green); }
@@ -802,14 +885,14 @@
         .github-cell.l3 { opacity: 0.85; background: var(--main-green); }
         .github-cell.l4 { opacity: 1; background: var(--main-green); }
         .github-cell.future { opacity: 0.12; }
-        .github-cell.today { box-shadow: 0 0 0 1.5px var(--header-colour); opacity: 1; }
+        .github-cell.today { box-shadow: inset 0 0 0 1.5px var(--header-colour); opacity: 1; }
 
         .github-graph-meta {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
             margin-top: 0.5rem;
-            font-size: 0.7rem;
+            font-size: clamp(0.7rem, 0.85vw, 0.9rem);
             color: var(--paragraph-colour);
             opacity: 0.7;
             flex-shrink: 0;
@@ -818,7 +901,7 @@
             font-family: 'Fraunces', serif;
             font-weight: 600;
             color: var(--header-colour);
-            font-size: 0.95rem;
+            font-size: clamp(0.95rem, 1.15vw, 1.25rem);
             opacity: 1;
         }
 
@@ -900,7 +983,6 @@
 
         /* === gallery === */
         .widget-gallery {
-            grid-column: span 2;
             position: relative;
             padding: 0;
             overflow: hidden;
@@ -976,7 +1058,7 @@
                 max-height: none;
                 overflow: visible;
             }
-            .widget-clock, .widget-spotify, .widget-weather, .widget-strava, .widget-gallery { grid-column: span 2; }
+            .slot-large, .slot-small { grid-column: span 2; }
             .widget-gallery { aspect-ratio: 16 / 9; }
         }
 
@@ -986,7 +1068,7 @@
                 gap: 1rem;
                 padding: 1rem;
             }
-            .widget-clock, .widget-spotify, .widget-weather, .widget-strava, .widget-gallery { grid-column: span 1; }
+            .slot-large, .slot-small { grid-column: span 1; }
             .widget-weather { flex-direction: column; }
         }
     </style>
@@ -996,9 +1078,10 @@
         <span class="home-link-text">← back</span>
         <span class="home-link-arrow" aria-hidden="true">←</span>
     </a>
-    <div class="dashboard">
+    <div class="dashboard" id="dashboard-grid">
         <!-- Row 1: Clock · Gallery -->
-        <div class="widget widget-clock">
+        <div class="slot slot-large" data-slot-index="0">
+        <div class="widget widget-clock" data-widget="clock">
             <div class="clock-time" id="clock-time">--:--:--<span class="clock-meridiem" id="clock-meridiem"></span></div>
             <div class="clock-meta">
                 <div class="clock-greeting" id="clock-greeting">—</div>
@@ -1019,17 +1102,21 @@
                 </div>
             </div>
         </div>
+        </div>
 
-        <a class="widget widget-gallery" href="/gallery" id="gallery-widget">
+        <div class="slot slot-large" data-slot-index="1">
+        <a class="widget widget-gallery" href="/gallery" id="gallery-widget" data-widget="gallery">
             <img class="gallery-img" id="gallery-img" alt="" loading="lazy"/>
             <div class="gallery-overlay">
                 <div class="gallery-label">Gallery</div>
                 <div class="gallery-cta">View all →</div>
             </div>
         </a>
+        </div>
 
         <!-- Row 2: Weather · Spotify -->
-        <div class="widget widget-weather">
+        <div class="slot slot-large" data-slot-index="2">
+        <div class="widget widget-weather" data-widget="weather">
             <div class="weather-left">
                 <div class="widget-label">Weather</div>
                 <div class="weather-temp" id="weather-temp">—°</div>
@@ -1074,8 +1161,10 @@
                 </div>
             </div>
         </div>
+        </div>
 
-        <div class="widget widget-spotify">
+        <div class="slot slot-large" data-slot-index="3">
+        <div class="widget widget-spotify" data-widget="spotify">
             <canvas class="spotify-viz" id="spotify-viz" aria-hidden="true"></canvas>
             <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">Spotify ↗</a>
             <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
@@ -1093,17 +1182,21 @@
                 </div>
             </a>
         </div>
+        </div>
 
         <!-- Row 3: Strava · GitHub · Hacker News -->
-        <div class="widget widget-strava">
+        <div class="slot slot-large" data-slot-index="4">
+        <div class="widget widget-strava" data-widget="strava">
             <a class="profile-link" href="https://www.strava.com/athletes/92118908" target="_blank" rel="noreferrer">Strava ↗</a>
             <div class="widget-label">Physical Activity</div>
             <ol class="strava-list" id="strava-list">
                 <li class="widget-empty">Loading…</li>
             </ol>
         </div>
+        </div>
 
-        <div class="widget widget-github">
+        <div class="slot slot-small" data-slot-index="5">
+        <div class="widget widget-github" data-widget="github">
             <a class="profile-link" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">GitHub ↗</a>
             <a class="github-main" id="github-widget" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">
                 <div class="widget-label">Code Activity</div>
@@ -1122,12 +1215,15 @@
                 </div>
             </a>
         </div>
+        </div>
 
-        <div class="widget widget-hn">
+        <div class="slot slot-small" data-slot-index="6">
+        <div class="widget widget-hn" data-widget="hn">
             <div class="widget-label">Hacker News</div>
             <ol class="hn-list" id="hn-list">
                 <li class="widget-empty">Loading…</li>
             </ol>
+        </div>
         </div>
     </div>
 
@@ -1223,6 +1319,166 @@
             clearTimeout(trimResizeTimer);
             trimResizeTimer = setTimeout(trimAllLists, 100);
         });
+
+        // === dashboard widget drag-and-drop ===
+        // Whole-widget drag with a 5px movement threshold (so taps/clicks pass
+        // through). Two-way swap between the source and target slots, persisted
+        // to localStorage. Widget sizing follows whichever slot it lands in.
+        const DRAG_THRESHOLD = 5;
+        const LAYOUT_KEY = 'dashboard-layout';
+        const VALID_WIDGETS = ['clock', 'gallery', 'weather', 'spotify', 'strava', 'github', 'hn'];
+
+        function loadLayout() {
+            try {
+                const raw = localStorage.getItem(LAYOUT_KEY);
+                if (!raw) return null;
+                const arr = JSON.parse(raw);
+                if (!Array.isArray(arr) || arr.length !== VALID_WIDGETS.length) return null;
+                if (new Set(arr).size !== arr.length) return null;
+                if (!arr.every((id) => VALID_WIDGETS.includes(id))) return null;
+                return arr;
+            } catch { return null; }
+        }
+
+        function saveLayout() {
+            try {
+                const slots = document.querySelectorAll('#dashboard-grid .slot[data-slot-index]');
+                const layout = Array.from(slots).map((slot) => slot.querySelector('.widget[data-widget]')?.dataset.widget);
+                localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout));
+            } catch {}
+        }
+
+        function applyLayout(layout) {
+            if (!layout) return;
+            const slots = Array.from(document.querySelectorAll('#dashboard-grid .slot[data-slot-index]'));
+            const byId = {};
+            slots.forEach((slot) => {
+                const w = slot.querySelector('.widget[data-widget]');
+                if (w) byId[w.dataset.widget] = w;
+            });
+            layout.forEach((widgetId, i) => {
+                const slot = slots[i];
+                const widget = byId[widgetId];
+                if (!slot || !widget) return;
+                if (slot.firstElementChild === widget) return;
+                slot.appendChild(widget);
+            });
+        }
+
+        function swapWidgets(slotA, slotB) {
+            if (!slotA || !slotB || slotA === slotB) return;
+            const widgetA = slotA.querySelector('.widget[data-widget]');
+            const widgetB = slotB.querySelector('.widget[data-widget]');
+            if (!widgetA || !widgetB) return;
+            // Use a placeholder so the swap is order-safe.
+            const placeholder = document.createComment('swap');
+            slotA.replaceChild(placeholder, widgetA);
+            slotB.replaceChild(widgetA, widgetB);
+            slotA.replaceChild(widgetB, placeholder);
+            saveLayout();
+            [slotA, slotB].forEach((s) => {
+                s.classList.add('swap-flash');
+                setTimeout(() => s.classList.remove('swap-flash'), 360);
+            });
+            // Re-trim lists and let the viz canvas pick up the new size.
+            requestAnimationFrame(() => {
+                trimAllLists();
+                window.dispatchEvent(new Event('resize'));
+            });
+        }
+
+        function initWidgetDrag() {
+            const dashboard = document.getElementById('dashboard-grid');
+            if (!dashboard) return;
+            applyLayout(loadLayout());
+
+            const widgets = dashboard.querySelectorAll('.widget[data-widget]');
+            widgets.forEach((widget) => {
+                let pointerId = null;
+                let startX = 0, startY = 0;
+                let dragStarted = false;
+                let lastDropTarget = null;
+                let suppressClickUntil = 0;
+
+                const cleanup = () => {
+                    widget.classList.remove('dragging');
+                    widget.style.transform = '';
+                    if (lastDropTarget) lastDropTarget.classList.remove('drop-target');
+                    lastDropTarget = null;
+                    dashboard.classList.remove('is-dragging');
+                };
+
+                widget.addEventListener('pointerdown', (e) => {
+                    if (e.button !== undefined && e.button !== 0) return;
+                    pointerId = e.pointerId;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    dragStarted = false;
+                    try { widget.setPointerCapture(pointerId); } catch {}
+                });
+
+                widget.addEventListener('pointermove', (e) => {
+                    if (pointerId === null || e.pointerId !== pointerId) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    if (!dragStarted) {
+                        if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+                        dragStarted = true;
+                        widget.classList.add('dragging');
+                        dashboard.classList.add('is-dragging');
+                    }
+                    widget.style.transform = `translate(${dx}px, ${dy}px) scale(1.02)`;
+                    // .dragging has pointer-events: none in CSS, so elementFromPoint
+                    // pierces through to the slot under the cursor.
+                    const el = document.elementFromPoint(e.clientX, e.clientY);
+                    const slot = el?.closest('.slot[data-slot-index]');
+                    const sourceSlot = widget.parentElement;
+                    const targetSlot = (slot && slot !== sourceSlot) ? slot : null;
+                    if (targetSlot !== lastDropTarget) {
+                        if (lastDropTarget) lastDropTarget.classList.remove('drop-target');
+                        if (targetSlot) targetSlot.classList.add('drop-target');
+                        lastDropTarget = targetSlot;
+                    }
+                });
+
+                const finish = (e) => {
+                    if (pointerId === null || e.pointerId !== pointerId) return;
+                    try { widget.releasePointerCapture(pointerId); } catch {}
+                    pointerId = null;
+                    if (dragStarted) {
+                        const sourceSlot = widget.parentElement;
+                        const targetSlot = lastDropTarget;
+                        cleanup();
+                        if (targetSlot && targetSlot !== sourceSlot) {
+                            swapWidgets(sourceSlot, targetSlot);
+                        }
+                        suppressClickUntil = Date.now() + 300;
+                    }
+                    dragStarted = false;
+                };
+                widget.addEventListener('pointerup', finish);
+                widget.addEventListener('pointercancel', (e) => {
+                    if (pointerId === null || e.pointerId !== pointerId) return;
+                    pointerId = null;
+                    if (dragStarted) cleanup();
+                    dragStarted = false;
+                });
+
+                // Suppress clicks/navigations that fire after a drag.
+                widget.addEventListener('click', (e) => {
+                    if (Date.now() < suppressClickUntil) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }, true);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initWidgetDrag);
+        } else {
+            initWidgetDrag();
+        }
 
         // === clock + date (combined widget) ===
         function renderClock() {
@@ -2067,7 +2323,7 @@
                 grid.innerHTML = '';
                 return;
             }
-            grid.style.gridTemplateColumns = `repeat(${weeks.length}, 1fr)`;
+            grid.style.gridTemplateColumns = `repeat(${weeks.length}, minmax(0, 1fr))`;
             const max = Math.max(1, ...weeks.flatMap((w) => w.days.map((d) => d.count)));
             const todayIso = new Date().toISOString().slice(0, 10);
             const cells = [];

@@ -16,7 +16,7 @@ function jsonResponse(body, status = 200) {
 }
 
 const USERNAME = "maxeisen";
-const HEATMAP_WEEKS = 12;
+const HEATMAP_WEEKS = 10;
 
 function isoDate(d) {
 	return d.toISOString().slice(0, 10);
