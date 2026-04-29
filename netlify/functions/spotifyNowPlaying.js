@@ -60,14 +60,31 @@ function shapeTrack(item, playing, extra = {}) {
 	if (!item) return { playing: false };
 	return {
 		playing,
+		id: item.id || null,
 		track: item.name,
 		artist: (item.artists || []).map((a) => a.name).join(", "),
+		artistIds: (item.artists || []).map((a) => a.id).filter(Boolean),
 		album: item.album?.name || null,
 		albumArt: item.album?.images?.[0]?.url || null,
 		url: item.external_urls?.spotify || null,
 		durationMs: item.duration_ms || null,
 		...extra,
 	};
+}
+
+// Pull the artist's primary genre to use as a coarse vibe hint client-side.
+async function fetchPrimaryGenre(artistIds, token) {
+	if (!artistIds || artistIds.length === 0) return null;
+	try {
+		const res = await fetch(`https://api.spotify.com/v1/artists/${artistIds[0]}`, {
+			headers: { "Authorization": `Bearer ${token}` },
+		});
+		if (!res.ok) return null;
+		const a = await res.json();
+		return a.genres?.[0] || null;
+	} catch {
+		return null;
+	}
 }
 
 export default async function handler() {
@@ -90,11 +107,12 @@ export default async function handler() {
 	if (nowRes.status === 200) {
 		const data = await nowRes.json();
 		if (data && data.item) {
-			return jsonResponse(
-				shapeTrack(data.item, !!data.is_playing, {
-					progressMs: data.progress_ms || 0,
-				})
-			);
+			const shape = shapeTrack(data.item, !!data.is_playing, {
+				progressMs: data.progress_ms || 0,
+			});
+			shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
+			delete shape.artistIds;
+			return jsonResponse(shape);
 		}
 	}
 
@@ -109,5 +127,8 @@ export default async function handler() {
 	const recentData = await recentRes.json();
 	const item = recentData.items?.[0];
 	if (!item) return jsonResponse({ playing: false });
-	return jsonResponse(shapeTrack(item.track, false, { playedAt: item.played_at }));
+	const shape = shapeTrack(item.track, false, { playedAt: item.played_at });
+	shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
+	delete shape.artistIds;
+	return jsonResponse(shape);
 }

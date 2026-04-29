@@ -205,7 +205,184 @@
             flex-direction: row;
             align-items: center;
             gap: 1.25rem;
+            position: relative;
         }
+
+        .spotify-viz {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+            z-index: 0;
+        }
+        .spotify-viz.active {
+            opacity: 0.55;
+            pointer-events: auto;
+            cursor: zoom-in;
+        }
+        .widget-spotify > .spotify-main {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Fullscreen overlay state. */
+        .viz-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: none;
+            cursor: zoom-out;
+        }
+        .viz-overlay.open { display: block; }
+        .viz-overlay canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .viz-overlay-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 2rem;
+            line-height: 1;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+            z-index: 2;
+        }
+        .viz-overlay-close:hover { opacity: 1; }
+        .viz-overlay-meta {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(640px, calc(100% - 3rem));
+            color: rgba(255, 255, 255, 0.92);
+            font-family: 'Inter', sans-serif;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 1.1rem 1.3rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .viz-overlay-card {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            min-width: 0;
+        }
+        .viz-overlay-art {
+            width: clamp(70px, 9vw, 100px);
+            height: clamp(70px, 9vw, 100px);
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+        }
+        .viz-overlay-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+        .viz-overlay-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.65);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.4rem;
+        }
+        .viz-overlay-status .pulse {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #fff;
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        .viz-overlay-track {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: clamp(1.3rem, 2.2vw, 2rem);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .viz-overlay-artist {
+            font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+            color: rgba(255, 255, 255, 0.82);
+            margin-top: 0.3rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .viz-overlay-album {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 0.18rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .viz-overlay-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-variant-numeric: tabular-nums;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .viz-overlay-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .viz-overlay-fill {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 999px;
+            transition: width 0.5s linear;
+        }
+
+        .viz-overlay-extras {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .viz-overlay-genre {
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            font-weight: 600;
+        }
+        .viz-overlay-open {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        .viz-overlay-open:hover { color: #fff; }
 
         .spotify-main {
             display: flex;
@@ -905,6 +1082,7 @@
         </div>
 
         <div class="widget widget-spotify">
+            <canvas class="spotify-viz" id="spotify-viz" aria-hidden="true"></canvas>
             <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">Spotify ↗</a>
             <a class="spotify-main" id="spotify-main" href="#" target="_blank" rel="noreferrer">
                 <div class="spotify-art spotify-art-placeholder" id="spotify-art-wrap">♪</div>
@@ -956,6 +1134,31 @@
             <ol class="hn-list" id="hn-list">
                 <li class="widget-empty">Loading…</li>
             </ol>
+        </div>
+    </div>
+
+    <div class="viz-overlay" id="viz-overlay" role="dialog" aria-modal="true" aria-label="Music visualizer">
+        <button class="viz-overlay-close" id="viz-overlay-close" aria-label="Close visualizer">×</button>
+        <canvas id="viz-overlay-canvas"></canvas>
+        <div class="viz-overlay-meta" id="viz-overlay-meta">
+            <div class="viz-overlay-card">
+                <img class="viz-overlay-art" id="viz-overlay-art" alt=""/>
+                <div class="viz-overlay-info">
+                    <div class="viz-overlay-status" id="viz-overlay-status">Now playing</div>
+                    <div class="viz-overlay-track" id="viz-overlay-track">—</div>
+                    <div class="viz-overlay-artist" id="viz-overlay-artist">—</div>
+                    <div class="viz-overlay-album" id="viz-overlay-album"></div>
+                </div>
+            </div>
+            <div class="viz-overlay-progress">
+                <span id="viz-overlay-elapsed">0:00</span>
+                <div class="viz-overlay-bar"><div class="viz-overlay-fill" id="viz-overlay-fill" style="width: 0%"></div></div>
+                <span id="viz-overlay-duration">0:00</span>
+            </div>
+            <div class="viz-overlay-extras">
+                <span class="viz-overlay-genre" id="viz-overlay-genre"></span>
+                <a class="viz-overlay-open" id="viz-overlay-open" href="#" target="_blank" rel="noreferrer">Open in Spotify ↗</a>
+            </div>
         </div>
     </div>
 
@@ -1258,6 +1461,7 @@
                 progress.hidden = true;
                 spotifyState = null;
                 main.removeAttribute('href');
+                $('spotify-viz').classList.remove('active');
                 return;
             }
             if (data.url) main.setAttribute('href', data.url);
@@ -1274,6 +1478,7 @@
             $('spotify-track').textContent = data.track || '—';
             $('spotify-artist').textContent = data.artist || '';
             $('spotify-album').textContent = data.album || '';
+            setVizFromTrack(data);
 
             if (data.playing && data.durationMs) {
                 spotifyState = {
@@ -1302,6 +1507,448 @@
                 spotifyState = null;
                 setTimeout(loadSpotify, 800);
             }
+        }
+
+        // === music visualizer ===
+        // Aurora-style WebGL fragment shader. Colors and animation speed are
+        // parameterized by Spotify track features (or a deterministic fallback
+        // when the audio-features endpoint isn't available).
+        const VIZ_VERTEX = `
+            attribute vec2 a_pos;
+            void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+        `;
+        const VIZ_FRAGMENT = `
+            precision highp float;
+            uniform vec2 u_res;
+            uniform float u_time;
+            uniform float u_energy;
+            uniform float u_valence;
+            uniform float u_tempo;
+            uniform float u_dance;
+            uniform vec3 u_c1;
+            uniform vec3 u_c2;
+            uniform vec3 u_c3;
+
+            float hash(vec2 p) {
+                return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+            }
+            float noise(vec2 p) {
+                vec2 i = floor(p);
+                vec2 f = fract(p);
+                float a = hash(i);
+                float b = hash(i + vec2(1.0, 0.0));
+                float c = hash(i + vec2(0.0, 1.0));
+                float d = hash(i + vec2(1.0, 1.0));
+                vec2 u = f * f * (3.0 - 2.0 * f);
+                return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+            }
+            float fbm(vec2 p) {
+                float v = 0.0;
+                float a = 0.5;
+                for (int i = 0; i < 5; i++) {
+                    v += a * noise(p);
+                    p = p * 2.05 + vec2(0.7, 1.3);
+                    a *= 0.55;
+                }
+                return v;
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_res.xy;
+                vec2 p = uv * 2.0 - 1.0;
+                p.x *= u_res.x / u_res.y;
+
+                // Slow ambient drift — barely scaled by tempo.
+                float t = u_time * (0.07 + u_tempo * 0.0008);
+
+                float n1 = fbm(p * (1.1 + u_energy * 0.3) + vec2(t * 0.35, t * 0.22));
+                float n2 = fbm(p * (1.7 + u_dance * 0.3) + vec2(-t * 0.20, t * 0.40));
+                float n3 = fbm(p * 0.6 - vec2(t * 0.12, t * 0.08));
+
+                float blend = smoothstep(0.25, 0.85, n1);
+                vec3 col = mix(u_c1, u_c2, blend);
+                col = mix(col, u_c3, smoothstep(0.3, 0.9, n2 * (0.5 + u_energy * 0.4)));
+                col *= 0.72 + n3 * 0.4;
+
+                // Very subtle ambient breath, decoupled from tempo.
+                col *= 0.97 + 0.03 * sin(u_time * 0.18);
+
+                gl_FragColor = vec4(col, 1.0);
+            }
+        `;
+
+        function compileShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('shader compile error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        function makeViz(canvas) {
+            const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: true });
+            if (!gl) return null;
+            const vs = compileShader(gl, gl.VERTEX_SHADER, VIZ_VERTEX);
+            const fs = compileShader(gl, gl.FRAGMENT_SHADER, VIZ_FRAGMENT);
+            const prog = gl.createProgram();
+            gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+            if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+                console.error('shader link error:', gl.getProgramInfoLog(prog));
+                return null;
+            }
+            gl.useProgram(prog);
+
+            // Fullscreen triangle pair
+            const buf = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+            const aPos = gl.getAttribLocation(prog, 'a_pos');
+            gl.enableVertexAttribArray(aPos);
+            gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+            const uniforms = {
+                res: gl.getUniformLocation(prog, 'u_res'),
+                time: gl.getUniformLocation(prog, 'u_time'),
+                energy: gl.getUniformLocation(prog, 'u_energy'),
+                valence: gl.getUniformLocation(prog, 'u_valence'),
+                tempo: gl.getUniformLocation(prog, 'u_tempo'),
+                dance: gl.getUniformLocation(prog, 'u_dance'),
+                c1: gl.getUniformLocation(prog, 'u_c1'),
+                c2: gl.getUniformLocation(prog, 'u_c2'),
+                c3: gl.getUniformLocation(prog, 'u_c3'),
+            };
+
+            const resize = () => {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                const w = canvas.clientWidth * dpr;
+                const h = canvas.clientHeight * dpr;
+                if (canvas.width !== w || canvas.height !== h) {
+                    canvas.width = w; canvas.height = h;
+                    gl.viewport(0, 0, w, h);
+                }
+            };
+
+            return { gl, uniforms, resize };
+        }
+
+        // HSL → RGB for shader uniforms (returns [r,g,b] in 0..1)
+        function hsl(h, s, l) {
+            h = ((h % 360) + 360) % 360 / 360;
+            s = Math.max(0, Math.min(1, s));
+            l = Math.max(0, Math.min(1, l));
+            const a = s * Math.min(l, 1 - l);
+            const f = (n) => {
+                const k = (n + h * 12) % 12;
+                return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+            };
+            return [f(0), f(8), f(4)];
+        }
+
+        // Hash a string deterministically into 0..1 (fallback when features missing).
+        function strHash01(str) {
+            let h = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return ((h >>> 0) % 10000) / 10000;
+        }
+
+        // Coarse genre → vibe map for when audio-features is denied.
+        const GENRE_VIBE = [
+            [/\b(metal|hardcore|punk|industrial)\b/, { valence: 0.25, energy: 0.95, tempo: 165, dance: 0.45 }],
+            [/\b(rock|grunge|alt)\b/,                  { valence: 0.5, energy: 0.7, tempo: 120, dance: 0.5 }],
+            [/\b(pop|indie pop)\b/,                    { valence: 0.7, energy: 0.65, tempo: 118, dance: 0.65 }],
+            [/\b(hip hop|rap|trap|drill)\b/,           { valence: 0.55, energy: 0.7, tempo: 95, dance: 0.85 }],
+            [/\b(electronic|house|techno|edm|trance)\b/, { valence: 0.6, energy: 0.85, tempo: 128, dance: 0.9 }],
+            [/\b(jazz|blues|soul)\b/,                  { valence: 0.55, energy: 0.4, tempo: 100, dance: 0.5 }],
+            [/\b(classical|baroque|orchestra|piano)\b/,{ valence: 0.45, energy: 0.3, tempo: 90, dance: 0.2 }],
+            [/\b(ambient|drone|chill|lofi)\b/,         { valence: 0.5, energy: 0.25, tempo: 80, dance: 0.3 }],
+            [/\b(country|folk|americana)\b/,           { valence: 0.6, energy: 0.45, tempo: 110, dance: 0.45 }],
+            [/\b(latin|reggaeton|salsa|samba)\b/,      { valence: 0.8, energy: 0.75, tempo: 96, dance: 0.85 }],
+            [/\b(r&b|funk|disco)\b/,                   { valence: 0.7, energy: 0.65, tempo: 110, dance: 0.8 }],
+        ];
+
+        function vibeFromTrack(data) {
+            // Genre-based vibe (drives motion params; colors come from album art)
+            if (data?.genre) {
+                const g = data.genre.toLowerCase();
+                for (const [pattern, vibe] of GENRE_VIBE) {
+                    if (pattern.test(g)) return { ...vibe, source: 'genre' };
+                }
+            }
+            // Hash-based last resort: stable pseudo-vibe per track.
+            const seed = strHash01((data?.id || data?.track || 'default') + (data?.artist || ''));
+            return {
+                valence: seed,
+                energy: ((seed * 7) % 1),
+                tempo: 80 + Math.floor(((seed * 11) % 1) * 80),
+                dance: ((seed * 13) % 1),
+                source: 'hash',
+            };
+        }
+
+        // Extract a 3-color palette from the album art image.
+        // We sample a downsized 64×64 copy, bucket pixels by hue/lightness, and
+        // return the most dominant non-extreme colors. Cached per track id.
+        const albumPaletteCache = new Map();
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+            let h = 0, s = 0;
+            const l = (mx + mn) / 2;
+            if (mx !== mn) {
+                const d = mx - mn;
+                s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+                if (mx === r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (mx === g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6;
+            }
+            return [h, s, l];
+        }
+
+        function loadCorsImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+        function sampleAlbumPalette(img) {
+            const SIZE = 64;
+            const canvas = document.createElement('canvas');
+            canvas.width = SIZE; canvas.height = SIZE;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(img, 0, 0, SIZE, SIZE);
+            let data;
+            try {
+                data = ctx.getImageData(0, 0, SIZE, SIZE).data;
+            } catch {
+                return null; // tainted canvas
+            }
+
+            const bins = new Map(); // key -> { count, r, g, b }
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                const [h, s, l] = rgbToHsl(r, g, b);
+                if (l < 0.08 || l > 0.92) continue;
+                if (s < 0.12) continue;
+                const hueBin = Math.floor(h * 18);   // 20° buckets
+                const lBin = Math.floor(l * 4);
+                const key = `${hueBin}_${lBin}`;
+                const slot = bins.get(key) || { count: 0, r: 0, g: 0, b: 0 };
+                slot.count++; slot.r += r; slot.g += g; slot.b += b;
+                bins.set(key, slot);
+            }
+
+            if (bins.size === 0) return null;
+            const sorted = [...bins.values()].sort((a, b) => b.count - a.count);
+            const palette = sorted.slice(0, 3).map((b) => [
+                (b.r / b.count) / 255,
+                (b.g / b.count) / 255,
+                (b.b / b.count) / 255,
+            ]);
+
+            // If the album is mostly monochrome, derive secondary colors by hue rotation.
+            while (palette.length < 3) {
+                const [r, g, b] = palette[0] || [0.5, 0.45, 0.4];
+                const [h, s, l] = rgbToHsl(r * 255, g * 255, b * 255);
+                const newH = ((h * 360 + 35 * palette.length) % 360);
+                palette.push(hsl(newH, Math.max(0.45, s), Math.min(0.7, l + 0.05)));
+            }
+            return palette;
+        }
+
+        async function extractAlbumPalette(imageUrl, trackId) {
+            const cacheKey = trackId || imageUrl;
+            if (albumPaletteCache.has(cacheKey)) return albumPaletteCache.get(cacheKey);
+            try {
+                const img = await loadCorsImage(imageUrl);
+                const palette = sampleAlbumPalette(img);
+                if (palette) albumPaletteCache.set(cacheKey, palette);
+                return palette;
+            } catch {
+                return null;
+            }
+        }
+
+        // Build a 3-color palette from vibe parameters.
+        function paletteForVibe(vibe) {
+            // Valence drives base hue: 0 (sad) → blue/purple (240), 1 (happy) → warm (40)
+            const baseHue = 240 - vibe.valence * 200;
+            // Saturation rises with energy
+            const sat = 0.45 + vibe.energy * 0.45;
+            // Lightness leans dark for low energy
+            const lt = 0.35 + vibe.energy * 0.25;
+            const c1 = hsl(baseHue, sat, lt);
+            const c2 = hsl(baseHue + 35, sat * 0.9, lt + 0.1);
+            const c3 = hsl(baseHue - 50, sat, lt + 0.18);
+            return { c1, c2, c3 };
+        }
+
+        // Visualizer state
+        let inlineViz = null;
+        let overlayViz = null;
+        let vizParams = null; // { c1, c2, c3, energy, valence, tempo, dance }
+        let vizStartTime = performance.now();
+        let vizRaf = 0;
+
+        let latestTrackData = null;
+
+        async function setVizFromTrack(data) {
+            latestTrackData = data;
+            const vibe = vibeFromTrack(data);
+            // Genre-derived palette is the fallback if album-art extraction fails.
+            let palette = paletteForVibe(vibe);
+            const inline = $('spotify-viz');
+            if (data?.playing) inline.classList.add('active');
+            else inline.classList.remove('active');
+
+            // Apply genre-derived palette immediately so something is on screen,
+            // then upgrade to album colors when the image finishes loading.
+            vizParams = { ...palette, energy: vibe.energy, valence: vibe.valence, tempo: vibe.tempo, dance: vibe.dance };
+
+            if (data?.albumArt) {
+                const album = await extractAlbumPalette(data.albumArt, data.id);
+                if (album && album.length >= 3) {
+                    vizParams = {
+                        c1: album[0], c2: album[1], c3: album[2],
+                        energy: vibe.energy, valence: vibe.valence, tempo: vibe.tempo, dance: vibe.dance,
+                    };
+                }
+            }
+
+            // If overlay is open, refresh its content too.
+            if (vizOverlayOpen) populateVizOverlay();
+        }
+
+        function drawViz(viz) {
+            if (!viz || !vizParams) return;
+            viz.resize();
+            const { gl, uniforms } = viz;
+            const time = (performance.now() - vizStartTime) / 1000;
+            gl.uniform2f(uniforms.res, viz.gl.canvas.width, viz.gl.canvas.height);
+            gl.uniform1f(uniforms.time, time);
+            gl.uniform1f(uniforms.energy, vizParams.energy);
+            gl.uniform1f(uniforms.valence, vizParams.valence);
+            gl.uniform1f(uniforms.tempo, vizParams.tempo);
+            gl.uniform1f(uniforms.dance, vizParams.dance);
+            gl.uniform3fv(uniforms.c1, vizParams.c1);
+            gl.uniform3fv(uniforms.c2, vizParams.c2);
+            gl.uniform3fv(uniforms.c3, vizParams.c3);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
+        function vizLoop() {
+            if (!document.hidden) {
+                drawViz(inlineViz);
+                if (vizOverlayOpen) drawViz(overlayViz);
+            }
+            vizRaf = requestAnimationFrame(vizLoop);
+        }
+
+        // Fullscreen overlay wiring
+        let vizOverlayOpen = false;
+
+        function populateVizOverlay() {
+            const d = latestTrackData;
+            const status = $('viz-overlay-status');
+            if (!d || !d.track) {
+                status.textContent = 'Nothing playing';
+                $('viz-overlay-track').textContent = '—';
+                $('viz-overlay-artist').textContent = '';
+                $('viz-overlay-album').textContent = '';
+                $('viz-overlay-art').removeAttribute('src');
+                $('viz-overlay-genre').textContent = '';
+                $('viz-overlay-open').removeAttribute('href');
+                return;
+            }
+            if (d.playing) status.innerHTML = '<span class="pulse"></span>Now playing';
+            else if (d.playedAt) status.textContent = `Last played · ${timeAgo(d.playedAt)}`;
+            else status.textContent = 'Recently played';
+            $('viz-overlay-track').textContent = d.track || '—';
+            $('viz-overlay-artist').textContent = d.artist || '';
+            $('viz-overlay-album').textContent = d.album || '';
+            const art = $('viz-overlay-art');
+            if (d.albumArt) {
+                art.src = d.albumArt;
+                art.style.display = '';
+            } else {
+                art.removeAttribute('src');
+                art.style.display = 'none';
+            }
+            $('viz-overlay-genre').textContent = d.genre ? d.genre : '';
+            const link = $('viz-overlay-open');
+            if (d.url) {
+                link.setAttribute('href', d.url);
+                link.style.display = '';
+            } else {
+                link.style.display = 'none';
+            }
+            // Initial progress numbers
+            if (d.durationMs) {
+                $('viz-overlay-duration').textContent = fmtMs(d.durationMs);
+            } else {
+                $('viz-overlay-duration').textContent = '0:00';
+                $('viz-overlay-elapsed').textContent = '0:00';
+                $('viz-overlay-fill').style.width = '0%';
+            }
+        }
+
+        function tickVizOverlayProgress() {
+            if (!vizOverlayOpen) return;
+            if (spotifyState && spotifyState.playing) {
+                const elapsed = Math.min(spotifyState.durationMs, spotifyState.progressMs + (Date.now() - spotifyState.fetchedAt));
+                const pct = (elapsed / spotifyState.durationMs) * 100;
+                $('viz-overlay-fill').style.width = pct.toFixed(2) + '%';
+                $('viz-overlay-elapsed').textContent = fmtMs(elapsed);
+            }
+        }
+
+        function openVizOverlay() {
+            if (!vizParams) return;
+            const overlay = $('viz-overlay');
+            overlay.classList.add('open');
+            vizOverlayOpen = true;
+            document.body.style.overflow = 'hidden';
+            populateVizOverlay();
+        }
+        function closeVizOverlay() {
+            $('viz-overlay').classList.remove('open');
+            vizOverlayOpen = false;
+            document.body.style.overflow = '';
+        }
+
+        function initViz() {
+            const inlineCanvas = $('spotify-viz');
+            const overlayCanvas = $('viz-overlay-canvas');
+            if (window.WebGLRenderingContext) {
+                inlineViz = makeViz(inlineCanvas);
+                overlayViz = makeViz(overlayCanvas);
+            }
+            inlineCanvas.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (vizParams) openVizOverlay();
+            });
+            $('viz-overlay').addEventListener('click', (e) => {
+                if (e.target === $('viz-overlay') || e.target === $('viz-overlay-canvas')) closeVizOverlay();
+            });
+            $('viz-overlay-meta').addEventListener('click', (e) => e.stopPropagation());
+            $('viz-overlay-close').addEventListener('click', closeVizOverlay);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && vizOverlayOpen) closeVizOverlay();
+            });
+            if (inlineViz || overlayViz) vizLoop();
         }
 
         // === strava ===
@@ -1533,6 +2180,7 @@
             renderClockProgress();
             renderSun();
             tickSpotifyProgress();
+            tickVizOverlayProgress();
         }
 
         tick();
@@ -1542,6 +2190,7 @@
         setInterval(() => userLocation && loadWeather(userLocation.lat, userLocation.lon), 1000 * 60 * 15);
 
         renderMoon(); setInterval(renderMoon, 1000 * 60 * 60); // re-evaluate hourly
+        initViz();
         loadSpotify(); setInterval(loadSpotify, 1000 * 10);
         loadStrava();  setInterval(loadStrava,  1000 * 60 * 5);
         loadGitHub();  setInterval(loadGitHub,  1000 * 60 * 5);
