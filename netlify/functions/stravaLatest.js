@@ -55,7 +55,7 @@ async function getAccessToken() {
 function passesFilter(activity) {
 	const type = activity.sport_type || activity.type || "";
 	const distance = activity.distance || 0;
-	if (/Walk|Hike/i.test(type)) return distance >= 10000;
+	if (/Walk|Hike/i.test(type)) return distance >= 7000;
 	if (/Run/i.test(type)) return distance >= 5000;
 	if (/Ride/i.test(type)) return distance >= 20000;
 	return false;
