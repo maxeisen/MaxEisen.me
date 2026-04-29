@@ -679,14 +679,16 @@
             color: var(--main-green);
         }
 
-        /* Default: hide rows beyond the third on smaller screens. */
-        .strava-list li:nth-child(n+4) { display: none; }
-        @media (min-height: 850px) and (min-width: 1300px) {
-            .strava-list li:nth-child(n+4) { display: list-item; }
+        /* List length keyed off viewport HEIGHT only — width can shrink without
+           collapsing the list. */
+        @media (max-height: 850px) {
+            .strava-list li:nth-child(n+5) { display: none; }
         }
-        @media (min-height: 1000px) and (min-width: 1500px) {
-            .strava-list li:nth-child(n+4),
-            .strava-list li:nth-child(n+5) { display: list-item; }
+        @media (max-height: 700px) {
+            .strava-list li:nth-child(n+4) { display: none; }
+        }
+        @media (max-height: 560px) {
+            .strava-list li:nth-child(n+3) { display: none; }
         }
 
         /* === year progress === */
@@ -870,14 +872,16 @@
             opacity: 0.7;
         }
 
-        /* Default: hide stories beyond the fourth on smaller screens. */
-        .hn-list li:nth-child(n+5) { display: none; }
-        @media (min-height: 850px) and (min-width: 1300px) {
-            .hn-list li:nth-child(n+5) { display: flex; }
+        /* Story count keyed off viewport HEIGHT only — width can shrink without
+           collapsing the list. */
+        @media (max-height: 850px) {
+            .hn-list li:nth-child(n+6) { display: none; }
         }
-        @media (min-height: 1000px) and (min-width: 1500px) {
-            .hn-list li:nth-child(n+5),
-            .hn-list li:nth-child(n+6) { display: flex; }
+        @media (max-height: 700px) {
+            .hn-list li:nth-child(n+5) { display: none; }
+        }
+        @media (max-height: 560px) {
+            .hn-list li:nth-child(n+4) { display: none; }
         }
 
         /* === shared === */
