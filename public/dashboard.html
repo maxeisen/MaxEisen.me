@@ -1427,86 +1427,98 @@
             if (!dashboard) return;
             applyLayout(loadLayout());
 
-            const widgets = dashboard.querySelectorAll('.widget[data-widget]');
-            widgets.forEach((widget) => {
-                let pointerId = null;
-                let startX = 0, startY = 0;
-                let dragStarted = false;
-                let lastDropTarget = null;
-                let suppressClickUntil = 0;
+            // One shared drag state machine across all widgets. Listeners are
+            // only attached on pointerdown and torn down on pointerup, and we
+            // intentionally do NOT call setPointerCapture — capturing redirects
+            // the synthesized click to the widget instead of the actual anchor
+            // the user clicked, breaking link navigation inside widgets.
+            let pointerId = null;
+            let startX = 0, startY = 0;
+            let dragStarted = false;
+            let dragWidget = null;
+            let lastDropTarget = null;
+            let suppressClickUntil = 0;
 
-                const cleanup = () => {
-                    widget.classList.remove('dragging');
-                    widget.style.transform = '';
+            const cleanupDrag = () => {
+                if (dragWidget) {
+                    dragWidget.classList.remove('dragging');
+                    dragWidget.style.transform = '';
+                }
+                if (lastDropTarget) lastDropTarget.classList.remove('drop-target');
+                lastDropTarget = null;
+                dashboard.classList.remove('is-dragging');
+            };
+
+            const onMove = (e) => {
+                if (e.pointerId !== pointerId || !dragWidget) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                if (!dragStarted) {
+                    if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+                    dragStarted = true;
+                    dragWidget.classList.add('dragging');
+                    dashboard.classList.add('is-dragging');
+                }
+                e.preventDefault();
+                dragWidget.style.transform = `translate(${dx}px, ${dy}px) scale(1.02)`;
+                // .dragging has pointer-events: none in CSS, so elementFromPoint
+                // pierces through to the slot under the cursor.
+                const el = document.elementFromPoint(e.clientX, e.clientY);
+                const slot = el?.closest('.slot[data-slot-index]');
+                const sourceSlot = dragWidget.parentElement;
+                const targetSlot = (slot && slot !== sourceSlot) ? slot : null;
+                if (targetSlot !== lastDropTarget) {
                     if (lastDropTarget) lastDropTarget.classList.remove('drop-target');
-                    lastDropTarget = null;
-                    dashboard.classList.remove('is-dragging');
-                };
+                    if (targetSlot) targetSlot.classList.add('drop-target');
+                    lastDropTarget = targetSlot;
+                }
+            };
 
+            const onEnd = (e) => {
+                if (e.pointerId !== pointerId) return;
+                document.removeEventListener('pointermove', onMove);
+                document.removeEventListener('pointerup', onEnd);
+                document.removeEventListener('pointercancel', onEnd);
+                if (dragStarted && dragWidget) {
+                    const sourceSlot = dragWidget.parentElement;
+                    const targetSlot = lastDropTarget;
+                    cleanupDrag();
+                    if (targetSlot && targetSlot !== sourceSlot) {
+                        swapWidgets(sourceSlot, targetSlot);
+                    }
+                    suppressClickUntil = Date.now() + 300;
+                } else {
+                    cleanupDrag();
+                }
+                pointerId = null;
+                dragStarted = false;
+                dragWidget = null;
+            };
+
+            dashboard.querySelectorAll('.widget[data-widget]').forEach((widget) => {
                 widget.addEventListener('pointerdown', (e) => {
                     if (e.button !== undefined && e.button !== 0) return;
+                    if (pointerId !== null) return; // already tracking another pointer
                     pointerId = e.pointerId;
                     startX = e.clientX;
                     startY = e.clientY;
                     dragStarted = false;
-                    try { widget.setPointerCapture(pointerId); } catch {}
+                    dragWidget = widget;
+                    document.addEventListener('pointermove', onMove);
+                    document.addEventListener('pointerup', onEnd);
+                    document.addEventListener('pointercancel', onEnd);
                 });
-
-                widget.addEventListener('pointermove', (e) => {
-                    if (pointerId === null || e.pointerId !== pointerId) return;
-                    const dx = e.clientX - startX;
-                    const dy = e.clientY - startY;
-                    if (!dragStarted) {
-                        if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-                        dragStarted = true;
-                        widget.classList.add('dragging');
-                        dashboard.classList.add('is-dragging');
-                    }
-                    widget.style.transform = `translate(${dx}px, ${dy}px) scale(1.02)`;
-                    // .dragging has pointer-events: none in CSS, so elementFromPoint
-                    // pierces through to the slot under the cursor.
-                    const el = document.elementFromPoint(e.clientX, e.clientY);
-                    const slot = el?.closest('.slot[data-slot-index]');
-                    const sourceSlot = widget.parentElement;
-                    const targetSlot = (slot && slot !== sourceSlot) ? slot : null;
-                    if (targetSlot !== lastDropTarget) {
-                        if (lastDropTarget) lastDropTarget.classList.remove('drop-target');
-                        if (targetSlot) targetSlot.classList.add('drop-target');
-                        lastDropTarget = targetSlot;
-                    }
-                });
-
-                const finish = (e) => {
-                    if (pointerId === null || e.pointerId !== pointerId) return;
-                    try { widget.releasePointerCapture(pointerId); } catch {}
-                    pointerId = null;
-                    if (dragStarted) {
-                        const sourceSlot = widget.parentElement;
-                        const targetSlot = lastDropTarget;
-                        cleanup();
-                        if (targetSlot && targetSlot !== sourceSlot) {
-                            swapWidgets(sourceSlot, targetSlot);
-                        }
-                        suppressClickUntil = Date.now() + 300;
-                    }
-                    dragStarted = false;
-                };
-                widget.addEventListener('pointerup', finish);
-                widget.addEventListener('pointercancel', (e) => {
-                    if (pointerId === null || e.pointerId !== pointerId) return;
-                    pointerId = null;
-                    if (dragStarted) cleanup();
-                    dragStarted = false;
-                });
-
-                // Suppress clicks/navigations that fire after a drag.
-                widget.addEventListener('click', (e) => {
-                    if (Date.now() < suppressClickUntil) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                }, true);
             });
+
+            // Document-level click suppression — runs in capture phase so it
+            // beats anchor navigation. Only suppresses inside the dashboard
+            // and only within 300ms of a real drag finishing.
+            document.addEventListener('click', (e) => {
+                if (Date.now() >= suppressClickUntil) return;
+                if (!e.target.closest('#dashboard-grid')) return;
+                e.preventDefault();
+                e.stopPropagation();
+            }, true);
         }
 
         if (document.readyState === 'loading') {
