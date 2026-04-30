@@ -154,7 +154,8 @@
             icon: 'running',
             modal: {
                 image: 'run',
-                description: 'Running the 2025 <a href="https://www.torontowaterfrontmarathon.com/" rel="noreferrer" target="_blank">Toronto Waterfront Half Marathon</a>'
+                description: 'Running the 2025 <a href="https://www.torontowaterfrontmarathon.com/" rel="noreferrer" target="_blank">Toronto Waterfront Half Marathon</a>',
+                strava: 'run'
             }
         },
         {
@@ -162,7 +163,8 @@
             icon: 'cycling',
             modal: {
                 image: 'cycle',
-                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">GranFondo Whistler</a></br></br><iframe height=\'160\' width=\'85%\' frameborder=\'0\' allowtransparency=\'true\' scrolling=\'no\' src=\'https://www.strava.com/athletes/92118908/activity-summary/dc478a7fc29bd0ba2e32f9cf7fb702d2f7e31df4\'></iframe>'
+                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">GranFondo Whistler</a>',
+                strava: 'ride'
             }
         },
         {

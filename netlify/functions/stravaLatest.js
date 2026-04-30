@@ -51,7 +51,7 @@ async function getAccessToken() {
 	return cachedToken.token;
 }
 
-// Filters: walks ≥10km, runs ≥5km, rides ≥20km
+// Filters: walks ≥7km, runs ≥5km, rides ≥20km
 function passesFilter(activity) {
 	const type = activity.sport_type || activity.type || "";
 	const distance = activity.distance || 0;
@@ -61,9 +61,31 @@ function passesFilter(activity) {
 	return false;
 }
 
-const MAX_RESULTS = 5;
+function matchesType(activity, type) {
+	const t = activity.sport_type || activity.type || "";
+	if (type === "run") return /Run/i.test(t);
+	if (type === "ride") return /Ride/i.test(t);
+	if (type === "walk") return /Walk|Hike/i.test(t);
+	return true;
+}
 
-export default async function handler() {
+const DEFAULT_MAX = 5;
+const FILTERED_MAX = 10;
+// Pull a wider window when the caller wants only one activity type so
+// distance-filtered runs/rides aren't crowded out by other recent activities.
+const PER_PAGE_DEFAULT = 30;
+const PER_PAGE_FILTERED = 100;
+
+export default async function handler(req) {
+	const url = new URL(req.url);
+	const typeParam = (url.searchParams.get("type") || "").toLowerCase() || null;
+	const allowedTypes = new Set(["run", "ride", "walk"]);
+	const type = allowedTypes.has(typeParam) ? typeParam : null;
+	const limit = type
+		? Math.min(parseInt(url.searchParams.get("limit"), 10) || FILTERED_MAX, FILTERED_MAX)
+		: DEFAULT_MAX;
+	const perPage = type ? PER_PAGE_FILTERED : PER_PAGE_DEFAULT;
+
 	let token;
 	try {
 		token = await getAccessToken();
@@ -75,7 +97,7 @@ export default async function handler() {
 		return jsonResponse({ error: "auth_failed" }, 502);
 	}
 
-	const res = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=30", {
+	const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
 		headers: { "Authorization": `Bearer ${token}` },
 	});
 	if (!res.ok) {
@@ -86,7 +108,8 @@ export default async function handler() {
 	const activities = await res.json();
 	const filtered = activities
 		.filter(passesFilter)
-		.slice(0, MAX_RESULTS)
+		.filter((a) => matchesType(a, type))
+		.slice(0, limit)
 		.map((a) => ({
 			id: a.id,
 			name: a.name,
