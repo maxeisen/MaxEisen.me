@@ -1010,6 +1010,71 @@
         .home-link:hover { opacity: 1; }
         .home-link-arrow { display: none; }
 
+        /* === edit mode (mobile only) === */
+        .dashboard-edit-btn {
+            display: none;
+            position: fixed;
+            top: 0.5rem;
+            left: 0.75rem;
+            z-index: 50;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.85rem;
+            background: var(--inner-background, rgba(0, 0, 0, 0.35));
+            border: 1px solid var(--main-green-translucent);
+            border-radius: 999px;
+            color: var(--main-green);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            opacity: 0.85;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+        .dashboard-edit-btn:hover { opacity: 1; }
+        .dashboard-edit-btn:active { transform: scale(0.96); }
+        .dashboard-edit-btn.active {
+            background: var(--main-green);
+            color: var(--background-one);
+            border-color: var(--main-green);
+            opacity: 1;
+        }
+        .dashboard-edit-icon { font-size: 0.95rem; line-height: 1; }
+
+        /* iOS-style jiggle while in edit mode. Two animations + odd/even
+           offsets so widgets don't move in lockstep. */
+        @keyframes widget-jiggle-a {
+            0%   { transform: rotate(-0.5deg) translate(0, 0); }
+            50%  { transform: rotate(0.5deg)  translate(0, -1px); }
+            100% { transform: rotate(-0.5deg) translate(0, 0); }
+        }
+        @keyframes widget-jiggle-b {
+            0%   { transform: rotate(0.55deg)  translate(0, -1px); }
+            50%  { transform: rotate(-0.55deg) translate(0, 0); }
+            100% { transform: rotate(0.55deg)  translate(0, -1px); }
+        }
+        .dashboard.is-editing .slot > .widget {
+            animation: widget-jiggle-a 0.42s ease-in-out infinite;
+            transform-origin: center;
+            will-change: transform;
+        }
+        .dashboard.is-editing .slot:nth-child(odd) > .widget {
+            animation-name: widget-jiggle-b;
+            animation-duration: 0.46s;
+            animation-delay: -0.18s;
+        }
+        /* Pause jiggle on the widget that's actively being dragged so the
+           inline transform from the drag handler isn't fighting the keyframes. */
+        .dashboard.is-editing .slot > .widget.dragging { animation: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .dashboard.is-editing .slot > .widget,
+            .dashboard.is-editing .slot:nth-child(odd) > .widget { animation: none; }
+        }
+
         /* === gallery === */
         .widget-gallery {
             position: relative;
@@ -1093,6 +1158,12 @@
             .slot { container-type: inline-size; }
             .slot-large, .slot-small { grid-column: span 2; }
             .widget-gallery { aspect-ratio: 16 / 9; }
+            /* Edit button appears at responsive widths only — drag is gated on it. */
+            .dashboard-edit-btn { display: inline-flex; }
+            /* Default: widgets pass touches through so the page can scroll. */
+            .slot > .widget { touch-action: auto; cursor: default; }
+            /* In edit mode: claim touches for drag. */
+            .dashboard.is-editing .slot > .widget { touch-action: none; }
         }
 
         @media (max-width: 700px) {
@@ -1111,6 +1182,10 @@
         <span class="home-link-text">← back</span>
         <span class="home-link-arrow" aria-hidden="true">←</span>
     </a>
+    <button class="dashboard-edit-btn" id="dashboard-edit-btn" type="button" aria-pressed="false" aria-label="Toggle layout edit mode">
+        <span class="dashboard-edit-icon" aria-hidden="true">✎</span>
+        <span class="dashboard-edit-label">Edit</span>
+    </button>
     <div class="dashboard" id="dashboard-grid">
         <!-- Row 1: Clock · Gallery -->
         <div class="slot slot-large" data-slot-index="0">
@@ -1427,6 +1502,30 @@
             if (!dashboard) return;
             applyLayout(loadLayout());
 
+            // At responsive widths drag is gated behind an explicit edit-mode
+            // toggle so touches on widgets don't hijack page scrolling.
+            const responsiveQuery = window.matchMedia('(max-width: 1100px)');
+            const editBtn = document.getElementById('dashboard-edit-btn');
+            const setEditing = (on) => {
+                dashboard.classList.toggle('is-editing', on);
+                if (editBtn) {
+                    editBtn.classList.toggle('active', on);
+                    editBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    const label = editBtn.querySelector('.dashboard-edit-label');
+                    if (label) label.textContent = on ? 'Done' : 'Edit';
+                }
+            };
+            if (editBtn) {
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setEditing(!dashboard.classList.contains('is-editing'));
+                });
+            }
+            // Auto-exit edit mode if viewport widens past the breakpoint.
+            responsiveQuery.addEventListener('change', (e) => {
+                if (!e.matches) setEditing(false);
+            });
+
             // One shared drag state machine across all widgets. Listeners are
             // only attached on pointerdown and torn down on pointerup, and we
             // intentionally do NOT call setPointerCapture — capturing redirects
@@ -1499,6 +1598,8 @@
                 widget.addEventListener('pointerdown', (e) => {
                     if (e.button !== undefined && e.button !== 0) return;
                     if (pointerId !== null) return; // already tracking another pointer
+                    // At responsive widths drag is opt-in via edit mode.
+                    if (responsiveQuery.matches && !dashboard.classList.contains('is-editing')) return;
                     pointerId = e.pointerId;
                     startX = e.clientX;
                     startY = e.clientY;
@@ -1511,13 +1612,15 @@
             });
 
             // Document-level click suppression — runs in capture phase so it
-            // beats anchor navigation. Only suppresses inside the dashboard
-            // and only within 300ms of a real drag finishing.
+            // beats anchor navigation. Suppresses inside the dashboard within
+            // 300ms of a drag finishing, and at all times while editing
+            // (matches iOS jiggle-mode where taps on icons don't open them).
             document.addEventListener('click', (e) => {
-                if (Date.now() >= suppressClickUntil) return;
                 if (!e.target.closest('#dashboard-grid')) return;
-                e.preventDefault();
-                e.stopPropagation();
+                if (Date.now() < suppressClickUntil || dashboard.classList.contains('is-editing')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
             }, true);
         }
 
