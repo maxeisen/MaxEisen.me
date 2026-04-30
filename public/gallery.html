@@ -410,18 +410,20 @@
                     if (!keepCurrent) {
                         // First open — clear any stale src so the empty frame doesn't flash.
                         lightboxImg.removeAttribute('src');
+                        caption.hidden = true;
                     }
                     spinner.classList.add('visible');
-                    updateCaption(currentIndex);
 
                     const preload = new Image();
                     preload.onload = () => {
                         if (myToken !== loadToken) return; // a newer navigation superseded this one
                         lightboxImg.src = url;
+                        updateCaption(currentIndex);
                         spinner.classList.remove('visible');
                     };
                     preload.onerror = () => {
                         if (myToken !== loadToken) return;
+                        updateCaption(currentIndex);
                         spinner.classList.remove('visible');
                     };
                     preload.src = url;
