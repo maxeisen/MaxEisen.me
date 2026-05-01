@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
 
     export let type; // 'run' | 'ride'
-    export let limit = 10;
+    export let limit = 5;
 
     let activities = null; // null = loading
     let error = null;
