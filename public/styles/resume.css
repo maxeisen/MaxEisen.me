@@ -169,81 +169,58 @@ a:hover {
     color: var(--main-green);
 }
 
-.top-buttons {
+/* Top-corner navigation buttons — same visual language as dashboard.html
+   and gallery.html (small uppercase pill on desktop, glass circle on mobile). */
+.home-link,
+.save-link {
     position: fixed;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
-
-.back-button {
-    position: inline;
-    float: left;
-    -webkit-transition: all 0.2s ease-in;
-	-moz-transition: all 0.2s ease-in;
-	-o-transition: all 0.2s ease-in;
-    -ms-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
-    font-size: 25px;
-    font-weight: 400;
-    color: var(--nav-link);
-    margin-left: 12px;
-    margin-top: -3px;
-}
-
-.back-button:hover {
-    color: var(--nav-link-hover);
-    -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
-    -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
-    animation: hoverGlow 1s ease-in-out infinite alternate;
-}
-
-.back-button-mobile {
-    display: none;
-    position: absolute;
-    font-size: 30px;
-    font-weight: 400;
-    color: var(--nav-link);
-    margin-left: 12px;
-    margin-top: -5px;
-}
-
-.print-button {
-    position: inline;
-    float: right;
-    -webkit-transition: all 0.2s ease-in;
-	-moz-transition: all 0.2s ease-in;
-	-o-transition: all 0.2s ease-in;
-    -ms-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
-    font-size: 25px;
-    font-weight: 400;
-    color: var(--nav-link);
-    margin-right: 12px;
-    margin-top: -3px;
-}
-
-.print-button-container {
-    position: inline;
-    float: right;
-    -webkit-transition: all 0.2s ease-in;
-	-moz-transition: all 0.2s ease-in;
-	-o-transition: all 0.2s ease-in;
-    -ms-transition: all 0.2s ease-in;
-    transition: all 0.2s ease-in;
-    font-size: 25px;
-    font-weight: 400;
-    color: #cccccc;
-    margin-right: 12px;
-    margin-top: -3px;
-}
-
-.print-button:hover {
-    color: var(--nav-link-hover);
+    top: 1rem;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--main-green);
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
-    -webkit-animation: hoverGlow 1s ease-in-out infinite alternate;
-    -moz-animation: hoverGlow 1s ease-in-out infinite alternate;
-    animation: hoverGlow 1s ease-in-out infinite alternate;
+    opacity: 0.45;
+    transition: opacity 0.2s ease;
+}
+.home-link { left: 1.25rem; }
+.save-link { right: 1.25rem; }
+.home-link:hover,
+.save-link:hover { opacity: 1; }
+
+.home-link-arrow,
+.save-link-icon { display: none; }
+
+@media only screen and (max-width: 1020px) {
+    .home-link,
+    .save-link {
+        top: 0.5rem;
+        font-size: 1.1rem;
+        width: 2rem;
+        height: 2rem;
+        justify-content: center;
+        background: var(--main-green-translucent);
+        border: 1px solid var(--main-green-translucent);
+        border-radius: 50%;
+        opacity: 0.7;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .home-link { left: 0.75rem; }
+    .save-link { right: 0.75rem; }
+    .home-link-text,
+    .save-link-text { display: none; }
+    .home-link-arrow,
+    .save-link-icon { display: block; }
 }
 
 @keyframes hoverGlow {
@@ -666,15 +643,6 @@ a.company-long {
     }
 }
 
-@media only screen and (max-width: 1020px) {
-    .back-button-mobile {
-        display: inline;
-    }
-
-    .back-button, .print-button {
-        display: none;
-    }
-}
 
 @media only screen and (max-width: 820px) {
     .tagline {
@@ -779,7 +747,7 @@ a.company-long {
         font-size: 28px;
     }
 
-    .footer, .tagline, .back-button-mobile{
+    .footer, .tagline {
         display: none;
     }
 }
