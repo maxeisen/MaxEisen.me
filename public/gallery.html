@@ -97,15 +97,42 @@
         }
 
         .home-link {
+            position: fixed;
+            top: 1rem;
+            left: 1.25rem;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
             font-size: 0.8rem;
+            font-weight: 600;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: var(--main-green);
             text-decoration: none;
-            opacity: 0.6;
+            opacity: 0.45;
             transition: opacity 0.2s ease;
         }
         .home-link:hover { opacity: 1; }
+        .home-link-arrow { display: none; }
+
+        @media (max-width: 700px) {
+            .home-link {
+                top: 0.5rem;
+                left: 0.75rem;
+                font-size: 1.1rem;
+                width: 2rem;
+                height: 2rem;
+                justify-content: center;
+                background: var(--inner-background, rgba(0, 0, 0, 0.25));
+                border: 1px solid var(--main-green-translucent);
+                border-radius: 50%;
+                opacity: 0.7;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            .home-link-text { display: none; }
+            .home-link-arrow { display: block; }
+        }
 
         .gallery {
             column-count: 4;
@@ -265,13 +292,14 @@
     </style>
 </head>
 <body>
+    <a class="home-link" href="/" aria-label="Back to homepage">
+        <span class="home-link-text">← back</span>
+        <span class="home-link-arrow" aria-hidden="true">←</span>
+    </a>
     <main class="container">
         <header class="gallery-header">
             <h1>Gallery</h1>
-            <div style="display: flex; align-items: baseline; gap: 1.5rem;">
-                <div class="gallery-meta" id="gallery-meta">— photos</div>
-                <a class="home-link" href="/">← back</a>
-            </div>
+            <div class="gallery-meta" id="gallery-meta">— photos</div>
         </header>
         <div class="gallery" id="gallery">
             <div class="empty-state">Loading photos…</div>
