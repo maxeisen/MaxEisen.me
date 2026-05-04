@@ -174,6 +174,19 @@
            Drop UV and Air; keep Feels and Wind. */
         .slot-small .weather-stats > div:nth-child(n+3) { display: none; }
 
+        /* Clock compact mode: short slots (zoomed-in viewports, narrow
+           windows) shrink supporting elements so the time + progress bars
+           still fit without clipping. */
+        @container slot (max-height: 320px) {
+            .widget-clock { padding: 1rem 1.25rem; gap: 0.25rem; }
+            .widget-clock .clock-greeting { font-size: clamp(0.95rem, 1.4vw, 1.2rem); }
+            .widget-clock .clock-date { font-size: 0.8rem; }
+            .widget-clock .clock-daylight { font-size: 0.7rem; margin-top: 0.2rem; }
+            .widget-clock .clock-progress { margin-top: 0.5rem; gap: 0.6rem; max-width: 480px; }
+            .widget-clock .clock-progress-pct { font-size: 0.85rem; }
+            .widget-clock .clock-progress-label { font-size: 0.65rem; }
+        }
+
         /* Weather compact mode: triggered by slot height, not width — covers
            the row-3 large slot (where it would otherwise overflow) and the
            row-3 small slots. Hides sun & moon, tightens the left column. */
@@ -197,7 +210,12 @@
             font-family: 'Fraunces', serif;
             font-weight: 600;
             font-feature-settings: "tnum";
-            font-size: clamp(3.5rem, 12vw, 11rem);
+            /* Cap the time on the slot's height (cqh) too — at narrow / zoomed
+               viewports the slot gets short, and a viewport-only clamp would
+               keep the digits too tall and clip the top + push progress bars
+               out of the widget. cqh falls back to small viewport units when
+               the slot's container-type is inline-size (responsive layouts). */
+            font-size: min(clamp(3rem, 12vw, 11rem), 36cqh);
             line-height: 1;
             letter-spacing: -0.04em;
             color: var(--header-colour);
@@ -233,6 +251,17 @@
             font-size: 0.95rem;
             color: var(--paragraph-colour);
             opacity: 0.7;
+        }
+
+        .clock-daylight {
+            margin-top: 0.4rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            opacity: 0.75;
+            font-feature-settings: "tnum";
         }
 
         .clock-progress {
@@ -1195,6 +1224,7 @@
                 <div class="clock-greeting" id="clock-greeting">—</div>
                 <div class="clock-date" id="clock-date">—</div>
             </div>
+            <div class="clock-daylight" id="clock-daylight" hidden></div>
             <div class="clock-progress">
                 <div class="clock-progress-item">
                     <div class="clock-progress-label"><span>Work Day</span><span class="clock-progress-pct" id="day-pct">—%</span></div>
@@ -1652,6 +1682,23 @@
             $('clock-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
         }
 
+        // Populated by the weather fetch once we have today + yesterday sunrise/sunset.
+        function renderDaylightDelta(seconds) {
+            const el = $('clock-daylight');
+            if (!el || !Number.isFinite(seconds)) return;
+            if (seconds === 0) {
+                el.textContent = 'Same daylight as yesterday';
+            } else {
+                const sign = seconds > 0 ? '+' : '−';
+                const abs = Math.abs(seconds);
+                const m = Math.floor(abs / 60);
+                const s = abs % 60;
+                const len = m > 0 ? `${m}m ${s}s` : `${s}s`;
+                el.textContent = `${sign}${len} of daylight today`;
+            }
+            el.hidden = false;
+        }
+
         // === clock progress trackers ===
         const WORKDAY_START_HOUR = 9;
         const WORKDAY_END_HOUR = 17;
@@ -1786,7 +1833,7 @@
 
         async function loadWeather(lat, lon) {
             try {
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m,uv_index&daily=sunrise,sunset&timezone=auto&wind_speed_unit=kmh`;
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m,uv_index&daily=sunrise,sunset&past_days=1&timezone=auto&wind_speed_unit=kmh`;
                 const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi`;
                 const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
                 const [weather, aqi, geo] = await Promise.allSettled([
@@ -1815,11 +1862,21 @@
                 }
                 $('weather-meta').textContent = cityLabel || 'Location unavailable';
                 if (weather.value.daily) {
+                    const daily = weather.value.daily;
+                    const todayKey = new Date().toISOString().slice(0, 10);
+                    const todayIdx = (daily.time || []).findIndex((t) => String(t).slice(0, 10) === todayKey);
+                    const tIdx = todayIdx >= 0 ? todayIdx : 0;
                     sunData = {
-                        sunrise: new Date(weather.value.daily.sunrise[0]),
-                        sunset: new Date(weather.value.daily.sunset[0]),
+                        sunrise: new Date(daily.sunrise[tIdx]),
+                        sunset: new Date(daily.sunset[tIdx]),
                     };
                     renderSun();
+                    // Daylight delta vs yesterday — quietly tracks the seasons.
+                    if (tIdx > 0 && daily.sunrise[tIdx - 1] && daily.sunset[tIdx - 1]) {
+                        const todayLen = (new Date(daily.sunset[tIdx]) - new Date(daily.sunrise[tIdx])) / 1000;
+                        const yestLen = (new Date(daily.sunset[tIdx - 1]) - new Date(daily.sunrise[tIdx - 1])) / 1000;
+                        renderDaylightDelta(Math.round(todayLen - yestLen));
+                    }
                 }
             } catch (err) {
                 $('weather-meta').textContent = 'Unable to load weather';
