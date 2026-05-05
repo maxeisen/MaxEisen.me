@@ -111,6 +111,13 @@
             `M ${j(0)} ${j(-7)} C ${j(-3.2)} ${j(-3)}, ${j(-3.2)} ${j(3)}, ${j(0)} ${j(7)}`,
             `M ${j(0)} ${j(-7)} C ${j(3.2)} ${j(-3)}, ${j(3.2)} ${j(3)}, ${j(0)} ${j(7)}`,
         ],
+        photos: () => [
+            `M ${j(-7)} ${j(-3)} L ${j(7)} ${j(-3)} L ${j(7)} ${j(6)} L ${j(-7)} ${j(6)} Z`,
+            `M ${j(-2.5)} ${j(-3)} L ${j(-2)} ${j(-5.5)} L ${j(2)} ${j(-5.5)} L ${j(2.5)} ${j(-3)}`,
+            `M ${j(0)} ${j(1.5)} m -3 0 a 3 3 0 1 0 6 0 a 3 3 0 1 0 -6 0`,
+            `M ${j(0)} ${j(1.5)} m -1.5 0 a 1.5 1.5 0 1 0 3 0 a 1.5 1.5 0 1 0 -3 0`,
+            `M ${j(5)} ${j(-1.3)} m -0.55 0 a 0.55 0.55 0 1 0 1.1 0 a 0.55 0.55 0 1 0 -1.1 0`,
+        ],
         tech: () => [
             `M ${j(-7)} ${j(-5)} L ${j(7)} ${j(-5)} L ${j(7)} ${j(3)} L ${j(-7)} ${j(3)} Z`,
             `M ${j(-2)} ${j(3)} L ${j(-3)} ${j(6)} L ${j(3)} ${j(6)} L ${j(2)} ${j(3)}`,
@@ -186,6 +193,14 @@
             }
         },
         {
+            label: 'taking photos',
+            icon: 'photos',
+            modal: {
+                image: 'photography',
+                description: 'Cape Town, South Africa</br>Check out more in my <a href="/gallery">Gallery</a>.'
+            }
+        },
+        {
             label: 'playing guitar',
             icon: 'guitar',
             modal: { image: 'guitar', description: 'Playing guitar... duh' }
@@ -230,7 +245,7 @@
             {/if}
         {/snippet}
 
-        <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume.html">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
+        <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
 
         <p class="intro-extras">While you're here, peek at my <a class="intro-link" href="/gallery">photo gallery</a> or my live <a class="intro-link" href="/dashboard">dashboard</a>.</p>
     </div>

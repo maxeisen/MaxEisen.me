@@ -39,7 +39,7 @@
     }
 
     :global(.activity-modal .activity-image) {
-        width: 80%;
+        width: 90%;
         height: auto;
         border-radius: 5px;
         box-shadow: 0px 0px 10px #0000009a;
