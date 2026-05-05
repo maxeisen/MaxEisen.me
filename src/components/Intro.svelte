@@ -197,7 +197,7 @@
             icon: 'photos',
             modal: {
                 image: 'photography',
-                description: 'Cape Town, South Africa</br>Check out more in my <a href="/gallery">Gallery</a>.'
+                description: 'Cape Town, South Africa</br></br>Check out more in my <a href="/gallery">Gallery</a>.'
             }
         },
         {
