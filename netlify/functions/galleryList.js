@@ -15,7 +15,7 @@ function jsonResponse(body, status = 200) {
 	});
 }
 
-const CLOUD_NAME = "decfdmwnw";
+const CLOUD_NAME = "meisen-gallery";
 const TAG = "gallery";
 
 export default async function handler() {
