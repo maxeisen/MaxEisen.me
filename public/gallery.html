@@ -88,13 +88,49 @@
             color: var(--header-colour);
         }
 
-        .gallery-meta {
-            font-size: 0.85rem;
+        .gallery-intro {
+            max-width: 60ch;
+            margin: -1.25rem 0 2.5rem 0;
+            font-size: 0.95rem;
             color: var(--paragraph-colour);
-            opacity: 0.65;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
         }
+        .gallery-intro summary {
+            list-style: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            opacity: 0.65;
+            user-select: none;
+            transition: opacity 0.2s ease;
+        }
+        .gallery-intro summary::-webkit-details-marker { display: none; }
+        .gallery-intro summary:hover,
+        .gallery-intro summary:focus-visible { opacity: 1; outline: none; }
+        .gallery-intro summary::after {
+            content: '▾';
+            font-size: 0.65rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+        .gallery-intro[open] summary::after { transform: rotate(180deg); }
+        .gallery-intro-body {
+            margin-top: 0.65rem;
+            line-height: 1.55;
+            opacity: 0.78;
+        }
+        .gallery-intro-body a {
+            color: var(--main-green);
+            text-decoration: none;
+            border-bottom: 1px solid var(--main-green-translucent);
+            transition: border-color 0.2s ease;
+        }
+        .gallery-intro-body a:hover { border-bottom-color: var(--main-green); }
 
         .home-link {
             position: fixed;
@@ -113,7 +149,7 @@
             transition: opacity 0.2s ease;
         }
         .home-link:hover { opacity: 1; }
-        .home-link-arrow { display: none; }
+        .home-link-arrow { display: none; letter-spacing: 0; }
 
         @media (max-width: 1100px) {
             .home-link {
@@ -133,6 +169,99 @@
             .home-link-text { display: none; }
             .home-link-arrow { display: block; }
         }
+
+        .slideshow-link {
+            position: fixed;
+            top: 1rem;
+            right: 1.25rem;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--main-green);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            opacity: 0.45;
+            transition: opacity 0.2s ease;
+        }
+        .slideshow-link:hover { opacity: 1; }
+        .slideshow-link[hidden] { display: none; }
+        .slideshow-link-icon { display: none; letter-spacing: 0; }
+
+        @media (max-width: 1100px) {
+            .slideshow-link {
+                top: 0.5rem;
+                right: 0.75rem;
+                font-size: 1rem;
+                width: 2rem;
+                height: 2rem;
+                justify-content: center;
+                gap: 0;
+                background: var(--inner-background, rgba(0, 0, 0, 0.25));
+                border: 1px solid var(--main-green-translucent);
+                border-radius: 50%;
+                opacity: 0.7;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            .slideshow-link-text { display: none; }
+            .slideshow-link-icon {
+                display: block;
+                /* Optical correction — ▶'s mass is on the left of its bounding
+                   box (base of the triangle), so a geometrically-centered glyph
+                   reads as shifted left. Nudge right to correct. */
+                transform: translateX(2px);
+            }
+        }
+
+        /* Slideshow overlay: two layered <img>s crossfading via opacity. */
+        .slideshow {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 200;
+            cursor: pointer;
+        }
+        .slideshow[hidden] { display: none; }
+        .slideshow-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+        .slideshow-img.visible { opacity: 1; }
+        .slideshow-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1;
+            font-size: 1.5rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s ease, background 0.2s ease;
+        }
+        .slideshow-close:hover { opacity: 1; background: rgba(0, 0, 0, 0.75); }
 
         .gallery {
             column-count: 4;
@@ -296,15 +425,34 @@
         <span class="home-link-text">← back</span>
         <span class="home-link-arrow" aria-hidden="true">←</span>
     </a>
+    <button class="slideshow-link" id="slideshow-link" type="button" hidden aria-label="Start slideshow">
+        <span class="slideshow-link-text">slideshow ▶</span>
+        <span class="slideshow-link-icon" aria-hidden="true">▶</span>
+    </button>
     <main class="container">
         <header class="gallery-header">
             <h1>Gallery</h1>
-            <div class="gallery-meta" id="gallery-meta">— photos</div>
         </header>
+        <details class="gallery-intro" id="gallery-intro" open>
+            <summary>About this gallery</summary>
+            <div class="gallery-intro-body">
+                A selection of <span id="gallery-count"></span> my favourite photos that I've shot on a Fujifilm X100S - sometimes around Toronto, where I live, and often on travels elsewhere in Canada or around the world.
+                Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>, which negotiates the format
+                (AVIF, WebP, or JPEG) based on what your browser accepts and tunes the compression per image, so you get the smallest file
+                your device can still render cleanly. Thumbnails load at 800px wide, the lightbox swaps in a 2400px version on demand,
+                and the masonry grid restacks itself from four columns down to one as the viewport narrows.
+            </div>
+        </details>
         <div class="gallery" id="gallery">
             <div class="empty-state">Loading photos…</div>
         </div>
     </main>
+
+    <div class="slideshow" id="slideshow" role="dialog" aria-modal="true" aria-label="Slideshow" hidden>
+        <button class="slideshow-close" id="slideshow-close" type="button" aria-label="Exit slideshow">×</button>
+        <img class="slideshow-img" id="slideshow-img-a" alt=""/>
+        <img class="slideshow-img" id="slideshow-img-b" alt=""/>
+    </div>
 
     <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
         <button class="lightbox-close" id="lightbox-close" aria-label="Close">×</button>
@@ -339,6 +487,20 @@
                 }
             } catch { /* fall through to href="/" */ }
         });
+
+        // === gallery intro: collapsible, default open, persisted per visitor ===
+        (() => {
+            const intro = document.getElementById('gallery-intro');
+            if (!intro) return;
+            const KEY = 'gallery-intro-open';
+            try {
+                const saved = localStorage.getItem(KEY);
+                if (saved !== null) intro.open = saved === 'true';
+            } catch {}
+            intro.addEventListener('toggle', () => {
+                try { localStorage.setItem(KEY, String(intro.open)); } catch {}
+            });
+        })();
 
         const CLOUDINARY_CLOUD = 'decfdmwnw';
         const CLOUDINARY_TAG = 'gallery';
@@ -376,7 +538,7 @@
                 const photos = await fetchPhotos();
                 if (photos.length === 0) {
                     grid.innerHTML = '<div class="empty-state">No photos yet.</div>';
-                    document.getElementById('gallery-meta').textContent = '0 photos';
+                    document.getElementById('gallery-count').textContent = '0';
                     return;
                 }
                 // Randomize order on each load (Fisher-Yates).
@@ -384,8 +546,7 @@
                     const j = Math.floor(Math.random() * (i + 1));
                     [photos[i], photos[j]] = [photos[j], photos[i]];
                 }
-                document.getElementById('gallery-meta').textContent =
-                    `${photos.length} photo${photos.length === 1 ? '' : 's'}`;
+                document.getElementById('gallery-count').textContent = String(photos.length + ' of');
                 grid.innerHTML = photos.map((p) => {
                     const thumb = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_800');
                     const full = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_2400');
@@ -429,6 +590,19 @@
                     }
                 };
 
+                // Once a photo has been preloaded, the browser HTTP cache will
+                // serve it instantly on the next navigation. Track URLs so we
+                // don't kick off duplicate Image() requests for the same one.
+                const lightboxPreloaded = new Set();
+                const preloadNeighbor = (idx) => {
+                    const i = ((idx % fullUrls.length) + fullUrls.length) % fullUrls.length;
+                    const url = fullUrls[i];
+                    if (!url || lightboxPreloaded.has(url)) return;
+                    lightboxPreloaded.add(url);
+                    const img = new Image();
+                    img.src = url;
+                };
+
                 const showAt = (idx, { keepCurrent = true } = {}) => {
                     if (photos.length === 0) return;
                     currentIndex = (idx + photos.length) % photos.length;
@@ -448,6 +622,10 @@
                         lightboxImg.src = url;
                         updateCaption(currentIndex);
                         spinner.classList.remove('visible');
+                        // After the current photo has landed, warm the cache for
+                        // the neighbors so prev/next feels instant.
+                        preloadNeighbor(currentIndex + 1);
+                        preloadNeighbor(currentIndex - 1);
                     };
                     preload.onerror = () => {
                         if (myToken !== loadToken) return;
@@ -506,6 +684,127 @@
                     if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
                     touchStartX = null;
                 });
+
+                // === slideshow ===
+                // Two img elements layered on top of each other; we crossfade by
+                // toggling a `visible` class on opacity, and preload one ahead so
+                // the next photo is in the browser cache before its turn.
+                const SLIDE_INTERVAL_MS = 5000;
+                const slideshow = document.getElementById('slideshow');
+                const slideBtn = document.getElementById('slideshow-link');
+                const slideClose = document.getElementById('slideshow-close');
+                const slideA = document.getElementById('slideshow-img-a');
+                const slideB = document.getElementById('slideshow-img-b');
+                let slideCurrent = 0;
+                let slideActive = slideA;
+                let slideStandby = slideB;
+                let slideTimer = null;
+                let slideshowUrls = null;
+                const preloaded = new Set();
+
+                // Build a URL list sized to the physical pixels of the current
+                // display so ultra-wide / high-DPR monitors get a crisp source
+                // instead of the 2400px lightbox version upscaled.
+                const buildSlideshowUrls = () => {
+                    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+                    const longestCss = Math.max(
+                        screen.width || 0, screen.height || 0,
+                        window.innerWidth, window.innerHeight
+                    );
+                    // Round up to the nearest 400px so we cache against a small
+                    // number of Cloudinary derivatives, and cap at 5200 to keep
+                    // bandwidth sane on huge displays.
+                    const target = Math.min(Math.ceil((longestCss * dpr) / 400) * 400, 5200);
+                    return photos.map((p) => cloudinaryUrl(p.public_id, `f_auto,q_auto,w_${target}`));
+                };
+
+                const preloadIndex = (idx) => {
+                    const url = slideshowUrls?.[idx];
+                    if (!url || preloaded.has(url)) return;
+                    preloaded.add(url);
+                    const img = new Image();
+                    img.src = url;
+                };
+
+                const tickSlideshow = () => {
+                    const nextIdx = (slideCurrent + 1) % slideshowUrls.length;
+                    slideStandby.src = slideshowUrls[nextIdx];
+                    slideStandby.classList.add('visible');
+                    slideActive.classList.remove('visible');
+                    [slideActive, slideStandby] = [slideStandby, slideActive];
+                    slideCurrent = nextIdx;
+                    // Eagerly fetch the one after so it's cached before its slot.
+                    preloadIndex((slideCurrent + 1) % slideshowUrls.length);
+                };
+
+                const openSlideshow = () => {
+                    // Fullscreen must be requested in the click handler synchronously
+                    // for the browser to grant it.
+                    slideshow.hidden = false;
+                    document.body.style.overflow = 'hidden';
+                    const req = slideshow.requestFullscreen || slideshow.webkitRequestFullscreen;
+                    if (req) { try { req.call(slideshow)?.catch?.(() => {}); } catch {} }
+
+                    // Rebuild URLs on each open so the size matches the display
+                    // at the moment of viewing (e.g. monitor swap, external).
+                    slideshowUrls = buildSlideshowUrls();
+                    preloaded.clear();
+
+                    slideCurrent = 0;
+                    slideA.classList.remove('visible');
+                    slideB.classList.remove('visible');
+                    slideA.src = slideshowUrls[0];
+                    slideActive = slideA;
+                    slideStandby = slideB;
+
+                    const startWhenReady = () => {
+                        slideA.classList.add('visible');
+                        preloadIndex(1);
+                        clearInterval(slideTimer);
+                        slideTimer = setInterval(tickSlideshow, SLIDE_INTERVAL_MS);
+                    };
+                    if (slideA.complete && slideA.naturalWidth > 0) startWhenReady();
+                    else {
+                        slideA.onload = startWhenReady;
+                        slideA.onerror = startWhenReady;
+                    }
+                };
+
+                const closeSlideshow = () => {
+                    clearInterval(slideTimer);
+                    slideTimer = null;
+                    if (document.fullscreenElement || document.webkitFullscreenElement) {
+                        (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+                    }
+                    slideshow.hidden = true;
+                    document.body.style.overflow = '';
+                    slideA.classList.remove('visible');
+                    slideB.classList.remove('visible');
+                    slideA.removeAttribute('src');
+                    slideB.removeAttribute('src');
+                };
+
+                slideBtn.addEventListener('click', openSlideshow);
+                slideClose.addEventListener('click', (e) => { e.stopPropagation(); closeSlideshow(); });
+                slideshow.addEventListener('click', (e) => {
+                    // Click anywhere on the overlay (other than the close button) exits.
+                    if (e.target === slideClose) return;
+                    closeSlideshow();
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (slideshow.hidden) return;
+                    if (e.key === 'Escape') closeSlideshow();
+                });
+                const onFullscreenChange = () => {
+                    // Closing fullscreen via Esc/F11 should also tear down the slideshow.
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement && !slideshow.hidden) {
+                        closeSlideshow();
+                    }
+                };
+                document.addEventListener('fullscreenchange', onFullscreenChange);
+                document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+                slideBtn.hidden = false;
             } catch (err) {
                 console.error(err);
                 grid.innerHTML = '<div class="error-state">Couldn\'t load photos right now.</div>';
