@@ -124,6 +124,12 @@
             line-height: 1.55;
             opacity: 0.78;
         }
+        .gallery-intro-body p {
+            margin: 0 0 0.7rem 0;
+        }
+        .gallery-intro-body p:last-child {
+            margin-bottom: 0;
+        }
         .gallery-intro-body a {
             color: var(--main-green);
             text-decoration: none;
@@ -436,11 +442,9 @@
         <details class="gallery-intro" id="gallery-intro" open>
             <summary>About this gallery</summary>
             <div class="gallery-intro-body">
-                A selection of <span id="gallery-count"></span> my favourite photos that I've shot on a Fujifilm X100S - sometimes around Toronto, where I live, and often on travels elsewhere in Canada or around the world.
-                Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>, which negotiates the format
-                (AVIF, WebP, or JPEG) based on what your browser accepts and tunes the compression per image, so you get the smallest file
-                your device can still render cleanly. Thumbnails load at 800px wide, the lightbox swaps in a 2400px version on demand,
-                and the masonry grid restacks itself from four columns down to one as the viewport narrows.
+                <p>A selection of <span id="gallery-count"></span> my favourite photos that I've shot on a Fujifilm X100S — sometimes around Toronto, where I live, and often on travels elsewhere in Canada or around the world.</p>
+                <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>, which negotiates the format (AVIF, WebP, or JPEG) based on what your browser accepts and tunes compression per image, so you get the smallest file your device can still render cleanly. Thumbnails load at 800px wide and the masonry grid restacks itself from four columns down to one as the viewport narrows.</p>
+                <p>Hovering over a thumbnail quietly fetches the full 2400px version in the background, and the lightbox preloads its neighbors so prev/next feels instant. The slideshow opens fullscreen, crossfades every five seconds with one photo always queued up, and asks Cloudinary for an image sized to your display's actual pixel dimensions — so 4K and ultra-wide monitors get something sharper than the standard lightbox source.</p>
             </div>
         </details>
         <div class="gallery" id="gallery">
@@ -658,6 +662,20 @@
                     if (idx >= 0) open(idx);
                 });
 
+                // Warm the lightbox-sized version on hover so clicking opens
+                // instantly. Debounced ~180ms so a quick mouse sweep across the
+                // grid doesn't fire dozens of unused requests.
+                let hoverPreloadTimer = null;
+                grid.addEventListener('mouseover', (e) => {
+                    const fig = e.target.closest('figure');
+                    if (!fig) return;
+                    const idx = Array.prototype.indexOf.call(grid.children, fig);
+                    if (idx < 0) return;
+                    clearTimeout(hoverPreloadTimer);
+                    hoverPreloadTimer = setTimeout(() => preloadNeighbor(idx), 180);
+                });
+                grid.addEventListener('mouseout', () => clearTimeout(hoverPreloadTimer));
+
                 lightbox.addEventListener('click', (e) => {
                     // Click-out closes only if user clicked the dim background, not the image or buttons.
                     if (e.target === lightbox) close();
@@ -700,7 +718,24 @@
                 let slideStandby = slideB;
                 let slideTimer = null;
                 let slideshowUrls = null;
+                let wakeLock = null;
                 const preloaded = new Set();
+
+                // Keep the display awake while the slideshow runs. The wake
+                // lock is automatically released when the page loses visibility
+                // (tab switch, lock screen), so we re-acquire on visibilitychange.
+                const acquireWakeLock = async () => {
+                    if (!('wakeLock' in navigator)) return;
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        wakeLock.addEventListener('release', () => { wakeLock = null; });
+                    } catch { /* user gesture / permission issue — silently skip */ }
+                };
+                const releaseWakeLock = async () => {
+                    if (!wakeLock) return;
+                    try { await wakeLock.release(); } catch {}
+                    wakeLock = null;
+                };
 
                 // Build a URL list sized to the physical pixels of the current
                 // display so ultra-wide / high-DPR monitors get a crisp source
@@ -744,6 +779,7 @@
                     document.body.style.overflow = 'hidden';
                     const req = slideshow.requestFullscreen || slideshow.webkitRequestFullscreen;
                     if (req) { try { req.call(slideshow)?.catch?.(() => {}); } catch {} }
+                    acquireWakeLock();
 
                     // Rebuild URLs on each open so the size matches the display
                     // at the moment of viewing (e.g. monitor swap, external).
@@ -782,6 +818,7 @@
                     slideB.classList.remove('visible');
                     slideA.removeAttribute('src');
                     slideB.removeAttribute('src');
+                    releaseWakeLock();
                 };
 
                 slideBtn.addEventListener('click', openSlideshow);
@@ -803,6 +840,13 @@
                 };
                 document.addEventListener('fullscreenchange', onFullscreenChange);
                 document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+                // Wake locks drop automatically when the tab goes hidden — if
+                // the user comes back and the slideshow is still up, get it back.
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible' && !slideshow.hidden && !wakeLock) {
+                        acquireWakeLock();
+                    }
+                });
 
                 slideBtn.hidden = false;
             } catch (err) {
