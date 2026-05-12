@@ -93,36 +93,56 @@ async function fetchPrimaryGenre(artistIds, token) {
 	}
 }
 
+// Spotify's /currently-playing endpoint legitimately returns 204 for brief
+// windows (track transitions, device-state churn) even while the user is
+// listening. One quick retry catches most of those.
+async function fetchCurrentlyPlaying(token, attempt = 0) {
+	const res = await fetch(
+		"https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
+		{ headers: { "Authorization": `Bearer ${token}` } }
+	);
+	if (res.status === 200) {
+		const data = await res.json();
+		if (data && data.item) return { ok: true, data };
+	}
+	if (attempt < 1 && (res.status === 204 || res.status === 200 || res.status === 429)) {
+		await new Promise((r) => setTimeout(r, 350));
+		return fetchCurrentlyPlaying(token, attempt + 1);
+	}
+	return { ok: false, status: res.status };
+}
+
 async function fetchPayload() {
 	let token;
 	try {
 		token = await getAccessToken();
 	} catch (err) {
 		if (err.code === "not_configured") return { status: 503, body: { error: "not_configured" } };
-		console.error(err);
+		console.error("[spotify] auth failed:", err.message);
 		return { status: 502, body: { error: "auth_failed" } };
 	}
 
-	const nowRes = await fetch(
-		"https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
-		{ headers: { "Authorization": `Bearer ${token}` } }
-	);
-	if (nowRes.status === 200) {
-		const data = await nowRes.json();
-		if (data && data.item) {
-			const shape = shapeTrack(data.item, !!data.is_playing, { progressMs: data.progress_ms || 0 });
-			shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
-			delete shape.artistIds;
-			return { status: 200, body: shape };
-		}
+	const now = await fetchCurrentlyPlaying(token);
+	if (now.ok) {
+		const data = now.data;
+		const shape = shapeTrack(data.item, !!data.is_playing, { progressMs: data.progress_ms || 0 });
+		shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
+		delete shape.artistIds;
+		return { status: 200, body: shape };
 	}
 
-	// 204 No Content (or empty response) — fall back to recently played
+	// Fall back to /recently-played. If that also fails, return a 503 instead
+	// of {playing: false} so the client knows this was a transient error and
+	// keeps the previous state visible (it differentiates errors from a true
+	// "nothing playing" reply).
 	const recentRes = await fetch(
 		"https://api.spotify.com/v1/me/player/recently-played?limit=1",
 		{ headers: { "Authorization": `Bearer ${token}` } }
 	);
-	if (!recentRes.ok) return { status: 200, body: { playing: false } };
+	if (!recentRes.ok) {
+		console.warn("[spotify] both endpoints failed:", now.status, recentRes.status);
+		return { status: 503, body: { error: "spotify_unavailable", playing: false } };
+	}
 	const recentData = await recentRes.json();
 	const item = recentData.items?.[0];
 	if (!item) return { status: 200, body: { playing: false } };

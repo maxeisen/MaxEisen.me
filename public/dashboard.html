@@ -1905,19 +1905,34 @@
         }
 
         // === spotify ===
+        // Monotonic counter so a slow request's late response can't overwrite
+        // the result of a faster request that came after it.
+        let spotifyLoadToken = 0;
         async function loadSpotify() {
+            const myToken = ++spotifyLoadToken;
             try {
                 const res = await fetch('/.netlify/functions/spotifyNowPlaying', { cache: 'no-store' });
+                if (myToken !== spotifyLoadToken) return; // a newer request superseded this one
                 if (res.status === 503) {
-                    document.querySelector('.widget-spotify').style.display = 'none';
+                    // Could be "not_configured" (hide the widget) or transient
+                    // upstream unavailability (keep showing the previous state).
+                    try {
+                        const body = await res.clone().json();
+                        if (body?.error === 'not_configured') {
+                            document.querySelector('.widget-spotify').style.display = 'none';
+                            return;
+                        }
+                    } catch {}
+                    // Transient — let the stickiness logic ride out the gap.
+                    consecutiveEmpty++;
                     return;
                 }
                 if (!res.ok) throw new Error('spotify fetch failed');
                 renderSpotify(await res.json());
             } catch {
-                $('spotify-status').textContent = 'Spotify unavailable';
-                $('spotify-track').textContent = '—';
-                $('spotify-artist').textContent = '';
+                if (myToken !== spotifyLoadToken) return;
+                // Don't immediately flip the UI on a single network failure.
+                consecutiveEmpty++;
             }
         }
 
@@ -1926,7 +1941,9 @@
         // the widget during brief Spotify hiccups or track transitions.
         let lastSpotifyData = null;
         let consecutiveEmpty = 0;
-        const SPOTIFY_EMPTY_THRESHOLD = 3;
+        // Six polls × 10s = ~60s of stickiness before the UI gives up. Covers
+        // most Spotify API hiccups and brief device-state churn.
+        const SPOTIFY_EMPTY_THRESHOLD = 6;
 
         function fmtMs(ms) {
             if (ms == null || ms < 0) ms = 0;
