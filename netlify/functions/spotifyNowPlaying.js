@@ -10,7 +10,15 @@ function jsonResponse(body, status = 200, extraHeaders = {}) {
 		status,
 		headers: {
 			"Content-Type": "application/json",
-			"Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+			// Browser must always revalidate: no disk-cache hits, hard-refresh
+			// is identical to a normal load. The user's poll always reaches the
+			// CDN.
+			"Cache-Control": "private, max-age=0, must-revalidate",
+			// Netlify's edge caches for 5 seconds. That short window dedupes
+			// concurrent polls (multiple tabs, devices, or quick rapid reloads)
+			// so we don't fan out to Spotify 6+ times/minute per viewer, but
+			// data staleness is bounded at 5s.
+			"Netlify-CDN-Cache-Control": "public, max-age=5",
 			...extraHeaders,
 		},
 	});
