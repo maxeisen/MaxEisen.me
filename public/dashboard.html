@@ -1905,53 +1905,23 @@
         }
 
         // === spotify ===
-        // Monotonic counter so a slow request's late response can't overwrite
-        // the result of a faster request that came after it.
-        let spotifyLoadToken = 0;
-        // When Spotify rate-limits us, the function relays Retry-After and we
-        // pause polling for that window so we don't immediately earn another 429.
-        let spotifySkipUntil = 0;
         async function loadSpotify() {
-            if (Date.now() < spotifySkipUntil) return;
-            const myToken = ++spotifyLoadToken;
             try {
-                const res = await fetch('/.netlify/functions/spotifyNowPlaying', { cache: 'no-store' });
-                if (myToken !== spotifyLoadToken) return; // a newer request superseded this one
+                const res = await fetch('/.netlify/functions/spotifyNowPlaying');
                 if (res.status === 503) {
-                    let body = null;
-                    try { body = await res.clone().json(); } catch {}
-                    if (body?.error === 'not_configured') {
-                        document.querySelector('.widget-spotify').style.display = 'none';
-                        return;
-                    }
-                    if (body?.error === 'rate_limited') {
-                        // Use Spotify's hint if available, otherwise default to
-                        // ~15s so we let the rolling window clear.
-                        const sec = body.retryAfter || 15;
-                        spotifySkipUntil = Date.now() + sec * 1000;
-                    }
-                    // Either rate-limited or transient — ride out via stickiness.
-                    consecutiveEmpty++;
+                    document.querySelector('.widget-spotify').style.display = 'none';
                     return;
                 }
                 if (!res.ok) throw new Error('spotify fetch failed');
                 renderSpotify(await res.json());
             } catch {
-                if (myToken !== spotifyLoadToken) return;
-                consecutiveEmpty++;
+                $('spotify-status').textContent = 'Spotify unavailable';
+                $('spotify-track').textContent = '—';
+                $('spotify-artist').textContent = '';
             }
         }
 
         let spotifyState = null; // { progressMs, durationMs, fetchedAt, playing }
-        // Hold the last good payload so a single empty response doesn't blank
-        // the widget during brief Spotify hiccups or track transitions.
-        let lastSpotifyData = null;
-        let consecutiveEmpty = 0;
-        // Three polls × 30s = ~90s of stickiness before the UI gives up.
-        // Covers most Spotify API hiccups and brief device-state churn while
-        // still flipping to "Nothing playing" within a couple of minutes if
-        // playback really did stop.
-        const SPOTIFY_EMPTY_THRESHOLD = 3;
 
         function fmtMs(ms) {
             if (ms == null || ms < 0) ms = 0;
@@ -1965,36 +1935,17 @@
             const main = $('spotify-main');
             const artWrap = $('spotify-art-wrap');
             const progress = $('spotify-progress');
-            const isEmpty = !data || (!data.track && !data.playing);
-            // Spotify sometimes blips: /currently-playing returns 204 for a
-            // few seconds even while the user is still listening, and the
-            // function falls back to /recently-played. If we were just
-            // playing, treat the first couple of fall-back responses as
-            // transient rather than flipping the widget to "Last played".
-            const isFallback = !isEmpty && !data.playing && !!data.playedAt;
-            const recentlyPlaying = lastSpotifyData?.playing;
-            if (isEmpty || (isFallback && recentlyPlaying)) {
-                consecutiveEmpty++;
-                if (lastSpotifyData && consecutiveEmpty < SPOTIFY_EMPTY_THRESHOLD) {
-                    return;
-                }
-                if (isEmpty) {
-                    $('spotify-status').textContent = 'Nothing playing';
-                    $('spotify-track').textContent = '—';
-                    $('spotify-artist').textContent = '';
-                    $('spotify-album').textContent = '';
-                    progress.hidden = true;
-                    spotifyState = null;
-                    lastSpotifyData = null;
-                    main.removeAttribute('href');
-                    $('spotify-viz').classList.remove('active');
-                    return;
-                }
-                // Fall through to render the fallback payload once we've
-                // confirmed the user really did stop playing.
+            if (!data || (!data.track && !data.playing)) {
+                $('spotify-status').textContent = 'Nothing playing';
+                $('spotify-track').textContent = '—';
+                $('spotify-artist').textContent = '';
+                $('spotify-album').textContent = '';
+                progress.hidden = true;
+                spotifyState = null;
+                main.removeAttribute('href');
+                $('spotify-viz').classList.remove('active');
+                return;
             }
-            consecutiveEmpty = 0;
-            lastSpotifyData = data;
             if (data.url) main.setAttribute('href', data.url);
             else main.removeAttribute('href');
             if (data.albumArt) {
@@ -2727,10 +2678,7 @@
 
         renderMoon(); setInterval(renderMoon, 1000 * 60 * 60); // re-evaluate hourly
         initViz();
-        // 30s poll is plenty: tickSpotifyProgress() ticks the progress bar
-        // locally between fetches, and triggers a fresh load ~1s after a
-        // track is expected to end. Less load on the function and on Spotify.
-        loadSpotify(); setInterval(loadSpotify, 1000 * 30);
+        loadSpotify(); setInterval(loadSpotify, 1000 * 10);
         loadStrava();  setInterval(loadStrava,  1000 * 60 * 5);
         loadGitHub();  setInterval(loadGitHub,  1000 * 60 * 5);
         loadHackerNews(); setInterval(loadHackerNews, 1000 * 60 * 5);
