@@ -105,36 +105,80 @@ async function fetchPrimaryGenreCached(artistIds, token) {
 	return genre;
 }
 
-async function fetchPayload() {
-	let token;
+// Wrap fetch in an abort-controller timeout so a stuck Spotify call can't
+// drag the function out to 4–8 seconds (visible in Netlify logs). 4s is a
+// generous cap — Spotify normally responds in <500ms.
+async function timedFetch(url, options = {}, ms = 4000) {
+	const ctrl = new AbortController();
+	const t = setTimeout(() => ctrl.abort(), ms);
 	try {
-		token = await getAccessToken();
+		return await fetch(url, { ...options, signal: ctrl.signal });
+	} finally {
+		clearTimeout(t);
+	}
+}
+
+// Spotify's docs note that a 500 from the Web API is most often a token
+// validation issue, not an actual upstream outage. 401 is the same root cause
+// with a clearer status. Either way, invalidate the cached access token and
+// pull a fresh one, then retry once.
+const TOKEN_INVALID_STATUSES = new Set([401, 500]);
+
+async function callPlayerEndpoint(path) {
+	let token = await getAccessToken();
+	let res;
+	try {
+		res = await timedFetch(`https://api.spotify.com${path}`, {
+			headers: { "Authorization": `Bearer ${token}` },
+		});
+	} catch (err) {
+		// AbortError from the timeout, or a network error.
+		return { res: null, err };
+	}
+	if (TOKEN_INVALID_STATUSES.has(res.status)) {
+		// Force a fresh token (Spotify can invalidate earlier than expires_in).
+		cachedToken = null;
+		try {
+			token = await getAccessToken();
+		} catch (err) {
+			return { res, err };
+		}
+		try {
+			res = await timedFetch(`https://api.spotify.com${path}`, {
+				headers: { "Authorization": `Bearer ${token}` },
+			});
+		} catch (err) {
+			return { res: null, err };
+		}
+	}
+	return { res, err: null };
+}
+
+async function fetchPayload() {
+	try {
+		await getAccessToken();
 	} catch (err) {
 		if (err.code === "not_configured") return { status: 503, body: { error: "not_configured" } };
 		console.error("[spotify] auth failed:", err.message);
 		return { status: 502, body: { error: "auth_failed" } };
 	}
 
-	const nowRes = await fetch(
-		"https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
-		{ headers: { "Authorization": `Bearer ${token}` } }
+	const { res: nowRes, err: nowErr } = await callPlayerEndpoint(
+		"/v1/me/player/currently-playing?additional_types=track,episode"
 	);
 
-	// If Spotify is rate-limiting us, short-circuit immediately — calling the
-	// fallback endpoint would just earn another 429 and the Retry-After header
-	// tells us how long to back off anyway.
-	if (nowRes.status === 429) {
+	// Spotify-side rate limit (rare for the volume we send, but easy to detect).
+	if (nowRes?.status === 429) {
 		const retryAfter = nowRes.headers.get("Retry-After") || "1";
 		console.warn("[spotify] rate limited, retry-after:", retryAfter);
-		return {
-			status: 503,
-			body: { error: "rate_limited", retryAfter: Number(retryAfter) || null, playing: false },
-		};
+		return { status: 503, body: { error: "rate_limited", retryAfter: Number(retryAfter) || null, playing: false } };
 	}
 
-	if (nowRes.status === 200) {
+	if (nowRes?.status === 200) {
 		const data = await nowRes.json();
 		if (data && data.item) {
+			// Get the token for the genre fetch (will use the (possibly refreshed) cache).
+			const token = await getAccessToken();
 			const shape = shapeTrack(data.item, !!data.is_playing, { progressMs: data.progress_ms || 0 });
 			shape.genre = await fetchPrimaryGenreCached(shape.artistIds, token);
 			delete shape.artistIds;
@@ -142,29 +186,32 @@ async function fetchPayload() {
 		}
 	}
 
-	// 204 No Content (or empty 200) — fall back to recently played
-	const recentRes = await fetch(
-		"https://api.spotify.com/v1/me/player/recently-played?limit=1",
-		{ headers: { "Authorization": `Bearer ${token}` } }
-	);
-	if (recentRes.status === 429) {
+	// 204 / empty 200 — fall back to recently-played.
+	const { res: recentRes, err: recentErr } = await callPlayerEndpoint("/v1/me/player/recently-played?limit=1");
+	if (recentRes?.status === 429) {
 		const retryAfter = recentRes.headers.get("Retry-After") || "1";
 		console.warn("[spotify] rate limited on fallback, retry-after:", retryAfter);
-		return {
-			status: 503,
-			body: { error: "rate_limited", retryAfter: Number(retryAfter) || null, playing: false },
-		};
+		return { status: 503, body: { error: "rate_limited", retryAfter: Number(retryAfter) || null, playing: false } };
 	}
-	if (!recentRes.ok) {
-		console.warn("[spotify] both endpoints failed:", nowRes.status, recentRes.status);
+	if (!recentRes || !recentRes.ok) {
+		console.warn(
+			"[spotify] both endpoints failed:",
+			nowRes?.status ?? `err:${nowErr?.name || "fetch"}`,
+			recentRes?.status ?? `err:${recentErr?.name || "fetch"}`,
+		);
 		return {
 			status: 503,
-			body: { error: "spotify_unavailable", upstream: [nowRes.status, recentRes.status], playing: false },
+			body: {
+				error: "spotify_unavailable",
+				upstream: [nowRes?.status ?? null, recentRes?.status ?? null],
+				playing: false,
+			},
 		};
 	}
 	const recentData = await recentRes.json();
 	const item = recentData.items?.[0];
 	if (!item) return { status: 200, body: { playing: false } };
+	const token = await getAccessToken();
 	const shape = shapeTrack(item.track, false, { playedAt: item.played_at });
 	shape.genre = await fetchPrimaryGenreCached(shape.artistIds, token);
 	delete shape.artistIds;
