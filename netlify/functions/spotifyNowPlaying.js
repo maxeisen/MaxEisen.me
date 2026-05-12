@@ -39,17 +39,23 @@ async function getAccessToken() {
 		throw err;
 	}
 	const auth = btoa(`${clientId}:${clientSecret}`);
-	const res = await fetch("https://accounts.spotify.com/api/token", {
-		method: "POST",
-		headers: {
-			"Authorization": `Basic ${auth}`,
-			"Content-Type": "application/x-www-form-urlencoded",
+	const start = Date.now();
+	const res = await timedFetch(
+		"token",
+		"https://accounts.spotify.com/api/token",
+		{
+			method: "POST",
+			headers: {
+				"Authorization": `Basic ${auth}`,
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({
+				grant_type: "refresh_token",
+				refresh_token: refreshToken,
+			}),
 		},
-		body: new URLSearchParams({
-			grant_type: "refresh_token",
-			refresh_token: refreshToken,
-		}),
-	});
+		5000,
+	);
 	if (!res.ok) {
 		const text = await res.text();
 		throw new Error(`Spotify token refresh failed: ${res.status} ${text}`);
@@ -59,6 +65,7 @@ async function getAccessToken() {
 		token: data.access_token,
 		expiresAt: Date.now() + data.expires_in * 1000,
 	};
+	console.log(`[spotify] token refreshed in ${Date.now() - start}ms, expires in ${data.expires_in}s`);
 	return cachedToken.token;
 }
 
@@ -108,11 +115,17 @@ async function fetchPrimaryGenreCached(artistIds, token) {
 // Wrap fetch in an abort-controller timeout so a stuck Spotify call can't
 // drag the function out to 4–8 seconds (visible in Netlify logs). 4s is a
 // generous cap — Spotify normally responds in <500ms.
-async function timedFetch(url, options = {}, ms = 4000) {
+async function timedFetch(label, url, options = {}, ms = 4000) {
 	const ctrl = new AbortController();
 	const t = setTimeout(() => ctrl.abort(), ms);
+	const start = Date.now();
 	try {
-		return await fetch(url, { ...options, signal: ctrl.signal });
+		const res = await fetch(url, { ...options, signal: ctrl.signal });
+		console.log(`[spotify] ${label} ${res.status} in ${Date.now() - start}ms`);
+		return res;
+	} catch (err) {
+		console.log(`[spotify] ${label} ${err.name || "fail"} in ${Date.now() - start}ms`);
+		throw err;
 	} finally {
 		clearTimeout(t);
 	}
@@ -124,11 +137,11 @@ async function timedFetch(url, options = {}, ms = 4000) {
 // pull a fresh one, then retry once.
 const TOKEN_INVALID_STATUSES = new Set([401, 500]);
 
-async function callPlayerEndpoint(path) {
+async function callPlayerEndpoint(label, path) {
 	let token = await getAccessToken();
 	let res;
 	try {
-		res = await timedFetch(`https://api.spotify.com${path}`, {
+		res = await timedFetch(label, `https://api.spotify.com${path}`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
 	} catch (err) {
@@ -137,6 +150,7 @@ async function callPlayerEndpoint(path) {
 	}
 	if (TOKEN_INVALID_STATUSES.has(res.status)) {
 		// Force a fresh token (Spotify can invalidate earlier than expires_in).
+		console.log(`[spotify] ${label} got ${res.status}, refreshing token and retrying`);
 		cachedToken = null;
 		try {
 			token = await getAccessToken();
@@ -144,7 +158,7 @@ async function callPlayerEndpoint(path) {
 			return { res, err };
 		}
 		try {
-			res = await timedFetch(`https://api.spotify.com${path}`, {
+			res = await timedFetch(`${label}:retry`, `https://api.spotify.com${path}`, {
 				headers: { "Authorization": `Bearer ${token}` },
 			});
 		} catch (err) {
@@ -164,6 +178,7 @@ async function fetchPayload() {
 	}
 
 	const { res: nowRes, err: nowErr } = await callPlayerEndpoint(
+		"now",
 		"/v1/me/player/currently-playing?additional_types=track,episode"
 	);
 
@@ -186,8 +201,19 @@ async function fetchPayload() {
 		}
 	}
 
+	// If the player endpoint aborted (network/Spotify is slow), don't burn
+	// another 4s on the fallback — the same network path will likely hang too.
+	// Return 503 immediately and let the client stickiness ride it out.
+	if (nowErr?.name === "AbortError" || (!nowRes && nowErr)) {
+		console.warn("[spotify] currently-playing aborted, skipping fallback");
+		return {
+			status: 503,
+			body: { error: "spotify_slow", upstream: [null, null], playing: false },
+		};
+	}
+
 	// 204 / empty 200 — fall back to recently-played.
-	const { res: recentRes, err: recentErr } = await callPlayerEndpoint("/v1/me/player/recently-played?limit=1");
+	const { res: recentRes, err: recentErr } = await callPlayerEndpoint("recent", "/v1/me/player/recently-played?limit=1");
 	if (recentRes?.status === 429) {
 		const retryAfter = recentRes.headers.get("Retry-After") || "1";
 		console.warn("[spotify] rate limited on fallback, retry-after:", retryAfter);

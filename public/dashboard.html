@@ -1947,9 +1947,11 @@
         // the widget during brief Spotify hiccups or track transitions.
         let lastSpotifyData = null;
         let consecutiveEmpty = 0;
-        // Six polls × 10s = ~60s of stickiness before the UI gives up. Covers
-        // most Spotify API hiccups and brief device-state churn.
-        const SPOTIFY_EMPTY_THRESHOLD = 6;
+        // Three polls × 30s = ~90s of stickiness before the UI gives up.
+        // Covers most Spotify API hiccups and brief device-state churn while
+        // still flipping to "Nothing playing" within a couple of minutes if
+        // playback really did stop.
+        const SPOTIFY_EMPTY_THRESHOLD = 3;
 
         function fmtMs(ms) {
             if (ms == null || ms < 0) ms = 0;
@@ -2725,7 +2727,10 @@
 
         renderMoon(); setInterval(renderMoon, 1000 * 60 * 60); // re-evaluate hourly
         initViz();
-        loadSpotify(); setInterval(loadSpotify, 1000 * 10);
+        // 30s poll is plenty: tickSpotifyProgress() ticks the progress bar
+        // locally between fetches, and triggers a fresh load ~1s after a
+        // track is expected to end. Less load on the function and on Spotify.
+        loadSpotify(); setInterval(loadSpotify, 1000 * 30);
         loadStrava();  setInterval(loadStrava,  1000 * 60 * 5);
         loadGitHub();  setInterval(loadGitHub,  1000 * 60 * 5);
         loadHackerNews(); setInterval(loadHackerNews, 1000 * 60 * 5);
