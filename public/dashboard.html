@@ -1941,23 +1941,32 @@
             const artWrap = $('spotify-art-wrap');
             const progress = $('spotify-progress');
             const isEmpty = !data || (!data.track && !data.playing);
-            if (isEmpty) {
+            // Spotify sometimes blips: /currently-playing returns 204 for a
+            // few seconds even while the user is still listening, and the
+            // function falls back to /recently-played. If we were just
+            // playing, treat the first couple of fall-back responses as
+            // transient rather than flipping the widget to "Last played".
+            const isFallback = !isEmpty && !data.playing && !!data.playedAt;
+            const recentlyPlaying = lastSpotifyData?.playing;
+            if (isEmpty || (isFallback && recentlyPlaying)) {
                 consecutiveEmpty++;
-                // If we have a recent good payload, keep showing it until empty
-                // responses persist — protects against single-poll blips.
                 if (lastSpotifyData && consecutiveEmpty < SPOTIFY_EMPTY_THRESHOLD) {
                     return;
                 }
-                $('spotify-status').textContent = 'Nothing playing';
-                $('spotify-track').textContent = '—';
-                $('spotify-artist').textContent = '';
-                $('spotify-album').textContent = '';
-                progress.hidden = true;
-                spotifyState = null;
-                lastSpotifyData = null;
-                main.removeAttribute('href');
-                $('spotify-viz').classList.remove('active');
-                return;
+                if (isEmpty) {
+                    $('spotify-status').textContent = 'Nothing playing';
+                    $('spotify-track').textContent = '—';
+                    $('spotify-artist').textContent = '';
+                    $('spotify-album').textContent = '';
+                    progress.hidden = true;
+                    spotifyState = null;
+                    lastSpotifyData = null;
+                    main.removeAttribute('href');
+                    $('spotify-viz').classList.remove('active');
+                    return;
+                }
+                // Fall through to render the fallback payload once we've
+                // confirmed the user really did stop playing.
             }
             consecutiveEmpty = 0;
             lastSpotifyData = data;

@@ -22,16 +22,9 @@ function jsonResponse(body, status = 200, extraHeaders = {}) {
 }
 
 // Module-scoped cache. Netlify reuses warm function instances, so this saves
-// token refresh round-trips when the function is hit frequently.
+// token refresh round-trips when the function is hit frequently. The access
+// token is per-app (not per-request), so caching it is safe across instances.
 let cachedToken = null; // { token: string, expiresAt: number }
-
-// In-memory dedup window for the actual now-playing payload. The browser
-// still treats responses as no-store (so reloads always re-hit the function),
-// but within a warm instance we coalesce rapid polls so we don't hammer
-// Spotify and trip rate limits. 4s is short enough that the UI still feels
-// live (poll interval is 10s) and long enough to absorb burst traffic.
-let cachedPayload = null; // { body: object, expiresAt: number }
-const PAYLOAD_TTL_MS = 4_000;
 
 async function getAccessToken() {
 	if (cachedToken && cachedToken.expiresAt > Date.now() + 30_000) {
@@ -140,17 +133,6 @@ async function fetchPayload() {
 }
 
 export default async function handler() {
-	// Serve from the dedup cache if a recent call returned a real payload.
-	if (cachedPayload && cachedPayload.expiresAt > Date.now()) {
-		return jsonResponse(cachedPayload.body);
-	}
-
 	const { status, body } = await fetchPayload();
-
-	// Only cache successful 200s (and only when we actually have track info or
-	// an explicit "not playing" — never cache errors so the next request retries).
-	if (status === 200) {
-		cachedPayload = { body, expiresAt: Date.now() + PAYLOAD_TTL_MS };
-	}
 	return jsonResponse(body, status);
 }
