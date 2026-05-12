@@ -25,6 +25,14 @@ function jsonResponse(body, status = 200, extraHeaders = {}) {
 // token refresh round-trips when the function is hit frequently.
 let cachedToken = null; // { token: string, expiresAt: number }
 
+// In-memory dedup window for the actual now-playing payload. The browser
+// still treats responses as no-store (so reloads always re-hit the function),
+// but within a warm instance we coalesce rapid polls so we don't hammer
+// Spotify and trip rate limits. 4s is short enough that the UI still feels
+// live (poll interval is 10s) and long enough to absorb burst traffic.
+let cachedPayload = null; // { body: object, expiresAt: number }
+const PAYLOAD_TTL_MS = 4_000;
+
 async function getAccessToken() {
 	if (cachedToken && cachedToken.expiresAt > Date.now() + 30_000) {
 		return cachedToken.token;
@@ -92,32 +100,27 @@ async function fetchPrimaryGenre(artistIds, token) {
 	}
 }
 
-export default async function handler() {
+async function fetchPayload() {
 	let token;
 	try {
 		token = await getAccessToken();
 	} catch (err) {
-		if (err.code === "not_configured") {
-			return jsonResponse({ error: "not_configured" }, 503);
-		}
+		if (err.code === "not_configured") return { status: 503, body: { error: "not_configured" } };
 		console.error(err);
-		return jsonResponse({ error: "auth_failed" }, 502);
+		return { status: 502, body: { error: "auth_failed" } };
 	}
 
 	const nowRes = await fetch(
 		"https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
 		{ headers: { "Authorization": `Bearer ${token}` } }
 	);
-
 	if (nowRes.status === 200) {
 		const data = await nowRes.json();
 		if (data && data.item) {
-			const shape = shapeTrack(data.item, !!data.is_playing, {
-				progressMs: data.progress_ms || 0,
-			});
+			const shape = shapeTrack(data.item, !!data.is_playing, { progressMs: data.progress_ms || 0 });
 			shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
 			delete shape.artistIds;
-			return jsonResponse(shape);
+			return { status: 200, body: shape };
 		}
 	}
 
@@ -126,14 +129,28 @@ export default async function handler() {
 		"https://api.spotify.com/v1/me/player/recently-played?limit=1",
 		{ headers: { "Authorization": `Bearer ${token}` } }
 	);
-	if (!recentRes.ok) {
-		return jsonResponse({ playing: false });
-	}
+	if (!recentRes.ok) return { status: 200, body: { playing: false } };
 	const recentData = await recentRes.json();
 	const item = recentData.items?.[0];
-	if (!item) return jsonResponse({ playing: false });
+	if (!item) return { status: 200, body: { playing: false } };
 	const shape = shapeTrack(item.track, false, { playedAt: item.played_at });
 	shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
 	delete shape.artistIds;
-	return jsonResponse(shape);
+	return { status: 200, body: shape };
+}
+
+export default async function handler() {
+	// Serve from the dedup cache if a recent call returned a real payload.
+	if (cachedPayload && cachedPayload.expiresAt > Date.now()) {
+		return jsonResponse(cachedPayload.body);
+	}
+
+	const { status, body } = await fetchPayload();
+
+	// Only cache successful 200s (and only when we actually have track info or
+	// an explicit "not playing" — never cache errors so the next request retries).
+	if (status === 200) {
+		cachedPayload = { body, expiresAt: Date.now() + PAYLOAD_TTL_MS };
+	}
+	return jsonResponse(body, status);
 }

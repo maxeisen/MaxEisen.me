@@ -1922,6 +1922,11 @@
         }
 
         let spotifyState = null; // { progressMs, durationMs, fetchedAt, playing }
+        // Hold the last good payload so a single empty response doesn't blank
+        // the widget during brief Spotify hiccups or track transitions.
+        let lastSpotifyData = null;
+        let consecutiveEmpty = 0;
+        const SPOTIFY_EMPTY_THRESHOLD = 3;
 
         function fmtMs(ms) {
             if (ms == null || ms < 0) ms = 0;
@@ -1935,17 +1940,27 @@
             const main = $('spotify-main');
             const artWrap = $('spotify-art-wrap');
             const progress = $('spotify-progress');
-            if (!data || (!data.track && !data.playing)) {
+            const isEmpty = !data || (!data.track && !data.playing);
+            if (isEmpty) {
+                consecutiveEmpty++;
+                // If we have a recent good payload, keep showing it until empty
+                // responses persist — protects against single-poll blips.
+                if (lastSpotifyData && consecutiveEmpty < SPOTIFY_EMPTY_THRESHOLD) {
+                    return;
+                }
                 $('spotify-status').textContent = 'Nothing playing';
                 $('spotify-track').textContent = '—';
                 $('spotify-artist').textContent = '';
                 $('spotify-album').textContent = '';
                 progress.hidden = true;
                 spotifyState = null;
+                lastSpotifyData = null;
                 main.removeAttribute('href');
                 $('spotify-viz').classList.remove('active');
                 return;
             }
+            consecutiveEmpty = 0;
+            lastSpotifyData = data;
             if (data.url) main.setAttribute('href', data.url);
             else main.removeAttribute('href');
             if (data.albumArt) {
