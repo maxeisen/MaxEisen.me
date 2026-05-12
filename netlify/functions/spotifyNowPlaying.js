@@ -5,6 +5,11 @@ function getEnv(name) {
 	return process.env[name];
 }
 
+// Identify ourselves on outbound Spotify calls. Some APIs apply stricter
+// throttling to default fetch user-agents from cloud runtimes, so giving
+// the requests a real identity is worth ruling out.
+const USER_AGENT = "maxeisen.me-dashboard/1.0 (+https://maxeisen.me)";
+
 function jsonResponse(body, status = 200, extraHeaders = {}) {
 	// Now-playing state changes second-to-second — every request must hit the
 	// function and return the live Spotify state. no-store also prevents the
@@ -48,6 +53,7 @@ async function getAccessToken() {
 			headers: {
 				"Authorization": `Basic ${auth}`,
 				"Content-Type": "application/x-www-form-urlencoded",
+				"User-Agent": USER_AGENT,
 			},
 			body: new URLSearchParams({
 				grant_type: "refresh_token",
@@ -90,7 +96,7 @@ async function fetchPrimaryGenre(artistIds, token) {
 	if (!artistIds || artistIds.length === 0) return null;
 	try {
 		const res = await fetch(`https://api.spotify.com/v1/artists/${artistIds[0]}`, {
-			headers: { "Authorization": `Bearer ${token}` },
+			headers: { "Authorization": `Bearer ${token}`, "User-Agent": USER_AGENT },
 		});
 		if (!res.ok) return null;
 		const a = await res.json();
@@ -139,11 +145,10 @@ const TOKEN_INVALID_STATUSES = new Set([401, 500]);
 
 async function callPlayerEndpoint(label, path) {
 	let token = await getAccessToken();
+	const headers = () => ({ "Authorization": `Bearer ${token}`, "User-Agent": USER_AGENT });
 	let res;
 	try {
-		res = await timedFetch(label, `https://api.spotify.com${path}`, {
-			headers: { "Authorization": `Bearer ${token}` },
-		});
+		res = await timedFetch(label, `https://api.spotify.com${path}`, { headers: headers() });
 	} catch (err) {
 		// AbortError from the timeout, or a network error.
 		return { res: null, err };
@@ -158,9 +163,7 @@ async function callPlayerEndpoint(label, path) {
 			return { res, err };
 		}
 		try {
-			res = await timedFetch(`${label}:retry`, `https://api.spotify.com${path}`, {
-				headers: { "Authorization": `Bearer ${token}` },
-			});
+			res = await timedFetch(`${label}:retry`, `https://api.spotify.com${path}`, { headers: headers() });
 		} catch (err) {
 			return { res: null, err };
 		}
