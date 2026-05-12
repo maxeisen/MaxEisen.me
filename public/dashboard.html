@@ -1907,7 +1907,7 @@
         // === spotify ===
         async function loadSpotify() {
             try {
-                const res = await fetch('/.netlify/functions/spotifyNowPlaying');
+                const res = await fetch('/.netlify/functions/spotifyNowPlaying', { cache: 'no-store' });
                 if (res.status === 503) {
                     document.querySelector('.widget-spotify').style.display = 'none';
                     return;

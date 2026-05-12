@@ -6,11 +6,16 @@ function getEnv(name) {
 }
 
 function jsonResponse(body, status = 200, extraHeaders = {}) {
+	// Now-playing state changes second-to-second — every request must hit the
+	// function and return the live Spotify state. no-store also prevents the
+	// browser, Netlify's CDN, and any intermediate proxy from serving a copy.
 	return new Response(JSON.stringify(body), {
 		status,
 		headers: {
 			"Content-Type": "application/json",
-			"Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+			"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+			"Pragma": "no-cache",
+			"Expires": "0",
 			...extraHeaders,
 		},
 	});
