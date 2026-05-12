@@ -93,23 +93,16 @@ async function fetchPrimaryGenre(artistIds, token) {
 	}
 }
 
-// Spotify's /currently-playing endpoint legitimately returns 204 for brief
-// windows (track transitions, device-state churn) even while the user is
-// listening. One quick retry catches most of those.
-async function fetchCurrentlyPlaying(token, attempt = 0) {
-	const res = await fetch(
-		"https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
-		{ headers: { "Authorization": `Bearer ${token}` } }
-	);
-	if (res.status === 200) {
-		const data = await res.json();
-		if (data && data.item) return { ok: true, data };
-	}
-	if (attempt < 1 && (res.status === 204 || res.status === 200 || res.status === 429)) {
-		await new Promise((r) => setTimeout(r, 350));
-		return fetchCurrentlyPlaying(token, attempt + 1);
-	}
-	return { ok: false, status: res.status };
+// Memoize genres per artist for the lifetime of a warm instance. Genres
+// don't change, and this saves one Spotify call per repeat artist.
+const genreCache = new Map();
+async function fetchPrimaryGenreCached(artistIds, token) {
+	if (!artistIds || artistIds.length === 0) return null;
+	const id = artistIds[0];
+	if (genreCache.has(id)) return genreCache.get(id);
+	const genre = await fetchPrimaryGenre(artistIds, token);
+	if (genre) genreCache.set(id, genre);
+	return genre;
 }
 
 async function fetchPayload() {
@@ -122,32 +115,58 @@ async function fetchPayload() {
 		return { status: 502, body: { error: "auth_failed" } };
 	}
 
-	const now = await fetchCurrentlyPlaying(token);
-	if (now.ok) {
-		const data = now.data;
-		const shape = shapeTrack(data.item, !!data.is_playing, { progressMs: data.progress_ms || 0 });
-		shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
-		delete shape.artistIds;
-		return { status: 200, body: shape };
+	const nowRes = await fetch(
+		"https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
+		{ headers: { "Authorization": `Bearer ${token}` } }
+	);
+
+	// If Spotify is rate-limiting us, short-circuit immediately — calling the
+	// fallback endpoint would just earn another 429 and the Retry-After header
+	// tells us how long to back off anyway.
+	if (nowRes.status === 429) {
+		const retryAfter = nowRes.headers.get("Retry-After") || "1";
+		console.warn("[spotify] rate limited, retry-after:", retryAfter);
+		return {
+			status: 503,
+			body: { error: "rate_limited", retryAfter: Number(retryAfter) || null, playing: false },
+		};
 	}
 
-	// Fall back to /recently-played. If that also fails, return a 503 instead
-	// of {playing: false} so the client knows this was a transient error and
-	// keeps the previous state visible (it differentiates errors from a true
-	// "nothing playing" reply).
+	if (nowRes.status === 200) {
+		const data = await nowRes.json();
+		if (data && data.item) {
+			const shape = shapeTrack(data.item, !!data.is_playing, { progressMs: data.progress_ms || 0 });
+			shape.genre = await fetchPrimaryGenreCached(shape.artistIds, token);
+			delete shape.artistIds;
+			return { status: 200, body: shape };
+		}
+	}
+
+	// 204 No Content (or empty 200) — fall back to recently played
 	const recentRes = await fetch(
 		"https://api.spotify.com/v1/me/player/recently-played?limit=1",
 		{ headers: { "Authorization": `Bearer ${token}` } }
 	);
+	if (recentRes.status === 429) {
+		const retryAfter = recentRes.headers.get("Retry-After") || "1";
+		console.warn("[spotify] rate limited on fallback, retry-after:", retryAfter);
+		return {
+			status: 503,
+			body: { error: "rate_limited", retryAfter: Number(retryAfter) || null, playing: false },
+		};
+	}
 	if (!recentRes.ok) {
-		console.warn("[spotify] both endpoints failed:", now.status, recentRes.status);
-		return { status: 503, body: { error: "spotify_unavailable", playing: false } };
+		console.warn("[spotify] both endpoints failed:", nowRes.status, recentRes.status);
+		return {
+			status: 503,
+			body: { error: "spotify_unavailable", upstream: [nowRes.status, recentRes.status], playing: false },
+		};
 	}
 	const recentData = await recentRes.json();
 	const item = recentData.items?.[0];
 	if (!item) return { status: 200, body: { playing: false } };
 	const shape = shapeTrack(item.track, false, { playedAt: item.played_at });
-	shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
+	shape.genre = await fetchPrimaryGenreCached(shape.artistIds, token);
 	delete shape.artistIds;
 	return { status: 200, body: shape };
 }

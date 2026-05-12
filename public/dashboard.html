@@ -1908,22 +1908,29 @@
         // Monotonic counter so a slow request's late response can't overwrite
         // the result of a faster request that came after it.
         let spotifyLoadToken = 0;
+        // When Spotify rate-limits us, the function relays Retry-After and we
+        // pause polling for that window so we don't immediately earn another 429.
+        let spotifySkipUntil = 0;
         async function loadSpotify() {
+            if (Date.now() < spotifySkipUntil) return;
             const myToken = ++spotifyLoadToken;
             try {
                 const res = await fetch('/.netlify/functions/spotifyNowPlaying', { cache: 'no-store' });
                 if (myToken !== spotifyLoadToken) return; // a newer request superseded this one
                 if (res.status === 503) {
-                    // Could be "not_configured" (hide the widget) or transient
-                    // upstream unavailability (keep showing the previous state).
-                    try {
-                        const body = await res.clone().json();
-                        if (body?.error === 'not_configured') {
-                            document.querySelector('.widget-spotify').style.display = 'none';
-                            return;
-                        }
-                    } catch {}
-                    // Transient — let the stickiness logic ride out the gap.
+                    let body = null;
+                    try { body = await res.clone().json(); } catch {}
+                    if (body?.error === 'not_configured') {
+                        document.querySelector('.widget-spotify').style.display = 'none';
+                        return;
+                    }
+                    if (body?.error === 'rate_limited') {
+                        // Use Spotify's hint if available, otherwise default to
+                        // ~15s so we let the rolling window clear.
+                        const sec = body.retryAfter || 15;
+                        spotifySkipUntil = Date.now() + sec * 1000;
+                    }
+                    // Either rate-limited or transient — ride out via stickiness.
                     consecutiveEmpty++;
                     return;
                 }
@@ -1931,7 +1938,6 @@
                 renderSpotify(await res.json());
             } catch {
                 if (myToken !== spotifyLoadToken) return;
-                // Don't immediately flip the UI on a single network failure.
                 consecutiveEmpty++;
             }
         }
