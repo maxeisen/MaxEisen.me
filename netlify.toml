@@ -8,7 +8,22 @@
   targetPort = 6808
   autoLaunch = true
 
+# Explicit page rewrites for the static HTML in /public so /dashboard,
+# /gallery, /resume resolve the same way in dev (netlify dev / vite) and
+# in production. Avoid a /* catch-all — it rewrites Vite's dev module URLs
+# (/src/main.js, /@vite/client, etc.) to /index.html and breaks the SPA
+# bootstrap on localhost:8888.
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/dashboard"
+  to = "/dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery"
+  to = "/gallery.html"
+  status = 200
+
+[[redirects]]
+  from = "/resume"
+  to = "/resume.html"
   status = 200
