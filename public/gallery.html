@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="theme-color" content="#1c1a17"/>
     <link rel="canonical" href="https://maxeisen.me/gallery"/>
-    <link rel="manifest" href="/gallery-manifest.json"/>
+    <link rel="manifest" href="/manifest.json"/>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/img/icons/site-icons/apple_touch_icon.png">
@@ -199,7 +199,7 @@
         }
         .slideshow-link:hover { opacity: 1; }
         .slideshow-link[hidden] { display: none; }
-        .slideshow-link-icon { display: none; letter-spacing: 0; }
+        .slideshow-link-icon { display: none; width: 0.85rem; height: 0.85rem; }
 
         @media (max-width: 1100px) {
             .slideshow-link {
@@ -220,10 +220,11 @@
             .slideshow-link-text { display: none; }
             .slideshow-link-icon {
                 display: block;
-                /* Optical correction — ▶'s mass is on the left of its bounding
-                   box (base of the triangle), so a geometrically-centered glyph
-                   reads as shifted left. Nudge right to correct. */
-                transform: translateX(2px);
+                width: 0.95rem;
+                height: 0.95rem;
+                /* Triangle in the SVG path is already biased right within its
+                   viewBox to compensate for the centroid being left of geometric
+                   center — see the d= attribute. No transform needed. */
             }
         }
 
@@ -432,8 +433,10 @@
         <span class="home-link-arrow" aria-hidden="true">←</span>
     </a>
     <button class="slideshow-link" id="slideshow-link" type="button" hidden aria-label="Start slideshow">
-        <span class="slideshow-link-text">slideshow ▶</span>
-        <span class="slideshow-link-icon" aria-hidden="true">▶</span>
+        <span class="slideshow-link-text">slideshow</span>
+        <svg class="slideshow-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M5 4 L14 8 L5 12 Z" fill="currentColor"/>
+        </svg>
     </button>
     <main class="container">
         <header class="gallery-header">

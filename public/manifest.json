@@ -1,16 +1,17 @@
 {
     "dir": "ltr",
     "lang": "en",
-    "name": "MaxEisen.me",
-    "short_name": "Max Eisen",
+    "id": "/dashboard",
+    "name": "MEisen",
+    "short_name": "MEisen",
     "scope": "/",
     "display": "standalone",
-    "start_url": "/",
+    "start_url": "/dashboard",
     "background_color": "#1c1a17",
     "theme_color": "#1c1a17",
-    "description": "Max Eisen's personal portfolio, photo gallery, and ambient dashboard",
+    "description": "Max Eisen — dashboard, gallery, and home in one app.",
     "orientation": "any",
-    "categories": ["personal", "productivity"],
+    "categories": ["personalization", "lifestyle"],
     "related_applications": [],
     "prefer_related_applications": false,
     "icons": [
@@ -38,6 +39,12 @@
             "name": "Gallery",
             "short_name": "Gallery",
             "url": "/gallery",
+            "icons": [{ "src": "/img/icons/site-icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Home",
+            "short_name": "Home",
+            "url": "/",
             "icons": [{ "src": "/img/icons/site-icons/icon-192.png", "sizes": "192x192" }]
         }
     ]
