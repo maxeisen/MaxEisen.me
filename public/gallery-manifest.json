@@ -1,0 +1,31 @@
+{
+    "dir": "ltr",
+    "lang": "en",
+    "id": "/gallery",
+    "name": "Max's Gallery",
+    "short_name": "Gallery",
+    "scope": "/gallery",
+    "display": "standalone",
+    "start_url": "/gallery",
+    "background_color": "#1c1a17",
+    "theme_color": "#1c1a17",
+    "description": "A masonry gallery of photos shot on a Fujifilm X100S around Toronto and on travels — with a fullscreen crossfading slideshow.",
+    "orientation": "any",
+    "categories": ["photo", "lifestyle"],
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "/img/icons/site-icons/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+        },
+        {
+            "src": "/img/icons/site-icons/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ]
+}
