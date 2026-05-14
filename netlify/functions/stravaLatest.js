@@ -119,6 +119,12 @@ export default async function handler(req) {
 			elapsedTime: a.elapsed_time,
 			elevationGain: a.total_elevation_gain,
 			startDate: a.start_date,
+			// Encoded polyline of the route (null for treadmill/manual entries).
+			// Decoded client-side into a tiny SVG path.
+			polyline: a.map?.summary_polyline || null,
+			// Strava's HR-based "Relative Effort" — only present when an HR
+			// monitor was worn for the activity.
+			sufferScore: a.suffer_score ?? null,
 		}));
 	return jsonResponse({ activities: filtered });
 }

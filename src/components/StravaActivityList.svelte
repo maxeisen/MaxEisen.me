@@ -14,6 +14,50 @@
 
     const pad = (n) => String(n).padStart(2, '0');
 
+    // Decode a Google-encoded polyline string into [lat,lng] pairs and
+    // project to an SVG path that fits the given box, centred and aspect-correct.
+    function decodePolyline(str, precision = 5) {
+        if (!str) return [];
+        const factor = Math.pow(10, precision);
+        const len = str.length;
+        let index = 0, lat = 0, lng = 0;
+        const points = [];
+        while (index < len) {
+            let b, shift = 0, result = 0;
+            do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+            shift = 0; result = 0;
+            do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+            points.push([lat / factor, lng / factor]);
+        }
+        return points;
+    }
+
+    function polylineToSvgPath(encoded, width = 64, height = 40, padding = 5) {
+        const pts = decodePolyline(encoded);
+        if (pts.length < 2) return null;
+        let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+        for (const [lat, lng] of pts) {
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lng < minLng) minLng = lng;
+            if (lng > maxLng) maxLng = lng;
+        }
+        const dLat = maxLat - minLat || 1;
+        const dLng = maxLng - minLng || 1;
+        const w = width - padding * 2;
+        const h = height - padding * 2;
+        const scale = Math.min(w / dLng, h / dLat);
+        const offsetX = padding + (w - dLng * scale) / 2;
+        const offsetY = padding + (h - dLat * scale) / 2;
+        return pts.map(([lat, lng], i) => {
+            const x = offsetX + (lng - minLng) * scale;
+            const y = offsetY + (maxLat - lat) * scale;
+            return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+        }).join(' ');
+    }
+
     const formatDistance = (m) => {
         if (m == null) return '—';
         const km = m / 1000;
@@ -70,12 +114,21 @@
     {:else}
         <ol class="strava-list">
             {#each activities as a (a.id)}
+                {@const mapPath = polylineToSvgPath(a.polyline)}
                 <li>
                     <a class="strava-row" href={a.id ? `https://www.strava.com/activities/${a.id}` : '#'} target="_blank" rel="noreferrer">
-                        <span class="strava-row-icon" aria-hidden="true">{ICONS[a.type] || '🏃'}</span>
+                        {#if mapPath}
+                            <svg class="strava-row-map" viewBox="0 0 64 40" aria-hidden="true">
+                                <path d={mapPath}/>
+                            </svg>
+                        {:else}
+                            <span class="strava-row-icon" aria-hidden="true">{ICONS[a.type] || '🏃'}</span>
+                        {/if}
                         <span class="strava-row-main">
                             <span class="strava-row-name">{a.name || a.type || 'Activity'}</span>
-                            <span class="strava-row-meta">{formatDate(a.startDate)}</span>
+                            <span class="strava-row-meta">
+                                {formatDate(a.startDate)}{#if a.sufferScore != null} · Effort {Math.round(a.sufferScore)}{/if}
+                            </span>
                         </span>
                         <span class="strava-row-stats">
                             <strong>{formatDistance(a.distance)}</strong>
@@ -140,6 +193,24 @@
         align-items: center;
         justify-content: center;
         width: 2rem;
+    }
+
+    .strava-row-map {
+        width: 64px;
+        height: 40px;
+        flex-shrink: 0;
+        background: var(--main-green-translucent, rgba(0, 128, 111, 0.12));
+        border-radius: 8px;
+        padding: 4px;
+        box-sizing: border-box;
+        display: block;
+    }
+    .strava-row-map path {
+        fill: none;
+        stroke: var(--main-green, #00806f);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     .strava-row-main {

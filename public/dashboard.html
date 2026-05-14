@@ -777,6 +777,25 @@
             flex-shrink: 0;
         }
 
+        /* Route preview rendered from the activity's encoded polyline. */
+        .strava-row-map {
+            width: 56px;
+            height: 38px;
+            flex-shrink: 0;
+            background: var(--main-green-translucent);
+            border-radius: 10px;
+            padding: 4px;
+            box-sizing: border-box;
+            display: block;
+        }
+        .strava-row-map path {
+            fill: none;
+            stroke: var(--main-green);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .strava-row-main { flex: 1; min-width: 0; }
 
         .strava-row-name {
@@ -2473,6 +2492,52 @@
             return `${speed.toFixed(1)} km/h`;
         }
 
+        // Decode a Google-encoded polyline string into an array of [lat,lng] pairs.
+        // https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+        function decodePolyline(str, precision = 5) {
+            if (!str) return [];
+            const factor = Math.pow(10, precision);
+            const len = str.length;
+            let index = 0, lat = 0, lng = 0;
+            const points = [];
+            while (index < len) {
+                let b, shift = 0, result = 0;
+                do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+                lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+                shift = 0; result = 0;
+                do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+                lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+                points.push([lat / factor, lng / factor]);
+            }
+            return points;
+        }
+
+        function polylineToSvgPath(encoded, width = 56, height = 38, pad = 5) {
+            const pts = decodePolyline(encoded);
+            if (pts.length < 2) return null;
+            let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+            for (const [lat, lng] of pts) {
+                if (lat < minLat) minLat = lat;
+                if (lat > maxLat) maxLat = lat;
+                if (lng < minLng) minLng = lng;
+                if (lng > maxLng) maxLng = lng;
+            }
+            const dLat = maxLat - minLat || 1;
+            const dLng = maxLng - minLng || 1;
+            const w = width - pad * 2;
+            const h = height - pad * 2;
+            // Preserve aspect ratio and center within the box.
+            const scale = Math.min(w / dLng, h / dLat);
+            const offsetX = pad + (w - dLng * scale) / 2;
+            const offsetY = pad + (h - dLat * scale) / 2;
+            return pts.map(([lat, lng], i) => {
+                const x = offsetX + (lng - minLng) * scale;
+                // SVG y grows down; lat grows up — flip.
+                const y = offsetY + (maxLat - lat) * scale;
+                return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+            }).join(' ');
+        }
+
         async function loadStrava() {
             const list = $('strava-list');
             try {
@@ -2492,13 +2557,20 @@
                     const icon = STRAVA_ICONS[a.type] || '🏃';
                     const pace = formatPace(a.distance, a.movingTime, a.type);
                     const url = a.id ? `https://www.strava.com/activities/${a.id}` : '#';
+                    const path = polylineToSvgPath(a.polyline);
+                    const iconHtml = path
+                        ? `<svg class="strava-row-map" viewBox="0 0 56 38" aria-hidden="true"><path d="${path}"/></svg>`
+                        : `<div class="strava-row-icon">${icon}</div>`;
+                    const metaBits = [a.type || ''];
+                    if (a.startDate) metaBits.push(timeAgo(a.startDate));
+                    if (a.sufferScore != null) metaBits.push(`Effort ${Math.round(a.sufferScore)}`);
                     return `
                         <li>
                             <a class="strava-row" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">
-                                <div class="strava-row-icon">${icon}</div>
+                                ${iconHtml}
                                 <div class="strava-row-main">
                                     <div class="strava-row-name">${escapeHtml(a.name || a.type || 'Activity')}</div>
-                                    <div class="strava-row-meta">${escapeHtml(a.type || '')} · ${a.startDate ? escapeHtml(timeAgo(a.startDate)) : ''}</div>
+                                    <div class="strava-row-meta">${escapeHtml(metaBits.filter(Boolean).join(' · '))}</div>
                                 </div>
                                 <div class="strava-row-stats">
                                     <div>
