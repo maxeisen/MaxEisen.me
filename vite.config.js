@@ -16,8 +16,7 @@ export default defineConfig({
 		port: 6808,
 		open: false,
 		allowedHosts: [
-			'maxeisen.me',
-			'5bd7-134-238-243-137.ngrok-free.app',
+			'maxeisen.me'
 		]
 	},
 	preview: {
