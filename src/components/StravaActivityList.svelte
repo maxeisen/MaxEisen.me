@@ -127,7 +127,7 @@
                         <span class="strava-row-main">
                             <span class="strava-row-name">{a.name || a.type || 'Activity'}</span>
                             <span class="strava-row-meta">
-                                {formatDate(a.startDate)}{#if a.sufferScore != null} · Effort {Math.round(a.sufferScore)}{/if}
+                                {formatDate(a.startDate)}{#if a.sufferScore != null}<span class="strava-row-sep" aria-hidden="true">·</span>Effort {Math.round(a.sufferScore)}{/if}
                             </span>
                         </span>
                         <span class="strava-row-stats">
@@ -234,6 +234,12 @@
         color: var(--modal-title-colour, #555);
         opacity: 0.65;
         margin-top: 0.1rem;
+    }
+
+    .strava-row-sep {
+        display: inline-block;
+        margin: 0 0.5em;
+        opacity: 0.55;
     }
 
     .strava-row-stats {
