@@ -8,6 +8,18 @@
   targetPort = 6808
   autoLaunch = true
 
+# Per-sport themed galleries — explicit rewrites must precede the SPA
+# catch-all below so they're not swallowed.
+[[redirects]]
+  from = "/gallery/ride"
+  to = "/gallery-ride.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery/run"
+  to = "/gallery-run.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
