@@ -18,9 +18,42 @@
     if (typeof window !== 'undefined') {
         window.addEventListener('popstate', () => { pathname = window.location.pathname; });
     }
+
+    // === Lazy-loaded routes ============================================
+    // Each entry is a loader function — Vite turns these dynamic imports
+    // into separate chunks, so the homepage doesn't ship gallery code in
+    // its initial bundle. Add a new route by appending to this table; no
+    // other plumbing change required.
+    const ROUTES = {
+        '/gallery':       () => import('./routes/Gallery.svelte'),
+        '/gallery/ride':  () => import('./routes/GalleryRide.svelte'),
+        '/gallery/run':   () => import('./routes/GalleryRun.svelte'),
+    };
+
+    let RouteComponent = $state(null);
+    $effect(() => {
+        const loader = ROUTES[pathname];
+        if (!loader) {
+            RouteComponent = null;
+            return;
+        }
+        // Race guard: only commit if the URL still matches when the module
+        // resolves (otherwise a quick nav could land the wrong component).
+        const requestedPath = pathname;
+        loader().then((mod) => {
+            if (window.location.pathname === requestedPath) {
+                RouteComponent = mod.default;
+            }
+        }).catch((err) => {
+            console.error('Failed to load route', pathname, err);
+            RouteComponent = null;
+        });
+    });
 </script>
 
-{#if pathname === '/pass-generator'}
+{#if RouteComponent}
+    <RouteComponent />
+{:else if pathname === '/pass-generator'}
     <PassGenerator />
 {:else}
 <CursorSpotlight />

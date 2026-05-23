@@ -8,18 +8,9 @@
   targetPort = 6808
   autoLaunch = true
 
-# Per-sport themed galleries — explicit rewrites must precede the SPA
-# catch-all below so they're not swallowed.
-[[redirects]]
-  from = "/gallery/ride"
-  to = "/gallery-ride.html"
-  status = 200
-
-[[redirects]]
-  from = "/gallery/run"
-  to = "/gallery-run.html"
-  status = 200
-
+# /gallery, /gallery/ride, /gallery/run are now Svelte routes inside the
+# SPA — the catch-all below routes them through index.html, where the
+# App.svelte router lazy-loads the matching route component.
 [[redirects]]
   from = "/*"
   to = "/index.html"
