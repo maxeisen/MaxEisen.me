@@ -119,10 +119,21 @@ https://github.com/maxeisen/
 
     <script type="module" src="/src/main.js"></script>
     <script>
+        // Skip the service worker on localhost — a SW intercepting vite dev
+        // paths (HMR, /src/, /@vite/) can serve a stale response after any
+        // dev hiccup and produce a blank-page state that's painful to debug.
+        // Existing localhost SW registrations are unregistered defensively.
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-            });
+            const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (isLocal) {
+                navigator.serviceWorker.getRegistrations().then((regs) => {
+                    regs.forEach((r) => r.unregister());
+                });
+            } else {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').catch(() => {});
+                });
+            }
         }
     </script>
 </head>

@@ -7,10 +7,41 @@
   command = "vite"
   targetPort = 6808
   autoLaunch = true
+  # Don't fall back to `dist/` during `netlify dev` — that's the prod build
+  # output and would shadow the live vite server with stale bundled code.
+  # `public/` has no index.html, so the SPA rewrite below falls through to
+  # the vite proxy and gets a freshly-transformed page each request.
+  publish = "public"
 
-# /gallery, /gallery/ride, /gallery/run are now Svelte routes inside the
-# SPA — the catch-all below routes them through index.html, where the
-# App.svelte router lazy-loads the matching route component.
+# Bypass rules for `netlify dev` — vite serves source modules from these
+# paths dynamically, and netlify dev applies the SPA catch-all below before
+# proxying to vite. Without these passthroughs, /src/main.js gets rewritten
+# to /index.html and the app boots blank. In production these prefixes
+# don't exist (vite emits to /build/), so the rules are inert.
+[[redirects]]
+  from = "/src/*"
+  to = "/src/:splat"
+  status = 200
+[[redirects]]
+  from = "/node_modules/*"
+  to = "/node_modules/:splat"
+  status = 200
+[[redirects]]
+  from = "/@vite/*"
+  to = "/@vite/:splat"
+  status = 200
+[[redirects]]
+  from = "/@id/*"
+  to = "/@id/:splat"
+  status = 200
+[[redirects]]
+  from = "/@fs/*"
+  to = "/@fs/:splat"
+  status = 200
+
+# SPA catch-all: every Svelte route (/, /gallery, /gallery/ride,
+# /gallery/run, /dashboard) routes through index.html where the App.svelte
+# router lazy-loads the matching route component.
 [[redirects]]
   from = "/*"
   to = "/index.html"

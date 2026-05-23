@@ -1,6 +1,6 @@
 // MaxEisen.me service worker
 // Bump SHELL_VERSION to force clients to refresh the precache.
-const SHELL_VERSION = "v8";
+const SHELL_VERSION = "v9";
 const SHELL_CACHE = `maxeisen-shell-${SHELL_VERSION}`;
 const RUNTIME_CACHE = `maxeisen-runtime-${SHELL_VERSION}`;
 
@@ -56,6 +56,12 @@ self.addEventListener("activate", (event) => {
 	);
 });
 
+// Vite dev server paths — these don't exist in production, but during
+// `netlify dev` they're served dynamically by vite. We must not cache them,
+// or a momentarily-broken dev response (e.g. SPA rewrite catching an asset
+// path) will be served forever after.
+const DEV_BYPASS_PREFIXES = ["/src/", "/@vite/", "/@id/", "/@fs/", "/node_modules/"];
+
 self.addEventListener("fetch", (event) => {
 	const req = event.request;
 	if (req.method !== "GET") return;
@@ -64,6 +70,10 @@ self.addEventListener("fetch", (event) => {
 
 	// Don't intercept Netlify Functions (live data).
 	if (url.pathname.startsWith("/.netlify/functions/")) return;
+
+	// Don't intercept vite dev paths. The hostname check is belt-and-suspenders;
+	// the path check is what catches HMR + source-module fetches.
+	if (DEV_BYPASS_PREFIXES.some((p) => url.pathname.startsWith(p))) return;
 
 	// Don't intercept third-party APIs and dynamic image hosts.
 	if (NETWORK_ONLY_HOSTS.some((host) => url.hostname === host || url.hostname.endsWith("." + host))) {
