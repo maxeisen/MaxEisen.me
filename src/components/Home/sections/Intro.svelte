@@ -1,7 +1,7 @@
 <script>
     import { getContext, onMount } from 'svelte';
     import Annotation from 'svelte-rough-notation';
-    import ActivityModal from './modals/ActivityModal.svelte';
+    import ActivityModal from '../modals/ActivityModal.svelte';
 
     const { open } = getContext('simple-modal');
 

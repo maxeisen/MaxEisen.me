@@ -1,8 +1,8 @@
 <script>
     import { getContext } from 'svelte';
-    import ProjectModal from './modals/ProjectModal.svelte';
+    import ProjectModal from '../modals/ProjectModal.svelte';
     import projects from '@content/projects.json';
-    import { tilt } from '../lib/tilt.js';
+    import { tilt } from '../../../lib/tilt.js';
 
     const { open } = getContext('simple-modal');
 

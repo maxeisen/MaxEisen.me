@@ -1,8 +1,8 @@
 <script>
     import { getContext } from 'svelte';
-    import ExperienceModal from './modals/ExperienceModal.svelte';
+    import ExperienceModal from '../modals/ExperienceModal.svelte';
     import experience from '@content/experience.json';
-    import { tilt } from '../lib/tilt.js';
+    import { tilt } from '../../../lib/tilt.js';
 
     const { open } = getContext('simple-modal');
 

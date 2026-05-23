@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import StravaActivityList from '../StravaActivityList.svelte';
+    import StravaActivityList from '../widgets/StravaActivityList.svelte';
 
     export let image;
     export let audio;
