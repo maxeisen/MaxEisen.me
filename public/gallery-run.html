@@ -583,7 +583,7 @@
         <details class="gallery-intro" id="gallery-intro" open>
             <summary>About this gallery</summary>
             <div class="gallery-intro-body">
-                <p>A private gallery of run photos.</p>
+                <p>A private gallery of run photos — early mornings, race days, and the trails I keep coming back to.</p>
                 <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>. Thumbnails load lazily and the lightbox preloads neighbours so prev/next feels instant.</p>
             </div>
         </details>
@@ -761,16 +761,20 @@
                     }
                     spinner.classList.add('visible');
 
+                    // Fire neighbor preloads in parallel with the current photo's
+                    // fetch, not after it lands. Warm ±2 in both directions so a
+                    // burst of prev/next clicks stays ahead of the user.
+                    preloadNeighbor(currentIndex + 1);
+                    preloadNeighbor(currentIndex - 1);
+                    preloadNeighbor(currentIndex + 2);
+                    preloadNeighbor(currentIndex - 2);
+
                     const preload = new Image();
                     preload.onload = () => {
                         if (myToken !== loadToken) return; // a newer navigation superseded this one
                         lightboxImg.src = url;
                         updateCaption(currentIndex);
                         spinner.classList.remove('visible');
-                        // After the current photo has landed, warm the cache for
-                        // the neighbors so prev/next feels instant.
-                        preloadNeighbor(currentIndex + 1);
-                        preloadNeighbor(currentIndex - 1);
                     };
                     preload.onerror = () => {
                         if (myToken !== loadToken) return;
@@ -804,8 +808,8 @@
                 });
 
                 // Warm the lightbox-sized version on hover so clicking opens
-                // instantly. Debounced ~180ms so a quick mouse sweep across the
-                // grid doesn't fire dozens of unused requests.
+                // instantly. Debounced ~80ms so even quick passes start the
+                // fetch; the lightboxPreloaded Set dedupes repeats.
                 let hoverPreloadTimer = null;
                 grid.addEventListener('mouseover', (e) => {
                     const fig = e.target.closest('figure');
@@ -813,9 +817,15 @@
                     const idx = Array.prototype.indexOf.call(grid.children, fig);
                     if (idx < 0) return;
                     clearTimeout(hoverPreloadTimer);
-                    hoverPreloadTimer = setTimeout(() => preloadNeighbor(idx), 180);
+                    hoverPreloadTimer = setTimeout(() => preloadNeighbor(idx), 80);
                 });
                 grid.addEventListener('mouseout', () => clearTimeout(hoverPreloadTimer));
+
+                // Background warm: after the grid renders, kick off Image()
+                // fetches for the first chunk of full-size URLs so prev/next
+                // is already cached by the time the user opens anything. The
+                // browser's 6-concurrent-per-origin limit naturally throttles.
+                for (let i = 0; i < Math.min(10, fullUrls.length); i++) preloadNeighbor(i);
 
                 lightbox.addEventListener('click', (e) => {
                     // Click-out closes only if user clicked the dim background, not the image or buttons.
@@ -904,13 +914,30 @@
 
                 const tickSlideshow = () => {
                     const nextIdx = (slideCurrent + 1) % slideshowUrls.length;
-                    slideStandby.src = slideshowUrls[nextIdx];
-                    slideStandby.classList.add('visible');
-                    slideActive.classList.remove('visible');
-                    [slideActive, slideStandby] = [slideStandby, slideActive];
-                    slideCurrent = nextIdx;
-                    // Eagerly fetch the one after so it's cached before its slot.
-                    preloadIndex((slideCurrent + 1) % slideshowUrls.length);
+                    const url = slideshowUrls[nextIdx];
+                    // Keep the queue warm two ahead so even a slow-decoding
+                    // photo doesn't cause a stall on the following tick.
+                    preloadIndex((nextIdx + 1) % slideshowUrls.length);
+                    preloadIndex((nextIdx + 2) % slideshowUrls.length);
+
+                    const swap = () => {
+                        slideStandby.src = url;
+                        slideStandby.classList.add('visible');
+                        slideActive.classList.remove('visible');
+                        [slideActive, slideStandby] = [slideStandby, slideActive];
+                        slideCurrent = nextIdx;
+                    };
+
+                    // Wait for the next image to be decodable before crossfading,
+                    // so the standby element doesn't show an empty frame mid-fade.
+                    const probe = new Image();
+                    probe.src = url;
+                    if (probe.complete && probe.naturalWidth > 0) {
+                        swap();
+                    } else {
+                        probe.onload = swap;
+                        probe.onerror = swap;
+                    }
                 };
 
                 const openSlideshow = () => {
@@ -936,7 +963,9 @@
 
                     const startWhenReady = () => {
                         slideA.classList.add('visible');
+                        // Queue the next two slides so the first tick has time to land.
                         preloadIndex(1);
+                        preloadIndex(2);
                         clearInterval(slideTimer);
                         slideTimer = setInterval(tickSlideshow, SLIDE_INTERVAL_MS);
                     };
