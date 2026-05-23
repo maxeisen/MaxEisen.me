@@ -62,9 +62,13 @@
         const landed = () => {
             if (myToken !== loadToken) return;
             if (imgEl) imgEl.src = url;
-            const loc = photos[index]?.location || "";
-            captionText = loc;
-            captionVisible = !!loc;
+            // Caption mirrors the MasonryGrid figcaption — uploader name and
+            // location joined by a center dot when both are present, either
+            // one alone otherwise. Empty caption stays hidden.
+            const p = photos[index] || {};
+            const parts = [p.uploader, p.location].filter(Boolean);
+            captionText = parts.join(" · ");
+            captionVisible = parts.length > 0;
             spinnerVisible = false;
         };
         probe.onload = landed;
