@@ -13,7 +13,7 @@
       "dependencies": [
         "npm:@sveltejs/vite-plugin-svelte@5",
         "npm:marked@^4.0.12",
-        "npm:netlify-cli@^24.0.1",
+        "npm:netlify-cli@24.0.1",
         "npm:passkit-generator@^3.5.7",
         "npm:path-parse@^1.0.7",
         "npm:query-string@^6.14.1",
