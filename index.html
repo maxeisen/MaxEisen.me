@@ -83,9 +83,10 @@ https://github.com/maxeisen/
         }
     </script>
 
-    <!-- applause button for blog -->
-    <script type="module" defer src="/modules/applause-button/applause-button.min.js"></script>
-    <link defer rel="stylesheet" href="/modules/applause-button/applause-button.min.css">
+    <!-- applause-button script + stylesheet are wired in by BlogPostModal
+         only; load them lazily there when the Blog component returns.
+         Keeping them out of the global head means every page visit avoids
+         the ~36 KB JS download even though only one dormant modal uses it. -->
 
     <!-- theme switch logic -->
     <script>

@@ -18,7 +18,6 @@
     "jszip": "^3.10.1",
     "marked": "^4.0.12",
     "passkit-generator": "^3.5.7",
-    "path-parse": "^1.0.7",
     "query-string": "^6.14.1",
     "sharp": "^0.34.5",
     "svelte-icons": "^2.1.0",
