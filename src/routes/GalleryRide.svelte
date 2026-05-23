@@ -16,6 +16,7 @@
     sort="date-desc"
     passwordScope="ride"
     uploadEnabled
+    bulkDownloadEnabled
 >
     {#snippet intro()}
         <p>A private gallery of cycling photos — long road rides and post-ride espressos with friends.</p>

@@ -7,11 +7,13 @@
 -->
 <script>
     import { onMount } from "svelte";
+    import { SvelteSet } from "svelte/reactivity";
     import PasswordGate from "./PasswordGate.svelte";
     import UploadZone from "./UploadZone.svelte";
     import MasonryGrid from "./MasonryGrid.svelte";
     import Lightbox from "./Lightbox.svelte";
     import Slideshow from "./Slideshow.svelte";
+    import { downloadPhotos } from "./lib/download.js";
 
     let {
         /** Cloudinary tag to fetch. */
@@ -26,6 +28,9 @@
         passwordScope = null,
         /** Show the drag-and-drop upload zone once authenticated. */
         uploadEnabled = false,
+        /** Enable bulk-select + download. Replaces the slideshow button
+            with Cancel/Download while a selection is active. */
+        bulkDownloadEnabled = false,
         /** Show "(N of)" inside the intro slot — opt-in. */
         showCount = false,
         /** Intro snippet — fully arbitrary About markup. */
@@ -40,6 +45,46 @@
     let lightboxOpen = $state(false);
     let lightboxIndex = $state(0);
     let slideshowOpen = $state(false);
+
+    // Bulk-download selection state. SvelteSet is reactive on mutation.
+    let selectionMode = $state(false);
+    const selectedIds = new SvelteSet();
+    let downloading = $state(false);
+    let downloadProgress = $state(null); // { done, total } | null
+
+    function toggleSelectionMode() {
+        selectionMode = !selectionMode;
+        if (!selectionMode) selectedIds.clear();
+    }
+
+    function toggleSelected(originalIdx) {
+        const id = photos[originalIdx]?.public_id;
+        if (!id) return;
+        if (selectedIds.has(id)) selectedIds.delete(id);
+        else selectedIds.add(id);
+    }
+
+    async function runDownload() {
+        if (selectedIds.size === 0 || downloading) return;
+        downloading = true;
+        downloadProgress = { done: 0, total: selectedIds.size };
+        const picked = photos.filter((p) => selectedIds.has(p.public_id));
+        try {
+            await downloadPhotos(picked, {
+                zipName: `${tag}-photos`,
+                onProgress: (done, total) => { downloadProgress = { done, total }; },
+            });
+            // Exit selection mode after a successful save.
+            selectionMode = false;
+            selectedIds.clear();
+        } catch (err) {
+            console.error("Download failed:", err);
+            error = "Couldn't download those photos. Try again?";
+        } finally {
+            downloading = false;
+            downloadProgress = null;
+        }
+    }
 
     // Persist intro open/close across visits so collapsed stays collapsed.
     const INTRO_KEY = `gallery-intro-open:${tag}`;
@@ -142,12 +187,50 @@
 </a>
 
 {#if photos.length > 0}
-    <button class="slideshow-link" type="button" onclick={() => (slideshowOpen = true)} aria-label="Start slideshow">
-        <span class="slideshow-link-text">slideshow</span>
-        <svg class="slideshow-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M5 4 L14 8 L5 12 Z" fill="currentColor"/>
-        </svg>
-    </button>
+    <div class="top-actions">
+        {#if selectionMode}
+            <button class="action-link cancel" type="button" onclick={toggleSelectionMode} disabled={downloading} aria-label="Cancel selection">
+                <span class="action-link-text">cancel</span>
+                <span class="action-link-icon" aria-hidden="true">×</span>
+            </button>
+            <button
+                class="action-link download primary"
+                type="button"
+                onclick={runDownload}
+                disabled={selectedIds.size === 0 || downloading}
+                aria-label={downloadProgress ? `Downloading ${downloadProgress.done} of ${downloadProgress.total}` : `Download ${selectedIds.size} photos`}
+            >
+                <span class="action-link-text">
+                    {#if downloading && downloadProgress}
+                        downloading {downloadProgress.done}/{downloadProgress.total}…
+                    {:else if downloading}
+                        downloading…
+                    {:else}
+                        download ({selectedIds.size})
+                    {/if}
+                </span>
+                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8 2 L8 11 M4 7.5 L8 11.5 L12 7.5 M3 14 L13 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        {:else}
+            <button class="action-link" type="button" onclick={() => (slideshowOpen = true)} aria-label="Start slideshow">
+                <span class="action-link-text">slideshow</span>
+                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M5 4 L14 8 L5 12 Z" fill="currentColor"/>
+                </svg>
+            </button>
+            {#if bulkDownloadEnabled}
+                <button class="action-link" type="button" onclick={toggleSelectionMode} aria-label="Select photos to download">
+                    <span class="action-link-text">select</span>
+                    <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                        <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M5 8 L7 10 L11 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            {/if}
+        {/if}
+    </div>
 {/if}
 
 <main class="container">
@@ -171,7 +254,13 @@
     {:else if !photos.length}
         <div class="empty-state">No photos yet.</div>
     {:else}
-        <MasonryGrid {photos} onopen={open} />
+        <MasonryGrid
+            {photos}
+            onopen={open}
+            {selectionMode}
+            {selectedIds}
+            ontoggle={toggleSelected}
+        />
     {/if}
 
     {#if uploadEnabled && passwordScope && password}
@@ -316,11 +405,20 @@
     .home-link:hover { opacity: 1; }
     .home-link-arrow { display: none; letter-spacing: 0; }
 
-    .slideshow-link {
+    /* Top-right action stack. One or two buttons depending on whether the
+       gallery is in selection mode (cancel + download) or normal mode
+       (slideshow + optional select). Buttons share styling but the primary
+       download variant fills with the accent colour for emphasis. */
+    .top-actions {
         position: fixed;
         top: 1rem;
         right: 1.25rem;
         z-index: 10;
+        display: inline-flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+    .action-link {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
@@ -335,13 +433,25 @@
         padding: 0;
         cursor: pointer;
         opacity: 0.45;
-        transition: opacity 0.2s ease;
+        transition: opacity 0.2s ease, color 0.2s ease;
     }
-    .slideshow-link:hover { opacity: 1; }
-    .slideshow-link-icon { display: none; width: 0.85rem; height: 0.85rem; letter-spacing: 0; }
+    .action-link:hover:not(:disabled) { opacity: 1; }
+    .action-link:disabled { cursor: not-allowed; opacity: 0.25; }
+    .action-link-icon { display: none; width: 0.85rem; height: 0.85rem; letter-spacing: 0; }
+    .action-link.primary {
+        opacity: 1;
+        color: var(--header-colour);
+    }
+    .action-link.primary:disabled { color: var(--paragraph-colour); opacity: 0.45; }
+    .action-link.cancel { color: var(--paragraph-colour); }
 
     @media (max-width: 1100px) {
-        .home-link, .slideshow-link {
+        .top-actions {
+            top: 0.5rem;
+            right: 0.75rem;
+            gap: 0.5rem;
+        }
+        .home-link, .action-link {
             top: 0.5rem;
             font-size: 1.1rem;
             width: 2rem;
@@ -355,14 +465,31 @@
             -webkit-backdrop-filter: blur(8px);
         }
         .home-link { left: 0.75rem; }
-        .slideshow-link { right: 0.75rem; gap: 0; font-size: 1rem; }
-        .home-link-text, .slideshow-link-text { display: none; }
+        .action-link { gap: 0; font-size: 1rem; }
+        .action-link.primary {
+            background: var(--main-green);
+            color: var(--background-one, #1c1a17);
+            border-color: var(--main-green);
+            /* Pill shape when showing the count + status text on mobile. */
+            width: auto;
+            min-width: 2rem;
+            padding: 0 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            gap: 0.35rem;
+        }
+        .action-link.primary .action-link-text { display: inline; }
+        .home-link-text, .action-link-text { display: none; }
         .home-link-arrow { display: block; }
-        .slideshow-link-icon {
+        .action-link-icon {
             display: block;
             width: 0.95rem;
             height: 0.95rem;
-            /* Optical correction — triangle visual mass sits left of geometric centre. */
+        }
+        /* Optical correction — slideshow triangle visual mass sits left
+           of geometric centre. */
+        .action-link[aria-label="Start slideshow"] .action-link-icon {
             transform: translateX(2px);
         }
     }

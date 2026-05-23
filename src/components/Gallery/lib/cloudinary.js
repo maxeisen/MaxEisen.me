@@ -60,3 +60,24 @@ export function thumbUrl(photo) {
 export function slideshowUrl(photo) {
     return cloudinaryUrl(photo.public_id, `f_auto,q_auto,w_${displayPixelWidth()}`);
 }
+
+/**
+ * Build a max-quality download URL for a photo. `q_auto:best` keeps the
+ * file modest in size without surrendering visible quality; `fl_attachment`
+ * adds a Content-Disposition header so direct anchor clicks get a sensible
+ * filename (the download flow also overrides this client-side).
+ */
+export function downloadUrl(photo) {
+    return cloudinaryUrl(photo.public_id, "f_jpg,q_auto:best,fl_attachment");
+}
+
+/**
+ * Filename to use when saving a photo. We strip the Cloudinary path prefix
+ * (everything before the last `/`) and append `.jpg` so the user gets a
+ * readable name in their Downloads / Photos app.
+ */
+export function downloadFilename(photo) {
+    const id = String(photo.public_id || "photo");
+    const last = id.split("/").pop() || "photo";
+    return `${last}.jpg`;
+}

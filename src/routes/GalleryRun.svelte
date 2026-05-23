@@ -16,6 +16,7 @@
     sort="date-desc"
     passwordScope="run"
     uploadEnabled
+    bulkDownloadEnabled
 >
     {#snippet intro()}
         <p>A private gallery of run photos.</p>

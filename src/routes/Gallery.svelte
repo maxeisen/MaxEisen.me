@@ -15,7 +15,7 @@
 
 <Gallery tag="gallery" title="Gallery" sort="random" showCount>
     {#snippet intro({ count })}
-        <p>A selection of {#if count != null}<strong>{count}</strong> of {/if}my favourite photos that I've shot on a Fujifilm X100S — sometimes around Toronto, where I live, and often on travels elsewhere in Canada or around the world.</p>
+        <p>A selection of {#if count != null}<strong>{count}</strong> of {/if} my favourite photos that I've shot on a Fujifilm X100S — sometimes around Toronto, where I live, and often on travels elsewhere in Canada or around the world.</p>
         <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>. Thumbnails load lazily and the lightbox preloads neighbours so prev/next feels instant.</p>
     {/snippet}
 </Gallery>

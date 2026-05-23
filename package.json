@@ -15,6 +15,7 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
+    "jszip": "^3.10.1",
     "marked": "^4.0.12",
     "passkit-generator": "^3.5.7",
     "path-parse": "^1.0.7",
