@@ -13,7 +13,7 @@
     import MasonryGrid from "./MasonryGrid.svelte";
     import Lightbox from "./Lightbox.svelte";
     import Slideshow from "./Slideshow.svelte";
-    import { downloadPhotos } from "./lib/download.js";
+    import { downloadPhotos, downloadOne } from "./lib/download.js";
 
     let {
         /** Cloudinary tag to fetch. */
@@ -278,11 +278,11 @@
                 {#if uploadEnabled || bulkDownloadEnabled}
                     <p class="gallery-intro-features">
                         {#if uploadEnabled}
-                            <strong>Uploading:</strong> drag photos onto the zone below the grid, or tap <em>pick files</em>. We ask for your name once so uploads land tagged to you.
+                            <strong>Uploading:</strong> drag photos onto the <a href="#upload-zone" class="intro-anchor">zone below the grid</a>, or tap <em>pick files</em>. We ask for your name once so uploads land tagged to you.
                         {/if}
                         {#if uploadEnabled && bulkDownloadEnabled}<br/>{/if}
                         {#if bulkDownloadEnabled}
-                            <strong>Downloading:</strong> hit <em>select</em> top-right, tap the photos you want, then <em>download</em>. They'll download individually for one or just a few photos, or as a zip for many.
+                            <strong>Downloading:</strong> tap the arrow on any photo (or inside the lightbox) for a single download. To grab a batch, hit <em>select</em> top-right, pick what you want, and <em>download</em> — that delivers as a zip on desktop or through the native share sheet on phones.
                         {/if}
                     </p>
                 {/if}
@@ -303,16 +303,23 @@
             {selectionMode}
             {selectedIds}
             ontoggle={toggleSelected}
+            downloadEnabled={bulkDownloadEnabled}
+            ondownload={(idx) => downloadOne(photos[idx])}
         />
     {/if}
 
     {#if uploadEnabled && passwordScope && password}
-        <UploadZone
-            scope={passwordScope}
-            {password}
-            onuploaded={onUploaded}
-            onauthfail={() => { password = null; }}
-        />
+        <!-- id is the anchor target for the intro blurb's "zone below the
+             grid" link, plus scroll-margin so the browser scrolls past the
+             fixed top toolbar instead of tucking the dashed border under it. -->
+        <div id="upload-zone" class="upload-zone-anchor">
+            <UploadZone
+                scope={passwordScope}
+                {password}
+                onuploaded={onUploaded}
+                onauthfail={() => { password = null; }}
+            />
+        </div>
     {/if}
 
     {#if photos.length > 0}
@@ -320,7 +327,12 @@
     {/if}
 </main>
 
-<Lightbox {photos} bind:open={lightboxOpen} bind:index={lightboxIndex} />
+<Lightbox
+    {photos}
+    bind:open={lightboxOpen}
+    bind:index={lightboxIndex}
+    downloadEnabled={bulkDownloadEnabled}
+/>
 <Slideshow {photos} bind:open={slideshowOpen} />
 
 <style>
@@ -446,6 +458,12 @@
         font-weight: 600;
         color: var(--header-colour);
     }
+    /* Smooth scroll for the in-page "jump to upload zone" link. Scoped
+       to the gallery page so it doesn't change scroll behavior elsewhere. */
+    :global(body.gallery-page) { scroll-behavior: smooth; }
+    /* scroll-margin pushes the target away from any fixed top chrome when
+       the browser scrolls to #upload-zone. */
+    .upload-zone-anchor { scroll-margin-top: 4rem; }
 
     /* Unconditional photo-count footer — sits at the bottom of every
        gallery so the total is always visible, even when the intro is

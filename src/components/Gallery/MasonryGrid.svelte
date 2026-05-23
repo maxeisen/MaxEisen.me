@@ -28,6 +28,10 @@
         /** Set of selected public_ids (mutated by parent via ontoggle). */
         selectedIds = new Set(),
         ontoggle,
+        /** When true, render a per-photo download arrow on hover/tap. */
+        downloadEnabled = false,
+        /** Called with the original index when the download arrow is hit. */
+        ondownload,
     } = $props();
 
     let gridEl = $state();
@@ -157,6 +161,22 @@
                     <span class="select-check" aria-hidden="true">
                         {#if selected}<svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>{/if}
                     </span>
+                {:else if downloadEnabled}
+                    <!-- Per-photo download. Hidden by default on hover-capable
+                         pointers (revealed by CSS on figure:hover), and pinned
+                         visible on coarse pointers (touch) so phone users can
+                         find it without a hover state. -->
+                    <button
+                        type="button"
+                        class="figure-download"
+                        aria-label="Download this photo"
+                        title="Download"
+                        onclick={(e) => { e.stopPropagation(); ondownload?.(originalIdx); }}
+                    >
+                        <svg viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M8 2 L8 11 M4 7.5 L8 11.5 L12 7.5 M3 14 L13 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                 {/if}
             </div>
             {#if p.uploader || p.location}
@@ -250,5 +270,39 @@
         background: var(--main-green);
         border-color: var(--main-green);
         color: var(--background-one, #1c1a17);
+    }
+
+    /* Per-photo download arrow. Top-right of each figure (same anchor as
+       the selection check, but never shown at the same time). Hidden on
+       hover-capable pointers until the user hovers; on coarse pointers
+       (touch) it's always visible so phone users can hit it. */
+    .gallery :global(.figure-download) {
+        position: absolute;
+        top: 0.6rem;
+        right: 0.6rem;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.85);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.18s ease, background-color 0.15s ease, transform 0.1s ease;
+        z-index: 1;
+    }
+    .gallery :global(.figure-download svg) { width: 14px; height: 14px; display: block; }
+    .gallery :global(figure:hover .figure-download),
+    .gallery :global(.figure-download:focus-visible) { opacity: 1; }
+    .gallery :global(.figure-download:hover) { background: var(--main-green); border-color: var(--main-green); color: var(--background-one, #1c1a17); }
+    .gallery :global(.figure-download:active) { transform: scale(0.92); }
+    @media (hover: none) {
+        .gallery :global(.figure-download) { opacity: 0.9; }
     }
 </style>

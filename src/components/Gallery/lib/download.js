@@ -16,6 +16,25 @@
 
 import { downloadUrl, downloadFilename } from "./cloudinary.js";
 
+/**
+ * Download a single photo. Always delivers the file directly (no zip) by
+ * relying on Cloudinary's fl_attachment Content-Disposition header — the
+ * browser handles it as an attachment regardless of platform.
+ *
+ * iOS Safari opens a save sheet for cross-origin attachments; desktop
+ * browsers drop the file into Downloads.
+ */
+export function downloadOne(photo) {
+	if (!photo) return;
+	const a = document.createElement("a");
+	a.href = downloadUrl(photo);
+	a.download = downloadFilename(photo);
+	a.rel = "noopener";
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+}
+
 function isMobileDevice() {
 	if (typeof navigator === "undefined") return false;
 	// Chromium UA Client Hints — most reliable when available.

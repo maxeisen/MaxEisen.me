@@ -10,11 +10,14 @@
 <script>
     import { onMount } from "svelte";
     import { lightboxUrl } from "./lib/cloudinary.js";
+    import { downloadOne } from "./lib/download.js";
 
     let {
         photos = [],
         open = $bindable(false),
         index = $bindable(0),
+        /** When true, surface a download button for the current photo. */
+        downloadEnabled = false,
     } = $props();
 
     let imgEl;
@@ -133,6 +136,18 @@
     ontouchstart={onTouchStart}
     ontouchend={onTouchEnd}
 >
+    {#if downloadEnabled}
+        <button
+            class="lightbox-download"
+            onclick={(e) => { e.stopPropagation(); downloadOne(photos[index]); }}
+            aria-label="Download this photo"
+            title="Download"
+        >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 2 L8 11 M4 7.5 L8 11.5 L12 7.5 M3 14 L13 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    {/if}
     <button class="lightbox-close" onclick={close} aria-label="Close">×</button>
     <button class="lightbox-nav lightbox-prev" onclick={(e) => { e.stopPropagation(); prev(); }} aria-label="Previous photo">‹</button>
     <button class="lightbox-nav lightbox-next" onclick={(e) => { e.stopPropagation(); next(); }} aria-label="Next photo">›</button>
@@ -177,6 +192,29 @@
         transition: opacity 0.2s ease;
     }
     .lightbox-close:hover { opacity: 1; }
+
+    /* Download sits to the left of close, same vertical position. */
+    .lightbox-download {
+        position: absolute;
+        top: 1rem;
+        right: 3.75rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0.6;
+        padding: 0;
+        transition: opacity 0.2s ease, background 0.2s ease, transform 0.1s ease;
+    }
+    .lightbox-download:hover { opacity: 1; background: rgba(0, 0, 0, 0.7); }
+    .lightbox-download:active { transform: scale(0.94); }
+    .lightbox-download svg { width: 16px; height: 16px; display: block; }
 
     .lightbox-nav {
         position: absolute;
