@@ -2,7 +2,6 @@
 
 User-agent: *
 Allow: /
-Disallow: /pass-generator
 Disallow: /404.html
 
 Sitemap: https://maxeisen.me/sitemap.xml

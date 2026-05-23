@@ -9,5 +9,6 @@ package-lock.json
 .netlify
 dist
 /public/build/
+/public/index.html
 /.superpowers/
 /docs/

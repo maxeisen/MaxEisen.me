@@ -10,7 +10,6 @@
     import Skills from './components/Skills.svelte';
     import Footer from './components/Footer.svelte';
     import ModalProvider from './components/ModalProvider.svelte';
-    import PassGenerator from './components/PassGenerator.svelte';
     import CursorSpotlight from './components/CursorSpotlight.svelte';
 
     var screenSize = window.matchMedia("(min-width: 860px)");
@@ -54,8 +53,6 @@
 
 {#if RouteComponent}
     <RouteComponent />
-{:else if pathname === '/pass-generator'}
-    <PassGenerator />
 {:else}
 <CursorSpotlight />
 <ThemeToggle />
