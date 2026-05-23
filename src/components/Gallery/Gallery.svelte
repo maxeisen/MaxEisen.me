@@ -275,6 +275,17 @@
             <summary>About this gallery</summary>
             <div class="gallery-intro-body">
                 {@render intro({ count: showCount ? photos.length : null })}
+                {#if uploadEnabled || bulkDownloadEnabled}
+                    <p class="gallery-intro-features">
+                        {#if uploadEnabled}
+                            <strong>Uploading:</strong> drag photos onto the zone below the grid, or tap <em>pick files</em>. We ask for your name once so uploads land tagged to you.
+                        {/if}
+                        {#if uploadEnabled && bulkDownloadEnabled}<br/>{/if}
+                        {#if bulkDownloadEnabled}
+                            <strong>Downloading:</strong> hit <em>select</em> top-right, tap the photos you want, then <em>download</em>. On phones you'll get the native share sheet to save into Photos; on desktop everything zips into one file.
+                        {/if}
+                    </p>
+                {/if}
             </div>
         </details>
     {/if}
@@ -302,6 +313,10 @@
             onuploaded={onUploaded}
             onauthfail={() => { password = null; }}
         />
+    {/if}
+
+    {#if photos.length > 0}
+        <footer class="gallery-count">{photos.length} photo{photos.length === 1 ? "" : "s"}</footer>
     {/if}
 </main>
 
@@ -410,6 +425,41 @@
         transition: border-color 0.2s ease;
     }
     .gallery-intro-body :global(a:hover) { border-bottom-color: var(--main-green); }
+
+    /* Help blurb that surfaces when the gallery has upload or download
+       features enabled — sits visually distinct from the user-supplied
+       intro copy so it reads as instructions, not narrative. */
+    .gallery-intro-features {
+        margin-top: 0.9rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--main-green-translucent);
+        font-size: 0.88rem;
+        line-height: 1.55;
+        opacity: 0.78;
+    }
+    .gallery-intro-features strong {
+        color: var(--main-green);
+        font-weight: 600;
+    }
+    .gallery-intro-features em {
+        font-style: normal;
+        font-weight: 600;
+        color: var(--header-colour);
+    }
+
+    /* Unconditional photo-count footer — sits at the bottom of every
+       gallery so the total is always visible, even when the intro is
+       collapsed or doesn't surface a count. */
+    .gallery-count {
+        margin-top: 2.5rem;
+        text-align: center;
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--main-green);
+        opacity: 0.55;
+        font-variant-numeric: tabular-nums;
+    }
 
     .empty-state {
         text-align: center;

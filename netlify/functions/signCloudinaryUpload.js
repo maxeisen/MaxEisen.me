@@ -70,6 +70,18 @@ export default async function handler(req) {
 		return jsonResponse({ error: "not_configured" }, 503);
 	}
 
+	// Uploader identity — optional, used as a Cloudinary public_id_prefix so
+	// every photo uploaded by this person carries their name in its filename
+	// (visible in downloads via fl_attachment). Sanitized to a safe slug; if
+	// missing/empty, we just don't include the prefix and Cloudinary picks a
+	// fully random public_id.
+	const rawUploader = typeof body?.uploader === "string" ? body.uploader : "";
+	const uploaderSlug = rawUploader
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "")
+		.slice(0, 32);
+
 	const timestamp = Math.floor(Date.now() / 1000);
 	// Cloudinary signature spec: sort all params alphabetically, join with &,
 	// append apiSecret, SHA-1 hex. Excluded from signing: file, cloud_name,
@@ -79,6 +91,8 @@ export default async function handler(req) {
 		tags: scope.tag,
 		timestamp,
 	};
+	if (uploaderSlug) signedParams.public_id_prefix = uploaderSlug;
+
 	const sortedString = Object.keys(signedParams)
 		.sort()
 		.map((k) => `${k}=${signedParams[k]}`)
@@ -91,6 +105,7 @@ export default async function handler(req) {
 		timestamp,
 		folder: scope.folder,
 		tags: scope.tag,
+		public_id_prefix: uploaderSlug || undefined,
 		signature,
 	});
 }
