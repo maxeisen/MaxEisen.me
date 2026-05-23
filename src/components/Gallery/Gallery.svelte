@@ -64,6 +64,16 @@
         else selectedIds.add(id);
     }
 
+    const allSelected = $derived(photos.length > 0 && selectedIds.size === photos.length);
+
+    function toggleAll() {
+        if (allSelected) {
+            selectedIds.clear();
+        } else {
+            for (const p of photos) selectedIds.add(p.public_id);
+        }
+    }
+
     async function runDownload() {
         if (selectedIds.size === 0 || downloading) return;
         downloading = true;
@@ -192,6 +202,24 @@
             <button class="action-link cancel" type="button" onclick={toggleSelectionMode} disabled={downloading} aria-label="Cancel selection">
                 <span class="action-link-text">cancel</span>
                 <span class="action-link-icon" aria-hidden="true">×</span>
+            </button>
+            <button
+                class="action-link select-all"
+                type="button"
+                onclick={toggleAll}
+                disabled={downloading}
+                aria-label={allSelected ? "Deselect all" : "Select all"}
+                aria-pressed={allSelected ? "true" : "false"}
+            >
+                <span class="action-link-text">{allSelected ? "none" : "all"}</span>
+                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    {#if allSelected}
+                        <rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                    {:else}
+                        <rect x="3" y="3" width="10" height="10" rx="2" fill="currentColor"/>
+                        <path d="M5.5 8 L7.5 10 L11 6.5" fill="none" stroke="var(--background-one, #1c1a17)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    {/if}
+                </svg>
             </button>
             <button
                 class="action-link download primary"
