@@ -499,10 +499,13 @@
         }
         .home-link, .action-link {
             top: 0.5rem;
-            font-size: 1.1rem;
             width: 2rem;
             height: 2rem;
+            box-sizing: border-box;
             justify-content: center;
+            align-items: center;
+            line-height: 1;
+            padding: 0;
             background: var(--inner-background, rgba(0, 0, 0, 0.25));
             border: 1px solid var(--main-green-translucent);
             border-radius: 50%;
@@ -511,7 +514,7 @@
             -webkit-backdrop-filter: blur(8px);
         }
         .home-link { left: 0.75rem; }
-        .action-link { gap: 0; font-size: 1rem; }
+        .action-link { gap: 0; }
         .action-link.primary {
             background: var(--main-green);
             color: var(--background-one, #1c1a17);
@@ -532,11 +535,7 @@
             display: block;
             width: 0.95rem;
             height: 0.95rem;
-        }
-        /* Optical correction — slideshow triangle visual mass sits left
-           of geometric centre. */
-        .action-link[aria-label="Start slideshow"] .action-link-icon {
-            transform: translateX(2px);
+            flex: none;
         }
     }
 </style>
