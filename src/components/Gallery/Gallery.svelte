@@ -193,7 +193,9 @@
 
 <a class="home-link" href="/" onclick={onHomeClick} aria-label="Back to homepage">
     <span class="home-link-text">← back</span>
-    <span class="home-link-arrow" aria-hidden="true">←</span>
+    <svg class="home-link-arrow" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M12.5 8 H3.5 M6.5 5 L3.5 8 L6.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
 </a>
 
 {#if photos.length > 0}
@@ -201,7 +203,9 @@
         {#if selectionMode}
             <button class="action-link cancel" type="button" onclick={toggleSelectionMode} disabled={downloading} aria-label="Cancel selection">
                 <span class="action-link-text">cancel</span>
-                <span class="action-link-icon" aria-hidden="true">×</span>
+                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M4.5 4.5 L11.5 11.5 M11.5 4.5 L4.5 11.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
             </button>
             <button
                 class="action-link select-all"
@@ -431,7 +435,16 @@
         transition: opacity 0.2s ease;
     }
     .home-link:hover { opacity: 1; }
-    .home-link-arrow { display: none; letter-spacing: 0; }
+    /* Icons render as block so the SVG box doesn't pick up text-baseline
+       offsets — that was the source of the visible off-centre look on the
+       mobile circular pills. flex-shrink: 0 keeps the explicit size when
+       sharing space with text on desktop. */
+    .home-link-arrow {
+        display: none;
+        width: 0.95rem;
+        height: 0.95rem;
+        flex-shrink: 0;
+    }
 
     /* Top-right action stack. One or two buttons depending on whether the
        gallery is in selection mode (cancel + download) or normal mode
@@ -465,7 +478,12 @@
     }
     .action-link:hover:not(:disabled) { opacity: 1; }
     .action-link:disabled { cursor: not-allowed; opacity: 0.25; }
-    .action-link-icon { display: none; width: 0.85rem; height: 0.85rem; letter-spacing: 0; }
+    .action-link-icon {
+        display: none;
+        width: 0.85rem;
+        height: 0.85rem;
+        flex-shrink: 0;
+    }
     .action-link.primary {
         opacity: 1;
         color: var(--header-colour);
@@ -509,7 +527,7 @@
         }
         .action-link.primary .action-link-text { display: inline; }
         .home-link-text, .action-link-text { display: none; }
-        .home-link-arrow { display: block; }
+        .home-link-arrow,
         .action-link-icon {
             display: block;
             width: 0.95rem;
