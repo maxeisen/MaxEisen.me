@@ -159,7 +159,13 @@
                     </span>
                 {/if}
             </div>
-            {#if p.location}<figcaption>{p.location}</figcaption>{/if}
+            {#if p.uploader || p.location}
+                <figcaption>
+                    {#if p.uploader}<span class="caption-uploader">{p.uploader}</span>{/if}
+                    {#if p.uploader && p.location}<span class="caption-sep"> · </span>{/if}
+                    {#if p.location}<span class="caption-location">{p.location}</span>{/if}
+                </figcaption>
+            {/if}
         </figure>
     {/each}
 </div>

@@ -70,17 +70,29 @@ export default async function handler(req) {
 		return jsonResponse({ error: "not_configured" }, 503);
 	}
 
-	// Uploader identity — optional, used as a Cloudinary public_id_prefix so
-	// every photo uploaded by this person carries their name in its filename
-	// (visible in downloads via fl_attachment). Sanitized to a safe slug; if
-	// missing/empty, we just don't include the prefix and Cloudinary picks a
-	// fully random public_id.
+	// Uploader identity — set as the `uploader` structured metadata field on
+	// the asset, so it's visible in the asset's metadata in Cloudinary and
+	// can be displayed alongside other captions on the front end.
+	//
+	// The corresponding structured metadata field (external_id: "uploader",
+	// type: string) must exist in this Cloudinary account — configured via
+	// Admin Console → Settings → Metadata. If it isn't, Cloudinary rejects
+	// the upload with a clear error and the client surfaces it.
 	const rawUploader = typeof body?.uploader === "string" ? body.uploader : "";
-	const uploaderSlug = rawUploader
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-+|-+$/g, "")
-		.slice(0, 32);
+	const uploaderTrimmed = rawUploader.trim().slice(0, 64);
+
+	// Cloudinary's `metadata` upload param uses `external_id=value` pairs
+	// joined by `|`. Values containing `|`, `=`, `,`, or quotes must be
+	// wrapped in double quotes (escaping internal quotes with `\`).
+	// Names won't usually contain those, but defend against it anyway.
+	let metadataField = "";
+	if (uploaderTrimmed) {
+		const needsQuoting = /[|=,"\\]/.test(uploaderTrimmed);
+		const value = needsQuoting
+			? `"${uploaderTrimmed.replace(/(["\\])/g, "\\$1")}"`
+			: uploaderTrimmed;
+		metadataField = `uploader=${value}`;
+	}
 
 	const timestamp = Math.floor(Date.now() / 1000);
 	// Cloudinary signature spec: sort all params alphabetically, join with &,
@@ -91,7 +103,7 @@ export default async function handler(req) {
 		tags: scope.tag,
 		timestamp,
 	};
-	if (uploaderSlug) signedParams.public_id_prefix = uploaderSlug;
+	if (metadataField) signedParams.metadata = metadataField;
 
 	const sortedString = Object.keys(signedParams)
 		.sort()
@@ -105,7 +117,7 @@ export default async function handler(req) {
 		timestamp,
 		folder: scope.folder,
 		tags: scope.tag,
-		public_id_prefix: uploaderSlug || undefined,
+		metadata: metadataField || undefined,
 		signature,
 	});
 }

@@ -88,6 +88,7 @@ export default async function handler(req) {
 		const meta = r.metadata || {};
 		const ctx = r.context?.custom || r.context || {};
 		const location = meta.location || meta.Location || ctx.location || null;
+		const uploader = meta.uploader || meta.Uploader || ctx.uploader || null;
 		return {
 			public_id: r.public_id,
 			format: r.format,
@@ -95,6 +96,7 @@ export default async function handler(req) {
 			height: r.height,
 			created_at: r.created_at,
 			location,
+			uploader,
 		};
 	});
 

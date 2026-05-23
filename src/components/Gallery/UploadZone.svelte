@@ -8,10 +8,10 @@
 
     Identity: we ask for the uploader's name once per session (stored in
     sessionStorage under `gallery-uploader:${scope}`) and pass it to the
-    signing function, which sanitizes it into a public_id_prefix baked
-    into the signed params. Cloudinary then names every uploaded photo
-    `<slug>_<random>`, so downloads carry the uploader's name in the
-    filename without per-file signing roundtrips.
+    signing function, which bakes it into the signed params as the
+    `uploader` structured metadata field. Cloudinary stores that on the
+    asset; galleryList returns it and MasonryGrid shows it on hover next
+    to (or in place of) the location caption.
 
     Emits `onuploaded` (callback prop) when the batch finishes — the parent
     decides what to do (typically: refetch the photo list).
@@ -107,8 +107,8 @@
             fd.append("signature", signed.signature);
             fd.append("folder", signed.folder);
             fd.append("tags", signed.tags);
-            if (signed.public_id_prefix) {
-                fd.append("public_id_prefix", signed.public_id_prefix);
+            if (signed.metadata) {
+                fd.append("metadata", signed.metadata);
             }
             try {
                 const res = await fetch(`https://api.cloudinary.com/v1_1/${signed.cloud_name}/image/upload`, {

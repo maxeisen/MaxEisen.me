@@ -282,7 +282,7 @@
                         {/if}
                         {#if uploadEnabled && bulkDownloadEnabled}<br/>{/if}
                         {#if bulkDownloadEnabled}
-                            <strong>Downloading:</strong> hit <em>select</em> top-right, tap the photos you want, then <em>download</em>. On phones you'll get the native share sheet to save into Photos; on desktop everything zips into one file.
+                            <strong>Downloading:</strong> hit <em>select</em> top-right, tap the photos you want, then <em>download</em>. They'll download individually for one or just a few photos, or as a zip for many.
                         {/if}
                     </p>
                 {/if}
