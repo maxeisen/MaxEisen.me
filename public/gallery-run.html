@@ -509,6 +509,50 @@
         body.gated > .slideshow-link,
         body.gated > .lightbox,
         body.gated > .slideshow { display: none !important; }
+
+        .upload-zone {
+            max-width: 60ch;
+            margin: 0 auto 2.5rem auto;
+            padding: 1.25rem 1.5rem;
+            border: 2px dashed var(--main-green-translucent);
+            border-radius: 14px;
+            text-align: center;
+            color: var(--paragraph-colour);
+            background: rgba(255, 255, 255, 0.015);
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .upload-zone[hidden] { display: none; }
+        .upload-zone.dragover {
+            border-color: var(--main-green);
+            background: var(--main-green-translucent);
+        }
+        .upload-prompt {
+            margin: 0;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            opacity: 0.85;
+        }
+        .upload-pick {
+            font: inherit;
+            font-weight: 600;
+            color: var(--main-green);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+        }
+        .upload-pick:hover { color: var(--header-colour); }
+        .upload-status {
+            margin-top: 0.6rem;
+            font-size: 0.82rem;
+            color: var(--main-green);
+            opacity: 0.9;
+        }
+        .upload-status[hidden] { display: none; }
+        .upload-status.error { color: #d97777; }
     </style>
 </head>
 <body>
@@ -547,6 +591,11 @@
         <div class="gallery" id="gallery">
             <div class="empty-state">Loading photos…</div>
         </div>
+    <div class="upload-zone" id="upload-zone" hidden>
+        <input class="upload-input" id="upload-input" type="file" accept="image/*" multiple hidden/>
+        <p class="upload-prompt">Drag &amp; drop photos here, or <button type="button" class="upload-pick" id="upload-pick">pick files</button>. They'll upload tagged for this gallery.</p>
+        <div class="upload-status" id="upload-status" hidden></div>
+    </div>
     </main>
 
     <div class="slideshow" id="slideshow" role="dialog" aria-modal="true" aria-label="Slideshow" hidden>
@@ -640,11 +689,9 @@
                     document.getElementById('gallery-count').textContent = '0';
                     return;
                 }
-                // Randomize order on each load (Fisher-Yates).
-                for (let i = photos.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [photos[i], photos[j]] = [photos[j], photos[i]];
-                }
+                // Newest uploads first — Cloudinary returns ISO-8601 created_at
+                // strings, which sort lexicographically.
+                photos.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
                 document.getElementById('gallery-count').textContent = String(photos.length + ' of');
                 grid.innerHTML = photos.map((p) => {
                     const thumb = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_800');
@@ -993,6 +1040,7 @@
                 sessionPassword = gateInput.value;
                 sessionStorage.setItem(GATE_STORAGE_KEY, sessionPassword);
                 hideGate();
+                revealUploadZone();
                 load();
             } catch {
                 gateError.textContent = 'Network error. Try again.';
@@ -1002,7 +1050,113 @@
             }
         });
 
-        if (sessionPassword) { hideGate(); load(); } else { showGate(); }
+        // === drag-and-drop upload ============================================
+        // The gate already authenticated the viewer, so uploads are unlocked
+        // automatically. The signing function is gated by the same password
+        // (server-side), and the signed params lock the tag to the current
+        // scope, so the browser can't fan an upload into the wrong tag.
+        const uploadZone = document.getElementById('upload-zone');
+        const uploadInput = document.getElementById('upload-input');
+        const uploadPick = document.getElementById('upload-pick');
+        const uploadStatus = document.getElementById('upload-status');
+
+        function setUploadStatus(text, isError = false) {
+            uploadStatus.textContent = text || '';
+            uploadStatus.classList.toggle('error', !!isError);
+            uploadStatus.hidden = !text;
+        }
+
+        function revealUploadZone() {
+            uploadZone.hidden = false;
+        }
+        function hideUploadZone() {
+            uploadZone.hidden = true;
+        }
+
+        async function fetchUploadSignature() {
+            const res = await fetch('/.netlify/functions/signCloudinaryUpload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Gallery-Password': sessionPassword || '',
+                },
+                body: JSON.stringify({ scope: GATE_SCOPE }),
+            });
+            if (!res.ok) {
+                if (res.status === 401) {
+                    clearStoredPassword();
+                    showGate();
+                }
+                throw new Error(`signature ${res.status}`);
+            }
+            return res.json();
+        }
+
+        async function uploadFiles(files) {
+            const images = [...files].filter((f) => f.type.startsWith('image/'));
+            if (!images.length) return;
+            let signed;
+            try {
+                signed = await fetchUploadSignature();
+            } catch (err) {
+                setUploadStatus(err.message === 'signature 401' ? 'Session expired.' : 'Could not authorize upload.', true);
+                return;
+            }
+            uploadPick.disabled = true;
+            uploadInput.disabled = true;
+            let done = 0;
+            let failed = 0;
+            for (const file of images) {
+                setUploadStatus(`Uploading ${done + failed + 1}/${images.length}…`);
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('api_key', signed.api_key);
+                fd.append('timestamp', signed.timestamp);
+                fd.append('signature', signed.signature);
+                fd.append('folder', signed.folder);
+                fd.append('tags', signed.tags);
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${signed.cloud_name}/image/upload`, {
+                        method: 'POST',
+                        body: fd,
+                    });
+                    if (res.ok) done++; else failed++;
+                } catch {
+                    failed++;
+                }
+            }
+            if (failed > 0 && done === 0) {
+                setUploadStatus(`Upload failed (${failed}/${images.length}). Try again.`, true);
+                uploadPick.disabled = false;
+                uploadInput.disabled = false;
+                uploadInput.value = '';
+                return;
+            }
+            const summary = failed > 0
+                ? `Uploaded ${done}/${images.length} (${failed} failed). Refreshing…`
+                : `Uploaded ${done} photo${done === 1 ? '' : 's'}. Refreshing…`;
+            setUploadStatus(summary);
+            // Pause briefly so the user sees the success message before reload.
+            setTimeout(() => window.location.reload(), 900);
+        }
+
+        uploadPick.addEventListener('click', () => uploadInput.click());
+        uploadInput.addEventListener('change', (e) => uploadFiles(e.target.files));
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        uploadZone.addEventListener('dragleave', (e) => {
+            if (e.target === uploadZone) uploadZone.classList.remove('dragover');
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            uploadFiles(e.dataTransfer?.files || []);
+        });
+
+        if (sessionPassword) { hideGate(); revealUploadZone(); load(); }
+        else { showGate(); }
     </script>
 </body>
 </html>
