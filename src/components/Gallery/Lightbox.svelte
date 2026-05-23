@@ -66,7 +66,7 @@
             // location joined by a center dot when both are present, either
             // one alone otherwise. Empty caption stays hidden.
             const p = photos[index] || {};
-            const parts = [p.uploader, p.location].filter(Boolean);
+            const parts = [p.uploader, p.caption].filter(Boolean);
             captionText = parts.join(" · ");
             captionVisible = parts.length > 0;
             spinnerVisible = false;

@@ -87,7 +87,13 @@ export default async function handler(req) {
 	const resources = (data.resources || []).map((r) => {
 		const meta = r.metadata || {};
 		const ctx = r.context?.custom || r.context || {};
-		const location = meta.location || meta.Location || ctx.location || null;
+		// `caption` is the structured-metadata field used across all galleries
+		// (renamed from `location` so it can hold anything — a place, a title,
+		// or just a description). Older photos that still have `location`
+		// populated fall through as a backstop.
+		const caption = meta.caption || meta.Caption || ctx.caption
+			|| meta.location || meta.Location || ctx.location
+			|| null;
 		const uploader = meta.uploader || meta.Uploader || ctx.uploader || null;
 		return {
 			public_id: r.public_id,
@@ -95,7 +101,7 @@ export default async function handler(req) {
 			width: r.width,
 			height: r.height,
 			created_at: r.created_at,
-			location,
+			caption,
 			uploader,
 		};
 	});

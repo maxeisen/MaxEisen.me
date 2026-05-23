@@ -151,7 +151,7 @@
             >
                 <img
                     src={thumbUrl(p)}
-                    alt={p.location || ""}
+                    alt={p.caption || ""}
                     loading="lazy"
                     style:position={pad ? "absolute" : null}
                     style:inset={pad ? "0" : null}
@@ -179,11 +179,11 @@
                     </button>
                 {/if}
             </div>
-            {#if p.uploader || p.location}
+            {#if p.uploader || p.caption}
                 <figcaption>
                     {#if p.uploader}<span class="caption-uploader">{p.uploader}</span>{/if}
-                    {#if p.uploader && p.location}<span class="caption-sep"> · </span>{/if}
-                    {#if p.location}<span class="caption-location">{p.location}</span>{/if}
+                    {#if p.uploader && p.caption}<span class="caption-sep"> · </span>{/if}
+                    {#if p.caption}<span class="caption-text">{p.caption}</span>{/if}
                 </figcaption>
             {/if}
         </figure>
