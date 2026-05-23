@@ -1,17 +1,18 @@
 // Bulk-download helper.
 //
 // Platform behaviour:
-//   - Desktop: trigger an anchor[download] click per photo. Cloudinary
-//     serves with Content-Disposition: attachment so the browser saves
-//     each with a sensible filename. The browser will prompt once for
-//     "allow multiple downloads" on the second file in Chrome; after that
-//     they all stream into Downloads. No zip — users prefer individual
-//     originals on desktop.
-//   - Mobile (touch + no-hover): native share sheet with the files array
-//     so iOS/Android can save directly to Photos. Falls back to a zip if
-//     navigator.canShare({files}) isn't supported (older mobile browsers).
-//     JSZip is dynamic-imported so its ~28 KB only ships when actually
-//     needed.
+//   - Desktop: zip every selected photo into a single archive and trigger
+//     one download. Per-file anchor downloads get rate-limited by Chrome
+//     after a few requests, so users would lose photos silently — a zip
+//     guarantees all selected end up in Downloads.
+//   - Mobile (touch + no-hover): native share sheet with the files array.
+//     iOS / Android offer "Save Images" / "Save to Files" / AirDrop and
+//     the photos land individually in Photos. If the platform doesn't
+//     support sharing files (older mobile browsers), fall back to zip so
+//     the user still gets every selected photo.
+//
+// JSZip is dynamic-imported so its ~28 KB only ships when a user actually
+// invokes a download.
 
 import { downloadUrl, downloadFilename } from "./cloudinary.js";
 
@@ -24,25 +25,6 @@ function isMobileDevice() {
 	return window.matchMedia("(pointer: coarse) and (hover: none)").matches;
 }
 
-async function downloadIndividually(photos, onProgress) {
-	// Anchor-click each photo. Cloudinary's fl_attachment (in downloadUrl)
-	// sets Content-Disposition so the browser treats it as a download with
-	// the URL-derived filename. A small inter-download pause avoids merging
-	// or rate-limiting under Chrome.
-	for (let i = 0; i < photos.length; i++) {
-		const p = photos[i];
-		const a = document.createElement("a");
-		a.href = downloadUrl(p);
-		a.download = downloadFilename(p);
-		a.rel = "noopener";
-		document.body.appendChild(a);
-		a.click();
-		a.remove();
-		onProgress?.(i + 1, photos.length);
-		if (i < photos.length - 1) await new Promise((r) => setTimeout(r, 150));
-	}
-}
-
 async function fetchAsFile(photo) {
 	const res = await fetch(downloadUrl(photo));
 	if (!res.ok) throw new Error(`Failed to fetch ${photo.public_id}: ${res.status}`);
@@ -50,24 +32,16 @@ async function fetchAsFile(photo) {
 	return new File([blob], downloadFilename(photo), { type: blob.type || "image/jpeg" });
 }
 
-async function shareOrZip(photos, onProgress, zipName) {
-	// Fetch all files first — both share() and zip() need them in memory.
+async function fetchAll(photos, onProgress) {
 	const files = [];
 	for (const p of photos) {
 		files.push(await fetchAsFile(p));
 		onProgress?.(files.length, photos.length);
 	}
+	return files;
+}
 
-	if (navigator.canShare && navigator.canShare({ files })) {
-		try {
-			await navigator.share({ files });
-			return;
-		} catch (err) {
-			if (err?.name === "AbortError") return; // user cancelled
-			console.warn("share() failed, falling back to zip:", err);
-		}
-	}
-
+async function zipDownload(files, zipName) {
 	const { default: JSZip } = await import("jszip");
 	const zip = new JSZip();
 	for (const f of files) zip.file(f.name, f);
@@ -83,21 +57,30 @@ async function shareOrZip(photos, onProgress, zipName) {
 }
 
 /**
- * Download an array of photos. Routes to per-file anchor downloads on
- * desktop and to the native share sheet on mobile (zip fallback if the
- * device doesn't expose Web Share with files).
+ * Download an array of photos. Zips on desktop, shares on mobile (with a
+ * zip fallback only if the mobile platform doesn't support Web Share with
+ * files). Either way every selected photo is delivered to the user.
  *
  * @param {Array} photos
  * @param {Object} opts
- * @param {string} [opts.zipName] - base name for the mobile-fallback zip
+ * @param {string} [opts.zipName] - base name for the zip archive
  * @param {(done: number, total: number) => void} [opts.onProgress]
  */
 export async function downloadPhotos(photos, opts = {}) {
 	if (!photos || photos.length === 0) return;
 	const { zipName = "photos", onProgress } = opts;
-	if (isMobileDevice()) {
-		await shareOrZip(photos, onProgress, zipName);
-	} else {
-		await downloadIndividually(photos, onProgress);
+
+	const files = await fetchAll(photos, onProgress);
+
+	if (isMobileDevice() && navigator.canShare && navigator.canShare({ files })) {
+		try {
+			await navigator.share({ files });
+			return;
+		} catch (err) {
+			if (err?.name === "AbortError") return; // user cancelled deliberately
+			console.warn("share() failed, falling back to zip:", err);
+		}
 	}
+
+	await zipDownload(files, zipName);
 }
