@@ -689,6 +689,31 @@
                 // browser's 6-concurrent-per-origin limit naturally throttles.
                 for (let i = 0; i < Math.min(10, fullUrls.length); i++) preloadNeighbor(i);
 
+                // Mobile-friendly preload: hover doesn't exist on touch, so as
+                // each figure scrolls into view, warm its full-size version.
+                // 300px rootMargin starts the fetch before the user reaches it.
+                if ('IntersectionObserver' in window) {
+                    const io = new IntersectionObserver((entries) => {
+                        for (const entry of entries) {
+                            if (!entry.isIntersecting) continue;
+                            const idx = Array.prototype.indexOf.call(grid.children, entry.target);
+                            if (idx >= 0) preloadNeighbor(idx);
+                            io.unobserve(entry.target);
+                        }
+                    }, { rootMargin: '300px' });
+                    Array.from(grid.children).forEach((fig) => io.observe(fig));
+                }
+
+                // Touch head-start: when a finger lands on a figure, fire the
+                // preload immediately — click fires on touchend, so we buy
+                // ~100ms of fetch time before the lightbox opens.
+                grid.addEventListener('touchstart', (e) => {
+                    const fig = e.target.closest('figure');
+                    if (!fig) return;
+                    const idx = Array.prototype.indexOf.call(grid.children, fig);
+                    if (idx >= 0) preloadNeighbor(idx);
+                }, { passive: true });
+
                 lightbox.addEventListener('click', (e) => {
                     // Click-out closes only if user clicked the dim background, not the image or buttons.
                     if (e.target === lightbox) close();
