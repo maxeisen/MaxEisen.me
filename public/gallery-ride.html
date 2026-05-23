@@ -583,9 +583,8 @@
         <details class="gallery-intro" id="gallery-intro" open>
             <summary>About this gallery</summary>
             <div class="gallery-intro-body">
-                <p>A private gallery of <span id="gallery-count"></span> ride photos — long road days, gravel weekends, and post-ride lattes. Captured on a Fujifilm X100S unless someone else is holding the camera.</p>
-                <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>, which negotiates AVIF, WebP, or JPEG based on what your browser accepts and tunes compression per image. Thumbnails load at 800px wide and the masonry grid restacks from four columns to one as the viewport narrows.</p>
-                <p>Hovering a thumbnail quietly fetches the full 2400px version, and the lightbox preloads neighbors so prev/next is instant. The slideshow opens fullscreen, crossfades every five seconds with one photo always queued, and asks Cloudinary for an image sized to your display's actual pixel dimensions.</p>
+                <p>A private gallery of ride photos — long road days and post-ride espressos.</p>
+                <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>. Thumbnails load lazily and the lightbox preloads neighbours so prev/next feels instant.</p>
             </div>
         </details>
         <div class="gallery" id="gallery">
@@ -686,13 +685,13 @@
                 const photos = await fetchPhotos();
                 if (photos.length === 0) {
                     grid.innerHTML = '<div class="empty-state">No photos yet.</div>';
-                    document.getElementById('gallery-count').textContent = '0';
+                    document.getElementById('gallery-count')?.replaceChildren('0');
                     return;
                 }
                 // Newest uploads first — Cloudinary returns ISO-8601 created_at
                 // strings, which sort lexicographically.
                 photos.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-                document.getElementById('gallery-count').textContent = String(photos.length + ' of');
+                document.getElementById('gallery-count')?.replaceChildren(String(photos.length + ' of'));
                 grid.innerHTML = photos.map((p) => {
                     const thumb = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_800');
                     const full = cloudinaryUrl(p.public_id, 'f_auto,q_auto,w_2400');
