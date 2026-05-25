@@ -79,6 +79,12 @@
     // on pointerup. We intentionally do NOT setPointerCapture — capturing
     // redirects the synthesized click to the widget instead of the actual
     // anchor inside, breaking link navigation.
+    //
+    // We deliberately do NOT set draggingId until the user crosses the 5px
+    // threshold. `class:dragging` adds pointer-events:none on the widget; if
+    // it flips on at pointerdown, the synthetic click after a non-drag press
+    // dispatches to the slot underneath instead of the anchor inside, and
+    // nothing in the widget becomes clickable. Defer it to onMove.
     function initDrag(widgetId, e) {
         if (e.button !== undefined && e.button !== 0) return;
         if (draggingId !== null) return;
@@ -88,7 +94,6 @@
         const startX = e.clientX;
         const startY = e.clientY;
         let started = false;
-        draggingId = widgetId;
 
         const onMove = (ev) => {
             if (ev.pointerId !== pointerId) return;
@@ -97,6 +102,7 @@
             if (!started) {
                 if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
                 started = true;
+                draggingId = widgetId;
                 isDragging = true;
             }
             ev.preventDefault();
@@ -234,7 +240,13 @@
 <SpotifyVizOverlay />
 
 <style>
+    /* body styles scoped to the dashboard's mount lifecycle — Svelte removes
+       these :global rules when the component unmounts, so they don't bleed
+       to the homepage. margin/padding reset prevents the default 8px body
+       margin from pushing the 100vh dashboard past the viewport. */
     :global(body) {
+        margin: 0;
+        padding: 0;
         background-image:
             radial-gradient(circle at 50% 50%, var(--background-glow) 0%, transparent 45%),
             radial-gradient(circle at 50% 50%, var(--background-accent) 0%, transparent 50%),
@@ -495,18 +507,6 @@
     @media (prefers-reduced-motion: reduce) {
         .dashboard.is-editing .slot > :global(.widget),
         .dashboard.is-editing .slot:nth-child(odd) > :global(.widget) { animation: none; }
-    }
-
-    @media (max-width: 1300px) {
-        .home-link {
-            top: auto;
-            left: auto;
-            bottom: 0.75rem;
-            right: 0.75rem;
-            opacity: 0.6;
-        }
-        .home-link-text { display: none; }
-        .home-link-arrow { display: block; }
     }
 
     @media (max-width: 1100px) {
