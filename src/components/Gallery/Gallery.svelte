@@ -64,6 +64,16 @@
         else selectedIds.add(id);
     }
 
+    // Used by MasonryGrid's drag-to-select: it tells us "set photo N to
+    // state X" rather than toggling, so the painted state is deterministic
+    // across the entire drag path.
+    function setSelected(originalIdx, selected) {
+        const id = photos[originalIdx]?.public_id;
+        if (!id) return;
+        if (selected) selectedIds.add(id);
+        else selectedIds.delete(id);
+    }
+
     const allSelected = $derived(photos.length > 0 && selectedIds.size === photos.length);
 
     function toggleAll() {
@@ -282,7 +292,7 @@
                         {/if}
                         {#if uploadEnabled && bulkDownloadEnabled}<br/>{/if}
                         {#if bulkDownloadEnabled}
-                            <strong>Downloading:</strong> tap the arrow on any photo (or inside the lightbox) for a single download. To grab a batch, hit <em>select</em> top-right, pick what you want, and <em>download</em> — that delivers as a zip on desktop or through the native share sheet on phones.
+                            <strong>Downloading:</strong> tap the arrow on any photo (or inside the lightbox) for a single download. To grab a batch, hit <em>select</em> top-right, tap photos to choose them — or drag your cursor / finger across to paint-select many at once — and <em>download</em>. That delivers as a zip on desktop or through the native share sheet on phones.
                         {/if}
                     </p>
                 {/if}
@@ -303,6 +313,7 @@
             {selectionMode}
             {selectedIds}
             ontoggle={toggleSelected}
+            onset={setSelected}
             downloadEnabled={bulkDownloadEnabled}
             ondownload={(idx) => downloadOne(photos[idx])}
         />

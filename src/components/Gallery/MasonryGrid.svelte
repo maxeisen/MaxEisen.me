@@ -28,6 +28,8 @@
         /** Set of selected public_ids (mutated by parent via ontoggle). */
         selectedIds = new Set(),
         ontoggle,
+        /** Set selection state explicitly (drag-select uses this). */
+        onset,
         /** When true, render a per-photo download arrow on hover/tap. */
         downloadEnabled = false,
         /** Called with the original index when the download arrow is hit. */
@@ -76,9 +78,96 @@
         img.src = url;
     }
 
+    // Single-tap behaviour. Drag-select handles its own start figure when it
+    // commits past the threshold, and sets `suppressNextClick` so this
+    // handler doesn't double-toggle that figure.
+    let suppressNextClick = false;
     function activate(originalIdx) {
+        if (suppressNextClick) { suppressNextClick = false; return; }
         if (selectionMode) ontoggle?.(originalIdx);
         else onopen?.(originalIdx);
+    }
+
+    // Drag-to-select. In selection mode, pointerdown on a figure starts
+    // tracking; once the pointer moves past DRAG_THRESHOLD, we "commit" to
+    // drag-select: the starting figure flips state (which determines whether
+    // we're painting selections or deselections), and every figure the
+    // pointer subsequently crosses adopts that same state. Single taps don't
+    // cross the threshold so the normal click handler still drives toggling.
+    const DRAG_THRESHOLD = 5;
+    function applyState(idx, selected) {
+        const id = photos[idx]?.public_id;
+        if (!id) return;
+        if (onset) onset(idx, selected);
+        else if (selected) selectedIds.add(id);
+        else selectedIds.delete(id);
+    }
+
+    function onGridPointerDown(e) {
+        if (!selectionMode) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        // Ignore clicks on the per-figure download button (or any descendant
+        // button) — those have their own handlers and aren't selection targets.
+        if (e.target?.closest?.("button")) return;
+        const fig = e.target?.closest?.("figure[data-original-idx]");
+        if (!fig || !gridEl?.contains(fig)) return;
+        const startIdx = Number(fig.dataset.originalIdx);
+        if (!Number.isFinite(startIdx)) return;
+
+        const pointerId = e.pointerId;
+        const startX = e.clientX;
+        const startY = e.clientY;
+        let committed = false;
+        let paintSelected = null;
+        const visited = new Set();
+
+        const onMove = (ev) => {
+            if (ev.pointerId !== pointerId) return;
+            if (!committed) {
+                const dx = ev.clientX - startX;
+                const dy = ev.clientY - startY;
+                if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+                committed = true;
+                // Toggle the starting figure now and lock in the paint state.
+                const startPhoto = photos[startIdx];
+                const wasSelected = !!(startPhoto && selectedIds.has(startPhoto.public_id));
+                paintSelected = !wasSelected;
+                applyState(startIdx, paintSelected);
+                visited.add(startIdx);
+            }
+            // Prevent text selection + (where possible) page scroll while
+            // painting across the grid.
+            ev.preventDefault();
+            const el = document.elementFromPoint(ev.clientX, ev.clientY);
+            const f = el?.closest?.("figure[data-original-idx]");
+            if (!f || !gridEl?.contains(f)) return;
+            const idx = Number(f.dataset.originalIdx);
+            if (Number.isFinite(idx) && !visited.has(idx)) {
+                visited.add(idx);
+                applyState(idx, paintSelected);
+            }
+        };
+
+        const onEnd = (ev) => {
+            if (ev.pointerId !== pointerId) return;
+            document.removeEventListener("pointermove", onMove);
+            document.removeEventListener("pointerup", onEnd);
+            document.removeEventListener("pointercancel", onEnd);
+            if (committed) {
+                // Suppress the click event that synchronously follows
+                // pointerup on the starting figure so its state doesn't
+                // immediately revert.
+                suppressNextClick = true;
+                // Belt-and-suspenders — clear after a tick in case no click
+                // event ever fires (e.g. pointercancel, or pointer left the
+                // figure entirely).
+                setTimeout(() => { suppressNextClick = false; }, 50);
+            }
+        };
+
+        document.addEventListener("pointermove", onMove);
+        document.addEventListener("pointerup", onEnd);
+        document.addEventListener("pointercancel", onEnd);
     }
 
     let hoverTimer = null;
@@ -129,7 +218,13 @@
     }
 </script>
 
-<div class="gallery" class:selecting={selectionMode} bind:this={gridEl} role="list">
+<div
+    class="gallery"
+    class:selecting={selectionMode}
+    bind:this={gridEl}
+    role="list"
+    onpointerdown={onGridPointerDown}
+>
     {#each displayIndices as originalIdx (photos[originalIdx]?.public_id ?? originalIdx)}
         {@const p = photos[originalIdx]}
         {@const pad = aspectPadding(p)}
@@ -212,7 +307,16 @@
     .gallery :global(figure:hover) { transform: translateY(-2px); }
 
     /* Selection mode swaps the cursor + activates the check overlay state. */
-    .gallery.selecting :global(figure) { cursor: pointer; }
+    .gallery.selecting :global(figure) {
+        cursor: pointer;
+        /* Lock out browser pan/zoom so the drag-select pointermove handler
+           can preventDefault and paint across photos without the page
+           scrolling out from under the user's finger. Outside selection
+           mode, default touch behaviour is restored. */
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
     .gallery.selecting :global(figure.selected) {
         outline: 3px solid var(--main-green);
         outline-offset: -3px;
