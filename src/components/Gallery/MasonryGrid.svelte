@@ -103,6 +103,14 @@
         else selectedIds.delete(id);
     }
 
+    // Edge-scroll while drag-selecting: when the pointer sits within
+    // EDGE_PX of the viewport top or bottom, the page scrolls in that
+    // direction at a speed that ramps linearly with how deep into the edge
+    // zone the cursor is. RAF re-runs elementFromPoint after each scroll
+    // so figures revealed by the scroll get painted automatically.
+    const EDGE_PX = 80;
+    const MAX_SCROLL_PER_FRAME = 16;
+
     function onGridPointerDown(e) {
         if (!selectionMode) return;
         if (e.button !== undefined && e.button !== 0) return;
@@ -120,6 +128,45 @@
         let committed = false;
         let paintSelected = null;
         const visited = new Set();
+        let lastClientX = e.clientX;
+        let lastClientY = e.clientY;
+        let edgeScrollRaf = 0;
+
+        function paintUnder(x, y) {
+            const el = document.elementFromPoint(x, y);
+            const f = el?.closest?.("figure[data-original-idx]");
+            if (!f || !gridEl?.contains(f)) return;
+            const idx = Number(f.dataset.originalIdx);
+            if (Number.isFinite(idx) && !visited.has(idx)) {
+                visited.add(idx);
+                applyState(idx, paintSelected);
+            }
+        }
+
+        function edgeScrollDelta() {
+            const vh = window.innerHeight;
+            const fromTop = lastClientY;
+            const fromBot = vh - lastClientY;
+            if (fromTop < EDGE_PX) {
+                return -Math.ceil(MAX_SCROLL_PER_FRAME * (1 - fromTop / EDGE_PX));
+            }
+            if (fromBot < EDGE_PX) {
+                return Math.ceil(MAX_SCROLL_PER_FRAME * (1 - fromBot / EDGE_PX));
+            }
+            return 0;
+        }
+
+        function tickEdgeScroll() {
+            const dy = edgeScrollDelta();
+            if (dy === 0) { edgeScrollRaf = 0; return; }
+            const before = window.scrollY;
+            window.scrollBy(0, dy);
+            // If the page didn't actually move (already at top/bottom), bail
+            // so we don't churn RAF for nothing.
+            if (window.scrollY === before) { edgeScrollRaf = 0; return; }
+            paintUnder(lastClientX, lastClientY);
+            edgeScrollRaf = requestAnimationFrame(tickEdgeScroll);
+        }
 
         const onMove = (ev) => {
             if (ev.pointerId !== pointerId) return;
@@ -138,13 +185,13 @@
             // Prevent text selection + (where possible) page scroll while
             // painting across the grid.
             ev.preventDefault();
-            const el = document.elementFromPoint(ev.clientX, ev.clientY);
-            const f = el?.closest?.("figure[data-original-idx]");
-            if (!f || !gridEl?.contains(f)) return;
-            const idx = Number(f.dataset.originalIdx);
-            if (Number.isFinite(idx) && !visited.has(idx)) {
-                visited.add(idx);
-                applyState(idx, paintSelected);
+            lastClientX = ev.clientX;
+            lastClientY = ev.clientY;
+            paintUnder(lastClientX, lastClientY);
+
+            // Kick off the edge-scroll loop if we're near a viewport edge.
+            if (!edgeScrollRaf && edgeScrollDelta() !== 0) {
+                edgeScrollRaf = requestAnimationFrame(tickEdgeScroll);
             }
         };
 
@@ -153,6 +200,10 @@
             document.removeEventListener("pointermove", onMove);
             document.removeEventListener("pointerup", onEnd);
             document.removeEventListener("pointercancel", onEnd);
+            if (edgeScrollRaf) {
+                cancelAnimationFrame(edgeScrollRaf);
+                edgeScrollRaf = 0;
+            }
             if (committed) {
                 // Suppress the click event that synchronously follows
                 // pointerup on the starting figure so its state doesn't
