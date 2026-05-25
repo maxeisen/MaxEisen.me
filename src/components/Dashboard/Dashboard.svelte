@@ -23,14 +23,20 @@
     import SpotifyVizOverlay from "./SpotifyVizOverlay.svelte";
 
     const WIDGETS = {
-        clock:   { component: ClockWidget,      size: "large", kind: "div" },
-        gallery: { component: GalleryWidget,    size: "large", kind: "a", href: "/gallery" },
-        weather: { component: WeatherWidget,    size: "large", kind: "div" },
-        spotify: { component: SpotifyWidget,    size: "large", kind: "div" },
-        strava:  { component: StravaWidget,     size: "large", kind: "div" },
-        github:  { component: GithubWidget,     size: "small", kind: "div" },
-        hn:      { component: HackerNewsWidget, size: "small", kind: "div" },
+        clock:   { component: ClockWidget,      kind: "div" },
+        gallery: { component: GalleryWidget,    kind: "a", href: "/gallery" },
+        weather: { component: WeatherWidget,    kind: "div" },
+        spotify: { component: SpotifyWidget,    kind: "div" },
+        strava:  { component: StravaWidget,     kind: "div" },
+        github:  { component: GithubWidget,     kind: "div" },
+        hn:      { component: HackerNewsWidget, kind: "div" },
     };
+
+    // Slot sizes are fixed by position, not by which widget currently sits
+    // there. Five 2-col + two 1-col slots arrange neatly as (2+2)/(2+2)/
+    // (2+1+1) into a 4-col grid. Any widget can occupy any slot; widgets
+    // adapt via container queries + slot-small overrides below.
+    const SLOT_SIZES = ["large", "large", "large", "large", "large", "small", "small"];
 
     const DEFAULT_ORDER = ["clock", "gallery", "weather", "spotify", "strava", "github", "hn"];
     const LAYOUT_KEY = "dashboard-layout";
@@ -113,14 +119,7 @@
             const slot = el?.closest(".slot[data-slot-index]");
             const idx = slot ? Number(slot.dataset.slotIndex) : null;
             const srcIdx = layout.indexOf(widgetId);
-            // Only allow swaps between same-size widgets. The grid is laid
-            // out so row totals add to 4 cols (large=2, small=1); a
-            // cross-size swap rebalances the row and pushes a widget into
-            // an implicit 4th row that's clipped by overflow:hidden.
-            const srcSize = WIDGETS[widgetId]?.size;
-            const dstSize = idx != null ? WIDGETS[layout[idx]]?.size : null;
-            const validDrop = idx != null && idx !== srcIdx && srcSize === dstSize;
-            dropTargetIdx = validDrop ? idx : null;
+            dropTargetIdx = (idx != null && idx !== srcIdx) ? idx : null;
         };
 
         const onEnd = (ev) => {
@@ -214,7 +213,7 @@
     {#each layout as widgetId, idx (widgetId)}
         {@const cfg = WIDGETS[widgetId]}
         <div
-            class="slot slot-{cfg.size}"
+            class="slot slot-{SLOT_SIZES[idx]}"
             class:drop-target={dropTargetIdx === idx}
             data-slot-index={idx}
         >
@@ -418,6 +417,29 @@
     .slot-small :global(.clock-progress-label) { font-size: 0.65rem; }
 
     .slot-small :global(.weather-stats > div:nth-child(n+3)) { display: none; }
+
+    /* Spotify is the only large-by-default widget whose layout (flex-row
+       art + info) doesn't naturally fit a 1-col slot. Stack vertically
+       and shrink the art so it reads cleanly in either size. */
+    .slot-small :global(.widget-spotify),
+    .slot-small :global(.widget-spotify .spotify-main) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    .slot-small :global(.widget-spotify .spotify-art) {
+        width: clamp(56px, 22vw, 96px);
+        height: clamp(56px, 22vw, 96px);
+    }
+    .slot-small :global(.widget-spotify .spotify-info) {
+        align-items: center;
+        width: 100%;
+        min-width: 0;
+    }
+    .slot-small :global(.widget-spotify .spotify-progress) {
+        width: 100%;
+    }
 
     @container slot (max-height: 320px) {
         :global(.widget-clock) { padding: 1rem 1.25rem; gap: 0.25rem; }
