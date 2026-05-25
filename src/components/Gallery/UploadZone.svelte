@@ -40,19 +40,28 @@
     let nameDraft = $state("");
     let editingName = $state(false);
 
+    // Normalize so attribution reads consistently regardless of how the
+    // visitor typed it: trim, capitalize the first letter, lowercase the
+    // rest. Keeps "max", "MAX", and "Max" all rendering as "Max".
+    function normalizeName(raw) {
+        const trimmed = String(raw || "").trim();
+        if (!trimmed) return "";
+        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+    }
+
     if (typeof window !== "undefined") {
         try {
             const saved = sessionStorage.getItem(uploaderKey);
-            if (saved) uploaderName = saved;
+            if (saved) uploaderName = normalizeName(saved);
         } catch {}
     }
 
     function saveName() {
-        const trimmed = nameDraft.trim();
-        if (!trimmed) return;
-        uploaderName = trimmed;
+        const normalized = normalizeName(nameDraft);
+        if (!normalized) return;
+        uploaderName = normalized;
         editingName = false;
-        try { sessionStorage.setItem(uploaderKey, trimmed); } catch {}
+        try { sessionStorage.setItem(uploaderKey, normalized); } catch {}
     }
 
     function startEdit() {
@@ -184,7 +193,7 @@
 
     {#if !uploaderName || editingName}
         <div class="uploader-name-field">
-            <label for={`uploader-${scope}`}>What's your name? <span class="uploader-hint">we'll credit your uploads</span></label>
+            <label for={`uploader-${scope}`}>What's your name? <span class="uploader-hint">uploads will be attributed to you</span></label>
             <div class="uploader-name-row">
                 <input
                     id={`uploader-${scope}`}

@@ -292,7 +292,7 @@
                         {/if}
                         {#if uploadEnabled && bulkDownloadEnabled}<br/>{/if}
                         {#if bulkDownloadEnabled}
-                            <strong>Downloading:</strong> tap the arrow on any photo (or inside the lightbox) for a single download. To grab a batch, hit <em>select</em> top-right, tap photos to choose them — or drag your cursor / finger across to paint-select many at once — and <em>download</em>. That delivers as a zip on desktop or through the native share sheet on phones.
+                            <strong>Downloading:</strong> tap the arrow on any photo (or inside the lightbox) for a single download. To grab a batch, hit <em>select</em> top-right, tap photos to choose them — or drag your cursor / finger across to paint-select many at once — and <em>download</em>. Download format depends on number of photos selected.
                         {/if}
                     </p>
                 {/if}
