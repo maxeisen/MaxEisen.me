@@ -83,10 +83,10 @@ https://github.com/maxeisen/
         }
     </script>
 
-    <!-- applause-button script + stylesheet are wired in by BlogPostModal
-         only; load them lazily there when the Blog component returns.
-         Keeping them out of the global head means every page visit avoids
-         the ~36 KB JS download even though only one dormant modal uses it. -->
+    <!-- applause-button assets used to live at /modules/applause-button/
+         for BlogPostModal. Removed wholesale — Blog is dormant. If it
+         returns, re-add the script + stylesheet (or lazy-inject from
+         BlogPostModal itself). -->
 
     <!-- theme switch logic -->
     <script>
