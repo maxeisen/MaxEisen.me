@@ -17,8 +17,13 @@
 <h1 class="section-title" id="projects">Projects</h1>
 <div class="project-subsection">
     {#each projects as proj}
-        <div class="project-item" tabindex="0" use:tilt={{ max: 14, scale: 1.04 }} style="background-image: url('./img/screenshots/{proj.screenshot}.webp')"
-        on:click={() => projectModal(proj.name, proj.technologies, proj.year, proj.bullets, proj.githubLink, proj.projectLink, proj.screenshot)}>
+        <div
+            class="project-item"
+            tabindex="0"
+            use:tilt={{ max: 14, scale: 1.04 }}
+            style:background-image={`url('./img/screenshots/${proj.screenshot}.webp')`}
+            on:click={() => projectModal(proj.name, proj.technologies, proj.year, proj.bullets, proj.githubLink, proj.projectLink, proj.screenshot)}
+        >
             <h2 class="project-name">{proj.name} {@html proj.emoji}</h2>
             <h2 class="project-year">{proj.year}</h2>
             <h2 class="project-tech">{proj.technologies}</h2>
