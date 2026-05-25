@@ -26,10 +26,25 @@ function jsonResponse(body, status = 200) {
 }
 
 const CLOUD_NAME = "meisen-gallery";
-const ALLOWED_SCOPES = {
-	ride: { tag: "ride", folder: "rides", passwordEnv: "GALLERY_RIDE_PASSWORD" },
-	run:  { tag: "run",  folder: "runs",  passwordEnv: "GALLERY_RUN_PASSWORD"  },
-};
+
+// Scope must be plain lowercase alnum so we can safely interpolate it into
+// the env var name and Cloudinary tag/folder. Anything else is rejected
+// before we touch state.
+const SCOPE_RE = /^[a-z0-9]{1,32}$/;
+
+// Conventions for an arbitrary scope:
+//   tag         → scope as-is (e.g. "ride")
+//   folder      → scope + "s" (e.g. "rides") to match the existing
+//                 ride/run layout in Cloudinary and so new galleries
+//                 auto-pluralize without a per-scope code change
+//   passwordEnv → GALLERY_<SCOPE>_PASSWORD (uppercased)
+function configForScope(scope) {
+	return {
+		tag: scope,
+		folder: `${scope}s`,
+		passwordEnv: `GALLERY_${scope.toUpperCase()}_PASSWORD`,
+	};
+}
 
 async function sha1Hex(str) {
 	const data = new TextEncoder().encode(str);
@@ -50,17 +65,16 @@ export default async function handler(req) {
 	}
 
 	const scopeName = typeof body?.scope === "string" ? body.scope.toLowerCase() : "";
-	const scope = ALLOWED_SCOPES[scopeName];
-	if (!scope) return jsonResponse({ error: "unknown scope" }, 400);
+	if (!SCOPE_RE.test(scopeName)) {
+		return jsonResponse({ error: "invalid scope" }, 400);
+	}
+	const scope = configForScope(scopeName);
 
-	// Auth: password check.
+	// Auth: password check. If the env var isn't set we treat the scope as
+	// nonexistent (401) rather than leaking a 503 "not configured".
 	const supplied = req.headers.get("x-gallery-password") || "";
 	const expected = getEnv(scope.passwordEnv);
-	if (!expected) {
-		console.error(`${scope.passwordEnv} env var is not set in Netlify.`);
-		return jsonResponse({ error: "not_configured" }, 503);
-	}
-	if (supplied !== expected) {
+	if (!expected || supplied !== expected) {
 		return jsonResponse({ error: "unauthorized" }, 401);
 	}
 

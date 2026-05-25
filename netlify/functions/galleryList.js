@@ -18,32 +18,30 @@ function jsonResponse(body, status = 200, extraHeaders = {}) {
 
 const CLOUD_NAME = "meisen-gallery";
 
-// Cloudinary tags we serve. "gallery" is open; "ride" and "run" require the
-// matching password (sent via X-Gallery-Password) to be released.
-const TAG_CONFIG = {
-	gallery: { passwordEnv: null },
-	ride:    { passwordEnv: "GALLERY_RIDE_PASSWORD" },
-	run:     { passwordEnv: "GALLERY_RUN_PASSWORD" },
-};
+// Scope must be plain lowercase alnum so we can safely interpolate it
+// into the env var name. Anything else is rejected before we read state.
+const SCOPE_RE = /^[a-z0-9]{1,32}$/;
+
+// Scopes served without a password. Kept as an explicit allow-list so
+// accidentally omitting GALLERY_<SCOPE>_PASSWORD can't silently make a
+// gallery public — the default for any unknown scope is "gated."
+const PUBLIC_SCOPES = new Set(["gallery"]);
 
 export default async function handler(req) {
 	const url = new URL(req.url);
 	const tag = (url.searchParams.get("tag") || "gallery").toLowerCase();
-	const config = TAG_CONFIG[tag];
-	if (!config) {
-		return jsonResponse({ error: "Unknown tag" }, 400);
+	if (!SCOPE_RE.test(tag)) {
+		return jsonResponse({ error: "Invalid tag" }, 400, { "Cache-Control": "no-store" });
 	}
 
 	// Gate protected tags behind the password header. Don't cache an
 	// unauthorized response — different viewers may have different rights.
-	if (config.passwordEnv) {
-		const expected = getEnv(config.passwordEnv);
-		if (!expected) {
-			console.error(`${config.passwordEnv} env var is not set in Netlify.`);
-			return jsonResponse({ error: "not_configured" }, 503, { "Cache-Control": "no-store" });
-		}
+	if (!PUBLIC_SCOPES.has(tag)) {
+		const expected = getEnv(`GALLERY_${tag.toUpperCase()}_PASSWORD`);
 		const supplied = req.headers.get("x-gallery-password") || "";
-		if (supplied !== expected) {
+		// Missing env var → behave the same as a wrong password. Don't tell
+		// clients which scopes are real on this deployment.
+		if (!expected || supplied !== expected) {
 			return jsonResponse({ error: "unauthorized" }, 401, { "Cache-Control": "no-store" });
 		}
 	}
