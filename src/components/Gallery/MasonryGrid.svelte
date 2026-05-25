@@ -105,11 +105,16 @@
 
     // Edge-scroll while drag-selecting: when the pointer sits within
     // EDGE_PX of the viewport top or bottom, the page scrolls in that
-    // direction at a speed that ramps linearly with how deep into the edge
-    // zone the cursor is. RAF re-runs elementFromPoint after each scroll
-    // so figures revealed by the scroll get painted automatically.
-    const EDGE_PX = 80;
-    const MAX_SCROLL_PER_FRAME = 16;
+    // direction at a speed that ramps with how deep into the edge zone
+    // the cursor is. RAF re-runs elementFromPoint after each scroll so
+    // figures revealed by the scroll get painted automatically.
+    //
+    // The body has `scroll-behavior: smooth` (for the in-page anchor link
+    // to the upload zone), which would otherwise animate every per-frame
+    // scrollBy and visibly throttle drag scrolling — passing
+    // behavior:"instant" inside the loop bypasses that.
+    const EDGE_PX = 120;
+    const MAX_SCROLL_PER_FRAME = 48;
 
     function onGridPointerDown(e) {
         if (!selectionMode) return;
@@ -147,11 +152,15 @@
             const vh = window.innerHeight;
             const fromTop = lastClientY;
             const fromBot = vh - lastClientY;
+            // Quadratic-ish ramp (sqrt of depth) so even shallow entry
+            // into the edge zone gives a usable scroll speed.
             if (fromTop < EDGE_PX) {
-                return -Math.ceil(MAX_SCROLL_PER_FRAME * (1 - fromTop / EDGE_PX));
+                const depth = 1 - fromTop / EDGE_PX;
+                return -Math.ceil(MAX_SCROLL_PER_FRAME * Math.sqrt(depth));
             }
             if (fromBot < EDGE_PX) {
-                return Math.ceil(MAX_SCROLL_PER_FRAME * (1 - fromBot / EDGE_PX));
+                const depth = 1 - fromBot / EDGE_PX;
+                return Math.ceil(MAX_SCROLL_PER_FRAME * Math.sqrt(depth));
             }
             return 0;
         }
@@ -160,7 +169,10 @@
             const dy = edgeScrollDelta();
             if (dy === 0) { edgeScrollRaf = 0; return; }
             const before = window.scrollY;
-            window.scrollBy(0, dy);
+            // behavior:"instant" overrides the body's scroll-behavior:smooth
+            // (which the anchor link to the upload zone needs but would
+            // otherwise animate-throttle every per-frame scrollBy here).
+            window.scrollBy({ top: dy, behavior: "instant" });
             // If the page didn't actually move (already at top/bottom), bail
             // so we don't churn RAF for nothing.
             if (window.scrollY === before) { edgeScrollRaf = 0; return; }
