@@ -23,12 +23,10 @@
             onOpen: () => {
                 window.history.replaceState({}, title+" | MaxEisen.me", "/?blog=true&postId="+postId);
                 document.title = title+" | MaxEisen.me";
-                document.body.style.overflow = "hidden";
             },
             onClose: () => {
                 window.history.replaceState({}, "Get to Know Max Eisen | MaxEisen.me", "/");
                 document.title = "Get to Know Max Eisen | MaxEisen.me";
-                document.body.style.overflowY = "scroll";
             }
         });
     };

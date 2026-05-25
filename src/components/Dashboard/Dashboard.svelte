@@ -113,7 +113,14 @@
             const slot = el?.closest(".slot[data-slot-index]");
             const idx = slot ? Number(slot.dataset.slotIndex) : null;
             const srcIdx = layout.indexOf(widgetId);
-            dropTargetIdx = (idx != null && idx !== srcIdx) ? idx : null;
+            // Only allow swaps between same-size widgets. The grid is laid
+            // out so row totals add to 4 cols (large=2, small=1); a
+            // cross-size swap rebalances the row and pushes a widget into
+            // an implicit 4th row that's clipped by overflow:hidden.
+            const srcSize = WIDGETS[widgetId]?.size;
+            const dstSize = idx != null ? WIDGETS[layout[idx]]?.size : null;
+            const validDrop = idx != null && idx !== srcIdx && srcSize === dstSize;
+            dropTargetIdx = validDrop ? idx : null;
         };
 
         const onEnd = (ev) => {

@@ -1,5 +1,15 @@
 <!--
-    Masonry layout of photo thumbnails.
+    Masonry layout of photo thumbnails. Uses CSS column-count for the
+    masonry effect, which flows photos top-down within each column then
+    moves to the next column. The lightbox iterates the same photos
+    array order, so "next" from any photo navigates down the column
+    (or wraps to the top of the next column at column boundaries).
+
+    A previous version of this component pre-distributed indices to
+    produce a row-major reading order, but CSS column-fill:balance
+    rebalances by content height, so unequal photo aspect ratios broke
+    the assumed item-count-per-column and nav landed on the wrong photo.
+    The natural column-major flow is predictable in every case.
 
     Owns the preload-on-interaction logic:
       - hover (80ms debounce) — desktop pointer
@@ -7,14 +17,8 @@
       - IntersectionObserver (rootMargin 300px) — works for any input
       - first-10 background warm on mount
 
-    CSS columns flow photos top-down within each column, so the array order
-    `[0, 1, 2, ...]` would visually read 0, N, 2N, ... across the top row.
-    We pre-distribute the indices column-major (`displayIndices`) so the
-    visual reading order matches the source array order. The column count is
-    tracked via matchMedia so the layout reshuffles on viewport resize.
-
-    Emits `onopen(originalIndex)` when a figure is clicked in normal mode,
-    `ontoggle(originalIndex)` when clicked while `selectionMode` is on.
+    Emits `onopen(idx)` when a figure is clicked in normal mode,
+    `ontoggle(idx)` when clicked while `selectionMode` is on.
 -->
 <script>
     import { onMount } from "svelte";
@@ -38,36 +42,6 @@
 
     let gridEl = $state();
     const lightboxPreloaded = new Set();
-
-    // Track column count via matchMedia so we can re-distribute the photos
-    // when the user resizes between breakpoints. Listening on the queries
-    // themselves (vs. window 'resize') means we only recompute when a
-    // boundary is actually crossed.
-    let colCount = $state(4);
-
-    function computeCols() {
-        if (typeof window === "undefined") return;
-        if (window.matchMedia("(max-width: 480px)").matches) colCount = 1;
-        else if (window.matchMedia("(max-width: 800px)").matches) colCount = 2;
-        else if (window.matchMedia("(max-width: 1200px)").matches) colCount = 3;
-        else colCount = 4;
-    }
-
-    // displayIndices is the order figures appear in the DOM. CSS `column-count`
-    // fills column 1 top-to-bottom, then column 2, etc., so to produce a
-    // row-major visual order we emit indices in column-major chunks.
-    const displayIndices = $derived.by(() => {
-        const cols = Math.max(1, colCount);
-        const n = photos.length;
-        const out = new Array(n);
-        let cursor = 0;
-        for (let c = 0; c < cols; c++) {
-            for (let i = c; i < n; i += cols) {
-                out[cursor++] = i;
-            }
-        }
-        return out;
-    });
 
     function preloadFullSize(idx) {
         if (idx < 0 || idx >= photos.length) return;
@@ -241,14 +215,6 @@
     function onHoverOut() { clearTimeout(hoverTimer); }
 
     onMount(() => {
-        computeCols();
-        const mqs = [
-            window.matchMedia("(max-width: 480px)"),
-            window.matchMedia("(max-width: 800px)"),
-            window.matchMedia("(max-width: 1200px)"),
-        ];
-        mqs.forEach((mq) => mq.addEventListener("change", computeCols));
-
         // Background warm: first 10 lightbox URLs so prev/next is already
         // cached by the time anyone opens anything. Browser's
         // 6-concurrent-per-origin limit naturally throttles.
@@ -269,10 +235,7 @@
             Array.from(gridEl.children).forEach((fig) => io.observe(fig));
         }
 
-        return () => {
-            mqs.forEach((mq) => mq.removeEventListener("change", computeCols));
-            io?.disconnect();
-        };
+        return () => io?.disconnect();
     });
 
     function aspectPadding(p) {
@@ -288,8 +251,7 @@
     role="list"
     onpointerdown={onGridPointerDown}
 >
-    {#each displayIndices as originalIdx (photos[originalIdx]?.public_id ?? originalIdx)}
-        {@const p = photos[originalIdx]}
+    {#each photos as p, originalIdx (p.public_id ?? originalIdx)}
         {@const pad = aspectPadding(p)}
         {@const selected = selectedIds.has(p.public_id)}
         <figure
