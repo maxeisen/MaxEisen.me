@@ -1,3 +1,19 @@
+<!--
+    Modal context provider. Sets `simple-modal` context so any homepage
+    section can call `open(Component, props, options)` to mount a modal.
+
+    Options:
+      - wide:        widen the modal window to ~950px (used by long-form
+                     content like the blog post modal). Replaces the
+                     previous hack where supplying a custom close-button
+                     component was the implicit trigger for "wide".
+      - styleWindow: object of extra CSS to apply to the .modal-window
+      - onOpen / onClose: lifecycle callbacks
+
+    Also defines a small set of shared modal-body classes as :global() so
+    each content modal doesn't have to redefine its own title / subtitle /
+    description styles.
+-->
 <script>
 	import { setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -15,7 +31,7 @@
 
 	function open(Component, props = {}, options = {}) {
 		const {
-			closeButton: CloseButtonComponent,
+			wide = false,
 			styleWindow = {},
 			onOpen,
 			onClose: onCloseCallback
@@ -24,7 +40,7 @@
 		current = {
 			Component,
 			props,
-			CloseButtonComponent,
+			wide,
 			styleWindow,
 			onCloseCallback
 		};
@@ -49,21 +65,14 @@
 		transition:fade={{ duration: 200 }}
 	>
 		<div
-			class="modal-window {current.CloseButtonComponent ? 'modal-window--wide' : ''}"
+			class="modal-window {current.wide ? 'modal-window--wide' : ''}"
 			style={Object.entries(current.styleWindow || {}).map(([k, v]) => `${k}: ${v}`).join('; ')}
 			onclick={(e) => e.stopPropagation()}
 			role="dialog"
 			aria-modal="true"
 			tabindex="-1"
 		>
-			<div class="modal-close-row">
-				{#if current.CloseButtonComponent}
-					{@const CloseBtn = current.CloseButtonComponent}
-					<CloseBtn onClose={close} />
-				{:else}
-					<button type="button" class="modal-close-default" onclick={close} aria-label="Close">×</button>
-				{/if}
-			</div>
+			<button type="button" class="modal-close" onclick={close} aria-label="Close">×</button>
 			<div class="modal-content" data-modal-body>
 				<svelte:component this={current.Component} {...current.props} />
 			</div>
@@ -102,16 +111,7 @@
 			max-width: 90vw;
 		}
 	}
-	.modal-close-row {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		z-index: 10;
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-	}
-	.modal-close-default {
+	.modal-close {
 		position: absolute;
 		top: 0.5rem;
 		right: 0.5rem;
@@ -130,10 +130,60 @@
 		justify-content: center;
 		z-index: 10;
 	}
-	.modal-close-default:hover {
+	.modal-close:hover {
 		background: rgba(100, 100, 100, 0.95);
 	}
 	.modal-content {
 		padding: 1.5rem;
+	}
+
+	/* ===================================================================
+	   Shared modal-body classes. Defined :global() so any modal mounted
+	   via <svelte:component> picks them up by class name. Each content
+	   modal previously redefined its own title / subtitle / description
+	   under different class names — these consolidate the duplicates.
+	   =================================================================== */
+	:global(.modal-title) {
+		font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+		font-weight: 600;
+		font-optical-sizing: auto;
+		letter-spacing: -0.02em;
+		font-size: 35px;
+		margin: 15px 15px 10px 15px;
+		text-align: center;
+		color: var(--modal-title-colour);
+		transition: all 0.2s ease-in;
+	}
+	:global(.modal-subtitle) {
+		font-size: 25px;
+		margin: 5px auto;
+		text-align: center;
+		color: var(--modal-title-colour);
+		transition: all 0.2s ease-in;
+	}
+	:global(.modal-subtitle a) {
+		color: var(--modal-link-colour);
+		transition: color 0.2s ease-in;
+	}
+	:global(.modal-subtitle a:hover) {
+		color: var(--link-hover-colour);
+	}
+	:global(.modal-meta) {
+		font-size: 16px;
+		margin: 10px auto;
+		text-align: center;
+		color: var(--modal-subtitle-colour, var(--modal-text-colour));
+		line-height: 1.4;
+	}
+	:global(.modal-description) {
+		margin: 8px auto 10px auto;
+		color: var(--modal-text-colour);
+		line-height: 1.6;
+	}
+	:global(ul.modal-description li) {
+		margin-bottom: 10px;
+	}
+	:global(ul.modal-description li:last-child) {
+		margin-bottom: 0;
 	}
 </style>

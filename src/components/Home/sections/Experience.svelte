@@ -31,7 +31,7 @@
     const sortedExperience = [...experience].sort((a, b) => Number(isCurrent(b)) - Number(isCurrent(a)));
 </script>
 
-<h1 class="section-title" id="experience" style="text-align: left;">Experience</h1>
+<h1 class="section-title" id="experience">Experience</h1>
 <div class="experience-subsection">
     {#each sortedExperience as exp}
 		<div class="experience-item {isCurrent(exp) ? 'experience-item--current' : ''}" tabindex="0" use:tilt={{ max: isCurrent(exp) ? 3 : 12, scale: 1.03 }}

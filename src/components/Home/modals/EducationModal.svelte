@@ -9,63 +9,34 @@
 </script>
 
 <div class="education-modal">
-    <h1 class="modal-school" style="text-align: center;">{school}</h1>
-    <h2 class="modal-degree" style="text-align: center;">{@html degree}</h2>
-    <h3 class="modal-major" style="text-align: center;">{@html major}</h3>
-    <h3 class="modal-years" style="text-align: center;">{years} in {location}</h3>
-    <p class="modal-committees"><b>Relevant Courses:</b> {courses}</p>
-    <p class="modal-committees"><b>Committees:</b> {committees}</p>
+    <h1 class="modal-title">{school}</h1>
+    <h2 class="modal-subtitle">{@html degree}</h2>
+    <h3 class="modal-major">{@html major}</h3>
+    <h3 class="modal-meta">{years} in {location}</h3>
+    <p class="education-line"><b>Relevant Courses:</b> {courses}</p>
+    <p class="education-line"><b>Committees:</b> {committees}</p>
     <p class="ta-note">*Teaching Assistant or Executive position</p>
 </div>
 
 <style>
+    /* :global() so styles apply when modal is rendered via dynamic component */
     :global(.education-modal) {
         color: black;
     }
 
-    :global(.education-modal .modal-school) {
-        font-size: 35px;
-        margin: 15px auto 5px auto;
-        color: var(--modal-title-colour);
-        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
-        font-weight: 600;
-        font-optical-sizing: auto;
-        letter-spacing: -0.02em;
-    }
-
-    :global(.education-modal .modal-degree) {
-        -webkit-transition: all .2s ease-in;
-        -moz-transition: all .2s ease-in;
-        -o-transition: all .2s ease-in;
-        -ms-transition: all .2s ease-in;
-        transition: all .2s ease-in;
-        color: var(--modal-title-colour);
-        font-size: 25px;
-        margin: 0px auto 5px auto;
-    }
-
-    :global(.education-modal .modal-degree:hover) {
-        font-size: 25px;
-        margin-top: 5px;
-    }
-
+    /* Degree-major sub-subtitle — smaller than .modal-subtitle, only used here */
     :global(.education-modal .modal-major) {
         font-size: 20px;
-        margin: 0 auto 0 auto;
+        margin: 0 auto;
+        text-align: center;
         color: var(--modal-title-colour);
         line-height: 1.4;
     }
 
-    :global(.education-modal .modal-years) {
-        margin: 10px auto 10px auto;
-        color: var(--modal-subtitle-colour);
-        line-height: 1.4;
-    }
-
-    :global(.education-modal .modal-committees) {
+    :global(.education-modal .education-line) {
         font-size: 15px;
         text-align: center;
-        margin: 14px auto 14px auto;
+        margin: 14px auto;
         color: var(--modal-text-colour);
         line-height: 1.7;
     }

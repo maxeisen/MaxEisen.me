@@ -21,11 +21,11 @@
 
 <div class="blog-modal">
     <div class="blog-header">
-        <h1 class="blog-title" style="text-align: center">{title}</h1>
-        <h3 class="blog-author" style="text-align: center">Author: <b class="author-name">{author}</b></h3>
-        <h3 class="blog-date" style="text-align: center">Written: <b class="date-string">{date}</b></h3>
+        <h1 class="blog-title">{title}</h1>
+        <h3 class="blog-author">Author: <b class="author-name">{author}</b></h3>
+        <h3 class="blog-date">Written: <b class="date-string">{date}</b></h3>
         {#if updated}
-            <h3 class="blog-date" style="text-align: center">Updated: <b class="date-string">{updated}</b></h3>
+            <h3 class="blog-date">Updated: <b class="date-string">{updated}</b></h3>
         {/if}
     </div>
     <div class="blog-content">{@html marked.parse(postContent)}</div>
@@ -54,14 +54,10 @@
     }
 
     :global(.blog-modal .blog-title) {
-        -webkit-transition: all .2s ease-in;
-        -moz-transition: all .2s ease-in;
-        -o-transition: all .2s ease-in;
-        -ms-transition: all .2s ease-in;
-        transition: all .2s ease-in;
-        color: rgb(0, 49, 82);
+        transition: all 0.2s ease-in;
         font-size: 35px;
         margin: 15px 15px 10px 15px;
+        text-align: center;
         color: var(--modal-title-colour);
     }
 
@@ -70,6 +66,7 @@
         font-size: 20px;
         margin-top: 8px;
         margin-bottom: 5px;
+        text-align: center;
     }
 
     :global(.blog-modal .author-name),

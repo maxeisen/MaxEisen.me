@@ -2,7 +2,6 @@
     import { getContext, onMount } from 'svelte';
     import qs from 'query-string';
     import BlogPostModal from '../modals/BlogPostModal.svelte';
-    import CloseButton from '../modals/CloseButton.svelte';
     import blogPosts from '@content/blogPostMeta.json';
 
     const userQuery = qs.parse(window.location.search);
@@ -16,7 +15,7 @@
         open(BlogPostModal, {
             id: postId, title: title, author: author, date: date, updated: updated, content: content
         }, {
-            closeButton: CloseButton,
+            wide: true,
             styleWindow: {
                 padding: "5px",
                 maxHeight: "92.5%"
@@ -44,7 +43,7 @@
     });
 </script>
 
-<h1 class="section-title" id="blog" style="text-align: left;">Blog</h1>
+<h1 class="section-title" id="blog">Blog</h1>
 <div class="blog-subsection">
     {#each blogPosts as post}
         {#if post.published == true}

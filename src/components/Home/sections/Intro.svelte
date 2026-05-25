@@ -285,11 +285,7 @@
         position: relative;
         display: inline-block;
         color: var(--intro-link-colour);
-        -webkit-transition: all .2s ease-in;
-        -moz-transition: all .2s ease-in;
-        -o-transition: all .2s ease-in;
-        -ms-transition: all .2s ease-in;
-        transition: all .2s ease-in;
+        transition: all 0.2s ease-in;
     }
 
     .activity-icon {

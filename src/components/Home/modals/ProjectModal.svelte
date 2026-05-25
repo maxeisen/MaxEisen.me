@@ -12,8 +12,8 @@
 </script>
 
 <div class="project-modal">
-    <h1 class="modal-name" style="text-align: center;">{name} ({year})</h1>
-    <h3 class="modal-description" style="text-align: center;">Developed with: <b class="technologies">{technologies}</b></h3>
+    <h1 class="modal-title">{name} ({year})</h1>
+    <h3 class="modal-description project-tech">Developed with: <b class="technologies">{technologies}</b></h3>
     <div class="project-links-container">
         {#if projectLink}
             <a class="project-link" href={projectLink} rel="noreferrer" target="_blank"><OpenLogo /></a>
@@ -35,43 +35,17 @@
 </div>
 
 <style>
-    /* :global() so styles apply when modal is rendered via dynamic component */
     :global(.project-modal) {
         color: black;
     }
 
-    :global(.project-modal .modal-name) {
-        -webkit-transition: all .2s ease-in;
-        -moz-transition: all .2s ease-in;
-        -o-transition: all .2s ease-in;
-        -ms-transition: all .2s ease-in;
-        transition: all .2s ease-in;
-        color: rgb(0, 49, 82);
-        font-size: 35px;
-        margin: 15px 15px 10px 15px;
-        color: var(--modal-title-colour);
-        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
-        font-weight: 600;
-        font-optical-sizing: auto;
-        letter-spacing: -0.02em;
+    /* The "Developed with" line centres + uses lighter weight than the
+       bullet body that shares .modal-description. */
+    :global(.project-modal .project-tech) {
+        text-align: center;
     }
-
     :global(.project-modal .technologies) {
         font-weight: 300;
-    }
-
-    :global(.project-modal .modal-description) {
-        margin: 10px auto 10px auto;
-        color: var(--modal-text-colour);
-        line-height: 1.6;
-    }
-
-    :global(.project-modal ul.modal-description li) {
-        margin-bottom: 10px;
-    }
-
-    :global(.project-modal ul.modal-description li:last-child) {
-        margin-bottom: 0;
     }
 
     :global(.project-modal .screenshot) {
@@ -94,15 +68,11 @@
     }
 
     :global(.project-modal .project-link) {
-        -webkit-transition: all .2s ease-in;
-        -moz-transition: all .2s ease-in;
-        -o-transition: all .2s ease-in;
-        -ms-transition: all .2s ease-in;
-        transition: all .2s ease-in;
+        transition: color 0.2s ease-in;
         color: var(--modal-link-colour);
         width: 30px;
         height: 30px;
-        margin: 0 10px 0 10px;
+        margin: 0 10px;
     }
 
     :global(.project-modal .project-link:hover) {
