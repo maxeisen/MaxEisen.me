@@ -36,6 +36,26 @@
             RouteComponent = null;
         });
     });
+
+    // Fire a GA page_view on every in-SPA navigation. The initial pageview
+    // for the document is already sent by the gtag('config', …) call in
+    // index.html, so we skip the first $effect run; only subsequent
+    // pathname changes (back/forward, programmatic navigation) need the
+    // explicit event. Defers via a microtask so document.title has the
+    // chance to update from the new route's <svelte:head> before we send.
+    let pageViewFired = false;
+    $effect(() => {
+        pathname; // track changes
+        if (!pageViewFired) { pageViewFired = true; return; }
+        if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+        queueMicrotask(() => {
+            window.gtag('event', 'page_view', {
+                page_path: pathname,
+                page_location: window.location.href,
+                page_title: document.title,
+            });
+        });
+    });
 </script>
 
 {#if RouteComponent}
