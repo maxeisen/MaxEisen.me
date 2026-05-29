@@ -17,6 +17,7 @@
         '/gallery/ride':  () => import('./routes/GalleryRide.svelte'),
         '/gallery/run':   () => import('./routes/GalleryRun.svelte'),
         '/dashboard':     () => import('./routes/Dashboard.svelte'),
+        '/toronto':       () => import('./routes/Toronto.svelte'),
     };
 
     let RouteComponent = $state(null);
