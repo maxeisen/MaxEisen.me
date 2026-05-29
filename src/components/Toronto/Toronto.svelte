@@ -9,17 +9,27 @@
 -->
 <script>
     import { onMount } from "svelte";
+    import { SvelteSet } from "svelte/reactivity";
     import MapView from "./MapView.svelte";
     import PinPanel from "./PinPanel.svelte";
+    import FilterBar from "./FilterBar.svelte";
 
     let maplibre = $state(null);
     let allPins = $state([]);
+    let routes = $state([]);
     let selected = $state(null);
     let loadError = $state("");
 
-    // Render only pins explicitly flagged published. Defaults to safe —
-    // an unpublished or partially-curated pin in toronto.json won't leak.
-    const visiblePins = $derived(allPins.filter((p) => p.published));
+    // Category filter — chips in the bottom bar toggle entries in this
+    // set. Multi-select; an empty set hides every pin.
+    const activeCategories = new SvelteSet();
+    let routesEnabled = $state(true);
+
+    // Render only pins flagged published, then apply the category filter.
+    const publishedPins = $derived(allPins.filter((p) => p.published));
+    const categories = $derived([...new Set(publishedPins.map((p) => p.category).filter(Boolean))].sort());
+    const visiblePins = $derived(publishedPins.filter((p) => activeCategories.has(p.category)));
+    const visibleRoutes = $derived(routesEnabled ? routes : []);
 
     function onHomeClick(e) {
         try {
@@ -31,25 +41,64 @@
         } catch {}
     }
 
+    // Strava activities that pass through the GTA bbox. /stravaLatest
+    // returns recent activities with encoded polylines; we just keep the
+    // ones with a polyline that has at least one point within the box.
+    async function loadRoutes() {
+        try {
+            const res = await fetch("/.netlify/functions/stravaLatest");
+            if (!res.ok) return;
+            const data = await res.json();
+            const acts = data?.activities || [];
+            routes = acts
+                .filter((a) => a.polyline && polylineTouchesGTA(a.polyline))
+                .map((a) => ({ id: a.id, name: a.name, polyline: a.polyline }));
+        } catch {
+            // Strava is optional decoration — failure shouldn't block the map.
+        }
+    }
+
+    // Quick reject: scan the encoded polyline's first decoded point. Cheap,
+    // and good enough since a single activity is usually entirely in one
+    // metro. The MapView's encoded-polyline decoder is more thorough but
+    // we don't need its full output here.
+    function polylineTouchesGTA(encoded) {
+        const factor = 1e5;
+        let lat = 0, lng = 0, index = 0, b, shift, result;
+        try {
+            shift = 0; result = 0;
+            do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+            shift = 0; result = 0;
+            do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+            const dLat = lat / factor, dLng = lng / factor;
+            return dLat >= 43.4 && dLat <= 43.95 && dLng >= -79.7 && dLng <= -79.0;
+        } catch { return false; }
+    }
+
     onMount(async () => {
         document.body.classList.add("toronto-page");
 
-        // Pull the data + the lib in parallel — neither blocks the other.
         const [libMod, pinsRes] = await Promise.all([
             import("maplibre-gl").then((m) => m.default),
             fetch("/content/toronto.json"),
+            loadRoutes(),
         ]);
 
         try {
             const data = await pinsRes.json();
             allPins = Array.isArray(data) ? data : [];
+            // Default: every category active. Compute this after pins land
+            // so the chip set matches the actual data.
+            for (const cat of new Set(allPins.filter((p) => p.published && p.category).map((p) => p.category))) {
+                activeCategories.add(cat);
+            }
         } catch (err) {
             loadError = "Couldn't load the map data.";
             console.error("toronto.json load failed:", err);
         }
 
-        // MapLibre needs its CSS too; bundle it via dynamic import so it
-        // only loads on this route.
         await import("maplibre-gl/dist/maplibre-gl.css");
         maplibre = libMod;
 
@@ -80,9 +129,22 @@
     {:else if !maplibre}
         <div class="toronto-loading">Loading map…</div>
     {:else}
-        <MapView {maplibre} pins={visiblePins} onselect={(p) => (selected = p)} />
+        <MapView
+            {maplibre}
+            pins={visiblePins}
+            routes={visibleRoutes}
+            onselect={(p) => (selected = p)}
+        />
         <PinPanel pin={selected} onclose={() => (selected = null)} />
-        {#if visiblePins.length === 0}
+        {#if categories.length > 0 || routes.length > 0}
+            <FilterBar
+                {categories}
+                {activeCategories}
+                bind:routesEnabled
+                routesAvailable={routes.length > 0}
+            />
+        {/if}
+        {#if publishedPins.length === 0 && routes.length === 0}
             <div class="toronto-empty"><p>Curation in progress — pins coming soon.</p></div>
         {/if}
     {/if}
