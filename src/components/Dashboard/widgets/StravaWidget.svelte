@@ -21,13 +21,17 @@
     let resizeTimer;
     let resizeListener;
 
+    // Fetch the wider feed (limit=30) so this URL is identical to the
+    // one the intro modals + Toronto map already use — single cache key
+    // means one network call serves every Strava surface in the session.
+    // Slice to 5 client-side for the dashboard's display.
     async function load() {
         try {
-            const res = await fetch("/.netlify/functions/stravaFeed?limit=5");
+            const res = await fetch("/.netlify/functions/stravaFeed?limit=30");
             if (res.status === 503) { hidden = true; return; }
             if (!res.ok) throw new Error("strava fetch failed");
             const data = await res.json();
-            activities = data?.activities || [];
+            activities = (data?.activities || []).slice(0, 5);
             requestAnimationFrame(() => trimListToFit(listEl));
         } catch {
             activities = [];

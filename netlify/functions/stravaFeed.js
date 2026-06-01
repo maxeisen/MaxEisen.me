@@ -21,9 +21,13 @@ function jsonResponse(body, status = 200) {
 		status,
 		headers: {
 			"Content-Type": "application/json",
-			// Browser-only cache. Avoids Netlify Edge's
-			// stale-while-revalidate from collapsing query-string variants.
-			"Cache-Control": "private, max-age=60",
+			// All callers use the same URL (`?limit=30`), so there's only
+			// one cache key — Netlify Edge's stale-while-revalidate can't
+			// collapse cross-query variants the way it did when we had
+			// `?type=run` / `?type=ride`. Safe to share the edge cache.
+			// max-age aligns with the dashboard widget's 5-min poll cycle
+			// so the upstream Strava call fires at most ~12×/hour total.
+			"Cache-Control": "public, max-age=300, stale-while-revalidate=600",
 		},
 	});
 }
