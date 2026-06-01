@@ -10,8 +10,12 @@
 const ATHLETE_ID = 92118908;
 // Strava is migrating off https://www.strava.com/api/v3 — the new base
 // is api-v3.strava.com (announced Jun 2026, mandatory by Jun 1, 2027).
-// Pulled into a constant so a future revert / re-pin is a one-line edit.
-const STRAVA_API_BASE = "https://www.api-v3.strava.com";
+// stravaLatest is already on the new host (its /athlete/activities call
+// works there), but /athlete and /athletes/{id}/stats — the two
+// endpoints THIS function uses — were returning broken responses on
+// the new host as of Jun 2026. Stay on the legacy base here; flip
+// before Jun 1, 2027 once Strava has migrated those endpoints too.
+const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 
 function getEnv(name) {
 	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
