@@ -115,9 +115,9 @@ export default async function handler(req) {
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
 	const activities = await res.json();
-	const afterPasses = activities.filter(passesFilter);
-	const afterType = afterPasses.filter((a) => matchesType(a, type));
-	const filtered = afterType
+	const filtered = activities
+		.filter(passesFilter)
+		.filter((a) => matchesType(a, type))
 		.slice(0, limit)
 		.map((a) => ({
 			id: a.id,
@@ -131,18 +131,5 @@ export default async function handler(req) {
 			polyline: a.map?.summary_polyline || null,
 			sufferScore: a.suffer_score ?? null,
 		}));
-	return jsonResponse({
-		activities: filtered,
-		_debug: {
-			rawUrl: req.url,
-			typeParam,
-			resolvedType: type,
-			perPage,
-			limit,
-			fetchedCount: Array.isArray(activities) ? activities.length : -1,
-			afterPasses: afterPasses.length,
-			afterType: afterType.length,
-			firstSportType: activities?.[0]?.sport_type || activities?.[0]?.type || null,
-		},
-	});
+	return jsonResponse({ activities: filtered });
 }
