@@ -29,7 +29,7 @@ async function getAccessToken() {
 		err.code = "not_configured";
 		throw err;
 	}
-	const res = await fetch("https://www.strava.com/api/v3/oauth/token", {
+	const res = await fetch(`${STRAVA_API_BASE}/oauth/token`, {
 		method: "POST",
 		headers: { "Content-Type": "application/x-www-form-urlencoded" },
 		body: new URLSearchParams({
@@ -69,6 +69,11 @@ function matchesType(activity, type) {
 	return true;
 }
 
+// Strava is migrating off https://www.strava.com/api/v3 — the new base
+// is api-v3.strava.com (announced Jun 2026, mandatory by Jun 1, 2027).
+// Pulled into a constant so a future revert / re-pin is a one-line edit.
+const STRAVA_API_BASE = "https://www.api-v3.strava.com";
+
 const DEFAULT_MAX = 5;
 const FILTERED_MAX = 10;
 // Pull a wider window when the caller wants only one activity type so
@@ -97,7 +102,7 @@ export default async function handler(req) {
 		return jsonResponse({ error: "auth_failed" }, 502);
 	}
 
-	const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
+	const res = await fetch(`${STRAVA_API_BASE}/athlete/activities?per_page=${perPage}`, {
 		headers: { "Authorization": `Bearer ${token}` },
 	});
 	if (!res.ok) {

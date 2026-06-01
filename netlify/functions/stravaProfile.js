@@ -8,6 +8,10 @@
 // This data changes slowly, so a 5-minute browser cache is fine.
 
 const ATHLETE_ID = 92118908;
+// Strava is migrating off https://www.strava.com/api/v3 — the new base
+// is api-v3.strava.com (announced Jun 2026, mandatory by Jun 1, 2027).
+// Pulled into a constant so a future revert / re-pin is a one-line edit.
+const STRAVA_API_BASE = "https://www.api-v3.strava.com";
 
 function getEnv(name) {
 	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
@@ -40,7 +44,7 @@ async function getAccessToken() {
 		err.code = "not_configured";
 		throw err;
 	}
-	const res = await fetch("https://www.strava.com/api/v3/oauth/token", {
+	const res = await fetch(`${STRAVA_API_BASE}/oauth/token`, {
 		method: "POST",
 		headers: { "Content-Type": "application/x-www-form-urlencoded" },
 		body: new URLSearchParams({
@@ -91,8 +95,8 @@ export default async function handler() {
 
 	const headers = { "Authorization": `Bearer ${token}` };
 	const [athleteRes, statsRes] = await Promise.all([
-		fetch("https://www.strava.com/api/v3/athlete", { headers }),
-		fetch(`https://www.strava.com/api/v3/athletes/${ATHLETE_ID}/stats`, { headers }),
+		fetch(`${STRAVA_API_BASE}/athlete`, { headers }),
+		fetch(`${STRAVA_API_BASE}/athletes/${ATHLETE_ID}/stats`, { headers }),
 	]);
 
 	if (!athleteRes.ok || !statsRes.ok) {
