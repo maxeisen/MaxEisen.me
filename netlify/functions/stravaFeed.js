@@ -27,7 +27,12 @@ function jsonResponse(body, status = 200) {
 	});
 }
 
-const STRAVA_API_BASE = "https://www.api-v3.strava.com";
+// Strava announced a Jun 2027 migration to https://www.api-v3.strava.com,
+// but in practice that host returns 4xx for /oauth/token, /athlete, and
+// /athletes/{id}/stats as of Jun 2026. Stay on the legacy base across
+// every endpoint until the new host is fully populated. stravaLatest +
+// stravaProfile do the same; consolidate when the deadline approaches.
+const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 const HARD_MAX = 30;
 const PER_PAGE = 100;
 
