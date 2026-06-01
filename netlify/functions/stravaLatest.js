@@ -10,7 +10,11 @@ function jsonResponse(body, status = 200) {
 		status,
 		headers: {
 			"Content-Type": "application/json",
-			"Cache-Control": "public, max-age=120, stale-while-revalidate=300",
+			// Browser-only cache. With `public`, Netlify Edge was serving
+			// stale-while-revalidate responses for new query variants too —
+			// fwd=stale for ?type=run/ride returned a no-filter cache hit,
+			// which made the modals appear unfiltered.
+			"Cache-Control": "private, max-age=60",
 		},
 	});
 }
