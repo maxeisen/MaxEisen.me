@@ -23,7 +23,7 @@
 
     async function load() {
         try {
-            const res = await fetch("/.netlify/functions/stravaLatest");
+            const res = await fetch("/.netlify/functions/stravaFeed?limit=5");
             if (res.status === 503) { hidden = true; return; }
             if (!res.ok) throw new Error("strava fetch failed");
             const data = await res.json();

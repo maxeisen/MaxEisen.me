@@ -10,11 +10,9 @@
 const ATHLETE_ID = 92118908;
 // Strava is migrating off https://www.strava.com/api/v3 — the new base
 // is api-v3.strava.com (announced Jun 2026, mandatory by Jun 1, 2027).
-// stravaLatest is already on the new host (its /athlete/activities call
-// works there), but /athlete and /athletes/{id}/stats — the two
-// endpoints THIS function uses — were returning broken responses on
-// the new host as of Jun 2026. Stay on the legacy base here; flip
-// before Jun 1, 2027 once Strava has migrated those endpoints too.
+// As of Jun 2026, the new host returns errors for /oauth/token,
+// /athlete, and /athletes/{id}/stats. Stay on the legacy base until
+// the new host is fully populated. Flip the constant when revisiting.
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 
 function getEnv(name) {

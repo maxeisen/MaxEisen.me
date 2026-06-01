@@ -41,12 +41,12 @@
         } catch {}
     }
 
-    // Strava activities that pass through the GTA bbox. /stravaLatest
+    // Strava activities that pass through the GTA bbox. stravaFeed
     // returns recent activities with encoded polylines; we just keep the
     // ones with a polyline that has at least one point within the box.
     async function loadRoutes() {
         try {
-            const res = await fetch("/.netlify/functions/stravaLatest");
+            const res = await fetch("/.netlify/functions/stravaFeed?limit=30");
             if (!res.ok) return;
             const data = await res.json();
             const acts = data?.activities || [];

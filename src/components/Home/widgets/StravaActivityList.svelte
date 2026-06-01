@@ -91,12 +91,9 @@
         }
     };
 
-    // Filter client-side rather than relying on the server's ?type=…
-    // query — Netlify's edge cache was collapsing query-string variants
-    // under stale-while-revalidate, so /stravaLatest?type=run and
-    // ?type=ride sometimes returned the same mixed payload. The server
-    // still passes back every distance-qualified activity; we pick the
-    // ones that match this widget's type here.
+    // The stravaFeed function returns a mixed feed of recent qualifying
+    // activities; we filter to this widget's type client-side then slice
+    // to the display limit.
     const TYPE_PATTERNS = {
         run:  /Run/i,
         ride: /Ride/i,
@@ -105,9 +102,6 @@
 
     onMount(async () => {
         try {
-            // Use stravaFeed (wider 30-activity window) rather than
-            // stravaLatest, then filter to this widget's type client-side.
-            // See netlify/functions/stravaFeed.js for the why.
             const res = await fetch(`/.netlify/functions/stravaFeed?limit=30`);
             if (!res.ok) throw new Error(`status ${res.status}`);
             const data = await res.json();

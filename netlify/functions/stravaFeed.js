@@ -1,12 +1,13 @@
-// Same upstream as stravaLatest, but returns a wider feed (up to 30
-// distance-qualified activities) without applying a server-side type
-// filter. Created as a separate function because the original
-// `stravaLatest` deployment is stuck in Netlify's function bundle cache
-// — pushing changes to that file wasn't taking effect, but a new file
-// gets a fresh function deployment.
+// Returns up to 30 recent activities from Strava that pass the distance
+// filter (walks ≥7km, runs ≥5km, rides ≥20km). No server-side type
+// filter — callers decide how to split or filter.
 //
-// The intro Activity modals filter by type client-side (in
-// StravaActivityList.svelte) from this wider feed.
+// Used by:
+//   - Dashboard StravaWidget       (asks for limit=5 — mixed list)
+//   - Intro Activity Modals        (asks for limit=30; client filters
+//                                   to run / ride and slices to display)
+//   - /toronto map route overlay   (asks for limit=30; keeps the ones
+//                                   whose polyline touches the GTA)
 
 function getEnv(name) {
 	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
@@ -20,8 +21,8 @@ function jsonResponse(body, status = 200) {
 		status,
 		headers: {
 			"Content-Type": "application/json",
-			// Browser-only cache — same reasoning as stravaLatest after the
-			// edge SWR debug session: avoid edge collapsing variants.
+			// Browser-only cache. Avoids Netlify Edge's
+			// stale-while-revalidate from collapsing query-string variants.
 			"Cache-Control": "private, max-age=60",
 		},
 	});
@@ -30,8 +31,8 @@ function jsonResponse(body, status = 200) {
 // Strava announced a Jun 2027 migration to https://www.api-v3.strava.com,
 // but in practice that host returns 4xx for /oauth/token, /athlete, and
 // /athletes/{id}/stats as of Jun 2026. Stay on the legacy base across
-// every endpoint until the new host is fully populated. stravaLatest +
-// stravaProfile do the same; consolidate when the deadline approaches.
+// every endpoint until the new host is fully populated. stravaProfile
+// does the same; flip both constants when revisiting before Jun 2027.
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 const HARD_MAX = 30;
 const PER_PAGE = 100;
@@ -69,8 +70,8 @@ async function getAccessToken() {
 	return cachedToken.token;
 }
 
-// Distance thresholds (in metres) — same as stravaLatest so the dashboard
-// and the modals see a consistent filter for "qualifying" activities.
+// Distance thresholds (in metres) for "qualifying" activities — these
+// keep the surfaces from listing 1-km warm-up jogs and the like.
 function passesFilter(activity) {
 	const type = activity.sport_type || activity.type || "";
 	const distance = activity.distance || 0;
