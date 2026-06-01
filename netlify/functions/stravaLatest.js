@@ -79,7 +79,7 @@ function matchesType(activity, type) {
 const STRAVA_API_BASE = "https://www.api-v3.strava.com";
 
 const DEFAULT_MAX = 5;
-const FILTERED_MAX = 10;
+const HARD_MAX = 30;
 // Pull a wider window when the caller wants only one activity type so
 // distance-filtered runs/rides aren't crowded out by other recent activities.
 const PER_PAGE_DEFAULT = 30;
@@ -90,10 +90,18 @@ export default async function handler(req) {
 	const typeParam = (url.searchParams.get("type") || "").toLowerCase() || null;
 	const allowedTypes = new Set(["run", "ride", "walk"]);
 	const type = allowedTypes.has(typeParam) ? typeParam : null;
-	const limit = type
-		? Math.min(parseInt(url.searchParams.get("limit"), 10) || FILTERED_MAX, FILTERED_MAX)
-		: DEFAULT_MAX;
-	const perPage = type ? PER_PAGE_FILTERED : PER_PAGE_DEFAULT;
+	// `limit` is honoured whether or not a type filter is set, capped at
+	// HARD_MAX. Lets the intro-modal client request a wider feed when it
+	// filters by type itself (paired with the matching change in
+	// StravaActivityList).
+	const limitParam = parseInt(url.searchParams.get("limit"), 10);
+	const limit = Math.min(
+		Number.isFinite(limitParam) && limitParam > 0 ? limitParam : DEFAULT_MAX,
+		HARD_MAX,
+	);
+	// per_page scales with how many of a specific type we might need to
+	// uncover after distance-thresholding everything else.
+	const perPage = type || limit > DEFAULT_MAX ? PER_PAGE_FILTERED : PER_PAGE_DEFAULT;
 
 	let token;
 	try {

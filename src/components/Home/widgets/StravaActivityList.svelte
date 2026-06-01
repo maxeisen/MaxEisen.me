@@ -91,12 +91,30 @@
         }
     };
 
+    // Filter client-side rather than relying on the server's ?type=…
+    // query — Netlify's edge cache was collapsing query-string variants
+    // under stale-while-revalidate, so /stravaLatest?type=run and
+    // ?type=ride sometimes returned the same mixed payload. The server
+    // still passes back every distance-qualified activity; we pick the
+    // ones that match this widget's type here.
+    const TYPE_PATTERNS = {
+        run:  /Run/i,
+        ride: /Ride/i,
+        walk: /Walk|Hike/i,
+    };
+
     onMount(async () => {
         try {
-            const res = await fetch(`/.netlify/functions/stravaLatest?type=${encodeURIComponent(type)}&limit=${limit}`);
+            // No type filter on the URL — ask for a wider window (limit=20)
+            // so there's enough material to find `limit` of the requested
+            // type even when other activity types are interleaved.
+            const res = await fetch(`/.netlify/functions/stravaLatest?limit=20`);
             if (!res.ok) throw new Error(`status ${res.status}`);
             const data = await res.json();
-            activities = data?.activities || [];
+            const all = data?.activities || [];
+            const re = TYPE_PATTERNS[type];
+            const matched = re ? all.filter((a) => re.test(a.type || '')) : all;
+            activities = matched.slice(0, limit);
         } catch (err) {
             error = err.message || 'Failed to load';
             activities = [];
