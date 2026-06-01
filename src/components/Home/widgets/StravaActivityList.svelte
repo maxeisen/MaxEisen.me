@@ -105,10 +105,10 @@
 
     onMount(async () => {
         try {
-            // No type filter on the URL — ask for a wider window (limit=20)
-            // so there's enough material to find `limit` of the requested
-            // type even when other activity types are interleaved.
-            const res = await fetch(`/.netlify/functions/stravaLatest?limit=20`);
+            // Use stravaFeed (wider 30-activity window) rather than
+            // stravaLatest, then filter to this widget's type client-side.
+            // See netlify/functions/stravaFeed.js for the why.
+            const res = await fetch(`/.netlify/functions/stravaFeed?limit=30`);
             if (!res.ok) throw new Error(`status ${res.status}`);
             const data = await res.json();
             const all = data?.activities || [];
