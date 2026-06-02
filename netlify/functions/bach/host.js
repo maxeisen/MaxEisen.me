@@ -30,6 +30,12 @@ export default async function handler(req) {
 			const prompts = Array.isArray(body?.prompts)
 				? body.prompts.filter((p) => typeof p === "string" && p.trim()).map((p) => p.trim())
 				: [];
+			const swapPoolRaw = Array.isArray(body?.swapPool) ? body.swapPool : prompts;
+			const swapPool = [...new Set(
+				swapPoolRaw
+					.filter((p) => typeof p === "string" && p.trim())
+					.map((p) => p.trim()),
+			)];
 			const slotsPerPlayer = Math.max(1, Math.min(6, Number(body?.slotsPerPlayer) || 3));
 			if (prompts.length === 0) return jsonResponse({ error: "no_prompts" }, 400);
 
@@ -49,7 +55,7 @@ export default async function handler(req) {
 				const slots = [];
 				for (let k = 0; k < slotsPerPlayer; k++) {
 					const prompt = pool[pi] ?? pool[pi % pool.length];
-					slots.push({ slotId: `s${k}`, prompt });
+					slots.push({ slotId: `s${k}`, prompt, swapped: false });
 					pi++;
 				}
 				assignments[player.id] = slots;
@@ -57,6 +63,7 @@ export default async function handler(req) {
 
 			meta.roundIndex = round;
 			meta.assignments = assignments;
+			meta.roundSwapPool = swapPool.length > 0 ? swapPool : [...new Set(prompts)];
 			meta.phase = "writing";
 			meta.error = null;
 			meta.lastMvp = null;
@@ -146,6 +153,7 @@ export default async function handler(req) {
 			meta.phase = "lobby";
 			meta.roundIndex = -1;
 			meta.assignments = {};
+			meta.roundSwapPool = [];
 			meta.error = null;
 			meta.leaderboard = {};
 			meta.lastMvp = null;

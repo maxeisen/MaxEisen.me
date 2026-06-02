@@ -46,6 +46,10 @@ export async function submitWord(password, { code, playerId, slotId, value }) {
 	return post("bach-submit", password, { code, playerId, slotId, value });
 }
 
+export async function swapPrompt(password, { code, playerId, slotId }) {
+	return post("bach-swap-prompt", password, { code, playerId, slotId });
+}
+
 export async function castVote(password, { code, playerId, targetSubId }) {
 	return post("bach-vote", password, { code, playerId, targetSubId });
 }

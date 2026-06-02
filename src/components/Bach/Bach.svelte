@@ -270,6 +270,16 @@
         return ok;
     }
 
+    async function swapPrompt(slotId) {
+        const { ok, data } = await api.swapPrompt(password, {
+            code,
+            playerId: player.playerId,
+            slotId,
+        });
+        await poll();
+        return { ok, data };
+    }
+
     async function vote(targetSubId) {
         const { ok } = await api.castVote(password, { code, playerId: player.playerId, targetSubId });
         await poll();
@@ -314,6 +324,7 @@
             {netError}
             onJoin={joinGame}
             onSubmitWord={submitWord}
+            onSwapPrompt={swapPrompt}
             onVote={vote}
         />
     {:else}

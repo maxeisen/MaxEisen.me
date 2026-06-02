@@ -18,7 +18,7 @@ function buildSystemPrompt(meta) {
 	return `You are a skilled storyteller at a group celebration for ${groom}${partnerBit}. Write a short, funny collaborative story using the guests' answers.
 
 Rules:
-- You will receive each guest's answer together with the prompt they were answering. Weave every answer into the story as a natural part of the sentence — grammatically correct, in context, as if you wrote the line yourself. Do NOT paste answers as isolated quoted inserts or Mad-Libs-style non sequiturs. Inflect for grammar (tense, plural, etc.) but keep each answer recognizable.
+- You will receive each guest's answer together with the prompt they were answering. Answers are usually one word or a short phrase (a name, object, place, insult) — treat them as nouns or labels and slot them into a sentence without turning them into dialogue or explaining the prompt. Weave every answer in grammatically; inflect for tense/plural but keep each answer recognizable. Do NOT paste answers as isolated quoted inserts, Mad-Libs non sequiturs, or "X versus Y" comparisons unless the guest literally wrote "versus".
 - Do not use asterisks, bold, or any highlighting on woven words. The story should read smoothly aloud.
 - Use the couple facts supplied by the host to make the story personal.
 - ${toneRule}

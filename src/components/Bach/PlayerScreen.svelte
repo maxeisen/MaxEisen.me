@@ -3,13 +3,15 @@
     MVP vote ballot, and lightweight "watch the big screen" states.
 -->
 <script>
-    let { code, player, gameTitle = "Story Builder", gameState, sessionMissing, netError, onJoin, onSubmitWord, onVote } = $props();
+    let { code, player, gameTitle = "Story Builder", gameState, sessionMissing, netError, onJoin, onSubmitWord, onSwapPrompt, onVote } = $props();
 
     let nameInput = $state("");
     let joining = $state(false);
     let drafts = $state({});
     let draftsEpoch = $state(null);
     let savingSlot = $state(null);
+    let swappingSlot = $state(null);
+    let swapError = $state("");
     let voting = $state(false);
 
     const phase = $derived(gameState?.phase ?? null);
@@ -33,6 +35,7 @@
 
         if (epoch !== draftsEpoch) {
             draftsEpoch = epoch;
+            swapError = "";
             const next = {};
             for (const s of list) next[s.slotId] = s.value || "";
             drafts = next;
@@ -67,6 +70,27 @@
         if (!value) return;
         savingSlot = slot.slotId;
         try { await onSubmitWord(slot.slotId, value); } finally { savingSlot = null; }
+    }
+
+    async function swap(slot) {
+        if (slot.swapped || swappingSlot) return;
+        swapError = "";
+        swappingSlot = slot.slotId;
+        try {
+            const { ok, data } = await onSwapPrompt(slot.slotId);
+            if (!ok) {
+                const msg = {
+                    already_swapped: "You already swapped that one.",
+                    no_alternatives: "No other prompts left in this deck.",
+                    not_writing: "Too late — the round moved on.",
+                }[data?.error] || "Could not swap — try again.";
+                swapError = msg;
+                return;
+            }
+            drafts = { ...drafts, [slot.slotId]: "" };
+        } finally {
+            swappingSlot = null;
+        }
     }
 
     async function pick(item) {
@@ -112,12 +136,27 @@
         {#if you?.assigned}
             <div class="head">
                 <h1 class="title">Your prompts</h1>
-                <p class="sub">Be specific — the AI will weave your answers into the story.</p>
+                <p class="sub">Match the type before the dash (Brand, Insult, Place…). One word or a short phrase — no sentences.</p>
             </div>
             <div class="slots">
                 {#each slots as slot (`${writingEpoch}-${slot.slotId}`)}
                     <div class="slot {isSaved(slot) ? 'saved' : ''}">
-                        <div class="slot-prompt">{slot.prompt}</div>
+                        <div class="slot-prompt-row">
+                            <div class="slot-prompt">{slot.prompt}</div>
+                            {#if !slot.swapped}
+                                <button
+                                    type="button"
+                                    class="swap-btn"
+                                    onclick={() => swap(slot)}
+                                    disabled={swappingSlot === slot.slotId}
+                                    title="Replace this prompt once"
+                                >
+                                    {swappingSlot === slot.slotId ? "…" : "Swap"}
+                                </button>
+                            {:else}
+                                <span class="swapped-tag">Swapped</span>
+                            {/if}
+                        </div>
                         <div class="slot-row">
                             <input
                                 bind:value={drafts[slot.slotId]}
@@ -136,6 +175,7 @@
                     </div>
                 {/each}
             </div>
+            {#if swapError}<p class="swap-error">{swapError}</p>{/if}
             {#if allSaved}
                 <p class="done-note">All locked in. Sit back and watch the big screen.</p>
             {/if}
@@ -263,13 +303,53 @@
         transition: border-color 0.15s ease;
     }
     .slot.saved { border-color: var(--main-green); }
+    .slot-prompt-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.55rem;
+    }
     .slot-prompt {
         font-size: 0.72rem;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--main-green);
-        margin-bottom: 0.55rem;
+        flex: 1;
+        min-width: 0;
+    }
+    .swap-btn {
+        font: inherit;
+        font-size: 0.72rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        cursor: pointer;
+        color: var(--header-colour);
+        background: transparent;
+        border: 1px solid var(--main-green-translucent);
+        border-radius: 8px;
+        padding: 0.25rem 0.55rem;
+        transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .swap-btn:hover:not(:disabled) {
+        border-color: var(--main-green);
+        color: var(--main-green);
+    }
+    .swap-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .swapped-tag {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.45;
+        flex-shrink: 0;
+    }
+    .swap-error {
+        margin-top: 0.75rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #e8a87c;
     }
     .slot-row { display: flex; gap: 0.5rem; }
     .slot-row input { flex: 1; }

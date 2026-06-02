@@ -75,6 +75,7 @@ export default async function handler(req) {
 			slots: (assignments[playerId] || []).map((slot) => ({
 				slotId: slot.slotId,
 				prompt: slot.prompt,
+				swapped: Boolean(slot.swapped),
 				value: got.find((s) => s.slotId === slot.slotId)?.value || "",
 			})),
 		};

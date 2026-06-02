@@ -14,13 +14,18 @@
         saveUsedPrompts,
         clearUsedPrompts,
         hasPrivatePartyPack,
+        poolsForAudience,
     } from "./partyConfig.js";
     import { validatePartyPack } from "./validatePartyPack.js";
 
     let { party, code, password, gameState, netError, onCreate, onPartyPackUpload, onRequestTts, onAction, onGenerate } = $props();
 
-    const pools = $derived(party.pools);
+    const allPools = $derived(party.pools);
     const defaultSlots = $derived(party.slotsPerPlayer);
+
+    /** @type {"boys" | "everyone"} */
+    let roundAudience = $state("everyone");
+    const pools = $derived(poolsForAudience(allPools, roundAudience));
 
     // --- Setup (pre-session) ---
     let facts = $state("");
@@ -182,7 +187,11 @@
         if (code) saveUsedPrompts(code, usedPrompts);
         busy = true;
         try {
-            await onAction("start", { prompts: drawn, slotsPerPlayer: slots });
+            await onAction("start", {
+                prompts: drawn,
+                slotsPerPlayer: slots,
+                swapPool: pool.prompts,
+            });
         } finally { busy = false; }
     }
 
@@ -321,7 +330,33 @@
                     </div>
 
                     <div class="round-setup">
+                        <h3 class="mini-title">Who's playing?</h3>
+                        <div class="pool-buttons audience-toggle">
+                            <button
+                                type="button"
+                                class="pool-btn {roundAudience === 'boys' ? 'on' : ''}"
+                                onclick={() => (roundAudience = "boys")}
+                            >Just the boys</button>
+                            <button
+                                type="button"
+                                class="pool-btn {roundAudience === 'everyone' ? 'on' : ''}"
+                                onclick={() => (roundAudience = "everyone")}
+                            >Everyone here</button>
+                        </div>
+                        <p class="hint audience-hint">
+                            {#if roundAudience === "boys"}
+                                Harder Matthew prompts, full no-mercy deck.
+                            {:else}
+                                Whole-room decks — still filthy, lighter on inside-boy stuff.
+                            {/if}
+                        </p>
+                    </div>
+
+                    <div class="round-setup">
                         <h3 class="mini-title">Round flavour</h3>
+                        {#if pools.length === 0}
+                            <p class="error">No prompt pools for this audience — check the party pack JSON.</p>
+                        {/if}
                         <div class="pool-buttons">
                             {#each pools as pool}
                                 <button

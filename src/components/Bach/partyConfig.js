@@ -65,6 +65,18 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 	};
 }
 
+/** @typedef {"boys" | "everyone"} BachAudience */
+
+/** Pools tagged `audience: "boys"` only show for boys; untagged pools show for both. */
+export function poolsForAudience(pools, audience = "everyone") {
+	if (!pools?.length) return [];
+	return pools.filter((pool) => {
+		const tag = pool.audience;
+		if (!tag || tag === "all") return true;
+		return tag === audience;
+	});
+}
+
 function shuffle(arr) {
 	const next = [...arr];
 	for (let i = next.length - 1; i > 0; i--) {
