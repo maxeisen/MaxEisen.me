@@ -17,7 +17,7 @@
     } from "./partyConfig.js";
     import { validatePartyPack } from "./validatePartyPack.js";
 
-    let { party, code, password, gameState, netError, onCreate, onPartyPackUpload, onAction, onGenerate } = $props();
+    let { party, code, password, gameState, netError, onCreate, onPartyPackUpload, onRequestTts, onAction, onGenerate } = $props();
 
     const pools = $derived(party.pools);
     const defaultSlots = $derived(party.slotsPerPlayer);
@@ -51,9 +51,9 @@
     let audioUrl = $state(null);
     let audioLoading = $state(false);
     let audioError = $state("");
-    let audioEl = $state(null);
-    let playing = $state(false);
-    let audioLoadKey = $state("");
+    let audioPlayer = $state(null);
+    /** Round we already tried to fetch narration for (prevents 404 retry loops). */
+    let narrationAttempted = $state("");
 
     $effect(() => {
         if (code) usedPrompts = loadUsedPrompts(code);
@@ -77,64 +77,70 @@
     const story = $derived(formatStory(gameState?.story || ""));
 
     function releaseAudio() {
-        if (audioEl) {
-            audioEl.pause();
-            audioEl = null;
-        }
+        audioPlayer?.pause();
+        audioPlayer = null;
         if (audioUrl) {
             URL.revokeObjectURL(audioUrl);
             audioUrl = null;
         }
-        playing = false;
         audioLoading = false;
         audioError = "";
-        audioLoadKey = "";
+        narrationAttempted = "";
     }
 
-    $effect(() => {
-        const p = phase;
+    async function loadNarration(attemptKey) {
         const round = gameState?.roundIndex ?? -1;
-        const ver = gameState?.version ?? 0;
-        const ready = gameState?.storyAudioReady;
-        const key = code && round >= 0 ? `${code}:${round}:${ver}` : "";
+        if (!password || !code || round < 0) return;
 
-        if (p !== "reveal" || !ready || !key || !password) {
-            releaseAudio();
-            return;
-        }
-        if (key === audioLoadKey) return;
-
-        let cancelled = false;
-        releaseAudio();
-        audioLoadKey = key;
         audioLoading = true;
+        audioError = "";
+        if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            audioUrl = null;
+        }
 
-        (async () => {
+        try {
             const { ok, blob } = await api.fetchStoryAudio(password, code, round);
-            if (cancelled) return;
-            audioLoading = false;
             if (!ok || !blob) {
-                audioError = "Narration didn't load — try regenerating.";
-                audioLoadKey = "";
+                audioError = "Narration is not available — try Regenerate, or tap Retry below.";
                 return;
             }
             audioUrl = URL.createObjectURL(blob);
-            audioEl = new Audio(audioUrl);
-            audioEl.addEventListener("ended", () => { playing = false; });
-            audioEl.addEventListener("pause", () => { playing = false; });
-            audioEl.addEventListener("play", () => { playing = true; });
-        })();
+        } catch {
+            audioError = "Narration failed to load — check your connection and retry.";
+        } finally {
+            audioLoading = false;
+            narrationAttempted = attemptKey;
+        }
+    }
 
-        return () => { cancelled = true; };
+    function retryNarration() {
+        narrationAttempted = "";
+        const round = gameState?.roundIndex ?? -1;
+        const key = code && round >= 0 ? `${code}:${round}` : "";
+        if (key) loadNarration(key);
+    }
+
+    const LISTEN_PHASES = ["reveal", "voting", "results"];
+
+    $effect(() => {
+        const round = gameState?.roundIndex ?? -1;
+        const key = code && round >= 0 ? `${code}:${round}` : "";
+
+        if (!LISTEN_PHASES.includes(phase) || !key || !password) {
+            if (phase === "finished" || phase === "lobby" || phase === "writing" || !code) {
+                releaseAudio();
+            }
+            return;
+        }
+
+        if (!gameState?.storyAudioReady) return;
+        if (narrationAttempted === key) return;
+
+        loadNarration(key);
     });
 
     onDestroy(releaseAudio);
-
-    function toggleNarration() {
-        if (!audioEl || audioLoading) return;
-        if (playing) audioEl.pause();
-        else audioEl.play().catch(() => { audioError = "Tap play to start audio."; });
-    }
 
     async function onPackFileSelect(e) {
         const file = e.currentTarget.files?.[0];
@@ -358,26 +364,42 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Weaving the story and recording the British narrator — hang tight.</p>
+                <p class="muted">Writing the story — narration loads right after.</p>
+                <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
+                    Cancel and go back
+                </button>
             </section>
 
         {:else if phase === "reveal"}
             <section class="reveal">
-                {#if gameState?.storyAudioReady && audioLoading}
-                    <div class="centered reveal-wait">
-                        <div class="spinner"></div>
-                        <p class="muted">Story's ready — loading the narrator…</p>
-                    </div>
-                {:else}
-                <div class="narration-bar">
-                    {#if audioUrl}
-                        <button type="button" class="primary narration-btn" onclick={toggleNarration} disabled={busy}>
-                            {playing ? "⏸ Pause" : "▶ Play narration"}
+                <div class="narration-panel" aria-label="Story narration">
+                    <h3 class="mini-title">Listen</h3>
+                    {#if !gameState?.storyAudioReady && !audioError}
+                        <p class="narration-status muted">Recording narration…</p>
+                        <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
+                            Retry recording
                         </button>
-                    {:else if audioError}
-                        <span class="narration-status error">{audioError}</span>
-                    {:else if gameState?.storyAudioReady === false}
-                        <span class="narration-status muted">Narration unavailable this round — read it yourself.</span>
+                    {:else if audioLoading}
+                        <p class="narration-status muted">Loading narration…</p>
+                    {:else if audioUrl}
+                        <!-- Native controls: play/pause, scrubber, volume -->
+                        <audio
+                            bind:this={audioPlayer}
+                            class="story-audio-player"
+                            controls
+                            preload="auto"
+                            src={audioUrl}
+                        ></audio>
+                    {:else}
+                        <button type="button" class="primary big narration-load" onclick={retryNarration} disabled={busy}>
+                            Load narration
+                        </button>
+                        {#if audioError}
+                            <p class="error narration-status">{audioError}</p>
+                            <button type="button" class="ghost" onclick={retryNarration} disabled={busy}>Retry</button>
+                        {:else if gameState?.storyAudioReady === false}
+                            <p class="narration-status muted">No audio was generated this round. Regenerate the story to try again.</p>
+                        {/if}
                     {/if}
                 </div>
                 {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
@@ -386,7 +408,6 @@
                         <p>{@html para}</p>
                     {/each}
                 </div>
-                {/if}
                 <div class="reveal-actions">
                     <button class="ghost" onclick={generate} disabled={busy}>↻ Regenerate</button>
                     <button class="primary" onclick={() => act("openVoting")} disabled={busy}>Open MVP voting →</button>
@@ -395,6 +416,11 @@
 
         {:else if phase === "voting"}
             <section class="centered">
+                {#if audioUrl}
+                    <div class="narration-panel compact" aria-label="Story narration">
+                        <audio bind:this={audioPlayer} class="story-audio-player" controls preload="auto" src={audioUrl}></audio>
+                    </div>
+                {/if}
                 <h2 class="display sm">Vote for round MVP</h2>
                 <p class="muted">Open your phone and crown the best contribution. {gameState?.voteCount ?? 0} / {players.length} voted.</p>
                 <ul class="ballot-preview">
@@ -702,14 +728,25 @@
 
     /* --- Reveal / story --- */
     .reveal { max-width: 820px; margin: 2vh auto 0; }
-    .narration-bar {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 1.25rem;
+    .narration-panel {
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.15rem;
+        border-radius: 12px;
+        border: 1px solid var(--main-green-translucent);
+        background: rgba(255, 255, 255, 0.04);
+        text-align: center;
     }
-    .narration-btn { font-size: 1.05rem; padding: 0.65rem 1.4rem; }
-    .narration-status { font-size: 0.95rem; }
-    .reveal-wait { padding: 3rem 0; }
+    .narration-panel.compact { margin-bottom: 1rem; padding: 0.75rem; }
+    .narration-panel .mini-title { margin-bottom: 0.75rem; }
+    .story-audio-player {
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+        display: block;
+        min-height: 48px;
+    }
+    .narration-load { margin: 0.25rem auto; }
+    .narration-status { font-size: 0.95rem; margin: 0.5rem 0; }
     .story-title {
         font-family: 'Fraunces', serif; font-weight: 700;
         font-size: clamp(2rem, 5vw, 3.2rem); color: var(--header-colour);

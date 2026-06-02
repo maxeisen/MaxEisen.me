@@ -3,8 +3,11 @@
   publish = "dist"
   functions = "netlify/functions"
 
-# Story weave + TTS can exceed the default 10s limit.
+# Story + TTS can run long; local `netlify dev` defaults to 30s unless raised here.
 [functions."bach-story"]
+  timeout = 60
+
+[functions."bach-story-tts"]
   timeout = 60
 
 [dev]

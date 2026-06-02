@@ -214,14 +214,39 @@
         return ok;
     }
 
+    let ttsRequestedFor = $state("");
+
     async function generate() {
-        // Optimistic: bach/story flips phase to "generating" itself; poll picks
-        // it up. We just kick it off and let the loop reflect progress.
+        ttsRequestedFor = "";
         const p = api.generateStory(password, { code, hostToken });
         await poll();
         const { ok } = await p;
+        if (!ok) {
+            await doHostAction("abortGenerating");
+        }
         await poll();
         return ok;
+    }
+
+    // After story text is ready, request narration once per round (separate fn avoids dev timeout).
+    $effect(() => {
+        if (mode !== "host" || !password || !code || !hostToken) return;
+        if (gameState?.phase !== "reveal") return;
+        if (gameState?.storyAudioReady) return;
+        const round = gameState?.roundIndex ?? -1;
+        if (round < 0) return;
+        const ttsKey = `${code}:${round}`;
+        if (ttsRequestedFor === ttsKey) return;
+        ttsRequestedFor = ttsKey;
+        api.generateStoryTts(password, { code, hostToken }).then(() => poll());
+    });
+
+    async function requestStoryTts() {
+        const round = gameState?.roundIndex ?? -1;
+        if (round < 0 || !code || !hostToken) return;
+        ttsRequestedFor = "";
+        await api.generateStoryTts(password, { code, hostToken });
+        await poll();
     }
 
     // --- Player actions ----------------------------------------------------
@@ -300,6 +325,7 @@
             {netError}
             onCreate={createSession}
             onPartyPackUpload={applyPartyPack}
+            onRequestTts={requestStoryTts}
             onAction={doHostAction}
             onGenerate={generate}
         />

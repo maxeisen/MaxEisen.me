@@ -60,6 +60,7 @@ export default async function handler(req) {
 			meta.phase = "writing";
 			meta.error = null;
 			meta.lastMvp = null;
+			meta.hasStoryAudio = false;
 			meta.version++;
 			await writeMeta(store, code, meta);
 			return jsonResponse({ ok: true, roundIndex: round });
@@ -127,6 +128,15 @@ export default async function handler(req) {
 
 		case "finish": {
 			meta.phase = "finished";
+			meta.version++;
+			await writeMeta(store, code, meta);
+			return jsonResponse({ ok: true });
+		}
+
+		case "abortGenerating": {
+			if (meta.phase !== "generating") return jsonResponse({ error: "bad_phase" }, 409);
+			meta.phase = "writing";
+			meta.error = "generation_failed";
 			meta.version++;
 			await writeMeta(store, code, meta);
 			return jsonResponse({ ok: true });

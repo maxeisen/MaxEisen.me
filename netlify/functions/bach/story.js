@@ -5,7 +5,6 @@ import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, writeMeta, keys, listJSON,
 } from "./_lib.js";
-import { generateStoryAudio, audioToBlobValue } from "./tts.js";
 
 function buildSystemPrompt(meta) {
 	const groom = meta.groom || "the groom";
@@ -102,21 +101,12 @@ export default async function handler(req) {
 		}
 
 		await store.set(keys.story(code, round), story);
-
-		const audio = await generateStoryAudio(client, story, {
-			ttsModel: getEnv("BACH_TTS_MODEL"),
-			ttsVoice: getEnv("BACH_TTS_VOICE"),
-			ttsInstructions: getEnv("BACH_TTS_INSTRUCTIONS"),
-		});
-		if (audio) {
-			await store.set(keys.storyAudio(code, round), audioToBlobValue(audio));
-		} else {
-			await store.delete(keys.storyAudio(code, round));
-		}
+		await store.delete(keys.storyAudio(code, round));
 
 		const fresh = (await readMeta(store, code)) || meta;
 		fresh.phase = "reveal";
 		fresh.error = null;
+		fresh.hasStoryAudio = false;
 		fresh.version++;
 		await writeMeta(store, code, fresh);
 

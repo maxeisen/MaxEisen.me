@@ -58,6 +58,10 @@ export async function generateStory(password, { code, hostToken }) {
 	return post("bach-story", password, { code, hostToken });
 }
 
+export async function generateStoryTts(password, { code, hostToken }) {
+	return post("bach-story-tts", password, { code, hostToken });
+}
+
 export async function fetchPartyPack(password) {
 	const res = await fetch(`${FN}/bach-party-pack`, {
 		headers: { "X-Bach-Password": password || "" },
@@ -71,12 +75,22 @@ export async function uploadPartyPack(password, party) {
 	return post("bach-party-pack", password, { party });
 }
 
-export async function fetchStoryAudio(password, code, roundIndex) {
+export async function fetchStoryAudio(password, code, roundIndex, { timeoutMs = 60_000 } = {}) {
 	const qs = new URLSearchParams({ code, round: String(roundIndex) });
-	const res = await fetch(`${FN}/bach-story-audio?${qs.toString()}`, {
-		headers: { "X-Bach-Password": password || "" },
-	});
-	if (!res.ok) return { ok: false, status: res.status };
-	const blob = await res.blob();
-	return { ok: true, blob };
+	const ctrl = new AbortController();
+	const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+	try {
+		const res = await fetch(`${FN}/bach-story-audio?${qs.toString()}`, {
+			headers: { "X-Bach-Password": password || "" },
+			signal: ctrl.signal,
+		});
+		if (!res.ok) return { ok: false, status: res.status };
+		const blob = await res.blob();
+		return { ok: true, blob };
+	} catch (err) {
+		if (err?.name === "AbortError") return { ok: false, status: 408, timedOut: true };
+		throw err;
+	} finally {
+		clearTimeout(timer);
+	}
 }

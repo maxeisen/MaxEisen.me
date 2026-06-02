@@ -84,8 +84,7 @@ export default async function handler(req) {
 
 	if (["reveal", "voting", "results", "finished"].includes(meta.phase) && round >= 0) {
 		state.story = (await store.get(keys.story(code, round), { type: "text" })) || "";
-		const audioMeta = await store.getMetadata(keys.storyAudio(code, round));
-		state.storyAudioReady = audioMeta != null;
+		state.storyAudioReady = Boolean(meta.hasStoryAudio);
 	}
 
 	if (["voting", "results"].includes(meta.phase) && round >= 0) {
