@@ -5,10 +5,10 @@ import { Buffer } from "node:buffer";
 const TTS_INSTRUCTIONS =
 	"British audiobook narrator, warm and witty, clear RP-ish accent, steady pace.";
 
-const MAX_INPUT = 3200;
-/** Shorter narration in quick mode → faster synthesis on Netlify's ~26s cap. */
-const QUICK_MAX_INPUT = 1600;
-const QUICK_TIMEOUT_MS = 18_000;
+/** OpenAI TTS hard limit is 4096; stay slightly under. */
+const TTS_CHUNK_MAX = 4000;
+const QUICK_SPEED = 1.2;
+const QUICK_TIMEOUT_MS = 22_000;
 const FULL_TIMEOUT_MS = 22_000;
 
 /** Fastest models first; HD only as last resort. */
@@ -28,19 +28,45 @@ function withTimeout(promise, ms) {
 	]);
 }
 
-/** Plain text for narration: title, then body; strip markdown. */
-export function storyTextForSpeech(raw, { quick = false } = {}) {
+/** Plain text for narration: title, then body; strip markdown (no truncation). */
+export function storyTextForSpeech(raw) {
 	if (!raw) return "";
-	const maxLen = quick ? QUICK_MAX_INPUT : MAX_INPUT;
 	const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
 	const title = (lines[0] || "").replace(/^#+\s*/, "").replace(/\*\*/g, "");
 	const body = lines
 		.slice(1)
 		.join("\n\n")
 		.replace(/\*\*/g, "");
-	let text = title ? `${title}.\n\n${body}` : body;
-	if (text.length > maxLen) text = `${text.slice(0, maxLen - 1)}…`;
-	return text;
+	return title ? `${title}.\n\n${body}` : body;
+}
+
+/** Split long stories at natural breaks for multiple TTS requests. */
+export function splitTextForTts(text, maxLen = TTS_CHUNK_MAX) {
+	if (!text || text.length <= maxLen) return [text].filter(Boolean);
+	const chunks = [];
+	let rest = text;
+	while (rest.length > maxLen) {
+		let cut = rest.lastIndexOf("\n\n", maxLen);
+		if (cut < maxLen * 0.4) cut = rest.lastIndexOf(". ", maxLen);
+		if (cut < maxLen * 0.4) cut = rest.lastIndexOf(" ", maxLen);
+		if (cut < 1) cut = maxLen;
+		const piece = rest.slice(0, cut).trim();
+		if (piece) chunks.push(piece);
+		rest = rest.slice(cut).trim();
+	}
+	if (rest) chunks.push(rest);
+	return chunks;
+}
+
+function concatMp3(parts) {
+	const total = parts.reduce((n, b) => n + b.byteLength, 0);
+	const out = new Uint8Array(total);
+	let offset = 0;
+	for (const part of parts) {
+		out.set(part, offset);
+		offset += part.byteLength;
+	}
+	return out;
 }
 
 async function synthesize(client, input, { model, voice, instructions, quick = false }) {
@@ -51,7 +77,7 @@ async function synthesize(client, input, { model, voice, instructions, quick = f
 		response_format: "mp3",
 	};
 	if (/^tts-1/.test(model)) {
-		params.speed = quick ? 1.1 : 1;
+		params.speed = quick ? QUICK_SPEED : 1;
 	}
 	if (instructions && !/^tts-1/.test(model)) {
 		params.instructions = instructions;
@@ -66,8 +92,9 @@ async function synthesize(client, input, { model, voice, instructions, quick = f
 /** Returns MP3 bytes, or null if every TTS attempt fails. */
 export async function generateStoryAudio(client, storyRaw, env = {}) {
 	const quick = Boolean(env.quick);
-	const input = storyTextForSpeech(storyRaw, { quick });
-	if (!input) return null;
+	const fullText = storyTextForSpeech(storyRaw);
+	if (!fullText) return null;
+	const chunks = splitTextForTts(fullText);
 
 	const custom = env.ttsModel
 		? [{ model: env.ttsModel, voice: env.ttsVoice || "fable", instructions: env.ttsInstructions || TTS_INSTRUCTIONS }]
@@ -83,7 +110,13 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 		const retries = quick ? 1 : 2;
 		for (let tryNum = 0; tryNum < retries; tryNum++) {
 			try {
-				return await synthesize(client, input, { ...attempt, quick });
+				if (chunks.length === 1) {
+					return await synthesize(client, chunks[0], { ...attempt, quick });
+				}
+				const parts = await Promise.all(
+					chunks.map((chunk) => synthesize(client, chunk, { ...attempt, quick })),
+				);
+				return concatMp3(parts);
 			} catch (err) {
 				lastErr = err;
 				console.warn(
@@ -91,6 +124,8 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 					attempt.model,
 					attempt.voice,
 					tryNum + 1,
+					chunks.length,
+					"chunks",
 					err?.message || err,
 				);
 				if (tryNum + 1 < retries && err?.message !== "tts_timeout") continue;
