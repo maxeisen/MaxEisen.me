@@ -14,6 +14,7 @@
         saveUsedPrompts,
         clearUsedPrompts,
         poolsForAudience,
+        defaultPoolForRound,
     } from "./partyConfig.js";
     import { validatePartyPack } from "./validatePartyPack.js";
 
@@ -37,8 +38,10 @@
     const defaultSlots = $derived(party.slotsPerPlayer);
 
     /** @type {"boys" | "everyone"} */
-    let roundAudience = $state("everyone");
+    let roundAudience = $state("boys");
     const pools = $derived(poolsForAudience(allPools, roundAudience));
+    const hasNoMercyBoys = $derived(allPools.some((p) => p.id === "no-mercy"));
+    const showNoMercyBoys = $derived(pools.some((p) => p.id === "no-mercy"));
 
     const packOptions = $derived(
         partyCatalog.packs.length > 0
@@ -67,12 +70,31 @@
     // --- Round config ---
     let selectedPool = $state("");
     let slots = $state(3);
+    /** @type {string | null} */
+    let lobbyDefaultsForPackId = $state(null);
+
+    $effect(() => {
+        const packId = party?.id;
+        if (!packId || lobbyDefaultsForPackId === packId) return;
+        lobbyDefaultsForPackId = packId;
+        roundAudience = party.defaultRoundAudience === "everyone" ? "everyone" : "boys";
+        const nextPools = poolsForAudience(allPools, roundAudience);
+        selectedPool = defaultPoolForRound(party, nextPools, roundAudience);
+    });
 
     $effect(() => {
         if (!pools.length) return;
-        if (!pools.some((p) => p.id === selectedPool)) selectedPool = pools[0].id;
         slots = defaultSlots;
+        const pick = defaultPoolForRound(party, pools, roundAudience);
+        if (!selectedPool || !pools.some((p) => p.id === selectedPool)) {
+            selectedPool = pick;
+        }
     });
+
+    function onAudienceChange(next) {
+        roundAudience = next;
+        selectedPool = defaultPoolForRound(party, poolsForAudience(allPools, next), next);
+    }
     let busy = $state(false);
 
     let audioUrl = $state(null);
@@ -450,12 +472,12 @@
                             <button
                                 type="button"
                                 class="pool-btn {roundAudience === 'boys' ? 'on' : ''}"
-                                onclick={() => (roundAudience = "boys")}
+                                onclick={() => onAudienceChange("boys")}
                             >Just the boys</button>
                             <button
                                 type="button"
                                 class="pool-btn {roundAudience === 'everyone' ? 'on' : ''}"
-                                onclick={() => (roundAudience = "everyone")}
+                                onclick={() => onAudienceChange("everyone")}
                             >Everyone here</button>
                         </div>
                         <p class="hint audience-hint">
@@ -471,6 +493,17 @@
                         <h3 class="mini-title">Round flavour</h3>
                         {#if pools.length === 0}
                             <p class="error">No prompt pools for this audience — check the party pack JSON.</p>
+                        {/if}
+                        {#if roundAudience === "boys" && hasNoMercyBoys && !showNoMercyBoys}
+                            <p class="error">No Mercy is missing from the loaded pack — push the latest JSON to the private repo and hit Reload.</p>
+                        {:else if roundAudience === "everyone" && hasNoMercyBoys}
+                            <p class="hint audience-hint">No Mercy is under <strong>Just the boys</strong>. Everyone mode uses <strong>No Mercy (Party Edition)</strong>.</p>
+                        {:else if party.id === "default"}
+                            <p class="hint audience-hint">
+                                Select your party pack above — No Mercy is only in the private Matthew/Jane pack, not the built-in demo.
+                            </p>
+                        {:else if partyCatalog.activePackId === "matthew-jane" && !hasNoMercyBoys}
+                            <p class="error">This pack copy is outdated (no No Mercy pool). Push <code>matthew-jane.json</code> to the private repo and hit Reload.</p>
                         {/if}
                         <div class="pool-buttons">
                             {#each pools as pool}

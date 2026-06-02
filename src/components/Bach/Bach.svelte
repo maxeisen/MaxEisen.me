@@ -131,10 +131,18 @@
     async function loadPartyPack(pw) {
         partyLoading = true;
         try {
-            const { ok, data } = await api.fetchPartyPack(pw, null, { library: true });
+            let { ok, data } = await api.fetchPartyPack(pw, null, { library: true });
+            const packId = data?.activePackId || data?.packs?.[0]?.id;
+            if (packId) {
+                const fresh = await api.fetchPartyPack(pw, packId, { library: true });
+                if (fresh.ok && fresh.data?.party) {
+                    ok = fresh.ok;
+                    data = { ...data, ...fresh.data };
+                }
+            }
             partyCatalog = {
                 packs: data?.packs ?? [],
-                activePackId: data?.activePackId ?? null,
+                activePackId: data?.activePackId ?? packId ?? null,
                 source: data?.source ?? null,
             };
             if (ok && data?.party) {

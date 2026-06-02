@@ -1,8 +1,9 @@
 // GET/POST /.netlify/functions/bach-party-pack
 // Library packs: live from private GitHub (PRIVATE_ACCESS_GITHUB_TOKEN), cached in Blobs.
 
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Buffer } from "node:buffer";
 import {
 	passwordOk, jsonResponse, readBody, getEnv, getSessionStore, keys, validPartyPackId,
@@ -10,6 +11,36 @@ import {
 import { fetchPartyPackFromGitHub, getPartyAllowlist } from "./github-pack.js";
 
 const MAX_BYTES = 2 * 1024 * 1024;
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+function isNetlifyDev() {
+	return process.env.NETLIFY_DEV === "true";
+}
+
+/** Local party JSON (dev or fallback before stale Blobs). */
+function loadLocalPartyPackFile(packId) {
+	const paths = [
+		getEnv("BACH_PARTY_JSON_PATH")?.trim(),
+		join(REPO_ROOT, "../private/dotme/bach", `${packId}.json`),
+		join(REPO_ROOT, "private/bach", `${packId}.json`),
+	].filter(Boolean);
+
+	for (const p of paths) {
+		const resolved = resolve(p);
+		if (!existsSync(resolved)) continue;
+		try {
+			const raw = JSON.parse(readFileSync(resolved, "utf8"));
+			if (validatePartyPack(raw)) {
+				console.warn("bach/party-pack local pack invalid:", resolved, validatePartyPack(raw));
+				continue;
+			}
+			return raw;
+		} catch (err) {
+			console.warn("bach/party-pack local read failed:", resolved, err?.message || err);
+		}
+	}
+	return null;
+}
 
 function validatePartyPack(raw) {
 	if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -66,9 +97,14 @@ async function loadManifest(store) {
 	});
 }
 
-/** GitHub first, then Blobs; writes back to Blobs when GitHub succeeds. */
+/** Dev: local file first. Prod: GitHub → local fallback → Blobs. */
 async function loadLibraryPack(store, packId) {
 	if (!validPartyPackId(packId) || !packAllowed(packId)) return null;
+
+	if (isNetlifyDev()) {
+		const fromLocal = loadLocalPartyPackFile(packId);
+		if (fromLocal) return { party: fromLocal, source: "local" };
+	}
 
 	const fromGithub = await fetchPartyPackFromGitHub(packId);
 	if (fromGithub && !validatePartyPack(fromGithub)) {
@@ -77,6 +113,9 @@ async function loadLibraryPack(store, packId) {
 		});
 		return { party: fromGithub, source: "github" };
 	}
+
+	const fromLocal = loadLocalPartyPackFile(packId);
+	if (fromLocal) return { party: fromLocal, source: "local" };
 
 	const fromBlob = await store.get(keys.partyPack(packId), { type: "json" });
 	if (fromBlob && !validatePartyPack(fromBlob)) {

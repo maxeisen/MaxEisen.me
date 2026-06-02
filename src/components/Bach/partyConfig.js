@@ -62,7 +62,24 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 		pools,
 		defaultFacts: raw.defaultFacts?.trim() || "",
 		storyTone: raw.storyTone?.trim() || "",
+		defaultRoundAudience: raw.defaultRoundAudience === "everyone" ? "everyone" : "boys",
+		defaultPoolId: typeof raw.defaultPoolId === "string" ? raw.defaultPoolId.trim() : "",
 	};
+}
+
+/** Pick default pool for the lobby UI (party pack can override). */
+export function defaultPoolForRound(party, pools, audience = "boys") {
+	if (!pools?.length) return "";
+	const ids = pools.map((p) => p.id);
+	const candidates = [
+		party?.defaultPoolId,
+		audience === "boys" ? "no-mercy" : "no-mercy-party",
+		pools[0]?.id,
+	].filter(Boolean);
+	for (const id of candidates) {
+		if (ids.includes(id)) return id;
+	}
+	return pools[0].id;
 }
 
 /** @typedef {"boys" | "everyone"} BachAudience */
