@@ -162,7 +162,7 @@
         }
 
         if (!gameState?.storyAudioReady) return;
-        if (narrationAttempted === key) return;
+        if (narrationAttempted === key && audioUrl) return;
 
         loadNarration(key);
     });
@@ -514,7 +514,7 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Writing the story — narration loads right after.</p>
+                <p class="muted">Composing the story and recording narration — both appear together when ready.</p>
                 <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
                     Cancel and go back
                 </button>
@@ -524,12 +524,7 @@
             <section class="reveal">
                 <div class="narration-panel" aria-label="Story narration">
                     <h3 class="mini-title">Listen</h3>
-                    {#if !gameState?.storyAudioReady && !audioError}
-                        <p class="narration-status muted">Recording narration…</p>
-                        <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
-                            Retry recording
-                        </button>
-                    {:else if audioLoading}
+                    {#if audioLoading}
                         <p class="narration-status muted">Loading narration…</p>
                     {:else if audioUrl}
                         <!-- Native controls: play/pause, scrubber, volume -->
@@ -548,7 +543,10 @@
                             <p class="error narration-status">{audioError}</p>
                             <button type="button" class="ghost" onclick={retryNarration} disabled={busy}>Retry</button>
                         {:else if gameState?.storyAudioReady === false}
-                            <p class="narration-status muted">No audio was generated this round. Regenerate the story to try again.</p>
+                            <p class="narration-status muted">Narration didn't generate — tap Retry recording or Regenerate.</p>
+                            <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
+                                Retry recording
+                            </button>
                         {/if}
                     {/if}
                 </div>

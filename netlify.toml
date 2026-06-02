@@ -5,10 +5,10 @@
 
 # Story + TTS can run long; local `netlify dev` defaults to 30s unless raised here.
 [functions."bach-story"]
-  timeout = 60
+  timeout = 120
 
 [functions."bach-story-tts"]
-  timeout = 60
+  timeout = 90
 
 [dev]
   command = "vite"

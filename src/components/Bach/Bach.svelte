@@ -271,37 +271,19 @@
         return ok;
     }
 
-    let ttsRequestedFor = $state("");
-
     async function generate() {
-        ttsRequestedFor = "";
-        const p = api.generateStory(password, { code, hostToken });
+        const { ok } = await api.generateStory(password, { code, hostToken });
         await poll();
-        const { ok } = await p;
         if (!ok) {
             await doHostAction("abortGenerating");
+            await poll();
         }
-        await poll();
         return ok;
     }
 
-    // After story text is ready, request narration once per round (separate fn avoids dev timeout).
-    $effect(() => {
-        if (mode !== "host" || !password || !code || !hostToken) return;
-        if (gameState?.phase !== "reveal") return;
-        if (gameState?.storyAudioReady) return;
-        const round = gameState?.roundIndex ?? -1;
-        if (round < 0) return;
-        const ttsKey = `${code}:${round}`;
-        if (ttsRequestedFor === ttsKey) return;
-        ttsRequestedFor = ttsKey;
-        api.generateStoryTts(password, { code, hostToken }).then(() => poll());
-    });
-
+    /** Re-record narration only (story text unchanged). */
     async function requestStoryTts() {
-        const round = gameState?.roundIndex ?? -1;
-        if (round < 0 || !code || !hostToken) return;
-        ttsRequestedFor = "";
+        if (!code || !hostToken) return;
         await api.generateStoryTts(password, { code, hostToken });
         await poll();
     }

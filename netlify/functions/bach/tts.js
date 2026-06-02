@@ -3,17 +3,27 @@
 import { Buffer } from "node:buffer";
 
 const TTS_INSTRUCTIONS =
-	"Perform as a seasoned British audiobook narrator reading a lively group story aloud. " +
-	"Use a refined British accent (Received Pronunciation leaning), warm and theatrical, with gentle comic timing. " +
-	"Pause briefly between paragraphs. Do not rush.";
+	"British audiobook narrator, warm and witty, clear RP-ish accent, steady pace.";
 
-const MAX_INPUT = 4096;
+const MAX_INPUT = 3200;
+const ATTEMPT_TIMEOUT_MS = 50_000;
 
+/** Fastest models first; HD only as last resort. */
 const ATTEMPTS = [
+	{ model: "tts-1", voice: "fable" },
+	{ model: "tts-1", voice: "onyx" },
 	{ model: "gpt-4o-mini-tts", voice: "fable", instructions: TTS_INSTRUCTIONS },
 	{ model: "tts-1-hd", voice: "fable" },
-	{ model: "tts-1-hd", voice: "onyx" },
 ];
+
+function withTimeout(promise, ms) {
+	return Promise.race([
+		promise,
+		new Promise((_, reject) => {
+			setTimeout(() => reject(new Error("tts_timeout")), ms);
+		}),
+	]);
+}
 
 /** Plain text for narration: title, then body; strip markdown. */
 export function storyTextForSpeech(raw) {
@@ -39,7 +49,7 @@ async function synthesize(client, input, { model, voice, instructions }) {
 	if (instructions && !/^tts-1/.test(model)) {
 		params.instructions = instructions;
 	}
-	const speech = await client.audio.speech.create(params);
+	const speech = await withTimeout(client.audio.speech.create(params), ATTEMPT_TIMEOUT_MS);
 	const buf = new Uint8Array(await speech.arrayBuffer());
 	if (!buf.byteLength) throw new Error("empty_audio");
 	return buf;
@@ -57,11 +67,20 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 
 	let lastErr;
 	for (const attempt of attempts) {
-		try {
-			return await synthesize(client, input, attempt);
-		} catch (err) {
-			lastErr = err;
-			console.warn("bach/tts attempt failed:", attempt.model, attempt.voice, err?.message || err);
+		for (let tryNum = 0; tryNum < 2; tryNum++) {
+			try {
+				return await synthesize(client, input, attempt);
+			} catch (err) {
+				lastErr = err;
+				console.warn(
+					"bach/tts attempt failed:",
+					attempt.model,
+					attempt.voice,
+					tryNum + 1,
+					err?.message || err,
+				);
+				if (tryNum === 0 && err?.message !== "tts_timeout") continue;
+			}
 		}
 	}
 	console.error("bach/tts all attempts failed:", lastErr?.message || lastErr);

@@ -10,6 +10,8 @@
     let drafts = $state({});
     let draftsEpoch = $state(null);
     let savingSlot = $state(null);
+    let savingAll = $state(false);
+    let saveAllError = $state("");
     let swappingSlot = $state(null);
     let swapError = $state("");
     let voting = $state(false);
@@ -58,6 +60,14 @@
     }
     const allSaved = $derived(slots.length > 0 && slots.every((s) => s.value));
 
+    const unsavedSlots = $derived(
+        slots.filter((s) => {
+            const value = (drafts[s.slotId] ?? "").trim();
+            return value && !isSaved(s);
+        }),
+    );
+    const canSaveAll = $derived(unsavedSlots.length > 0);
+
     async function join(e) {
         e.preventDefault();
         if (joining || !nameInput.trim()) return;
@@ -67,9 +77,29 @@
 
     async function save(slot) {
         const value = (drafts[slot.slotId] ?? "").trim();
-        if (!value) return;
+        if (!value || savingAll) return;
         savingSlot = slot.slotId;
+        saveAllError = "";
         try { await onSubmitWord(slot.slotId, value); } finally { savingSlot = null; }
+    }
+
+    async function saveAll() {
+        if (!canSaveAll || savingAll || savingSlot) return;
+        saveAllError = "";
+        savingAll = true;
+        try {
+            for (const slot of unsavedSlots) {
+                const value = (drafts[slot.slotId] ?? "").trim();
+                if (!value) continue;
+                const ok = await onSubmitWord(slot.slotId, value);
+                if (!ok) {
+                    saveAllError = "Something didn't save — check your connection and try again.";
+                    return;
+                }
+            }
+        } finally {
+            savingAll = false;
+        }
     }
 
     async function swap(slot) {
@@ -167,7 +197,7 @@
                             <button
                                 class="save-btn"
                                 onclick={() => save(slot)}
-                                disabled={savingSlot === slot.slotId || !(drafts[slot.slotId] ?? "").trim()}
+                                disabled={savingAll || savingSlot === slot.slotId || !(drafts[slot.slotId] ?? "").trim()}
                             >
                                 {isSaved(slot) ? "✓" : savingSlot === slot.slotId ? "…" : "Save"}
                             </button>
@@ -176,6 +206,25 @@
                 {/each}
             </div>
             {#if swapError}<p class="swap-error">{swapError}</p>{/if}
+            {#if saveAllError}<p class="swap-error">{saveAllError}</p>{/if}
+            <div class="save-all-row">
+                <button
+                    type="button"
+                    class="primary save-all-btn"
+                    onclick={saveAll}
+                    disabled={!canSaveAll || savingAll || savingSlot != null || swappingSlot != null}
+                >
+                    {#if savingAll}
+                        Saving…
+                    {:else if canSaveAll}
+                        Save all ({unsavedSlots.length})
+                    {:else if allSaved}
+                        All saved ✓
+                    {:else}
+                        Fill in your answers
+                    {/if}
+                </button>
+            </div>
             {#if allSaved}
                 <p class="done-note">All locked in. Sit back and watch the big screen.</p>
             {/if}
@@ -362,6 +411,24 @@
         transition: opacity 0.15s ease;
     }
     .save-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .save-all-row {
+        margin-top: 1.25rem;
+    }
+    .save-all-btn {
+        width: 100%;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--main-green);
+        color: var(--background-one);
+        border: none;
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        transition: opacity 0.15s ease;
+    }
+    .save-all-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .save-all-btn:hover:not(:disabled) { opacity: 0.92; }
 
     .done-note {
         margin-top: 1.25rem; text-align: center;
