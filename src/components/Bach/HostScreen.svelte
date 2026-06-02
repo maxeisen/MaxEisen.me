@@ -103,6 +103,8 @@
     let audioLoading = $state(false);
     let audioError = $state("");
     let audioPlayer = $state(null);
+    /** Object URL we already auto-played (avoid replay on re-bind). */
+    let autoPlayedUrl = $state(null);
     /** Round we already tried to fetch narration for (prevents 404 retry loops). */
     let narrationAttempted = $state("");
 
@@ -147,7 +149,16 @@
         audioLoading = false;
         audioError = "";
         narrationAttempted = "";
+        autoPlayedUrl = null;
     }
+
+    $effect(() => {
+        if (!audioUrl || !audioPlayer || autoPlayedUrl === audioUrl) return;
+        autoPlayedUrl = audioUrl;
+        audioPlayer.play().catch(() => {
+            /* Browser may block autoplay until a tap — controls stay visible. */
+        });
+    });
 
     async function loadNarration(attemptKey) {
         const round = gameState?.roundIndex ?? -1;
