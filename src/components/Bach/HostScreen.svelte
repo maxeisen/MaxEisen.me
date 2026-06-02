@@ -1,0 +1,483 @@
+<!--
+    Host (big-screen) view. Drives the whole room: setup, lobby + QR, round
+    controls, the story reveal, MVP-of-Filth voting, and the leaderboard.
+    All mutations go through the callbacks passed from Bach.svelte.
+-->
+<script>
+    import promptData from "@content/bachPrompts.json";
+    import Qr from "./Qr.svelte";
+    import { formatStory } from "./story.js";
+
+    let { code, password, game, netError, oncreate, onaction, ongenerate } = $props();
+
+    const pools = promptData.pools;
+    const defaultSlots = promptData.slotsPerPlayer || 3;
+
+    // --- Setup (pre-session) ---
+    let facts = $state("");
+    let creating = $state(false);
+
+    // --- Round config ---
+    let selectedPool = $state(pools[1]?.id || pools[0].id);
+    let slots = $state(defaultSlots);
+    let busy = $state(false);
+
+    const phase = $derived(game?.phase ?? null);
+    const players = $derived(game?.players ?? []);
+    const counts = $derived(game?.counts ?? { submitted: 0, total: 0 });
+    const leaderboard = $derived(game?.leaderboard ?? []);
+
+    const joinUrl = $derived(
+        typeof window !== "undefined" && code
+            ? `${window.location.origin}/bach?room=${code}&k=${encodeURIComponent(password)}`
+            : ""
+    );
+    const story = $derived(formatStory(game?.story || ""));
+
+    async function create() {
+        creating = true;
+        try { await oncreate(facts); } finally { creating = false; }
+    }
+
+    async function startRound() {
+        const pool = pools.find((p) => p.id === selectedPool) || pools[0];
+        busy = true;
+        try {
+            await onaction("start", { prompts: pool.prompts, slotsPerPlayer: slots });
+        } finally { busy = false; }
+    }
+
+    async function act(action) {
+        busy = true;
+        try { await onaction(action); } finally { busy = false; }
+    }
+
+    async function generate() {
+        busy = true;
+        try { await ongenerate(); } finally { busy = false; }
+    }
+</script>
+
+<div class="host">
+    {#if !code}
+        <!-- Setup: collect couple facts, then create the session. -->
+        <section class="setup">
+            <h1 class="display">The Saga of Matthew</h1>
+            <p class="lede">A filthy, AI-woven story game. Feed it dirt on the couple, then let your friends' words write the legend.</p>
+            <label class="field-label" for="facts">Dirt on Matthew &amp; Jane</label>
+            <textarea
+                id="facts"
+                bind:value={facts}
+                rows="7"
+                placeholder="Inside jokes, embarrassing stories, how they met, Matthew's worst habits, Jane's pet peeves, nicknames, the more specific the better…"
+            ></textarea>
+            <button class="primary big" onclick={create} disabled={creating}>
+                {creating ? "Lighting the fuse…" : "Start a session"}
+            </button>
+            <p class="hint">You can change the dirt later from the lobby.</p>
+        </section>
+    {:else}
+        <header class="bar">
+            <div class="bar-code">
+                <span class="bar-code-label">Room</span>
+                <span class="bar-code-value">{code}</span>
+            </div>
+            {#if leaderboard.length > 0}
+                <div class="bar-leader">
+                    <span class="bar-code-label">Filth leader</span>
+                    <span class="bar-leader-name">{leaderboard[0].name} · {leaderboard[0].points}</span>
+                </div>
+            {/if}
+            <button class="ghost small" onclick={() => act("reset")} disabled={busy}>New game</button>
+        </header>
+
+        {#if phase === "lobby"}
+            <section class="lobby">
+                <div class="lobby-join">
+                    <h2 class="section-title">Join the chaos</h2>
+                    {#if joinUrl}<Qr text={joinUrl} size={260} />{/if}
+                    <p class="join-hint">Scan, or go to <strong>{typeof window !== "undefined" ? window.location.host : ""}/bach</strong> and enter code</p>
+                    <div class="bigcode">{code}</div>
+                </div>
+                <div class="lobby-side">
+                    <h2 class="section-title">Degenerates in the room ({players.length})</h2>
+                    {#if players.length === 0}
+                        <p class="muted">Waiting for the first victim to join…</p>
+                    {:else}
+                        <ul class="player-list">
+                            {#each players as p}
+                                <li>{p.name}</li>
+                            {/each}
+                        </ul>
+                    {/if}
+
+                    <div class="round-setup">
+                        <h3 class="mini-title">Round flavour</h3>
+                        <div class="pool-buttons">
+                            {#each pools as pool}
+                                <button
+                                    class="pool-btn {selectedPool === pool.id ? 'on' : ''}"
+                                    onclick={() => (selectedPool = pool.id)}
+                                >{pool.label}</button>
+                            {/each}
+                        </div>
+                        <label class="slots-row">
+                            Words per person
+                            <input type="number" min="1" max="6" bind:value={slots} />
+                        </label>
+                        <button class="primary big" onclick={startRound} disabled={busy || players.length === 0}>
+                            {busy ? "Dealing prompts…" : "Start the round"}
+                        </button>
+                        {#if players.length === 0}<p class="hint">Need at least one player.</p>{/if}
+                    </div>
+                </div>
+            </section>
+
+        {:else if phase === "writing"}
+            <section class="centered">
+                <h2 class="display sm">Fill in the blanks on your phones…</h2>
+                <div class="progress-big">{counts.submitted} / {counts.total} done</div>
+                <ul class="chip-list">
+                    {#each players as p}
+                        <li class="chip {p.submitted ? 'done' : ''}">{p.name}{p.submitted ? " ✓" : "…"}</li>
+                    {/each}
+                </ul>
+                {#if game?.error === "generation_failed"}
+                    <p class="error">The story machine choked. Try weaving again.</p>
+                {/if}
+                <button class="primary big" onclick={generate} disabled={busy || counts.total === 0}>
+                    {busy ? "Weaving…" : counts.submitted < counts.total ? "Weave it anyway" : "Weave the story"}
+                </button>
+                <p class="hint">Waiting on stragglers? You can weave whenever you like.</p>
+            </section>
+
+        {:else if phase === "generating"}
+            <section class="centered">
+                <div class="spinner"></div>
+                <h2 class="display sm">Summoning the chaos…</h2>
+                <p class="muted">Stitching everyone's filth into one glorious tale.</p>
+            </section>
+
+        {:else if phase === "reveal"}
+            <section class="reveal">
+                {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
+                <div class="story-body">
+                    {#each story.paragraphs as para}
+                        <p>{@html para}</p>
+                    {/each}
+                </div>
+                <div class="reveal-actions">
+                    <button class="ghost" onclick={generate} disabled={busy}>↻ Regenerate</button>
+                    <button class="primary" onclick={() => act("openVoting")} disabled={busy}>Open MVP voting →</button>
+                </div>
+            </section>
+
+        {:else if phase === "voting"}
+            <section class="centered">
+                <h2 class="display sm">Vote for the MVP of Filth</h2>
+                <p class="muted">Open your phone and crown the best contribution. {game?.voteCount ?? 0} / {players.length} voted.</p>
+                <ul class="ballot-preview">
+                    {#each game?.ballot ?? [] as item}
+                        <li><span class="ballot-prompt">{item.prompt}</span> “{item.value}”</li>
+                    {/each}
+                </ul>
+                <button class="primary big" onclick={() => act("tally")} disabled={busy}>Reveal the MVP</button>
+            </section>
+
+        {:else if phase === "results"}
+            <section class="centered">
+                {#if game?.mvp}
+                    <div class="trophy">🏆</div>
+                    <h2 class="display sm">MVP of Filth: {game.mvp.name}</h2>
+                    <p class="mvp-quote">“{game.mvp.value}”</p>
+                    <p class="muted">for <em>{game.mvp.prompt}</em> · {game.mvp.votes} vote{game.mvp.votes === 1 ? "" : "s"}</p>
+                {:else}
+                    <h2 class="display sm">No votes cast — cowards, all of you.</h2>
+                {/if}
+
+                {#if leaderboard.length > 0}
+                    <ol class="leaderboard">
+                        {#each leaderboard as row}
+                            <li><span>{row.name}</span><span class="lb-pts">{row.points}</span></li>
+                        {/each}
+                    </ol>
+                {/if}
+
+                <div class="reveal-actions">
+                    <button class="ghost" onclick={() => act("finish")} disabled={busy}>End game</button>
+                    <button class="primary" onclick={startRound} disabled={busy || players.length === 0}>Next round →</button>
+                </div>
+            </section>
+
+        {:else if phase === "finished"}
+            <section class="centered">
+                <div class="trophy">👑</div>
+                <h2 class="display">That's a wrap.</h2>
+                {#if leaderboard.length > 0}
+                    <p class="lede">Grand Champion of Filth: <strong>{leaderboard[0].name}</strong></p>
+                    <ol class="leaderboard">
+                        {#each leaderboard as row}
+                            <li><span>{row.name}</span><span class="lb-pts">{row.points}</span></li>
+                        {/each}
+                    </ol>
+                {/if}
+                <button class="primary big" onclick={() => act("reset")} disabled={busy}>New game</button>
+            </section>
+        {/if}
+    {/if}
+
+    {#if netError}<div class="net-note">{netError}</div>{/if}
+</div>
+
+<style>
+    .host {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+        min-height: 100vh;
+    }
+
+    .display {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--header-colour);
+        font-size: clamp(2.2rem, 6vw, 4.5rem);
+        line-height: 1.02;
+        margin: 0 0 0.6rem;
+    }
+    .display.sm { font-size: clamp(1.8rem, 4.5vw, 3rem); }
+    .lede {
+        font-size: clamp(1rem, 2vw, 1.35rem);
+        opacity: 0.85;
+        max-width: 50ch;
+        margin: 0 auto 1.5rem;
+    }
+
+    /* --- Setup --- */
+    .setup { max-width: 640px; margin: 6vh auto 0; text-align: center; }
+    .setup .lede { margin-left: auto; margin-right: auto; }
+    .field-label {
+        display: block;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--main-green);
+        margin-bottom: 0.4rem;
+    }
+    textarea {
+        width: 100%;
+        box-sizing: border-box;
+        font: inherit;
+        color: var(--header-colour);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--main-green-translucent);
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        outline: none;
+        resize: vertical;
+        margin-bottom: 1rem;
+    }
+    textarea:focus { border-color: var(--main-green); }
+
+    /* --- Top bar --- */
+    .bar {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--main-green-translucent);
+    }
+    .bar-code-label {
+        display: block;
+        font-size: 0.62rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--main-green);
+        opacity: 0.8;
+    }
+    .bar-code-value {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 1.6rem;
+        letter-spacing: 0.1em;
+        color: var(--header-colour);
+    }
+    .bar-leader { margin-left: auto; text-align: right; }
+    .bar-leader-name { font-weight: 600; color: var(--header-colour); }
+
+    /* --- Lobby --- */
+    .lobby {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+        gap: 2.5rem;
+        align-items: start;
+    }
+    .lobby-join { text-align: center; }
+    .section-title {
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        font-size: 1.4rem;
+        color: var(--header-colour);
+        margin: 0 0 1rem;
+    }
+    .join-hint { opacity: 0.8; font-size: 0.95rem; margin: 1rem 0 0.5rem; }
+    .bigcode {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: clamp(3rem, 9vw, 5.5rem);
+        letter-spacing: 0.18em;
+        color: var(--main-green);
+        margin-top: 0.5rem;
+    }
+    .player-list {
+        list-style: none;
+        padding: 0; margin: 0 0 1.5rem;
+        display: flex; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .player-list li {
+        background: var(--item-background);
+        border: var(--item-border);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.95rem;
+        color: var(--header-colour);
+    }
+    .round-setup {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--main-green-translucent);
+    }
+    .mini-title {
+        font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--main-green); margin: 0 0 0.6rem;
+    }
+    .pool-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .pool-btn {
+        font: inherit; cursor: pointer;
+        background: var(--item-background);
+        border: 1px solid var(--main-green-translucent);
+        color: var(--paragraph-colour);
+        border-radius: 999px;
+        padding: 0.45rem 1rem;
+        transition: all 0.15s ease;
+    }
+    .pool-btn.on {
+        background: var(--main-green);
+        color: var(--background-one);
+        border-color: var(--main-green);
+        font-weight: 600;
+    }
+    .slots-row {
+        display: flex; align-items: center; gap: 0.75rem;
+        font-size: 0.9rem; margin-bottom: 1.2rem; color: var(--paragraph-colour);
+    }
+    .slots-row input {
+        width: 4rem; font: inherit; text-align: center;
+        color: var(--header-colour);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--main-green-translucent);
+        border-radius: 8px; padding: 0.4rem;
+    }
+
+    /* --- Centered phases --- */
+    .centered { text-align: center; max-width: 760px; margin: 4vh auto 0; }
+    .progress-big {
+        font-family: 'Fraunces', serif; font-weight: 700;
+        font-size: clamp(2rem, 6vw, 3.5rem); color: var(--main-green);
+        margin: 0.5rem 0 1.5rem;
+    }
+    .chip-list { list-style: none; padding: 0; margin: 0 0 2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .chip {
+        background: var(--item-background);
+        border: var(--item-border);
+        border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.95rem;
+        color: var(--paragraph-colour); opacity: 0.6;
+    }
+    .chip.done { opacity: 1; border-color: var(--main-green); color: var(--header-colour); }
+
+    .ballot-preview { list-style: none; padding: 0; margin: 1.5rem auto; max-width: 600px; text-align: left; }
+    .ballot-preview li {
+        padding: 0.6rem 0.9rem; margin-bottom: 0.5rem;
+        background: var(--item-background); border: var(--item-border);
+        border-radius: 10px; color: var(--header-colour);
+    }
+    .ballot-prompt { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--main-green); opacity: 0.85; }
+
+    /* --- Reveal / story --- */
+    .reveal { max-width: 820px; margin: 2vh auto 0; }
+    .story-title {
+        font-family: 'Fraunces', serif; font-weight: 700;
+        font-size: clamp(2rem, 5vw, 3.2rem); color: var(--header-colour);
+        letter-spacing: -0.02em; margin: 0 0 1.5rem; text-align: center;
+    }
+    .story-body {
+        font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+        line-height: 1.6; color: var(--paragraph-colour);
+    }
+    .story-body :global(strong) {
+        color: var(--main-green); font-weight: 700;
+        background: var(--intro-highlight-colour);
+        padding: 0 0.15em; border-radius: 4px;
+    }
+    .story-body p { margin: 0 0 1.1rem; }
+
+    .reveal-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+
+    /* --- Results --- */
+    .trophy { font-size: clamp(3rem, 10vw, 6rem); line-height: 1; }
+    .mvp-quote {
+        font-family: 'Fraunces', serif; font-style: italic;
+        font-size: clamp(1.4rem, 4vw, 2.4rem); color: var(--header-colour); margin: 0.5rem 0;
+    }
+    .leaderboard { list-style: none; counter-reset: rank; padding: 0; margin: 2rem auto; max-width: 420px; }
+    .leaderboard li {
+        counter-increment: rank;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0.6rem 1rem; margin-bottom: 0.4rem;
+        background: var(--item-background); border: var(--item-border); border-radius: 10px;
+        color: var(--header-colour);
+    }
+    .leaderboard li::before { content: counter(rank) "."; color: var(--main-green); font-weight: 700; margin-right: 0.6rem; }
+    .lb-pts { font-weight: 700; color: var(--main-green); }
+
+    /* --- Buttons --- */
+    .primary, .ghost {
+        font: inherit; font-weight: 600; cursor: pointer;
+        border-radius: 10px; padding: 0.7rem 1.4rem;
+        transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+    .primary { background: var(--main-green); color: var(--background-one); border: none; }
+    .primary.big { font-size: 1.1rem; padding: 0.9rem 2rem; }
+    .primary:hover:not(:disabled) { opacity: 0.92; }
+    .primary:active:not(:disabled) { transform: scale(0.98); }
+    .ghost { background: transparent; color: var(--main-green); border: 1px solid var(--main-green-translucent); }
+    .ghost:hover:not(:disabled) { border-color: var(--main-green); }
+    .ghost.small, .primary.small { padding: 0.4rem 0.9rem; font-size: 0.85rem; }
+    .primary:disabled, .ghost:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .hint { font-size: 0.85rem; opacity: 0.6; margin-top: 0.75rem; }
+    .muted { opacity: 0.75; }
+    .error { color: #d97777; margin: 0.5rem 0; }
+
+    .spinner {
+        width: 54px; height: 54px; margin: 0 auto 1.5rem;
+        border: 4px solid var(--main-green-translucent);
+        border-top-color: var(--main-green);
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .net-note {
+        position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+        font-size: 0.8rem; opacity: 0.6;
+    }
+
+    @media (max-width: 760px) {
+        .lobby { grid-template-columns: 1fr; }
+    }
+</style>

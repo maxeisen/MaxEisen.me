@@ -1,0 +1,65 @@
+{
+  "_comment": "Pools of generic word-category prompts handed to players each round. The AI weaves the submitted answers into a story, so these are deliberately just word categories (Mad Libs style) plus a few groom-flavoured ones. Edit freely. 'slotsPerPlayer' controls how many prompts each phone gets per round.",
+  "slotsPerPlayer": 3,
+  "pools": [
+    {
+      "id": "mild",
+      "label": "Warm-up",
+      "prompts": [
+        "an adjective",
+        "a plural noun",
+        "a verb ending in -ing",
+        "a body part",
+        "an animal",
+        "a colour",
+        "a number between 1 and 100",
+        "a celebrity",
+        "a city",
+        "an item of clothing",
+        "a type of drink",
+        "an emotion",
+        "a household object",
+        "a sound effect",
+        "an exclamation"
+      ]
+    },
+    {
+      "id": "spicy",
+      "label": "Getting personal",
+      "prompts": [
+        "Matthew's most questionable purchase",
+        "something Matthew says when he's had too many",
+        "Matthew's worst habit at 2am",
+        "a nickname Matthew would hate",
+        "something Jane has secretly banned",
+        "the dumbest thing Matthew has ever cried about",
+        "a place Matthew should never be allowed back into",
+        "Matthew's go-to dance move",
+        "something Matthew is weirdly proud of",
+        "the lie Matthew tells most often",
+        "what Matthew googles at 3am",
+        "Matthew's signature smell after a workout",
+        "something only Matthew finds funny",
+        "the app Matthew uses way too much"
+      ]
+    },
+    {
+      "id": "filthy",
+      "label": "No mercy",
+      "prompts": [
+        "an unspeakable act",
+        "a body part (be specific)",
+        "Matthew's safe word",
+        "something you'd never say in front of Jane's mom",
+        "the worst thing found in Matthew's search history",
+        "a questionable life choice",
+        "an inappropriate noise",
+        "something that should stay at the bachelor party",
+        "a regret Matthew will have tomorrow morning",
+        "the reason the groom got kicked out",
+        "an outrageous bet Matthew would lose",
+        "a euphemism for trouble"
+      ]
+    }
+  ]
+}
