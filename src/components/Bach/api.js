@@ -20,7 +20,7 @@ async function post(name, password, body) {
 }
 
 export async function checkPassword(password) {
-	return post("bach-check-password", password, { password });
+	return post("bach-check-password", password, { password: password?.trim?.() ?? password });
 }
 
 export async function createSession(password, payload) {
@@ -56,4 +56,14 @@ export async function hostAction(password, payload) {
 
 export async function generateStory(password, { code, hostToken }) {
 	return post("bach-story", password, { code, hostToken });
+}
+
+export async function fetchStoryAudio(password, code, roundIndex) {
+	const qs = new URLSearchParams({ code, round: String(roundIndex) });
+	const res = await fetch(`${FN}/bach-story-audio?${qs.toString()}`, {
+		headers: { "X-Bach-Password": password || "" },
+	});
+	if (!res.ok) return { ok: false, status: res.status };
+	const blob = await res.blob();
+	return { ok: true, blob };
 }

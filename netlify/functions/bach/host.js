@@ -38,6 +38,7 @@ export default async function handler(req) {
 				deletePrefix(store, keys.subPrefix(code, round)),
 				deletePrefix(store, keys.votePrefix(code, round)),
 				store.delete(keys.story(code, round)),
+				store.delete(keys.storyAudio(code, round)),
 			]);
 
 			const playerBlobs = await listJSON(store, keys.playerPrefix(code));

@@ -25,9 +25,13 @@ export function jsonResponse(body, status = 200, extraHeaders = {}) {
 	});
 }
 
+export function normalizePassword(pw) {
+	return typeof pw === "string" ? pw.trim() : "";
+}
+
 export function passwordOk(req) {
-	const expected = getEnv("BACH_PASSWORD");
-	const supplied = req.headers.get("x-bach-password") || "";
+	const expected = normalizePassword(getEnv("BACH_PASSWORD"));
+	const supplied = normalizePassword(req.headers.get("x-bach-password"));
 	return Boolean(expected) && supplied === expected;
 }
 
@@ -60,6 +64,7 @@ export const keys = {
 	sub: (code, round, playerId, slotId) => `${code}/sub/${round}/${playerId}/${slotId}`,
 	subPrefix: (code, round) => `${code}/sub/${round}/`,
 	story: (code, round) => `${code}/story/${round}`,
+	storyAudio: (code, round) => `${code}/story-audio/${round}.mp3`,
 	vote: (code, round, voterId) => `${code}/vote/${round}/${voterId}`,
 	votePrefix: (code, round) => `${code}/vote/${round}/`,
 };

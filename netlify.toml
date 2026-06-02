@@ -3,6 +3,10 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Story weave + TTS can exceed the default 10s limit.
+[functions."bach-story"]
+  timeout = 60
+
 [dev]
   command = "vite"
   targetPort = 6808

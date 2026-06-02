@@ -5,6 +5,7 @@ import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, writeMeta, keys, listJSON,
 } from "./_lib.js";
+import { generateStoryAudio } from "./tts.js";
 
 function buildSystemPrompt(meta) {
 	const groom = meta.groom || "the groom";
@@ -15,7 +16,8 @@ function buildSystemPrompt(meta) {
 	return `You are the official roast narrator at a bachelor party for the groom, ${groom}${partner ? `, and his fiancée ${partner}` : ""}. Perform an outrageous, filthy, hilarious story for a room of close friends.
 
 Rules:
-- Weave in EVERY single supplied word/phrase naturally or absurdly. Do not skip any. Lightly inflect if needed but keep them recognizable. Wrap each supplied word in **double asterisks**.
+- You will receive each guest's answer together with the prompt they were answering. Weave every answer into the story as a natural part of the sentence — grammatically correct, in context, as if you wrote the line yourself. Do NOT paste answers as naked quoted inserts or Mad-Libs-style non sequiturs. Inflect for grammar (tense, plural, etc.) but keep each answer recognizable.
+- Do not use asterisks, bold, or any highlighting on woven words. The story should read smoothly aloud.
 - The story is about ${groom}${partnerBit}. Use the couple facts to make it personal and savage.
 - Tone: ${extra} No disclaimers, no breaking character.
 - Do not insult or mock ${groom}'s sisters — they may be present; you can tease ${groom} about family dynamics without being cruel to them.
@@ -61,14 +63,19 @@ export default async function handler(req) {
 	meta.version++;
 	await writeMeta(store, code, meta);
 
+	await Promise.all([
+		store.delete(keys.story(code, round)),
+		store.delete(keys.storyAudio(code, round)),
+	]);
+
 	const wordList = submissions
-		.map((s) => `- (${s.prompt}) "${s.value}" — from ${nameOf(s.playerId)}`)
+		.map((s) => `- Prompt: ${s.prompt}\n  Answer: "${s.value}" (${nameOf(s.playerId)})`)
 		.join("\n");
 	const facts = (meta.facts || "").trim();
 
 	const userPrompt = [
 		facts ? `Facts about the couple (use these to make it personal):\n${facts}\n` : "",
-		`Words and phrases the guests submitted — work ALL of them in:\n${wordList}`,
+		`Guest contributions — each answer must appear in the story, woven into full sentences that match what the prompt was asking for:\n${wordList}`,
 	].filter(Boolean).join("\n");
 
 	try {
@@ -89,6 +96,13 @@ export default async function handler(req) {
 		if (!story) throw new Error("empty_completion");
 
 		await store.set(keys.story(code, round), story);
+
+		const audio = await generateStoryAudio(client, story, {
+			ttsModel: getEnv("BACH_TTS_MODEL"),
+			ttsVoice: getEnv("BACH_TTS_VOICE"),
+			ttsInstructions: getEnv("BACH_TTS_INSTRUCTIONS"),
+		});
+		await store.set(keys.storyAudio(code, round), audio);
 
 		const fresh = (await readMeta(store, code)) || meta;
 		fresh.phase = "reveal";

@@ -21,6 +21,7 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 	const names = { groom: raw.groom, partner: raw.partner };
 	const pools = (raw.pools || []).map((pool) => ({
 		...pool,
+		label: interpolate(pool.label || pool.id, names),
 		prompts: pool.prompts.map((p) => interpolate(p, names)),
 	}));
 
@@ -28,7 +29,8 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 		for (const g of generic.pools || []) {
 			pools.push({
 				...g,
-				prompts: [...g.prompts],
+				label: interpolate(g.label || g.id, names),
+				prompts: g.prompts.map((p) => interpolate(p, names)),
 			});
 		}
 	}

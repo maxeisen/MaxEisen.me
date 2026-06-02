@@ -128,14 +128,19 @@
         pwChecking = true;
         if (!silent) pwError = "";
         try {
-            const { ok } = await api.checkPassword(pw);
+            const trimmed = pw.trim();
+            const { ok, status } = await api.checkPassword(trimmed);
             if (ok) {
-                password = pw;
-                try { localStorage.setItem("bach:pw", pw); } catch {}
+                password = trimmed;
+                try { localStorage.setItem("bach:pw", trimmed); } catch {}
             } else {
                 password = null;
                 try { localStorage.removeItem("bach:pw"); } catch {}
-                if (!silent) pwError = "Wrong password.";
+                if (!silent) {
+                    pwError = status === 503
+                        ? "Party password isn't set on the server (check BACH_PASSWORD in Netlify)."
+                        : "Wrong password.";
+                }
             }
         } catch {
             if (!silent) pwError = "Network error. Try again.";

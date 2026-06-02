@@ -4,7 +4,9 @@
     All mutations go through the callbacks passed from Bach.svelte.
 -->
 <script>
+    import { onDestroy } from "svelte";
     import Qr from "./Qr.svelte";
+    import * as api from "./api.js";
     import { formatStory } from "./story.js";
     import {
         getParty,
@@ -30,6 +32,13 @@
     let slots = $state(defaultSlots);
     let busy = $state(false);
 
+    let audioUrl = $state(null);
+    let audioLoading = $state(false);
+    let audioError = $state("");
+    let audioEl = $state(null);
+    let playing = $state(false);
+    let audioLoadKey = $state("");
+
     $effect(() => {
         if (code) usedPrompts = loadUsedPrompts(code);
     });
@@ -44,7 +53,72 @@
             ? `${window.location.origin}/bach?room=${code}&k=${encodeURIComponent(password)}`
             : ""
     );
+    const joinPathManual = $derived(
+        typeof window !== "undefined" && code
+            ? `${window.location.host}/bach?room=${code}`
+            : ""
+    );
     const story = $derived(formatStory(gameState?.story || ""));
+
+    function releaseAudio() {
+        if (audioEl) {
+            audioEl.pause();
+            audioEl = null;
+        }
+        if (audioUrl) {
+            URL.revokeObjectURL(audioUrl);
+            audioUrl = null;
+        }
+        playing = false;
+        audioLoading = false;
+        audioError = "";
+        audioLoadKey = "";
+    }
+
+    $effect(() => {
+        const p = phase;
+        const round = gameState?.roundIndex ?? -1;
+        const ver = gameState?.version ?? 0;
+        const ready = gameState?.storyAudioReady;
+        const key = code && round >= 0 ? `${code}:${round}:${ver}` : "";
+
+        if (p !== "reveal" || !ready || !key || !password) {
+            releaseAudio();
+            return;
+        }
+        if (key === audioLoadKey) return;
+
+        let cancelled = false;
+        releaseAudio();
+        audioLoadKey = key;
+        audioLoading = true;
+
+        (async () => {
+            const { ok, blob } = await api.fetchStoryAudio(password, code, round);
+            if (cancelled) return;
+            audioLoading = false;
+            if (!ok || !blob) {
+                audioError = "Narration didn't load — try regenerating.";
+                audioLoadKey = "";
+                return;
+            }
+            audioUrl = URL.createObjectURL(blob);
+            audioEl = new Audio(audioUrl);
+            audioEl.addEventListener("ended", () => { playing = false; });
+            audioEl.addEventListener("pause", () => { playing = false; });
+            audioEl.addEventListener("play", () => { playing = true; });
+        })();
+
+        return () => { cancelled = true; };
+    });
+
+    onDestroy(releaseAudio);
+
+    function toggleNarration() {
+        if (!audioEl || audioLoading) return;
+        if (playing) audioEl.pause();
+        else audioEl.play().catch(() => { audioError = "Tap play to start audio."; });
+    }
 
     async function create() {
         creating = true;
@@ -118,7 +192,7 @@
                     <h2 class="section-title">Join the chaos</h2>
                     {#if joinUrl}<Qr text={joinUrl} size={260} />{/if}
                     <p class="join-hint">
-                        Scan the QR, or go to <strong>{typeof window !== "undefined" ? window.location.host : ""}/bach</strong>
+                        Scan the QR, or open <strong>{joinPathManual}</strong> and enter the join password below.
                     </p>
                     <div class="join-manual">
                         <div class="join-manual-row">
@@ -187,17 +261,33 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Summoning the chaos…</h2>
-                <p class="muted">Stitching everyone's filth into one glorious tale.</p>
+                <p class="muted">Weaving the story and recording the British narrator — hang tight.</p>
             </section>
 
         {:else if phase === "reveal"}
             <section class="reveal">
+                {#if gameState?.storyAudioReady && audioLoading}
+                    <div class="centered reveal-wait">
+                        <div class="spinner"></div>
+                        <p class="muted">Story's ready — loading the narrator…</p>
+                    </div>
+                {:else}
+                <div class="narration-bar">
+                    {#if audioUrl}
+                        <button type="button" class="primary narration-btn" onclick={toggleNarration} disabled={busy}>
+                            {playing ? "⏸ Pause" : "▶ Play narration"}
+                        </button>
+                    {:else if audioError}
+                        <span class="narration-status error">{audioError}</span>
+                    {/if}
+                </div>
                 {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
                 <div class="story-body">
                     {#each story.paragraphs as para}
                         <p>{@html para}</p>
                     {/each}
                 </div>
+                {/if}
                 <div class="reveal-actions">
                     <button class="ghost" onclick={generate} disabled={busy}>↻ Regenerate</button>
                     <button class="primary" onclick={() => act("openVoting")} disabled={busy}>Open MVP voting →</button>
@@ -477,6 +567,14 @@
 
     /* --- Reveal / story --- */
     .reveal { max-width: 820px; margin: 2vh auto 0; }
+    .narration-bar {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+    .narration-btn { font-size: 1.05rem; padding: 0.65rem 1.4rem; }
+    .narration-status { font-size: 0.95rem; }
+    .reveal-wait { padding: 3rem 0; }
     .story-title {
         font-family: 'Fraunces', serif; font-weight: 700;
         font-size: clamp(2rem, 5vw, 3.2rem); color: var(--header-colour);

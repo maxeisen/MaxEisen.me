@@ -1,7 +1,5 @@
 // Turns the raw model output into a safe { title, paragraphs[] } structure.
-// The model wraps each guest-supplied word in **double asterisks**; we escape
-// the text first (defense-in-depth, even though the source is our own API)
-// then convert those markers into highlighted <strong> spans.
+// Escapes HTML; any stray **markers** from the model become <strong> (legacy).
 
 function escapeHtml(s) {
 	return s
