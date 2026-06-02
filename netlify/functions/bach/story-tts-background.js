@@ -1,5 +1,5 @@
-// POST /.netlify/functions/bach-story-tts
-// Thin sync trigger — production should use bach-story-tts-background (202 + long run).
+// POST /.netlify/functions/bach-story-tts-background
+// Returns 202 immediately; runs narration up to Netlify's background limit (~15 min).
 
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
@@ -34,32 +34,27 @@ export default async function handler(req) {
 	const story = await store.get(keys.story(code, round), { type: "text" });
 	if (!story) return jsonResponse({ error: "no_story" }, 400);
 
-	// Local / smoke: run inline when explicitly requested.
-	if (getEnv("BACH_TTS_SYNC") === "1") {
-		if (meta.narrationPending) {
-			return jsonResponse({ ok: true, accepted: true, pending: true }, 202);
-		}
-		meta.narrationPending = true;
-		meta.narrationError = null;
-		meta.hasStoryAudio = false;
-		meta.version++;
-		await writeMeta(store, code, meta);
-		try {
-			const result = await recordStoryNarration(store, code, meta, story);
-			return jsonResponse({ ok: true, hasAudio: result.hasAudio });
-		} catch (err) {
-			console.error("bach/story-tts sync failed:", err?.message || err);
-			const fresh = (await readMeta(store, code)) || meta;
-			fresh.narrationPending = false;
-			fresh.narrationError = "tts_failed";
-			fresh.version++;
-			await writeMeta(store, code, fresh);
-			return jsonResponse({ error: "tts_failed" }, 502);
-		}
+	if (meta.narrationPending) {
+		return jsonResponse({ ok: true, accepted: true, pending: true }, 202);
 	}
 
-	return jsonResponse({
-		error: "use_background",
-		message: "Call bach-story-tts-background instead (sync TTS exceeds function timeout).",
-	}, 409);
+	meta.narrationPending = true;
+	meta.narrationError = null;
+	meta.hasStoryAudio = false;
+	meta.version++;
+	await writeMeta(store, code, meta);
+
+	try {
+		const result = await recordStoryNarration(store, code, meta, story);
+		return jsonResponse({ ok: true, hasAudio: result.hasAudio });
+	} catch (err) {
+		console.error("bach/story-tts-background failed:", err?.message || err);
+		const fresh = (await readMeta(store, code)) || meta;
+		fresh.narrationPending = false;
+		fresh.narrationError = "tts_failed";
+		fresh.hasStoryAudio = false;
+		fresh.version++;
+		await writeMeta(store, code, fresh);
+		return jsonResponse({ error: "tts_failed" }, 500);
+	}
 }

@@ -8,8 +8,12 @@
 [functions."bach-story"]
   timeout = 26
 
+# Sync bach-story-tts is a stub; real work runs in bach-story-tts-background (202, ~15 min).
 [functions."bach-story-tts"]
-  timeout = 26
+  timeout = 10
+
+[functions."bach-story-tts-background"]
+  timeout = 900
 
 [dev]
   command = "vite"

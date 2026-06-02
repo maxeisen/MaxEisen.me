@@ -77,17 +77,33 @@ log("story", story);
 if (!story.ok) process.exit(1);
 
 console.log("\n--- bach-story-tts ---");
-const tts = await post("bach-story-tts", { code, hostToken });
-log("story-tts", tts);
-if (!tts.ok) process.exit(1);
+const tts = await post("bach-story-tts-background", { code, hostToken });
+log("story-tts-background", tts);
+if (!tts.ok && tts.status !== 202) process.exit(1);
+
+for (let i = 0; i < 40; i++) {
+	const stateRes = await get("bach-state", new URLSearchParams({ code }));
+	const stateJson = await stateRes.res.json();
+	if (stateJson.storyAudioReady) break;
+	if (!stateJson.narrationPending && i > 2) {
+		console.error("Narration stopped without audio:", stateJson.narrationError);
+		process.exit(1);
+	}
+	await new Promise((r) => setTimeout(r, 1500));
+}
 
 const stateRes = await get("bach-state", new URLSearchParams({ code }));
 const stateJson = await stateRes.res.json();
 console.log("[state]", stateRes.ms + "ms", {
 	phase: stateJson.phase,
 	storyAudioReady: stateJson.storyAudioReady,
+	narrationPending: stateJson.narrationPending,
 	storyLen: stateJson.story?.length,
 });
+if (!stateJson.storyAudioReady) {
+	console.error("Timed out waiting for narration");
+	process.exit(1);
+}
 
 console.log("\n--- bach-story-audio ---");
 const audioRes = await get("bach-story-audio", new URLSearchParams({ code, round: "0" }));

@@ -588,8 +588,8 @@
                     <h3 class="mini-title">Listen first</h3>
                     {#if audioLoading}
                         <p class="narration-status muted">Loading narration…</p>
-                    {:else if !gameState?.storyAudioReady}
-                        <p class="narration-status muted">Recording narration…</p>
+                    {:else if gameState?.narrationPending || !gameState?.storyAudioReady}
+                        <p class="narration-status muted">Recording narration… (this can take a minute for long stories)</p>
                         <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
                             Retry recording
                         </button>

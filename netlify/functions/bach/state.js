@@ -87,6 +87,8 @@ export default async function handler(req) {
 		state.story = (await store.get(keys.story(code, round), { type: "text" })) || "";
 		const audioReady = await storyAudioExists(store, code, round);
 		state.storyAudioReady = audioReady;
+		state.narrationPending = Boolean(meta.narrationPending);
+		state.narrationError = meta.narrationError || null;
 		if (meta.hasStoryAudio && !audioReady) {
 			meta.hasStoryAudio = false;
 			meta.version++;

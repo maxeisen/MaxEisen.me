@@ -68,6 +68,8 @@ export default async function handler(req) {
 			meta.error = null;
 			meta.lastMvp = null;
 			meta.hasStoryAudio = false;
+			meta.narrationPending = false;
+			meta.narrationError = null;
 			meta.version++;
 			await writeMeta(store, code, meta);
 			return jsonResponse({ ok: true, roundIndex: round });

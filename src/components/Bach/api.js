@@ -16,7 +16,8 @@ async function post(name, password, body) {
 	});
 	let data = null;
 	try { data = await res.json(); } catch { /* ignore */ }
-	return { ok: res.ok, status: res.status, data };
+	const accepted = res.status === 202;
+	return { ok: res.ok || accepted, status: res.status, data, accepted };
 }
 
 export async function checkPassword(password) {
@@ -63,7 +64,7 @@ export async function generateStory(password, { code, hostToken }) {
 }
 
 export async function generateStoryTts(password, { code, hostToken }) {
-	return post("bach-story-tts", password, { code, hostToken });
+	return post("bach-story-tts-background", password, { code, hostToken });
 }
 
 export async function fetchPartyPack(password, packId, { library = false } = {}) {

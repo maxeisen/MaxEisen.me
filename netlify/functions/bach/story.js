@@ -106,6 +106,8 @@ export default async function handler(req) {
 		fresh.phase = "reveal";
 		fresh.error = null;
 		fresh.hasStoryAudio = false;
+		fresh.narrationPending = false;
+		fresh.narrationError = null;
 		fresh.version++;
 		await writeMeta(store, code, fresh);
 

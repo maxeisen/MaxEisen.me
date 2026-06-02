@@ -299,8 +299,8 @@
         ttsBusy = true;
         try {
             for (let attempt = 0; attempt < 6; attempt++) {
-                const { ok, status } = await api.generateStoryTts(password, { code, hostToken });
-                if (ok) {
+                const { ok, status, accepted } = await api.generateStoryTts(password, { code, hostToken });
+                if (ok || accepted) {
                     await poll();
                     return true;
                 }

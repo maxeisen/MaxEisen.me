@@ -113,9 +113,10 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 				if (chunks.length === 1) {
 					return await synthesize(client, chunks[0], { ...attempt, quick });
 				}
-				const parts = await Promise.all(
-					chunks.map((chunk) => synthesize(client, chunk, { ...attempt, quick })),
-				);
+				const parts = [];
+				for (const chunk of chunks) {
+					parts.push(await synthesize(client, chunk, { ...attempt, quick }));
+				}
 				return concatMp3(parts);
 			} catch (err) {
 				lastErr = err;
