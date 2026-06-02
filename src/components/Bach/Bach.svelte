@@ -287,7 +287,7 @@
             await poll();
             return false;
         }
-        await requestStoryTts();
+        void requestStoryTts();
         return true;
     }
 

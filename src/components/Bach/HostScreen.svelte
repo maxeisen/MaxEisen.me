@@ -96,6 +96,8 @@
         selectedPool = defaultPoolForRound(party, poolsForAudience(allPools, next), next);
     }
     let busy = $state(false);
+    let storyTextVisible = $state(false);
+    let storyRevealKey = $state("");
 
     let audioUrl = $state(null);
     let audioLoading = $state(false);
@@ -124,6 +126,16 @@
             : ""
     );
     const story = $derived(formatStory(gameState?.story || ""));
+
+    $effect(() => {
+        const key = code && (gameState?.roundIndex ?? -1) >= 0
+            ? `${code}:${gameState.roundIndex}`
+            : "";
+        if (phase === "reveal" && key && key !== storyRevealKey) {
+            storyRevealKey = key;
+            storyTextVisible = false;
+        }
+    });
 
     function releaseAudio() {
         audioPlayer?.pause();
@@ -165,8 +177,11 @@
         }
     }
 
-    function retryNarration() {
+    async function retryNarration() {
         narrationAttempted = "";
+        if (!gameState?.storyAudioReady) {
+            await onRequestTts?.();
+        }
         const round = gameState?.roundIndex ?? -1;
         const key = code && round >= 0 ? `${code}:${round}` : "";
         if (key) loadNarration(key);
@@ -297,6 +312,7 @@
 
     async function generate() {
         busy = true;
+        storyTextVisible = false;
         try { await onGenerate(); } finally { busy = false; }
     }
 </script>
@@ -549,7 +565,7 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Weaving the story — narration records right after and appears on the reveal screen.</p>
+                <p class="muted">Almost there — narration will be ready on the next screen (story text stays hidden until you reveal it).</p>
                 <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
                     Cancel and go back
                 </button>
@@ -558,7 +574,7 @@
         {:else if phase === "reveal"}
             <section class="reveal">
                 <div class="narration-panel" aria-label="Story narration">
-                    <h3 class="mini-title">Listen</h3>
+                    <h3 class="mini-title">Listen first</h3>
                     {#if audioLoading}
                         <p class="narration-status muted">Loading narration…</p>
                     {:else if !gameState?.storyAudioReady}
@@ -590,12 +606,26 @@
                         {/if}
                     {/if}
                 </div>
-                {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
-                <div class="story-body">
-                    {#each story.paragraphs as para}
-                        <p>{@html para}</p>
-                    {/each}
+                <div class="story-reveal-controls">
+                    {#if storyTextVisible}
+                        <button type="button" class="ghost story-reveal-btn" onclick={() => (storyTextVisible = false)}>
+                            Hide story text
+                        </button>
+                    {:else}
+                        <p class="hint story-hidden-hint">Story is ready — play the narration, then show the text when you like.</p>
+                        <button type="button" class="primary story-reveal-btn" onclick={() => (storyTextVisible = true)}>
+                            Show story text
+                        </button>
+                    {/if}
                 </div>
+                {#if storyTextVisible}
+                    {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
+                    <div class="story-body">
+                        {#each story.paragraphs as para}
+                            <p>{@html para}</p>
+                        {/each}
+                    </div>
+                {/if}
                 <div class="reveal-actions">
                     <button class="ghost" onclick={generate} disabled={busy}>↻ Regenerate</button>
                     <button class="primary" onclick={() => act("openVoting")} disabled={busy}>Open MVP voting →</button>
@@ -963,6 +993,12 @@
     }
     .narration-load { margin: 0.25rem auto; }
     .narration-status { font-size: 0.95rem; margin: 0.5rem 0; }
+    .story-reveal-controls {
+        text-align: center;
+        margin: 1.25rem 0 1.5rem;
+    }
+    .story-hidden-hint { max-width: 28rem; margin: 0 auto 0.75rem; }
+    .story-reveal-btn { margin: 0 auto; }
     .story-title {
         font-family: 'Fraunces', serif; font-weight: 700;
         font-size: clamp(2rem, 5vw, 3.2rem); color: var(--header-colour);

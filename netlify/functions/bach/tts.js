@@ -6,8 +6,10 @@ const TTS_INSTRUCTIONS =
 	"British audiobook narrator, warm and witty, clear RP-ish accent, steady pace.";
 
 const MAX_INPUT = 3200;
-/** Netlify sync functions cap at ~26s on Pro; stay under that for hosted TTS. */
-const ATTEMPT_TIMEOUT_MS = 22_000;
+/** Shorter narration in quick mode → faster synthesis on Netlify's ~26s cap. */
+const QUICK_MAX_INPUT = 1600;
+const QUICK_TIMEOUT_MS = 18_000;
+const FULL_TIMEOUT_MS = 22_000;
 
 /** Fastest models first; HD only as last resort. */
 const ATTEMPTS = [
@@ -27,8 +29,9 @@ function withTimeout(promise, ms) {
 }
 
 /** Plain text for narration: title, then body; strip markdown. */
-export function storyTextForSpeech(raw) {
+export function storyTextForSpeech(raw, { quick = false } = {}) {
 	if (!raw) return "";
+	const maxLen = quick ? QUICK_MAX_INPUT : MAX_INPUT;
 	const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
 	const title = (lines[0] || "").replace(/^#+\s*/, "").replace(/\*\*/g, "");
 	const body = lines
@@ -36,21 +39,25 @@ export function storyTextForSpeech(raw) {
 		.join("\n\n")
 		.replace(/\*\*/g, "");
 	let text = title ? `${title}.\n\n${body}` : body;
-	if (text.length > MAX_INPUT) text = `${text.slice(0, MAX_INPUT - 1)}…`;
+	if (text.length > maxLen) text = `${text.slice(0, maxLen - 1)}…`;
 	return text;
 }
 
-async function synthesize(client, input, { model, voice, instructions }) {
+async function synthesize(client, input, { model, voice, instructions, quick = false }) {
 	const params = {
 		model,
 		voice,
 		input,
 		response_format: "mp3",
 	};
+	if (/^tts-1/.test(model)) {
+		params.speed = quick ? 1.1 : 1;
+	}
 	if (instructions && !/^tts-1/.test(model)) {
 		params.instructions = instructions;
 	}
-	const speech = await withTimeout(client.audio.speech.create(params), ATTEMPT_TIMEOUT_MS);
+	const timeoutMs = quick ? QUICK_TIMEOUT_MS : FULL_TIMEOUT_MS;
+	const speech = await withTimeout(client.audio.speech.create(params), timeoutMs);
 	const buf = new Uint8Array(await speech.arrayBuffer());
 	if (!buf.byteLength) throw new Error("empty_audio");
 	return buf;
@@ -58,13 +65,14 @@ async function synthesize(client, input, { model, voice, instructions }) {
 
 /** Returns MP3 bytes, or null if every TTS attempt fails. */
 export async function generateStoryAudio(client, storyRaw, env = {}) {
-	const input = storyTextForSpeech(storyRaw);
+	const quick = Boolean(env.quick);
+	const input = storyTextForSpeech(storyRaw, { quick });
 	if (!input) return null;
 
 	const custom = env.ttsModel
 		? [{ model: env.ttsModel, voice: env.ttsVoice || "fable", instructions: env.ttsInstructions || TTS_INSTRUCTIONS }]
 		: [];
-	const attempts = env.quick
+	const attempts = quick
 		? (custom.length
 			? custom.slice(0, 1)
 			: [{ model: "tts-1", voice: env.ttsVoice || "fable" }])
@@ -72,9 +80,10 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 
 	let lastErr;
 	for (const attempt of attempts) {
-		for (let tryNum = 0; tryNum < 2; tryNum++) {
+		const retries = quick ? 1 : 2;
+		for (let tryNum = 0; tryNum < retries; tryNum++) {
 			try {
-				return await synthesize(client, input, attempt);
+				return await synthesize(client, input, { ...attempt, quick });
 			} catch (err) {
 				lastErr = err;
 				console.warn(
@@ -84,9 +93,10 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 					tryNum + 1,
 					err?.message || err,
 				);
-				if (tryNum === 0 && err?.message !== "tts_timeout") continue;
+				if (tryNum + 1 < retries && err?.message !== "tts_timeout") continue;
 			}
 		}
+		if (quick) break;
 	}
 	console.error("bach/tts all attempts failed:", lastErr?.message || lastErr);
 	return null;

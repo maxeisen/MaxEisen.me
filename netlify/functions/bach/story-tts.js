@@ -27,7 +27,9 @@ export default async function handler(req) {
 	const hostToken = typeof body?.hostToken === "string" ? body.hostToken : "";
 	if (hostToken !== meta.hostToken) return jsonResponse({ error: "not_host" }, 403);
 
-	if (meta.phase !== "reveal") return jsonResponse({ error: "bad_phase" }, 409);
+	if (!["reveal", "voting", "results"].includes(meta.phase)) {
+		return jsonResponse({ error: "bad_phase" }, 409);
+	}
 
 	const round = meta.roundIndex;
 	const story = await store.get(keys.story(code, round), { type: "text" });
