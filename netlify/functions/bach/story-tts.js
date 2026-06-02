@@ -3,9 +3,9 @@
 import OpenAI from "openai";
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
-	validCode, readMeta, writeMeta, keys,
+	validCode, readMeta, writeMeta, keys, writeStoryAudio,
 } from "./_lib.js";
-import { generateStoryAudio, audioToBlobValue } from "./tts.js";
+import { generateStoryAudio } from "./tts.js";
 
 export default async function handler(req) {
 	if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
@@ -41,8 +41,8 @@ export default async function handler(req) {
 			ttsVoice: getEnv("BACH_TTS_VOICE"),
 			ttsInstructions: getEnv("BACH_TTS_INSTRUCTIONS"),
 		});
-		if (audio) {
-			await store.set(keys.storyAudio(code, round), audioToBlobValue(audio));
+		if (audio?.byteLength) {
+			await writeStoryAudio(store, code, round, audio);
 			meta.hasStoryAudio = true;
 		} else {
 			await store.delete(keys.storyAudio(code, round));
@@ -50,7 +50,7 @@ export default async function handler(req) {
 		}
 
 		await writeMeta(store, code, meta);
-		return jsonResponse({ ok: true, hasAudio: Boolean(audio) });
+		return jsonResponse({ ok: true, hasAudio: Boolean(audio?.byteLength) });
 	} catch (err) {
 		console.error("bach/story-tts failed:", err?.message || err);
 		return jsonResponse({ error: "tts_failed" }, 502);

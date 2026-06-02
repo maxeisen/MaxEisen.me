@@ -2,7 +2,7 @@
 
 import { Buffer } from "node:buffer";
 import {
-	passwordOk, getSessionStore, validCode, readMeta, keys,
+	passwordOk, getSessionStore, validCode, readMeta, readStoryAudioBytes,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -38,15 +38,13 @@ export default async function handler(req) {
 		});
 	}
 
-	const audio = await store.get(keys.storyAudio(code, round), { type: "text" });
-	if (!audio) {
+	const bytes = await readStoryAudioBytes(store, code, round);
+	if (!bytes?.length) {
 		return new Response(JSON.stringify({ error: "not_found" }), {
 			status: 404,
 			headers: { "Content-Type": "application/json" },
 		});
 	}
-
-	const bytes = Buffer.from(audio, "base64");
 	return new Response(bytes, {
 		status: 200,
 		headers: {

@@ -2,7 +2,7 @@
 
 import {
 	passwordOk, jsonResponse, getSessionStore,
-	validCode, readMeta, keys, listJSON, subId,
+	validCode, readMeta, writeMeta, keys, listJSON, subId, storyAudioExists,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -85,7 +85,13 @@ export default async function handler(req) {
 
 	if (["reveal", "voting", "results", "finished"].includes(meta.phase) && round >= 0) {
 		state.story = (await store.get(keys.story(code, round), { type: "text" })) || "";
-		state.storyAudioReady = Boolean(meta.hasStoryAudio);
+		const audioReady = await storyAudioExists(store, code, round);
+		state.storyAudioReady = audioReady;
+		if (meta.hasStoryAudio && !audioReady) {
+			meta.hasStoryAudio = false;
+			meta.version++;
+			await writeMeta(store, code, meta);
+		}
 	}
 
 	if (["voting", "results"].includes(meta.phase) && round >= 0) {

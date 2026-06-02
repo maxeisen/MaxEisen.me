@@ -287,7 +287,7 @@
             await poll();
             return false;
         }
-        void requestStoryTts();
+        await requestStoryTts();
         return true;
     }
 
@@ -298,9 +298,21 @@
         if (ttsBusy || !code || !hostToken) return false;
         ttsBusy = true;
         try {
-            const { ok } = await api.generateStoryTts(password, { code, hostToken });
-            await poll();
-            return ok;
+            for (let attempt = 0; attempt < 6; attempt++) {
+                const { ok, status } = await api.generateStoryTts(password, { code, hostToken });
+                if (ok) {
+                    await poll();
+                    return true;
+                }
+                if (status === 409 && attempt < 5) {
+                    await new Promise((r) => setTimeout(r, 400));
+                    await poll();
+                    continue;
+                }
+                await poll();
+                return false;
+            }
+            return false;
         } finally {
             ttsBusy = false;
         }

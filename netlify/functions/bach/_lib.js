@@ -91,6 +91,36 @@ export async function writeMeta(store, code, meta) {
 	await store.setJSON(keys.meta(code), meta);
 }
 
+/** @param {Uint8Array} bytes */
+export async function writeStoryAudio(store, code, round, bytes) {
+	const key = keys.storyAudio(code, round);
+	await store.set(key, bytes);
+	let verify = await readStoryAudioBytes(store, code, round);
+	if (!verify?.length) {
+		await store.set(key, Buffer.from(bytes).toString("base64"));
+		verify = await readStoryAudioBytes(store, code, round);
+	}
+	if (!verify?.length) throw new Error("audio_persist_failed");
+}
+
+export async function readStoryAudioBytes(store, code, round) {
+	const key = keys.storyAudio(code, round);
+	try {
+		const buf = await store.get(key, { type: "arrayBuffer" });
+		if (buf?.byteLength) return Buffer.from(buf);
+	} catch {
+		/* fall through to legacy base64 */
+	}
+	const b64 = await store.get(key, { type: "text" });
+	if (b64) return Buffer.from(b64, "base64");
+	return null;
+}
+
+export async function storyAudioExists(store, code, round) {
+	const bytes = await readStoryAudioBytes(store, code, round);
+	return Boolean(bytes?.length);
+}
+
 export async function listJSON(store, prefix) {
 	const { blobs } = await store.list({ prefix });
 	const out = [];

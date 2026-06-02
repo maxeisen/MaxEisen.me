@@ -151,15 +151,17 @@
         try {
             const { ok, blob } = await api.fetchStoryAudio(password, code, round);
             if (!ok || !blob) {
-                audioError = "Narration is not available — try Regenerate, or tap Retry below.";
+                audioError = ok === false && !blob
+                    ? "Narration isn't ready yet — wait a moment, or tap Retry recording."
+                    : "Narration is not available — try Retry recording or Regenerate.";
                 return;
             }
             audioUrl = URL.createObjectURL(blob);
+            narrationAttempted = attemptKey;
         } catch {
             audioError = "Narration failed to load — check your connection and retry.";
         } finally {
             audioLoading = false;
-            narrationAttempted = attemptKey;
         }
     }
 

@@ -71,10 +71,15 @@ await post("bach-submit", {
 	value: "chartreuse",
 });
 
-console.log("\n--- bach-story (text + narration) ---");
+console.log("\n--- bach-story (text) ---");
 const story = await post("bach-story", { code, hostToken });
 log("story", story);
 if (!story.ok) process.exit(1);
+
+console.log("\n--- bach-story-tts ---");
+const tts = await post("bach-story-tts", { code, hostToken });
+log("story-tts", tts);
+if (!tts.ok) process.exit(1);
 
 const stateRes = await get("bach-state", new URLSearchParams({ code }));
 const stateJson = await stateRes.res.json();
