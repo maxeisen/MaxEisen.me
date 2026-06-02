@@ -285,15 +285,25 @@
         if (!ok) {
             await doHostAction("abortGenerating");
             await poll();
+            return false;
         }
-        return ok;
+        void requestStoryTts();
+        return true;
     }
 
-    /** Re-record narration only (story text unchanged). */
+    let ttsBusy = false;
+
+    /** Record narration (story text must already exist). */
     async function requestStoryTts() {
-        if (!code || !hostToken) return;
-        await api.generateStoryTts(password, { code, hostToken });
-        await poll();
+        if (ttsBusy || !code || !hostToken) return false;
+        ttsBusy = true;
+        try {
+            const { ok } = await api.generateStoryTts(password, { code, hostToken });
+            await poll();
+            return ok;
+        } finally {
+            ttsBusy = false;
+        }
     }
 
     // --- Player actions ----------------------------------------------------

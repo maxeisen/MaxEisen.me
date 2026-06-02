@@ -6,7 +6,8 @@ const TTS_INSTRUCTIONS =
 	"British audiobook narrator, warm and witty, clear RP-ish accent, steady pace.";
 
 const MAX_INPUT = 3200;
-const ATTEMPT_TIMEOUT_MS = 50_000;
+/** Netlify sync functions cap at ~26s on Pro; stay under that for hosted TTS. */
+const ATTEMPT_TIMEOUT_MS = 22_000;
 
 /** Fastest models first; HD only as last resort. */
 const ATTEMPTS = [
@@ -63,7 +64,11 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 	const custom = env.ttsModel
 		? [{ model: env.ttsModel, voice: env.ttsVoice || "fable", instructions: env.ttsInstructions || TTS_INSTRUCTIONS }]
 		: [];
-	const attempts = [...custom, ...ATTEMPTS.filter((a) => !custom.some((c) => c.model === a.model))];
+	const attempts = env.quick
+		? (custom.length
+			? custom.slice(0, 1)
+			: [{ model: "tts-1", voice: env.ttsVoice || "fable" }])
+		: [...custom, ...ATTEMPTS.filter((a) => !custom.some((c) => c.model === a.model))];
 
 	let lastErr;
 	for (const attempt of attempts) {

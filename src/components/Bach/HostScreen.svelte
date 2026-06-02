@@ -547,7 +547,7 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Composing the story and recording narration — both appear together when ready.</p>
+                <p class="muted">Weaving the story — narration records right after and appears on the reveal screen.</p>
                 <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
                     Cancel and go back
                 </button>
@@ -559,6 +559,11 @@
                     <h3 class="mini-title">Listen</h3>
                     {#if audioLoading}
                         <p class="narration-status muted">Loading narration…</p>
+                    {:else if !gameState?.storyAudioReady}
+                        <p class="narration-status muted">Recording narration…</p>
+                        <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
+                            Retry recording
+                        </button>
                     {:else if audioUrl}
                         <!-- Native controls: play/pause, scrubber, volume -->
                         <audio

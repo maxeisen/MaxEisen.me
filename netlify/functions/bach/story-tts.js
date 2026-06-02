@@ -36,6 +36,7 @@ export default async function handler(req) {
 	try {
 		const client = new OpenAI({ apiKey });
 		const audio = await generateStoryAudio(client, story, {
+			quick: !getEnv("BACH_TTS_FULL"),
 			ttsModel: getEnv("BACH_TTS_MODEL"),
 			ttsVoice: getEnv("BACH_TTS_VOICE"),
 			ttsInstructions: getEnv("BACH_TTS_INSTRUCTIONS"),

@@ -5,7 +5,6 @@ import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, writeMeta, keys, listJSON,
 } from "./_lib.js";
-import { generateStoryAudio, audioToBlobValue } from "./tts.js";
 
 function buildSystemPrompt(meta) {
 	const groom = meta.groom || "the groom";
@@ -82,7 +81,7 @@ export default async function handler(req) {
 
 	try {
 		const client = new OpenAI({ apiKey });
-		const model = getEnv("OPENAI_MODEL") || "gpt-4o";
+		const model = getEnv("OPENAI_MODEL") || "gpt-4o-mini";
 		const params = {
 			model,
 			max_completion_tokens: 2000,
@@ -101,33 +100,16 @@ export default async function handler(req) {
 		}
 
 		await store.set(keys.story(code, round), story);
-
-		let hasAudio = false;
-		try {
-			const audio = await generateStoryAudio(client, story, {
-				ttsModel: getEnv("BACH_TTS_MODEL"),
-				ttsVoice: getEnv("BACH_TTS_VOICE"),
-				ttsInstructions: getEnv("BACH_TTS_INSTRUCTIONS"),
-			});
-			if (audio?.byteLength) {
-				await store.set(keys.storyAudio(code, round), audioToBlobValue(audio));
-				hasAudio = true;
-			} else {
-				await store.delete(keys.storyAudio(code, round));
-			}
-		} catch (ttsErr) {
-			console.error("bach/story narration failed:", ttsErr?.message || ttsErr);
-			await store.delete(keys.storyAudio(code, round));
-		}
+		await store.delete(keys.storyAudio(code, round));
 
 		const fresh = (await readMeta(store, code)) || meta;
 		fresh.phase = "reveal";
 		fresh.error = null;
-		fresh.hasStoryAudio = hasAudio;
+		fresh.hasStoryAudio = false;
 		fresh.version++;
 		await writeMeta(store, code, fresh);
 
-		return jsonResponse({ ok: true, hasAudio });
+		return jsonResponse({ ok: true, hasAudio: false });
 	} catch (err) {
 		const detail = err?.error?.message || err?.message || String(err);
 		console.error("bach/story generation failed:", detail, err?.status || "");

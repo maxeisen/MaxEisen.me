@@ -3,12 +3,13 @@
   publish = "dist"
   functions = "netlify/functions"
 
-# Story + TTS can run long; local `netlify dev` defaults to 30s unless raised here.
+# Story text only (~OpenAI). TTS is a separate function so we stay under Netlify's
+# sync limit (10s default, 26s max on Pro). Local `netlify dev` honors these overrides.
 [functions."bach-story"]
-  timeout = 120
+  timeout = 26
 
 [functions."bach-story-tts"]
-  timeout = 90
+  timeout = 26
 
 [dev]
   command = "vite"
