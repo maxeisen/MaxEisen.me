@@ -13,9 +13,11 @@
         loadUsedPrompts,
         saveUsedPrompts,
         clearUsedPrompts,
+        hasPrivatePartyPack,
     } from "./partyConfig.js";
+    import { validatePartyPack } from "./validatePartyPack.js";
 
-    let { party, code, password, gameState, netError, onCreate, onAction, onGenerate } = $props();
+    let { party, code, password, gameState, netError, onCreate, onPartyPackUpload, onAction, onGenerate } = $props();
 
     const pools = $derived(party.pools);
     const defaultSlots = $derived(party.slotsPerPlayer);
@@ -31,13 +33,17 @@
         if (party.storyTone && !storyTone) storyTone = party.storyTone;
     });
     let usedPrompts = $state(new Set());
+    let packError = $state("");
+    let packStatus = $state("");
+    let packUploading = $state(false);
 
     // --- Round config ---
     let selectedPool = $state("");
     let slots = $state(3);
 
     $effect(() => {
-        if (!selectedPool && pools.length) selectedPool = pools[0].id;
+        if (!pools.length) return;
+        if (!pools.some((p) => p.id === selectedPool)) selectedPool = pools[0].id;
         slots = defaultSlots;
     });
     let busy = $state(false);
@@ -130,6 +136,34 @@
         else audioEl.play().catch(() => { audioError = "Tap play to start audio."; });
     }
 
+    async function onPackFileSelect(e) {
+        const file = e.currentTarget.files?.[0];
+        e.currentTarget.value = "";
+        if (!file) return;
+        packError = "";
+        packStatus = "";
+        packUploading = true;
+        try {
+            const text = await file.text();
+            const raw = JSON.parse(text);
+            const problem = validatePartyPack(raw);
+            if (problem) {
+                packError = problem;
+                return;
+            }
+            await onPartyPackUpload(raw);
+            packStatus = `Loaded “${raw.title || raw.id || file.name}”.`;
+            if (raw.defaultFacts && !facts) facts = raw.defaultFacts;
+            if (raw.storyTone && !storyTone) storyTone = raw.storyTone;
+        } catch (err) {
+            packError = err instanceof SyntaxError
+                ? "Invalid JSON — check the file format."
+                : (err?.message || "Upload failed.");
+        } finally {
+            packUploading = false;
+        }
+    }
+
     async function create() {
         creating = true;
         try { await onCreate(facts, storyTone); } finally { creating = false; }
@@ -168,7 +202,30 @@
         <!-- Setup: collect couple facts, then create the session. -->
         <section class="setup">
             <h1 class="display">{party.title}</h1>
-            <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Add context and tone below — nothing is stored in the site repo.</p>
+            <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Upload your private party pack JSON, then add context and tone below.</p>
+
+            <div class="pack-upload">
+                <label class="field-label" for="party-pack-file">Party pack (JSON)</label>
+                <p class="pack-hint">
+                    {#if hasPrivatePartyPack()}
+                        Using custom pack: <strong>{party.title}</strong>
+                        {#if party.id} <span class="muted">({party.id})</span>{/if}
+                    {:else}
+                        Using built-in default prompts. Upload your own <code>*.json</code> pack to replace them.
+                    {/if}
+                </p>
+                <input
+                    id="party-pack-file"
+                    type="file"
+                    accept="application/json,.json"
+                    disabled={packUploading}
+                    onchange={onPackFileSelect}
+                />
+                {#if packUploading}<p class="muted">Uploading…</p>{/if}
+                {#if packStatus}<p class="pack-ok">{packStatus}</p>{/if}
+                {#if packError}<p class="error">{packError}</p>{/if}
+            </div>
+
             <label class="field-label" for="facts">Story context (couple, party, inside jokes)</label>
             <textarea
                 id="facts"
@@ -234,6 +291,28 @@
                             {/each}
                         </ul>
                     {/if}
+
+                    <div class="round-setup pack-upload compact">
+                        <h3 class="mini-title">Party pack</h3>
+                        <p class="pack-hint">
+                            {#if hasPrivatePartyPack()}
+                                <strong>{party.title}</strong>
+                            {:else}
+                                Default prompts
+                            {/if}
+                            — <label class="pack-replace" for="party-pack-file-lobby">replace JSON</label>
+                        </p>
+                        <input
+                            id="party-pack-file-lobby"
+                            type="file"
+                            accept="application/json,.json"
+                            class="sr-only"
+                            disabled={packUploading}
+                            onchange={onPackFileSelect}
+                        />
+                        {#if packStatus}<p class="pack-ok">{packStatus}</p>{/if}
+                        {#if packError}<p class="error">{packError}</p>{/if}
+                    </div>
 
                     <div class="round-setup">
                         <h3 class="mini-title">Round flavour</h3>
@@ -423,6 +502,42 @@
         margin-bottom: 1rem;
     }
     textarea:focus { border-color: var(--main-green); }
+
+    .pack-upload {
+        text-align: left;
+        margin-bottom: 1.25rem;
+        padding: 1rem 1.1rem;
+        border-radius: 12px;
+        border: 1px dashed var(--main-green-translucent);
+        background: rgba(255, 255, 255, 0.03);
+    }
+    .pack-upload.compact {
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+    }
+    .pack-hint { font-size: 0.9rem; margin: 0 0 0.65rem; opacity: 0.9; }
+    .pack-hint code { font-size: 0.85em; }
+    .pack-ok { color: var(--main-green); font-size: 0.9rem; margin: 0.35rem 0 0; }
+    .pack-upload input[type="file"] {
+        font: inherit;
+        color: var(--paragraph-colour);
+        max-width: 100%;
+    }
+    .pack-replace {
+        cursor: pointer;
+        text-decoration: underline;
+        color: var(--main-green);
+    }
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
 
     /* --- Top bar --- */
     .bar {

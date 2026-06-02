@@ -67,6 +67,8 @@ export const keys = {
 	storyAudio: (code, round) => `${code}/story-audio/${round}.mp3`,
 	vote: (code, round, voterId) => `${code}/vote/${round}/${voterId}`,
 	votePrefix: (code, round) => `${code}/vote/${round}/`,
+	/** Shared host party JSON (prompt decks); not tied to a room code. */
+	hostPartyPack: () => "__host_party_pack__",
 };
 
 export function subId(playerId, slotId) {

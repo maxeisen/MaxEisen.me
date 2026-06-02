@@ -10,6 +10,7 @@
     import { onMount } from "svelte";
     import * as api from "./api.js";
     import { getParty, setPrivatePartyPack } from "./partyConfig.js";
+    import { validatePartyPack } from "./validatePartyPack.js";
     import HostScreen from "./HostScreen.svelte";
     import PlayerScreen from "./PlayerScreen.svelte";
 
@@ -137,6 +138,21 @@
             party = getParty();
             partyLoading = false;
         }
+    }
+
+    /** Host uploads a party JSON file → Blobs + in-memory pack. */
+    async function applyPartyPack(raw) {
+        const problem = validatePartyPack(raw);
+        if (problem) throw new Error(problem);
+        const { ok, status, data } = await api.uploadPartyPack(password, raw);
+        if (!ok) {
+            const msg = data?.error === "too_large"
+                ? "Party pack file is too large for the server."
+                : data?.error || `Upload failed (${status})`;
+            throw new Error(msg);
+        }
+        setPrivatePartyPack(raw);
+        party = getParty();
     }
 
     async function validatePassword(pw, silent = false) {
@@ -283,6 +299,7 @@
             {gameState}
             {netError}
             onCreate={createSession}
+            onPartyPackUpload={applyPartyPack}
             onAction={doHostAction}
             onGenerate={generate}
         />

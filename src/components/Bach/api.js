@@ -67,6 +67,10 @@ export async function fetchPartyPack(password) {
 	return { ok: res.ok, status: res.status, data };
 }
 
+export async function uploadPartyPack(password, party) {
+	return post("bach-party-pack", password, { party });
+}
+
 export async function fetchStoryAudio(password, code, roundIndex) {
 	const qs = new URLSearchParams({ code, round: String(roundIndex) });
 	const res = await fetch(`${FN}/bach-story-audio?${qs.toString()}`, {
