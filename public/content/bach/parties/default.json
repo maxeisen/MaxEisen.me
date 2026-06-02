@@ -1,0 +1,90 @@
+{
+  "id": "default",
+  "title": "Story Builder",
+  "groom": "Guest of honour",
+  "partner": "Partner",
+  "includeGenericPools": true,
+  "slotsPerPlayer": 3,
+  "defaultFacts": "",
+  "storyTone": "",
+  "pools": [
+    {
+      "id": "guest",
+      "label": "About {groom}",
+      "prompts": [
+        "{groom}'s signature catchphrase",
+        "something {groom} always forgets to pack",
+        "a hobby {groom} tried once and quit",
+        "{groom}'s go-to snack on a road trip",
+        "a song {groom} sings badly in the shower",
+        "the excuse {groom} uses when running late",
+        "something {groom} owns in three colours",
+        "a movie {groom} quotes too often",
+        "what {groom} orders at a coffee shop",
+        "a nickname only old friends use for {groom}",
+        "the last thing {groom} googled",
+        "something {groom} is weirdly competitive about",
+        "a fashion choice {groom} defends proudly",
+        "what {groom} brings to a potluck",
+        "a place {groom} wants to visit next",
+        "something {groom} fixed with duct tape",
+        "a text {groom} sends at 1am",
+        "what {groom} does on a rainy Sunday",
+        "a superstition {groom} secretly believes",
+        "the item {groom} loses constantly"
+      ]
+    },
+    {
+      "id": "couple",
+      "label": "{groom} & {partner}",
+      "prompts": [
+        "where {groom} and {partner} had their first date",
+        "a dish they cook together on weekends",
+        "something they argue about in the car",
+        "a trip they still talk about",
+        "their shared guilty-pleasure TV show",
+        "a pet name {partner} uses for {groom}",
+        "something they bought together and regret",
+        "a tradition they started as a couple",
+        "the song that was playing during a big moment",
+        "an inside joke nobody else understands",
+        "what they do when they can't pick a restaurant",
+        "a photo they always show new friends",
+        "something {partner} is better at than {groom}",
+        "a holiday ritual they invented",
+        "the gift that actually went over well",
+        "a chore they trade back and forth",
+        "what they splurge on together",
+        "a place they want to live someday",
+        "how they met (the short version)",
+        "a milestone they're planning next"
+      ]
+    },
+    {
+      "id": "wildcard",
+      "label": "Wildcard",
+      "prompts": [
+        "a plot twist nobody saw coming",
+        "an unexpected guest who shows up",
+        "a mysterious object in the hallway",
+        "the weather on the big day",
+        "a sound from the next room",
+        "something hidden in a coat pocket",
+        "a message delivered by courier",
+        "the name of a fictional town nearby",
+        "a competition with ridiculous stakes",
+        "a prize that is completely useless",
+        "a rule everyone agrees to break",
+        "the title of a newspaper headline",
+        "a vehicle that arrives at the worst time",
+        "a food that causes chaos",
+        "a celebrity who makes a cameo",
+        "a password that is too easy",
+        "a costume someone insists on wearing",
+        "the final line of a toast",
+        "a song the DJ plays on repeat",
+        "what happens at midnight"
+      ]
+    }
+  ]
+}

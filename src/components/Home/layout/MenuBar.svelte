@@ -1,16 +1,29 @@
 <script>
-    window.onscroll = function() {scrollFunction()};
+    import { onMount, onDestroy } from "svelte";
+
     function scrollFunction() {
+        const navBar = document.getElementById("nav-bar");
+        const navBarList = document.getElementById("nav-bar-list");
+        if (!navBar || !navBarList) return;
+
         if (document.body.scrollTop > 70 || document.documentElement.scrollTop > 70) {
-            document.getElementById("nav-bar").style.fontSize = "20px";
-            document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0.9)";
-            document.getElementById("nav-bar-list").style.backdropFilter = "blur(3px)";
-        }
-        else {
-            document.getElementById("nav-bar").style.fontSize = "30px";
-            document.getElementById("nav-bar-list").style.backgroundColor = "rgba(18, 18, 18, 0)";
+            navBar.style.fontSize = "20px";
+            navBarList.style.backgroundColor = "rgba(18, 18, 18, 0.9)";
+            navBarList.style.backdropFilter = "blur(3px)";
+        } else {
+            navBar.style.fontSize = "30px";
+            navBarList.style.backgroundColor = "rgba(18, 18, 18, 0)";
         }
     }
+
+    onMount(() => {
+        window.addEventListener("scroll", scrollFunction, { passive: true });
+        scrollFunction();
+    });
+
+    onDestroy(() => {
+        window.removeEventListener("scroll", scrollFunction);
+    });
 </script>
 
 <div class="header-container">

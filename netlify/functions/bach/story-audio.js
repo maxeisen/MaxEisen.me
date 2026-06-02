@@ -1,5 +1,6 @@
 // GET /.netlify/functions/bach-story-audio?code=&round=
 
+import { Buffer } from "node:buffer";
 import {
 	passwordOk, getSessionStore, validCode, readMeta, keys,
 } from "./_lib.js";
@@ -37,7 +38,7 @@ export default async function handler(req) {
 		});
 	}
 
-	const audio = await store.get(keys.storyAudio(code, round));
+	const audio = await store.get(keys.storyAudio(code, round), { type: "text" });
 	if (!audio) {
 		return new Response(JSON.stringify({ error: "not_found" }), {
 			status: 404,
@@ -45,11 +46,7 @@ export default async function handler(req) {
 		});
 	}
 
-	let bytes;
-	if (audio instanceof ArrayBuffer) bytes = audio;
-	else if (audio instanceof Uint8Array) bytes = audio;
-	else if (typeof audio === "string") bytes = Uint8Array.from(audio, (c) => c.charCodeAt(0));
-	else bytes = new Uint8Array(audio);
+	const bytes = Buffer.from(audio, "base64");
 	return new Response(bytes, {
 		status: 200,
 		headers: {

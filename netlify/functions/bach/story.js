@@ -5,23 +5,26 @@ import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, writeMeta, keys, listJSON,
 } from "./_lib.js";
-import { generateStoryAudio } from "./tts.js";
+import { generateStoryAudio, audioToBlobValue } from "./tts.js";
 
 function buildSystemPrompt(meta) {
 	const groom = meta.groom || "the groom";
 	const partner = meta.partner || "their partner";
-	const extra = meta.storyTone?.trim() || "Push NSFW, crude roast-comedy hard. No moralizing.";
-	const partnerBit = partner ? ` (and ${partner} where it fits)` : "";
+	const tone = meta.storyTone?.trim();
+	const toneRule = tone
+		? `Tone and style (from the host): ${tone}`
+		: "Tone: warm, witty, and family-friendly unless the host instructions below say otherwise.";
+	const partnerBit = partner ? ` and ${partner}` : "";
 
-	return `You are the official roast narrator at a bachelor party for the groom, ${groom}${partner ? `, and his fiancée ${partner}` : ""}. Perform an outrageous, filthy, hilarious story for a room of close friends.
+	return `You are a skilled storyteller at a group celebration for ${groom}${partnerBit}. Write a short, funny collaborative story using the guests' answers.
 
 Rules:
-- You will receive each guest's answer together with the prompt they were answering. Weave every answer into the story as a natural part of the sentence — grammatically correct, in context, as if you wrote the line yourself. Do NOT paste answers as naked quoted inserts or Mad-Libs-style non sequiturs. Inflect for grammar (tense, plural, etc.) but keep each answer recognizable.
+- You will receive each guest's answer together with the prompt they were answering. Weave every answer into the story as a natural part of the sentence — grammatically correct, in context, as if you wrote the line yourself. Do NOT paste answers as isolated quoted inserts or Mad-Libs-style non sequiturs. Inflect for grammar (tense, plural, etc.) but keep each answer recognizable.
 - Do not use asterisks, bold, or any highlighting on woven words. The story should read smoothly aloud.
-- The story is about ${groom}${partnerBit}. Use the couple facts to make it personal and savage.
-- Tone: ${extra} No disclaimers, no breaking character.
-- Do not insult or mock ${groom}'s sisters — they may be present; you can tease ${groom} about family dynamics without being cruel to them.
-- 3-5 punchy paragraphs building to a ridiculous climax. Short title on the first line.
+- Use the couple facts supplied by the host to make the story personal.
+- ${toneRule}
+- Respect any boundaries mentioned in the host facts (people not to embarrass, topics to avoid).
+- 3-5 punchy paragraphs building to a fun climax. Short title on the first line.
 - Output only the story (title + paragraphs). No preamble.`;
 }
 
@@ -92,8 +95,11 @@ export default async function handler(req) {
 		if (/^(gpt-5|o\d)/.test(model)) params.reasoning_effort = "low";
 		const completion = await client.chat.completions.create(params);
 
-		const story = completion.choices?.[0]?.message?.content?.trim();
-		if (!story) throw new Error("empty_completion");
+		const choice = completion.choices?.[0];
+		const story = choice?.message?.content?.trim();
+		if (!story) {
+			throw new Error(`empty_completion:${choice?.finish_reason || "unknown"}`);
+		}
 
 		await store.set(keys.story(code, round), story);
 
@@ -102,7 +108,11 @@ export default async function handler(req) {
 			ttsVoice: getEnv("BACH_TTS_VOICE"),
 			ttsInstructions: getEnv("BACH_TTS_INSTRUCTIONS"),
 		});
-		await store.set(keys.storyAudio(code, round), audio);
+		if (audio) {
+			await store.set(keys.storyAudio(code, round), audioToBlobValue(audio));
+		} else {
+			await store.delete(keys.storyAudio(code, round));
+		}
 
 		const fresh = (await readMeta(store, code)) || meta;
 		fresh.phase = "reveal";
@@ -112,7 +122,8 @@ export default async function handler(req) {
 
 		return jsonResponse({ ok: true });
 	} catch (err) {
-		console.error("bach/story generation failed:", err?.message || err);
+		const detail = err?.error?.message || err?.message || String(err);
+		console.error("bach/story generation failed:", detail, err?.status || "");
 		const fresh = (await readMeta(store, code)) || meta;
 		fresh.phase = "writing";
 		fresh.error = "generation_failed";

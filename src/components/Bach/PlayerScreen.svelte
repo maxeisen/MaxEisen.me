@@ -1,9 +1,9 @@
 <!--
     Player (phone) view. Name entry, then the per-round word prompts, the
-    MVP-of-Filth vote ballot, and lightweight "watch the big screen" states.
+    MVP vote ballot, and lightweight "watch the big screen" states.
 -->
 <script>
-    let { code, player, gameState, sessionMissing, netError, onJoin, onSubmitWord, onVote } = $props();
+    let { code, player, gameTitle = "Story Builder", gameState, sessionMissing, netError, onJoin, onSubmitWord, onVote } = $props();
 
     let nameInput = $state("");
     let joining = $state(false);
@@ -86,7 +86,7 @@
         </div>
     {:else if !player}
         <form class="card" onsubmit={join}>
-            <h1 class="title">The Saga of Matthew</h1>
+            <h1 class="title">{gameTitle}</h1>
             <p class="sub">Room <strong>{code}</strong>. What should we call you?</p>
             <input
                 bind:value={nameInput}
@@ -112,7 +112,7 @@
         {#if you?.assigned}
             <div class="head">
                 <h1 class="title">Your prompts</h1>
-                <p class="sub">Be specific. Be filthy. The AI will do the rest.</p>
+                <p class="sub">Be specific — the AI will weave your answers into the story.</p>
             </div>
             <div class="slots">
                 {#each slots as slot (`${writingEpoch}-${slot.slotId}`)}
@@ -142,7 +142,7 @@
         {:else}
             <div class="card center">
                 <h1 class="title">Round in progress</h1>
-                <p class="sub">You'll get prompts in the next round. Heckle from the sidelines.</p>
+                <p class="sub">You'll get prompts in the next round. Watch the big screen.</p>
             </div>
         {/if}
 
@@ -165,11 +165,11 @@
             <div class="card center">
                 <div class="big-emoji">🗳️</div>
                 <h1 class="title">Vote locked.</h1>
-                <p class="sub">Waiting on the rest of the degenerates…</p>
+                <p class="sub">Waiting on everyone else to vote…</p>
             </div>
         {:else}
             <div class="head">
-                <h1 class="title">MVP of Filth</h1>
+                <h1 class="title">Pick round MVP</h1>
                 <p class="sub">Tap the best contribution (not your own).</p>
             </div>
             <div class="slots">
@@ -198,7 +198,7 @@
         <div class="card center">
             <div class="big-emoji">👑</div>
             <h1 class="title">That's a wrap!</h1>
-            <p class="sub">Thanks for playing. Go get Matthew a drink.</p>
+            <p class="sub">Thanks for playing!</p>
         </div>
     {:else}
         <div class="card center">

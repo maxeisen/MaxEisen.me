@@ -13,3 +13,6 @@ dist
 /.superpowers/
 /docs/
 /scripts/toronto-staging.json
+/private/bach/*.json
+!/private/bach/*.example
+!/private/bach/.gitkeep

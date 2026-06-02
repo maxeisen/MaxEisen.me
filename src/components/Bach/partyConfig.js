@@ -1,11 +1,26 @@
 import generic from "@content/bach/generic.json";
-import matthewJane from "@content/bach/parties/matthew-jane.json";
+import defaultParty from "@content/bach/parties/default.json";
 
 const PARTIES = {
-	"matthew-jane": matthewJane,
+	default: defaultParty,
 };
 
-export const DEFAULT_PARTY_ID = "matthew-jane";
+export const DEFAULT_PARTY_ID = "default";
+
+/** Party pack from bach-party-pack (not in git). */
+let privatePackRaw = null;
+
+export function setPrivatePartyPack(raw) {
+	privatePackRaw = raw;
+}
+
+export function clearPrivatePartyPack() {
+	privatePackRaw = null;
+}
+
+export function hasPrivatePartyPack() {
+	return privatePackRaw != null;
+}
 
 function interpolate(text, names) {
 	return text
@@ -14,9 +29,15 @@ function interpolate(text, names) {
 }
 
 /** Load a party pack: names resolved, optional generic warm-up pools merged in. */
-export function getParty(partyId = DEFAULT_PARTY_ID) {
-	const raw = PARTIES[partyId];
+function resolveRawParty(partyId = DEFAULT_PARTY_ID) {
+	if (privatePackRaw) return privatePackRaw;
+	const raw = PARTIES[partyId] ?? PARTIES[DEFAULT_PARTY_ID];
 	if (!raw) throw new Error(`Unknown bach party: ${partyId}`);
+	return raw;
+}
+
+export function getParty(partyId = DEFAULT_PARTY_ID) {
+	const raw = resolveRawParty(partyId);
 
 	const names = { groom: raw.groom, partner: raw.partner };
 	const pools = (raw.pools || []).map((pool) => ({
@@ -40,6 +61,7 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 		slotsPerPlayer: raw.slotsPerPlayer ?? generic.slotsPerPlayer ?? 3,
 		pools,
 		defaultFacts: raw.defaultFacts?.trim() || "",
+		storyTone: raw.storyTone?.trim() || "",
 	};
 }
 

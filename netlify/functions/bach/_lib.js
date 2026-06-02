@@ -1,4 +1,4 @@
-// Shared helpers for the /bach "Stag Story Builder" game.
+// Shared helpers for the /bach collaborative story game.
 //
 // Underscore prefix → Netlify does not deploy this as an endpoint; sibling
 // handlers in this folder import it. Session state lives in the

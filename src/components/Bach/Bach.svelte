@@ -1,5 +1,5 @@
 <!--
-    Controller for the Stag Story Builder game.
+    Controller for the collaborative story game at /bach.
 
     Owns: the password gate, the host-vs-player split (driven by the URL's
     ?room= param), persistent identity in localStorage, and the single polling
@@ -9,7 +9,7 @@
 <script>
     import { onMount } from "svelte";
     import * as api from "./api.js";
-    import { getParty } from "./partyConfig.js";
+    import { getParty, setPrivatePartyPack } from "./partyConfig.js";
     import HostScreen from "./HostScreen.svelte";
     import PlayerScreen from "./PlayerScreen.svelte";
 
@@ -29,6 +29,8 @@
     let gameState = $state(null);
     let sessionMissing = $state(false);
     let netError = $state("");
+    let party = $state(getParty());
+    let partyLoading = $state(false);
 
     let pollTimer = null;
     let pollingFor = null; // code we currently poll, to avoid dup intervals
@@ -124,6 +126,19 @@
         }
     }
 
+    async function loadPartyPack(pw) {
+        partyLoading = true;
+        try {
+            const { ok, data } = await api.fetchPartyPack(pw);
+            if (ok && data?.party) setPrivatePartyPack(data.party);
+        } catch {
+            /* fall back to bundled default party pack */
+        } finally {
+            party = getParty();
+            partyLoading = false;
+        }
+    }
+
     async function validatePassword(pw, silent = false) {
         pwChecking = true;
         if (!silent) pwError = "";
@@ -133,6 +148,7 @@
             if (ok) {
                 password = trimmed;
                 try { localStorage.setItem("bach:pw", trimmed); } catch {}
+                await loadPartyPack(trimmed);
             } else {
                 password = null;
                 try { localStorage.removeItem("bach:pw"); } catch {}
@@ -156,14 +172,13 @@
     }
 
     // --- Host actions ------------------------------------------------------
-    async function createSession(facts) {
-        const party = getParty();
+    async function createSession(facts, storyTone = "") {
         const { ok, data } = await api.createSession(password, {
             facts,
             partyId: party.id,
             groom: party.groom,
             partner: party.partner,
-            storyTone: party.storyTone || "",
+            storyTone: storyTone.trim(),
         });
         if (ok && data?.code) {
             code = data.code;
@@ -225,7 +240,7 @@
     {#if !password}
         <div class="bach-gate" role="dialog" aria-modal="true">
             <form class="bach-gate-form" onsubmit={submitPassword}>
-                <h1 class="bach-gate-title">The Saga of Matthew</h1>
+                <h1 class="bach-gate-title">Story Builder</h1>
                 <p class="bach-gate-sub">Invite only. Enter the password from the group chat.</p>
                 <label for="bach-pw">Password</label>
                 <input
@@ -243,10 +258,16 @@
                 {#if pwError}<div class="bach-gate-error">{pwError}</div>{/if}
             </form>
         </div>
+    {:else if partyLoading}
+        <div class="bach-loading">
+            <div class="bach-spinner" aria-hidden="true"></div>
+            <p>Loading party…</p>
+        </div>
     {:else if mode === "player"}
         <PlayerScreen
             {code}
             {player}
+            gameTitle={party.title}
             {gameState}
             {sessionMissing}
             {netError}
@@ -256,8 +277,8 @@
         />
     {:else}
         <HostScreen
+            {party}
             {code}
-            {hostToken}
             {password}
             {gameState}
             {netError}
@@ -275,6 +296,25 @@
         color: var(--paragraph-colour);
         font-family: 'Inter', sans-serif;
     }
+
+    .bach-loading {
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        opacity: 0.85;
+    }
+    .bach-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--main-green-translucent);
+        border-top-color: var(--main-green);
+        border-radius: 50%;
+        animation: bach-spin 0.8s linear infinite;
+    }
+    @keyframes bach-spin { to { transform: rotate(360deg); } }
 
     .bach-gate {
         position: fixed;

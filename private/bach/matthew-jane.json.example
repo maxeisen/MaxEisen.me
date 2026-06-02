@@ -1,0 +1,17 @@
+{
+  "id": "matthew-jane",
+  "title": "Your party title",
+  "groom": "Name",
+  "partner": "Name",
+  "includeGenericPools": true,
+  "slotsPerPlayer": 3,
+  "defaultFacts": "",
+  "storyTone": "",
+  "pools": [
+    {
+      "id": "round-a",
+      "label": "Pool label with {groom}",
+      "prompts": ["a prompt for guests to answer"]
+    }
+  ]
+}

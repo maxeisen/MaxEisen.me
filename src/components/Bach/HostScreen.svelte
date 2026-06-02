@@ -1,6 +1,6 @@
 <!--
     Host (big-screen) view. Drives the whole room: setup, lobby + QR, round
-    controls, the story reveal, MVP-of-Filth voting, and the leaderboard.
+    controls, the story reveal, MVP voting, and the leaderboard.
     All mutations go through the callbacks passed from Bach.svelte.
 -->
 <script>
@@ -9,27 +9,37 @@
     import * as api from "./api.js";
     import { formatStory } from "./story.js";
     import {
-        getParty,
         drawPrompts,
         loadUsedPrompts,
         saveUsedPrompts,
         clearUsedPrompts,
     } from "./partyConfig.js";
 
-    let { code, password, gameState, netError, onCreate, onAction, onGenerate } = $props();
+    let { party, code, password, gameState, netError, onCreate, onAction, onGenerate } = $props();
 
-    const party = getParty();
-    const pools = party.pools;
-    const defaultSlots = party.slotsPerPlayer;
+    const pools = $derived(party.pools);
+    const defaultSlots = $derived(party.slotsPerPlayer);
 
     // --- Setup (pre-session) ---
-    let facts = $state(party.defaultFacts);
+    let facts = $state("");
+    let storyTone = $state("");
     let creating = $state(false);
+
+    $effect(() => {
+        if (code || !party) return;
+        if (party.defaultFacts && !facts) facts = party.defaultFacts;
+        if (party.storyTone && !storyTone) storyTone = party.storyTone;
+    });
     let usedPrompts = $state(new Set());
 
     // --- Round config ---
-    let selectedPool = $state(pools.find((p) => p.id === "filthy")?.id || pools[0]?.id);
-    let slots = $state(defaultSlots);
+    let selectedPool = $state("");
+    let slots = $state(3);
+
+    $effect(() => {
+        if (!selectedPool && pools.length) selectedPool = pools[0].id;
+        slots = defaultSlots;
+    });
     let busy = $state(false);
 
     let audioUrl = $state(null);
@@ -122,7 +132,7 @@
 
     async function create() {
         creating = true;
-        try { await onCreate(facts); } finally { creating = false; }
+        try { await onCreate(facts, storyTone); } finally { creating = false; }
     }
 
     async function startRound() {
@@ -158,18 +168,26 @@
         <!-- Setup: collect couple facts, then create the session. -->
         <section class="setup">
             <h1 class="display">{party.title}</h1>
-            <p class="lede">A filthy, AI-woven story game. Review the dirt below, edit anything, then start the session.</p>
-            <label class="field-label" for="facts">Dirt on {party.groom} &amp; {party.partner}</label>
+            <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Add context and tone below — nothing is stored in the site repo.</p>
+            <label class="field-label" for="facts">Story context (couple, party, inside jokes)</label>
             <textarea
                 id="facts"
                 bind:value={facts}
-                rows="7"
-                placeholder="Inside jokes, embarrassing stories, how they met, Matthew's worst habits, Jane's pet peeves, nicknames, the more specific the better…"
+                rows="6"
+                placeholder="Names, how they met, running jokes, topics to avoid, people not to call out…"
+            ></textarea>
+            <label class="field-label" for="story-tone">Story tone (optional)</label>
+            <textarea
+                id="story-tone"
+                bind:value={storyTone}
+                rows="2"
+                maxlength="500"
+                placeholder="e.g. silly, heartfelt, PG, spooky — whatever fits your group"
             ></textarea>
             <button class="primary big" onclick={create} disabled={creating}>
-                {creating ? "Lighting the fuse…" : "Start a session"}
+                {creating ? "Starting…" : "Start a session"}
             </button>
-            <p class="hint">You can change the dirt later from the lobby.</p>
+            <p class="hint">You can update context later from the lobby if needed.</p>
         </section>
     {:else}
         <header class="bar">
@@ -179,7 +197,7 @@
             </div>
             {#if leaderboard.length > 0}
                 <div class="bar-leader">
-                    <span class="bar-code-label">Filth leader</span>
+                    <span class="bar-code-label">Round leader</span>
                     <span class="bar-leader-name">{leaderboard[0].name} · {leaderboard[0].points}</span>
                 </div>
             {/if}
@@ -189,7 +207,7 @@
         {#if phase === "lobby"}
             <section class="lobby">
                 <div class="lobby-join">
-                    <h2 class="section-title">Join the chaos</h2>
+                    <h2 class="section-title">Join the game</h2>
                     {#if joinUrl}<Qr text={joinUrl} size={260} />{/if}
                     <p class="join-hint">
                         Scan the QR, or open <strong>{joinPathManual}</strong> and enter the join password below.
@@ -206,9 +224,9 @@
                     </div>
                 </div>
                 <div class="lobby-side">
-                    <h2 class="section-title">Degenerates in the room ({players.length})</h2>
+                    <h2 class="section-title">Players ({players.length})</h2>
                     {#if players.length === 0}
-                        <p class="muted">Waiting for the first victim to join…</p>
+                        <p class="muted">Waiting for the first player to join…</p>
                     {:else}
                         <ul class="player-list">
                             {#each players as p}
@@ -260,7 +278,7 @@
         {:else if phase === "generating"}
             <section class="centered">
                 <div class="spinner"></div>
-                <h2 class="display sm">Summoning the chaos…</h2>
+                <h2 class="display sm">Writing your story…</h2>
                 <p class="muted">Weaving the story and recording the British narrator — hang tight.</p>
             </section>
 
@@ -279,6 +297,8 @@
                         </button>
                     {:else if audioError}
                         <span class="narration-status error">{audioError}</span>
+                    {:else if gameState?.storyAudioReady === false}
+                        <span class="narration-status muted">Narration unavailable this round — read it yourself.</span>
                     {/if}
                 </div>
                 {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
@@ -296,7 +316,7 @@
 
         {:else if phase === "voting"}
             <section class="centered">
-                <h2 class="display sm">Vote for the MVP of Filth</h2>
+                <h2 class="display sm">Vote for round MVP</h2>
                 <p class="muted">Open your phone and crown the best contribution. {gameState?.voteCount ?? 0} / {players.length} voted.</p>
                 <ul class="ballot-preview">
                     {#each gameState?.ballot ?? [] as item}
@@ -310,11 +330,11 @@
             <section class="centered">
                 {#if gameState?.mvp}
                     <div class="trophy">🏆</div>
-                    <h2 class="display sm">MVP of Filth: {gameState.mvp.name}</h2>
+                    <h2 class="display sm">Round MVP: {gameState.mvp.name}</h2>
                     <p class="mvp-quote">“{gameState.mvp.value}”</p>
                     <p class="muted">for <em>{gameState.mvp.prompt}</em> · {gameState.mvp.votes} vote{gameState.mvp.votes === 1 ? "" : "s"}</p>
                 {:else}
-                    <h2 class="display sm">No votes cast — cowards, all of you.</h2>
+                    <h2 class="display sm">No votes cast this round.</h2>
                 {/if}
 
                 {#if leaderboard.length > 0}
@@ -336,7 +356,7 @@
                 <div class="trophy">👑</div>
                 <h2 class="display">That's a wrap.</h2>
                 {#if leaderboard.length > 0}
-                    <p class="lede">Grand Champion of Filth: <strong>{leaderboard[0].name}</strong></p>
+                    <p class="lede">Overall leader: <strong>{leaderboard[0].name}</strong></p>
                     <ol class="leaderboard">
                         {#each leaderboard as row}
                             <li><span>{row.name}</span><span class="lb-pts">{row.points}</span></li>

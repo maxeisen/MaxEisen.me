@@ -58,6 +58,15 @@ export async function generateStory(password, { code, hostToken }) {
 	return post("bach-story", password, { code, hostToken });
 }
 
+export async function fetchPartyPack(password) {
+	const res = await fetch(`${FN}/bach-party-pack`, {
+		headers: { "X-Bach-Password": password || "" },
+	});
+	let data = null;
+	try { data = await res.json(); } catch { /* ignore */ }
+	return { ok: res.ok, status: res.status, data };
+}
+
 export async function fetchStoryAudio(password, code, roundIndex) {
 	const qs = new URLSearchParams({ code, round: String(roundIndex) });
 	const res = await fetch(`${FN}/bach-story-audio?${qs.toString()}`, {
