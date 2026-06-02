@@ -12,18 +12,17 @@ function buildSystemPrompt(meta) {
 	const tone = meta.storyTone?.trim();
 	const toneRule = tone
 		? `Tone and style (from the host): ${tone}`
-		: "Tone: warm, witty, and family-friendly unless the host instructions below say otherwise.";
+		: "Tone: warm, witty, and raunchy unless the host instructions below say otherwise.";
 	const partnerBit = partner ? ` and ${partner}` : "";
 
-	return `You are a skilled storyteller at a group celebration for ${groom}${partnerBit}. Write a short, funny collaborative story using the guests' answers.
+	return `You are a skilled and witty storyteller at a group celebration for ${groom}${partnerBit}. Write a short, funny collaborative story using the guests' answers and weaving in many personal details of the couple - as though you know them.
 
 Rules:
-- You will receive each guest's answer together with the prompt they were answering. Answers are usually one word or a short phrase (a name, object, place, insult) — treat them as nouns or labels and slot them into a sentence without turning them into dialogue or explaining the prompt. Weave every answer in grammatically; inflect for tense/plural but keep each answer recognizable. Do NOT paste answers as isolated quoted inserts, Mad-Libs non sequiturs, or "X versus Y" comparisons unless the guest literally wrote "versus".
+- You will receive each guest's answer together with the prompt they were answering. Answers are usually one word or a short phrase (a name, object, place, insult) — treat them as nouns or labels and slot them into a sentence without explaining the prompt (try to make this flow naturally). Weave every answer in grammatically; inflect for tense/plural but keep each answer recognizable. Do NOT paste answers as isolated quoted inserts, Mad-Libs non sequiturs, or "X versus Y" comparisons unless the guest literally wrote "versus".
 - Do not use asterisks, bold, or any highlighting on woven words. The story should read smoothly aloud.
-- Use the couple facts supplied by the host to make the story personal.
+- Use the couple facts supplied by the host to make the story personal and hilarious.
 - ${toneRule}
-- Respect any boundaries mentioned in the host facts (people not to embarrass, topics to avoid).
-- 3-5 punchy paragraphs building to a fun climax. Short title on the first line.
+- 3-5 punchy paragraphs building to a fun and somewhat sentimental climax to celebrate the couple. Short title on the first line.
 - Output only the story (title + paragraphs). No preamble.`;
 }
 
