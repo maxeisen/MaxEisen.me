@@ -3,23 +3,51 @@
     MVP-of-Filth vote ballot, and lightweight "watch the big screen" states.
 -->
 <script>
-    let { code, player, state, sessionMissing, netError, onjoin, onsubmitword, onvote } = $props();
+    let { code, player, gameState, sessionMissing, netError, onJoin, onSubmitWord, onVote } = $props();
 
     let nameInput = $state("");
     let joining = $state(false);
     let drafts = $state({});
+    let draftsEpoch = $state(null);
     let savingSlot = $state(null);
     let voting = $state(false);
 
-    const phase = $derived(state?.phase ?? null);
-    const you = $derived(state?.you ?? null);
+    const phase = $derived(gameState?.phase ?? null);
+    const roundIndex = $derived(gameState?.roundIndex ?? null);
+    const you = $derived(gameState?.you ?? null);
     const slots = $derived(you?.slots ?? []);
+    // roundIndex alone isn't enough (a reset game starts at 0 again) — pair
+    // with host version which bumps on every phase change.
+    const writingEpoch = $derived(
+        phase === "writing" && roundIndex != null
+            ? `${roundIndex}:${gameState?.version ?? 0}`
+            : null,
+    );
 
-    // Seed local drafts from server values once, without stomping live typing.
+    // Slot ids (s0, s1, …) are reused every round — reset drafts when the
+    // writing epoch changes, then only backfill undefined keys within it.
     $effect(() => {
-        for (const s of slots) {
-            if (drafts[s.slotId] === undefined) drafts[s.slotId] = s.value || "";
+        const epoch = writingEpoch;
+        const list = slots;
+        if (epoch == null || list.length === 0) return;
+
+        if (epoch !== draftsEpoch) {
+            draftsEpoch = epoch;
+            const next = {};
+            for (const s of list) next[s.slotId] = s.value || "";
+            drafts = next;
+            return;
         }
+
+        let changed = false;
+        const next = { ...drafts };
+        for (const s of list) {
+            if (next[s.slotId] === undefined) {
+                next[s.slotId] = s.value || "";
+                changed = true;
+            }
+        }
+        if (changed) drafts = next;
     });
 
     function isSaved(slot) {
@@ -31,23 +59,23 @@
         e.preventDefault();
         if (joining || !nameInput.trim()) return;
         joining = true;
-        try { await onjoin(nameInput.trim()); } finally { joining = false; }
+        try { await onJoin(nameInput.trim()); } finally { joining = false; }
     }
 
     async function save(slot) {
         const value = (drafts[slot.slotId] ?? "").trim();
         if (!value) return;
         savingSlot = slot.slotId;
-        try { await onsubmitword(slot.slotId, value); } finally { savingSlot = null; }
+        try { await onSubmitWord(slot.slotId, value); } finally { savingSlot = null; }
     }
 
     async function pick(item) {
         if (voting || you?.hasVoted) return;
         voting = true;
-        try { await onvote(item.id); } finally { voting = false; }
+        try { await onVote(item.id); } finally { voting = false; }
     }
 
-    const ballot = $derived((state?.ballot ?? []).filter((i) => i.authorId !== player?.playerId));
+    const ballot = $derived((gameState?.ballot ?? []).filter((i) => i.authorId !== player?.playerId));
 </script>
 
 <div class="player">
@@ -87,7 +115,7 @@
                 <p class="sub">Be specific. Be filthy. The AI will do the rest.</p>
             </div>
             <div class="slots">
-                {#each slots as slot}
+                {#each slots as slot (`${writingEpoch}-${slot.slotId}`)}
                     <div class="slot {isSaved(slot) ? 'saved' : ''}">
                         <div class="slot-prompt">{slot.prompt}</div>
                         <div class="slot-row">
@@ -156,10 +184,10 @@
 
     {:else if phase === "results"}
         <div class="card center">
-            {#if state?.mvp}
+            {#if gameState?.mvp}
                 <div class="big-emoji">🏆</div>
-                <h1 class="title">{state.mvp.name} takes it</h1>
-                <p class="sub">“{state.mvp.value}”</p>
+                <h1 class="title">{gameState.mvp.name} takes it</h1>
+                <p class="sub">“{gameState.mvp.value}”</p>
             {:else}
                 <h1 class="title">Nobody voted 🦗</h1>
             {/if}

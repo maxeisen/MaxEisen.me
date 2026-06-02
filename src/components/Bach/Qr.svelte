@@ -4,7 +4,8 @@
     authenticated transparently without typing anything.
 -->
 <script>
-    import QRCode from "qrcode";
+    import qrcode from "qrcode";
+    const QRCode = qrcode.default ?? qrcode;
 
     let { text, size = 240 } = $props();
 

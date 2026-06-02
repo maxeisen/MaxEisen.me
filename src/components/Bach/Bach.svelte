@@ -9,6 +9,7 @@
 <script>
     import { onMount } from "svelte";
     import * as api from "./api.js";
+    import { getParty } from "./partyConfig.js";
     import HostScreen from "./HostScreen.svelte";
     import PlayerScreen from "./PlayerScreen.svelte";
 
@@ -151,7 +152,14 @@
 
     // --- Host actions ------------------------------------------------------
     async function createSession(facts) {
-        const { ok, data } = await api.createSession(password, facts);
+        const party = getParty();
+        const { ok, data } = await api.createSession(password, {
+            facts,
+            partyId: party.id,
+            groom: party.groom,
+            partner: party.partner,
+            storyTone: party.storyTone || "",
+        });
         if (ok && data?.code) {
             code = data.code;
             hostToken = data.hostToken;
@@ -234,23 +242,23 @@
         <PlayerScreen
             {code}
             {player}
-            state={gameState}
+            {gameState}
             {sessionMissing}
             {netError}
-            onjoin={joinGame}
-            onsubmitword={submitWord}
-            onvote={vote}
+            onJoin={joinGame}
+            onSubmitWord={submitWord}
+            onVote={vote}
         />
     {:else}
         <HostScreen
             {code}
             {hostToken}
             {password}
-            state={gameState}
+            {gameState}
             {netError}
-            oncreate={createSession}
-            onaction={doHostAction}
-            ongenerate={generate}
+            onCreate={createSession}
+            onAction={doHostAction}
+            onGenerate={generate}
         />
     {/if}
 </div>

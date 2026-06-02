@@ -47,7 +47,8 @@ export default async function handler(req) {
 			for (const { value: player } of playerBlobs) {
 				const slots = [];
 				for (let k = 0; k < slotsPerPlayer; k++) {
-					slots.push({ slotId: `s${k}`, prompt: pool[pi % pool.length] });
+					const prompt = pool[pi] ?? pool[pi % pool.length];
+					slots.push({ slotId: `s${k}`, prompt });
 					pi++;
 				}
 				assignments[player.id] = slots;

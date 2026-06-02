@@ -4,57 +4,78 @@
     All mutations go through the callbacks passed from Bach.svelte.
 -->
 <script>
-    import promptData from "@content/bachPrompts.json";
     import Qr from "./Qr.svelte";
     import { formatStory } from "./story.js";
+    import {
+        getParty,
+        drawPrompts,
+        loadUsedPrompts,
+        saveUsedPrompts,
+        clearUsedPrompts,
+    } from "./partyConfig.js";
 
-    let { code, password, game, netError, oncreate, onaction, ongenerate } = $props();
+    let { code, password, gameState, netError, onCreate, onAction, onGenerate } = $props();
 
-    const pools = promptData.pools;
-    const defaultSlots = promptData.slotsPerPlayer || 3;
+    const party = getParty();
+    const pools = party.pools;
+    const defaultSlots = party.slotsPerPlayer;
 
     // --- Setup (pre-session) ---
-    let facts = $state("");
+    let facts = $state(party.defaultFacts);
     let creating = $state(false);
+    let usedPrompts = $state(new Set());
 
     // --- Round config ---
-    let selectedPool = $state(pools[1]?.id || pools[0].id);
+    let selectedPool = $state(pools.find((p) => p.id === "filthy")?.id || pools[0]?.id);
     let slots = $state(defaultSlots);
     let busy = $state(false);
 
-    const phase = $derived(game?.phase ?? null);
-    const players = $derived(game?.players ?? []);
-    const counts = $derived(game?.counts ?? { submitted: 0, total: 0 });
-    const leaderboard = $derived(game?.leaderboard ?? []);
+    $effect(() => {
+        if (code) usedPrompts = loadUsedPrompts(code);
+    });
+
+    const phase = $derived(gameState?.phase ?? null);
+    const players = $derived(gameState?.players ?? []);
+    const counts = $derived(gameState?.counts ?? { submitted: 0, total: 0 });
+    const leaderboard = $derived(gameState?.leaderboard ?? []);
 
     const joinUrl = $derived(
         typeof window !== "undefined" && code
             ? `${window.location.origin}/bach?room=${code}&k=${encodeURIComponent(password)}`
             : ""
     );
-    const story = $derived(formatStory(game?.story || ""));
+    const story = $derived(formatStory(gameState?.story || ""));
 
     async function create() {
         creating = true;
-        try { await oncreate(facts); } finally { creating = false; }
+        try { await onCreate(facts); } finally { creating = false; }
     }
 
     async function startRound() {
         const pool = pools.find((p) => p.id === selectedPool) || pools[0];
+        const need = Math.max(1, players.length) * slots;
+        const drawn = drawPrompts(pool, usedPrompts, need);
+        if (code) saveUsedPrompts(code, usedPrompts);
         busy = true;
         try {
-            await onaction("start", { prompts: pool.prompts, slotsPerPlayer: slots });
+            await onAction("start", { prompts: drawn, slotsPerPlayer: slots });
         } finally { busy = false; }
     }
 
     async function act(action) {
         busy = true;
-        try { await onaction(action); } finally { busy = false; }
+        try {
+            const ok = await onAction(action);
+            if (ok && action === "reset") {
+                usedPrompts = new Set();
+                if (code) clearUsedPrompts(code);
+            }
+        } finally { busy = false; }
     }
 
     async function generate() {
         busy = true;
-        try { await ongenerate(); } finally { busy = false; }
+        try { await onGenerate(); } finally { busy = false; }
     }
 </script>
 
@@ -62,9 +83,9 @@
     {#if !code}
         <!-- Setup: collect couple facts, then create the session. -->
         <section class="setup">
-            <h1 class="display">The Saga of Matthew</h1>
-            <p class="lede">A filthy, AI-woven story game. Feed it dirt on the couple, then let your friends' words write the legend.</p>
-            <label class="field-label" for="facts">Dirt on Matthew &amp; Jane</label>
+            <h1 class="display">{party.title}</h1>
+            <p class="lede">A filthy, AI-woven story game. Review the dirt below, edit anything, then start the session.</p>
+            <label class="field-label" for="facts">Dirt on {party.groom} &amp; {party.partner}</label>
             <textarea
                 id="facts"
                 bind:value={facts}
@@ -96,8 +117,19 @@
                 <div class="lobby-join">
                     <h2 class="section-title">Join the chaos</h2>
                     {#if joinUrl}<Qr text={joinUrl} size={260} />{/if}
-                    <p class="join-hint">Scan, or go to <strong>{typeof window !== "undefined" ? window.location.host : ""}/bach</strong> and enter code</p>
-                    <div class="bigcode">{code}</div>
+                    <p class="join-hint">
+                        Scan the QR, or go to <strong>{typeof window !== "undefined" ? window.location.host : ""}/bach</strong>
+                    </p>
+                    <div class="join-manual">
+                        <div class="join-manual-row">
+                            <span class="join-manual-label">Room code</span>
+                            <span class="bigcode inline">{code}</span>
+                        </div>
+                        <div class="join-manual-row">
+                            <span class="join-manual-label">Join password</span>
+                            <span class="join-pw">{password}</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="lobby-side">
                     <h2 class="section-title">Degenerates in the room ({players.length})</h2>
@@ -142,7 +174,7 @@
                         <li class="chip {p.submitted ? 'done' : ''}">{p.name}{p.submitted ? " ✓" : "…"}</li>
                     {/each}
                 </ul>
-                {#if game?.error === "generation_failed"}
+                {#if gameState?.error === "generation_failed"}
                     <p class="error">The story machine choked. Try weaving again.</p>
                 {/if}
                 <button class="primary big" onclick={generate} disabled={busy || counts.total === 0}>
@@ -175,9 +207,9 @@
         {:else if phase === "voting"}
             <section class="centered">
                 <h2 class="display sm">Vote for the MVP of Filth</h2>
-                <p class="muted">Open your phone and crown the best contribution. {game?.voteCount ?? 0} / {players.length} voted.</p>
+                <p class="muted">Open your phone and crown the best contribution. {gameState?.voteCount ?? 0} / {players.length} voted.</p>
                 <ul class="ballot-preview">
-                    {#each game?.ballot ?? [] as item}
+                    {#each gameState?.ballot ?? [] as item}
                         <li><span class="ballot-prompt">{item.prompt}</span> “{item.value}”</li>
                     {/each}
                 </ul>
@@ -186,11 +218,11 @@
 
         {:else if phase === "results"}
             <section class="centered">
-                {#if game?.mvp}
+                {#if gameState?.mvp}
                     <div class="trophy">🏆</div>
-                    <h2 class="display sm">MVP of Filth: {game.mvp.name}</h2>
-                    <p class="mvp-quote">“{game.mvp.value}”</p>
-                    <p class="muted">for <em>{game.mvp.prompt}</em> · {game.mvp.votes} vote{game.mvp.votes === 1 ? "" : "s"}</p>
+                    <h2 class="display sm">MVP of Filth: {gameState.mvp.name}</h2>
+                    <p class="mvp-quote">“{gameState.mvp.value}”</p>
+                    <p class="muted">for <em>{gameState.mvp.prompt}</em> · {gameState.mvp.votes} vote{gameState.mvp.votes === 1 ? "" : "s"}</p>
                 {:else}
                     <h2 class="display sm">No votes cast — cowards, all of you.</h2>
                 {/if}
@@ -332,6 +364,42 @@
         letter-spacing: 0.18em;
         color: var(--main-green);
         margin-top: 0.5rem;
+    }
+    .bigcode.inline {
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        margin-top: 0;
+        letter-spacing: 0.14em;
+    }
+    .join-manual {
+        margin-top: 1.25rem;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        background: var(--item-background);
+        border: var(--item-border);
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+    .join-manual-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .join-manual-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--main-green);
+        opacity: 0.85;
+    }
+    .join-pw {
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        font-size: 1.35rem;
+        color: var(--header-colour);
+        word-break: break-all;
     }
     .player-list {
         list-style: none;

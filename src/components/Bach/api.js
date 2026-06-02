@@ -23,8 +23,8 @@ export async function checkPassword(password) {
 	return post("bach-check-password", password, { password });
 }
 
-export async function createSession(password, facts) {
-	return post("bach-create", password, { facts });
+export async function createSession(password, payload) {
+	return post("bach-create", password, payload);
 }
 
 export async function joinSession(password, { code, name, playerId }) {

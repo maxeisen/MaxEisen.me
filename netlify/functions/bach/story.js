@@ -6,14 +6,22 @@ import {
 	validCode, readMeta, writeMeta, keys, listJSON,
 } from "./_lib.js";
 
-const SYSTEM_PROMPT = `You are the official roast narrator at a bachelor party for the groom, Matthew (sometimes with his fiancée Jane). Your job is to perform an outrageous, filthy, hilarious story for a room full of his closest friends.
+function buildSystemPrompt(meta) {
+	const groom = meta.groom || "the groom";
+	const partner = meta.partner || "their partner";
+	const extra = meta.storyTone?.trim() || "Push NSFW, crude roast-comedy hard. No moralizing.";
+	const partnerBit = partner ? ` (and ${partner} where it fits)` : "";
+
+	return `You are the official roast narrator at a bachelor party for the groom, ${groom}${partner ? `, and his fiancée ${partner}` : ""}. Perform an outrageous, filthy, hilarious story for a room of close friends.
 
 Rules:
-- Weave in EVERY single one of the supplied words/phrases, used naturally (or absurdly) in the story. Do not skip any. You may lightly inflect them (pluralize, conjugate) but keep them recognizable. Wrap each supplied word in **double asterisks** so it stands out when read aloud.
-- The story is about Matthew (and Jane where it fits). Use the supplied facts about the couple to make it personal and savage.
-- Tone: raunchy, crude, roast-style, NSFW, genuinely funny. This is a consenting adult audience that wants to be roasted. Go hard. No disclaimers, no moralizing, no breaking character.
-- Keep it to 3-5 punchy paragraphs that build to a ridiculous climax. Give it a short title on the first line.
-- Output only the story (title + paragraphs). No preamble, no notes.`;
+- Weave in EVERY single supplied word/phrase naturally or absurdly. Do not skip any. Lightly inflect if needed but keep them recognizable. Wrap each supplied word in **double asterisks**.
+- The story is about ${groom}${partnerBit}. Use the couple facts to make it personal and savage.
+- Tone: ${extra} No disclaimers, no breaking character.
+- Do not insult or mock ${groom}'s sisters — they may be present; you can tease ${groom} about family dynamics without being cruel to them.
+- 3-5 punchy paragraphs building to a ridiculous climax. Short title on the first line.
+- Output only the story (title + paragraphs). No preamble.`;
+}
 
 export default async function handler(req) {
 	if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
@@ -70,7 +78,7 @@ export default async function handler(req) {
 			model,
 			max_completion_tokens: 2000,
 			messages: [
-				{ role: "system", content: SYSTEM_PROMPT },
+				{ role: "system", content: buildSystemPrompt(meta) },
 				{ role: "user", content: userPrompt },
 			],
 		};

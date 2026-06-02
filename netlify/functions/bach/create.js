@@ -13,6 +13,10 @@ export default async function handler(req) {
 	if (body === null) return jsonResponse({ error: "Invalid JSON body" }, 400);
 
 	const facts = typeof body?.facts === "string" ? body.facts.slice(0, 4000) : "";
+	const groom = typeof body?.groom === "string" ? body.groom.trim().slice(0, 40) : "the groom";
+	const partner = typeof body?.partner === "string" ? body.partner.trim().slice(0, 40) : "";
+	const partyId = typeof body?.partyId === "string" ? body.partyId.slice(0, 64) : "";
+	const storyTone = typeof body?.storyTone === "string" ? body.storyTone.slice(0, 500) : "";
 	const store = getSessionStore();
 
 	let code = null;
@@ -30,6 +34,10 @@ export default async function handler(req) {
 		phase: "lobby",
 		roundIndex: -1,
 		facts,
+		groom,
+		partner,
+		partyId,
+		storyTone,
 		assignments: {},
 		version: 1,
 		error: null,

@@ -1,0 +1,36 @@
+{
+  "slotsPerPlayer": 3,
+  "pools": [
+    {
+      "id": "warmup",
+      "label": "Warm-up",
+      "prompts": [
+        "an adjective",
+        "a plural noun",
+        "a verb ending in -ing",
+        "a body part",
+        "an animal",
+        "a colour",
+        "a number between 1 and 100",
+        "a celebrity",
+        "a city",
+        "an item of clothing",
+        "a type of drink",
+        "an emotion",
+        "a household object",
+        "a sound effect",
+        "an exclamation",
+        "a brand name",
+        "a job title",
+        "something sticky",
+        "a smell",
+        "a texture",
+        "a unit of measurement",
+        "a time of day",
+        "a weather condition",
+        "a type of cheese",
+        "a vehicle"
+      ]
+    }
+  ]
+}
