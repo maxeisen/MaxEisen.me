@@ -66,9 +66,10 @@ export async function generateStoryTts(password, { code, hostToken }) {
 	return post("bach-story-tts", password, { code, hostToken });
 }
 
-export async function fetchPartyPack(password, packId) {
+export async function fetchPartyPack(password, packId, { library = false } = {}) {
 	const qs = new URLSearchParams();
 	if (packId) qs.set("pack", packId);
+	if (library) qs.set("library", "1");
 	const suffix = qs.toString() ? `?${qs.toString()}` : "";
 	const res = await fetch(`${FN}/bach-party-pack${suffix}`, {
 		headers: { "X-Bach-Password": password || "" },

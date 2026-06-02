@@ -13,7 +13,6 @@
         loadUsedPrompts,
         saveUsedPrompts,
         clearUsedPrompts,
-        hasPrivatePartyPack,
         poolsForAudience,
     } from "./partyConfig.js";
     import { validatePartyPack } from "./validatePartyPack.js";
@@ -27,6 +26,7 @@
         netError,
         onCreate,
         onSelectPartyPack,
+        onReloadPartyPack,
         onPartyPackUpload,
         onRequestTts,
         onAction,
@@ -39,6 +39,14 @@
     /** @type {"boys" | "everyone"} */
     let roundAudience = $state("everyone");
     const pools = $derived(poolsForAudience(allPools, roundAudience));
+
+    const packOptions = $derived(
+        partyCatalog.packs.length > 0
+            ? partyCatalog.packs
+            : party?.id
+                ? [{ id: party.id, title: party.title || party.id }]
+                : [],
+    );
 
     // --- Setup (pre-session) ---
     let facts = $state("");
@@ -161,6 +169,10 @@
 
     onDestroy(releaseAudio);
 
+    function selectedPackId() {
+        return partyCatalog.activePackId || packOptions[0]?.id || "";
+    }
+
     async function onPackSelect(e) {
         const packId = e.currentTarget.value;
         if (!packId || packId === partyCatalog.activePackId) return;
@@ -176,6 +188,25 @@
         } catch (err) {
             packError = err?.message || "Could not switch party pack.";
             e.currentTarget.value = partyCatalog.activePackId || "";
+        } finally {
+            packSelecting = false;
+        }
+    }
+
+    async function onPackReload() {
+        const packId = selectedPackId();
+        if (!packId) return;
+        packError = "";
+        packStatus = "";
+        packSelecting = true;
+        try {
+            const loaded = await onReloadPartyPack(packId);
+            const entry = partyCatalog.packs.find((p) => p.id === packId);
+            packStatus = `Reloaded “${entry?.title || packId}” from the server.`;
+            if (loaded?.defaultFacts) facts = loaded.defaultFacts;
+            if (loaded?.storyTone) storyTone = loaded.storyTone;
+        } catch (err) {
+            packError = err?.message || "Could not reload party pack.";
         } finally {
             packSelecting = false;
         }
@@ -255,31 +286,41 @@
 
             <div class="pack-upload">
                 <label class="field-label" for="party-pack-select">Party pack</label>
-                {#if partyCatalog.packs.length > 0}
-                    <select
-                        id="party-pack-select"
-                        class="pack-select"
-                        value={partyCatalog.activePackId || partyCatalog.packs[0]?.id || ""}
-                        disabled={packSelecting || packUploading}
-                        onchange={onPackSelect}
-                    >
-                        {#each partyCatalog.packs as entry (entry.id)}
-                            <option value={entry.id}>{entry.title}</option>
-                        {/each}
-                    </select>
-                    {#if partyCatalog.source === "custom"}
-                        <p class="pack-hint">Custom JSON override active — pick a pack above to use the library again.</p>
-                    {:else}
-                        <p class="pack-hint muted">Seeded on deploy from the private repo.</p>
-                    {/if}
+                {#if packOptions.length > 0}
+                    <div class="pack-select-row">
+                        <select
+                            id="party-pack-select"
+                            class="pack-select"
+                            value={partyCatalog.activePackId || packOptions[0]?.id || ""}
+                            disabled={packSelecting || packUploading}
+                            onchange={onPackSelect}
+                        >
+                            {#each packOptions as entry (entry.id)}
+                                <option value={entry.id}>{entry.title}</option>
+                            {/each}
+                        </select>
+                        <button
+                            type="button"
+                            class="ghost pack-reload-btn"
+                            disabled={packSelecting || packUploading}
+                            onclick={onPackReload}
+                            title="Fetch latest pack from private GitHub"
+                        >
+                            Reload
+                        </button>
+                    </div>
+                    <p class="pack-hint muted">
+                        {#if partyCatalog.source === "github"}
+                            Loaded from private GitHub.
+                        {:else if partyCatalog.source === "custom"}
+                            Custom JSON override — Reload to pull from GitHub again.
+                        {:else}
+                            Loads latest from private GitHub when you open or reload.
+                        {/if}
+                    </p>
                 {:else}
                     <p class="pack-hint">
-                        {#if hasPrivatePartyPack()}
-                            <strong>{party.title}</strong>
-                            {#if party.id}<span class="muted"> ({party.id})</span>{/if}
-                        {:else}
-                            No seeded packs yet — upload JSON or set <code>BACH_PARTY_JSON_PATH</code> for local dev.
-                        {/if}
+                        No packs configured — set <code>PRIVATE_ACCESS_GITHUB_TOKEN</code> on Netlify Functions, or use <code>BACH_PARTY_JSON_PATH</code> locally.
                     </p>
                 {/if}
                 <details class="pack-advanced">
@@ -365,17 +406,27 @@
 
                     <div class="round-setup pack-upload compact">
                         <h3 class="mini-title">Party pack</h3>
-                        {#if partyCatalog.packs.length > 0}
-                            <select
-                                class="pack-select"
-                                value={partyCatalog.activePackId || partyCatalog.packs[0]?.id || ""}
-                                disabled={packSelecting || packUploading}
-                                onchange={onPackSelect}
-                            >
-                                {#each partyCatalog.packs as entry (entry.id)}
-                                    <option value={entry.id}>{entry.title}</option>
-                                {/each}
-                            </select>
+                        {#if packOptions.length > 0}
+                            <div class="pack-select-row">
+                                <select
+                                    class="pack-select"
+                                    value={partyCatalog.activePackId || packOptions[0]?.id || ""}
+                                    disabled={packSelecting || packUploading}
+                                    onchange={onPackSelect}
+                                >
+                                    {#each packOptions as entry (entry.id)}
+                                        <option value={entry.id}>{entry.title}</option>
+                                    {/each}
+                                </select>
+                                <button
+                                    type="button"
+                                    class="ghost pack-reload-btn"
+                                    disabled={packSelecting || packUploading}
+                                    onclick={onPackReload}
+                                >
+                                    Reload
+                                </button>
+                            </div>
                         {:else}
                             <p class="pack-hint"><strong>{party.title}</strong></p>
                         {/if}
@@ -643,16 +694,28 @@
     .pack-hint { font-size: 0.9rem; margin: 0 0 0.65rem; opacity: 0.9; }
     .pack-hint code { font-size: 0.85em; }
     .pack-ok { color: var(--main-green); font-size: 0.9rem; margin: 0.35rem 0 0; }
+    .pack-select-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: stretch;
+        margin-bottom: 0.5rem;
+    }
     .pack-select {
         font: inherit;
-        width: 100%;
+        flex: 1;
+        min-width: 0;
         box-sizing: border-box;
         color: var(--header-colour);
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--main-green-translucent);
         border-radius: 10px;
         padding: 0.65rem 0.75rem;
-        margin-bottom: 0.5rem;
+    }
+    .pack-reload-btn {
+        flex-shrink: 0;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        white-space: nowrap;
     }
     .pack-advanced {
         margin-top: 0.75rem;

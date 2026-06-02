@@ -1,5 +1,5 @@
 // GET/POST /.netlify/functions/bach-party-pack
-// Library packs in Blobs (seeded on deploy); host picks by id or uploads a custom override.
+// Library packs: live from private GitHub (PRIVATE_ACCESS_GITHUB_TOKEN), cached in Blobs.
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -7,6 +7,7 @@ import { Buffer } from "node:buffer";
 import {
 	passwordOk, jsonResponse, readBody, getEnv, getSessionStore, keys, validPartyPackId,
 } from "./_lib.js";
+import { fetchPartyPackFromGitHub, getPartyAllowlist } from "./github-pack.js";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -50,31 +51,59 @@ function extractParty(body) {
 	return body;
 }
 
+function packAllowed(packId) {
+	return getPartyAllowlist().includes(packId);
+}
+
 async function loadManifest(store) {
-	const manifest = await store.get(keys.partyPackManifest(), { type: "json" });
-	if (!Array.isArray(manifest)) return [];
-	return manifest.filter((e) => e?.id && validPartyPackId(e.id));
+	const allowlist = getPartyAllowlist();
+	const blobManifest = await store.get(keys.partyPackManifest(), { type: "json" });
+	const blobList = Array.isArray(blobManifest) ? blobManifest : [];
+
+	return allowlist.map((id) => {
+		const fromBlob = blobList.find((e) => e?.id === id);
+		return { id, title: fromBlob?.title || id };
+	});
 }
 
+/** GitHub first, then Blobs; writes back to Blobs when GitHub succeeds. */
 async function loadLibraryPack(store, packId) {
-	if (!validPartyPackId(packId)) return null;
-	const manifest = await loadManifest(store);
-	if (manifest.length > 0 && !manifest.some((e) => e.id === packId)) return null;
-	return store.get(keys.partyPack(packId), { type: "json" });
+	if (!validPartyPackId(packId) || !packAllowed(packId)) return null;
+
+	const fromGithub = await fetchPartyPackFromGitHub(packId);
+	if (fromGithub && !validatePartyPack(fromGithub)) {
+		await store.setJSON(keys.partyPack(packId), fromGithub, {
+			metadata: { updatedAt: new Date().toISOString(), source: "github" },
+		});
+		return { party: fromGithub, source: "github" };
+	}
+
+	const fromBlob = await store.get(keys.partyPack(packId), { type: "json" });
+	if (fromBlob && !validatePartyPack(fromBlob)) {
+		return { party: fromBlob, source: "blob" };
+	}
+
+	return null;
 }
 
-async function resolveActivePackId(store) {
-	const custom = await store.get(keys.hostPartyPack(), { type: "json" });
-	if (custom) return { packId: null, source: "custom" };
+function manifestWithTitle(packs, packId, title) {
+	return packs.map((e) => (e.id === packId ? { ...e, title: title || e.title } : e));
+}
+
+async function resolveActivePackId(store, libraryOnly) {
+	if (!libraryOnly) {
+		const custom = await store.get(keys.hostPartyPack(), { type: "json" });
+		if (custom) return { packId: null, source: "custom" };
+	}
 
 	const activeId = await store.get(keys.activePartyPackId(), { type: "text" });
-	if (activeId && validPartyPackId(activeId)) {
+	if (activeId && validPartyPackId(activeId) && packAllowed(activeId)) {
 		return { packId: activeId, source: "library" };
 	}
 
-	const manifest = await loadManifest(store);
-	if (manifest.length > 0) {
-		return { packId: manifest[0].id, source: "library" };
+	const allowlist = getPartyAllowlist();
+	if (allowlist.length > 0) {
+		return { packId: allowlist[0], source: "library" };
 	}
 
 	return { packId: null, source: null };
@@ -88,38 +117,61 @@ export default async function handler(req) {
 
 	if (req.method === "GET") {
 		try {
-			const packs = await loadManifest(store);
+			let packs = await loadManifest(store);
 			const requestedId = (url.searchParams.get("pack") || "").trim();
+			const libraryOnly = url.searchParams.get("library") === "1";
+
+			if (libraryOnly && requestedId && validPartyPackId(requestedId)) {
+				const loaded = await loadLibraryPack(store, requestedId);
+				if (loaded) {
+					packs = manifestWithTitle(packs, requestedId, loaded.party.title);
+					return jsonResponse({
+						packs,
+						activePackId: requestedId,
+						party: loaded.party,
+						source: loaded.source,
+					});
+				}
+				return jsonResponse({ packs, activePackId: requestedId, error: "pack_not_found" }, 404);
+			}
 
 			const custom = await store.get(keys.hostPartyPack(), { type: "json" });
-			if (custom) {
+			if (custom && !libraryOnly) {
 				const activePackId = await store.get(keys.activePartyPackId(), { type: "text" });
+				let party = custom;
+				let source = "custom";
+				if (requestedId && validPartyPackId(requestedId)) {
+					const loaded = await loadLibraryPack(store, requestedId);
+					if (loaded) {
+						party = loaded.party;
+						source = loaded.source;
+					}
+				}
 				return jsonResponse({
 					packs,
 					activePackId: activePackId && validPartyPackId(activePackId) ? activePackId : null,
-					party: requestedId && validPartyPackId(requestedId)
-						? await loadLibraryPack(store, requestedId) || custom
-						: custom,
-					source: "custom",
+					party,
+					source,
 				});
 			}
 
 			let packId = requestedId;
 			let source = "library";
 			if (!packId) {
-				const active = await resolveActivePackId(store);
+				const active = await resolveActivePackId(store, libraryOnly);
 				packId = active.packId;
 				source = active.source || "library";
 			}
 
 			if (packId) {
-				const party = await loadLibraryPack(store, packId);
-				if (party) {
+				const loaded = await loadLibraryPack(store, packId);
+				if (loaded) {
+					packs = manifestWithTitle(packs, packId, loaded.party.title);
 					return jsonResponse({
 						packs,
 						activePackId: packId,
-						party,
-						source,
+						party: loaded.party,
+						source: loaded.source,
 					});
 				}
 			}
@@ -148,8 +200,8 @@ export default async function handler(req) {
 		const packId = typeof body?.packId === "string" ? body.packId.trim() : "";
 		if (packId) {
 			if (!validPartyPackId(packId)) return jsonResponse({ error: "invalid_pack_id" }, 400);
-			const party = await loadLibraryPack(store, packId);
-			if (!party) return jsonResponse({ error: "pack_not_found" }, 404);
+			const loaded = await loadLibraryPack(store, packId);
+			if (!loaded) return jsonResponse({ error: "pack_not_found" }, 404);
 
 			try {
 				await store.set(keys.activePartyPackId(), packId);
@@ -157,9 +209,9 @@ export default async function handler(req) {
 				return jsonResponse({
 					ok: true,
 					packId,
-					title: party.title || packId,
-					party,
-					source: "library",
+					title: loaded.party.title || packId,
+					party: loaded.party,
+					source: loaded.source,
 				});
 			} catch (err) {
 				console.error("bach/party-pack select failed:", err?.message || err);

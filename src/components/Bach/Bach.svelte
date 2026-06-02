@@ -131,14 +131,17 @@
     async function loadPartyPack(pw) {
         partyLoading = true;
         try {
-            const { ok, data } = await api.fetchPartyPack(pw);
+            const { ok, data } = await api.fetchPartyPack(pw, null, { library: true });
             partyCatalog = {
                 packs: data?.packs ?? [],
                 activePackId: data?.activePackId ?? null,
                 source: data?.source ?? null,
             };
-            if (ok && data?.party) setPrivatePartyPack(data.party);
-            else clearPrivatePartyPack();
+            if (ok && data?.party) {
+                setPrivatePartyPack(data.party);
+            } else {
+                clearPrivatePartyPack();
+            }
         } catch {
             partyCatalog = { packs: [], activePackId: null, source: null };
             clearPrivatePartyPack();
@@ -164,6 +167,32 @@
         };
         party = getParty();
         return data.party;
+    }
+
+    /** Clear custom override and pull the selected library pack from Blobs again. */
+    async function reloadPartyPack(packId) {
+        const id = (packId || partyCatalog.activePackId || partyCatalog.packs[0]?.id || "").trim();
+        if (!id) throw new Error("Pick a party pack first.");
+
+        clearPrivatePartyPack();
+        party = getParty();
+
+        const loaded = await selectPartyPack(id);
+
+        const { ok, data } = await api.fetchPartyPack(password, id, { library: true });
+        if (ok && data?.packs) {
+            partyCatalog = {
+                packs: data.packs,
+                activePackId: id,
+                source: "library",
+            };
+        }
+        if (ok && data?.party) {
+            setPrivatePartyPack(data.party);
+            party = getParty();
+        }
+
+        return loaded ?? data?.party;
     }
 
     /** Host uploads a party JSON file → Blobs custom override. */
@@ -365,6 +394,7 @@
             {netError}
             onCreate={createSession}
             onSelectPartyPack={selectPartyPack}
+            onReloadPartyPack={reloadPartyPack}
             onPartyPackUpload={applyPartyPack}
             onRequestTts={requestStoryTts}
             onAction={doHostAction}
