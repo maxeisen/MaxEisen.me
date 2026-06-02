@@ -67,9 +67,17 @@ export const keys = {
 	storyAudio: (code, round) => `${code}/story-audio/${round}.mp3`,
 	vote: (code, round, voterId) => `${code}/vote/${round}/${voterId}`,
 	votePrefix: (code, round) => `${code}/vote/${round}/`,
-	/** Shared host party JSON (prompt decks); not tied to a room code. */
+	/** Custom host upload override (one-off JSON). */
 	hostPartyPack: () => "__host_party_pack__",
+	activePartyPackId: () => "__active_party_pack_id__",
+	partyPackManifest: () => "party-packs/manifest",
+	partyPack: (id) => `party-packs/${id}`,
 };
+
+const PACK_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+export function validPartyPackId(id) {
+	return typeof id === "string" && PACK_ID_RE.test(id);
+}
 
 export function subId(playerId, slotId) {
 	return `${playerId}__${slotId}`;

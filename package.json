@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "netlify dev",
     "build": "vite build",
+    "seed:bach-packs": "node scripts/seed-bach-party-packs.mjs",
     "preview": "vite preview",
     "start": "vite preview --port 6808"
   },

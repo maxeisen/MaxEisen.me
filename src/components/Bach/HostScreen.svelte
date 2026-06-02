@@ -18,7 +18,20 @@
     } from "./partyConfig.js";
     import { validatePartyPack } from "./validatePartyPack.js";
 
-    let { party, code, password, gameState, netError, onCreate, onPartyPackUpload, onRequestTts, onAction, onGenerate } = $props();
+    let {
+        party,
+        partyCatalog = { packs: [], activePackId: null, source: null },
+        code,
+        password,
+        gameState,
+        netError,
+        onCreate,
+        onSelectPartyPack,
+        onPartyPackUpload,
+        onRequestTts,
+        onAction,
+        onGenerate,
+    } = $props();
 
     const allPools = $derived(party.pools);
     const defaultSlots = $derived(party.slotsPerPlayer);
@@ -41,6 +54,7 @@
     let packError = $state("");
     let packStatus = $state("");
     let packUploading = $state(false);
+    let packSelecting = $state(false);
 
     // --- Round config ---
     let selectedPool = $state("");
@@ -147,6 +161,26 @@
 
     onDestroy(releaseAudio);
 
+    async function onPackSelect(e) {
+        const packId = e.currentTarget.value;
+        if (!packId || packId === partyCatalog.activePackId) return;
+        packError = "";
+        packStatus = "";
+        packSelecting = true;
+        try {
+            const loaded = await onSelectPartyPack(packId);
+            const entry = partyCatalog.packs.find((p) => p.id === packId);
+            packStatus = `Using “${entry?.title || packId}”.`;
+            if (loaded?.defaultFacts && !facts) facts = loaded.defaultFacts;
+            if (loaded?.storyTone && !storyTone) storyTone = loaded.storyTone;
+        } catch (err) {
+            packError = err?.message || "Could not switch party pack.";
+            e.currentTarget.value = partyCatalog.activePackId || "";
+        } finally {
+            packSelecting = false;
+        }
+    }
+
     async function onPackFileSelect(e) {
         const file = e.currentTarget.files?.[0];
         e.currentTarget.value = "";
@@ -217,26 +251,48 @@
         <!-- Setup: collect couple facts, then create the session. -->
         <section class="setup">
             <h1 class="display">{party.title}</h1>
-            <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Upload your private party pack JSON, then add context and tone below.</p>
+            <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Pick a party pack, then add context and tone below.</p>
 
             <div class="pack-upload">
-                <label class="field-label" for="party-pack-file">Party pack (JSON)</label>
-                <p class="pack-hint">
-                    {#if hasPrivatePartyPack()}
-                        Using custom pack: <strong>{party.title}</strong>
-                        {#if party.id} <span class="muted">({party.id})</span>{/if}
+                <label class="field-label" for="party-pack-select">Party pack</label>
+                {#if partyCatalog.packs.length > 0}
+                    <select
+                        id="party-pack-select"
+                        class="pack-select"
+                        value={partyCatalog.activePackId || partyCatalog.packs[0]?.id || ""}
+                        disabled={packSelecting || packUploading}
+                        onchange={onPackSelect}
+                    >
+                        {#each partyCatalog.packs as entry (entry.id)}
+                            <option value={entry.id}>{entry.title}</option>
+                        {/each}
+                    </select>
+                    {#if partyCatalog.source === "custom"}
+                        <p class="pack-hint">Custom JSON override active — pick a pack above to use the library again.</p>
                     {:else}
-                        Using built-in default prompts. Upload your own <code>*.json</code> pack to replace them.
+                        <p class="pack-hint muted">Seeded on deploy from the private repo.</p>
                     {/if}
-                </p>
-                <input
-                    id="party-pack-file"
-                    type="file"
-                    accept="application/json,.json"
-                    disabled={packUploading}
-                    onchange={onPackFileSelect}
-                />
-                {#if packUploading}<p class="muted">Uploading…</p>{/if}
+                {:else}
+                    <p class="pack-hint">
+                        {#if hasPrivatePartyPack()}
+                            <strong>{party.title}</strong>
+                            {#if party.id}<span class="muted"> ({party.id})</span>{/if}
+                        {:else}
+                            No seeded packs yet — upload JSON or set <code>BACH_PARTY_JSON_PATH</code> for local dev.
+                        {/if}
+                    </p>
+                {/if}
+                <details class="pack-advanced">
+                    <summary>Upload custom JSON (override)</summary>
+                    <input
+                        id="party-pack-file"
+                        type="file"
+                        accept="application/json,.json"
+                        disabled={packUploading || packSelecting}
+                        onchange={onPackFileSelect}
+                    />
+                </details>
+                {#if packUploading || packSelecting}<p class="muted">Updating pack…</p>{/if}
                 {#if packStatus}<p class="pack-ok">{packStatus}</p>{/if}
                 {#if packError}<p class="error">{packError}</p>{/if}
             </div>
@@ -309,22 +365,30 @@
 
                     <div class="round-setup pack-upload compact">
                         <h3 class="mini-title">Party pack</h3>
-                        <p class="pack-hint">
-                            {#if hasPrivatePartyPack()}
-                                <strong>{party.title}</strong>
-                            {:else}
-                                Default prompts
-                            {/if}
-                            — <label class="pack-replace" for="party-pack-file-lobby">replace JSON</label>
-                        </p>
-                        <input
-                            id="party-pack-file-lobby"
-                            type="file"
-                            accept="application/json,.json"
-                            class="sr-only"
-                            disabled={packUploading}
-                            onchange={onPackFileSelect}
-                        />
+                        {#if partyCatalog.packs.length > 0}
+                            <select
+                                class="pack-select"
+                                value={partyCatalog.activePackId || partyCatalog.packs[0]?.id || ""}
+                                disabled={packSelecting || packUploading}
+                                onchange={onPackSelect}
+                            >
+                                {#each partyCatalog.packs as entry (entry.id)}
+                                    <option value={entry.id}>{entry.title}</option>
+                                {/each}
+                            </select>
+                        {:else}
+                            <p class="pack-hint"><strong>{party.title}</strong></p>
+                        {/if}
+                        <details class="pack-advanced compact">
+                            <summary>Custom JSON</summary>
+                            <input
+                                id="party-pack-file-lobby"
+                                type="file"
+                                accept="application/json,.json"
+                                disabled={packUploading || packSelecting}
+                                onchange={onPackFileSelect}
+                            />
+                        </details>
                         {#if packStatus}<p class="pack-ok">{packStatus}</p>{/if}
                         {#if packError}<p class="error">{packError}</p>{/if}
                     </div>
@@ -579,15 +643,31 @@
     .pack-hint { font-size: 0.9rem; margin: 0 0 0.65rem; opacity: 0.9; }
     .pack-hint code { font-size: 0.85em; }
     .pack-ok { color: var(--main-green); font-size: 0.9rem; margin: 0.35rem 0 0; }
+    .pack-select {
+        font: inherit;
+        width: 100%;
+        box-sizing: border-box;
+        color: var(--header-colour);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--main-green-translucent);
+        border-radius: 10px;
+        padding: 0.65rem 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    .pack-advanced {
+        margin-top: 0.75rem;
+        font-size: 0.88rem;
+    }
+    .pack-advanced summary {
+        cursor: pointer;
+        color: var(--main-green);
+    }
+    .pack-advanced.compact { margin-top: 0.5rem; }
     .pack-upload input[type="file"] {
         font: inherit;
         color: var(--paragraph-colour);
         max-width: 100%;
-    }
-    .pack-replace {
-        cursor: pointer;
-        text-decoration: underline;
-        color: var(--main-green);
+        margin-top: 0.5rem;
     }
     .sr-only {
         position: absolute;

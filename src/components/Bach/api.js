@@ -66,13 +66,21 @@ export async function generateStoryTts(password, { code, hostToken }) {
 	return post("bach-story-tts", password, { code, hostToken });
 }
 
-export async function fetchPartyPack(password) {
-	const res = await fetch(`${FN}/bach-party-pack`, {
+export async function fetchPartyPack(password, packId) {
+	const qs = new URLSearchParams();
+	if (packId) qs.set("pack", packId);
+	const suffix = qs.toString() ? `?${qs.toString()}` : "";
+	const res = await fetch(`${FN}/bach-party-pack${suffix}`, {
 		headers: { "X-Bach-Password": password || "" },
 	});
 	let data = null;
 	try { data = await res.json(); } catch { /* ignore */ }
 	return { ok: res.ok, status: res.status, data };
+}
+
+/** Select a seeded library pack by id (clears custom JSON override). */
+export async function selectPartyPack(password, packId) {
+	return post("bach-party-pack", password, { packId });
 }
 
 export async function uploadPartyPack(password, party) {

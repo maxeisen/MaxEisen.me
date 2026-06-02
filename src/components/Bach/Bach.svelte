@@ -9,7 +9,7 @@
 <script>
     import { onMount } from "svelte";
     import * as api from "./api.js";
-    import { getParty, setPrivatePartyPack } from "./partyConfig.js";
+    import { getParty, setPrivatePartyPack, clearPrivatePartyPack } from "./partyConfig.js";
     import { validatePartyPack } from "./validatePartyPack.js";
     import HostScreen from "./HostScreen.svelte";
     import PlayerScreen from "./PlayerScreen.svelte";
@@ -32,6 +32,7 @@
     let netError = $state("");
     let party = $state(getParty());
     let partyLoading = $state(false);
+    let partyCatalog = $state({ packs: [], activePackId: null, source: null });
 
     let pollTimer = null;
     let pollingFor = null; // code we currently poll, to avoid dup intervals
@@ -131,16 +132,41 @@
         partyLoading = true;
         try {
             const { ok, data } = await api.fetchPartyPack(pw);
+            partyCatalog = {
+                packs: data?.packs ?? [],
+                activePackId: data?.activePackId ?? null,
+                source: data?.source ?? null,
+            };
             if (ok && data?.party) setPrivatePartyPack(data.party);
+            else clearPrivatePartyPack();
         } catch {
-            /* fall back to bundled default party pack */
+            partyCatalog = { packs: [], activePackId: null, source: null };
+            clearPrivatePartyPack();
         } finally {
             party = getParty();
             partyLoading = false;
         }
     }
 
-    /** Host uploads a party JSON file → Blobs + in-memory pack. */
+    async function selectPartyPack(packId) {
+        const { ok, status, data } = await api.selectPartyPack(password, packId);
+        if (!ok) {
+            const msg = data?.error === "pack_not_found"
+                ? "That party pack is not on the server yet — redeploy after seeding."
+                : data?.error || `Could not switch pack (${status})`;
+            throw new Error(msg);
+        }
+        if (data?.party) setPrivatePartyPack(data.party);
+        partyCatalog = {
+            packs: partyCatalog.packs,
+            activePackId: packId,
+            source: "library",
+        };
+        party = getParty();
+        return data.party;
+    }
+
+    /** Host uploads a party JSON file → Blobs custom override. */
     async function applyPartyPack(raw) {
         const problem = validatePartyPack(raw);
         if (problem) throw new Error(problem);
@@ -151,7 +177,9 @@
                 : data?.error || `Upload failed (${status})`;
             throw new Error(msg);
         }
-        setPrivatePartyPack(raw);
+        if (data?.party) setPrivatePartyPack(data.party);
+        else setPrivatePartyPack(raw);
+        partyCatalog = { ...partyCatalog, source: "custom" };
         party = getParty();
     }
 
@@ -330,11 +358,13 @@
     {:else}
         <HostScreen
             {party}
+            {partyCatalog}
             {code}
             {password}
             {gameState}
             {netError}
             onCreate={createSession}
+            onSelectPartyPack={selectPartyPack}
             onPartyPackUpload={applyPartyPack}
             onRequestTts={requestStoryTts}
             onAction={doHostAction}
