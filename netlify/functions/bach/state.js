@@ -2,7 +2,8 @@
 
 import {
 	passwordOk, jsonResponse, getSessionStore,
-	validCode, readMeta, writeMeta, keys, listJSON, subId, storyAudioExists, readStoryImageBytes,
+	validCode, readMeta, keys, listJSON, subId, storyAudioExists, readStoryImageBytes,
+	readNarrationStatus, readImagesStatus,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -87,12 +88,17 @@ export default async function handler(req) {
 		state.story = (await store.get(keys.story(code, round), { type: "text" })) || "";
 		const audioReady = await storyAudioExists(store, code, round);
 		state.storyAudioReady = audioReady;
-		state.narrationPending = Boolean(meta.narrationPending);
-		state.narrationError = meta.narrationError || null;
-		const placements = Array.isArray(meta.storyImagePlacements) ? meta.storyImagePlacements : [];
+		const nStatus = (await readNarrationStatus(store, code, round))
+			?? { pending: meta.narrationPending, error: meta.narrationError };
+		state.narrationPending = Boolean(nStatus.pending);
+		state.narrationError = nStatus.error || null;
+
+		const iStatus = (await readImagesStatus(store, code, round))
+			?? { pending: meta.imagesPending, error: meta.imagesError, placements: meta.storyImagePlacements };
+		const placements = Array.isArray(iStatus.placements) ? iStatus.placements : [];
 		state.storyImagePlacements = placements;
-		state.imagesPending = Boolean(meta.imagesPending);
-		state.imagesError = meta.imagesError || null;
+		state.imagesPending = Boolean(iStatus.pending);
+		state.imagesError = iStatus.error || null;
 
 		const readyImageIds = [];
 		for (const slot of placements) {
@@ -104,11 +110,6 @@ export default async function handler(req) {
 		state.readyImageIds = readyImageIds;
 		state.storyImagesReady = readyImageIds.length;
 		state.hasStoryImages = readyImageIds.length > 0;
-		if (meta.hasStoryImages && readyImageIds.length === 0) {
-			meta.hasStoryImages = false;
-			meta.version++;
-			await writeMeta(store, code, meta);
-		}
 		// Do not clear meta.hasStoryAudio here — a transient blob read would drop
 		// storyAudioReady and unmount the host <audio> while narration is playing.
 	}
