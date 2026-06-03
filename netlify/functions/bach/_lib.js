@@ -129,7 +129,11 @@ export async function storyAudioExists(store, code, round) {
 export async function writeStoryImage(store, code, round, id, bytes) {
 	const key = keys.storyImage(code, round, id);
 	await store.set(key, bytes);
-	const verify = await readStoryImageBytes(store, code, round, id);
+	let verify = await readStoryImageBytes(store, code, round, id);
+	if (!verify?.length) {
+		await store.set(key, Buffer.from(bytes).toString("base64"));
+		verify = await readStoryImageBytes(store, code, round, id);
+	}
 	if (!verify?.length) throw new Error("image_persist_failed");
 }
 

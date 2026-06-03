@@ -38,17 +38,30 @@ export async function recordStoryImages(store, code, meta, story) {
 	await writeMeta(store, code, meta);
 
 	const saved = [];
+	async function saveSlot(slot) {
+		const bytes = await generateFunnyImage(apiKey, slot.imagePrompt);
+		await writeStoryImage(store, code, round, slot.id, bytes);
+		saved.push({
+			id: slot.id,
+			insertAfter: slot.insertAfter,
+			caption: slot.caption,
+		});
+	}
+
 	for (const slot of placements) {
 		try {
-			const bytes = await generateFunnyImage(apiKey, slot.imagePrompt);
-			await writeStoryImage(store, code, round, slot.id, bytes);
-			saved.push({
-				id: slot.id,
-				insertAfter: slot.insertAfter,
-				caption: slot.caption,
-			});
+			await saveSlot(slot);
 		} catch (err) {
 			console.warn("bach/story-images slot failed:", slot.id, err?.message || err);
+		}
+	}
+
+	for (const slot of placements) {
+		if (saved.some((s) => s.id === slot.id)) continue;
+		try {
+			await saveSlot(slot);
+		} catch (err) {
+			console.warn("bach/story-images slot retry failed:", slot.id, err?.message || err);
 		}
 	}
 

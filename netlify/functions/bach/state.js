@@ -94,14 +94,17 @@ export default async function handler(req) {
 		state.imagesPending = Boolean(meta.imagesPending);
 		state.imagesError = meta.imagesError || null;
 
-		let imagesReady = 0;
+		const readyImageIds = [];
 		for (const slot of placements) {
-			const bytes = await readStoryImageBytes(store, code, round, slot.id);
-			if (bytes?.length) imagesReady++;
+			const id = Number(slot.id);
+			if (!Number.isInteger(id) || id < 0) continue;
+			const bytes = await readStoryImageBytes(store, code, round, id);
+			if (bytes?.length) readyImageIds.push(id);
 		}
-		state.storyImagesReady = imagesReady;
-		state.hasStoryImages = imagesReady > 0;
-		if (meta.hasStoryImages && imagesReady === 0) {
+		state.readyImageIds = readyImageIds;
+		state.storyImagesReady = readyImageIds.length;
+		state.hasStoryImages = readyImageIds.length > 0;
+		if (meta.hasStoryImages && readyImageIds.length === 0) {
 			meta.hasStoryImages = false;
 			meta.version++;
 			await writeMeta(store, code, meta);

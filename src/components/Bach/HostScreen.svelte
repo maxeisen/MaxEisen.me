@@ -241,23 +241,24 @@
         loadNarration(key);
     });
 
-    async function loadStoryImages(roundKey, placements) {
+    async function loadStoryImages(roundKey, placements, readyIds) {
         const round = gameState?.roundIndex ?? -1;
-        if (!password || !code || round < 0 || !placements.length) return false;
+        if (!password || !code || round < 0 || !placements.length || !readyIds?.length) return false;
 
         imagesLoading = true;
         try {
             const next = { ...imageUrls };
             for (const slot of placements) {
-                if (next[slot.id]) continue;
-                const { ok, blob } = await api.fetchStoryImage(password, code, round, slot.id);
-                if (ok && blob) next[slot.id] = URL.createObjectURL(blob);
+                const id = Number(slot.id);
+                if (next[id] || !readyIds.includes(id)) continue;
+                const { ok, blob } = await api.fetchStoryImage(password, code, round, id);
+                if (ok && blob) next[id] = URL.createObjectURL(blob);
             }
             imageUrls = next;
-            const allLoaded = placements.every((p) => next[p.id]);
+            const allLoaded = readyIds.every((rid) => next[rid]);
             if (allLoaded) {
                 imagesRoundKey = roundKey;
-                imagesFetchKey = `${roundKey}:${placements.map((p) => p.id).join(",")}`;
+                imagesFetchKey = `${roundKey}:${readyIds.join(",")}`;
             } else {
                 imagesFetchKey = "";
             }
@@ -286,32 +287,32 @@
             releaseImages();
         }
 
-        if (!placements.length) return;
+        if (!placements.length || gameState?.imagesPending) return;
 
-        const fetchKey = `${key}:${placements.map((p) => p.id).join(",")}`;
-        const allLoaded = placements.every((p) => imageUrls[p.id]);
+        const readyIds = gameState?.readyImageIds ?? [];
+        const fetchKey = `${key}:${readyIds.join(",")}`;
+            const allLoaded = readyIds.length > 0 && readyIds.every((rid) => imageUrls[rid]);
         if (allLoaded) {
             imagesFetchKey = fetchKey;
             imagesRoundKey = key;
             return;
         }
 
-        if (imagesLoading) return;
-        void loadStoryImages(key, placements);
+        if (imagesLoading || !readyIds.length) return;
+        void loadStoryImages(key, placements, readyIds);
     });
 
-    // Re-fetch blobs when server reports more images ready (poll updates storyImagesReady).
+    // Re-fetch when more blobs appear on the server (poll updates readyImageIds).
     $effect(() => {
         const placements = gameState?.storyImagePlacements ?? [];
-        const ready = gameState?.storyImagesReady ?? 0;
-        const loaded = Object.keys(imageUrls).length;
+        const readyIds = gameState?.readyImageIds ?? [];
         if (!LISTEN_PHASES.includes(phase) || !placements.length || imagesLoading) return;
-        if (ready > loaded) {
-            const key = code && (gameState?.roundIndex ?? -1) >= 0
-                ? `${code}:${gameState.roundIndex}`
-                : "";
-            if (key) void loadStoryImages(key, placements);
-        }
+        if (gameState?.imagesPending || !readyIds.length) return;
+        const key = code && (gameState?.roundIndex ?? -1) >= 0
+            ? `${code}:${gameState.roundIndex}`
+            : "";
+        const missing = readyIds.some((id) => !imageUrls[id]);
+        if (key && missing) void loadStoryImages(key, placements, readyIds);
     });
 
     function onNarrationPlay() {
@@ -791,8 +792,10 @@
                                 <figure class="story-illustration">
                                     {#if block.url}
                                         <img src={block.url} alt={block.caption || "Story moment"} loading="lazy" />
-                                    {:else}
+                                    {:else if gameState?.imagesPending}
                                         <div class="story-img-placeholder" aria-hidden="true">Drawing this moment…</div>
+                                    {:else}
+                                        <div class="story-img-placeholder missed" aria-hidden="true">Illustration unavailable</div>
                                     {/if}
                                     {#if block.caption}
                                         <figcaption>{block.caption}</figcaption>
