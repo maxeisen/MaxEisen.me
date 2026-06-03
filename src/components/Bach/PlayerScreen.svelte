@@ -88,10 +88,14 @@
         saveAllError = "";
         savingAll = true;
         try {
-            for (const slot of unsavedSlots) {
+            const batch = unsavedSlots.filter((s) => (drafts[s.slotId] ?? "").trim());
+            for (let i = 0; i < batch.length; i++) {
+                const slot = batch[i];
                 const value = (drafts[slot.slotId] ?? "").trim();
-                if (!value) continue;
-                const ok = await onSubmitWord(slot.slotId, value);
+                // Only refresh game state once, after the final save, instead of
+                // a full state fetch per word.
+                const skipPoll = i < batch.length - 1;
+                const ok = await onSubmitWord(slot.slotId, value, skipPoll);
                 if (!ok) {
                     saveAllError = "Something didn't save — check your connection and try again.";
                     return;
@@ -166,7 +170,7 @@
         {#if you?.assigned}
             <div class="head">
                 <h1 class="title">Your prompts</h1>
-                <p class="sub">Answer in one word or a very short phrase (2–4 words). No full sentences—the story weaver will work it in.</p>
+                <p class="sub">Answer in one word or a short phrase (2–4 words) — no full sentences. The story weaver works it in.</p>
             </div>
             <div class="slots">
                 {#each slots as slot (`${writingEpoch}-${slot.slotId}`)}
@@ -190,7 +194,7 @@
                         <div class="slot-row">
                             <input
                                 bind:value={drafts[slot.slotId]}
-                                placeholder="type something…"
+                                placeholder="a word or two…"
                                 maxlength="120"
                                 onkeydown={(e) => { if (e.key === "Enter") save(slot); }}
                             />
@@ -238,7 +242,7 @@
     {:else if phase === "generating"}
         <div class="card center">
             <div class="spinner"></div>
-            <h1 class="title">Cooking…</h1>
+            <h1 class="title">Cooking up your story…</h1>
             <p class="sub">Watch the big screen.</p>
         </div>
 
@@ -367,6 +371,7 @@
         color: var(--main-green);
         flex: 1;
         min-width: 0;
+        overflow-wrap: anywhere;
     }
     .swap-btn {
         font: inherit;
@@ -378,7 +383,10 @@
         background: transparent;
         border: 1px solid var(--main-green-translucent);
         border-radius: 8px;
-        padding: 0.25rem 0.55rem;
+        padding: 0.25rem 0.7rem;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
         transition: border-color 0.15s ease, color 0.15s ease;
     }
     .swap-btn:hover:not(:disabled) {
@@ -405,7 +413,7 @@
 
     .save-btn {
         font: inherit; font-weight: 600; cursor: pointer;
-        min-width: 3.2rem;
+        min-width: 3.2rem; min-height: 44px;
         background: var(--main-green); color: var(--background-one);
         border: none; border-radius: 10px; padding: 0 0.9rem;
         transition: opacity 0.15s ease;
@@ -448,7 +456,7 @@
     .vote-card:hover:not(:disabled) { border-color: var(--main-green); }
     .vote-card:active:not(:disabled) { transform: scale(0.98); }
     .vote-card:disabled { opacity: 0.6; cursor: not-allowed; }
-    .vote-value { font-size: 1.1rem; }
+    .vote-value { font-size: 1.1rem; overflow-wrap: anywhere; }
 
     .primary {
         font: inherit; font-weight: 600; cursor: pointer;
@@ -472,5 +480,10 @@
     .net-note {
         position: fixed; bottom: 0.75rem; left: 50%; transform: translateX(-50%);
         font-size: 0.78rem; opacity: 0.6;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .spinner { animation: none; }
+        .primary, .vote-card { transition: none; }
     }
 </style>

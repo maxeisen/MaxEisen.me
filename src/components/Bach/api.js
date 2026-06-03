@@ -32,11 +32,12 @@ export async function joinSession(password, { code, name, playerId }) {
 	return post("bach-join", password, { code, name, playerId });
 }
 
-export async function fetchState(password, code, playerId) {
+export async function fetchState(password, code, playerId, signal) {
 	const qs = new URLSearchParams({ code });
 	if (playerId) qs.set("playerId", playerId);
 	const res = await fetch(`${FN}/bach-state?${qs.toString()}`, {
 		headers: { "X-Bach-Password": password || "" },
+		signal,
 	});
 	let data = null;
 	try { data = await res.json(); } catch { /* ignore */ }

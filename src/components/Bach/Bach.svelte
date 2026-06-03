@@ -36,6 +36,7 @@
 
     let pollTimer = null;
     let pollingFor = null; // code we currently poll, to avoid dup intervals
+    let pollAbort = null;  // AbortController for the in-flight state fetch
 
     // Parse URL once. ?room=CODE => player join flow; ?k=PASSWORD => QR key.
     const url = typeof window !== "undefined" ? new URL(window.location.href) : null;
@@ -74,7 +75,15 @@
             requestAnimationFrame(() => pwInputRef?.focus());
         }
 
-        return () => stopPoll();
+        if (typeof document !== "undefined") {
+            document.addEventListener("visibilitychange", onVisibilityChange);
+        }
+        return () => {
+            stopPoll();
+            if (typeof document !== "undefined") {
+                document.removeEventListener("visibilitychange", onVisibilityChange);
+            }
+        };
     });
 
     // Keep a single poll loop alive whenever we have a password + a code.
@@ -87,6 +96,12 @@
         if (pollingFor === forCode && pollTimer) return;
         stopPoll();
         pollingFor = forCode;
+        schedulePoll();
+    }
+    function schedulePoll() {
+        // Don't poll while the tab is backgrounded — resume on visibilitychange.
+        if (!pollingFor || pollTimer) return;
+        if (typeof document !== "undefined" && document.hidden) return;
         poll();
         pollTimer = setInterval(poll, POLL_MS);
     }
@@ -95,11 +110,25 @@
         pollTimer = null;
         pollingFor = null;
     }
+    function onVisibilityChange() {
+        if (typeof document === "undefined") return;
+        if (document.hidden) {
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        } else {
+            schedulePoll();
+        }
+    }
 
     async function poll() {
         if (!password || !code) return;
+        // Abort any in-flight poll so a slow earlier response can't overwrite a
+        // newer one (and requests don't pile up on a weak connection).
+        pollAbort?.abort();
+        const ctrl = new AbortController();
+        pollAbort = ctrl;
         try {
-            const { ok, status, data } = await api.fetchState(password, code, player?.playerId);
+            const { ok, status, data } = await api.fetchState(password, code, player?.playerId, ctrl.signal);
+            if (ctrl.signal.aborted) return;
             if (status === 401) {
                 password = null;
                 try { localStorage.removeItem("bach:pw"); } catch {}
@@ -123,8 +152,11 @@
                 sessionMissing = false;
                 netError = "";
             }
-        } catch {
+        } catch (err) {
+            if (err?.name === "AbortError") return;
             netError = "Reconnecting…";
+        } finally {
+            if (pollAbort === ctrl) pollAbort = null;
         }
     }
 
@@ -163,7 +195,7 @@
         const { ok, status, data } = await api.selectPartyPack(password, packId);
         if (!ok) {
             const msg = data?.error === "pack_not_found"
-                ? "That party pack is not on the server yet — redeploy after seeding."
+                ? "That party pack isn't on the server yet."
                 : data?.error || `Could not switch pack (${status})`;
             throw new Error(msg);
         }
@@ -235,7 +267,7 @@
                 try { localStorage.removeItem("bach:pw"); } catch {}
                 if (!silent) {
                     pwError = status === 503
-                        ? "Party password isn't set on the server (check BACH_PASSWORD in Netlify)."
+                        ? "This game isn't set up on the server yet — check with the host."
                         : "Wrong password.";
                 }
             }
@@ -363,16 +395,16 @@
         return ok;
     }
 
-    async function submitWord(slotId, value) {
-        const { ok } = await api.submitWord(password, { code, playerId: player.playerId, slotId, value });
-        await poll();
+    async function submitWord(slotId, value, skipPoll = false) {
+        const { ok } = await api.submitWord(password, { code, playerId: player?.playerId, slotId, value });
+        if (!skipPoll) await poll();
         return ok;
     }
 
     async function swapPrompt(slotId) {
         const { ok, data } = await api.swapPrompt(password, {
             code,
-            playerId: player.playerId,
+            playerId: player?.playerId,
             slotId,
         });
         await poll();
@@ -380,7 +412,7 @@
     }
 
     async function vote(targetSubId) {
-        const { ok } = await api.castVote(password, { code, playerId: player.playerId, targetSubId });
+        const { ok } = await api.castVote(password, { code, playerId: player?.playerId, targetSubId });
         await poll();
         return ok;
     }

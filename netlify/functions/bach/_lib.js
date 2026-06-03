@@ -58,6 +58,14 @@ export function validCode(code) {
 	return typeof code === "string" && CODE_RE.test(code);
 }
 
+// Player ids are minted with crypto.randomUUID(). Validating the shape before
+// it reaches a blob key stops a caller from smuggling "/" path segments into a
+// key (cross-key writes) or fabricating ids to stuff the vote tally.
+const PLAYER_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export function validPlayerId(id) {
+	return typeof id === "string" && PLAYER_ID_RE.test(id);
+}
+
 export const keys = {
 	meta: (code) => `${code}/meta`,
 	player: (code, id) => `${code}/player/${id}`,
@@ -152,12 +160,12 @@ export async function readStoryImageBytes(store, code, round, id) {
 
 export async function listJSON(store, prefix) {
 	const { blobs } = await store.list({ prefix });
-	const out = [];
-	for (const b of blobs) {
-		const value = await store.get(b.key, { type: "json" });
-		if (value != null) out.push({ key: b.key, value });
-	}
-	return out;
+	// Fetch in parallel rather than awaiting each get in series (N round-trips
+	// become one wave) — meaningfully faster as players/votes/subs grow.
+	const entries = await Promise.all(
+		blobs.map((b) => store.get(b.key, { type: "json" }).then((value) => ({ key: b.key, value }))),
+	);
+	return entries.filter((e) => e.value != null);
 }
 
 export async function deletePrefix(store, prefix) {

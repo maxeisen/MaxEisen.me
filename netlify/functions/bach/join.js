@@ -2,7 +2,7 @@
 
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore,
-	validCode, randomId, readMeta, keys,
+	validCode, validPlayerId, randomId, readMeta, keys,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -22,7 +22,10 @@ export default async function handler(req) {
 	const meta = await readMeta(store, code);
 	if (!meta) return jsonResponse({ error: "no_such_session" }, 404);
 
-	const playerId = (typeof body?.playerId === "string" && body.playerId) || randomId();
+	// Reuse the client's id only if it's a well-formed UUID (a returning
+	// player); otherwise mint a fresh one. Never let an arbitrary string reach
+	// the blob key. The client persists whatever we return.
+	const playerId = validPlayerId(body?.playerId) ? body.playerId : randomId();
 	await store.setJSON(keys.player(code, playerId), {
 		id: playerId,
 		name,

@@ -49,7 +49,7 @@ export async function planStoryImagePlacements(client, story, meta) {
 		const raw = completion.choices?.[0]?.message?.content?.trim() || "{}";
 		parsed = JSON.parse(raw);
 	} catch {
-		return fallbackPlacements(n, maxImages);
+		return fallbackPlacements(paragraphs, maxImages);
 	}
 
 	const list = Array.isArray(parsed?.placements) ? parsed.placements : [];

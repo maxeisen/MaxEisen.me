@@ -2,7 +2,7 @@
 
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore,
-	validCode, readMeta, keys, listJSON, subId,
+	validCode, validPlayerId, readMeta, keys, listJSON, subId,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -18,11 +18,17 @@ export default async function handler(req) {
 	const voterId = typeof body?.playerId === "string" ? body.playerId : "";
 	const target = typeof body?.targetSubId === "string" ? body.targetSubId : "";
 	if (!voterId || !target) return jsonResponse({ error: "missing_fields" }, 400);
+	if (!validPlayerId(voterId)) return jsonResponse({ error: "invalid_player" }, 400);
 
 	const store = getSessionStore();
 	const meta = await readMeta(store, code);
 	if (!meta) return jsonResponse({ error: "no_such_session" }, 404);
 	if (meta.phase !== "voting") return jsonResponse({ error: "not_voting" }, 409);
+
+	// The voter must be an actual joined player. This stops fabricated ids from
+	// stuffing the tally (one real player → one vote key, overwritten on revote).
+	const voter = await store.get(keys.player(code, voterId), { type: "json" });
+	if (!voter) return jsonResponse({ error: "not_a_player" }, 403);
 
 	const subs = await listJSON(store, keys.subPrefix(code, meta.roundIndex));
 	const match = subs.find((s) => subId(s.value.playerId, s.value.slotId) === target);

@@ -138,7 +138,11 @@
             ? `${window.location.host}/bach?room=${code}`
             : ""
     );
-    const story = $derived(formatStory(gameState?.story || ""));
+    // Split the raw text into its own derived so formatStory/buildStoryBlocks
+    // only re-run when the story string actually changes — not on every poll,
+    // which replaces gameState wholesale every 1.5s.
+    const storyText = $derived(gameState?.story || "");
+    const story = $derived(formatStory(storyText));
     const imagePlacements = $derived(gameState?.storyImagePlacements ?? []);
     const storyBlocks = $derived(buildStoryBlocks(story.paragraphs, imagePlacements, imageUrls));
 
@@ -174,16 +178,38 @@
         audioError = "";
         narrationAttempted = "";
         autoPlayedUrl = null;
+        resumeAt = 0;
+        resumePlaying = false;
     }
 
+    // Playback bookkeeping so narration survives the <audio> element being
+    // remounted across phase changes (reveal → voting renders a fresh element,
+    // which would otherwise reset to 0 and stop). Plain vars, not $state — the
+    // effect below should only re-run when the element/url changes.
+    let resumeAt = 0;
+    let resumePlaying = false;
+
     $effect(() => {
-        if (!audioUrl || !audioPlayer || autoPlayedUrl === audioUrl) return;
+        if (!audioUrl || !audioPlayer) return;
         const el = audioPlayer;
-        autoPlayedUrl = audioUrl;
-        el.play().catch(() => {
-            /* Browser may block autoplay until a tap — controls stay visible. */
-        });
+        if (autoPlayedUrl !== audioUrl) {
+            // First time we've seen this narration: autoplay from the top.
+            autoPlayedUrl = audioUrl;
+            el.play().catch(() => {
+                /* Browser may block autoplay until a tap — controls stay visible. */
+            });
+        } else if (el.paused) {
+            // Same narration, freshly remounted element (phase change): restore
+            // position and keep playing if it was playing before.
+            if (resumeAt > 0) { try { el.currentTime = resumeAt; } catch {} }
+            if (resumePlaying) el.play().catch(() => {});
+        }
     });
+
+    function prefersReducedMotion() {
+        return typeof window !== "undefined" && typeof window.matchMedia === "function"
+            && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
 
     async function loadNarration(attemptKey) {
         const round = gameState?.roundIndex ?? -1;
@@ -191,6 +217,8 @@
 
         audioLoading = true;
         audioError = "";
+        resumeAt = 0;
+        resumePlaying = false;
         if (audioUrl) {
             URL.revokeObjectURL(audioUrl);
             audioUrl = null;
@@ -317,12 +345,25 @@
     });
 
     function onNarrationPlay() {
+        resumePlaying = true;
         storyTextVisible = true;
         followNarrationScroll = true;
     }
 
+    function onNarrationPause() {
+        resumePlaying = false;
+        if (audioPlayer) resumeAt = audioPlayer.currentTime;
+    }
+
+    function onNarrationEnded() {
+        resumePlaying = false;
+        resumeAt = 0;
+    }
+
     function onNarrationTimeUpdate() {
+        if (audioPlayer) resumeAt = audioPlayer.currentTime;
         if (!followNarrationScroll || !audioPlayer || !storyScrollEl || !storyTextVisible) return;
+        if (prefersReducedMotion()) return; // don't yank the page for reduced-motion users
         const d = audioPlayer.duration;
         if (!d || !Number.isFinite(d) || d <= 0) return;
         const top = storyScrollEl.offsetTop;
@@ -420,15 +461,20 @@
     }
 
     async function startRound() {
+        // The number input's min/max are only hints — clamp before using it so a
+        // cleared or fat-fingered value can't start a round with 0 (or a huge
+        // number of) prompts per player.
+        const n = Math.min(6, Math.max(1, Math.round(Number(slots)) || 3));
+        slots = n;
         const pool = pools.find((p) => p.id === selectedPool) || pools[0];
-        const need = Math.max(1, players.length) * slots;
+        const need = Math.max(1, players.length) * n;
         const drawn = drawPrompts(pool, usedPrompts, need);
         if (code) saveUsedPrompts(code, usedPrompts);
         busy = true;
         try {
             await onAction("start", {
                 prompts: drawn,
-                slotsPerPlayer: slots,
+                slotsPerPlayer: n,
                 swapPool: pool.prompts,
             });
         } finally { busy = false; }
@@ -742,6 +788,8 @@
                             preload="auto"
                             src={audioUrl}
                             onplay={onNarrationPlay}
+                            onpause={onNarrationPause}
+                            onended={onNarrationEnded}
                             ontimeupdate={onNarrationTimeUpdate}
                         ></audio>
                     {:else if audioLoading}
@@ -831,6 +879,8 @@
                             preload="auto"
                             src={audioUrl}
                             onplay={onNarrationPlay}
+                            onpause={onNarrationPause}
+                            onended={onNarrationEnded}
                             ontimeupdate={onNarrationTimeUpdate}
                         ></audio>
                     </div>
@@ -1106,6 +1156,8 @@
         padding: 0.35rem 0.9rem;
         font-size: 0.95rem;
         color: var(--header-colour);
+        max-width: 100%;
+        overflow-wrap: anywhere;
     }
     .round-setup {
         margin-top: 1.5rem;
@@ -1157,6 +1209,7 @@
         border: var(--item-border);
         border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.95rem;
         color: var(--paragraph-colour); opacity: 0.6;
+        max-width: 100%; overflow-wrap: anywhere;
     }
     .chip.done { opacity: 1; border-color: var(--main-green); color: var(--header-colour); }
 
@@ -1165,6 +1218,7 @@
         padding: 0.6rem 0.9rem; margin-bottom: 0.5rem;
         background: var(--item-background); border: var(--item-border);
         border-radius: 10px; color: var(--header-colour);
+        overflow-wrap: anywhere;
     }
     .ballot-prompt { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--main-green); opacity: 0.85; }
 
@@ -1233,6 +1287,7 @@
         width: 100%;
         font-size: clamp(1.15rem, 2.2vw, 1.6rem);
         line-height: 1.6; color: var(--paragraph-colour);
+        overflow-wrap: anywhere;
     }
     .story-body :global(strong) {
         color: var(--main-green); font-weight: 700;
@@ -1248,6 +1303,7 @@
     .mvp-quote {
         font-family: 'Fraunces', serif; font-style: italic;
         font-size: clamp(1.4rem, 4vw, 2.4rem); color: var(--header-colour); margin: 0.5rem 0;
+        overflow-wrap: anywhere;
     }
     .leaderboard { list-style: none; counter-reset: rank; padding: 0; margin: 2rem auto; max-width: 420px; }
     .leaderboard li {
@@ -1277,7 +1333,15 @@
 
     .hint { font-size: 0.85rem; opacity: 0.6; margin-top: 0.75rem; }
     .muted { opacity: 0.75; }
-    .error { color: #d97777; margin: 0.5rem 0; }
+    .error {
+        color: #e89a9a;
+        margin: 0.5rem 0;
+        padding: 0.5rem 0.75rem;
+        border-left: 3px solid #d97777;
+        background: rgba(217, 119, 119, 0.08);
+        border-radius: 6px;
+        overflow-wrap: anywhere;
+    }
 
     .spinner {
         width: 54px; height: 54px; margin: 0 auto 1.5rem;
@@ -1295,5 +1359,10 @@
 
     @media (max-width: 760px) {
         .lobby { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .spinner { animation: none; }
+        .primary, .ghost, .pool-btn { transition: none; }
     }
 </style>
