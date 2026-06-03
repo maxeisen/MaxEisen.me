@@ -11,7 +11,6 @@
         loadUsedPrompts,
         saveUsedPrompts,
         clearUsedPrompts,
-        poolsForAudience,
         defaultPoolForRound,
     } from "./lib/partyConfig.js";
     import { validatePartyPack } from "./lib/validatePartyPack.js";
@@ -46,11 +45,7 @@
     const allPools = $derived(party.pools);
     const defaultSlots = $derived(party.slotsPerPlayer);
 
-    /** @type {"boys" | "everyone"} */
-    let roundAudience = $state("boys");
-    const pools = $derived(poolsForAudience(allPools, roundAudience));
-    const hasNoMercyBoys = $derived(allPools.some((p) => p.id === "no-mercy"));
-    const showNoMercyBoys = $derived(pools.some((p) => p.id === "no-mercy"));
+    const pools = $derived(allPools);
 
     const packOptions = $derived(
         partyCatalog.packs.length > 0
@@ -86,24 +81,17 @@
         const packId = party?.id;
         if (!packId || lobbyDefaultsForPackId === packId) return;
         lobbyDefaultsForPackId = packId;
-        roundAudience = party.defaultRoundAudience === "everyone" ? "everyone" : "boys";
-        const nextPools = poolsForAudience(allPools, roundAudience);
-        selectedPool = defaultPoolForRound(party, nextPools, roundAudience);
+        selectedPool = defaultPoolForRound(party, allPools);
     });
 
     $effect(() => {
         if (!pools.length) return;
         slots = defaultSlots;
-        const pick = defaultPoolForRound(party, pools, roundAudience);
+        const pick = defaultPoolForRound(party, pools);
         if (!selectedPool || !pools.some((p) => p.id === selectedPool)) {
             selectedPool = pick;
         }
     });
-
-    function onAudienceChange(next) {
-        roundAudience = next;
-        selectedPool = defaultPoolForRound(party, poolsForAudience(allPools, next), next);
-    }
 
     let busy = $state(false);
 
@@ -275,17 +263,13 @@
                 {packUploading}
                 {packError}
                 {packStatus}
-                {roundAudience}
                 {pools}
-                {hasNoMercyBoys}
-                {showNoMercyBoys}
                 {busy}
                 bind:selectedPool
                 bind:slots
                 {onPackSelect}
                 {onPackReload}
                 {onPackFileSelect}
-                {onAudienceChange}
                 onStartRound={startRound}
             />
 

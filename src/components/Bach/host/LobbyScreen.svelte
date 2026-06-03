@@ -15,17 +15,13 @@
         packUploading = false,
         packError = "",
         packStatus = "",
-        roundAudience = "boys",
         pools = [],
-        hasNoMercyBoys = false,
-        showNoMercyBoys = false,
         busy = false,
         selectedPool = $bindable(""),
         slots = $bindable(3),
         onPackSelect,
         onPackReload,
         onPackFileSelect,
-        onAudienceChange,
         onStartRound,
     } = $props();
 </script>
@@ -101,43 +97,9 @@
         </div>
 
         <div class="round-setup">
-            <h3 class="mini-title">Who's playing?</h3>
-            <div class="pool-buttons audience-toggle">
-                <button
-                    type="button"
-                    class="pool-btn {roundAudience === 'boys' ? 'on' : ''}"
-                    onclick={() => onAudienceChange("boys")}
-                >Just the boys</button>
-                <button
-                    type="button"
-                    class="pool-btn {roundAudience === 'everyone' ? 'on' : ''}"
-                    onclick={() => onAudienceChange("everyone")}
-                >Everyone here</button>
-            </div>
-            <p class="hint audience-hint">
-                {#if roundAudience === "boys"}
-                    Harder Matthew prompts, full no-mercy deck.
-                {:else}
-                    Whole-room decks — still filthy, lighter on inside-boy stuff.
-                {/if}
-            </p>
-        </div>
-
-        <div class="round-setup">
             <h3 class="mini-title">Round flavour</h3>
             {#if pools.length === 0}
-                <p class="error">No prompt pools for this audience — check the party pack JSON.</p>
-            {/if}
-            {#if roundAudience === "boys" && hasNoMercyBoys && !showNoMercyBoys}
-                <p class="error">No Mercy is missing from the loaded pack — push the latest JSON to the private repo and hit Reload.</p>
-            {:else if roundAudience === "everyone" && hasNoMercyBoys}
-                <p class="hint audience-hint">No Mercy is under <strong>Just the boys</strong>. Everyone mode uses <strong>No Mercy (Party Edition)</strong>.</p>
-            {:else if party.id === "default"}
-                <p class="hint audience-hint">
-                    Select your party pack above — No Mercy is only in the private Matthew/Jane pack, not the built-in demo.
-                </p>
-            {:else if partyCatalog.activePackId === "matthew-jane" && !hasNoMercyBoys}
-                <p class="error">This pack copy is outdated (no No Mercy pool). Push <code>matthew-jane.json</code> to the private repo and hit Reload.</p>
+                <p class="error">No prompt pools — check the party pack JSON.</p>
             {/if}
             <div class="pool-buttons">
                 {#each pools as pool}

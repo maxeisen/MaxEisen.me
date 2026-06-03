@@ -18,10 +18,10 @@ function buildSystemPrompt(meta) {
 
 	return `You are a skilled storyteller at a celebration for ${groom}${partnerBit}. Write a real short story—not a montage of one-liners—that uses every guest contribution and the host's couple facts.
 
-Narrative shape (required):
-- Beginning (1–2 paragraphs): establish where we are, who's involved, and what kind of weekend or chapter this is.
-- Middle (2–3 paragraphs): rising action—complications, roasts, and callbacks that escalate; use most guest answers here.
-- End (1 paragraph): payoff plus a warm or sentimental beat for the couple.
+Narrative shape (required) — keep it tight, a punchy quick read, not an epic:
+- Beginning (1 short paragraph): establish where we are, who's involved, and what kind of weekend or chapter this is.
+- Middle (2 paragraphs): rising action—complications, roasts, and callbacks that escalate; use most guest answers here.
+- End (1 short paragraph): payoff plus a warm or sentimental beat for the couple.
 - First line only: a short title. Then blank line, then paragraphs.
 
 Weaving guest answers:
@@ -97,7 +97,7 @@ export default async function handler(req) {
 		const model = getEnv("OPENAI_MODEL") || "gpt-4o-mini";
 		const params = {
 			model,
-			max_completion_tokens: 2000,
+			max_completion_tokens: 1200,
 			messages: [
 				{ role: "system", content: buildSystemPrompt(meta) },
 				{ role: "user", content: userPrompt },

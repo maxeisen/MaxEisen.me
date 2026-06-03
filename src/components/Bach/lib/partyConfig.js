@@ -62,36 +62,19 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 		pools,
 		defaultFacts: raw.defaultFacts?.trim() || "",
 		storyTone: raw.storyTone?.trim() || "",
-		defaultRoundAudience: raw.defaultRoundAudience === "everyone" ? "everyone" : "boys",
 		defaultPoolId: typeof raw.defaultPoolId === "string" ? raw.defaultPoolId.trim() : "",
 	};
 }
 
-/** Pick default pool for the lobby UI (party pack can override). */
-export function defaultPoolForRound(party, pools, audience = "boys") {
+/** Pick the default selected pool for the lobby UI (party pack can override). */
+export function defaultPoolForRound(party, pools) {
 	if (!pools?.length) return "";
 	const ids = pools.map((p) => p.id);
-	const candidates = [
-		party?.defaultPoolId,
-		audience === "boys" ? "no-mercy" : "no-mercy-party",
-		pools[0]?.id,
-	].filter(Boolean);
+	const candidates = [party?.defaultPoolId, "no-mercy", pools[0]?.id].filter(Boolean);
 	for (const id of candidates) {
 		if (ids.includes(id)) return id;
 	}
 	return pools[0].id;
-}
-
-/** @typedef {"boys" | "everyone"} BachAudience */
-
-/** Pools tagged `audience: "boys"` only show for boys; untagged pools show for both. */
-export function poolsForAudience(pools, audience = "everyone") {
-	if (!pools?.length) return [];
-	return pools.filter((pool) => {
-		const tag = pool.audience;
-		if (!tag || tag === "all") return true;
-		return tag === audience;
-	});
 }
 
 function shuffle(arr) {

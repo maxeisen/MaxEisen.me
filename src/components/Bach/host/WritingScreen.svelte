@@ -20,8 +20,12 @@
     {#if error === "generation_failed"}
         <p class="error">The story machine choked. Try weaving again.</p>
     {/if}
-    <button class="primary big" onclick={onGenerate} disabled={busy || counts.total === 0}>
+    <button class="primary big" onclick={onGenerate} disabled={busy || counts.total === 0 || (counts.answers ?? 0) === 0}>
         {busy ? "Weaving…" : counts.submitted < counts.total ? "Weave it anyway" : "Weave the story"}
     </button>
-    <p class="hint">Waiting on stragglers? You can weave whenever you like.</p>
+    {#if (counts.answers ?? 0) === 0}
+        <p class="hint">Waiting for the first answer to come in…</p>
+    {:else}
+        <p class="hint">Waiting on stragglers? You can weave whenever you like.</p>
+    {/if}
 </section>

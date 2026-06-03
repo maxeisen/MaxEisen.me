@@ -56,6 +56,7 @@ export default async function handler(req) {
 	const counts = {
 		submitted: assignedPlayerIds.filter(playerDone).length,
 		total: assignedPlayerIds.length,
+		answers: subs.filter((s) => s.value).length,
 	};
 
 	const state = {
