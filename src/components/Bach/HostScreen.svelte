@@ -576,7 +576,7 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Almost there — narration will be ready on the next screen (story text stays hidden until you reveal it).</p>
+                <p class="muted">Almost there — next up: optional narration plus the story (hidden until you choose to show it).</p>
                 <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
                     Cancel and go back
                 </button>
@@ -585,11 +585,12 @@
         {:else if phase === "reveal"}
             <section class="reveal">
                 <div class="narration-panel" aria-label="Story narration">
-                    <h3 class="mini-title">Listen first</h3>
+                    <h3 class="mini-title">Narration</h3>
+                    <p class="hint narration-optional-hint">Optional — fun to play before you show the text, but not required.</p>
                     {#if audioLoading}
-                        <p class="narration-status muted">Loading narration…</p>
+                        <p class="narration-status muted">Loading audio…</p>
                     {:else if gameState?.narrationPending || !gameState?.storyAudioReady}
-                        <p class="narration-status muted">Recording narration… (this can take a minute for long stories)</p>
+                        <p class="narration-status muted">Recording audio… can take a minute on long stories. Feel free to reveal the text below anytime.</p>
                         <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
                             Retry recording
                         </button>
@@ -623,9 +624,9 @@
                             Hide story text
                         </button>
                     {:else}
-                        <p class="hint story-hidden-hint">Story is ready — play the narration, then show the text when you like.</p>
+                        <p class="hint story-hidden-hint">Story’s ready. Reveal the text whenever you like — narration is just a bonus if you want the dramatic read-aloud first.</p>
                         <button type="button" class="primary story-reveal-btn" onclick={() => (storyTextVisible = true)}>
-                            Show story text
+                            Show the story
                         </button>
                     {/if}
                 </div>
@@ -1004,6 +1005,7 @@
     }
     .narration-load { margin: 0.25rem auto; }
     .narration-status { font-size: 0.95rem; margin: 0.5rem 0; }
+    .narration-optional-hint { font-size: 0.88rem; margin: 0 0 0.75rem; opacity: 0.9; }
     .story-reveal-controls {
         text-align: center;
         margin: 1.25rem 0 1.5rem;
