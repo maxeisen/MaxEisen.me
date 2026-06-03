@@ -102,6 +102,11 @@
     /** @type {HTMLDivElement | null} */
     let storyScrollEl = $state(null);
     let followNarrationScroll = $state(true);
+    /** Cached story geometry { top, height }, recomputed on resize/image-load. */
+    let scrollGeom = null;
+    let scrollTarget = 0;
+    let scrollRaf = 0;
+    let scrollResizeObserver = null;
 
     let audioUrl = $state(null);
     let audioLoading = $state(false);
@@ -360,28 +365,65 @@
         resumeAt = 0;
     }
 
+    // Observe the story body so geometry is cached (and refreshed when lazy
+    // images load / the window resizes) instead of read on every timeupdate.
+    $effect(() => {
+        if (!storyScrollEl) return;
+        recomputeScrollGeom();
+        const onResize = () => recomputeScrollGeom();
+        window.addEventListener("resize", onResize);
+        if (typeof ResizeObserver !== "undefined") {
+            scrollResizeObserver = new ResizeObserver(() => recomputeScrollGeom());
+            scrollResizeObserver.observe(storyScrollEl);
+        }
+        return () => {
+            window.removeEventListener("resize", onResize);
+            scrollResizeObserver?.disconnect();
+            scrollResizeObserver = null;
+        };
+    });
+
+    function recomputeScrollGeom() {
+        scrollGeom = storyScrollEl
+            ? { top: storyScrollEl.offsetTop, height: storyScrollEl.offsetHeight }
+            : null;
+    }
+
+    function scrollTick() {
+        scrollRaf = 0;
+        const cur = window.scrollY;
+        const delta = scrollTarget - cur;
+        const next = Math.abs(delta) < 0.5 ? scrollTarget : cur + delta * 0.12;
+        window.scrollTo(0, next);
+        if (Math.abs(scrollTarget - window.scrollY) > 1) {
+            scrollRaf = requestAnimationFrame(scrollTick);
+        }
+    }
+
     function onNarrationTimeUpdate() {
         if (audioPlayer) resumeAt = audioPlayer.currentTime;
         if (!followNarrationScroll || !audioPlayer || !storyScrollEl || !storyTextVisible) return;
         if (prefersReducedMotion()) return; // don't yank the page for reduced-motion users
         const d = audioPlayer.duration;
         if (!d || !Number.isFinite(d) || d <= 0) return;
-        const top = storyScrollEl.offsetTop;
-        const height = storyScrollEl.offsetHeight;
-        const viewport = window.innerHeight;
-        const maxScroll = top + height - viewport;
-        if (maxScroll <= top) return;
-        const y = top + (audioPlayer.currentTime / d) * (maxScroll - top);
-        window.scrollTo({ top: y, behavior: "auto" });
+        if (!scrollGeom) recomputeScrollGeom();
+        if (!scrollGeom) return;
+        const maxScroll = scrollGeom.top + scrollGeom.height - window.innerHeight;
+        if (maxScroll <= scrollGeom.top) return;
+        scrollTarget = scrollGeom.top + (audioPlayer.currentTime / d) * (maxScroll - scrollGeom.top);
+        if (!scrollRaf) scrollRaf = requestAnimationFrame(scrollTick);
     }
 
     function onStoryScrollUser() {
         followNarrationScroll = false;
+        if (scrollRaf) { cancelAnimationFrame(scrollRaf); scrollRaf = 0; }
     }
 
     onDestroy(() => {
         releaseAudio();
         releaseImages();
+        cancelAnimationFrame(scrollRaf);
+        scrollResizeObserver?.disconnect();
     });
 
     function selectedPackId() {
