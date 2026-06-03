@@ -1,6 +1,6 @@
 // MaxEisen.me service worker
 // Bump SHELL_VERSION to force clients to refresh the precache.
-const SHELL_VERSION = "v10";
+const SHELL_VERSION = "v11";
 const SHELL_CACHE = `maxeisen-shell-${SHELL_VERSION}`;
 const RUNTIME_CACHE = `maxeisen-runtime-${SHELL_VERSION}`;
 
@@ -80,28 +80,22 @@ self.addEventListener("fetch", (event) => {
 		return;
 	}
 
-	// Same-origin caching strategy:
-	//   - cache-first ONLY for content-hashed build assets (immutable: a
-	//     new build emits a new filename, so a cache hit is always correct
-	//     and we never serve stale code).
-	//   - network-first for everything else — HTML navigations AND
-	//     stable-named-but-mutable assets like /build/bundle.js and the
-	//     non-hashed CSS files. Those keep the same URL while their content
-	//     changes every deploy, so cache-first would pin a stale entry —
-	//     which is exactly how a stale bundle.js kept importing a deleted
-	//     chunk hash and broke /dashboard after a deploy.
+	// Don't intercept the Vite build output (/build/*.js|css) at all. The
+	// browser's HTTP cache already does the right thing: hashed chunks ship
+	// with immutable Cache-Control headers, and the stable-named bundle.js is
+	// revalidated each deploy. Letting the SW cache these is what allowed a
+	// fresh bundle.js to be paired with a stale hashed chunk — a version skew
+	// that crashed /dashboard after deploys. Staying out of the build output
+	// removes that skew class entirely. (Trade-off: build assets aren't
+	// available offline; precached HTML shells still are.)
+	if (url.pathname.startsWith("/build/")) return;
+
+	// Everything else same-origin (HTML navigations, manifest, fonts, icons,
+	// static /styles) is network-first with a cache fallback for offline.
 	if (url.origin === self.location.origin) {
-		event.respondWith(isImmutableAsset(url) ? cacheFirst(req) : networkFirst(req));
+		event.respondWith(networkFirst(req));
 	}
 });
-
-// Vite content-hashed output: `name-<8charhash>.js|css` (e.g.
-// Dashboard-vU0_TR_2.js, maplibre-gl-Dx3IWJ0j.js). The hash changes with
-// content, so these URLs are safe to treat as immutable. Stable names
-// (bundle.js, index.css, Dashboard.css, …) deliberately do NOT match.
-function isImmutableAsset(url) {
-	return url.pathname.startsWith("/build/") && /-[A-Za-z0-9_-]{8}\.(?:js|css)$/.test(url.pathname);
-}
 
 async function networkFirst(req) {
 	const cache = await caches.open(RUNTIME_CACHE);
@@ -115,21 +109,6 @@ async function networkFirst(req) {
 		// As an offline fallback, return the cached homepage shell.
 		const home = await caches.match("/");
 		if (home) return home;
-		return new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
-	}
-}
-
-async function cacheFirst(req) {
-	const cached = await caches.match(req);
-	if (cached) return cached;
-	try {
-		const fresh = await fetch(req);
-		if (fresh.ok) {
-			const cache = await caches.open(RUNTIME_CACHE);
-			cache.put(req, fresh.clone());
-		}
-		return fresh;
-	} catch {
 		return new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
 	}
 }

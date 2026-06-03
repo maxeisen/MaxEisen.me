@@ -81,7 +81,7 @@
 
     const data = $derived(spotify.data);
     const isError = $derived(data?._error === true);
-    const hasTrack = $derived(!!data && !isError && (data.track || data.playing));
+    const hasTrack = $derived(!!data && !isError && (data?.track || data?.playing));
     const elapsedMs = $derived.by(() => {
         if (!spotify.playing || !spotify.durationMs) return 0;
         return Math.min(spotify.durationMs, spotify.progressMs + (now - spotify.fetchedAt));
@@ -90,12 +90,12 @@
     const statusLabel = $derived.by(() => {
         if (isError) return "Spotify unavailable";
         if (!hasTrack) return "Nothing playing";
-        if (data.playing) return "now-playing";
-        if (data.playedAt) return `Last played · ${timeAgo(data.playedAt)}`;
+        if (data?.playing) return "now-playing";
+        if (data?.playedAt) return `Last played · ${timeAgo(data.playedAt)}`;
         return "Recently played";
     });
     const showProgress = $derived(spotify.playing && spotify.durationMs > 0);
-    const vizActive = $derived(hasTrack && !!data.playing);
+    const vizActive = $derived(hasTrack && !!data?.playing);
 
     function vizLoop() {
         if (!document.hidden && vizCtx) drawViz(vizCtx, viz.params, viz.startTime);

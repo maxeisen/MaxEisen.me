@@ -21,7 +21,7 @@
     let keyHandler;
 
     const data = $derived(spotify.data);
-    const hasTrack = $derived(!!data && !data._error && (data.track || data.playing));
+    const hasTrack = $derived(!!data && !data?._error && (data?.track || data?.playing));
     const elapsedMs = $derived.by(() => {
         if (!spotify.playing || !spotify.durationMs) return 0;
         return Math.min(spotify.durationMs, spotify.progressMs + (now - spotify.fetchedAt));
@@ -95,9 +95,9 @@
                 <div class="viz-overlay-status">
                     {#if !hasTrack}
                         Nothing playing
-                    {:else if data.playing}
+                    {:else if data?.playing}
                         <span class="pulse"></span>Now playing
-                    {:else if data.playedAt}
+                    {:else if data?.playedAt}
                         Last played · {timeAgo(data.playedAt)}
                     {:else}
                         Recently played
