@@ -89,6 +89,10 @@ export default async function handler(req) {
 		state.storyAudioReady = audioReady;
 		state.narrationPending = Boolean(meta.narrationPending);
 		state.narrationError = meta.narrationError || null;
+		state.storyImagePlacements = Array.isArray(meta.storyImagePlacements) ? meta.storyImagePlacements : [];
+		state.hasStoryImages = Boolean(meta.hasStoryImages);
+		state.imagesPending = Boolean(meta.imagesPending);
+		state.imagesError = meta.imagesError || null;
 		if (meta.hasStoryAudio && !audioReady) {
 			meta.hasStoryAudio = false;
 			meta.version++;

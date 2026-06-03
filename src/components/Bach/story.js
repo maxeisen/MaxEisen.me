@@ -32,3 +32,32 @@ export function formatStory(text) {
 
 	return { title, paragraphs };
 }
+
+/**
+ * Interleave paragraph HTML and images after the matching paragraph index.
+ * @param {string[]} paragraphs
+ * @param {{ id: number, insertAfter: number, caption?: string }[]} placements
+ * @param {Record<number, string>} imageUrls blob URLs keyed by placement id
+ */
+export function buildStoryBlocks(paragraphs, placements, imageUrls) {
+	const blocks = [];
+	const byAfter = new Map();
+	for (const p of placements || []) {
+		const list = byAfter.get(p.insertAfter) || [];
+		list.push(p);
+		byAfter.set(p.insertAfter, list);
+	}
+
+	for (let i = 0; i < paragraphs.length; i++) {
+		blocks.push({ type: "paragraph", html: paragraphs[i], index: i });
+		for (const slot of byAfter.get(i) || []) {
+			blocks.push({
+				type: "image",
+				id: slot.id,
+				url: imageUrls[slot.id] || null,
+				caption: slot.caption || "",
+			});
+		}
+	}
+	return blocks;
+}

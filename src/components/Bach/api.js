@@ -67,6 +67,24 @@ export async function generateStoryTts(password, { code, hostToken }) {
 	return post("bach-story-tts-background", password, { code, hostToken });
 }
 
+export async function generateStoryImages(password, { code, hostToken }) {
+	return post("bach-story-images-background", password, { code, hostToken });
+}
+
+export async function fetchStoryImage(password, code, roundIndex, imageId) {
+	const qs = new URLSearchParams({
+		code,
+		round: String(roundIndex),
+		id: String(imageId),
+	});
+	const res = await fetch(`${FN}/bach-story-image?${qs.toString()}`, {
+		headers: { "X-Bach-Password": password || "" },
+	});
+	if (!res.ok) return { ok: false, status: res.status };
+	const blob = await res.blob();
+	return { ok: true, blob };
+}
+
 export async function fetchPartyPack(password, packId, { library = false } = {}) {
 	const qs = new URLSearchParams();
 	if (packId) qs.set("pack", packId);

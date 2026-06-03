@@ -288,10 +288,12 @@
             return false;
         }
         void requestStoryTts();
+        void requestStoryImages();
         return true;
     }
 
     let ttsBusy = false;
+    let imagesBusy = false;
 
     /** Record narration (story text must already exist). */
     async function requestStoryTts() {
@@ -315,6 +317,30 @@
             return false;
         } finally {
             ttsBusy = false;
+        }
+    }
+
+    async function requestStoryImages() {
+        if (imagesBusy || !code || !hostToken) return false;
+        imagesBusy = true;
+        try {
+            for (let attempt = 0; attempt < 6; attempt++) {
+                const { ok, status, accepted } = await api.generateStoryImages(password, { code, hostToken });
+                if (ok || accepted) {
+                    await poll();
+                    return true;
+                }
+                if (status === 409 && attempt < 5) {
+                    await new Promise((r) => setTimeout(r, 400));
+                    await poll();
+                    continue;
+                }
+                await poll();
+                return false;
+            }
+            return false;
+        } finally {
+            imagesBusy = false;
         }
     }
 
@@ -409,6 +435,7 @@
             onReloadPartyPack={reloadPartyPack}
             onPartyPackUpload={applyPartyPack}
             onRequestTts={requestStoryTts}
+            onRequestImages={requestStoryImages}
             onAction={doHostAction}
             onGenerate={generate}
         />

@@ -5,6 +5,7 @@
 // "bach-sessions" Blobs store. Each writer owns a distinct key so concurrent
 // joins / submissions / votes never clobber each other.
 
+import { Buffer } from "node:buffer";
 import { getStore } from "@netlify/blobs";
 
 export function getEnv(name) {
@@ -65,6 +66,9 @@ export const keys = {
 	subPrefix: (code, round) => `${code}/sub/${round}/`,
 	story: (code, round) => `${code}/story/${round}`,
 	storyAudio: (code, round) => `${code}/story-audio/${round}.mp3`,
+	storyImage: (code, round, id) => `${code}/story-image/${round}/${id}.png`,
+	storyImagesManifest: (code, round) => `${code}/story-images-manifest/${round}`,
+	storyImagePrefix: (code, round) => `${code}/story-image/${round}/`,
 	vote: (code, round, voterId) => `${code}/vote/${round}/${voterId}`,
 	votePrefix: (code, round) => `${code}/vote/${round}/`,
 	/** Custom host upload override (one-off JSON). */
@@ -119,6 +123,27 @@ export async function readStoryAudioBytes(store, code, round) {
 export async function storyAudioExists(store, code, round) {
 	const bytes = await readStoryAudioBytes(store, code, round);
 	return Boolean(bytes?.length);
+}
+
+/** @param {Uint8Array} bytes */
+export async function writeStoryImage(store, code, round, id, bytes) {
+	const key = keys.storyImage(code, round, id);
+	await store.set(key, bytes);
+	const verify = await readStoryImageBytes(store, code, round, id);
+	if (!verify?.length) throw new Error("image_persist_failed");
+}
+
+export async function readStoryImageBytes(store, code, round, id) {
+	const key = keys.storyImage(code, round, id);
+	try {
+		const buf = await store.get(key, { type: "arrayBuffer" });
+		if (buf?.byteLength) return Buffer.from(buf);
+	} catch {
+		/* fall through */
+	}
+	const b64 = await store.get(key, { type: "text" });
+	if (b64) return Buffer.from(b64, "base64");
+	return null;
 }
 
 export async function listJSON(store, prefix) {

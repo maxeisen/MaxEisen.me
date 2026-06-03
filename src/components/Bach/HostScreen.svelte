@@ -7,7 +7,7 @@
     import { onDestroy } from "svelte";
     import Qr from "./Qr.svelte";
     import * as api from "./api.js";
-    import { formatStory } from "./story.js";
+    import { formatStory, buildStoryBlocks } from "./story.js";
     import {
         drawPrompts,
         loadUsedPrompts,
@@ -30,6 +30,7 @@
         onReloadPartyPack,
         onPartyPackUpload,
         onRequestTts,
+        onRequestImages,
         onAction,
         onGenerate,
     } = $props();
@@ -98,6 +99,9 @@
     let busy = $state(false);
     let storyTextVisible = $state(false);
     let storyRevealKey = $state("");
+    /** @type {HTMLDivElement | null} */
+    let storyScrollEl = $state(null);
+    let followNarrationScroll = $state(true);
 
     let audioUrl = $state(null);
     let audioLoading = $state(false);
@@ -107,6 +111,13 @@
     let autoPlayedUrl = $state(null);
     /** Round we already tried to fetch narration for (prevents 404 retry loops). */
     let narrationAttempted = $state("");
+
+    /** @type {Record<number, string>} */
+    let imageUrls = $state({});
+    let imagesLoading = $state(false);
+    /** Round key images were fetched for; avoids effect ↔ releaseImages loops. */
+    let imagesFetchKey = $state("");
+    let imagesRoundKey = $state("");
 
     $effect(() => {
         if (code) usedPrompts = loadUsedPrompts(code);
@@ -128,6 +139,8 @@
             : ""
     );
     const story = $derived(formatStory(gameState?.story || ""));
+    const imagePlacements = $derived(gameState?.storyImagePlacements ?? []);
+    const storyBlocks = $derived(buildStoryBlocks(story.paragraphs, imagePlacements, imageUrls));
 
     $effect(() => {
         const key = code && (gameState?.roundIndex ?? -1) >= 0
@@ -136,8 +149,19 @@
         if (phase === "reveal" && key && key !== storyRevealKey) {
             storyRevealKey = key;
             storyTextVisible = false;
+            followNarrationScroll = true;
         }
     });
+
+    function releaseImages() {
+        const urls = Object.values(imageUrls);
+        if (!urls.length && !imagesLoading && !imagesFetchKey && !imagesRoundKey) return;
+        for (const url of urls) URL.revokeObjectURL(url);
+        if (urls.length) imageUrls = {};
+        imagesLoading = false;
+        imagesFetchKey = "";
+        imagesRoundKey = "";
+    }
 
     function releaseAudio() {
         audioPlayer?.pause();
@@ -217,7 +241,85 @@
         loadNarration(key);
     });
 
-    onDestroy(releaseAudio);
+    async function loadStoryImages(roundKey, placements) {
+        const round = gameState?.roundIndex ?? -1;
+        if (!password || !code || round < 0 || !placements.length) return;
+
+        imagesLoading = true;
+        try {
+            const next = { ...imageUrls };
+            for (const slot of placements) {
+                if (next[slot.id]) continue;
+                const { ok, blob } = await api.fetchStoryImage(password, code, round, slot.id);
+                if (ok && blob) next[slot.id] = URL.createObjectURL(blob);
+            }
+            if (Object.keys(next).length) imageUrls = next;
+            imagesRoundKey = roundKey;
+        } finally {
+            imagesLoading = false;
+        }
+    }
+
+    $effect(() => {
+        const round = gameState?.roundIndex ?? -1;
+        const key = code && round >= 0 ? `${code}:${round}` : "";
+        const placements = gameState?.storyImagePlacements ?? [];
+
+        if (!LISTEN_PHASES.includes(phase) || !key || !password) {
+            if (
+                (phase === "finished" || phase === "lobby" || phase === "writing" || !code)
+                && (imagesRoundKey || imagesFetchKey || Object.keys(imageUrls).length)
+            ) {
+                releaseImages();
+            }
+            return;
+        }
+
+        if (key !== imagesRoundKey && imagesRoundKey) {
+            releaseImages();
+        }
+
+        if (!placements.length) return;
+
+        const fetchKey = `${key}:${placements.map((p) => p.id).join(",")}`;
+        const allLoaded = placements.every((p) => imageUrls[p.id]);
+        if (allLoaded) {
+            imagesFetchKey = fetchKey;
+            imagesRoundKey = key;
+            return;
+        }
+
+        if (imagesLoading || imagesFetchKey === fetchKey) return;
+        imagesFetchKey = fetchKey;
+        void loadStoryImages(key, placements);
+    });
+
+    function onNarrationPlay() {
+        storyTextVisible = true;
+        followNarrationScroll = true;
+    }
+
+    function onNarrationTimeUpdate() {
+        if (!followNarrationScroll || !audioPlayer || !storyScrollEl || !storyTextVisible) return;
+        const d = audioPlayer.duration;
+        if (!d || !Number.isFinite(d) || d <= 0) return;
+        const top = storyScrollEl.offsetTop;
+        const height = storyScrollEl.offsetHeight;
+        const viewport = window.innerHeight;
+        const maxScroll = top + height - viewport;
+        if (maxScroll <= top) return;
+        const y = top + (audioPlayer.currentTime / d) * (maxScroll - top);
+        window.scrollTo({ top: y, behavior: "auto" });
+    }
+
+    function onStoryScrollUser() {
+        followNarrationScroll = false;
+    }
+
+    onDestroy(() => {
+        releaseAudio();
+        releaseImages();
+    });
 
     function selectedPackId() {
         return partyCatalog.activePackId || packOptions[0]?.id || "";
@@ -576,7 +678,7 @@
             <section class="centered">
                 <div class="spinner"></div>
                 <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Almost there — next up: optional narration plus the story (hidden until you choose to show it).</p>
+                <p class="muted">Almost there — narration and funny scene illustrations are on the way.</p>
                 <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
                     Cancel and go back
                 </button>
@@ -586,7 +688,17 @@
             <section class="reveal">
                 <div class="narration-panel" aria-label="Story narration">
                     <h3 class="mini-title">Narration</h3>
-                    <p class="hint narration-optional-hint">Optional — fun to play before you show the text, but not required.</p>
+                    <p class="hint narration-optional-hint">Optional — when it plays, the story scrolls along. You can still reveal text manually anytime.</p>
+                    {#if gameState?.imagesPending}
+                        <p class="narration-status muted">Drawing funny scene shots… usually a few minutes.</p>
+                    {:else if gameState?.imagesError}
+                        <p class="error narration-status">Illustrations didn't generate.</p>
+                        <button type="button" class="ghost" onclick={() => onRequestImages?.()} disabled={busy}>
+                            Retry illustrations
+                        </button>
+                    {:else if imagePlacements.length && imagesLoading}
+                        <p class="narration-status muted">Loading illustrations…</p>
+                    {/if}
                     {#if audioLoading}
                         <p class="narration-status muted">Loading audio…</p>
                     {:else if gameState?.narrationPending || !gameState?.storyAudioReady}
@@ -602,6 +714,8 @@
                             controls
                             preload="auto"
                             src={audioUrl}
+                            onplay={onNarrationPlay}
+                            ontimeupdate={onNarrationTimeUpdate}
                         ></audio>
                     {:else}
                         <button type="button" class="primary big narration-load" onclick={retryNarration} disabled={busy}>
@@ -624,7 +738,7 @@
                             Hide story text
                         </button>
                     {:else}
-                        <p class="hint story-hidden-hint">Story’s ready. Reveal the text whenever you like — narration is just a bonus if you want the dramatic read-aloud first.</p>
+                        <p class="hint story-hidden-hint">Story’s ready with scene illustrations woven in. Hit play on narration to auto-scroll, or reveal text whenever you like.</p>
                         <button type="button" class="primary story-reveal-btn" onclick={() => (storyTextVisible = true)}>
                             Show the story
                         </button>
@@ -632,9 +746,27 @@
                 </div>
                 {#if storyTextVisible}
                     {#if story.title}<h2 class="story-title">{story.title}</h2>{/if}
-                    <div class="story-body">
-                        {#each story.paragraphs as para}
-                            <p>{@html para}</p>
+                    <div
+                        class="story-body"
+                        bind:this={storyScrollEl}
+                        onwheel={onStoryScrollUser}
+                        ontouchmove={onStoryScrollUser}
+                    >
+                        {#each storyBlocks as block}
+                            {#if block.type === "paragraph"}
+                                <p>{@html block.html}</p>
+                            {:else}
+                                <figure class="story-illustration">
+                                    {#if block.url}
+                                        <img src={block.url} alt={block.caption || "Story moment"} loading="lazy" />
+                                    {:else}
+                                        <div class="story-img-placeholder" aria-hidden="true">Drawing this moment…</div>
+                                    {/if}
+                                    {#if block.caption}
+                                        <figcaption>{block.caption}</figcaption>
+                                    {/if}
+                                </figure>
+                            {/if}
                         {/each}
                     </div>
                 {/if}
@@ -648,7 +780,15 @@
             <section class="centered">
                 {#if audioUrl}
                     <div class="narration-panel compact" aria-label="Story narration">
-                        <audio bind:this={audioPlayer} class="story-audio-player" controls preload="auto" src={audioUrl}></audio>
+                        <audio
+                            bind:this={audioPlayer}
+                            class="story-audio-player"
+                            controls
+                            preload="auto"
+                            src={audioUrl}
+                            onplay={onNarrationPlay}
+                            ontimeupdate={onNarrationTimeUpdate}
+                        ></audio>
                     </div>
                 {/if}
                 <h2 class="display sm">Vote for round MVP</h2>
@@ -985,7 +1125,7 @@
     .ballot-prompt { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--main-green); opacity: 0.85; }
 
     /* --- Reveal / story --- */
-    .reveal { max-width: 820px; margin: 2vh auto 0; }
+    .reveal { width: 100%; max-width: none; margin: 2vh 0 0; }
     .narration-panel {
         margin-bottom: 1.5rem;
         padding: 1rem 1.15rem;
@@ -1017,7 +1157,36 @@
         font-size: clamp(2rem, 5vw, 3.2rem); color: var(--header-colour);
         letter-spacing: -0.02em; margin: 0 0 1.5rem; text-align: center;
     }
+    .story-illustration {
+        margin: 1.25rem 0 1.5rem;
+        text-align: center;
+    }
+    .story-illustration img {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+    }
+    .story-img-placeholder {
+        min-height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 2px dashed var(--main-green);
+        color: var(--paragraph-colour);
+        opacity: 0.75;
+        font-style: italic;
+    }
+    .story-illustration figcaption {
+        margin-top: 0.5rem;
+        font-size: 0.95rem;
+        font-style: italic;
+        color: var(--paragraph-colour);
+        opacity: 0.9;
+    }
     .story-body {
+        width: 100%;
         font-size: clamp(1.15rem, 2.2vw, 1.6rem);
         line-height: 1.6; color: var(--paragraph-colour);
     }
