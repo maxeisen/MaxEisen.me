@@ -13,6 +13,7 @@ Grounding (critical):
 - imagePrompt: one vivid scene description for an image model. Cartoon editorial roast—silly, warm, PG-13. No horror, gore, or creepy faces. No real people's names, no text in the image. Describe the single frozen moment clearly (who is where, doing what).
 - caption: a short funny subtitle (max 12 words) for the host screen. It must describe the SAME moment as imagePrompt—the caption is what you'd say looking at that picture. No unrelated punchlines.
 - If the paragraph features someone from the "Cast looks" list provided, depict them as a cartoon caricature matching that description (build, hair, signature outfit, vibe). Still never render real names or any text in the image.
+- The couple are the stars: EVERY illustration must include BOTH the groom and his partner together, drawn to match their Cast looks — even when the paragraph centers on someone else, place them in the scene reacting or taking part. Keep them recognizable and consistent across all images.
 - Pick the most visual/funny beat in that paragraph. Spread placements across beginning, middle, and end. No duplicate scenes.`;
 
 /** @param {import("openai").OpenAI} client */
@@ -33,7 +34,7 @@ export async function planStoryImagePlacements(client, story, meta) {
 	const user = [
 		`Plan exactly ${maxImages} illustrations for this ${n}-paragraph story.`,
 		meta.groom
-			? `Couple: ${meta.groom}${meta.partner ? ` and ${meta.partner}` : ""} (use "the groom" / "his partner" in prompts, not real names).`
+			? `Stars of every image — ${meta.groom}${meta.partner ? ` and ${meta.partner}` : ""} must both appear together in every illustration, drawn to match their Cast looks. In prompts call them "the groom"${meta.partner ? ` and "his partner"` : ""}, never by name; no text in the image.`
 			: "",
 		facts ? `Context:\n${facts.slice(0, 1200)}` : "",
 		cast ? `Cast looks (match these when the person is in the paragraph; cartoon caricature, no text/names in the image):\n${cast}` : "",

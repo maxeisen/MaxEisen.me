@@ -7,7 +7,7 @@ const TTS_INSTRUCTIONS =
 
 /** OpenAI TTS hard limit is 4096; stay slightly under. */
 const TTS_CHUNK_MAX = 4000;
-const QUICK_SPEED = 1.2;
+const QUICK_SPEED = 1.0; // natural read-along pace (the host story view scrolls in step with playback)
 const QUICK_TIMEOUT_MS = 22_000;
 const FULL_TIMEOUT_MS = 22_000;
 

@@ -104,7 +104,7 @@
         scrollRaf = 0;
         const cur = window.scrollY;
         const delta = scrollTarget - cur;
-        const next = Math.abs(delta) < 0.5 ? scrollTarget : cur + delta * 0.12;
+        const next = Math.abs(delta) < 0.5 ? scrollTarget : cur + delta * 0.08;
         window.scrollTo(0, next);
         if (Math.abs(scrollTarget - window.scrollY) > 1) scrollRaf = requestAnimationFrame(scrollTick);
     }
