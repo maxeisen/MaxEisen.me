@@ -45,6 +45,7 @@ export default async function handler(req) {
 				deletePrefix(store, keys.votePrefix(code, round)),
 				store.delete(keys.story(code, round)),
 				store.delete(keys.storyAudio(code, round)),
+				store.delete(keys.storyVideo(code, round)),
 			]);
 
 			const playerBlobs = await listJSON(store, keys.playerPrefix(code));
@@ -70,6 +71,9 @@ export default async function handler(req) {
 			meta.hasStoryAudio = false;
 			meta.narrationPending = false;
 			meta.narrationError = null;
+			meta.hasStoryVideo = false;
+			meta.videoPending = false;
+			meta.videoError = null;
 			meta.version++;
 			await writeMeta(store, code, meta);
 			return jsonResponse({ ok: true, roundIndex: round });

@@ -15,6 +15,9 @@
 [functions."bach-story-tts-background"]
   timeout = 900
 
+[functions."bach-story-video-background"]
+  timeout = 900
+
 [dev]
   command = "vite"
   targetPort = 6808

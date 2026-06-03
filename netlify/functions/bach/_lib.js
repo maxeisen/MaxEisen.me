@@ -5,6 +5,7 @@
 // "bach-sessions" Blobs store. Each writer owns a distinct key so concurrent
 // joins / submissions / votes never clobber each other.
 
+import { Buffer } from "node:buffer";
 import { getStore } from "@netlify/blobs";
 
 export function getEnv(name) {
@@ -65,6 +66,7 @@ export const keys = {
 	subPrefix: (code, round) => `${code}/sub/${round}/`,
 	story: (code, round) => `${code}/story/${round}`,
 	storyAudio: (code, round) => `${code}/story-audio/${round}.mp3`,
+	storyVideo: (code, round) => `${code}/story-video/${round}.mp4`,
 	vote: (code, round, voterId) => `${code}/vote/${round}/${voterId}`,
 	votePrefix: (code, round) => `${code}/vote/${round}/`,
 	/** Custom host upload override (one-off JSON). */
@@ -118,6 +120,36 @@ export async function readStoryAudioBytes(store, code, round) {
 
 export async function storyAudioExists(store, code, round) {
 	const bytes = await readStoryAudioBytes(store, code, round);
+	return Boolean(bytes?.length);
+}
+
+/** @param {Uint8Array} bytes */
+export async function writeStoryVideo(store, code, round, bytes) {
+	const key = keys.storyVideo(code, round);
+	await store.set(key, bytes);
+	let verify = await readStoryVideoBytes(store, code, round);
+	if (!verify?.length) {
+		await store.set(key, Buffer.from(bytes).toString("base64"));
+		verify = await readStoryVideoBytes(store, code, round);
+	}
+	if (!verify?.length) throw new Error("video_persist_failed");
+}
+
+export async function readStoryVideoBytes(store, code, round) {
+	const key = keys.storyVideo(code, round);
+	try {
+		const buf = await store.get(key, { type: "arrayBuffer" });
+		if (buf?.byteLength) return Buffer.from(buf);
+	} catch {
+		/* fall through */
+	}
+	const b64 = await store.get(key, { type: "text" });
+	if (b64) return Buffer.from(b64, "base64");
+	return null;
+}
+
+export async function storyVideoExists(store, code, round) {
+	const bytes = await readStoryVideoBytes(store, code, round);
 	return Boolean(bytes?.length);
 }
 

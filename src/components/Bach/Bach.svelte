@@ -288,10 +288,12 @@
             return false;
         }
         void requestStoryTts();
+        void requestStoryVideo();
         return true;
     }
 
     let ttsBusy = false;
+    let videoBusy = false;
 
     /** Record narration (story text must already exist). */
     async function requestStoryTts() {
@@ -315,6 +317,28 @@
             return false;
         } finally {
             ttsBusy = false;
+        }
+    }
+
+    /** Generate Sora B-roll (runs in background; host syncs with narration). */
+    async function requestStoryVideo() {
+        if (videoBusy || !code || !hostToken) return false;
+        videoBusy = true;
+        try {
+            const { ok, status, accepted, data } = await api.generateStoryVideo(password, { code, hostToken });
+            if (data?.skipped) return true;
+            if (ok || accepted) {
+                await poll();
+                return true;
+            }
+            if (status === 409) {
+                await poll();
+                return false;
+            }
+            await poll();
+            return false;
+        } finally {
+            videoBusy = false;
         }
     }
 
@@ -409,6 +433,7 @@
             onReloadPartyPack={reloadPartyPack}
             onPartyPackUpload={applyPartyPack}
             onRequestTts={requestStoryTts}
+            onRequestVideo={requestStoryVideo}
             onAction={doHostAction}
             onGenerate={generate}
         />
