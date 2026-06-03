@@ -7,6 +7,11 @@
     import { onDestroy } from "svelte";
     import "./lib/bach.css";
     import Qr from "./Qr.svelte";
+    import HostBar from "./host/HostBar.svelte";
+    import WritingScreen from "./host/WritingScreen.svelte";
+    import GeneratingScreen from "./host/GeneratingScreen.svelte";
+    import ResultsScreen from "./host/ResultsScreen.svelte";
+    import FinishedScreen from "./host/FinishedScreen.svelte";
     import * as api from "./lib/api.js";
     import { formatStory, buildStoryBlocks } from "./lib/story.js";
     import {
@@ -652,19 +657,7 @@
             <p class="hint">You can update context later from the lobby if needed.</p>
         </section>
     {:else}
-        <header class="bar">
-            <div class="bar-code">
-                <span class="bar-code-label">Room</span>
-                <span class="bar-code-value">{code}</span>
-            </div>
-            {#if leaderboard.length > 0}
-                <div class="bar-leader">
-                    <span class="bar-code-label">Round leader</span>
-                    <span class="bar-leader-name">{leaderboard[0].name} · {leaderboard[0].points}</span>
-                </div>
-            {/if}
-            <button class="ghost small" onclick={() => act("reset")} disabled={busy}>New game</button>
-        </header>
+        <HostBar {code} {leaderboard} {busy} onReset={() => act("reset")} />
 
         {#if phase === "lobby"}
             <section class="lobby">
@@ -797,32 +790,10 @@
             </section>
 
         {:else if phase === "writing"}
-            <section class="centered">
-                <h2 class="display sm">Fill in the blanks on your phones…</h2>
-                <div class="progress-big">{counts.submitted} / {counts.total} done</div>
-                <ul class="chip-list">
-                    {#each players as p}
-                        <li class="chip {p.submitted ? 'done' : ''}">{p.name}{p.submitted ? " ✓" : "…"}</li>
-                    {/each}
-                </ul>
-                {#if gameState?.error === "generation_failed"}
-                    <p class="error">The story machine choked. Try weaving again.</p>
-                {/if}
-                <button class="primary big" onclick={generate} disabled={busy || counts.total === 0}>
-                    {busy ? "Weaving…" : counts.submitted < counts.total ? "Weave it anyway" : "Weave the story"}
-                </button>
-                <p class="hint">Waiting on stragglers? You can weave whenever you like.</p>
-            </section>
+            <WritingScreen {players} {counts} error={gameState?.error} {busy} onGenerate={generate} />
 
         {:else if phase === "generating"}
-            <section class="centered">
-                <div class="spinner"></div>
-                <h2 class="display sm">Writing your story…</h2>
-                <p class="muted">Almost there — narration and funny scene illustrations are on the way.</p>
-                <button class="ghost" style="margin-top: 1rem" onclick={() => act("abortGenerating")} disabled={busy}>
-                    Cancel and go back
-                </button>
-            </section>
+            <GeneratingScreen {busy} onAbort={() => act("abortGenerating")} />
 
         {:else if phase === "reveal"}
             <section class="reveal">
@@ -968,44 +939,10 @@
             </section>
 
         {:else if phase === "results"}
-            <section class="centered">
-                {#if gameState?.mvp}
-                    <div class="trophy">🏆</div>
-                    <h2 class="display sm">Round MVP: {gameState.mvp.name}</h2>
-                    <p class="mvp-quote">“{gameState.mvp.value}”</p>
-                    <p class="muted">for <em>{gameState.mvp.prompt}</em> · {gameState.mvp.votes} vote{gameState.mvp.votes === 1 ? "" : "s"}</p>
-                {:else}
-                    <h2 class="display sm">No votes cast this round.</h2>
-                {/if}
-
-                {#if leaderboard.length > 0}
-                    <ol class="leaderboard">
-                        {#each leaderboard as row}
-                            <li><span>{row.name}</span><span class="lb-pts">{row.points}</span></li>
-                        {/each}
-                    </ol>
-                {/if}
-
-                <div class="reveal-actions">
-                    <button class="ghost" onclick={() => act("finish")} disabled={busy}>End game</button>
-                    <button class="primary" onclick={startRound} disabled={busy || players.length === 0}>Next round →</button>
-                </div>
-            </section>
+            <ResultsScreen mvp={gameState?.mvp} {leaderboard} {players} {busy} onFinish={() => act("finish")} onNextRound={startRound} />
 
         {:else if phase === "finished"}
-            <section class="centered">
-                <div class="trophy">👑</div>
-                <h2 class="display">That's a wrap.</h2>
-                {#if leaderboard.length > 0}
-                    <p class="lede">Overall leader: <strong>{leaderboard[0].name}</strong></p>
-                    <ol class="leaderboard">
-                        {#each leaderboard as row}
-                            <li><span>{row.name}</span><span class="lb-pts">{row.points}</span></li>
-                        {/each}
-                    </ol>
-                {/if}
-                <button class="primary big" onclick={() => act("reset")} disabled={busy}>New game</button>
-            </section>
+            <FinishedScreen {leaderboard} {busy} onReset={() => act("reset")} />
         {/if}
     {/if}
 
