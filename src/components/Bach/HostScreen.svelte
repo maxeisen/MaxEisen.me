@@ -30,7 +30,6 @@
         onReloadPartyPack,
         onPartyPackUpload,
         onRequestTts,
-        onRequestVideo,
         onAction,
         onGenerate,
     } = $props();
@@ -104,15 +103,10 @@
     let audioLoading = $state(false);
     let audioError = $state("");
     let audioPlayer = $state(null);
-    let videoUrl = $state(null);
-    let videoLoading = $state(false);
-    let videoError = $state("");
-    let videoPlayer = $state(null);
     /** Object URL we already auto-played (avoid replay on re-bind). */
-    let autoPlayedKey = $state(null);
+    let autoPlayedUrl = $state(null);
     /** Round we already tried to fetch narration for (prevents 404 retry loops). */
     let narrationAttempted = $state("");
-    let videoAttempted = $state("");
 
     $effect(() => {
         if (code) usedPrompts = loadUsedPrompts(code);
@@ -145,76 +139,26 @@
         }
     });
 
-    function releaseMedia() {
+    function releaseAudio() {
         audioPlayer?.pause();
-        videoPlayer?.pause();
         audioPlayer = null;
-        videoPlayer = null;
         if (audioUrl) {
             URL.revokeObjectURL(audioUrl);
             audioUrl = null;
         }
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-            videoUrl = null;
-        }
         audioLoading = false;
-        videoLoading = false;
         audioError = "";
-        videoError = "";
         narrationAttempted = "";
-        videoAttempted = "";
-        autoPlayedKey = null;
-    }
-
-    function syncPlay() {
-        if (!audioPlayer || !audioUrl) return;
-        if (videoPlayer && videoUrl) {
-            videoPlayer.muted = true;
-            videoPlayer.loop = true;
-            videoPlayer.currentTime = 0;
-            videoPlayer.play().catch(() => {});
-        }
-        audioPlayer.currentTime = 0;
-        audioPlayer.play().catch(() => {});
+        autoPlayedUrl = null;
     }
 
     $effect(() => {
-        const round = gameState?.roundIndex ?? -1;
-        const key = code && round >= 0 ? `${code}:${round}` : "";
-        if (!key || !audioUrl || !audioPlayer) return;
-        if (gameState?.storyVideoReady && !videoUrl) return;
-        if (autoPlayedKey === key) return;
-        autoPlayedKey = key;
-        syncPlay();
+        if (!audioUrl || !audioPlayer || autoPlayedUrl === audioUrl) return;
+        autoPlayedUrl = audioUrl;
+        audioPlayer.play().catch(() => {
+            /* Browser may block autoplay until a tap — controls stay visible. */
+        });
     });
-
-    async function loadVideo(attemptKey) {
-        const round = gameState?.roundIndex ?? -1;
-        if (!password || !code || round < 0) return;
-
-        videoLoading = true;
-        videoError = "";
-        if (videoUrl) {
-            URL.revokeObjectURL(videoUrl);
-            videoUrl = null;
-        }
-
-        try {
-            const { ok, blob } = await api.fetchStoryVideo(password, code, round);
-            if (!ok || !blob) {
-                videoError = "B-roll isn't ready yet.";
-                return;
-            }
-            videoUrl = URL.createObjectURL(blob);
-            videoAttempted = attemptKey;
-            autoPlayedKey = null;
-        } catch {
-            videoError = "Video failed to load.";
-        } finally {
-            videoLoading = false;
-        }
-    }
 
     async function loadNarration(attemptKey) {
         const round = gameState?.roundIndex ?? -1;
@@ -237,7 +181,6 @@
             }
             audioUrl = URL.createObjectURL(blob);
             narrationAttempted = attemptKey;
-            autoPlayedKey = null;
         } catch {
             audioError = "Narration failed to load — check your connection and retry.";
         } finally {
@@ -263,13 +206,9 @@
 
         if (!LISTEN_PHASES.includes(phase) || !key || !password) {
             if (phase === "finished" || phase === "lobby" || phase === "writing" || !code) {
-                releaseMedia();
+                releaseAudio();
             }
             return;
-        }
-
-        if (gameState?.storyVideoReady && !videoUrl && videoAttempted !== key && !videoLoading) {
-            loadVideo(key);
         }
 
         if (!gameState?.storyAudioReady) return;
@@ -278,7 +217,7 @@
         loadNarration(key);
     });
 
-    onDestroy(releaseMedia);
+    onDestroy(releaseAudio);
 
     function selectedPackId() {
         return partyCatalog.activePackId || packOptions[0]?.id || "";
@@ -648,26 +587,6 @@
                 <div class="narration-panel" aria-label="Story narration">
                     <h3 class="mini-title">Narration</h3>
                     <p class="hint narration-optional-hint">Optional — fun to play before you show the text, but not required.</p>
-                    {#if videoLoading}
-                        <p class="narration-status muted">Loading B-roll…</p>
-                    {:else if videoUrl}
-                        <video
-                            bind:this={videoPlayer}
-                            class="story-video-player"
-                            muted
-                            loop
-                            playsinline
-                            preload="auto"
-                            src={videoUrl}
-                        ></video>
-                    {:else if gameState?.videoPending}
-                        <p class="narration-status muted">Generating cinematic B-roll… usually a few minutes.</p>
-                    {:else if gameState?.videoError}
-                        <p class="narration-status muted">B-roll didn't generate — narration still works.</p>
-                        <button type="button" class="ghost" onclick={() => onRequestVideo?.()} disabled={busy}>
-                            Retry B-roll
-                        </button>
-                    {/if}
                     {#if audioLoading}
                         <p class="narration-status muted">Loading audio…</p>
                     {:else if gameState?.narrationPending || !gameState?.storyAudioReady}
@@ -676,6 +595,7 @@
                             Retry recording
                         </button>
                     {:else if audioUrl}
+                        <!-- Native controls: play/pause, scrubber, volume -->
                         <audio
                             bind:this={audioPlayer}
                             class="story-audio-player"
@@ -683,11 +603,6 @@
                             preload="auto"
                             src={audioUrl}
                         ></audio>
-                        {#if !videoUrl && !gameState?.videoPending}
-                            <button type="button" class="ghost" onclick={() => onRequestVideo?.()} disabled={busy}>
-                                Generate B-roll
-                            </button>
-                        {/if}
                     {:else}
                         <button type="button" class="primary big narration-load" onclick={retryNarration} disabled={busy}>
                             Load narration
@@ -1087,16 +1002,6 @@
         margin: 0 auto;
         display: block;
         min-height: 48px;
-    }
-    .story-video-player {
-        width: 100%;
-        max-width: 720px;
-        margin: 0 auto 0.75rem;
-        display: block;
-        border-radius: 10px;
-        background: #000;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
     }
     .narration-load { margin: 0.25rem auto; }
     .narration-status { font-size: 0.95rem; margin: 0.5rem 0; }

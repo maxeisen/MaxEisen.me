@@ -2,7 +2,7 @@
 
 import {
 	passwordOk, jsonResponse, getSessionStore,
-	validCode, readMeta, writeMeta, keys, listJSON, subId, storyAudioExists, storyVideoExists,
+	validCode, readMeta, writeMeta, keys, listJSON, subId, storyAudioExists,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -89,17 +89,8 @@ export default async function handler(req) {
 		state.storyAudioReady = audioReady;
 		state.narrationPending = Boolean(meta.narrationPending);
 		state.narrationError = meta.narrationError || null;
-		const videoReady = await storyVideoExists(store, code, round);
-		state.storyVideoReady = videoReady;
-		state.videoPending = Boolean(meta.videoPending);
-		state.videoError = meta.videoError || null;
 		if (meta.hasStoryAudio && !audioReady) {
 			meta.hasStoryAudio = false;
-			meta.version++;
-			await writeMeta(store, code, meta);
-		}
-		if (meta.hasStoryVideo && !videoReady) {
-			meta.hasStoryVideo = false;
 			meta.version++;
 			await writeMeta(store, code, meta);
 		}

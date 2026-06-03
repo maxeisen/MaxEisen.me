@@ -67,7 +67,6 @@ export default async function handler(req) {
 	await Promise.all([
 		store.delete(keys.story(code, round)),
 		store.delete(keys.storyAudio(code, round)),
-		store.delete(keys.storyVideo(code, round)),
 	]);
 
 	const wordList = submissions
@@ -109,9 +108,6 @@ export default async function handler(req) {
 		fresh.hasStoryAudio = false;
 		fresh.narrationPending = false;
 		fresh.narrationError = null;
-		fresh.hasStoryVideo = false;
-		fresh.videoPending = false;
-		fresh.videoError = null;
 		fresh.version++;
 		await writeMeta(store, code, fresh);
 

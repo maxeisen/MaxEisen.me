@@ -89,30 +89,6 @@ export async function uploadPartyPack(password, party) {
 	return post("bach-party-pack", password, { party });
 }
 
-export async function generateStoryVideo(password, { code, hostToken }) {
-	return post("bach-story-video-background", password, { code, hostToken });
-}
-
-export async function fetchStoryVideo(password, code, roundIndex, { timeoutMs = 120_000 } = {}) {
-	const qs = new URLSearchParams({ code, round: String(roundIndex) });
-	const ctrl = new AbortController();
-	const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-	try {
-		const res = await fetch(`${FN}/bach-story-video?${qs.toString()}`, {
-			headers: { "X-Bach-Password": password || "" },
-			signal: ctrl.signal,
-		});
-		if (!res.ok) return { ok: false, status: res.status };
-		const blob = await res.blob();
-		return { ok: true, blob };
-	} catch (err) {
-		if (err?.name === "AbortError") return { ok: false, status: 408, timedOut: true };
-		throw err;
-	} finally {
-		clearTimeout(timer);
-	}
-}
-
 export async function fetchStoryAudio(password, code, roundIndex, { timeoutMs = 60_000 } = {}) {
 	const qs = new URLSearchParams({ code, round: String(roundIndex) });
 	const ctrl = new AbortController();
