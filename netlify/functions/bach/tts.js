@@ -99,10 +99,17 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 	const custom = env.ttsModel
 		? [{ model: env.ttsModel, voice: env.ttsVoice || "fable", instructions: env.ttsInstructions || TTS_INSTRUCTIONS }]
 		: [];
+
+	// Quick mode walks a short ladder (one try each) instead of a single shot,
+	// so a slow/transient first call falls through to the next model/voice
+	// rather than surfacing a manual retry.
+	const quickLadder = [
+		{ model: "tts-1", voice: env.ttsVoice || "fable" },
+		{ model: "tts-1", voice: "onyx" },
+		{ model: "gpt-4o-mini-tts", voice: env.ttsVoice || "fable", instructions: env.ttsInstructions || TTS_INSTRUCTIONS },
+	];
 	const attempts = quick
-		? (custom.length
-			? custom.slice(0, 1)
-			: [{ model: "tts-1", voice: env.ttsVoice || "fable" }])
+		? [...custom, ...quickLadder.filter((a) => !custom.some((c) => c.model === a.model && c.voice === a.voice))]
 		: [...custom, ...ATTEMPTS.filter((a) => !custom.some((c) => c.model === a.model))];
 
 	let lastErr;
@@ -113,10 +120,10 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 				if (chunks.length === 1) {
 					return await synthesize(client, chunks[0], { ...attempt, quick });
 				}
-				const parts = [];
-				for (const chunk of chunks) {
-					parts.push(await synthesize(client, chunk, { ...attempt, quick }));
-				}
+				// Synthesize chunks concurrently, then concat in order.
+				const parts = await Promise.all(
+					chunks.map((chunk) => synthesize(client, chunk, { ...attempt, quick })),
+				);
 				return concatMp3(parts);
 			} catch (err) {
 				lastErr = err;
@@ -132,7 +139,6 @@ export async function generateStoryAudio(client, storyRaw, env = {}) {
 				if (tryNum + 1 < retries && err?.message !== "tts_timeout") continue;
 			}
 		}
-		if (quick) break;
 	}
 	console.error("bach/tts all attempts failed:", lastErr?.message || lastErr);
 	return null;
