@@ -12,7 +12,8 @@ Grounding (critical):
 - Read that paragraph and pull concrete details (who, what action, props, setting) into imagePrompt.
 - imagePrompt: one vivid scene description for an image model. Cartoon editorial roast—silly, warm, PG-13. No horror, gore, or creepy faces. No real people's names, no text in the image. Describe the single frozen moment clearly (who is where, doing what).
 - caption: a short funny subtitle (max 12 words) for the host screen. It must describe the SAME moment as imagePrompt—the caption is what you'd say looking at that picture. No unrelated punchlines.
-- If the paragraph features someone from the "Cast looks" list provided, depict them as a cartoon caricature matching that description (build, hair, signature outfit, vibe). Still never render real names or any text in the image.
+- STRICT casting: the ONLY characters you may draw are people in the "Cast looks" list. Never invent, add, or depict anyone who isn't listed (no extra friends, no faces in background crowds, no made-up people). If the paragraph mentions someone not in the list, leave them out or keep them a vague faceless background figure.
+- STRICT appearances: for each listed person in the scene, copy their Cast-looks descriptors into imagePrompt (hair, build, age, signature outfit) and instruct the image to match them exactly. Caricature the comedy, never the described features—do not change anyone's hair, build, age, ethnicity, or outfit. Never render real names or any text in the image.
 - The couple are the stars: EVERY illustration must include BOTH the groom and his partner together, drawn to match their Cast looks — even when the paragraph centers on someone else, place them in the scene reacting or taking part. Keep them recognizable and consistent across all images.
 - Pick the most visual/funny beat in that paragraph. Spread placements across beginning, middle, and end. No duplicate scenes.`;
 

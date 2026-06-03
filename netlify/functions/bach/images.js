@@ -46,6 +46,7 @@ export async function generateFunnyImage(apiKey, slot) {
 		"Friendly cartoon editorial illustration for a comedy roast.",
 		"Soft warm lighting, saturated but pleasant colors, silly and lighthearted—not scary, gross, or uncanny.",
 		"Simple readable composition, one clear scene, exaggerated humor, no horror, no gore, no distorted faces.",
+		"Draw each person exactly as the scene describes them—match their hair, build, age, and outfit precisely; exaggerate the comedy, not their described features. Include ONLY the people described in the scene; do not add, invent, or include anyone who isn't described.",
 		"No text, no logos, not photorealistic.",
 	].join(" ");
 
