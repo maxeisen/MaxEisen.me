@@ -12,7 +12,7 @@ function imageConfig() {
 	return {
 		model: getEnv("BACH_IMAGE_MODEL") || "gpt-image-1",
 		size: getEnv("BACH_IMAGE_SIZE") || "1024x1024",
-		quality: getEnv("BACH_IMAGE_QUALITY") || "medium",
+		quality: getEnv("BACH_IMAGE_QUALITY") || "high",
 	};
 }
 
@@ -33,26 +33,37 @@ async function requestImage(apiKey, body) {
 	return data;
 }
 
-/** @returns {Promise<Uint8Array>} */
-export async function generateFunnyImage(apiKey, prompt) {
+/**
+ * @param {string} apiKey
+ * @param {{ imagePrompt: string, storyExcerpt?: string, caption?: string }} slot
+ * @returns {Promise<Uint8Array>}
+ */
+export async function generateFunnyImage(apiKey, slot) {
 	const { model, size, quality } = imageConfig();
 	const style = [
 		"Friendly cartoon editorial illustration for a comedy roast.",
 		"Soft warm lighting, saturated but pleasant colors, silly and lighthearted—not scary, gross, or uncanny.",
-		"Simple readable composition, exaggerated humor, no horror, no gore, no body horror, no distorted faces.",
+		"Simple readable composition, one clear scene, exaggerated humor, no horror, no gore, no distorted faces.",
 		"No text, no logos, not photorealistic.",
 	].join(" ");
-	const fullPrompt = `${style} Scene: ${prompt}`.slice(0, 3200);
+
+	const beat = slot.storyExcerpt?.trim()
+		? `This image must illustrate this exact story beat: ${slot.storyExcerpt.trim()} `
+		: "";
+	const captionLock = slot.caption?.trim()
+		? `The picture should match this subtitle: "${slot.caption.trim()}". `
+		: "";
+	const scene = slot.imagePrompt?.trim() || slot.storyExcerpt?.trim() || "a funny party moment";
+	const fullPrompt = `${style} ${beat}${captionLock}Draw this scene: ${scene}`.slice(0, 3200);
 
 	const base = { model, prompt: fullPrompt, size, n: 1 };
 	let data;
 	try {
 		data = await requestImage(apiKey, { ...base, quality });
 	} catch (err) {
-		// If medium fails (quota/rate), try low once—slower path than defaulting to low.
-		if (quality === "medium") {
-			console.warn("bach/images medium failed, retrying low:", err?.message || err);
-			data = await requestImage(apiKey, { ...base, quality: "low" });
+		if (quality === "high") {
+			console.warn("bach/images high failed, retrying medium:", err?.message || err);
+			data = await requestImage(apiKey, { ...base, quality: "medium" });
 		} else {
 			throw err;
 		}

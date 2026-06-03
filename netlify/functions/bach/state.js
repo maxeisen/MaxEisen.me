@@ -109,11 +109,8 @@ export default async function handler(req) {
 			meta.version++;
 			await writeMeta(store, code, meta);
 		}
-		if (meta.hasStoryAudio && !audioReady) {
-			meta.hasStoryAudio = false;
-			meta.version++;
-			await writeMeta(store, code, meta);
-		}
+		// Do not clear meta.hasStoryAudio here — a transient blob read would drop
+		// storyAudioReady and unmount the host <audio> while narration is playing.
 	}
 
 	if (["voting", "results"].includes(meta.phase) && round >= 0) {

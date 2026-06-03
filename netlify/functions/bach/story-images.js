@@ -39,7 +39,7 @@ export async function recordStoryImages(store, code, meta, story) {
 
 	const saved = [];
 	async function saveSlot(slot) {
-		const bytes = await generateFunnyImage(apiKey, slot.imagePrompt);
+		const bytes = await generateFunnyImage(apiKey, slot);
 		await writeStoryImage(store, code, round, slot.id, bytes);
 		saved.push({
 			id: slot.id,

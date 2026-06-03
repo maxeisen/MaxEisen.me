@@ -178,8 +178,9 @@
 
     $effect(() => {
         if (!audioUrl || !audioPlayer || autoPlayedUrl === audioUrl) return;
+        const el = audioPlayer;
         autoPlayedUrl = audioUrl;
-        audioPlayer.play().catch(() => {
+        el.play().catch(() => {
             /* Browser may block autoplay until a tap — controls stay visible. */
         });
     });
@@ -291,7 +292,7 @@
 
         const readyIds = gameState?.readyImageIds ?? [];
         const fetchKey = `${key}:${readyIds.join(",")}`;
-            const allLoaded = readyIds.length > 0 && readyIds.every((rid) => imageUrls[rid]);
+        const allLoaded = readyIds.length > 0 && readyIds.every((rid) => imageUrls[rid]);
         if (allLoaded) {
             imagesFetchKey = fetchKey;
             imagesRoundKey = key;
@@ -711,7 +712,7 @@
                     <h3 class="mini-title">Narration</h3>
                     <p class="hint narration-optional-hint">Optional — when it plays, the story scrolls along. You can still reveal text manually anytime.</p>
                     {#if gameState?.imagesPending}
-                        <p class="narration-status muted">Drawing scene illustrations (medium quality)… usually a couple of minutes.</p>
+                        <p class="narration-status muted">Drawing scene illustrations… usually a couple of minutes.</p>
                     {:else if gameState?.imagesError}
                         <p class="error narration-status">
                             {gameState.imagesError === "images_partial"
@@ -732,15 +733,8 @@
                     {:else if imagePlacements.length && imagesLoading}
                         <p class="narration-status muted">Loading illustrations…</p>
                     {/if}
-                    {#if audioLoading}
-                        <p class="narration-status muted">Loading audio…</p>
-                    {:else if gameState?.narrationPending || !gameState?.storyAudioReady}
-                        <p class="narration-status muted">Recording audio… can take a minute on long stories. Feel free to reveal the text below anytime.</p>
-                        <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
-                            Retry recording
-                        </button>
-                    {:else if audioUrl}
-                        <!-- Native controls: play/pause, scrubber, volume -->
+                    {#if audioUrl}
+                        <!-- Keep player mounted whenever we have a loaded blob (don't unmount on poll flicker). -->
                         <audio
                             bind:this={audioPlayer}
                             class="story-audio-player"
@@ -750,6 +744,26 @@
                             onplay={onNarrationPlay}
                             ontimeupdate={onNarrationTimeUpdate}
                         ></audio>
+                    {:else if audioLoading}
+                        <p class="narration-status muted">Loading audio…</p>
+                    {:else if gameState?.narrationPending}
+                        <p class="narration-status muted">Recording audio… can take a minute on long stories. Feel free to reveal the text below anytime.</p>
+                        <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
+                            Retry recording
+                        </button>
+                    {:else if !gameState?.storyAudioReady}
+                        <button type="button" class="primary big narration-load" onclick={retryNarration} disabled={busy}>
+                            Load narration
+                        </button>
+                        {#if audioError}
+                            <p class="error narration-status">{audioError}</p>
+                            <button type="button" class="ghost" onclick={retryNarration} disabled={busy}>Retry</button>
+                        {:else}
+                            <p class="narration-status muted">Narration didn't generate — tap Retry recording or Regenerate.</p>
+                            <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
+                                Retry recording
+                            </button>
+                        {/if}
                     {:else}
                         <button type="button" class="primary big narration-load" onclick={retryNarration} disabled={busy}>
                             Load narration
@@ -757,11 +771,6 @@
                         {#if audioError}
                             <p class="error narration-status">{audioError}</p>
                             <button type="button" class="ghost" onclick={retryNarration} disabled={busy}>Retry</button>
-                        {:else if gameState?.storyAudioReady === false}
-                            <p class="narration-status muted">Narration didn't generate — tap Retry recording or Regenerate.</p>
-                            <button type="button" class="ghost" onclick={() => onRequestTts()} disabled={busy}>
-                                Retry recording
-                            </button>
                         {/if}
                     {/if}
                 </div>
