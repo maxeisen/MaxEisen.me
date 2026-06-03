@@ -12,7 +12,7 @@ function imageConfig() {
 	return {
 		model: getEnv("BACH_IMAGE_MODEL") || "gpt-image-1",
 		size: getEnv("BACH_IMAGE_SIZE") || "1024x1024",
-		quality: getEnv("BACH_IMAGE_QUALITY") || "medium",
+		quality: getEnv("BACH_IMAGE_QUALITY") || "low",
 	};
 }
 

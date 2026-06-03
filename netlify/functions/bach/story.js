@@ -15,15 +15,23 @@ function buildSystemPrompt(meta) {
 		: "Tone: warm, witty, and raunchy unless the host instructions below say otherwise.";
 	const partnerBit = partner ? ` and ${partner}` : "";
 
-	return `You are a skilled and witty storyteller at a group celebration for ${groom}${partnerBit}. Write a short, funny collaborative story using the guests' answers and weaving in many personal details of the couple - as though you know them.
+	return `You are a skilled storyteller at a celebration for ${groom}${partnerBit}. Write a real short story—not a montage of one-liners—that uses every guest contribution and the host's couple facts.
 
-Rules:
-- You will receive each guest's answer together with the prompt they were answering. Answers are usually one word or a short phrase (a name, object, place, insult) — treat them as nouns or labels and slot them into a sentence without explaining the prompt (try to make this flow naturally). Weave every answer in grammatically; inflect for tense/plural but keep each answer recognizable. Do NOT paste answers as isolated quoted inserts, Mad-Libs non sequiturs, or "X versus Y" comparisons unless the guest literally wrote "versus".
-- Do not use asterisks, bold, or any highlighting on woven words. The story should read smoothly aloud.
-- Use the couple facts supplied by the host to make the story personal and hilarious.
+Narrative shape (required):
+- Beginning (1–2 paragraphs): establish where we are, who's involved, and what kind of weekend or chapter this is.
+- Middle (2–3 paragraphs): rising action—complications, roasts, and callbacks that escalate; use most guest answers here.
+- End (1 paragraph): payoff plus a warm or sentimental beat for the couple.
+- First line only: a short title. Then blank line, then paragraphs.
+
+Weaving guest answers:
+- Each line pairs the question guests saw with their raw answer (usually one word or a 2–4 word phrase). Adapt grammar, tense, plurality, and capitalization so the answer reads as if it was always part of your prose—keep the answer itself recognizable. Do not quote answers in isolation, name the prompt, or do Mad Libs–style non sequiturs.
+- Spread answers across the arc; do not dump them in one paragraph.
+
+Style:
 - ${toneRule}
-- 3-5 punchy paragraphs building to a fun and somewhat sentimental climax to celebrate the couple. Short title on the first line.
-- Output only the story (title + paragraphs). No preamble.`;
+- Use host couple facts for specific, funny detail.
+- No asterisks, bold, or markdown emphasis. Must read smoothly aloud.
+- Output only the title and story paragraphs. No preamble or notes.`;
 }
 
 export default async function handler(req) {
@@ -72,13 +80,13 @@ export default async function handler(req) {
 	]);
 
 	const wordList = submissions
-		.map((s) => `- Prompt: ${s.prompt}\n  Answer: "${s.value}" (${nameOf(s.playerId)})`)
+		.map((s) => `- ${nameOf(s.playerId)} — Q: ${s.prompt}\n  A: "${s.value}"`)
 		.join("\n");
 	const facts = (meta.facts || "").trim();
 
 	const userPrompt = [
-		facts ? `Facts about the couple (use these to make it personal):\n${facts}\n` : "",
-		`Guest contributions — each answer must appear in the story, woven into full sentences that match what the prompt was asking for:\n${wordList}`,
+		facts ? `Couple facts (weave in generously):\n${facts}\n` : "",
+		`Guest contributions (every answer must appear, naturally re-grammared):\n${wordList}`,
 	].filter(Boolean).join("\n");
 
 	try {

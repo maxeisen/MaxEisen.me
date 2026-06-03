@@ -34,20 +34,23 @@ export async function recordStoryImages(store, code, meta, story) {
 		return { hasImages: false };
 	}
 
-	const saved = [];
-	for (const slot of placements) {
-		try {
-			const bytes = await generateFunnyImage(apiKey, slot.imagePrompt);
-			await writeStoryImage(store, code, round, slot.id, bytes);
-			saved.push({
-				id: slot.id,
-				insertAfter: slot.insertAfter,
-				caption: slot.caption,
-			});
-		} catch (err) {
-			console.warn("bach/story-images slot failed:", slot.id, err?.message || err);
-		}
-	}
+	const results = await Promise.all(
+		placements.map(async (slot) => {
+			try {
+				const bytes = await generateFunnyImage(apiKey, slot.imagePrompt);
+				await writeStoryImage(store, code, round, slot.id, bytes);
+				return {
+					id: slot.id,
+					insertAfter: slot.insertAfter,
+					caption: slot.caption,
+				};
+			} catch (err) {
+				console.warn("bach/story-images slot failed:", slot.id, err?.message || err);
+				return null;
+			}
+		}),
+	);
+	const saved = results.filter(Boolean);
 
 	await store.setJSON(keys.storyImagesManifest(code, round), { placements: saved });
 

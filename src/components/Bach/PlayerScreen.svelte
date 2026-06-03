@@ -166,7 +166,7 @@
         {#if you?.assigned}
             <div class="head">
                 <h1 class="title">Your prompts</h1>
-                <p class="sub">Match the type before the dash (Brand, Insult, Place…). One word or a short phrase — no sentences.</p>
+                <p class="sub">Answer in one word or a very short phrase (2–4 words). No full sentences—the story weaver will work it in.</p>
             </div>
             <div class="slots">
                 {#each slots as slot (`${writingEpoch}-${slot.slotId}`)}
