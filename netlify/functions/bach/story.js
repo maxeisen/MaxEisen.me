@@ -27,11 +27,12 @@ Narrative shape (required) — keep it tight, a punchy quick read, not an epic:
 Weaving guest answers:
 - Each line pairs the question guests saw with their raw answer (usually one word or a 2–4 word phrase). Adapt grammar, tense, plurality, and capitalization so the answer reads as if it was always part of your prose—keep the answer itself recognizable. Do not quote answers in isolation, name the prompt, or do Mad Libs–style non sequiturs.
 - Spread answers across the arc; do not dump them in one paragraph.
+- Mark each woven-in answer by wrapping it in **double asterisks** — only the words taken from the guest's answer (after your re-grammaring), never the surrounding prose. This lets the big screen highlight the crowd's contributions. Wrap every answer you use, once each.
 
 Style:
 - ${toneRule}
 - Use host couple facts for specific, funny detail.
-- No asterisks, bold, or markdown emphasis. Must read smoothly aloud.
+- Use **double asterisks** ONLY to mark the woven-in guest answers (above) — no headings, other markdown, or emphasis. The asterisks are stripped from the spoken narration, so it still reads smoothly aloud.
 - Output only the title and story paragraphs. No preamble or notes.`;
 }
 
