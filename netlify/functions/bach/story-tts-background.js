@@ -3,7 +3,7 @@
 
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
-	validCode, readMeta, writeMeta, keys,
+	validCode, readMeta, keys, readNarrationStatus, writeNarrationStatus,
 } from "./_lib.js";
 import { recordStoryNarration } from "./narration.js";
 
@@ -34,27 +34,19 @@ export default async function handler(req) {
 	const story = await store.get(keys.story(code, round), { type: "text" });
 	if (!story) return jsonResponse({ error: "no_story" }, 400);
 
-	if (meta.narrationPending) {
+	const nStatus = await readNarrationStatus(store, code, round);
+	if (nStatus?.pending) {
 		return jsonResponse({ ok: true, accepted: true, pending: true }, 202);
 	}
 
-	meta.narrationPending = true;
-	meta.narrationError = null;
-	meta.hasStoryAudio = false;
-	meta.version++;
-	await writeMeta(store, code, meta);
+	await writeNarrationStatus(store, code, round, { pending: true, error: null });
 
 	try {
-		const result = await recordStoryNarration(store, code, meta, story);
+		const result = await recordStoryNarration(store, code, round, story);
 		return jsonResponse({ ok: true, hasAudio: result.hasAudio });
 	} catch (err) {
 		console.error("bach/story-tts-background failed:", err?.message || err);
-		const fresh = (await readMeta(store, code)) || meta;
-		fresh.narrationPending = false;
-		fresh.narrationError = "tts_failed";
-		fresh.hasStoryAudio = false;
-		fresh.version++;
-		await writeMeta(store, code, fresh);
+		await writeNarrationStatus(store, code, round, { pending: false, error: "tts_failed" });
 		return jsonResponse({ error: "tts_failed" }, 500);
 	}
 }
