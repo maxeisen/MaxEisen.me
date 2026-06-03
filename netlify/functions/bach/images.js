@@ -12,9 +12,11 @@ function imageConfig() {
 	return {
 		model: getEnv("BACH_IMAGE_MODEL") || "gpt-image-1",
 		size: getEnv("BACH_IMAGE_SIZE") || "1024x1024",
-		quality: getEnv("BACH_IMAGE_QUALITY") || "high",
+		quality: getEnv("BACH_IMAGE_QUALITY") || "medium",
 	};
 }
+
+const QUALITY_TIER_DOWN = { high: "medium", medium: "low", low: "low" };
 
 async function requestImage(apiKey, body) {
 	const res = await fetch("https://api.openai.com/v1/images/generations", {
@@ -61,9 +63,10 @@ export async function generateFunnyImage(apiKey, slot) {
 	try {
 		data = await requestImage(apiKey, { ...base, quality });
 	} catch (err) {
-		if (quality === "high") {
-			console.warn("bach/images high failed, retrying medium:", err?.message || err);
-			data = await requestImage(apiKey, { ...base, quality: "medium" });
+		const lower = QUALITY_TIER_DOWN[quality] || "low";
+		if (lower !== quality) {
+			console.warn(`bach/images ${quality} failed, retrying ${lower}:`, err?.message || err);
+			data = await requestImage(apiKey, { ...base, quality: lower });
 		} else {
 			throw err;
 		}

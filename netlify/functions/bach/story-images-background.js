@@ -2,7 +2,7 @@
 
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
-	validCode, readMeta, writeMeta, keys,
+	validCode, readMeta, keys, readImagesStatus, writeImagesStatus,
 } from "./_lib.js";
 import { recordStoryImages } from "./story-images.js";
 import { isStoryImagesEnabled } from "./images.js";
@@ -39,29 +39,23 @@ export default async function handler(req) {
 	if (!story) return jsonResponse({ error: "no_story" }, 400);
 
 	const force = Boolean(body?.force);
-	if (meta.imagesPending && !force) {
+	const iStatus = await readImagesStatus(store, code, round);
+	if (iStatus?.pending && !force) {
 		return jsonResponse({ ok: true, accepted: true, pending: true }, 202);
 	}
-	if (meta.imagesPending && force) {
-		meta.imagesPending = false;
-	}
 
-	meta.imagesPending = true;
-	meta.imagesError = null;
-	meta.version++;
-	await writeMeta(store, code, meta);
+	await writeImagesStatus(store, code, round, {
+		pending: true,
+		error: null,
+		placements: iStatus?.placements ?? [],
+	});
 
 	try {
-		const result = await recordStoryImages(store, code, meta, story);
+		const result = await recordStoryImages(store, code, round, story, meta);
 		return jsonResponse({ ok: true, hasImages: result.hasImages, count: result.count });
 	} catch (err) {
 		console.error("bach/story-images-background failed:", err?.message || err);
-		const fresh = (await readMeta(store, code)) || meta;
-		fresh.imagesPending = false;
-		fresh.imagesError = "images_failed";
-		fresh.hasStoryImages = false;
-		fresh.version++;
-		await writeMeta(store, code, fresh);
+		await writeImagesStatus(store, code, round, { pending: false, error: "images_failed", placements: [] });
 		return jsonResponse({ error: "images_failed" }, 500);
 	}
 }

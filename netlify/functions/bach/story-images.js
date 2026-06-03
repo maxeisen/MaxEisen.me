@@ -1,29 +1,22 @@
 // Funny story illustrations → Blobs + placement manifest.
 
 import OpenAI from "openai";
-import { getEnv, writeMeta, keys, writeStoryImage } from "./_lib.js";
+import { getEnv, keys, writeStoryImage, writeImagesStatus } from "./_lib.js";
 import { planStoryImagePlacements } from "./image-placements.js";
 import { generateFunnyImage, isStoryImagesEnabled } from "./images.js";
 
-/** @returns {{ hasImages: boolean, skipped?: boolean, count?: number }} */
-export async function recordStoryImages(store, code, meta, story) {
+/** @returns {{ hasImages: boolean, skipped?: boolean, count?: number, planned?: number }} */
+export async function recordStoryImages(store, code, round, story, meta) {
 	if (!isStoryImagesEnabled()) {
-		meta.hasStoryImages = false;
-		meta.imagesPending = false;
-		meta.imagesError = null;
-		meta.storyImagePlacements = [];
-		meta.version++;
-		await writeMeta(store, code, meta);
+		await writeImagesStatus(store, code, round, { pending: false, error: null, placements: [] });
 		return { hasImages: false, skipped: true };
 	}
 
 	const apiKey = getEnv("OPENAI_API_KEY");
 	if (!apiKey) throw new Error("not_configured");
 
-	const round = meta.roundIndex;
 	const client = new OpenAI({ apiKey });
 	const placements = await planStoryImagePlacements(client, story, meta);
-
 	const manifest = placements.map((slot) => ({
 		id: slot.id,
 		insertAfter: slot.insertAfter,
@@ -31,51 +24,37 @@ export async function recordStoryImages(store, code, meta, story) {
 	}));
 
 	// Publish slots immediately so the host can show placeholders while images render.
-	meta.storyImagePlacements = manifest;
-	meta.hasStoryImages = false;
-	meta.imagesError = null;
-	meta.version++;
-	await writeMeta(store, code, meta);
+	await writeImagesStatus(store, code, round, { pending: true, error: null, placements: manifest });
 
 	const saved = [];
 	async function saveSlot(slot) {
 		const bytes = await generateFunnyImage(apiKey, slot);
 		await writeStoryImage(store, code, round, slot.id, bytes);
-		saved.push({
-			id: slot.id,
-			insertAfter: slot.insertAfter,
-			caption: slot.caption,
-		});
+		saved.push({ id: slot.id, insertAfter: slot.insertAfter, caption: slot.caption });
 	}
 
-	for (const slot of placements) {
-		try {
-			await saveSlot(slot);
-		} catch (err) {
+	// Generate all slots concurrently, then retry any failures once (also concurrent).
+	const ok = await Promise.all(placements.map((slot) =>
+		saveSlot(slot).then(() => true, (err) => {
 			console.warn("bach/story-images slot failed:", slot.id, err?.message || err);
-		}
-	}
-
-	for (const slot of placements) {
-		if (saved.some((s) => s.id === slot.id)) continue;
-		try {
-			await saveSlot(slot);
-		} catch (err) {
-			console.warn("bach/story-images slot retry failed:", slot.id, err?.message || err);
-		}
+			return false;
+		})));
+	const failed = placements.filter((_, i) => !ok[i]);
+	if (failed.length) {
+		await Promise.all(failed.map((slot) =>
+			saveSlot(slot).then(() => true, (err) => {
+				console.warn("bach/story-images slot retry failed:", slot.id, err?.message || err);
+				return false;
+			})));
 	}
 
 	await store.setJSON(keys.storyImagesManifest(code, round), { placements: manifest });
 
-	meta.storyImagePlacements = manifest;
-	meta.hasStoryImages = saved.length > 0;
-	meta.imagesPending = false;
-	meta.imagesError = saved.length === manifest.length
+	const error = saved.length === manifest.length
 		? null
 		: saved.length
 			? "images_partial"
 			: "images_empty";
-	meta.version++;
-	await writeMeta(store, code, meta);
+	await writeImagesStatus(store, code, round, { pending: false, error, placements: manifest });
 	return { hasImages: saved.length > 0, count: saved.length, planned: manifest.length };
 }
