@@ -156,6 +156,13 @@ async function main() {
 }
 
 main().catch((err) => {
+	// Non-fatal: seeding Bach party packs is a feature-specific nicety and
+	// must NOT fail the whole-site deploy. If it dies (missing creds,
+	// unreachable private repo, etc.), log loudly so it's visible in the
+	// Netlify build log, then exit 0 so `&& npm run build` still runs and
+	// the rest of the site ships. A seeding failure should at most degrade
+	// /bach, never take down /dashboard et al.
+	console.error("[seed-bach-party-packs] non-fatal failure — continuing build:");
 	console.error(err);
-	process.exit(1);
+	process.exit(0);
 });
