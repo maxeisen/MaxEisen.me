@@ -333,18 +333,29 @@
         ttsBusy = true;
         try {
             for (let attempt = 0; attempt < 6; attempt++) {
-                const { ok, status, accepted } = await api.generateStoryTts(password, { code, hostToken });
-                if (ok || accepted) {
+                try {
+                    const { ok, status, accepted } = await api.generateStoryTts(password, { code, hostToken });
+                    if (ok || accepted) {
+                        await poll();
+                        return true;
+                    }
+                    // Retry transient failures (pending or 5xx), not 503/4xx.
+                    const retryable = status === 409 || (status >= 500 && status !== 503);
+                    if (retryable && attempt < 5) {
+                        await new Promise((r) => setTimeout(r, 400));
+                        await poll();
+                        continue;
+                    }
                     await poll();
-                    return true;
+                    return false;
+                } catch {
+                    // Network error — back off and retry a few times.
+                    if (attempt < 5) {
+                        await new Promise((r) => setTimeout(r, 400));
+                        continue;
+                    }
+                    return false;
                 }
-                if (status === 409 && attempt < 5) {
-                    await new Promise((r) => setTimeout(r, 400));
-                    await poll();
-                    continue;
-                }
-                await poll();
-                return false;
             }
             return false;
         } finally {
