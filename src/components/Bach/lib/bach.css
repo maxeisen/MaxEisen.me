@@ -313,14 +313,21 @@
 	margin: 1.25rem 0 1.5rem;
 	text-align: center;
 }
+/* img + placeholder share one fixed square box so an image loading in never
+   reflows the page (which would make the narration auto-scroll lurch/speed up). */
 .host .story-illustration img {
 	width: 100%;
-	max-width: 100%;
-	height: auto;
+	max-width: 560px;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	margin: 0 auto;
 	border-radius: 12px;
 }
 .host .story-img-placeholder {
-	min-height: 180px;
+	width: 100%;
+	max-width: 560px;
+	aspect-ratio: 1 / 1;
+	margin: 0 auto;
 	display: flex;
 	align-items: center;
 	justify-content: center;

@@ -28,7 +28,6 @@
     let scrollSegments = null; // [{ start, chars, targetY }] in document coords
     let scrollTotalChars = 0;
     let scrollMaxY = 0;
-    let scrollTarget = 0;
     let scrollRaf = 0;
     let scrollResizeObserver = null;
 
@@ -100,13 +99,41 @@
         scrollSegments = segs;
     }
 
-    function scrollTick() {
+    // Desired scroll position for the current narration progress (char-weighted,
+    // anchored to paragraph positions). null until geometry is ready.
+    function currentScrollTarget() {
+        if (!scrollSegments || !scrollTotalChars) return null;
+        const d = narration.duration;
+        if (!d || !Number.isFinite(d) || d <= 0) return null;
+        const progress = Math.min(1, Math.max(0, narration.currentTime / d));
+        const charPos = progress * scrollTotalChars;
+        let i = 0;
+        while (i < scrollSegments.length - 1 && charPos >= scrollSegments[i + 1].start) i++;
+        const seg = scrollSegments[i];
+        const f = Math.min(1, Math.max(0, (charPos - seg.start) / seg.chars));
+        const nextY = scrollSegments[i + 1]?.targetY ?? scrollMaxY;
+        return Math.min(scrollMaxY, seg.targetY + (nextY - seg.targetY) * f);
+    }
+
+    // One continuous loop while narration plays: each frame ease the page a
+    // little toward the live target, capped per frame so it glides smoothly and
+    // can never lurch/race (e.g. past a freshly-loaded image) — biased to trail.
+    const SCROLL_EASE = 0.06;
+    const SCROLL_MAX_STEP = 12; // px/frame ceiling (~720px/s); far above the normal pace
+    function scrollFrame() {
         scrollRaf = 0;
-        const cur = window.scrollY;
-        const delta = scrollTarget - cur;
-        const next = Math.abs(delta) < 0.5 ? scrollTarget : cur + delta * 0.08;
-        window.scrollTo(0, next);
-        if (Math.abs(scrollTarget - window.scrollY) > 1) scrollRaf = requestAnimationFrame(scrollTick);
+        if (!followNarrationScroll || !storyTextVisible || !narration.playing || prefersReducedMotion()) return;
+        if (!scrollSegments) recomputeScrollGeom();
+        const target = currentScrollTarget();
+        if (target != null) {
+            const cur = window.scrollY;
+            const delta = target - cur;
+            if (Math.abs(delta) > 0.5) {
+                const step = Math.max(-SCROLL_MAX_STEP, Math.min(SCROLL_MAX_STEP, delta * SCROLL_EASE));
+                window.scrollTo(0, cur + step);
+            }
+        }
+        scrollRaf = requestAnimationFrame(scrollFrame);
     }
 
     function onStoryScrollUser() {
@@ -131,24 +158,13 @@
         };
     });
 
-    // Drive the page scroll from narration progress.
+    // Start the scroll loop whenever narration is playing and we're following;
+    // scrollFrame stops itself when any of those conditions drop.
     $effect(() => {
-        const ct = narration.currentTime;
-        const d = narration.duration;
-        if (!followNarrationScroll || !storyScrollEl || !storyTextVisible) return;
-        if (prefersReducedMotion()) return;
-        if (!d || !Number.isFinite(d) || d <= 0) return;
-        if (!scrollSegments) recomputeScrollGeom();
-        if (!scrollSegments || !scrollTotalChars) return;
-        const progress = Math.min(1, Math.max(0, ct / d));
-        const charPos = progress * scrollTotalChars;
-        let i = 0;
-        while (i < scrollSegments.length - 1 && charPos >= scrollSegments[i + 1].start) i++;
-        const seg = scrollSegments[i];
-        const f = Math.min(1, Math.max(0, (charPos - seg.start) / seg.chars));
-        const nextY = scrollSegments[i + 1]?.targetY ?? scrollMaxY;
-        scrollTarget = Math.min(scrollMaxY, seg.targetY + (nextY - seg.targetY) * f);
-        if (!scrollRaf) scrollRaf = requestAnimationFrame(scrollTick);
+        const active = narration.playing && storyTextVisible && followNarrationScroll && storyScrollEl;
+        if (active && !scrollRaf && !prefersReducedMotion()) {
+            scrollRaf = requestAnimationFrame(scrollFrame);
+        }
     });
 
     onDestroy(() => {
