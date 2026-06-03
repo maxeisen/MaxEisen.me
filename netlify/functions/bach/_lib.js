@@ -77,6 +77,8 @@ export const keys = {
 	storyImage: (code, round, id) => `${code}/story-image/${round}/${id}.png`,
 	storyImagesManifest: (code, round) => `${code}/story-images-manifest/${round}`,
 	storyImagePrefix: (code, round) => `${code}/story-image/${round}/`,
+	narrationStatus: (code, round) => `${code}/narration-status/${round}`,
+	imagesStatus: (code, round) => `${code}/images-status/${round}`,
 	vote: (code, round, voterId) => `${code}/vote/${round}/${voterId}`,
 	votePrefix: (code, round) => `${code}/vote/${round}/`,
 	/** Custom host upload override (one-off JSON). */
@@ -101,6 +103,21 @@ export async function readMeta(store, code) {
 
 export async function writeMeta(store, code, meta) {
 	await store.setJSON(keys.meta(code), meta);
+}
+
+// Per-round generation status, owned by exactly one background job each, so the
+// parallel narration and image jobs never clobber a shared blob.
+export async function readNarrationStatus(store, code, round) {
+	return store.get(keys.narrationStatus(code, round), { type: "json" });
+}
+export async function writeNarrationStatus(store, code, round, status) {
+	await store.setJSON(keys.narrationStatus(code, round), status);
+}
+export async function readImagesStatus(store, code, round) {
+	return store.get(keys.imagesStatus(code, round), { type: "json" });
+}
+export async function writeImagesStatus(store, code, round, status) {
+	await store.setJSON(keys.imagesStatus(code, round), status);
 }
 
 /** @param {Uint8Array} bytes */
