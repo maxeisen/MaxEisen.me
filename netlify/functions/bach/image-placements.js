@@ -12,6 +12,7 @@ Grounding (critical):
 - Read that paragraph and pull concrete details (who, what action, props, setting) into imagePrompt.
 - imagePrompt: one vivid scene description for an image model. Cartoon editorial roast—silly, warm, PG-13. No horror, gore, or creepy faces. No real people's names, no text in the image. Describe the single frozen moment clearly (who is where, doing what).
 - caption: a short funny subtitle (max 12 words) for the host screen. It must describe the SAME moment as imagePrompt—the caption is what you'd say looking at that picture. No unrelated punchlines.
+- If the paragraph features someone from the "Cast looks" list provided, depict them as a cartoon caricature matching that description (build, hair, signature outfit, vibe). Still never render real names or any text in the image.
 - Pick the most visual/funny beat in that paragraph. Spread placements across beginning, middle, and end. No duplicate scenes.`;
 
 /** @param {import("openai").OpenAI} client */
@@ -24,12 +25,18 @@ export async function planStoryImagePlacements(client, story, meta) {
 	const numbered = paragraphs.map((p, i) => `[${i}] ${p.slice(0, 400)}`).join("\n\n");
 
 	const facts = (meta.facts || "").trim();
+	const people = meta.people && typeof meta.people === "object" ? meta.people : {};
+	const cast = Object.entries(people)
+		.filter(([name, look]) => name && typeof look === "string" && look.trim())
+		.map(([name, look]) => `- ${name}: ${look.trim()}`)
+		.join("\n");
 	const user = [
 		`Plan exactly ${maxImages} illustrations for this ${n}-paragraph story.`,
 		meta.groom
 			? `Couple: ${meta.groom}${meta.partner ? ` and ${meta.partner}` : ""} (use "the groom" / "his partner" in prompts, not real names).`
 			: "",
 		facts ? `Context:\n${facts.slice(0, 1200)}` : "",
+		cast ? `Cast looks (match these when the person is in the paragraph; cartoon caricature, no text/names in the image):\n${cast}` : "",
 		`Each placement must be grounded in the paragraph it follows. Paragraphs:\n${numbered}`,
 	].filter(Boolean).join("\n\n");
 

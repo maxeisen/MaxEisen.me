@@ -292,6 +292,7 @@
             groom: party.groom,
             partner: party.partner,
             storyTone: storyTone.trim(),
+            people: party.people,
         });
         if (ok && data?.code) {
             code = data.code;

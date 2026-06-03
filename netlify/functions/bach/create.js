@@ -17,6 +17,16 @@ export default async function handler(req) {
 	const partner = typeof body?.partner === "string" ? body.partner.trim().slice(0, 40) : "";
 	const partyId = typeof body?.partyId === "string" ? body.partyId.slice(0, 64) : "";
 	const storyTone = typeof body?.storyTone === "string" ? body.storyTone.slice(0, 500) : "";
+	// Per-person look descriptions used as references for illustration prompts.
+	const people = {};
+	if (body?.people && typeof body.people === "object" && !Array.isArray(body.people)) {
+		for (const [name, look] of Object.entries(body.people)) {
+			if (Object.keys(people).length >= 40) break;
+			if (typeof name === "string" && typeof look === "string" && look.trim()) {
+				people[name.slice(0, 60)] = look.trim().slice(0, 240);
+			}
+		}
+	}
 	const store = getSessionStore();
 
 	let code = null;
@@ -38,6 +48,7 @@ export default async function handler(req) {
 		partner,
 		partyId,
 		storyTone,
+		people,
 		assignments: {},
 		version: 1,
 		error: null,

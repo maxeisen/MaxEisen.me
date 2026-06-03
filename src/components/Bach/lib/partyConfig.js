@@ -62,6 +62,7 @@ export function getParty(partyId = DEFAULT_PARTY_ID) {
 		pools,
 		defaultFacts: raw.defaultFacts?.trim() || "",
 		storyTone: raw.storyTone?.trim() || "",
+		people: raw.people && typeof raw.people === "object" && !Array.isArray(raw.people) ? raw.people : {},
 		defaultPoolId: typeof raw.defaultPoolId === "string" ? raw.defaultPoolId.trim() : "",
 	};
 }
