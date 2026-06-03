@@ -296,6 +296,8 @@
 .host .narration-load { margin: 0.25rem auto; }
 .host .narration-status { font-size: 0.95rem; margin: 0.5rem 0; }
 .host .narration-optional-hint { font-size: 0.88rem; margin: 0 0 0.75rem; opacity: 0.9; }
+.host .narration-hint { font-size: 0.9rem; margin: 0.6rem 0 0; opacity: 0.85; }
+.host .spinner.sm { width: 28px; height: 28px; margin: 0 auto 0.5rem; border-width: 3px; }
 .host .story-reveal-controls {
 	text-align: center;
 	margin: 1.25rem 0 1.5rem;
