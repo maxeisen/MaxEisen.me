@@ -6,12 +6,13 @@
 <script>
     import { onDestroy } from "svelte";
     import "./lib/bach.css";
-    import Qr from "./Qr.svelte";
     import HostBar from "./host/HostBar.svelte";
     import WritingScreen from "./host/WritingScreen.svelte";
     import GeneratingScreen from "./host/GeneratingScreen.svelte";
     import ResultsScreen from "./host/ResultsScreen.svelte";
     import FinishedScreen from "./host/FinishedScreen.svelte";
+    import SetupScreen from "./host/SetupScreen.svelte";
+    import LobbyScreen from "./host/LobbyScreen.svelte";
     import * as api from "./lib/api.js";
     import { formatStory, buildStoryBlocks } from "./lib/story.js";
     import {
@@ -577,217 +578,53 @@
 
 <div class="host">
     {#if !code}
-        <!-- Setup: collect couple facts, then create the session. -->
-        <section class="setup">
-            <h1 class="display">{party.title}</h1>
-            <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Pick a party pack, then add context and tone below.</p>
-
-            <div class="pack-upload">
-                <label class="field-label" for="party-pack-select">Party pack</label>
-                {#if packOptions.length > 0}
-                    <div class="pack-select-row">
-                        <select
-                            id="party-pack-select"
-                            class="pack-select"
-                            value={partyCatalog.activePackId || packOptions[0]?.id || ""}
-                            disabled={packSelecting || packUploading}
-                            onchange={onPackSelect}
-                        >
-                            {#each packOptions as entry (entry.id)}
-                                <option value={entry.id}>{entry.title}</option>
-                            {/each}
-                        </select>
-                        <button
-                            type="button"
-                            class="ghost pack-reload-btn"
-                            disabled={packSelecting || packUploading}
-                            onclick={onPackReload}
-                            title="Fetch latest pack from private GitHub"
-                        >
-                            Reload
-                        </button>
-                    </div>
-                    <p class="pack-hint muted">
-                        {#if partyCatalog.source === "github"}
-                            Loaded from private GitHub.
-                        {:else if partyCatalog.source === "custom"}
-                            Custom JSON override — Reload to pull from GitHub again.
-                        {:else}
-                            Loads latest from private GitHub when you open or reload.
-                        {/if}
-                    </p>
-                {:else}
-                    <p class="pack-hint">
-                        No packs configured — set <code>PRIVATE_ACCESS_GITHUB_TOKEN</code> on Netlify Functions, or use <code>BACH_PARTY_JSON_PATH</code> locally.
-                    </p>
-                {/if}
-                <details class="pack-advanced">
-                    <summary>Upload custom JSON (override)</summary>
-                    <input
-                        id="party-pack-file"
-                        type="file"
-                        accept="application/json,.json"
-                        disabled={packUploading || packSelecting}
-                        onchange={onPackFileSelect}
-                    />
-                </details>
-                {#if packUploading || packSelecting}<p class="muted">Updating pack…</p>{/if}
-                {#if packStatus}<p class="pack-ok">{packStatus}</p>{/if}
-                {#if packError}<p class="error">{packError}</p>{/if}
-            </div>
-
-            <label class="field-label" for="facts">Story context (couple, party, inside jokes)</label>
-            <textarea
-                id="facts"
-                bind:value={facts}
-                rows="6"
-                placeholder="Names, how they met, running jokes, topics to avoid, people not to call out…"
-            ></textarea>
-            <label class="field-label" for="story-tone">Story tone (optional)</label>
-            <textarea
-                id="story-tone"
-                bind:value={storyTone}
-                rows="2"
-                maxlength="500"
-                placeholder="e.g. silly, heartfelt, PG, spooky — whatever fits your group"
-            ></textarea>
-            <button class="primary big" onclick={create} disabled={creating}>
-                {creating ? "Starting…" : "Start a session"}
-            </button>
-            <p class="hint">You can update context later from the lobby if needed.</p>
-        </section>
+        <SetupScreen
+            {party}
+            {packOptions}
+            {partyCatalog}
+            {packSelecting}
+            {packUploading}
+            {packError}
+            {packStatus}
+            {creating}
+            bind:facts
+            bind:storyTone
+            {onPackSelect}
+            {onPackReload}
+            {onPackFileSelect}
+            onCreate={create}
+        />
     {:else}
         <HostBar {code} {leaderboard} {busy} onReset={() => act("reset")} />
 
         {#if phase === "lobby"}
-            <section class="lobby">
-                <div class="lobby-join">
-                    <h2 class="section-title">Join the game</h2>
-                    {#if joinUrl}<Qr text={joinUrl} size={260} />{/if}
-                    <p class="join-hint">
-                        Scan the QR, or open <strong>{joinPathManual}</strong> and enter the join password below.
-                    </p>
-                    <div class="join-manual">
-                        <div class="join-manual-row">
-                            <span class="join-manual-label">Room code</span>
-                            <span class="bigcode inline">{code}</span>
-                        </div>
-                        <div class="join-manual-row">
-                            <span class="join-manual-label">Join password</span>
-                            <span class="join-pw">{password}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="lobby-side">
-                    <h2 class="section-title">Players ({players.length})</h2>
-                    {#if players.length === 0}
-                        <p class="muted">Waiting for the first player to join…</p>
-                    {:else}
-                        <ul class="player-list">
-                            {#each players as p}
-                                <li>{p.name}</li>
-                            {/each}
-                        </ul>
-                    {/if}
+            <LobbyScreen
+                {party}
+                {partyCatalog}
+                {packOptions}
+                {code}
+                {password}
+                {players}
+                {joinUrl}
+                {joinPathManual}
+                {packSelecting}
+                {packUploading}
+                {packError}
+                {packStatus}
+                {roundAudience}
+                {pools}
+                {hasNoMercyBoys}
+                {showNoMercyBoys}
+                {busy}
+                bind:selectedPool
+                bind:slots
+                {onPackSelect}
+                {onPackReload}
+                {onPackFileSelect}
+                {onAudienceChange}
+                onStartRound={startRound}
+            />
 
-                    <div class="round-setup pack-upload compact">
-                        <h3 class="mini-title">Party pack</h3>
-                        {#if packOptions.length > 0}
-                            <div class="pack-select-row">
-                                <select
-                                    class="pack-select"
-                                    value={partyCatalog.activePackId || packOptions[0]?.id || ""}
-                                    disabled={packSelecting || packUploading}
-                                    onchange={onPackSelect}
-                                >
-                                    {#each packOptions as entry (entry.id)}
-                                        <option value={entry.id}>{entry.title}</option>
-                                    {/each}
-                                </select>
-                                <button
-                                    type="button"
-                                    class="ghost pack-reload-btn"
-                                    disabled={packSelecting || packUploading}
-                                    onclick={onPackReload}
-                                >
-                                    Reload
-                                </button>
-                            </div>
-                        {:else}
-                            <p class="pack-hint"><strong>{party.title}</strong></p>
-                        {/if}
-                        <details class="pack-advanced compact">
-                            <summary>Custom JSON</summary>
-                            <input
-                                id="party-pack-file-lobby"
-                                type="file"
-                                accept="application/json,.json"
-                                disabled={packUploading || packSelecting}
-                                onchange={onPackFileSelect}
-                            />
-                        </details>
-                        {#if packStatus}<p class="pack-ok">{packStatus}</p>{/if}
-                        {#if packError}<p class="error">{packError}</p>{/if}
-                    </div>
-
-                    <div class="round-setup">
-                        <h3 class="mini-title">Who's playing?</h3>
-                        <div class="pool-buttons audience-toggle">
-                            <button
-                                type="button"
-                                class="pool-btn {roundAudience === 'boys' ? 'on' : ''}"
-                                onclick={() => onAudienceChange("boys")}
-                            >Just the boys</button>
-                            <button
-                                type="button"
-                                class="pool-btn {roundAudience === 'everyone' ? 'on' : ''}"
-                                onclick={() => onAudienceChange("everyone")}
-                            >Everyone here</button>
-                        </div>
-                        <p class="hint audience-hint">
-                            {#if roundAudience === "boys"}
-                                Harder Matthew prompts, full no-mercy deck.
-                            {:else}
-                                Whole-room decks — still filthy, lighter on inside-boy stuff.
-                            {/if}
-                        </p>
-                    </div>
-
-                    <div class="round-setup">
-                        <h3 class="mini-title">Round flavour</h3>
-                        {#if pools.length === 0}
-                            <p class="error">No prompt pools for this audience — check the party pack JSON.</p>
-                        {/if}
-                        {#if roundAudience === "boys" && hasNoMercyBoys && !showNoMercyBoys}
-                            <p class="error">No Mercy is missing from the loaded pack — push the latest JSON to the private repo and hit Reload.</p>
-                        {:else if roundAudience === "everyone" && hasNoMercyBoys}
-                            <p class="hint audience-hint">No Mercy is under <strong>Just the boys</strong>. Everyone mode uses <strong>No Mercy (Party Edition)</strong>.</p>
-                        {:else if party.id === "default"}
-                            <p class="hint audience-hint">
-                                Select your party pack above — No Mercy is only in the private Matthew/Jane pack, not the built-in demo.
-                            </p>
-                        {:else if partyCatalog.activePackId === "matthew-jane" && !hasNoMercyBoys}
-                            <p class="error">This pack copy is outdated (no No Mercy pool). Push <code>matthew-jane.json</code> to the private repo and hit Reload.</p>
-                        {/if}
-                        <div class="pool-buttons">
-                            {#each pools as pool}
-                                <button
-                                    class="pool-btn {selectedPool === pool.id ? 'on' : ''}"
-                                    onclick={() => (selectedPool = pool.id)}
-                                >{pool.label}</button>
-                            {/each}
-                        </div>
-                        <label class="slots-row">
-                            Words per person
-                            <input type="number" min="1" max="6" bind:value={slots} />
-                        </label>
-                        <button class="primary big" onclick={startRound} disabled={busy || players.length === 0}>
-                            {busy ? "Dealing prompts…" : "Start the round"}
-                        </button>
-                        {#if players.length === 0}<p class="hint">Need at least one player.</p>{/if}
-                    </div>
-                </div>
-            </section>
 
         {:else if phase === "writing"}
             <WritingScreen {players} {counts} error={gameState?.error} {busy} onGenerate={generate} />
