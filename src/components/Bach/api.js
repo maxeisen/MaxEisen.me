@@ -67,8 +67,8 @@ export async function generateStoryTts(password, { code, hostToken }) {
 	return post("bach-story-tts-background", password, { code, hostToken });
 }
 
-export async function generateStoryImages(password, { code, hostToken }) {
-	return post("bach-story-images-background", password, { code, hostToken });
+export async function generateStoryImages(password, { code, hostToken, force = false }) {
+	return post("bach-story-images-background", password, { code, hostToken, force });
 }
 
 export async function fetchStoryImage(password, code, roundIndex, imageId) {

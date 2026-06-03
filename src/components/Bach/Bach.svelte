@@ -320,12 +320,16 @@
         }
     }
 
-    async function requestStoryImages() {
+    async function requestStoryImages(force = false) {
         if (imagesBusy || !code || !hostToken) return false;
         imagesBusy = true;
         try {
             for (let attempt = 0; attempt < 6; attempt++) {
-                const { ok, status, accepted } = await api.generateStoryImages(password, { code, hostToken });
+                const { ok, status, accepted } = await api.generateStoryImages(password, {
+                    code,
+                    hostToken,
+                    force,
+                });
                 if (ok || accepted) {
                     await poll();
                     return true;

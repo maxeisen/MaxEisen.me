@@ -38,14 +38,16 @@ export default async function handler(req) {
 	const story = await store.get(keys.story(code, round), { type: "text" });
 	if (!story) return jsonResponse({ error: "no_story" }, 400);
 
-	if (meta.imagesPending) {
+	const force = Boolean(body?.force);
+	if (meta.imagesPending && !force) {
 		return jsonResponse({ ok: true, accepted: true, pending: true }, 202);
+	}
+	if (meta.imagesPending && force) {
+		meta.imagesPending = false;
 	}
 
 	meta.imagesPending = true;
 	meta.imagesError = null;
-	meta.hasStoryImages = false;
-	meta.storyImagePlacements = [];
 	meta.version++;
 	await writeMeta(store, code, meta);
 

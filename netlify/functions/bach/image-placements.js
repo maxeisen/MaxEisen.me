@@ -10,7 +10,7 @@ Return JSON only: { "placements": [ { "insertAfter": number, "caption": string, 
 Rules:
 - insertAfter is the 0-based index of the paragraph AFTER which the image appears (0 = after first paragraph).
 - Pick moments where the story is visually funny or absurd — the image should exaggerate THAT beat.
-- imagePrompt: one vivid scene for an AI image generator. Exaggerated comedy, warm colors, no photoreal faces, no real names, no text in image, tasteful (PG-13) but genuinely funny.
+- imagePrompt: one vivid scene for an AI image generator. Cartoon editorial roast comedy—silly, warm, PG-13, genuinely funny. No horror, gore, body horror, creepy faces, or nightmare imagery. No photoreal faces, no real names, no text in image.
 - caption: one short funny line for the host screen (optional subtitle).
 - Do not repeat the same visual idea. Spread images through the story.`;
 
@@ -81,6 +81,6 @@ function fallbackPlacements(paragraphCount, maxImages) {
 		id,
 		insertAfter,
 		caption: "",
-		imagePrompt: `Funny exaggerated cartoon illustration of a chaotic bachelor party moment matching this story beat: ${insertAfter + 1}. Warm lighting, humorous, no text, no realistic faces.`,
+		imagePrompt: `Friendly cartoon illustration of a lighthearted bachelor party moment (story beat ${insertAfter + 1}). Warm colors, silly humor, wholesome roast energy—no horror or creepy faces, no text.`,
 	}));
 }

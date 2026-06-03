@@ -2,7 +2,7 @@
 
 import {
 	passwordOk, jsonResponse, getSessionStore,
-	validCode, readMeta, writeMeta, keys, listJSON, subId, storyAudioExists,
+	validCode, readMeta, writeMeta, keys, listJSON, subId, storyAudioExists, readStoryImageBytes,
 } from "./_lib.js";
 
 export default async function handler(req) {
@@ -89,10 +89,23 @@ export default async function handler(req) {
 		state.storyAudioReady = audioReady;
 		state.narrationPending = Boolean(meta.narrationPending);
 		state.narrationError = meta.narrationError || null;
-		state.storyImagePlacements = Array.isArray(meta.storyImagePlacements) ? meta.storyImagePlacements : [];
-		state.hasStoryImages = Boolean(meta.hasStoryImages);
+		const placements = Array.isArray(meta.storyImagePlacements) ? meta.storyImagePlacements : [];
+		state.storyImagePlacements = placements;
 		state.imagesPending = Boolean(meta.imagesPending);
 		state.imagesError = meta.imagesError || null;
+
+		let imagesReady = 0;
+		for (const slot of placements) {
+			const bytes = await readStoryImageBytes(store, code, round, slot.id);
+			if (bytes?.length) imagesReady++;
+		}
+		state.storyImagesReady = imagesReady;
+		state.hasStoryImages = imagesReady > 0;
+		if (meta.hasStoryImages && imagesReady === 0) {
+			meta.hasStoryImages = false;
+			meta.version++;
+			await writeMeta(store, code, meta);
+		}
 		if (meta.hasStoryAudio && !audioReady) {
 			meta.hasStoryAudio = false;
 			meta.version++;

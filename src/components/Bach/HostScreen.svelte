@@ -243,7 +243,7 @@
 
     async function loadStoryImages(roundKey, placements) {
         const round = gameState?.roundIndex ?? -1;
-        if (!password || !code || round < 0 || !placements.length) return;
+        if (!password || !code || round < 0 || !placements.length) return false;
 
         imagesLoading = true;
         try {
@@ -253,8 +253,15 @@
                 const { ok, blob } = await api.fetchStoryImage(password, code, round, slot.id);
                 if (ok && blob) next[slot.id] = URL.createObjectURL(blob);
             }
-            if (Object.keys(next).length) imageUrls = next;
-            imagesRoundKey = roundKey;
+            imageUrls = next;
+            const allLoaded = placements.every((p) => next[p.id]);
+            if (allLoaded) {
+                imagesRoundKey = roundKey;
+                imagesFetchKey = `${roundKey}:${placements.map((p) => p.id).join(",")}`;
+            } else {
+                imagesFetchKey = "";
+            }
+            return allLoaded;
         } finally {
             imagesLoading = false;
         }
@@ -289,9 +296,22 @@
             return;
         }
 
-        if (imagesLoading || imagesFetchKey === fetchKey) return;
-        imagesFetchKey = fetchKey;
+        if (imagesLoading) return;
         void loadStoryImages(key, placements);
+    });
+
+    // Re-fetch blobs when server reports more images ready (poll updates storyImagesReady).
+    $effect(() => {
+        const placements = gameState?.storyImagePlacements ?? [];
+        const ready = gameState?.storyImagesReady ?? 0;
+        const loaded = Object.keys(imageUrls).length;
+        if (!LISTEN_PHASES.includes(phase) || !placements.length || imagesLoading) return;
+        if (ready > loaded) {
+            const key = code && (gameState?.roundIndex ?? -1) >= 0
+                ? `${code}:${gameState.roundIndex}`
+                : "";
+            if (key) void loadStoryImages(key, placements);
+        }
     });
 
     function onNarrationPlay() {
@@ -690,10 +710,22 @@
                     <h3 class="mini-title">Narration</h3>
                     <p class="hint narration-optional-hint">Optional — when it plays, the story scrolls along. You can still reveal text manually anytime.</p>
                     {#if gameState?.imagesPending}
-                        <p class="narration-status muted">Drawing funny scene shots… usually a few minutes.</p>
+                        <p class="narration-status muted">Drawing scene illustrations (medium quality)… usually a couple of minutes.</p>
                     {:else if gameState?.imagesError}
-                        <p class="error narration-status">Illustrations didn't generate.</p>
-                        <button type="button" class="ghost" onclick={() => onRequestImages?.()} disabled={busy}>
+                        <p class="error narration-status">
+                            {gameState.imagesError === "images_partial"
+                                ? "Some illustrations didn't finish — retry or reveal the story anyway."
+                                : "Illustrations didn't generate."}
+                        </p>
+                        <button
+                            type="button"
+                            class="ghost"
+                            onclick={() => {
+                                imagesFetchKey = "";
+                                onRequestImages?.(true);
+                            }}
+                            disabled={busy}
+                        >
                             Retry illustrations
                         </button>
                     {:else if imagePlacements.length && imagesLoading}
