@@ -102,8 +102,10 @@
     /** @type {HTMLDivElement | null} */
     let storyScrollEl = $state(null);
     let followNarrationScroll = $state(true);
-    /** Cached story geometry { top, height }, recomputed on resize/image-load. */
-    let scrollGeom = null;
+    /** Per-narrated-segment scroll anchors, recomputed on resize/image-load. */
+    let scrollSegments = null; // [{ start, chars, targetY }] in document coords
+    let scrollTotalChars = 0;
+    let scrollMaxY = 0;
     let scrollTarget = 0;
     let scrollRaf = 0;
     let scrollResizeObserver = null;
@@ -383,10 +385,32 @@
         };
     });
 
+    // Build a scroll anchor per narrated segment (title, then each paragraph),
+    // weighted by its character count and anchored to the real DOM element's
+    // document position. Narration speaks only the text, so weighting by chars
+    // (not pixel height) keeps the scroll in step with the voice, and anchoring
+    // to paragraph elements means illustrations between paragraphs are simply
+    // scrolled past — their height never distorts the mapping, even as they
+    // lazy-load (a load just re-runs this via the ResizeObserver).
     function recomputeScrollGeom() {
-        scrollGeom = storyScrollEl
-            ? { top: storyScrollEl.offsetTop, height: storyScrollEl.offsetHeight }
-            : null;
+        if (!storyScrollEl) { scrollSegments = null; return; }
+        const vh = window.innerHeight;
+        const docY = (el) => el.getBoundingClientRect().top + window.scrollY;
+        const segs = [];
+        const titleEl = storyScrollEl.parentElement?.querySelector(".story-title");
+        if (titleEl) segs.push({ chars: Math.max(1, titleEl.textContent.length), targetY: 0 });
+        for (const p of storyScrollEl.querySelectorAll(":scope > p")) {
+            segs.push({
+                chars: Math.max(1, p.textContent.length),
+                targetY: Math.max(0, docY(p) - vh * 0.3),
+            });
+        }
+        if (!segs.length) { scrollSegments = null; return; }
+        let acc = 0;
+        for (const s of segs) { s.start = acc; acc += s.chars; }
+        scrollTotalChars = acc;
+        scrollMaxY = Math.max(0, document.documentElement.scrollHeight - vh);
+        scrollSegments = segs;
     }
 
     function scrollTick() {
@@ -406,11 +430,16 @@
         if (prefersReducedMotion()) return; // don't yank the page for reduced-motion users
         const d = audioPlayer.duration;
         if (!d || !Number.isFinite(d) || d <= 0) return;
-        if (!scrollGeom) recomputeScrollGeom();
-        if (!scrollGeom) return;
-        const maxScroll = scrollGeom.top + scrollGeom.height - window.innerHeight;
-        if (maxScroll <= scrollGeom.top) return;
-        scrollTarget = scrollGeom.top + (audioPlayer.currentTime / d) * (maxScroll - scrollGeom.top);
+        if (!scrollSegments) recomputeScrollGeom();
+        if (!scrollSegments || !scrollTotalChars) return;
+        const progress = Math.min(1, Math.max(0, audioPlayer.currentTime / d));
+        const charPos = progress * scrollTotalChars;
+        let i = 0;
+        while (i < scrollSegments.length - 1 && charPos >= scrollSegments[i + 1].start) i++;
+        const seg = scrollSegments[i];
+        const f = Math.min(1, Math.max(0, (charPos - seg.start) / seg.chars));
+        const nextY = scrollSegments[i + 1]?.targetY ?? scrollMaxY;
+        scrollTarget = Math.min(scrollMaxY, seg.targetY + (nextY - seg.targetY) * f);
         if (!scrollRaf) scrollRaf = requestAnimationFrame(scrollTick);
     }
 
