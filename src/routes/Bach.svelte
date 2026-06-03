@@ -4,7 +4,7 @@
 -->
 <script>
     import Bach from "../components/Bach/Bach.svelte";
-    import { getParty } from "../components/Bach/partyConfig.js";
+    import { getParty } from "../components/Bach/lib/partyConfig.js";
 
     const title = getParty().title;
 </script>

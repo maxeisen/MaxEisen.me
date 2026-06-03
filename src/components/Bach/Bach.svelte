@@ -8,9 +8,9 @@
 -->
 <script>
     import { onMount } from "svelte";
-    import * as api from "./api.js";
-    import { getParty, setPrivatePartyPack, clearPrivatePartyPack } from "./partyConfig.js";
-    import { validatePartyPack } from "./validatePartyPack.js";
+    import * as api from "./lib/api.js";
+    import { getParty, setPrivatePartyPack, clearPrivatePartyPack } from "./lib/partyConfig.js";
+    import { validatePartyPack } from "./lib/validatePartyPack.js";
     import HostScreen from "./HostScreen.svelte";
     import PlayerScreen from "./PlayerScreen.svelte";
 

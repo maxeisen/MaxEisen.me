@@ -6,8 +6,8 @@
 <script>
     import { onDestroy } from "svelte";
     import Qr from "./Qr.svelte";
-    import * as api from "./api.js";
-    import { formatStory, buildStoryBlocks } from "./story.js";
+    import * as api from "./lib/api.js";
+    import { formatStory, buildStoryBlocks } from "./lib/story.js";
     import {
         drawPrompts,
         loadUsedPrompts,
@@ -15,8 +15,8 @@
         clearUsedPrompts,
         poolsForAudience,
         defaultPoolForRound,
-    } from "./partyConfig.js";
-    import { validatePartyPack } from "./validatePartyPack.js";
+    } from "./lib/partyConfig.js";
+    import { validatePartyPack } from "./lib/validatePartyPack.js";
 
     let {
         party,
