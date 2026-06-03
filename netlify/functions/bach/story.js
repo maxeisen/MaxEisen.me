@@ -4,6 +4,7 @@ import OpenAI from "openai";
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, writeMeta, keys, listJSON, deletePrefix,
+	writeNarrationStatus, writeImagesStatus,
 } from "./_lib.js";
 
 function buildSystemPrompt(meta) {
@@ -77,6 +78,8 @@ export default async function handler(req) {
 		store.delete(keys.storyAudio(code, round)),
 		store.delete(keys.storyImagesManifest(code, round)),
 		deletePrefix(store, keys.storyImagePrefix(code, round)),
+		writeNarrationStatus(store, code, round, { pending: false, error: null }),
+		writeImagesStatus(store, code, round, { pending: false, error: null, placements: [] }),
 	]);
 
 	const wordList = submissions
@@ -110,22 +113,10 @@ export default async function handler(req) {
 		}
 
 		await store.set(keys.story(code, round), story);
-		await Promise.all([
-			store.delete(keys.storyAudio(code, round)),
-			store.delete(keys.storyImagesManifest(code, round)),
-			deletePrefix(store, keys.storyImagePrefix(code, round)),
-		]);
 
 		const fresh = (await readMeta(store, code)) || meta;
 		fresh.phase = "reveal";
 		fresh.error = null;
-		fresh.hasStoryAudio = false;
-		fresh.narrationPending = false;
-		fresh.narrationError = null;
-		fresh.hasStoryImages = false;
-		fresh.imagesPending = false;
-		fresh.imagesError = null;
-		fresh.storyImagePlacements = [];
 		fresh.version++;
 		await writeMeta(store, code, fresh);
 
