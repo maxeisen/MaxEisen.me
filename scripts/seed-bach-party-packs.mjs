@@ -14,7 +14,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getStore } from "@netlify/blobs";
-import { validatePartyPack } from "../src/components/Bach/validatePartyPack.js";
+import { validatePartyPack } from "../src/components/Bach/lib/validatePartyPack.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
