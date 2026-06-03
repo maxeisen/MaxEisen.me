@@ -11,6 +11,7 @@
         creating = false,
         facts = $bindable(""),
         storyTone = $bindable(""),
+        peopleText = $bindable(""),
         onPackSelect,
         onPackReload,
         onPackFileSelect,
@@ -90,6 +91,13 @@
         rows="2"
         maxlength="500"
         placeholder="e.g. silly, heartfelt, PG, spooky — whatever fits your group"
+    ></textarea>
+    <label class="field-label" for="people">People (look references for the illustrations)</label>
+    <textarea
+        id="people"
+        bind:value={peopleText}
+        rows="8"
+        placeholder="One per line — Name: short look description.&#10;Matthew: the groom; lean, sharp designer streetwear"
     ></textarea>
     <button class="primary big" onclick={onCreate} disabled={creating}>
         {creating ? "Starting…" : "Start a session"}

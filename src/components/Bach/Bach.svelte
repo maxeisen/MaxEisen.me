@@ -285,14 +285,14 @@
     }
 
     // --- Host actions ------------------------------------------------------
-    async function createSession(facts, storyTone = "") {
+    async function createSession(facts, storyTone = "", people = null) {
         const { ok, data } = await api.createSession(password, {
             facts,
             partyId: party.id,
             groom: party.groom,
             partner: party.partner,
             storyTone: storyTone.trim(),
-            people: party.people,
+            people: people ?? party.people,
         });
         if (ok && data?.code) {
             code = data.code;

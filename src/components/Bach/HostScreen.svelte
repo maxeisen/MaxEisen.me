@@ -58,12 +58,14 @@
     // --- Setup (pre-session) ---
     let facts = $state("");
     let storyTone = $state("");
+    let peopleText = $state("");
     let creating = $state(false);
 
     $effect(() => {
         if (code || !party) return;
         if (party.defaultFacts && !facts) facts = party.defaultFacts;
         if (party.storyTone && !storyTone) storyTone = party.storyTone;
+        if (party.people && !peopleText) peopleText = serializePeople(party.people);
     });
     let usedPrompts = $state(new Set());
     let packError = $state("");
@@ -186,9 +188,25 @@
         }
     }
 
+    // The people map is shown/edited as one "Name: look" line per person.
+    function serializePeople(obj) {
+        return Object.entries(obj || {}).map(([name, look]) => `${name}: ${look}`).join("\n");
+    }
+    function parsePeople(text) {
+        const out = {};
+        for (const line of (text || "").split("\n")) {
+            const idx = line.indexOf(":");
+            if (idx < 1) continue;
+            const name = line.slice(0, idx).trim();
+            const look = line.slice(idx + 1).trim();
+            if (name && look) out[name] = look;
+        }
+        return out;
+    }
+
     async function create() {
         creating = true;
-        try { await onCreate(facts, storyTone); } finally { creating = false; }
+        try { await onCreate(facts, storyTone, parsePeople(peopleText)); } finally { creating = false; }
     }
 
     async function startRound() {
@@ -241,6 +259,7 @@
             {creating}
             bind:facts
             bind:storyTone
+            bind:peopleText
             {onPackSelect}
             {onPackReload}
             {onPackFileSelect}
