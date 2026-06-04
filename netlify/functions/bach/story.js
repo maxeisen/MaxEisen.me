@@ -32,6 +32,7 @@ Weaving guest answers:
 Style:
 - ${toneRule}
 - Use host couple facts for specific, funny detail.
+- Keep the prose lean and quick-moving: go easy on adjectives and adverbs, never stack modifiers, and lean on strong nouns and verbs. Let the jokes and the guest answers carry it, not flowery description.
 - Use **double asterisks** ONLY to mark the woven-in guest answers (above) — no headings, other markdown, or emphasis. The asterisks are stripped from the spoken narration, so it still reads smoothly aloud.
 - Output only the title and story paragraphs. No preamble or notes.`;
 }

@@ -30,6 +30,7 @@
     let scrollMaxY = 0;
     let scrollRaf = 0;
     let scrollResizeObserver = null;
+    let resumeTimer = 0;
 
     async function loadStoryImages(placements, readyIds) {
         const round = gameState?.roundIndex ?? -1;
@@ -118,8 +119,9 @@
     // One continuous loop while narration plays: each frame ease the page a
     // little toward the live target, capped per frame so it glides smoothly and
     // can never lurch/race (e.g. past a freshly-loaded image) — biased to trail.
-    const SCROLL_EASE = 0.06;
-    const SCROLL_MAX_STEP = 12; // px/frame ceiling (~720px/s); far above the normal pace
+    const SCROLL_EASE = 0.045;
+    const SCROLL_MAX_STEP = 7; // px/frame ceiling (~420px/s) — above normal pace, gentle on transitions
+    const RESUME_DELAY_MS = 5000; // after a manual scroll, drift back to following the narration
     function scrollFrame() {
         scrollRaf = 0;
         if (!followNarrationScroll || !storyTextVisible || !narration.playing || prefersReducedMotion()) return;
@@ -139,6 +141,10 @@
     function onStoryScrollUser() {
         followNarrationScroll = false;
         if (scrollRaf) { cancelAnimationFrame(scrollRaf); scrollRaf = 0; }
+        // Let the host scroll freely, then drift back to the narration's spot a
+        // few seconds after they stop (each scroll resets the timer).
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(() => { followNarrationScroll = true; }, RESUME_DELAY_MS);
     }
 
     // Cache geometry; refresh on resize / lazy image load.
@@ -170,6 +176,7 @@
     onDestroy(() => {
         releaseImages();
         cancelAnimationFrame(scrollRaf);
+        clearTimeout(resumeTimer);
         scrollResizeObserver?.disconnect();
     });
 </script>
