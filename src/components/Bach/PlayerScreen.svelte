@@ -21,6 +21,7 @@
         onSubmitWord,
         onSwapPrompt,
         onVote,
+        onExit,
     } = $props();
 
     const phase = $derived(gameState?.phase ?? null);
@@ -29,6 +30,9 @@
 </script>
 
 <div class="player">
+    {#if onExit}
+        <button type="button" class="player-leave" onclick={onExit}>← Leave room</button>
+    {/if}
     {#if sessionMissing}
         <div class="card center">
             <h1 class="title">Hmm.</h1>

@@ -15,13 +15,38 @@
         onPackSelect,
         onPackReload,
         onPackFileSelect,
+        onJoinRoom,
         onCreate,
     } = $props();
+
+    let joinCode = $state("");
+    let joinError = $state("");
+    function submitJoin() {
+        if (onJoinRoom?.(joinCode) === false) joinError = "Enter a valid 4-character room code.";
+    }
 </script>
 
 <section class="setup">
     <h1 class="display">{party.title}</h1>
-    <p class="lede">Guests fill in prompts on their phones; AI weaves their answers into one story. Pick a party pack, then add context and tone below.</p>
+
+    <div class="join-existing">
+        <span class="join-existing-label">Joining a friend's game?</span>
+        <div class="join-existing-row">
+            <input
+                bind:value={joinCode}
+                placeholder="Room code"
+                maxlength="4"
+                autocapitalize="characters"
+                autocomplete="off"
+                oninput={() => (joinError = "")}
+                onkeydown={(e) => { if (e.key === "Enter") submitJoin(); }}
+            />
+            <button type="button" class="primary" onclick={submitJoin}>Join</button>
+        </div>
+        {#if joinError}<p class="error">{joinError}</p>{/if}
+    </div>
+
+    <p class="lede">Or start a new game on this screen — guests fill in prompts on their phones; AI weaves their answers into one story. Pick a party pack, then add context and tone below.</p>
 
     <div class="pack-upload">
         <label class="field-label" for="party-pack-select">Party pack</label>

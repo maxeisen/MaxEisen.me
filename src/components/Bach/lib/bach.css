@@ -55,6 +55,39 @@
 }
 .host textarea:focus { border-color: var(--main-green); }
 
+.host .join-existing {
+	text-align: left;
+	margin-bottom: 1.25rem;
+	padding: 1rem 1.1rem;
+	border-radius: 12px;
+	border: 1px solid var(--main-green-translucent);
+	background: rgba(255, 255, 255, 0.03);
+}
+.host .join-existing-label {
+	display: block;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--main-green);
+	margin-bottom: 0.5rem;
+}
+.host .join-existing-row { display: flex; gap: 0.5rem; }
+.host .join-existing-row input {
+	flex: 1;
+	min-width: 0;
+	font: inherit;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--header-colour);
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid var(--main-green-translucent);
+	border-radius: 10px;
+	padding: 0.65rem 0.75rem;
+	outline: none;
+}
+.host .join-existing-row input:focus { border-color: var(--main-green); }
+
 .host .pack-upload {
 	text-align: left;
 	margin-bottom: 1.25rem;
@@ -133,8 +166,9 @@
 	letter-spacing: 0.1em;
 	color: var(--header-colour);
 }
-.host .bar-leader { margin-left: auto; text-align: right; }
+.host .bar-leader { text-align: right; }
 .host .bar-leader-name { font-weight: 600; color: var(--header-colour); }
+.host .bar-actions { margin-left: auto; display: flex; gap: 0.5rem; flex-shrink: 0; }
 
 /* --- Lobby --- */
 .host .lobby {
@@ -435,6 +469,18 @@
 	min-height: 100vh;
 }
 .player .head { margin-bottom: 1.25rem; }
+.player .player-leave {
+	background: none;
+	border: none;
+	color: var(--main-green);
+	opacity: 0.75;
+	font: inherit;
+	font-size: 0.85rem;
+	cursor: pointer;
+	padding: 0.25rem 0;
+	margin-bottom: 0.25rem;
+}
+.player .player-leave:hover { opacity: 1; }
 .player .title {
 	font-family: 'Fraunces', serif;
 	font-weight: 700;

@@ -40,6 +40,8 @@
         onRequestImages,
         onAction,
         onGenerate,
+        onExit,
+        onJoinRoom,
     } = $props();
 
     const allPools = $derived(party.pools);
@@ -244,6 +246,12 @@
         busy = true;
         try { await onGenerate(); } finally { busy = false; }
     }
+
+    // Leaving the big screen abandons host control of the room — confirm first.
+    function confirmExit() {
+        if (typeof window !== "undefined" && !window.confirm("Leave this room? You'll lose host control of it.")) return;
+        onExit?.();
+    }
 </script>
 
 <div class="host">
@@ -263,10 +271,11 @@
             {onPackSelect}
             {onPackReload}
             {onPackFileSelect}
+            {onJoinRoom}
             onCreate={create}
         />
     {:else}
-        <HostBar {code} {leaderboard} {busy} onReset={() => act("reset")} />
+        <HostBar {code} {leaderboard} {busy} onReset={() => act("reset")} onExit={confirmExit} />
 
         {#if phase === "lobby"}
             <LobbyScreen

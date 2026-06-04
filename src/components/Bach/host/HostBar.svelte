@@ -1,6 +1,6 @@
 <!-- Top bar shown on every in-session host phase: room code, round leader, new-game. -->
 <script>
-    let { code, leaderboard = [], busy = false, onReset } = $props();
+    let { code, leaderboard = [], busy = false, onReset, onExit } = $props();
 </script>
 
 <header class="bar">
@@ -14,5 +14,8 @@
             <span class="bar-leader-name">{leaderboard[0].name} · {leaderboard[0].points}</span>
         </div>
     {/if}
-    <button class="ghost small" onclick={onReset} disabled={busy}>New game</button>
+    <div class="bar-actions">
+        <button class="ghost small" onclick={onReset} disabled={busy}>New game</button>
+        <button class="ghost small" onclick={onExit}>Exit room</button>
+    </div>
 </header>

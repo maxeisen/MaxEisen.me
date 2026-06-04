@@ -428,6 +428,57 @@
         await poll();
         return ok;
     }
+
+    // --- Room navigation ---------------------------------------------------
+    /** Leave the current room: clear persisted identity + URL, back to setup. */
+    function exitRoom() {
+        stopPoll();
+        if (code) {
+            try {
+                localStorage.removeItem("bach:hostCode");
+                localStorage.removeItem(`bach:host:${code}`);
+                localStorage.removeItem(`bach:player:${code}`);
+            } catch {}
+        }
+        code = null;
+        hostToken = null;
+        player = null;
+        gameState = null;
+        sessionMissing = false;
+        netError = "";
+        // Drop ?room / ?k so a refresh starts fresh at the setup screen.
+        try {
+            const u = new URL(window.location.href);
+            if (u.searchParams.has("room") || u.searchParams.has("k")) {
+                u.searchParams.delete("room");
+                u.searchParams.delete("k");
+                history.replaceState(null, "", u.pathname + u.search);
+            }
+        } catch {}
+        mode = "host";
+    }
+
+    /** Join an existing room by code from the UI (no URL editing needed). */
+    function joinByCode(rawCode) {
+        const c = (rawCode || "").trim().toUpperCase();
+        if (!/^[A-Z0-9]{4}$/.test(c)) return false;
+        player = null;
+        gameState = null;
+        sessionMissing = false;
+        code = c;
+        mode = "player";
+        try {
+            const p = localStorage.getItem(`bach:player:${c}`);
+            if (p) player = JSON.parse(p);
+        } catch {}
+        // Reflect the room in the URL so a refresh rejoins it.
+        try {
+            const u = new URL(window.location.href);
+            u.searchParams.set("room", c);
+            history.replaceState(null, "", u.pathname + u.search);
+        } catch {}
+        return true;
+    }
 </script>
 
 <div class="bach-root">
@@ -469,6 +520,7 @@
             onSubmitWord={submitWord}
             onSwapPrompt={swapPrompt}
             onVote={vote}
+            onExit={exitRoom}
         />
     {:else}
         <HostScreen
@@ -486,6 +538,8 @@
             onRequestImages={requestStoryImages}
             onAction={doHostAction}
             onGenerate={generate}
+            onExit={exitRoom}
+            onJoinRoom={joinByCode}
         />
     {/if}
 </div>
