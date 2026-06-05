@@ -49,7 +49,6 @@
             <WritingCard
                 {you}
                 roundIndex={gameState?.roundIndex ?? null}
-                version={gameState?.version ?? 0}
                 {onSubmitWord}
                 {onSwapPrompt}
             />

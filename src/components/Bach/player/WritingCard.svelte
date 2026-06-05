@@ -4,12 +4,16 @@
     ids s0,s1,… are reused every round), then backfill new slots within it.
 -->
 <script>
-    let { you, roundIndex = null, version = 0, onSubmitWord, onSwapPrompt } = $props();
+    let { you, roundIndex = null, onSubmitWord, onSwapPrompt } = $props();
 
     const slots = $derived(you?.slots ?? []);
-    // roundIndex alone isn't enough (a reset game starts at 0 again) — pair with
-    // host version, which bumps on every phase change.
-    const writingEpoch = $derived(roundIndex != null ? `${roundIndex}:${version}` : null);
+    // Key the epoch on roundIndex ONLY — never the host version. This card
+    // unmounts/remounts on every writing-phase entry (PlayerScreen routes away
+    // for all other phases), so a reset game's fresh round-0 already starts
+    // clean. Folding `version` in here meant any unrelated meta bump — another
+    // player swapping a prompt, a host action — flipped the epoch on the next
+    // 1.5s poll, wiping in-progress drafts and remounting every input mid-typing.
+    const writingEpoch = $derived(roundIndex != null ? `${roundIndex}` : null);
 
     let drafts = $state({});
     let draftsEpoch = $state(null);
