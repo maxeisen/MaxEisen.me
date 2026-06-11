@@ -18,6 +18,7 @@
 -->
 <script>
     import { onMount } from 'svelte';
+    import { cubicOut } from 'svelte/easing';
     import Home from './components/Home/Home.svelte';
 
     let pathname = $state(typeof window !== 'undefined' ? window.location.pathname : '');
@@ -38,6 +39,33 @@
     const NO_CLIENT_NAV = new Set(['/bach']);
 
     const isRoute = $derived(pathname in ROUTES);
+
+    // === page transitions ==============================================
+    // The "rise" is a CSS transform, and a transformed ancestor breaks
+    // position:fixed descendants — so it's applied ONLY to normal-flow
+    // pages. Fixed full-viewport routes (dashboard, toronto) fade with
+    // opacity alone. Exit is opacity-only for everyone (transform-free, so
+    // a leaving fixed-layout page never collapses mid-transition).
+    // Svelte's mount() defaults to intro:false, so these play on
+    // client-side navigation but NOT on the initial page load (no
+    // first-paint delay).
+    const FIXED_LAYOUT = new Set(['/dashboard', '/toronto']);
+    const prefersReduced =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function pageIn(_node, { rise }) {
+        if (prefersReduced) return { duration: 100, css: (t) => `opacity: ${t}` };
+        return {
+            duration: 240,
+            easing: cubicOut,
+            css: (t, u) =>
+                `opacity: ${t};` + (rise ? ` transform: translate3d(0, ${u * 12}px, 0);` : ''),
+        };
+    }
+    function pageOut() {
+        return { duration: prefersReduced ? 60 : 150, css: (t) => `opacity: ${t}` };
+    }
 
     let RouteComponent = $state(null);
     $effect(() => {
@@ -170,19 +198,40 @@
     });
 </script>
 
-{#if isRoute}
-    {#if RouteComponent}
-        <RouteComponent />
-    {:else if showSpinner}
-        <div class="route-loading" role="status" aria-label="Loading" aria-busy="true">
-            <div class="route-spinner" aria-hidden="true"></div>
+<!--
+    Each navigation re-keys this block, so the leaving page plays `out` and
+    the entering page plays `in`. The grid-stack overlaps them in one cell
+    so they cross-fade without a layout/scroll jump.
+-->
+<div class="page-stack">
+    {#key pathname}
+        <div class="page" in:pageIn={{ rise: !FIXED_LAYOUT.has(pathname) }} out:pageOut>
+            {#if isRoute}
+                {#if RouteComponent}
+                    <RouteComponent />
+                {:else if showSpinner}
+                    <div class="route-loading" role="status" aria-label="Loading" aria-busy="true">
+                        <div class="route-spinner" aria-hidden="true"></div>
+                    </div>
+                {/if}
+            {:else}
+                <Home />
+            {/if}
         </div>
-    {/if}
-{:else}
-    <Home />
-{/if}
+    {/key}
+</div>
 
 <style>
+    /* Overlap the leaving + entering pages in a single grid cell so the
+       cross-fade has no layout shift / scroll jump. Fixed-layout routes
+       escape the grid (position:fixed) and overlap the viewport directly;
+       normal-flow pages share the cell. */
+    .page-stack { display: grid; }
+    .page-stack > .page {
+        grid-area: 1 / 1;
+        min-width: 0;
+    }
+
     /* Neutral full-viewport loading state on the site's base background —
        deliberately content-free so there's nothing to "half-load". */
     .route-loading {
