@@ -32,6 +32,10 @@ https://github.com/maxeisen/
     <meta name="theme-color" content="#002723"/>
     <link rel=canonical href="https://maxeisen.me"/>
     <link rel='manifest' href='/manifest.json'>
+    <!-- Warm the connection to the image CDN — gallery + dashboard pull
+         all their photos from here, so the TLS handshake is worth paying
+         up front rather than on first image request. -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
