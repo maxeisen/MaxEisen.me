@@ -2,24 +2,25 @@
     App shell / router. Each route in ROUTES lazy-loads its component as a
     separate Vite chunk; the homepage renders for "/" and any unknown path.
 
-    Loading state: while a KNOWN route's chunk is still downloading we show
-    a minimal loader — NOT the homepage. (Rendering <Home /> as the fallback
-    was what caused a flash of a half-mounted homepage before the real route
-    appeared.) A short delay before the spinner means fast/cached loads show
-    nothing at all rather than a spinner flash.
+    Navigation is client-side: same-origin links to the homepage or a known
+    route are intercepted and handled with pushState + a component swap, so
+    there's no full document reload (no re-downloading the shell + bundle,
+    no white flash). Anything not client-navigable — the static /resume
+    page, the stateful /bach route, hash/anchor links, external links,
+    modified clicks, downloads — falls through to a normal browser load.
 
-    Perf: internal route links are prefetched on hover / focus / touch (event
-    delegation on the document), so the chunk is usually already cached by
-    the time the navigation happens.
+    Loading state: while a known route's chunk downloads we show a minimal
+    spinner (after a 150ms delay so cached/fast loads show nothing) — never
+    the homepage, which is what previously flashed as a half-mounted page.
+
+    Route chunks are prefetched on hover/focus/touch so the chunk is usually
+    cached before the click — most client-side navigations are instant.
 -->
 <script>
     import { onMount } from 'svelte';
     import Home from './components/Home/Home.svelte';
 
     let pathname = $state(typeof window !== 'undefined' ? window.location.pathname : '');
-    if (typeof window !== 'undefined') {
-        window.addEventListener('popstate', () => { pathname = window.location.pathname; });
-    }
 
     const ROUTES = {
         '/gallery':       () => import('./routes/Gallery.svelte'),
@@ -29,6 +30,12 @@
         '/toronto':       () => import('./routes/Toronto.svelte'),
         '/bach':          () => import('./routes/Bach.svelte'),
     };
+
+    // Routes that exist in ROUTES (so they lazy-load + show the loader) but
+    // are deliberately NOT client-side-navigated via link clicks: /bach
+    // reads window.location at component init and is stateful, so a clean
+    // full load is safer than an in-place mount.
+    const NO_CLIENT_NAV = new Set(['/bach']);
 
     const isRoute = $derived(pathname in ROUTES);
 
@@ -64,10 +71,56 @@
         showSpinner = false;
     });
 
-    // Prefetch a route chunk on intent (hover / keyboard focus / touch).
-    // import() is deduped by the browser, so the later load() in the
-    // $effect resolves instantly. Warms the HTTP + SW cache so even a
-    // full-page navigation finds the chunk already there.
+    // === client-side navigation =========================================
+
+    function navigate(href) {
+        const url = new URL(href, window.location.origin);
+        if (url.pathname === window.location.pathname && url.search === window.location.search && !url.hash) {
+            return; // already here, nothing to do
+        }
+        window.history.pushState({}, '', url.href);
+        pathname = url.pathname;
+        if (url.hash) {
+            // Let the destination render, then jump to the anchor.
+            requestAnimationFrame(() => {
+                const el = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+                if (el) el.scrollIntoView();
+                else window.scrollTo(0, 0);
+            });
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function onDocumentClick(e) {
+        // Bail on anything that isn't a plain primary-button click.
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const a = e.target.closest?.('a[href]');
+        if (!a) return;
+        if ((a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+        if ((a.getAttribute('rel') || '').split(/\s+/).includes('external')) return;
+
+        let url;
+        try { url = new URL(a.href, window.location.origin); } catch { return; }
+        if (url.origin !== window.location.origin) return;
+
+        // Same page (anchor links like #section, the "/#" home logo,
+        // query-only changes) → leave entirely to the browser.
+        if (url.pathname === window.location.pathname) return;
+
+        // Only the homepage + known SPA routes are client-navigable. Static
+        // pages (/resume) and excluded routes (/bach) full-load normally.
+        const navigable =
+            (url.pathname === '/' || url.pathname in ROUTES) && !NO_CLIENT_NAV.has(url.pathname);
+        if (!navigable) return;
+
+        e.preventDefault();
+        navigate(url.href);
+    }
+
+    // === route chunk prefetch on intent =================================
+    // import() is deduped by the browser, so the later load() in the route
+    // $effect resolves instantly. Warms the HTTP + SW cache.
     const prefetched = new Set();
     function onLinkIntent(e) {
         const a = e.target.closest?.('a[href]');
@@ -83,10 +136,13 @@
     }
 
     onMount(() => {
+        window.addEventListener('popstate', () => { pathname = window.location.pathname; });
+        document.addEventListener('click', onDocumentClick);
         document.addEventListener('pointerover', onLinkIntent);
         document.addEventListener('focusin', onLinkIntent);
         document.addEventListener('touchstart', onLinkIntent, { passive: true });
         return () => {
+            document.removeEventListener('click', onDocumentClick);
             document.removeEventListener('pointerover', onLinkIntent);
             document.removeEventListener('focusin', onLinkIntent);
             document.removeEventListener('touchstart', onLinkIntent);
@@ -96,8 +152,9 @@
     // Fire a GA page_view on every in-SPA navigation. The initial pageview
     // for the document is already sent by the gtag('config', …) call in
     // index.html, so we skip the first $effect run; only subsequent
-    // pathname changes (back/forward) need the explicit event. Defers via a
-    // microtask so document.title can update from the route's <svelte:head>.
+    // pathname changes (link nav + back/forward) need the explicit event.
+    // Defers via a microtask so document.title can update from the route's
+    // <svelte:head> before we send.
     let pageViewFired = false;
     $effect(() => {
         pathname; // track changes

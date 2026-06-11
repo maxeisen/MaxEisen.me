@@ -25,6 +25,14 @@
     const screenSize = window.matchMedia("(min-width: 860px)");
 </script>
 
+<svelte:head>
+    <!-- Owns the homepage title so client-side navigation back to "/"
+         restores it (routes set their own title via <svelte:head>; without
+         this, the tab would keep the last route's title after navigating
+         home). Matches the static <title> in index.html for first paint. -->
+    <title>Get to Know Max Eisen | MaxEisen.me</title>
+</svelte:head>
+
 <CursorSpotlight />
 <ThemeToggle />
 <ModalProvider>
