@@ -17,9 +17,31 @@
     let listEl = $state();
     let hidden = $state(false);
     let activities = $state(null); // null = loading
+    let ytd = $state(null); // { run, ride } YTD totals, or null
     let pollTimer;
     let resizeTimer;
     let resizeListener;
+
+    // Whole-km, comma-grouped — YTD distances are large enough that
+    // decimals are noise (e.g. "1,250 km").
+    function ytdKm(m) {
+        if (m == null) return "0 km";
+        return `${Math.round(m / 1000).toLocaleString()} km`;
+    }
+
+    // Year-to-date run + ride totals from the profile endpoint. Strava's
+    // stats API only exposes run/ride/swim YTD (no walk total), so this is
+    // run + ride. Independent of the activity feed — if it fails, the
+    // footer just doesn't render; the activity list is unaffected.
+    async function loadYtd() {
+        try {
+            const res = await fetch("/.netlify/functions/stravaProfile");
+            if (!res.ok) return;
+            const data = await res.json();
+            ytd = data?.ytd || null;
+            requestAnimationFrame(() => trimListToFit(listEl));
+        } catch { /* leave ytd null — footer stays hidden */ }
+    }
 
     // Fetch the wider feed (limit=30) so this URL is identical to the
     // one the intro modals + Toronto map already use — single cache key
@@ -40,6 +62,7 @@
 
     onMount(() => {
         load();
+        loadYtd();
         pollTimer = setInterval(load, 1000 * 60 * 5);
         resizeListener = () => {
             clearTimeout(resizeTimer);
@@ -91,6 +114,30 @@
             {/each}
         {/if}
     </ol>
+
+    {#if ytd && (ytd.run || ytd.ride)}
+        <!-- Year-to-date summary. Hidden in narrow (small) slots via the
+             container query below; shown when the slot has horizontal room. -->
+        <div class="strava-ytd">
+            <span class="strava-ytd-label">{new Date().getFullYear()} to date</span>
+            <div class="strava-ytd-stats">
+                {#if ytd.run}
+                    <span class="strava-ytd-item">
+                        <span class="strava-ytd-icon" aria-hidden="true">🏃</span>
+                        <strong>{ytdKm(ytd.run.distance)}</strong>
+                        <span class="strava-ytd-count">{ytd.run.count} runs</span>
+                    </span>
+                {/if}
+                {#if ytd.ride}
+                    <span class="strava-ytd-item">
+                        <span class="strava-ytd-icon" aria-hidden="true">🚴</span>
+                        <strong>{ytdKm(ytd.ride.distance)}</strong>
+                        <span class="strava-ytd-count">{ytd.ride.count} rides</span>
+                    </span>
+                {/if}
+            </div>
+        </div>
+    {/if}
 {/if}
 
 <style>
@@ -167,6 +214,56 @@
         font-size: 0.65rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        color: var(--main-green);
+    }
+
+    /* Year-to-date footer. Hidden by default; revealed only when the slot
+       is wide enough to lay it out without crowding — i.e. large slots on
+       desktop and full-width slots on mobile. In a narrow (1-col / "small")
+       slot it stays hidden so the activity list keeps the room. The
+       container is the .slot ancestor (container-name: slot). */
+    .strava-ytd {
+        display: none;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-top: 0.6rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid var(--main-green-translucent);
+        flex-shrink: 0;
+    }
+    @container slot (min-width: 420px) {
+        .strava-ytd { display: flex; }
+    }
+    .strava-ytd-label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--main-green);
+        opacity: 0.8;
+    }
+    .strava-ytd-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1.5rem;
+        font-size: 0.85rem;
+        color: var(--paragraph-colour);
+    }
+    .strava-ytd-item {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.35rem;
+    }
+    .strava-ytd-icon { font-size: 0.9rem; }
+    .strava-ytd-item strong {
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        color: var(--header-colour);
+    }
+    .strava-ytd-count {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
         color: var(--main-green);
     }
 </style>
