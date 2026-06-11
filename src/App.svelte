@@ -41,27 +41,17 @@
     const isRoute = $derived(pathname in ROUTES);
 
     // === page transitions ==============================================
-    // The "rise" is a CSS transform, and a transformed ancestor breaks
-    // position:fixed descendants — so it's applied ONLY to normal-flow
-    // pages. Fixed full-viewport routes (dashboard, toronto) fade with
-    // opacity alone. Exit is opacity-only for everyone (transform-free, so
-    // a leaving fixed-layout page never collapses mid-transition).
-    // Svelte's mount() defaults to intro:false, so these play on
-    // client-side navigation but NOT on the initial page load (no
-    // first-paint delay).
-    const FIXED_LAYOUT = new Set(['/dashboard', '/toronto']);
+    // Pure opacity cross-fade — no transform, so it's safe across both
+    // normal-flow pages and the fixed full-viewport routes (dashboard,
+    // toronto) without any special-casing. Svelte's mount() defaults to
+    // intro:false, so this plays on client-side navigation but NOT on the
+    // initial page load (no first-paint delay).
     const prefersReduced =
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function pageIn(_node, { rise }) {
-        if (prefersReduced) return { duration: 100, css: (t) => `opacity: ${t}` };
-        return {
-            duration: 240,
-            easing: cubicOut,
-            css: (t, u) =>
-                `opacity: ${t};` + (rise ? ` transform: translate3d(0, ${u * 12}px, 0);` : ''),
-        };
+    function pageIn() {
+        return { duration: prefersReduced ? 100 : 200, easing: cubicOut, css: (t) => `opacity: ${t}` };
     }
     function pageOut() {
         return { duration: prefersReduced ? 60 : 150, css: (t) => `opacity: ${t}` };
@@ -205,7 +195,7 @@
 -->
 <div class="page-stack">
     {#key pathname}
-        <div class="page" in:pageIn={{ rise: !FIXED_LAYOUT.has(pathname) }} out:pageOut>
+        <div class="page" in:pageIn out:pageOut>
             {#if isRoute}
                 {#if RouteComponent}
                     <RouteComponent />
