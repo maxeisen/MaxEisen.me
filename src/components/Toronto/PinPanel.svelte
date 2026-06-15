@@ -3,12 +3,13 @@
     drawer on desktop, bottom sheet on mobile. Empty when `pin` is null.
 -->
 <script>
+    import CloseButton from "../../lib/ui/CloseButton.svelte";
     let { pin = null, onclose } = $props();
 </script>
 
 {#if pin}
     <aside class="pin-panel" role="dialog" aria-label={pin.name}>
-        <button class="pin-panel-close" type="button" onclick={onclose} aria-label="Close">×</button>
+        <CloseButton onclick={onclose} top="0.6rem" right="0.85rem" />
 
         <div class="pin-panel-body">
             <h2 class="pin-panel-name">{pin.name}</h2>
@@ -53,27 +54,6 @@
         from { transform: translateX(100%); }
         to   { transform: translateX(0); }
     }
-    .pin-panel-close {
-        position: absolute;
-        top: 0.6rem;
-        right: 0.85rem;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 50%;
-        background: rgba(80, 80, 80, 0.6);
-        color: #fff;
-        border: none;
-        font-size: 1.25rem;
-        line-height: 1;
-        padding: 0;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1;
-    }
-    .pin-panel-close:hover { background: rgba(110, 110, 110, 0.7); }
-
     .pin-panel-body {
         padding: 1.75rem 1.5rem 2rem 1.5rem;
     }

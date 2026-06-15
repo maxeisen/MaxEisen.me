@@ -8,6 +8,9 @@ package-lock.json
 *.pem
 .netlify
 dist
+/test-results/
+/playwright-report/
+/blob-report/
 /public/build/
 /public/index.html
 /.superpowers/

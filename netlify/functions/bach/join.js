@@ -1,19 +1,14 @@
-// POST /.netlify/functions/bach/join
+// POST /.netlify/functions/bach-join
 
 import {
-	passwordOk, jsonResponse, readBody, getSessionStore,
-	validCode, validPlayerId, randomId, readMeta, keys,
+	withBachAuth, jsonResponse, getSessionStore,
+	validPlayerId, randomId, readMeta, keys,
 } from "./_lib.js";
 
 export default async function handler(req) {
-	if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
-	if (!passwordOk(req)) return jsonResponse({ error: "unauthorized" }, 401);
-
-	const body = await readBody(req);
-	if (body === null) return jsonResponse({ error: "Invalid JSON body" }, 400);
-
-	const code = typeof body?.code === "string" ? body.code.toUpperCase() : "";
-	if (!validCode(code)) return jsonResponse({ error: "invalid_code" }, 400);
+	const gate = await withBachAuth(req);
+	if (gate.response) return gate.response;
+	const { body, code } = gate;
 
 	const name = (typeof body?.name === "string" ? body.name : "").trim().slice(0, 40);
 	if (!name) return jsonResponse({ error: "name_required" }, 400);

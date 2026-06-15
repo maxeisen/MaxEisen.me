@@ -1,8 +1,91 @@
+/* ============================================================================
+   Design tokens — single source of truth for the whole site.
+   Loaded by index.html (SPA + homepage) and resume.html.
+
+   - :root        -> theme-independent scales (spacing, radius, shadow, blur,
+                     z-index, typography, breakpoint reference values).
+   - [data-theme] -> resolved colour palette per theme (warm sand + sage).
+
+   NOTE: CSS @media queries cannot read custom properties, so the --bp-*
+   values are reference values for JS (matchMedia) only — not usable directly
+   inside @media (...). Keep the literal px in @media in sync with these.
+   ============================================================================ */
+
+:root {
+    /* Spacing scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 60px;
+
+    /* Border radius */
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 25px;
+    --radius-pill: 999px;
+
+    /* Elevation / shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 24px 80px rgba(0, 0, 0, 0.55);
+
+    /* Backdrop blur */
+    --blur-sm: 4px;
+    --blur-md: 8px;
+    --blur-lg: 12px;
+    --blur-xl: 16px;
+
+    /* Z-index scale (named by role; see usages across routes) */
+    --z-base: 1;
+    --z-raised: 10;
+    --z-sticky: 50;
+    --z-overlay: 999;   /* fullscreen lightbox */
+    --z-gate: 1000;     /* password / bach gate overlays */
+    --z-chrome: 9998;   /* theme toggle, cursor spotlight */
+    --z-modal: 9999;    /* modal provider */
+    --z-top: 10000;     /* spotify viz overlay */
+
+    /* Typography */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+    --font-2xs: 0.7rem;
+    --font-xs: 0.8rem;
+    --font-sm: 0.9rem;
+    --font-md: 1rem;
+    --font-lg: 1.25rem;
+    --font-xl: 1.5rem;
+    --font-2xl: 2rem;
+
+    /* Semantic colours (theme-independent) */
+    --color-error: #d97777;
+    --color-error-soft: #e89a9a;
+
+    /* Breakpoint reference values (JS matchMedia; @media cannot read vars) */
+    --bp-xs: 460px;
+    --bp-sm: 620px;
+    --bp-md: 700px;
+    --bp-lg: 860px;
+    --bp-xl: 1100px;
+    --bp-2xl: 1270px;
+}
+
+/* === Colour palette: warm sand + sage ===
+   Flattened from a prior two-pass cascade (an older teal palette overridden by
+   this one) into a single resolved block per theme. */
 [data-theme="dark"] {
-    --main-green: #00bba2;
-    --background-one: #002723;
-    --background-two: #00071a;
-    --main-green-translucent: rgba(0, 187, 162, 0.3);
+    --main-green: #b8a888;
+    --main-green-translucent: rgba(184, 168, 136, 0.3);
+    --background-one: #1c1a17;
+    --background-two: #0d0c0a;
+    --background-accent: #3d2a18;
+    --background-glow: #4a3a55;
 
     --nav-link: #cccccc;
     --nav-link-hover: white;
@@ -15,10 +98,10 @@
     --paragraph-colour: #e6e6e6;
     --link-hover-colour: var(--main-green);
 
-    --intro-link-colour: #addeff;
-    --headshot-glow: rgba(210, 232, 255, 0.34);
-    --intro-annotation-colour: rgba(0, 187, 162, 0.3);
-    --intro-highlight-colour: rgba(0, 187, 162, 0.155);
+    --intro-link-colour: #e8dcc8;
+    --headshot-glow: rgba(232, 220, 200, 0.28);
+    --intro-annotation-colour: rgba(184, 168, 136, 0.35);
+    --intro-highlight-colour: rgba(184, 168, 136, 0.18);
 
     --inner-background: rgba(114, 114, 114, 0.281);
     --inner-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -38,15 +121,19 @@
     --modal-title-colour: var(--header-colour);
     --modal-subtitle-colour: #c7c7c7;
     --modal-text-colour: var(--paragraph-colour);
-    --modal-link-colour: #addeff;
+    --modal-link-colour: #e8dcc8;
     --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6);
+
+    --badge-text-colour: #1c1a17;
 }
 
 [data-theme="light"] {
-    --main-green: #00806f;
-    --background-one: #01c5b2;
-    --background-two: #0076bb;
-    --main-green-translucent: rgba(0, 128, 111, 0.3);
+    --main-green: #6b7a5a;
+    --main-green-translucent: rgba(107, 122, 90, 0.3);
+    --background-one: #f0e7d6;
+    --background-two: #d8c9a3;
+    --background-accent: #b8c4a3;
+    --background-glow: #e6c8a8;
 
     --nav-link: #ffffff;
     --nav-link-hover: #dadada;
@@ -59,10 +146,10 @@
     --paragraph-colour: #1a1919;
     --link-hover-colour: var(--main-green);
 
-    --intro-link-colour: #004e81;
-    --headshot-glow: rgba(0, 55, 95, 0.22);
-    --intro-annotation-colour: rgba(0, 105, 91, 0.5);
-    --intro-highlight-colour: rgba(0, 105, 91, 0.195);
+    --intro-link-colour: #2a3528;
+    --headshot-glow: rgba(60, 70, 50, 0.18);
+    --intro-annotation-colour: rgba(107, 122, 90, 0.5);
+    --intro-highlight-colour: rgba(107, 122, 90, 0.2);
 
     --inner-background: rgba(255, 255, 255, 0.6);
     --inner-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
@@ -82,43 +169,22 @@
     --modal-title-colour: var(--header-colour);
     --modal-subtitle-colour: #333333;
     --modal-text-colour: var(--paragraph-colour);
-    --modal-link-colour: #004574;
-    --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0);
-}
-
-/* === Modern neutral palette: warm sand + sage === */
-[data-theme="dark"] {
-    --main-green: #b8a888;
-    --main-green-translucent: rgba(184, 168, 136, 0.3);
-    --background-one: #1c1a17;
-    --background-two: #0d0c0a;
-    --background-accent: #3d2a18;
-    --background-glow: #4a3a55;
-
-    --intro-link-colour: #e8dcc8;
-    --headshot-glow: rgba(232, 220, 200, 0.28);
-    --intro-annotation-colour: rgba(184, 168, 136, 0.35);
-    --intro-highlight-colour: rgba(184, 168, 136, 0.18);
-
-    --modal-link-colour: #e8dcc8;
-
-    --badge-text-colour: #1c1a17;
-}
-
-[data-theme="light"] {
-    --main-green: #6b7a5a;
-    --main-green-translucent: rgba(107, 122, 90, 0.3);
-    --background-one: #f0e7d6;
-    --background-two: #d8c9a3;
-    --background-accent: #b8c4a3;
-    --background-glow: #e6c8a8;
-
-    --intro-link-colour: #2a3528;
-    --headshot-glow: rgba(60, 70, 50, 0.18);
-    --intro-annotation-colour: rgba(107, 122, 90, 0.5);
-    --intro-highlight-colour: rgba(107, 122, 90, 0.2);
-
     --modal-link-colour: #3d4a35;
+    --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0);
 
     --badge-text-colour: #ffffff;
+}
+
+/* === Shared animations ===
+   Multi-layer radial-gradient "drift" used by the homepage + resume (body) and
+   the /gallery and /dashboard route bodies, all referencing this one keyframe.
+   The standalone /404 keeps its own copy (it doesn't load this file). */
+@keyframes gradient {
+    0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
+    16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }
+    33%  { background-position: 45% 25%, 60% 80%, 78% 75%, 48% 22%; }
+    50%  { background-position: 80% 40%, 20% 65%, 38% 62%, 82% 38%; }
+    66%  { background-position: 30% 70%, 75% 30%, 68% 22%, 15% 72%; }
+    83%  { background-position: 65% 20%, 35% 75%, 22% 70%, 72% 45%; }
+    100% { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
 }

@@ -5,6 +5,8 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { timeAgo } from "../lib/utils.js";
+    import { FetchError } from "../../../lib/data/fetchJson.js";
+    import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
 
     let hidden = $state(false);
     let repo = $state("—");
@@ -38,35 +40,42 @@
     const heatmapMax = $derived(weeks ? Math.max(1, ...weeks.flatMap((w) => w.days.map((d) => d.count))) : 1);
     const heatmapCols = $derived(weeks ? weeks.length : 0);
 
+    function apply(data) {
+        const latest = data?.latest;
+        const contrib = data?.contributions;
+        if (latest) {
+            repo = latest.repo || "—";
+            message = latest.message || "—";
+            meta = `${latest.commits || 1} commit${latest.commits === 1 ? "" : "s"} · ${timeAgo(latest.createdAt)}`;
+            if (latest.url) widgetHref = latest.url;
+        } else {
+            repo = "No recent public pushes";
+            message = "";
+            meta = "";
+        }
+        if (contrib) {
+            weeks = contrib.weeks || [];
+            total = contrib.total ?? 0;
+            if (weeks.length) {
+                const firstDay = weeks[0].days[0]?.date;
+                const lastWeek = weeks[weeks.length - 1].days;
+                const lastDay = lastWeek[lastWeek.length - 1]?.date;
+                if (firstDay && lastDay) range = `${shortDate(firstDay)} – ${shortDate(lastDay)}`;
+            }
+        }
+    }
+
+    // SWR: a re-mount serves the cached payload instantly; the 5-min poll runs
+    // past the 60s cache window so it still revalidates on cadence.
     async function load() {
         try {
-            const res = await fetch("/.netlify/functions/githubLatest");
-            if (res.status === 503) { hidden = true; return; }
-            if (!res.ok) throw new Error("github fetch failed");
-            const data = await res.json();
-            const latest = data?.latest;
-            const contrib = data?.contributions;
-            if (latest) {
-                repo = latest.repo || "—";
-                message = latest.message || "—";
-                meta = `${latest.commits || 1} commit${latest.commits === 1 ? "" : "s"} · ${timeAgo(latest.createdAt)}`;
-                if (latest.url) widgetHref = latest.url;
-            } else {
-                repo = "No recent public pushes";
-                message = "";
-                meta = "";
-            }
-            if (contrib) {
-                weeks = contrib.weeks || [];
-                total = contrib.total ?? 0;
-                if (weeks.length) {
-                    const firstDay = weeks[0].days[0]?.date;
-                    const lastWeek = weeks[weeks.length - 1].days;
-                    const lastDay = lastWeek[lastWeek.length - 1]?.date;
-                    if (firstDay && lastDay) range = `${shortDate(firstDay)} – ${shortDate(lastDay)}`;
-                }
-            }
-        } catch {
+            const data = await fetchJsonSwr("/.netlify/functions/githubLatest", {
+                maxAgeMs: 60_000,
+                onRevalidate: apply,
+            });
+            apply(data);
+        } catch (e) {
+            if (e instanceof FetchError && e.status === 503) { hidden = true; return; }
             message = "GitHub unavailable";
             meta = "";
         }

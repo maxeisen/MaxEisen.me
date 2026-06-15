@@ -1,16 +1,14 @@
-// POST /.netlify/functions/bach/create
+// POST /.netlify/functions/bach-create
 
 import {
-	passwordOk, jsonResponse, readBody, getSessionStore,
+	withBachAuth, jsonResponse, getSessionStore,
 	randomCode, randomId, readMeta, writeMeta,
 } from "./_lib.js";
 
 export default async function handler(req) {
-	if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
-	if (!passwordOk(req)) return jsonResponse({ error: "unauthorized" }, 401);
-
-	const body = await readBody(req);
-	if (body === null) return jsonResponse({ error: "Invalid JSON body" }, 400);
+	const gate = await withBachAuth(req, { requireCode: false });
+	if (gate.response) return gate.response;
+	const { body } = gate;
 
 	const facts = typeof body?.facts === "string" ? body.facts.slice(0, 4000) : "";
 	const groom = typeof body?.groom === "string" ? body.groom.trim().slice(0, 40) : "the groom";

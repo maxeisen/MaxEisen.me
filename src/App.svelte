@@ -20,6 +20,7 @@
     import { onMount } from 'svelte';
     import { cubicOut } from 'svelte/easing';
     import Home from './components/Home/Home.svelte';
+    import Spinner from './lib/ui/Spinner.svelte';
 
     let pathname = $state(typeof window !== 'undefined' ? window.location.pathname : '');
 
@@ -201,7 +202,7 @@
                     <RouteComponent />
                 {:else if showSpinner}
                     <div class="route-loading" role="status" aria-label="Loading" aria-busy="true">
-                        <div class="route-spinner" aria-hidden="true"></div>
+                        <Spinner size={38} stroke={3} />
                     </div>
                 {/if}
             {:else}
@@ -232,19 +233,5 @@
         justify-content: center;
         background: var(--background-one);
         z-index: 1;
-    }
-    .route-spinner {
-        width: 38px;
-        height: 38px;
-        border: 3px solid var(--main-green-translucent, rgba(0, 128, 111, 0.2));
-        border-top-color: var(--main-green, #00806f);
-        border-radius: 50%;
-        animation: route-spin 0.7s linear infinite;
-    }
-    @keyframes route-spin {
-        to { transform: rotate(360deg); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .route-spinner { animation-duration: 1.6s; }
     }
 </style>

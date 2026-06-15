@@ -13,14 +13,14 @@
     import { validatePartyPack } from "./lib/validatePartyPack.js";
     import HostScreen from "./HostScreen.svelte";
     import PlayerScreen from "./PlayerScreen.svelte";
-
-    const POLL_MS = 1500;
+    import GateOverlay from "../../lib/ui/GateOverlay.svelte";
+    import Spinner from "../../lib/ui/Spinner.svelte";
+    import { pollIntervalForPhase } from "./lib/poll.js";
 
     let password = $state(null);
     let pwInput = $state("");
     let pwError = $state("");
     let pwChecking = $state(false);
-    let pwInputRef;
 
     let mode = $state("loading"); // "host" | "player"
     let code = $state(null);
@@ -35,7 +35,8 @@
     let partyCatalog = $state({ packs: [], activePackId: null, source: null });
 
     let pollTimer = null;
-    let pollingFor = null; // code we currently poll, to avoid dup intervals
+    let pollingFor = null; // code we currently poll, to avoid dup loops
+    let pollLoopActive = false; // a poll cycle is scheduled or in-flight
     let pollAbort = null;  // AbortController for the in-flight state fetch
 
     // Parse URL once. ?room=CODE => player join flow; ?k=PASSWORD => QR key.
@@ -71,9 +72,8 @@
         if (password) {
             // Validate silently; if it's wrong, fall back to the gate.
             validatePassword(password, true);
-        } else {
-            requestAnimationFrame(() => pwInputRef?.focus());
         }
+        // (With no password, GateOverlay autofocuses its input on mount.)
 
         if (typeof document !== "undefined") {
             document.addEventListener("visibilitychange", onVisibilityChange);
@@ -92,30 +92,44 @@
         else stopPoll();
     });
 
+    // Adaptive self-scheduling poll loop: a single poll() drives everything and
+    // queues the next tick at a phase-appropriate cadence (fast while active,
+    // slower in stable phases — see lib/poll.js). Action handlers call poll()
+    // directly for instant feedback, and because every poll re-arms the next
+    // tick there's no separate interval firing a redundant poll right after.
     function startPoll(forCode) {
-        if (pollingFor === forCode && pollTimer) return;
+        if (pollingFor === forCode && pollLoopActive) return;
         stopPoll();
         pollingFor = forCode;
-        schedulePoll();
-    }
-    function schedulePoll() {
-        // Don't poll while the tab is backgrounded — resume on visibilitychange.
-        if (!pollingFor || pollTimer) return;
-        if (typeof document !== "undefined" && document.hidden) return;
-        poll();
-        pollTimer = setInterval(poll, POLL_MS);
+        pollLoopActive = true;
+        pollNow();
     }
     function stopPoll() {
-        if (pollTimer) clearInterval(pollTimer);
+        if (pollTimer) clearTimeout(pollTimer);
         pollTimer = null;
         pollingFor = null;
+        pollLoopActive = false;
+    }
+    // Poll immediately, unless the tab is backgrounded (resume on visibility).
+    function pollNow() {
+        if (!pollLoopActive || !pollingFor) return;
+        if (typeof document !== "undefined" && document.hidden) return;
+        poll();
+    }
+    // Queue the next poll at the phase-appropriate cadence. Cleared/replaced on
+    // every call so action polls and the loop never stack two timers.
+    function scheduleNext() {
+        if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
+        if (!pollLoopActive || !pollingFor) return;
+        if (typeof document !== "undefined" && document.hidden) return;
+        pollTimer = setTimeout(poll, pollIntervalForPhase(gameState?.phase));
     }
     function onVisibilityChange() {
         if (typeof document === "undefined") return;
         if (document.hidden) {
-            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+            if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
         } else {
-            schedulePoll();
+            pollNow();
         }
     }
 
@@ -157,6 +171,7 @@
             netError = "Reconnecting…";
         } finally {
             if (pollAbort === ctrl) pollAbort = null;
+            scheduleNext();
         }
     }
 
@@ -483,29 +498,19 @@
 
 <div class="bach-root">
     {#if !password}
-        <div class="bach-gate" role="dialog" aria-modal="true">
-            <form class="bach-gate-form" onsubmit={submitPassword}>
-                <h1 class="bach-gate-title">Story Builder</h1>
-                <p class="bach-gate-sub">Invite only. Enter the password from the group chat.</p>
-                <label for="bach-pw">Password</label>
-                <input
-                    bind:this={pwInputRef}
-                    bind:value={pwInput}
-                    id="bach-pw"
-                    type="password"
-                    autocomplete="off"
-                    required
-                    disabled={pwChecking}
-                />
-                <button type="submit" disabled={pwChecking || !pwInput}>
-                    {pwChecking ? "Checking…" : "Enter"}
-                </button>
-                {#if pwError}<div class="bach-gate-error">{pwError}</div>{/if}
-            </form>
-        </div>
+        <GateOverlay
+            title="Story Builder"
+            subtitle="Invite only. Enter the password from the group chat."
+            inputId="bach-pw"
+            bind:value={pwInput}
+            error={pwError}
+            busy={pwChecking}
+            submitLabel="Enter"
+            onsubmit={submitPassword}
+        />
     {:else if partyLoading}
-        <div class="bach-loading">
-            <div class="bach-spinner" aria-hidden="true"></div>
+        <div class="bach-loading" role="status" aria-label="Loading">
+            <Spinner size={40} />
             <p>Loading party…</p>
         </div>
     {:else if mode === "player"}
@@ -560,91 +565,5 @@
         justify-content: center;
         gap: 1rem;
         opacity: 0.85;
-    }
-    .bach-spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid var(--main-green-translucent);
-        border-top-color: var(--main-green);
-        border-radius: 50%;
-        animation: bach-spin 0.8s linear infinite;
-    }
-    @keyframes bach-spin { to { transform: rotate(360deg); } }
-
-    .bach-gate {
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(28, 26, 23, 0.92);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: 1rem;
-    }
-    .bach-gate-form {
-        min-width: min(380px, 92vw);
-        padding: 1.75rem 2rem;
-        border-radius: 16px;
-        background: var(--background-one);
-        border: 1px solid var(--main-green-translucent);
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-    }
-    .bach-gate-title {
-        font-family: 'Fraunces', serif;
-        font-weight: 700;
-        font-size: 1.8rem;
-        letter-spacing: -0.02em;
-        color: var(--header-colour);
-        margin: 0;
-    }
-    .bach-gate-sub {
-        font-size: 0.9rem;
-        color: var(--paragraph-colour);
-        opacity: 0.8;
-        margin: 0;
-    }
-    label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-    }
-    input {
-        font: inherit;
-        color: var(--header-colour);
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--main-green-translucent);
-        border-radius: 8px;
-        padding: 0.6rem 0.75rem;
-        outline: none;
-        transition: border-color 0.15s ease, background 0.15s ease;
-    }
-    input:focus {
-        border-color: var(--main-green);
-        background: rgba(255, 255, 255, 0.06);
-    }
-    button {
-        font: inherit;
-        font-weight: 600;
-        color: var(--background-one);
-        background: var(--main-green);
-        border: none;
-        border-radius: 8px;
-        padding: 0.65rem 1rem;
-        cursor: pointer;
-        transition: opacity 0.15s ease, transform 0.1s ease;
-    }
-    button:hover:not(:disabled) { opacity: 0.92; }
-    button:active:not(:disabled) { transform: scale(0.97); }
-    button:disabled { opacity: 0.5; cursor: progress; }
-    .bach-gate-error {
-        font-size: 0.82rem;
-        color: #d97777;
     }
 </style>

@@ -429,10 +429,10 @@
 .host .hint { font-size: 0.85rem; opacity: 0.6; margin-top: 0.75rem; }
 .host .muted { opacity: 0.75; }
 .host .error {
-	color: #e89a9a;
+	color: var(--color-error-soft);
 	margin: 0.5rem 0;
 	padding: 0.5rem 0.75rem;
-	border-left: 3px solid #d97777;
+	border-left: 3px solid var(--color-error);
 	background: rgba(217, 119, 119, 0.08);
 	border-radius: 6px;
 	overflow-wrap: anywhere;

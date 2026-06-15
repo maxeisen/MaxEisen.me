@@ -7,24 +7,15 @@
 
 import { Buffer } from "node:buffer";
 import { getStore } from "@netlify/blobs";
+import { getEnv } from "../_shared/env.js";
+import { createJsonResponder, cacheControl } from "../_shared/http.js";
 
-export function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+// Re-export so every bach handler keeps importing getEnv from "./_lib.js".
+export { getEnv };
 
-export function jsonResponse(body, status = 200, extraHeaders = {}) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: {
-			"Content-Type": "application/json",
-			"Cache-Control": "no-store",
-			...extraHeaders,
-		},
-	});
-}
+// Bach responses are per-viewer session state — never cached. Per-call
+// extraHeaders still override, matching the old local helper's signature.
+export const jsonResponse = createJsonResponder(cacheControl.none);
 
 export function normalizePassword(pw) {
 	return typeof pw === "string" ? pw.trim() : "";
@@ -175,6 +166,34 @@ export async function readStoryImageBytes(store, code, round, id) {
 	return null;
 }
 
+// Cheap readiness lookup for story images. The image blob keys ARE the
+// readiness index: writeStoryImage creates `${code}/story-image/${round}/${id}.png`
+// only once an image has finished and persisted, so a key's presence means that
+// image is ready. Listing the prefix returns keys WITHOUT fetching bytes, so the
+// hot bach-state poll does one cheap list() instead of N full image reads.
+export async function listReadyImageIds(store, code, round) {
+	const { blobs } = await store.list({ prefix: keys.storyImagePrefix(code, round) });
+	const ids = new Set();
+	for (const b of blobs) {
+		const m = /\/(\d+)\.png$/.exec(b.key);
+		if (m) ids.add(Number(m[1]));
+	}
+	return ids;
+}
+
+// Filter a placement manifest down to the ids whose image is ready, preserving
+// placement order. Split out from the store read so it can be unit-tested as
+// pure logic (ready id present → included; missing/invalid → skipped).
+export function readyPlacementIds(placements, readySet) {
+	const out = [];
+	for (const slot of placements || []) {
+		const id = Number(slot.id);
+		if (!Number.isInteger(id) || id < 0) continue;
+		if (readySet.has(id)) out.push(id);
+	}
+	return out;
+}
+
 export async function listJSON(store, prefix) {
 	const { blobs } = await store.list({ prefix });
 	// Fetch in parallel rather than awaiting each get in series (N round-trips
@@ -206,4 +225,78 @@ export async function readBody(req) {
 	} catch {
 		return null;
 	}
+}
+
+// Standard POST gate shared by the authenticated bach mutation handlers
+// (create/join/submit/vote/host/…): method must be POST, the BACH_PASSWORD
+// header must match, the body must be valid JSON, and — unless requireCode is
+// false — body.code must be a valid session code. Returns { response } holding
+// the exact error to return on any failure, or { body, code } on success
+// (code is "" when requireCode is false).
+export async function withBachAuth(req, { requireCode = true } = {}) {
+	if (req.method !== "POST") {
+		return { response: jsonResponse({ error: "Method not allowed" }, 405) };
+	}
+	if (!passwordOk(req)) {
+		return { response: jsonResponse({ error: "unauthorized" }, 401) };
+	}
+	const body = await readBody(req);
+	if (body === null) {
+		return { response: jsonResponse({ error: "Invalid JSON body" }, 400) };
+	}
+	if (!requireCode) {
+		return { body, code: "" };
+	}
+	const code = typeof body?.code === "string" ? body.code.toUpperCase() : "";
+	if (!validCode(code)) {
+		return { response: jsonResponse({ error: "invalid_code" }, 400) };
+	}
+	return { body, code };
+}
+
+// The binary endpoints (story-audio, story-image) stream raw bytes and, on
+// error, return a minimal JSON body carrying only Content-Type (deliberately
+// not the no-store jsonResponse default). These helpers keep both handlers'
+// response shapes identical.
+export function binaryError(error, status) {
+	return new Response(JSON.stringify({ error }), {
+		status,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
+export function binaryResponse(bytes, contentType) {
+	return new Response(bytes, {
+		status: 200,
+		headers: {
+			"Content-Type": contentType,
+			"Cache-Control": "private, no-store",
+		},
+	});
+}
+
+// Shared GET gate for the binary endpoints: method must be GET, BACH_PASSWORD
+// must match, code/round (and optionally id) must be valid, and the session
+// must exist. Returns { response } with the matching binaryError on failure,
+// or { store, code, round, id } on success (id is null when withId is false).
+export async function loadBachBinary(req, { withId = false } = {}) {
+	if (req.method !== "GET") return { response: binaryError("Method not allowed", 405) };
+	if (!passwordOk(req)) return { response: binaryError("unauthorized", 401) };
+
+	const url = new URL(req.url);
+	const code = (url.searchParams.get("code") || "").toUpperCase();
+	const round = Number(url.searchParams.get("round"));
+	const id = withId ? Number(url.searchParams.get("id")) : null;
+
+	const roundOk = Number.isInteger(round) && round >= 0;
+	const idOk = !withId || (Number.isInteger(id) && id >= 0);
+	if (!validCode(code) || !roundOk || !idOk) {
+		return { response: binaryError("invalid_params", 400) };
+	}
+
+	const store = getSessionStore();
+	const meta = await readMeta(store, code);
+	if (!meta) return { response: binaryError("no_such_session", 404) };
+
+	return { store, code, round, id };
 }

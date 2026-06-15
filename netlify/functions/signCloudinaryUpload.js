@@ -8,29 +8,11 @@
 // X-Gallery-Password). That's the same gate that controls reading the
 // gallery, so anyone who can see the page can also upload to it.
 
-function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+import { getEnv } from "./_shared/env.js";
+import { createJsonResponder, cacheControl } from "./_shared/http.js";
+import { CLOUD_NAME, SCOPE_RE } from "./_shared/gallery.js";
 
-function jsonResponse(body, status = 200) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: {
-			"Content-Type": "application/json",
-			"Cache-Control": "no-store",
-		},
-	});
-}
-
-const CLOUD_NAME = "meisen-gallery";
-
-// Scope must be plain lowercase alnum so we can safely interpolate it into
-// the env var name and Cloudinary tag/folder. Anything else is rejected
-// before we touch state.
-const SCOPE_RE = /^[a-z0-9]{1,32}$/;
+const jsonResponse = createJsonResponder(cacheControl.none);
 
 // Conventions for an arbitrary scope:
 //   tag         → scope as-is (e.g. "ride")

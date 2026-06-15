@@ -6,13 +6,15 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { timeAgo, trimListToFit } from "../lib/utils.js";
+    import { FetchError } from "../../../lib/data/fetchJson.js";
+    import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
     import {
         STRAVA_ICONS,
         formatDistance,
         formatDuration,
         formatPace,
         polylineToSvgPath,
-    } from "../lib/strava.js";
+    } from "../../../lib/strava.js";
 
     let listEl = $state();
     let hidden = $state(false);
@@ -33,29 +35,37 @@
     // stats API only exposes run/ride/swim YTD (no walk total), so this is
     // run + ride. Independent of the activity feed — if it fails, the
     // footer just doesn't render; the activity list is unaffected.
+    function applyYtd(data) {
+        ytd = data?.ytd || null;
+        requestAnimationFrame(() => trimListToFit(listEl));
+    }
     async function loadYtd() {
         try {
-            const res = await fetch("/.netlify/functions/stravaProfile");
-            if (!res.ok) return;
-            const data = await res.json();
-            ytd = data?.ytd || null;
-            requestAnimationFrame(() => trimListToFit(listEl));
+            const data = await fetchJsonSwr("/.netlify/functions/stravaProfile", {
+                maxAgeMs: 60_000,
+                onRevalidate: applyYtd,
+            });
+            applyYtd(data);
         } catch { /* leave ytd null — footer stays hidden */ }
     }
 
-    // Fetch the wider feed (limit=30) so this URL is identical to the
-    // one the intro modals + Toronto map already use — single cache key
-    // means one network call serves every Strava surface in the session.
+    function applyFeed(data) {
+        activities = (data?.activities || []).slice(0, 5);
+        requestAnimationFrame(() => trimListToFit(listEl));
+    }
+    // Fetch the wider feed (limit=30) so this URL is identical to the one the
+    // intro modals + Toronto map already use. SWR serves a re-mount instantly
+    // and dedupes; the 5-min poll still revalidates past the 60s window.
     // Slice to 5 client-side for the dashboard's display.
     async function load() {
         try {
-            const res = await fetch("/.netlify/functions/stravaFeed?limit=30");
-            if (res.status === 503) { hidden = true; return; }
-            if (!res.ok) throw new Error("strava fetch failed");
-            const data = await res.json();
-            activities = (data?.activities || []).slice(0, 5);
-            requestAnimationFrame(() => trimListToFit(listEl));
-        } catch {
+            const data = await fetchJsonSwr("/.netlify/functions/stravaFeed?limit=30", {
+                maxAgeMs: 60_000,
+                onRevalidate: applyFeed,
+            });
+            applyFeed(data);
+        } catch (e) {
+            if (e instanceof FetchError && e.status === 503) { hidden = true; return; }
             activities = [];
         }
     }

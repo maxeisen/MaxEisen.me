@@ -342,5 +342,5 @@
         color: var(--main-green);
         opacity: 0.9;
     }
-    .upload-status.error { color: #d97777; }
+    .upload-status.error { color: var(--color-error); }
 </style>

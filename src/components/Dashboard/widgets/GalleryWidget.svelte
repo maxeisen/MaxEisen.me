@@ -4,38 +4,46 @@
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
+    import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
+    import { CLOUDINARY_CLOUD, cloudinaryUrl } from "../../Gallery/lib/cloudinary.js";
 
-    const CLOUDINARY_CLOUD = "meisen-gallery";
     const CLOUDINARY_TAG = "gallery";
+    const LIST_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${CLOUDINARY_TAG}.json`;
 
     let imgEl = $state();
     let visible = $state(true);
+    let photos = [];
     let pollTimer;
 
-    function cloudinaryUrl(publicId, transforms) {
-        return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${transforms}/${publicId}`;
+    // Swap in a fresh random photo from the already-loaded list. The 2-min
+    // timer calls this directly — no need to re-download the whole list just
+    // to pick a different image.
+    function pickRandom() {
+        if (!photos.length || !imgEl) return;
+        const pick = photos[Math.floor(Math.random() * photos.length)];
+        imgEl.onload = () => imgEl.classList.add("loaded");
+        imgEl.src = cloudinaryUrl(pick.public_id, "f_auto,q_auto,c_fill,g_auto,w_1600,h_1200");
     }
 
-    async function load() {
+    async function loadList() {
         try {
-            const res = await fetch(`https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${CLOUDINARY_TAG}.json`);
-            if (!res.ok) throw new Error("gallery list failed");
-            const data = await res.json();
-            const photos = data.resources || [];
+            // The list changes rarely, so cache it for 10 min: re-mounts reuse
+            // it instantly and the timer never refetches it.
+            const data = await fetchJsonSwr(LIST_URL, {
+                maxAgeMs: 1000 * 60 * 10,
+                onRevalidate: (d) => { photos = d.resources || []; },
+            });
+            photos = data.resources || [];
             if (photos.length === 0) { visible = false; return; }
-            const pick = photos[Math.floor(Math.random() * photos.length)];
-            if (imgEl) {
-                imgEl.onload = () => imgEl.classList.add("loaded");
-                imgEl.src = cloudinaryUrl(pick.public_id, "f_auto,q_auto,c_fill,g_auto,w_1600,h_1200");
-            }
+            pickRandom();
         } catch {
             visible = false;
         }
     }
 
     onMount(() => {
-        load();
-        pollTimer = setInterval(load, 1000 * 60 * 2);
+        loadList();
+        pollTimer = setInterval(pickRandom, 1000 * 60 * 2);
     });
     onDestroy(() => clearInterval(pollTimer));
 </script>

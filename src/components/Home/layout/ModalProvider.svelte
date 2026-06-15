@@ -17,6 +17,7 @@
 <script>
 	import { setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import CloseButton from '../../../lib/ui/CloseButton.svelte';
 
 	let current = $state(null);
 	let previousBodyOverflow = '';
@@ -82,7 +83,7 @@
 			aria-modal="true"
 			tabindex="-1"
 		>
-			<button type="button" class="modal-close" onclick={close} aria-label="Close">×</button>
+			<CloseButton onclick={close} />
 			<div class="modal-content" data-modal-body>
 				<svelte:component this={current.Component} {...current.props} />
 			</div>
@@ -120,28 +121,6 @@
 			width: 90%;
 			max-width: 90vw;
 		}
-	}
-	.modal-close {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		width: 2rem;
-		height: 2rem;
-		border-radius: 50%;
-		background: rgba(80, 80, 80, 0.9);
-		color: #fff;
-		border: none;
-		font-size: 1.25rem;
-		line-height: 1;
-		padding: 0;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 10;
-	}
-	.modal-close:hover {
-		background: rgba(100, 100, 100, 0.95);
 	}
 	.modal-content {
 		padding: 1.5rem;

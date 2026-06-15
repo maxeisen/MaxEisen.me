@@ -13,6 +13,7 @@
     import MapView from "./MapView.svelte";
     import PinPanel from "./PinPanel.svelte";
     import FilterBar from "./FilterBar.svelte";
+    import BackLink from "../../lib/ui/BackLink.svelte";
 
     let maplibre = $state(null);
     let allPins = $state([]);
@@ -30,16 +31,6 @@
     const categories = $derived([...new Set(publishedPins.map((p) => p.category).filter(Boolean))].sort());
     const visiblePins = $derived(publishedPins.filter((p) => activeCategories.has(p.category)));
     const visibleRoutes = $derived(routesEnabled ? routes : []);
-
-    function onHomeClick(e) {
-        try {
-            const fromSameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
-            if (fromSameOrigin && window.history.length > 1) {
-                e.preventDefault();
-                window.history.back();
-            }
-        } catch {}
-    }
 
     // Strava activities that pass through the GTA bbox. stravaFeed
     // returns recent activities with encoded polylines; we just keep the
@@ -111,12 +102,7 @@
     <link rel="canonical" href="https://maxeisen.me/toronto"/>
 </svelte:head>
 
-<a class="home-link" href="/" onclick={onHomeClick} aria-label="Back to homepage">
-    <span class="home-link-text">← back</span>
-    <svg class="home-link-arrow" viewBox="0 0 16 16" aria-hidden="true">
-        <path d="M12.5 8 H3.5 M6.5 5 L3.5 8 L6.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-</a>
+<BackLink />
 
 <header class="toronto-header">
     <h1>Around Toronto</h1>
@@ -230,52 +216,6 @@
         pointer-events: none;
     }
     .toronto-empty p { margin: 0; }
-    .toronto-error { color: #d97777; }
+    .toronto-error { color: var(--color-error); }
 
-    /* Reuse the same back-button styling as Gallery so chrome reads
-       consistently across SPA routes. */
-    .home-link {
-        position: fixed;
-        top: 1rem;
-        left: 1.25rem;
-        z-index: 10;
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        text-decoration: none;
-        opacity: 0.45;
-        transition: opacity 0.2s ease;
-    }
-    .home-link:hover { opacity: 1; }
-    .home-link-arrow {
-        display: none;
-        width: 0.95rem;
-        height: 0.95rem;
-        flex-shrink: 0;
-    }
-    @media (max-width: 1100px) {
-        .home-link {
-            top: 0.5rem;
-            left: 0.75rem;
-            width: 2rem;
-            height: 2rem;
-            box-sizing: border-box;
-            justify-content: center;
-            align-items: center;
-            line-height: 1;
-            padding: 0;
-            background: var(--inner-background, rgba(0, 0, 0, 0.25));
-            border: 1px solid var(--main-green-translucent);
-            border-radius: 50%;
-            opacity: 0.7;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .home-link-text { display: none; }
-        .home-link-arrow { display: block; }
-    }
 </style>

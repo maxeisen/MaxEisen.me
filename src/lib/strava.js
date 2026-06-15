@@ -1,6 +1,9 @@
-// Strava-specific helpers: distance/pace formatting + polyline decode.
+// Shared Strava helpers: activity icons, distance/pace/duration formatting,
+// and Google-polyline decode → SVG path. Used by the dashboard StravaWidget
+// and the homepage StravaActivityList (which previously reimplemented the
+// decode + format logic), so it lives in src/lib rather than a feature folder.
 
-import { pad } from "./utils.js";
+const pad = (n) => String(n).padStart(2, "0");
 
 export const STRAVA_ICONS = {
 	Run: "🏃", TrailRun: "🏃", VirtualRun: "🏃", Walk: "🚶", Hike: "🥾",

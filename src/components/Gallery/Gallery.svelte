@@ -14,6 +14,8 @@
     import Lightbox from "./Lightbox.svelte";
     import Slideshow from "./Slideshow.svelte";
     import { downloadPhotos, downloadOne } from "./lib/download.js";
+    import BackLink from "../../lib/ui/BackLink.svelte";
+    import { fetchJson, FetchError } from "../../lib/data/fetchJson.js";
 
     let {
         /** Cloudinary tag to fetch. */
@@ -128,8 +130,10 @@
         try {
             const url = `/.netlify/functions/galleryList?tag=${encodeURIComponent(tag)}`;
             const headers = passwordScope && password ? { "X-Gallery-Password": password } : {};
-            const res = await fetch(url, { headers });
-            if (res.status === 401) {
+            const data = await fetchJson(url, { headers });
+            photos = sortPhotos(data.resources || []);
+        } catch (e) {
+            if (e instanceof FetchError && e.status === 401) {
                 // Stored password no longer valid — clear it and re-show the gate.
                 if (passwordScope) {
                     try { sessionStorage.removeItem(`galleryPassword:${passwordScope}`); } catch {}
@@ -137,14 +141,9 @@
                 }
                 return;
             }
-            if (!res.ok) {
-                error = "Couldn't load photos right now.";
-                return;
-            }
-            const data = await res.json();
-            photos = sortPhotos(data.resources || []);
-        } catch {
-            error = "Network error loading photos.";
+            error = e instanceof FetchError
+                ? "Couldn't load photos right now."
+                : "Network error loading photos.";
         } finally {
             loading = false;
         }
@@ -153,18 +152,6 @@
     function open(idx) {
         lightboxIndex = idx;
         lightboxOpen = true;
-    }
-
-    function onHomeClick(e) {
-        // If we arrived from elsewhere on the same origin, prefer history.back()
-        // so the back button gets the user where they came from.
-        try {
-            const fromSameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
-            if (fromSameOrigin && window.history.length > 1) {
-                e.preventDefault();
-                window.history.back();
-            }
-        } catch { /* fall through to href="/" */ }
     }
 
     function onIntroToggle(e) {
@@ -201,12 +188,7 @@
     />
 {/if}
 
-<a class="home-link" href="/" onclick={onHomeClick} aria-label="Back to homepage">
-    <span class="home-link-text">← back</span>
-    <svg class="home-link-arrow" viewBox="0 0 16 16" aria-hidden="true">
-        <path d="M12.5 8 H3.5 M6.5 5 L3.5 8 L6.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-</a>
+<BackLink />
 
 {#if photos.length > 0}
     <div class="top-actions">
@@ -364,16 +346,7 @@
         background-size: 180% 180%, 200% 200%, 220% 220%, 270% 270%;
         background-repeat: no-repeat;
         background-attachment: fixed;
-        animation: gallery-drift 25s ease-in-out infinite;
-    }
-    @keyframes gallery-drift {
-        0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
-        16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }
-        33%  { background-position: 45% 25%, 60% 80%, 78% 75%, 48% 22%; }
-        50%  { background-position: 80% 40%, 20% 65%, 38% 62%, 82% 38%; }
-        66%  { background-position: 30% 70%, 75% 30%, 68% 22%, 15% 72%; }
-        83%  { background-position: 65% 20%, 35% 75%, 22% 70%, 72% 45%; }
-        100% { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
+        animation: gradient 25s ease-in-out infinite; /* keyframe in global.css */
     }
     @media (prefers-reduced-motion: reduce) {
         :global(body.gallery-page) { animation: none; }
@@ -497,34 +470,6 @@
         opacity: 0.6;
     }
 
-    .home-link {
-        position: fixed;
-        top: 1rem;
-        left: 1.25rem;
-        z-index: 10;
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        text-decoration: none;
-        opacity: 0.45;
-        transition: opacity 0.2s ease;
-    }
-    .home-link:hover { opacity: 1; }
-    /* Icons render as block so the SVG box doesn't pick up text-baseline
-       offsets — that was the source of the visible off-centre look on the
-       mobile circular pills. flex-shrink: 0 keeps the explicit size when
-       sharing space with text on desktop. */
-    .home-link-arrow {
-        display: none;
-        width: 0.95rem;
-        height: 0.95rem;
-        flex-shrink: 0;
-    }
-
     /* Top-right action stack. One or two buttons depending on whether the
        gallery is in selection mode (cancel + download) or normal mode
        (slideshow + optional select). Buttons share styling but the primary
@@ -576,7 +521,7 @@
             right: 0.75rem;
             gap: 0.5rem;
         }
-        .home-link, .action-link {
+        .action-link {
             top: 0.5rem;
             width: 2rem;
             height: 2rem;
@@ -592,7 +537,6 @@
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
-        .home-link { left: 0.75rem; }
         .action-link { gap: 0; }
         .action-link.primary {
             background: var(--main-green);
@@ -608,8 +552,7 @@
             gap: 0.35rem;
         }
         .action-link.primary .action-link-text { display: inline; }
-        .home-link-text, .action-link-text { display: none; }
-        .home-link-arrow,
+        .action-link-text { display: none; }
         .action-link-icon {
             display: block;
             width: 0.95rem;

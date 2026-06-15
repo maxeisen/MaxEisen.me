@@ -1,4 +1,4 @@
-// POST /.netlify/functions/bach/story
+// POST /.netlify/functions/bach-story
 
 import OpenAI from "openai";
 import {

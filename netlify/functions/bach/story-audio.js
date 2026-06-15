@@ -1,55 +1,14 @@
 // GET /.netlify/functions/bach-story-audio?code=&round=
 
-import { Buffer } from "node:buffer";
-import {
-	passwordOk, getSessionStore, validCode, readMeta, readStoryAudioBytes,
-} from "./_lib.js";
+import { loadBachBinary, binaryError, binaryResponse, readStoryAudioBytes } from "./_lib.js";
 
 export default async function handler(req) {
-	if (req.method !== "GET") {
-		return new Response(JSON.stringify({ error: "Method not allowed" }), {
-			status: 405,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
-	if (!passwordOk(req)) {
-		return new Response(JSON.stringify({ error: "unauthorized" }), {
-			status: 401,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
-
-	const url = new URL(req.url);
-	const code = (url.searchParams.get("code") || "").toUpperCase();
-	const round = Number(url.searchParams.get("round"));
-	if (!validCode(code) || !Number.isInteger(round) || round < 0) {
-		return new Response(JSON.stringify({ error: "invalid_params" }), {
-			status: 400,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
-
-	const store = getSessionStore();
-	const meta = await readMeta(store, code);
-	if (!meta) {
-		return new Response(JSON.stringify({ error: "no_such_session" }), {
-			status: 404,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
+	const gate = await loadBachBinary(req);
+	if (gate.response) return gate.response;
+	const { store, code, round } = gate;
 
 	const bytes = await readStoryAudioBytes(store, code, round);
-	if (!bytes?.length) {
-		return new Response(JSON.stringify({ error: "not_found" }), {
-			status: 404,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
-	return new Response(bytes, {
-		status: 200,
-		headers: {
-			"Content-Type": "audio/mpeg",
-			"Cache-Control": "private, no-store",
-		},
-	});
+	if (!bytes?.length) return binaryError("not_found", 404);
+
+	return binaryResponse(bytes, "audio/mpeg");
 }

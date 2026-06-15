@@ -1,8 +1,9 @@
-// GET /.netlify/functions/bach/state?code=&playerId=
+// GET /.netlify/functions/bach-state?code=&playerId=
 
 import {
 	passwordOk, jsonResponse, getSessionStore,
-	validCode, readMeta, keys, listJSON, subId, storyAudioExists, readStoryImageBytes,
+	validCode, readMeta, keys, listJSON, subId, storyAudioExists,
+	listReadyImageIds, readyPlacementIds,
 	readNarrationStatus, readImagesStatus,
 } from "./_lib.js";
 
@@ -101,13 +102,10 @@ export default async function handler(req) {
 		state.imagesPending = Boolean(iStatus.pending);
 		state.imagesError = iStatus.error || null;
 
-		const readyImageIds = [];
-		for (const slot of placements) {
-			const id = Number(slot.id);
-			if (!Number.isInteger(id) || id < 0) continue;
-			const bytes = await readStoryImageBytes(store, code, round, id);
-			if (bytes?.length) readyImageIds.push(id);
-		}
+		// Readiness via a single key listing (no per-image byte reads): the
+		// stored image keys act as the readiness index for this poll.
+		const readySet = await listReadyImageIds(store, code, round);
+		const readyImageIds = readyPlacementIds(placements, readySet);
 		state.readyImageIds = readyImageIds;
 		state.storyImagesReady = readyImageIds.length;
 		state.hasStoryImages = readyImageIds.length > 0;

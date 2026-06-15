@@ -7,63 +7,16 @@
 //
 // This data changes slowly, so a 5-minute browser cache is fine.
 
+import { createJsonResponder, cacheControl } from "./_shared/http.js";
+import { createMemo } from "./_shared/memo.js";
+import { STRAVA_API_BASE, getAccessToken } from "./_shared/strava.js";
+
 const ATHLETE_ID = 92118908;
-// Strava is migrating off https://www.strava.com/api/v3 — the new base
-// is api-v3.strava.com (announced Jun 2026, mandatory by Jun 1, 2027).
-// As of Jun 2026, the new host returns errors for /oauth/token,
-// /athlete, and /athletes/{id}/stats. Stay on the legacy base until
-// the new host is fully populated. Flip the constant when revisiting.
-const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 
-function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+const jsonResponse = createJsonResponder(cacheControl.swr(300, 600));
 
-function jsonResponse(body, status = 200) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: {
-			"Content-Type": "application/json",
-			"Cache-Control": "public, max-age=300, stale-while-revalidate=600",
-		},
-	});
-}
-
-let cachedToken = null;
-
-async function getAccessToken() {
-	if (cachedToken && cachedToken.expiresAt > Date.now() + 30_000) {
-		return cachedToken.token;
-	}
-	const clientId = getEnv("STRAVA_CLIENT_ID");
-	const clientSecret = getEnv("STRAVA_CLIENT_SECRET");
-	const refreshToken = getEnv("STRAVA_REFRESH_TOKEN");
-	if (!clientId || !clientSecret || !refreshToken) {
-		const err = new Error("Strava env vars missing");
-		err.code = "not_configured";
-		throw err;
-	}
-	const res = await fetch(`${STRAVA_API_BASE}/oauth/token`, {
-		method: "POST",
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		body: new URLSearchParams({
-			client_id: clientId,
-			client_secret: clientSecret,
-			grant_type: "refresh_token",
-			refresh_token: refreshToken,
-		}),
-	});
-	if (!res.ok) {
-		const text = await res.text();
-		throw new Error(`Strava token refresh failed: ${res.status} ${text}`);
-	}
-	const data = await res.json();
-	cachedToken = { token: data.access_token, expiresAt: data.expires_at * 1000 };
-	return cachedToken.token;
-}
+// Profile + YTD totals change slowly; memoize to absorb bursts past the edge.
+const memo = createMemo(60_000);
 
 function pickPrimary(items) {
 	if (!Array.isArray(items) || items.length === 0) return null;
@@ -85,6 +38,33 @@ function shapeTotals(t) {
 	};
 }
 
+async function fetchProfile(token) {
+	const headers = { "Authorization": `Bearer ${token}` };
+	const [athleteRes, statsRes] = await Promise.all([
+		fetch(`${STRAVA_API_BASE}/athlete`, { headers }),
+		fetch(`${STRAVA_API_BASE}/athletes/${ATHLETE_ID}/stats`, { headers }),
+	]);
+
+	if (!athleteRes.ok || !statsRes.ok) {
+		console.error("Strava profile failed:", athleteRes.status, statsRes.status);
+		const e = new Error("strava_failed");
+		e.code = "strava_failed";
+		throw e;
+	}
+
+	const athlete = await athleteRes.json();
+	const stats = await statsRes.json();
+
+	return {
+		bike: pickPrimary(athlete.bikes),
+		shoes: pickPrimary(athlete.shoes),
+		ytd: {
+			run: shapeTotals(stats.ytd_run_totals),
+			ride: shapeTotals(stats.ytd_ride_totals),
+		},
+	};
+}
+
 export default async function handler() {
 	let token;
 	try {
@@ -95,26 +75,10 @@ export default async function handler() {
 		return jsonResponse({ error: "auth_failed" }, 502);
 	}
 
-	const headers = { "Authorization": `Bearer ${token}` };
-	const [athleteRes, statsRes] = await Promise.all([
-		fetch(`${STRAVA_API_BASE}/athlete`, { headers }),
-		fetch(`${STRAVA_API_BASE}/athletes/${ATHLETE_ID}/stats`, { headers }),
-	]);
-
-	if (!athleteRes.ok || !statsRes.ok) {
-		console.error("Strava profile failed:", athleteRes.status, statsRes.status);
+	try {
+		const payload = await memo("profile", () => fetchProfile(token));
+		return jsonResponse(payload);
+	} catch {
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
-
-	const athlete = await athleteRes.json();
-	const stats = await statsRes.json();
-
-	return jsonResponse({
-		bike: pickPrimary(athlete.bikes),
-		shoes: pickPrimary(athlete.shoes),
-		ytd: {
-			run: shapeTotals(stats.ytd_run_totals),
-			ride: shapeTotals(stats.ytd_ride_totals),
-		},
-	});
 }

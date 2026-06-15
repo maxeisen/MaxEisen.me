@@ -21,6 +21,7 @@
     import GithubWidget from "./widgets/GithubWidget.svelte";
     import HackerNewsWidget from "./widgets/HackerNewsWidget.svelte";
     import SpotifyVizOverlay from "./SpotifyVizOverlay.svelte";
+    import BackLink from "../../lib/ui/BackLink.svelte";
 
     const WIDGETS = {
         clock:   { component: ClockWidget,      kind: "div" },
@@ -186,10 +187,7 @@
     <link rel="canonical" href="https://maxeisen.me/dashboard"/>
 </svelte:head>
 
-<a class="home-link" href="/" aria-label="Back to homepage">
-    <span class="home-link-text">← back</span>
-    <span class="home-link-arrow" aria-hidden="true">←</span>
-</a>
+<BackLink />
 
 <button
     class="dashboard-edit-btn"
@@ -261,16 +259,7 @@
         background-size: 180% 180%, 200% 200%, 220% 220%, 270% 270%;
         background-repeat: no-repeat;
         background-attachment: fixed;
-        animation: drift 25s ease-in-out infinite;
-    }
-    @keyframes drift {
-        0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
-        16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }
-        33%  { background-position: 45% 25%, 60% 80%, 78% 75%, 48% 22%; }
-        50%  { background-position: 80% 40%, 20% 65%, 38% 62%, 82% 38%; }
-        66%  { background-position: 30% 70%, 75% 30%, 68% 22%, 15% 72%; }
-        83%  { background-position: 65% 20%, 35% 75%, 22% 70%, 72% 45%; }
-        100% { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
+        animation: gradient 25s ease-in-out infinite; /* keyframe in global.css */
     }
     @media (prefers-reduced-motion: reduce) {
         :global(body) { animation: none; }
@@ -460,22 +449,6 @@
     }
 
     /* === edit mode (mobile only) === */
-    .home-link {
-        position: fixed;
-        top: 1rem;
-        left: 1.25rem;
-        font-size: 0.8rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        text-decoration: none;
-        opacity: 0.45;
-        transition: opacity 0.2s ease;
-        z-index: 10;
-    }
-    .home-link:hover { opacity: 1; }
-    .home-link-arrow { display: none; letter-spacing: 0; }
-
     .dashboard-edit-btn {
         display: none;
         position: fixed;

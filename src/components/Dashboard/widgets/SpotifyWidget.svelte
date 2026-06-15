@@ -16,6 +16,7 @@
     import {
         makeViz, drawViz, vibeFromTrack, paletteForVibe, extractAlbumPalette,
     } from "../lib/viz.js";
+    import { fetchJson, FetchError } from "../../../lib/data/fetchJson.js";
 
     let canvasEl = $state();
     let vizCtx = null;
@@ -53,10 +54,7 @@
 
     async function load() {
         try {
-            const res = await fetch("/.netlify/functions/spotifyNowPlaying");
-            if (res.status === 503) { hidden = true; return; }
-            if (!res.ok) throw new Error("spotify fetch failed");
-            const data = await res.json();
+            const data = await fetchJson("/.netlify/functions/spotifyNowPlaying");
             if (!data || (!data.track && !data.playing)) {
                 spotify.data = null;
                 spotify.playing = false;
@@ -73,7 +71,8 @@
                 const ttl = data.durationMs - (data.progressMs || 0);
                 if (ttl > 0 && ttl < 1000 * 60 * 30) setTimeout(load, ttl + 800);
             }
-        } catch {
+        } catch (e) {
+            if (e instanceof FetchError && e.status === 503) { hidden = true; return; }
             spotify.data = { _error: true };
             spotify.playing = false;
         }

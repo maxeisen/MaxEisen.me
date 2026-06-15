@@ -1,5 +1,6 @@
-// POST /.netlify/functions/bach-story-tts
-// Thin sync trigger — production should use bach-story-tts-background (202 + long run).
+// POST /.netlify/functions/bach-story-tts — DEV-ONLY, not a production endpoint.
+// Production (frontend + scripts/bach-audio-smoke.mjs) calls bach-story-tts-background.
+// This sync path only does work locally when BACH_TTS_SYNC=1; otherwise it returns 409.
 
 import {
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,

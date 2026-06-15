@@ -9,70 +9,23 @@
 //   - /toronto map route overlay   (asks for limit=30; keeps the ones
 //                                   whose polyline touches the GTA)
 
-function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+import { createJsonResponder, cacheControl } from "./_shared/http.js";
+import { createMemo } from "./_shared/memo.js";
+import { STRAVA_API_BASE, getAccessToken } from "./_shared/strava.js";
 
-function jsonResponse(body, status = 200) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: {
-			"Content-Type": "application/json",
-			// All callers use the same URL (`?limit=30`), so there's only
-			// one cache key — Netlify Edge's stale-while-revalidate can't
-			// collapse cross-query variants the way it did when we had
-			// `?type=run` / `?type=ride`. Safe to share the edge cache.
-			// max-age aligns with the dashboard widget's 5-min poll cycle
-			// so the upstream Strava call fires at most ~12×/hour total.
-			"Cache-Control": "public, max-age=300, stale-while-revalidate=600",
-		},
-	});
-}
+// All callers use the same URL (`?limit=30`), so there's only one cache key —
+// Netlify Edge's stale-while-revalidate can't collapse cross-query variants
+// the way it did when we had `?type=run`/`?type=ride`. max-age aligns with the
+// dashboard widget's 5-min poll cycle so upstream Strava fires ~12×/hour.
+const jsonResponse = createJsonResponder(cacheControl.swr(300, 600));
 
-// Strava announced a Jun 2027 migration to https://www.api-v3.strava.com,
-// but in practice that host returns 4xx for /oauth/token, /athlete, and
-// /athletes/{id}/stats as of Jun 2026. Stay on the legacy base across
-// every endpoint until the new host is fully populated. stravaProfile
-// does the same; flip both constants when revisiting before Jun 2027.
-const STRAVA_API_BASE = "https://www.strava.com/api/v3";
+// Absorb bursts past the CDN edge cache. The upstream fetch + filter is
+// memoized as the full qualifying list (every caller asks for the same data);
+// each request just slices it to its own `limit`.
+const memo = createMemo(60_000);
+
 const HARD_MAX = 30;
 const PER_PAGE = 100;
-
-let cachedToken = null;
-
-async function getAccessToken() {
-	if (cachedToken && cachedToken.expiresAt > Date.now() + 30_000) {
-		return cachedToken.token;
-	}
-	const clientId = getEnv("STRAVA_CLIENT_ID");
-	const clientSecret = getEnv("STRAVA_CLIENT_SECRET");
-	const refreshToken = getEnv("STRAVA_REFRESH_TOKEN");
-	if (!clientId || !clientSecret || !refreshToken) {
-		const err = new Error("Strava env vars missing");
-		err.code = "not_configured";
-		throw err;
-	}
-	const res = await fetch(`${STRAVA_API_BASE}/oauth/token`, {
-		method: "POST",
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		body: new URLSearchParams({
-			client_id: clientId,
-			client_secret: clientSecret,
-			grant_type: "refresh_token",
-			refresh_token: refreshToken,
-		}),
-	});
-	if (!res.ok) {
-		const text = await res.text();
-		throw new Error(`Strava token refresh failed: ${res.status} ${text}`);
-	}
-	const data = await res.json();
-	cachedToken = { token: data.access_token, expiresAt: data.expires_at * 1000 };
-	return cachedToken.token;
-}
 
 // Distance thresholds (in metres) for "qualifying" activities — these
 // keep the surfaces from listing 1-km warm-up jogs and the like.
@@ -83,6 +36,37 @@ function passesFilter(activity) {
 	if (/Run/i.test(type)) return distance >= 5000;
 	if (/Ride/i.test(type)) return distance >= 20000;
 	return false;
+}
+
+// Fetch + filter + shape the full qualifying feed (no slice). Throws an Error
+// tagged `.code = "strava_failed"` when the upstream call fails.
+async function fetchFeed(token) {
+	const res = await fetch(`${STRAVA_API_BASE}/athlete/activities?per_page=${PER_PAGE}`, {
+		headers: { "Authorization": `Bearer ${token}` },
+	});
+	if (!res.ok) {
+		const text = await res.text();
+		console.error("Strava activities failed:", res.status, text);
+		const e = new Error("strava_failed");
+		e.code = "strava_failed";
+		throw e;
+	}
+
+	const activities = await res.json();
+	return activities
+		.filter(passesFilter)
+		.map((a) => ({
+			id: a.id,
+			name: a.name,
+			type: a.sport_type || a.type,
+			distance: a.distance,
+			movingTime: a.moving_time,
+			elapsedTime: a.elapsed_time,
+			elevationGain: a.total_elevation_gain,
+			startDate: a.start_date,
+			polyline: a.map?.summary_polyline || null,
+			sufferScore: a.suffer_score ?? null,
+		}));
 }
 
 export default async function handler(req) {
@@ -102,30 +86,11 @@ export default async function handler(req) {
 		return jsonResponse({ error: "auth_failed" }, 502);
 	}
 
-	const res = await fetch(`${STRAVA_API_BASE}/athlete/activities?per_page=${PER_PAGE}`, {
-		headers: { "Authorization": `Bearer ${token}` },
-	});
-	if (!res.ok) {
-		const text = await res.text();
-		console.error("Strava activities failed:", res.status, text);
+	let all;
+	try {
+		all = await memo("feed", () => fetchFeed(token));
+	} catch {
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
-
-	const activities = await res.json();
-	const filtered = activities
-		.filter(passesFilter)
-		.slice(0, limit)
-		.map((a) => ({
-			id: a.id,
-			name: a.name,
-			type: a.sport_type || a.type,
-			distance: a.distance,
-			movingTime: a.moving_time,
-			elapsedTime: a.elapsed_time,
-			elevationGain: a.total_elevation_gain,
-			startDate: a.start_date,
-			polyline: a.map?.summary_polyline || null,
-			sufferScore: a.suffer_score ?? null,
-		}));
-	return jsonResponse({ activities: filtered });
+	return jsonResponse({ activities: all.slice(0, limit) });
 }

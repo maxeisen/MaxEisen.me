@@ -15,6 +15,11 @@
 // invokes a download.
 
 import { downloadUrl, downloadFilename } from "./cloudinary.js";
+import { mapWithConcurrency } from "../../../lib/data/concurrent.js";
+
+// Cap simultaneous downloads so a large selection doesn't open dozens of
+// sockets at once (and so Cloudinary isn't hit with a thundering herd).
+const DOWNLOAD_CONCURRENCY = 4;
 
 /**
  * Download a single photo. Always delivers the file directly (no zip) by
@@ -52,12 +57,7 @@ async function fetchAsFile(photo) {
 }
 
 async function fetchAll(photos, onProgress) {
-	const files = [];
-	for (const p of photos) {
-		files.push(await fetchAsFile(p));
-		onProgress?.(files.length, photos.length);
-	}
-	return files;
+	return mapWithConcurrency(photos, DOWNLOAD_CONCURRENCY, fetchAsFile, onProgress);
 }
 
 async function zipDownload(files, zipName) {

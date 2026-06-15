@@ -1,28 +1,10 @@
-function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+import { getEnv } from "./_shared/env.js";
+import { createJsonResponder, cacheControl } from "./_shared/http.js";
 
-function jsonResponse(body, status = 200, extraHeaders = {}) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: {
-			"Content-Type": "application/json",
-			// Browser must always revalidate: no disk-cache hits, hard-refresh
-			// is identical to a normal load. The user's poll always reaches the
-			// CDN.
-			"Cache-Control": "private, max-age=0, must-revalidate",
-			// Netlify's edge caches for 5 seconds. That short window dedupes
-			// concurrent polls (multiple tabs, devices, or quick rapid reloads)
-			// so we don't fan out to Spotify 6+ times/minute per viewer, but
-			// data staleness is bounded at 5s.
-			"Netlify-CDN-Cache-Control": "public, max-age=5",
-			...extraHeaders,
-		},
-	});
-}
+// Browser always revalidates (hard-refresh == normal load); Netlify's edge
+// caches for 5s to dedupe concurrent polls (multiple tabs/devices/reloads) so
+// we don't fan out to Spotify 6+ times/minute per viewer, staleness ≤ 5s.
+const jsonResponse = createJsonResponder(cacheControl.edgeBurst(5));
 
 // Module-scoped cache. Netlify reuses warm function instances, so this saves
 // token refresh round-trips when the function is hit frequently.

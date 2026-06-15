@@ -1,31 +1,80 @@
-function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+import { getEnv } from "./_shared/env.js";
+import { createJsonResponder, cacheControl } from "./_shared/http.js";
+import { createMemo } from "./_shared/memo.js";
+import { CLOUD_NAME, SCOPE_RE } from "./_shared/gallery.js";
 
-function jsonResponse(body, status = 200, extraHeaders = {}) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: {
-			"Content-Type": "application/json",
-			"Cache-Control": "public, max-age=300, stale-while-revalidate=900",
-			...extraHeaders,
-		},
-	});
-}
-
-const CLOUD_NAME = "meisen-gallery";
-
-// Scope must be plain lowercase alnum so we can safely interpolate it
-// into the env var name. Anything else is rejected before we read state.
-const SCOPE_RE = /^[a-z0-9]{1,32}$/;
+const jsonResponse = createJsonResponder(cacheControl.swr(300, 900));
 
 // Scopes served without a password. Kept as an explicit allow-list so
 // accidentally omitting GALLERY_<SCOPE>_PASSWORD can't silently make a
 // gallery public — the default for any unknown scope is "gated."
 const PUBLIC_SCOPES = new Set(["gallery"]);
+
+// Memoize the upstream search per tag. Gallery contents change rarely; this
+// absorbs bursts past the CDN's 5-min edge cache without serving staler data.
+const memo = createMemo(60_000);
+
+// Run the Cloudinary search and shape the result. Throws an Error tagged with
+// `.code` ("request_failed" | "search_failed") on upstream failure.
+async function fetchGallery(tag, apiKey, apiSecret) {
+	const auth = btoa(`${apiKey}:${apiSecret}`);
+	const searchUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/search`;
+	const body = {
+		expression: `tags=${tag}`,
+		max_results: 500,
+		with_field: ["metadata", "context"],
+	};
+
+	let res;
+	try {
+		res = await fetch(searchUrl, {
+			method: "POST",
+			headers: {
+				"Authorization": `Basic ${auth}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(body),
+		});
+	} catch (err) {
+		console.error("Cloudinary search request failed:", err.message);
+		const e = new Error("request_failed");
+		e.code = "request_failed";
+		throw e;
+	}
+
+	if (!res.ok) {
+		const text = await res.text();
+		console.error("Cloudinary search failed:", res.status, text);
+		const e = new Error("search_failed");
+		e.code = "search_failed";
+		throw e;
+	}
+
+	const data = await res.json();
+	const resources = (data.resources || []).map((r) => {
+		const meta = r.metadata || {};
+		const ctx = r.context?.custom || r.context || {};
+		// `caption` is the structured-metadata field used across all galleries
+		// (renamed from `location` so it can hold anything — a place, a title,
+		// or just a description). Older photos that still have `location`
+		// populated fall through as a backstop.
+		const caption = meta.caption || meta.Caption || ctx.caption
+			|| meta.location || meta.Location || ctx.location
+			|| null;
+		const uploader = meta.uploader || meta.Uploader || ctx.uploader || null;
+		return {
+			public_id: r.public_id,
+			format: r.format,
+			width: r.width,
+			height: r.height,
+			created_at: r.created_at,
+			caption,
+			uploader,
+		};
+	});
+
+	return { resources };
+}
 
 export default async function handler(req) {
 	const url = new URL(req.url);
@@ -52,57 +101,10 @@ export default async function handler(req) {
 		return jsonResponse({ error: "not_configured" }, 503);
 	}
 
-	const auth = btoa(`${apiKey}:${apiSecret}`);
-	const searchUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/search`;
-	const body = {
-		expression: `tags=${tag}`,
-		max_results: 500,
-		with_field: ["metadata", "context"],
-	};
-
-	let res;
 	try {
-		res = await fetch(searchUrl, {
-			method: "POST",
-			headers: {
-				"Authorization": `Basic ${auth}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(body),
-		});
+		const payload = await memo(tag, () => fetchGallery(tag, apiKey, apiSecret));
+		return jsonResponse(payload);
 	} catch (err) {
-		console.error("Cloudinary search request failed:", err.message);
-		return jsonResponse({ error: "request_failed" }, 502);
+		return jsonResponse({ error: err.code || "search_failed" }, 502);
 	}
-
-	if (!res.ok) {
-		const text = await res.text();
-		console.error("Cloudinary search failed:", res.status, text);
-		return jsonResponse({ error: "search_failed" }, 502);
-	}
-
-	const data = await res.json();
-	const resources = (data.resources || []).map((r) => {
-		const meta = r.metadata || {};
-		const ctx = r.context?.custom || r.context || {};
-		// `caption` is the structured-metadata field used across all galleries
-		// (renamed from `location` so it can hold anything — a place, a title,
-		// or just a description). Older photos that still have `location`
-		// populated fall through as a backstop.
-		const caption = meta.caption || meta.Caption || ctx.caption
-			|| meta.location || meta.Location || ctx.location
-			|| null;
-		const uploader = meta.uploader || meta.Uploader || ctx.uploader || null;
-		return {
-			public_id: r.public_id,
-			format: r.format,
-			width: r.width,
-			height: r.height,
-			created_at: r.created_at,
-			caption,
-			uploader,
-		};
-	});
-
-	return jsonResponse({ resources });
 }

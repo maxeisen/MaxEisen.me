@@ -10,24 +10,13 @@
 // a wrong password (401). That keeps the function's behaviour predictable
 // for clients and avoids leaking which scopes exist server-side.
 
-function getEnv(name) {
-	if (typeof Netlify !== "undefined" && Netlify.env?.get) {
-		return Netlify.env.get(name);
-	}
-	return process.env[name];
-}
+import { getEnv } from "./_shared/env.js";
+import { createJsonResponder } from "./_shared/http.js";
+import { SCOPE_RE } from "./_shared/gallery.js";
 
-function jsonResponse(body, status = 200) {
-	return new Response(JSON.stringify(body), {
-		status,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
-// Scope must be a short, plain-letters-and-digits slug. Anything else is a
-// malformed request — we reject early so we never try to read an env var
-// derived from arbitrary user input.
-const SCOPE_RE = /^[a-z0-9]{1,32}$/;
+// This endpoint intentionally sets no Cache-Control (a password check must
+// never be cached); a bare responder emits only Content-Type.
+const jsonResponse = createJsonResponder();
 
 export default async function handler(req) {
 	if (req.method !== "POST") {

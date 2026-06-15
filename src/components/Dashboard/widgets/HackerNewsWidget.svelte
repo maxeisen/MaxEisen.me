@@ -5,6 +5,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { trimListToFit } from "../lib/utils.js";
+    import { fetchJson } from "../../../lib/data/fetchJson.js";
 
     let listEl = $state();
     let stories = $state(null); // null = loading, [] = empty/error
@@ -19,12 +20,10 @@
 
     async function load() {
         try {
-            const idsRes = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json");
-            if (!idsRes.ok) throw new Error("hn ids");
-            const ids = (await idsRes.json()).slice(0, 6);
-            const items = await Promise.all(ids.map((id) =>
-                fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then((r) => r.json())
-            ));
+            const ids = (await fetchJson("https://hacker-news.firebaseio.com/v0/topstories.json")).slice(0, 6);
+            const items = await Promise.all(
+                ids.map((id) => fetchJson(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)),
+            );
             stories = items.filter(Boolean);
             requestAnimationFrame(() => trimListToFit(listEl));
         } catch {
