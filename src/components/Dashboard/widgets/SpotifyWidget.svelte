@@ -17,13 +17,14 @@
         makeViz, drawViz, vibeFromTrack, paletteForVibe, extractAlbumPalette,
     } from "../lib/viz.js";
     import { fetchJson, FetchError } from "../../../lib/data/fetchJson.js";
+    import { createPoller } from "../../../lib/data/poller.js";
 
     let canvasEl = $state();
     let vizCtx = null;
     let raf = 0;
     let hidden = $state(false);
-    let pollTimer;
-    let progressTick;
+    let stopPoll;
+    let stopTick;
 
     let now = $state(Date.now()); // re-derives elapsed/progress fill each second
 
@@ -119,13 +120,18 @@
             if (vizCtx) vizLoop();
         }
         load();
-        pollTimer = setInterval(load, 1000 * 10);
-        progressTick = setInterval(() => { now = Date.now(); }, 1000);
+        // 10s now-playing poll + 1s progress-bar tick, both visibility-aware:
+        // they run at full cadence while you're watching and go silent in a
+        // backgrounded tab (and refresh immediately when you return). The
+        // 10s poll is the heaviest request source on the site, so pausing it
+        // when hidden is the main win here.
+        stopPoll = createPoller(load, 1000 * 10, { jitterMs: 2000 });
+        stopTick = createPoller(() => { now = Date.now(); }, 1000);
     });
     onDestroy(() => {
         cancelAnimationFrame(raf);
-        clearInterval(pollTimer);
-        clearInterval(progressTick);
+        stopPoll?.();
+        stopTick?.();
     });
 </script>
 

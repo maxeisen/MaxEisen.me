@@ -7,6 +7,7 @@
     import { timeAgo } from "../lib/utils.js";
     import { FetchError } from "../../../lib/data/fetchJson.js";
     import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
+    import { createPoller } from "../../../lib/data/poller.js";
 
     let hidden = $state(false);
     let repo = $state("—");
@@ -16,7 +17,7 @@
     let weeks = $state(null);
     let total = $state("—");
     let range = $state("—");
-    let pollTimer;
+    let stopPoll;
 
     function levelFor(count, max) {
         if (count <= 0) return 0;
@@ -83,9 +84,9 @@
 
     onMount(() => {
         load();
-        pollTimer = setInterval(load, 1000 * 60 * 5);
+        stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 15_000 });
     });
-    onDestroy(() => clearInterval(pollTimer));
+    onDestroy(() => stopPoll?.());
 </script>
 
 {#if !hidden}

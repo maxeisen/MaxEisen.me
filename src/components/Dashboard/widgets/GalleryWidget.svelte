@@ -5,6 +5,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
+    import { createPoller } from "../../../lib/data/poller.js";
     import { CLOUDINARY_CLOUD, cloudinaryUrl } from "../../Gallery/lib/cloudinary.js";
 
     const CLOUDINARY_TAG = "gallery";
@@ -13,7 +14,7 @@
     let imgEl = $state();
     let visible = $state(true);
     let photos = [];
-    let pollTimer;
+    let stopPoll;
 
     // Swap in a fresh random photo from the already-loaded list. The 2-min
     // timer calls this directly — no need to re-download the whole list just
@@ -43,9 +44,11 @@
 
     onMount(() => {
         loadList();
-        pollTimer = setInterval(pickRandom, 1000 * 60 * 2);
+        // pickRandom sets a new image src (a Cloudinary fetch), so pause it
+        // when the tab is hidden; it swaps in a fresh photo on return.
+        stopPoll = createPoller(pickRandom, 1000 * 60 * 2, { jitterMs: 10_000 });
     });
-    onDestroy(() => clearInterval(pollTimer));
+    onDestroy(() => stopPoll?.());
 </script>
 
 {#if visible}

@@ -8,6 +8,7 @@
     import { onMount, onDestroy } from "svelte";
     import { location, sun } from "../lib/stores.svelte.js";
     import { pad } from "../lib/utils.js";
+    import { createPoller } from "../../../lib/data/poller.js";
 
     const WMO = {
         0: ["Clear", "☀️"],
@@ -47,7 +48,7 @@
     let sunNow = $state(new Date());
     let moon = $state(moonPhaseFor(new Date()));
 
-    let weatherTimer;
+    let stopWeatherPoll;
     let sunTickTimer;
     let moonTimer;
 
@@ -174,14 +175,17 @@
 
     onMount(() => {
         acquireLocation();
-        weatherTimer = setInterval(() => {
+        // Only the weather fetch is visibility-aware (the network poll). The
+        // sun-position tick and moon-phase recompute are local-only and cheap,
+        // so they keep running. (Geolocation is requested once on mount.)
+        stopWeatherPoll = createPoller(() => {
             if (location.lat != null) loadWeather(location.lat, location.lon);
-        }, 1000 * 60 * 15);
+        }, 1000 * 60 * 15, { jitterMs: 30_000 });
         sunTickTimer = setInterval(() => { sunNow = new Date(); }, 1000);
         moonTimer = setInterval(() => { moon = moonPhaseFor(new Date()); }, 1000 * 60 * 60);
     });
     onDestroy(() => {
-        clearInterval(weatherTimer);
+        stopWeatherPoll?.();
         clearInterval(sunTickTimer);
         clearInterval(moonTimer);
     });

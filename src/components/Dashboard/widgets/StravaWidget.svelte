@@ -8,6 +8,7 @@
     import { timeAgo, trimListToFit } from "../lib/utils.js";
     import { FetchError } from "../../../lib/data/fetchJson.js";
     import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
+    import { createPoller } from "../../../lib/data/poller.js";
     import {
         STRAVA_ICONS,
         formatDistance,
@@ -20,7 +21,7 @@
     let hidden = $state(false);
     let activities = $state(null); // null = loading
     let ytd = $state(null); // { run, ride } YTD totals, or null
-    let pollTimer;
+    let stopPoll;
     let resizeTimer;
     let resizeListener;
 
@@ -73,7 +74,9 @@
     onMount(() => {
         load();
         loadYtd();
-        pollTimer = setInterval(load, 1000 * 60 * 5);
+        // Poll the feed on the 5-min cadence; refresh YTD on resume too so a
+        // returning viewer sees current numbers. Both pause while hidden.
+        stopPoll = createPoller(() => { load(); loadYtd(); }, 1000 * 60 * 5, { jitterMs: 15_000 });
         resizeListener = () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => trimListToFit(listEl), 100);
@@ -81,7 +84,7 @@
         window.addEventListener("resize", resizeListener);
     });
     onDestroy(() => {
-        clearInterval(pollTimer);
+        stopPoll?.();
         clearTimeout(resizeTimer);
         window.removeEventListener("resize", resizeListener);
     });

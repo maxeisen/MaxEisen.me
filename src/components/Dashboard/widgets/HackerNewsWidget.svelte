@@ -6,10 +6,11 @@
     import { onMount, onDestroy } from "svelte";
     import { trimListToFit } from "../lib/utils.js";
     import { fetchJson } from "../../../lib/data/fetchJson.js";
+    import { createPoller } from "../../../lib/data/poller.js";
 
     let listEl = $state();
     let stories = $state(null); // null = loading, [] = empty/error
-    let pollTimer;
+    let stopPoll;
     let resizeTimer;
     let resizeListener;
 
@@ -33,7 +34,7 @@
 
     onMount(() => {
         load();
-        pollTimer = setInterval(load, 1000 * 60 * 5);
+        stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 15_000 });
         resizeListener = () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => trimListToFit(listEl), 100);
@@ -41,7 +42,7 @@
         window.addEventListener("resize", resizeListener);
     });
     onDestroy(() => {
-        clearInterval(pollTimer);
+        stopPoll?.();
         clearTimeout(resizeTimer);
         window.removeEventListener("resize", resizeListener);
     });
