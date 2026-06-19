@@ -3,6 +3,17 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# /build/* is content-hashed (see vite.config.js) — every filename changes
+# when its contents change, so these are safe to cache forever. immutable +
+# 1-year max-age means Cloudflare and browsers never revalidate them against
+# the origin, which keeps Netlify from getting hammered (and rate-limiting
+# with 429s) when Cloudflare's edge cache is cold. HTML stays uncached so
+# new deploys (which reference fresh hashed filenames) take effect instantly.
+[[headers]]
+  for = "/build/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Story text only (~OpenAI). TTS is a separate function so we stay under Netlify's
 # sync limit (10s default, 26s max on Pro). Local `netlify dev` honors these overrides.
 [functions."bach-story"]

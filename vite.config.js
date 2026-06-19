@@ -27,9 +27,15 @@ export default defineConfig({
 		outDir: 'dist',
 		rollupOptions: {
 			output: {
-				entryFileNames: 'build/bundle.js',
+				// Content-hash EVERY build artifact (entry + chunks + css/assets).
+				// Hashed filenames change whenever content changes, so these can
+				// be cached immutably (see the /build/* header in netlify.toml) —
+				// Cloudflare + browsers keep them ~forever and the Netlify origin
+				// stops getting revalidation hits, which is what was tripping
+				// Netlify's per-origin rate limit (429s) after a cache purge.
+				entryFileNames: 'build/[name]-[hash].js',
 				chunkFileNames: 'build/[name]-[hash].js',
-				assetFileNames: 'build/[name][extname]'
+				assetFileNames: 'build/[name]-[hash][extname]'
 			}
 		}
 	},
