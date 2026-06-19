@@ -120,12 +120,17 @@
             if (vizCtx) vizLoop();
         }
         load();
-        // 10s now-playing poll + 1s progress-bar tick, both visibility-aware:
-        // they run at full cadence while you're watching and go silent in a
-        // backgrounded tab (and refresh immediately when you return). The
-        // 10s poll is the heaviest request source on the site, so pausing it
-        // when hidden is the main win here.
-        stopPoll = createPoller(load, 1000 * 10, { jitterMs: 2000 });
+        // 30s now-playing poll + 1s progress-bar tick, both visibility-aware
+        // (silent in a backgrounded tab, refresh on return). The poll is
+        // deliberately NOT more frequent: it's an uncacheable function call
+        // that crosses Cloudflare→Netlify on every fire, and a tighter
+        // interval is the single biggest sustained source of origin requests
+        // from the shared Cloudflare edge IP — which is what trips Netlify's
+        // per-IP rate limit (sitewide 429s). Freshness is preserved anyway:
+        // the progress bar interpolates locally every 1s, and load()
+        // self-schedules a refetch at each track's expected end (see below),
+        // so only a manual skip lags, by ≤30s.
+        stopPoll = createPoller(load, 1000 * 30, { jitterMs: 3000 });
         stopTick = createPoller(() => { now = Date.now(); }, 1000);
     });
     onDestroy(() => {
