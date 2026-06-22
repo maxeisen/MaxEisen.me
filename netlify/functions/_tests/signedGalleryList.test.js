@@ -16,7 +16,7 @@ vi.mock("cloudinary", () => ({
 }));
 
 import { readFileSync } from "node:fs";
-import handler from "./signedGalleryList.js";
+import handler from "../signedGalleryList.js";
 
 const PW = "secret";
 function call(tag, pw) {
