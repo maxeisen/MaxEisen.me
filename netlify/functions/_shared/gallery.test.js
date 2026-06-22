@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { captureDateFrom, toLeanEntry, SIGNED_GALLERY_TAGS, SCOPE_RE } from "./gallery.js";
+import {
+	captureDateFrom,
+	toLeanEntry,
+	faceSlugs,
+	sceneSlugs,
+	personDef,
+	buildGalleryData,
+	SIGNED_GALLERY_TAGS,
+	SCOPE_RE,
+} from "./gallery.js";
 
 describe("captureDateFrom", () => {
 	it("normalizes EXIF DateTimeOriginal to zone-less ISO", () => {
@@ -83,6 +92,54 @@ describe("toLeanEntry", () => {
 		expect(toLeanEntry({ ...base, metadata: { caption: "from meta" } }).caption).toBe("from meta");
 		expect(toLeanEntry({ ...base, context: { custom: { caption: "from ctx" } } }).caption).toBe("from ctx");
 		expect(toLeanEntry({ ...base, context: { caption: "ctx flat" } }).caption).toBe("ctx flat");
+	});
+});
+
+describe("faceSlugs / sceneSlugs", () => {
+	const r = { tags: ["wedding", "face:lara", "face:max", "scene:ceremony", "scene:family"] };
+	it("extracts people slugs from face: tags", () => {
+		expect(faceSlugs(r)).toEqual(["lara", "max"]);
+	});
+	it("extracts scene slugs from scene: tags", () => {
+		expect(sceneSlugs(r)).toEqual(["ceremony", "family"]);
+	});
+	it("returns [] when there are no tags", () => {
+		expect(faceSlugs({})).toEqual([]);
+		expect(sceneSlugs({})).toEqual([]);
+	});
+});
+
+describe("personDef", () => {
+	it("parses a definition from rep-photo context", () => {
+		expect(
+			personDef({ public_id: "p1", context: { custom: { pslug: "lara", pname: "Lara", pbox: "0.1_0.2_0.3_0.4" } } }),
+		).toEqual({ slug: "lara", name: "Lara", repPublicId: "p1", box: [0.1, 0.2, 0.3, 0.4] });
+	});
+	it("returns null when the photo defines no person", () => {
+		expect(personDef({ public_id: "p1", context: { custom: { caption: "hi" } } })).toBeNull();
+	});
+	it("nulls the box when pbox is empty/malformed (chip falls back to face crop)", () => {
+		expect(personDef({ public_id: "p1", context: { custom: { pslug: "x", pbox: "" } } }).box).toBeNull();
+		expect(personDef({ public_id: "p1", context: { custom: { pslug: "x", pbox: "1_2" } } }).box).toBeNull();
+	});
+});
+
+describe("buildGalleryData", () => {
+	const resources = [
+		{ public_id: "a", tags: ["face:lara", "scene:ceremony"], context: { custom: { pslug: "lara", pname: "Lara", pbox: "0.1_0.2_0.3_0.4" } } },
+		{ public_id: "b", tags: ["face:lara", "face:max"] },
+	];
+	const { photos, people } = buildGalleryData(resources);
+
+	it("tags each photo with its people + scenes", () => {
+		expect(photos[0].people).toEqual(["lara"]);
+		expect(photos[0].scenes).toEqual(["ceremony"]);
+		expect(photos[1].people).toEqual(["lara", "max"]);
+		expect(photos[1].scenes).toEqual([]);
+	});
+	it("indexes only DEFINED people, with full appearance counts", () => {
+		expect(people).toHaveLength(1); // max has a tag but no definition → not a filter chip
+		expect(people[0]).toMatchObject({ slug: "lara", name: "Lara", count: 2, repPublicId: "a", box: [0.1, 0.2, 0.3, 0.4] });
 	});
 });
 

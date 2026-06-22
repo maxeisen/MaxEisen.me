@@ -9,6 +9,30 @@
 -->
 <script>
     import Gallery from "../components/Gallery/Gallery.svelte";
+
+    // Scene filter chips — displayed in this order, but only for scenes that
+    // actually have photos tagged `scene:<slug>` in Cloudinary. Reorder / add
+    // / rename freely; the slug is the Cloudinary tag suffix.
+    const scenes = [
+        { slug: "getting-ready", label: "Getting Ready" },
+        { slug: "reveal", label: "Reveal" },
+        { slug: "plum", label: "Plum" },
+        { slug: "rooftop", label: "Rooftop" },
+        { slug: "street", label: "Street" },
+        { slug: "bridesmaids", label: "Bridesmaids" },
+        { slug: "groomsmen", label: "Groomsmen" },
+        { slug: "family", label: "Family" },
+        { slug: "tisch", label: "Tisch" },
+        { slug: "bedeken", label: "Bedeken" },
+        { slug: "ceremony", label: "Ceremony" },
+        { slug: "reception", label: "Reception" },
+        { slug: "cocktails", label: "Cocktails" },
+        { slug: "party", label: "Party" },
+        { slug: "speeches", label: "Speeches" },
+        { slug: "flowers", label: "Flowers" },
+        { slug: "first-dance", label: "First Dance" },
+        { slug: "film", label: "Film" },
+    ];
 </script>
 
 <svelte:head>
@@ -24,6 +48,8 @@
     passwordScope="wedding"
     signed
     bulkDownloadEnabled
+    faceFilter
+    {scenes}
 >
     {#snippet intro()}
         <p>Photos from Max and Lara's wedding day - a private gallery for family and friends.</p>

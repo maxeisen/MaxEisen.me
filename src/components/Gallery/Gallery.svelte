@@ -11,6 +11,7 @@
     import PasswordGate from "./PasswordGate.svelte";
     import UploadZone from "./UploadZone.svelte";
     import MasonryGrid from "./MasonryGrid.svelte";
+    import GalleryFilters from "./GalleryFilters.svelte";
     import Lightbox from "./Lightbox.svelte";
     import Slideshow from "./Slideshow.svelte";
     import { downloadPhotos, downloadOne } from "./lib/download.js";
@@ -44,6 +45,12 @@
         signed = false,
         /** Show "(N of)" inside the intro slot — opt-in. */
         showCount = false,
+        /** Enable the People filter row, driven by the `people` index the
+            signed API returns (face-crop chips, multi-select). */
+        faceFilter = false,
+        /** Scene filter config: ordered [{ slug, label }]. The UI shows a chip
+            only for scenes that actually appear in the photos. */
+        scenes = [],
         /** Intro snippet — fully arbitrary About markup. */
         intro,
     } = $props();
@@ -57,6 +64,12 @@
     let lightboxIndex = $state(0);
     let slideshowOpen = $state(false);
 
+    // Face + scene filtering (opt-in via faceFilter / scenes props).
+    let people = $state([]);                 // [{slug,name,count,chip}] from the API
+    const selectedPeople = new SvelteSet();  // active person slugs
+    const selectedScenes = new SvelteSet();  // active scene slugs
+    let peopleMode = $state("any");          // "any" (union) | "all" (intersection)
+
     // Bulk-download selection state. SvelteSet is reactive on mutation.
     let selectionMode = $state(false);
     const selectedIds = new SvelteSet();
@@ -68,8 +81,10 @@
         if (!selectionMode) selectedIds.clear();
     }
 
+    // MasonryGrid indexes into the photos it renders — which is the FILTERED
+    // set (displayPhotos), so selection handlers resolve ids against it too.
     function toggleSelected(originalIdx) {
-        const id = photos[originalIdx]?.public_id;
+        const id = displayPhotos[originalIdx]?.public_id;
         if (!id) return;
         if (selectedIds.has(id)) selectedIds.delete(id);
         else selectedIds.add(id);
@@ -79,19 +94,20 @@
     // state X" rather than toggling, so the painted state is deterministic
     // across the entire drag path.
     function setSelected(originalIdx, selected) {
-        const id = photos[originalIdx]?.public_id;
+        const id = displayPhotos[originalIdx]?.public_id;
         if (!id) return;
         if (selected) selectedIds.add(id);
         else selectedIds.delete(id);
     }
 
-    const allSelected = $derived(photos.length > 0 && selectedIds.size === photos.length);
+    // "All" means all currently-visible (filtered) photos.
+    const allSelected = $derived(displayPhotos.length > 0 && displayPhotos.every((p) => selectedIds.has(p.public_id)));
 
     function toggleAll() {
         if (allSelected) {
-            selectedIds.clear();
+            for (const p of displayPhotos) selectedIds.delete(p.public_id);
         } else {
-            for (const p of photos) selectedIds.add(p.public_id);
+            for (const p of displayPhotos) selectedIds.add(p.public_id);
         }
     }
 
@@ -117,6 +133,29 @@
         }
     }
 
+    // === filtering ======================================================
+    // Show a scene chip only for scenes that actually appear in the photos.
+    const presentScenes = $derived(scenes.filter((s) => photos.some((p) => (p.scenes || []).includes(s.slug))));
+    const filtersShown = $derived((faceFilter && people.length > 0) || presentScenes.length > 0);
+    const selPeople = $derived([...selectedPeople]);
+    const selScenes = $derived([...selectedScenes]);
+    // A photo passes if it matches the people filter AND the scene filter.
+    // People: union ("any") or intersection ("all"). Scenes: union.
+    const displayPhotos = $derived.by(() => {
+        if (!selPeople.length && !selScenes.length) return photos;
+        return photos.filter((p) => {
+            const pl = p.people || [];
+            const okP = !selPeople.length
+                || (peopleMode === "all" ? selPeople.every((s) => pl.includes(s)) : selPeople.some((s) => pl.includes(s)));
+            if (!okP) return false;
+            const sl = p.scenes || [];
+            return !selScenes.length || selScenes.some((s) => sl.includes(s));
+        });
+    });
+    function togglePerson(slug) { selectedPeople.has(slug) ? selectedPeople.delete(slug) : selectedPeople.add(slug); }
+    function toggleScene(slug) { selectedScenes.has(slug) ? selectedScenes.delete(slug) : selectedScenes.add(slug); }
+    function clearFilters() { selectedPeople.clear(); selectedScenes.clear(); }
+
     // Persist intro open/close across visits so collapsed stays collapsed.
     const INTRO_KEY = `gallery-intro-open:${tag}`;
 
@@ -131,6 +170,7 @@
             const headers = passwordScope && password ? { "X-Gallery-Password": password } : {};
             const data = await fetchJson(url, { headers });
             photos = sortPhotos(data.resources || [], sort);
+            people = data.people || [];
         } catch (e) {
             if (e instanceof FetchError && e.status === 401) {
                 // Stored password no longer valid — clear it and re-show the gate.
@@ -288,16 +328,35 @@
     {:else if !photos.length}
         <div class="empty-state">No photos yet.</div>
     {:else}
-        <MasonryGrid
-            {photos}
-            onopen={open}
-            {selectionMode}
-            {selectedIds}
-            ontoggle={toggleSelected}
-            onset={setSelected}
-            downloadEnabled={bulkDownloadEnabled}
-            ondownload={(idx) => downloadOne(photos[idx])}
-        />
+        {#if filtersShown}
+            <GalleryFilters
+                people={faceFilter ? people : []}
+                scenes={presentScenes}
+                {selectedPeople}
+                {selectedScenes}
+                {peopleMode}
+                resultCount={displayPhotos.length}
+                total={photos.length}
+                onTogglePerson={togglePerson}
+                onToggleScene={toggleScene}
+                onSetMode={(m) => (peopleMode = m)}
+                onClear={clearFilters}
+            />
+        {/if}
+        {#if !displayPhotos.length}
+            <div class="empty-state">No photos match these filters.</div>
+        {:else}
+            <MasonryGrid
+                photos={displayPhotos}
+                onopen={open}
+                {selectionMode}
+                {selectedIds}
+                ontoggle={toggleSelected}
+                onset={setSelected}
+                downloadEnabled={bulkDownloadEnabled}
+                ondownload={(idx) => downloadOne(displayPhotos[idx])}
+            />
+        {/if}
     {/if}
 
     {#if uploadEnabled && passwordScope && password}
@@ -320,12 +379,12 @@
 </main>
 
 <Lightbox
-    {photos}
+    photos={displayPhotos}
     bind:open={lightboxOpen}
     bind:index={lightboxIndex}
     downloadEnabled={bulkDownloadEnabled}
 />
-<Slideshow {photos} bind:open={slideshowOpen} />
+<Slideshow photos={displayPhotos} bind:open={slideshowOpen} />
 
 <style>
     /* The page background drift is scoped to body.gallery-page so it

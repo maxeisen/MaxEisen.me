@@ -12,7 +12,9 @@
     "packageJson": {
       "dependencies": [
         "npm:@netlify/blobs@^10.7.9",
+        "npm:@playwright/test@^1.61.0",
         "npm:@sveltejs/vite-plugin-svelte@5",
+        "npm:cloudinary@^2.10.0",
         "npm:jszip@^3.10.1",
         "npm:maplibre-gl@^5.24.0",
         "npm:marked@^4.0.12",
@@ -25,7 +27,8 @@
         "npm:svelte-icons@^2.1.0",
         "npm:svelte-rough-notation@~0.1.4",
         "npm:svelte@5",
-        "npm:vite@6"
+        "npm:vite@6",
+        "npm:vitest@^4.1.9"
       ]
     }
   }

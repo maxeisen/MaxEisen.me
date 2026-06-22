@@ -26,7 +26,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { getEnv } from "./_shared/env.js";
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
-import { CLOUD_NAME, SCOPE_RE, toLeanEntry } from "./_shared/gallery.js";
+import { CLOUD_NAME, SCOPE_RE, buildGalleryData } from "./_shared/gallery.js";
 
 // Success: per-viewer browser cache (10 min) so a returning authed browser
 // reuses the list without re-hitting the function. Errors/gate failures are
@@ -47,8 +47,10 @@ function loadManifest(tag) {
 	const u = MANIFEST_URLS[tag];
 	if (!u) return null;
 	try {
-		const entries = JSON.parse(readFileSync(u, "utf8"));
-		return Array.isArray(entries) && entries.length ? entries : null;
+		const data = JSON.parse(readFileSync(u, "utf8"));
+		// New shape {photos, people}; tolerate a legacy bare-array manifest.
+		if (Array.isArray(data)) return data.length ? { photos: data, people: [] } : null;
+		return data.photos?.length ? { photos: data.photos, people: data.people || [] } : null;
 	} catch {
 		return null;
 	}
@@ -72,7 +74,7 @@ async function listAuthenticated(tag, apiKey, apiSecret) {
 		const body = {
 			expression: `tags=${tag} AND type:authenticated`,
 			max_results: 500,
-			with_field: ["metadata", "context", "image_metadata"],
+			with_field: ["metadata", "context", "image_metadata", "tags"],
 		};
 		if (cursor) body.next_cursor = cursor;
 		const res = await fetch(searchUrl, {
@@ -118,6 +120,29 @@ function withSignedUrls(entry) {
 	};
 }
 
+// Signed, face-cropped chip for a person. Crops to their stored fractional
+// face box (with margin) on their representative photo; if no box is stored,
+// falls back to Cloudinary face-gravity cropping.
+function signPerson(p) {
+	let transformation;
+	if (Array.isArray(p.box) && p.box.length === 4) {
+		const [x, y, w, h] = p.box;
+		const m = 0.4; // breathing room around the face
+		const nx = Math.max(0, x - w * m);
+		const ny = Math.max(0, y - h * m);
+		const nw = Math.min(1 - nx, w * (1 + 2 * m));
+		const nh = Math.min(1 - ny, h * (1 + 2 * m));
+		const r = (n) => Math.round(n * 10000) / 10000;
+		transformation = [
+			{ crop: "crop", x: r(nx), y: r(ny), width: r(nw), height: r(nh) },
+			{ width: 160, height: 160, crop: "fill", gravity: "auto", fetch_format: "auto", quality: "auto" },
+		];
+	} else {
+		transformation = [{ gravity: "face", crop: "thumb", width: 160, height: 160, fetch_format: "auto", quality: "auto" }];
+	}
+	return { slug: p.slug, name: p.name, count: p.count, chip: cloudinary.url(p.repPublicId, { ...SIGNED, transformation }) };
+}
+
 export default async function handler(req) {
 	const url = new URL(req.url);
 	const tag = (url.searchParams.get("tag") || "").toLowerCase();
@@ -143,12 +168,15 @@ export default async function handler(req) {
 
 	try {
 		// Fast path: precomputed manifest. Fallback: live Admin search.
-		let entries = loadManifest(tag);
-		if (!entries) {
+		let data = loadManifest(tag);
+		if (!data) {
 			const raw = await listMemo(tag, () => listAuthenticated(tag, apiKey, apiSecret));
-			entries = raw.map(toLeanEntry);
+			data = buildGalleryData(raw);
 		}
-		return okResponse({ resources: entries.map(withSignedUrls) });
+		return okResponse({
+			resources: data.photos.map(withSignedUrls),
+			people: data.people.map(signPerson),
+		});
 	} catch (err) {
 		return errResponse({ error: err.code || "search_failed" }, 502);
 	}

@@ -64,3 +64,49 @@ export function toLeanEntry(r) {
 		caption: meta.caption || meta.Caption || ctx.caption || null,
 	};
 }
+
+// Face-filter people slugs present in a photo, from its `face:<slug>` tags.
+export function faceSlugs(r) {
+	return (r.tags || []).filter((t) => typeof t === "string" && t.startsWith("face:")).map((t) => t.slice(5));
+}
+
+// Scene slugs a photo belongs to, from its `scene:<slug>` tags. Display names
+// + ordering live in the gallery route config, not here — this just carries
+// which scenes each photo is tagged with.
+export function sceneSlugs(r) {
+	return (r.tags || []).filter((t) => typeof t === "string" && t.startsWith("scene:")).map((t) => t.slice(6));
+}
+
+// A person definition lives in context on their representative photo:
+// pslug (key), pname (display name), pbox ("x_y_w_h" fractional face box, or
+// empty → chip falls back to face-gravity cropping). Returns null if absent.
+export function personDef(r) {
+	const ctx = r.context?.custom || r.context || {};
+	if (!ctx.pslug) return null;
+	const parts = ctx.pbox ? String(ctx.pbox).split("_").map(Number) : [];
+	const box = parts.length === 4 && parts.every((n) => Number.isFinite(n)) ? parts : null;
+	return { slug: ctx.pslug, name: ctx.pname || ctx.pslug, repPublicId: r.public_id, box };
+}
+
+// Assemble the gallery payload from raw Cloudinary resources: lean photos
+// (each carrying the people slugs in it) + a people index (name, representative
+// photo + face box, photo count), sorted most-photographed first.
+export function buildGalleryData(resources) {
+	const photos = [];
+	const defs = {};
+	const counts = {};
+	for (const r of resources) {
+		const lean = toLeanEntry(r);
+		const slugs = faceSlugs(r);
+		lean.people = slugs;
+		lean.scenes = sceneSlugs(r);
+		photos.push(lean);
+		for (const s of slugs) counts[s] = (counts[s] || 0) + 1;
+		const def = personDef(r);
+		if (def) defs[def.slug] = def;
+	}
+	const people = Object.values(defs)
+		.map((d) => ({ ...d, count: counts[d.slug] || 0 }))
+		.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+	return { photos, people };
+}

@@ -17,7 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CLOUD_NAME, SIGNED_GALLERY_TAGS, toLeanEntry } from "../netlify/functions/_shared/gallery.js";
+import { CLOUD_NAME, SIGNED_GALLERY_TAGS, buildGalleryData } from "../netlify/functions/_shared/gallery.js";
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../..");
 const OUT_DIR = path.join(ROOT, "netlify/functions/_generated");
@@ -43,7 +43,7 @@ async function listAuthenticated(tag, auth) {
 	const out = [];
 	let cursor = null;
 	for (let page = 0; page < 12; page++) {
-		const body = { expression: `tags=${tag} AND type:authenticated`, max_results: 500, with_field: ["metadata", "context", "image_metadata"] };
+		const body = { expression: `tags=${tag} AND type:authenticated`, max_results: 500, with_field: ["metadata", "context", "image_metadata", "tags"] };
 		if (cursor) body.next_cursor = cursor;
 		const res = await fetch(searchUrl, { method: "POST", headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
 		if (!res.ok) throw new Error(`search ${tag} failed: ${res.status} ${await res.text()}`);
@@ -66,12 +66,11 @@ async function main() {
 
 	for (const tag of SIGNED_GALLERY_TAGS) {
 		const raw = await listAuthenticated(tag, auth);
-		const entries = raw
-			.map(toLeanEntry)
-			.sort((a, b) => (a.captured_at || a.created_at || "").localeCompare(b.captured_at || b.created_at || ""));
+		const { photos, people } = buildGalleryData(raw);
+		photos.sort((a, b) => (a.captured_at || a.created_at || "").localeCompare(b.captured_at || b.created_at || ""));
 		const outPath = path.join(OUT_DIR, `gallery-${tag}.json`);
-		fs.writeFileSync(outPath, JSON.stringify(entries));
-		console.log(`[gallery-manifest] ${tag}: ${entries.length} photos -> ${path.relative(ROOT, outPath)}`);
+		fs.writeFileSync(outPath, JSON.stringify({ photos, people }));
+		console.log(`[gallery-manifest] ${tag}: ${photos.length} photos, ${people.length} people -> ${path.relative(ROOT, outPath)}`);
 	}
 }
 
