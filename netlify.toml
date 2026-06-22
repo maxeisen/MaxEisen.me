@@ -1,5 +1,8 @@
 [build]
-  command = "node scripts/build-gallery-manifest.mjs && node scripts/seed-bach-party-packs.mjs && npm run build"
+  # Tests first: a failing test fails the build, so Netlify keeps the previous
+  # deploy live and the regression never reaches production. (`&&` short-circuits
+  # before the slower manifest generation.)
+  command = "npm run test:run && node scripts/build-gallery-manifest.mjs && node scripts/seed-bach-party-packs.mjs && npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
