@@ -33,6 +33,14 @@
         /** Enable bulk-select + download. Replaces the slideshow button
             with Cancel/Download while a selection is active. */
         bulkDownloadEnabled = false,
+        /** Private gallery: photos are authenticated-delivery in Cloudinary
+            and can't be reached by URL alone. Fetch from signedGalleryList
+            (password-gated, server-signs every URL locally in one call) so
+            the photos arrive carrying pre-signed thumb/full/download URLs.
+            Without the password the function returns nothing and the images
+            aren't publicly fetchable — the password is a real gate, not just
+            a UI veil. */
+        signed = false,
         /** Show "(N of)" inside the intro slot — opt-in. */
         showCount = false,
         /** Intro snippet — fully arbitrary About markup. */
@@ -128,7 +136,10 @@
         loading = true;
         error = "";
         try {
-            const url = `/.netlify/functions/galleryList?tag=${encodeURIComponent(tag)}`;
+            // Private galleries get signed URLs from signedGalleryList; public
+            // ones get plain public_ids from galleryList (URLs built client-side).
+            const fn = signed ? "signedGalleryList" : "galleryList";
+            const url = `/.netlify/functions/${fn}?tag=${encodeURIComponent(tag)}`;
             const headers = passwordScope && password ? { "X-Gallery-Password": password } : {};
             const data = await fetchJson(url, { headers });
             photos = sortPhotos(data.resources || []);

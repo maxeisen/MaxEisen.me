@@ -40,35 +40,43 @@ export function displayPixelWidth() {
     return Math.min(Math.ceil((longestCss * dpr) / 400) * 400, 5200);
 }
 
+// Private (authenticated-delivery) galleries can't build URLs client-side —
+// the browser has no API secret to sign them. For those, signedGalleryList
+// returns each photo already carrying pre-signed `thumb` / `full` / `download`
+// URLs, and these helpers return them verbatim. Public galleries send only a
+// `public_id`, so the helpers fall through to building a normal `image/upload`
+// URL. This keeps MasonryGrid / Lightbox / Slideshow / download.js identical
+// for both gallery types — the photo object decides which path is used.
+
 /**
- * Build the standard lightbox URL for a photo (2400px wide, auto format).
+ * Lightbox URL (2400px wide). Prefers a pre-signed `full` URL.
  */
 export function lightboxUrl(photo) {
-    return cloudinaryUrl(photo.public_id, "f_auto,q_auto,w_2400");
+    return photo.full || cloudinaryUrl(photo.public_id, "f_auto,q_auto,w_2400");
 }
 
 /**
- * Build the masonry thumb URL for a photo (800px wide, auto format).
+ * Masonry thumb URL (800px wide). Prefers a pre-signed `thumb` URL.
  */
 export function thumbUrl(photo) {
-    return cloudinaryUrl(photo.public_id, "f_auto,q_auto,w_800");
+    return photo.thumb || cloudinaryUrl(photo.public_id, "f_auto,q_auto,w_800");
 }
 
 /**
- * Build a display-pixel-sized slideshow URL.
+ * Slideshow URL. Public galleries size to the display; signed galleries
+ * reuse the pre-signed `full` (2400px) — plenty for a slideshow and avoids
+ * signing a per-device width server-side.
  */
 export function slideshowUrl(photo) {
-    return cloudinaryUrl(photo.public_id, `f_auto,q_auto,w_${displayPixelWidth()}`);
+    return photo.full || cloudinaryUrl(photo.public_id, `f_auto,q_auto,w_${displayPixelWidth()}`);
 }
 
 /**
- * Build a max-quality download URL for a photo. `q_auto:best` keeps the
- * file modest in size without surrendering visible quality; `fl_attachment`
- * adds a Content-Disposition header so direct anchor clicks get a sensible
- * filename (the download flow also overrides this client-side).
+ * Max-quality download URL (`fl_attachment` for a sensible filename).
+ * Prefers a pre-signed `download` URL.
  */
 export function downloadUrl(photo) {
-    return cloudinaryUrl(photo.public_id, "f_jpg,q_auto:best,fl_attachment");
+    return photo.download || cloudinaryUrl(photo.public_id, "f_jpg,q_auto:best,fl_attachment");
 }
 
 /**

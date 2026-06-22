@@ -28,6 +28,7 @@
         '/gallery':       () => import('./routes/Gallery.svelte'),
         '/gallery/ride':  () => import('./routes/GalleryRide.svelte'),
         '/gallery/run':   () => import('./routes/GalleryRun.svelte'),
+        '/gallery/wedding': () => import('./routes/GalleryWedding.svelte'),
         '/dashboard':     () => import('./routes/Dashboard.svelte'),
         '/toronto':       () => import('./routes/Toronto.svelte'),
         '/bach':          () => import('./routes/Bach.svelte'),
