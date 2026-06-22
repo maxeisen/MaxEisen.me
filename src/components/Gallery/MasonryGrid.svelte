@@ -1,15 +1,19 @@
 <!--
-    Masonry layout of photo thumbnails. Uses CSS column-count for the
-    masonry effect, which flows photos top-down within each column then
-    moves to the next column. The lightbox iterates the same photos
-    array order, so "next" from any photo navigates down the column
-    (or wraps to the top of the next column at column boundaries).
+    Masonry layout of photo thumbnails. Photos are packed left-to-right into
+    N columns by shortest-column ("Pinterest") packing: the top row reads
+    1,2,3,4 in order, then each subsequent photo drops into whichever column
+    is currently shortest. This gives an intuitive left-to-right reading
+    order (chronological flows across, then down) while staying gap-free.
 
-    A previous version of this component pre-distributed indices to
-    produce a row-major reading order, but CSS column-fill:balance
-    rebalances by content height, so unequal photo aspect ratios broke
-    the assumed item-count-per-column and nav landed on the wrong photo.
-    The natural column-major flow is predictable in every case.
+    We do this in JS rather than CSS column-count because CSS columns flow
+    top-to-bottom within a column before moving right (column-major), so
+    chronological order reads DOWN each column — counter-intuitive. An older
+    CSS-columns version with pre-distributed indices was abandoned because
+    column-fill:balance rebalanced by height and broke nav; explicit packing
+    is both predictable and reads correctly.
+
+    The lightbox navigates the original chronological `photos` order, which
+    now matches the visual flow (next ≈ the photo to the right / next row).
 
     Owns the preload-on-interaction logic:
       - hover (80ms debounce) — desktop pointer
@@ -42,6 +46,31 @@
 
     let gridEl = $state();
     const lightboxPreloaded = new Set();
+
+    // === responsive masonry packing =====================================
+    // Pack photos left-to-right into N columns, each new photo going to the
+    // currently-shortest column. Column widths are equal, so a photo's
+    // relative height is just its aspect ratio (height/width). Repacks when
+    // the breakpoint changes (see onResize in onMount).
+    let columnCount = $state(4);
+    function columnsForWidth(w) {
+        if (w <= 480) return 1;
+        if (w <= 800) return 2;
+        if (w <= 1200) return 3;
+        return 4;
+    }
+    const columns = $derived.by(() => {
+        const n = Math.max(1, columnCount);
+        const cols = Array.from({ length: n }, () => []);
+        const heights = new Array(n).fill(0);
+        photos.forEach((p, originalIdx) => {
+            let c = 0;
+            for (let k = 1; k < n; k++) if (heights[k] < heights[c]) c = k;
+            cols[c].push({ p, originalIdx });
+            heights[c] += p.width && p.height ? p.height / p.width : 1;
+        });
+        return cols;
+    });
 
     function preloadFullSize(idx) {
         if (idx < 0 || idx >= photos.length) return;
@@ -231,27 +260,39 @@
     function onHoverOut() { clearTimeout(hoverTimer); }
 
     onMount(() => {
+        columnCount = columnsForWidth(window.innerWidth);
+
         // Background warm: first 10 lightbox URLs so prev/next is already
         // cached by the time anyone opens anything. Browser's
         // 6-concurrent-per-origin limit naturally throttles.
         for (let i = 0; i < Math.min(10, photos.length); i++) preloadFullSize(i);
 
-        // IntersectionObserver: warm the full-size for each figure as it
-        // enters the viewport. Mobile equivalent of hover preload.
-        let io;
-        if ("IntersectionObserver" in window && gridEl) {
-            io = new IntersectionObserver((entries) => {
-                for (const entry of entries) {
-                    if (!entry.isIntersecting) continue;
-                    const idx = Number(entry.target.dataset.originalIdx);
-                    if (Number.isFinite(idx)) preloadFullSize(idx);
-                    io.unobserve(entry.target);
-                }
-            }, { rootMargin: "300px" });
-            Array.from(gridEl.children).forEach((fig) => io.observe(fig));
-        }
+        // Re-pack only when the breakpoint actually changes (not every px),
+        // so resizing doesn't thrash the DOM.
+        const onResize = () => {
+            const n = columnsForWidth(window.innerWidth);
+            if (n !== columnCount) columnCount = n;
+        };
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    });
 
-        return () => io?.disconnect();
+    // IntersectionObserver: warm the full-size for each figure as it enters
+    // the viewport (mobile equivalent of hover preload). Re-attached whenever
+    // the layout repacks, since the figures are re-created on a column change.
+    $effect(() => {
+        columns; // dependency: re-observe after a repack
+        if (typeof window === "undefined" || !("IntersectionObserver" in window) || !gridEl) return;
+        const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                const idx = Number(entry.target.dataset.originalIdx);
+                if (Number.isFinite(idx)) preloadFullSize(idx);
+                io.unobserve(entry.target);
+            }
+        }, { rootMargin: "300px" });
+        gridEl.querySelectorAll("figure").forEach((fig) => io.observe(fig));
+        return () => io.disconnect();
     });
 
     function aspectPadding(p) {
@@ -267,7 +308,9 @@
     role="list"
     onpointerdown={onGridPointerDown}
 >
-    {#each photos as p, originalIdx (p.public_id ?? originalIdx)}
+    {#each columns as col, colIdx (colIdx)}
+        <div class="col">
+            {#each col as { p, originalIdx } (p.public_id ?? originalIdx)}
         {@const pad = aspectPadding(p)}
         {@const selected = selectedIds.has(p.public_id)}
         <figure
@@ -324,21 +367,27 @@
                 </figcaption>
             {/if}
         </figure>
+            {/each}
+        </div>
     {/each}
 </div>
 
 <style>
     .gallery {
-        column-count: 4;
-        column-gap: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
     }
-    @media (max-width: 1200px) { .gallery { column-count: 3; } }
-    @media (max-width: 800px)  { .gallery { column-count: 2; } }
-    @media (max-width: 480px)  { .gallery { column-count: 1; } }
+    .gallery .col {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
 
     .gallery :global(figure) {
-        margin: 0 0 1rem 0;
-        break-inside: avoid;
+        margin: 0;
         border-radius: 12px;
         overflow: hidden;
         background: var(--main-green-translucent);

@@ -19,14 +19,14 @@
 
 <Gallery
     tag="wedding"
-    title="Wedding"
+    title="Max and Lara's Wedding"
     sort="captured-asc"
     passwordScope="wedding"
     signed
     bulkDownloadEnabled
 >
     {#snippet intro()}
-        <p>Photos from our wedding day — a private gallery for family and friends.</p>
+        <p>Photos from Max and Lara's wedding day - a private gallery for family and friends.</p>
         <p>Tap any photo to view it full-screen, start a slideshow, or select photos to download (individually or in bulk).</p>
     {/snippet}
 </Gallery>
