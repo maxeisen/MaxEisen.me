@@ -61,7 +61,7 @@
     let photos = $state([]);
     let loading = $state(true);
     let error = $state("");
-    let introOpen = $state(true);
+    let introOpen = $state(false); // collapsed by default; localStorage remembers if expanded
     let password = $state(passwordScope ? null : ""); // empty string = "no gate needed"
     let lightboxOpen = $state(false);
     let lightboxIndex = $state(0);
