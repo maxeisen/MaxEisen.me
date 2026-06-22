@@ -207,6 +207,22 @@
         document.addEventListener("pointercancel", onEnd);
     }
 
+    // A thumbnail whose Cloudinary derivative is still being generated on
+    // first access can come back slow or, under a large herd of concurrent
+    // first-time requests, error out (transient lock / rate response). Once
+    // a derivative is generated it's cached, so a couple of backed-off
+    // retries reliably recover it instead of leaving a permanently grey tile.
+    function retryThumb(e) {
+        const img = e.currentTarget;
+        const tries = Number(img.dataset.retries || 0);
+        if (tries >= 3) return;
+        const src = img.dataset.src || img.src;
+        img.dataset.src = src;
+        img.dataset.retries = String(tries + 1);
+        img.src = "";
+        setTimeout(() => { img.src = src; }, 700 * (tries + 1));
+    }
+
     let hoverTimer = null;
     function onHover(idx) {
         clearTimeout(hoverTimer);
@@ -276,6 +292,7 @@
                     style:position={pad ? "absolute" : null}
                     style:inset={pad ? "0" : null}
                     onload={(e) => e.currentTarget.classList.add("loaded")}
+                    onerror={retryThumb}
                 />
                 {#if selectionMode}
                     <span class="select-check" aria-hidden="true">

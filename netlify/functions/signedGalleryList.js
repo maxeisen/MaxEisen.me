@@ -76,11 +76,20 @@ async function listAuthenticated(tag, apiKey, apiSecret) {
 // public helpers in lib/cloudinary.js (thumb 800 / full 2400 / jpg download)
 // but as authenticated, signed URLs. `crop: limit` avoids upscaling.
 const SIGNED = { type: "authenticated", sign_url: true, secure: true };
-function signedUrls(publicId) {
+function signedUrls(publicId, displayName) {
+	// Download: bounded to 2400px @ q_85 jpg with fl_keep_iptc so the file
+	// retains its embedded EXIF/IPTC/XMP metadata (incl. capture date) while
+	// staying ~0.8 MB instead of the multi-MB original — roughly 1/8th the
+	// delivery bandwidth, which matters on a metered Cloudinary plan. A plain
+	// transformed delivery would strip all metadata; q_auto is incompatible
+	// with keep_iptc (Cloudinary rejects it), so quality is fixed. fl_attachment
+	// forces the download and carries a readable filename (URL-safe-sanitized).
+	const safeName = displayName ? String(displayName).replace(/[^a-zA-Z0-9_-]+/g, "_") : "";
+	const attach = safeName ? `attachment:${safeName}` : "attachment";
 	return {
 		thumb: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 800, crop: "limit" }] }),
 		full: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 2400, crop: "limit" }] }),
-		download: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "jpg", quality: "auto:best", flags: "attachment" }] }),
+		download: cloudinary.url(publicId, { ...SIGNED, transformation: [{ width: 2400, crop: "limit", quality: 85, fetch_format: "jpg", flags: ["keep_iptc", attach] }] }),
 	};
 }
 
@@ -92,12 +101,33 @@ function signedUrls(publicId) {
 // created_at (upload time) for those.
 function exifCaptureDate(r) {
 	const m = r.image_metadata || {};
-	const raw = m.DateTimeOriginal || m.DateTimeDigitized || m.DateTime || null;
-	if (!raw) return null;
-	const match = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(String(raw));
-	if (!match) return null;
-	const [, y, mo, d, h, mi, s] = match;
-	return `${y}-${mo}-${d}T${h}:${mi}:${s}`;
+	// Prefer true capture time (EXIF). Fall back to IPTC creation fields for
+	// images whose EXIF capture date was stripped — e.g. lab-scanned film,
+	// which carries DateCreated / DigitalCreationDate instead. Deliberately
+	// NOT DateTime: that's the edit/export timestamp, not when it was shot.
+	const candidates = [
+		m.DateTimeOriginal,
+		m.DateTimeDigitized,
+		m.DateCreated,
+		m.DigitalCreationDate && m.DigitalCreationTime
+			? `${m.DigitalCreationDate} ${m.DigitalCreationTime}`
+			: m.DigitalCreationDate,
+	];
+	for (const raw of candidates) {
+		if (!raw) continue;
+		const dt = /^(\d{4})[:-](\d{2})[:-](\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(String(raw));
+		if (dt) {
+			const [, y, mo, d, h, mi, s] = dt;
+			return `${y}-${mo}-${d}T${h}:${mi}:${s}`;
+		}
+		// Date-only (e.g. DigitalCreationDate "2025:07:09" with no time).
+		const dOnly = /^(\d{4})[:-](\d{2})[:-](\d{2})$/.exec(String(raw));
+		if (dOnly) {
+			const [, y, mo, d] = dOnly;
+			return `${y}-${mo}-${d}T00:00:00`;
+		}
+	}
+	return null;
 }
 
 function shape(resources) {
@@ -117,7 +147,7 @@ function shape(resources) {
 			height: r.height,
 			created_at: r.created_at,
 			caption,
-			...signedUrls(r.public_id),
+			...signedUrls(r.public_id, r.display_name),
 		};
 	});
 }

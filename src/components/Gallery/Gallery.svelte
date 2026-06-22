@@ -124,10 +124,16 @@
         if (sort === "date-desc") {
             next.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
         } else if (sort === "captured-asc") {
-            // Chronological by capture time (EXIF), oldest first — walks the
-            // day in order. Falls back to upload time when a photo lacks EXIF.
-            next.sort((a, b) =>
-                (a.captured_at || a.created_at || "").localeCompare(b.captured_at || b.created_at || ""),
+            // Chronological by capture time, oldest first — walks the day in
+            // order. Falls back to upload time when a photo has no date at
+            // all. Ties (e.g. batch-scanned film sharing one timestamp) break
+            // by natural filename order so roll/frame sequence is preserved.
+            const t = (p) => p.captured_at || p.created_at || "";
+            const name = (p) => p.display_name || p.public_id || "";
+            next.sort(
+                (a, b) =>
+                    t(a).localeCompare(t(b)) ||
+                    name(a).localeCompare(name(b), undefined, { numeric: true, sensitivity: "base" }),
             );
         } else if (sort === "filename-asc") {
             // Natural (numeric-aware) order by original filename. Photographers
