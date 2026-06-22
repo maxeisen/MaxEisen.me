@@ -8,6 +8,11 @@
 export const cacheControl = {
 	// Never store: auth checks, signing, mutations, per-viewer reads.
 	none: { "Cache-Control": "no-store" },
+	// Per-viewer browser cache only — never a shared/CDN cache. For responses
+	// that are gated + carry non-expiring per-viewer data (e.g. signed gallery
+	// URLs): the authed browser may reuse them, but they must not sit in any
+	// shared edge keyed by URL alone (the password lives in a header).
+	privateBrowser: (maxAge) => ({ "Cache-Control": `private, max-age=${maxAge}` }),
 	// Public browser + CDN cache with stale-while-revalidate.
 	swr: (maxAge, staleWhileRevalidate) => ({
 		"Cache-Control": `public, max-age=${maxAge}, stale-while-revalidate=${staleWhileRevalidate}`,

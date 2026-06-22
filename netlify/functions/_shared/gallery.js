@@ -8,3 +8,59 @@ export const CLOUD_NAME = "meisen-gallery";
 // must be a short plain-alnum slug. Anything else is rejected before we read
 // any state or env var derived from caller input.
 export const SCOPE_RE = /^[a-z0-9]{1,32}$/;
+
+// Signed galleries whose listing is precomputed into a build-time manifest
+// (the Cloudinary Admin search for 1000+ assets takes ~20s, far too slow to
+// run per page load). Add a tag here + regenerate the manifest when it gains
+// a new signed gallery.
+export const SIGNED_GALLERY_TAGS = ["wedding"];
+
+// Normalize a capture timestamp from a Cloudinary asset's image_metadata to a
+// lexically-sortable, zone-less ISO shape ("2025-09-14T16:23:01") so a plain
+// string compare orders photos chronologically. Prefers true EXIF capture
+// time, then IPTC creation fields (lab-scanned film keeps DateCreated /
+// DigitalCreationDate after its EXIF capture date is stripped). Deliberately
+// NOT DateTime — that's the edit/export timestamp. Returns null when no
+// capture date exists (the caller falls back to upload time).
+export function captureDateFrom(imageMetadata) {
+	const m = imageMetadata || {};
+	const candidates = [
+		m.DateTimeOriginal,
+		m.DateTimeDigitized,
+		m.DateCreated,
+		m.DigitalCreationDate && m.DigitalCreationTime
+			? `${m.DigitalCreationDate} ${m.DigitalCreationTime}`
+			: m.DigitalCreationDate,
+	];
+	for (const raw of candidates) {
+		if (!raw) continue;
+		const dt = /^(\d{4})[:-](\d{2})[:-](\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(String(raw));
+		if (dt) {
+			const [, y, mo, d, h, mi, s] = dt;
+			return `${y}-${mo}-${d}T${h}:${mi}:${s}`;
+		}
+		const dOnly = /^(\d{4})[:-](\d{2})[:-](\d{2})$/.exec(String(raw));
+		if (dOnly) {
+			const [, y, mo, d] = dOnly;
+			return `${y}-${mo}-${d}T00:00:00`;
+		}
+	}
+	return null;
+}
+
+// Reduce a raw Cloudinary Admin-API resource to the lean, URL-free fields the
+// gallery needs. This is what gets stored in the manifest (no signed URLs —
+// those are minted per request — and no bulky image_metadata).
+export function toLeanEntry(r) {
+	const meta = r.metadata || {};
+	const ctx = r.context?.custom || r.context || {};
+	return {
+		public_id: r.public_id,
+		display_name: r.display_name || null,
+		width: r.width,
+		height: r.height,
+		created_at: r.created_at,
+		captured_at: captureDateFrom(r.image_metadata) || r.created_at,
+		caption: meta.caption || meta.Caption || ctx.caption || null,
+	};
+}

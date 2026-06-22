@@ -16,6 +16,7 @@ dist
 /.superpowers/
 /docs/
 /scripts/toronto-staging.json
+/netlify/functions/_generated/
 /private/bach/*.json
 !/private/bach/*.example
 !/private/bach/.gitkeep

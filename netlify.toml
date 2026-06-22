@@ -1,7 +1,13 @@
 [build]
-  command = "node scripts/seed-bach-party-packs.mjs && npm run build"
+  command = "node scripts/build-gallery-manifest.mjs && node scripts/seed-bach-party-packs.mjs && npm run build"
   publish = "dist"
   functions = "netlify/functions"
+
+# Bundle the precomputed gallery manifests with the functions so
+# signedGalleryList can read them instead of running a ~20s Admin search per
+# load. Generated at build time (see scripts/build-gallery-manifest.mjs).
+[functions]
+  included_files = ["netlify/functions/_generated/**"]
 
 # /build/* is content-hashed (see vite.config.js) — every filename changes
 # when its contents change, so these are safe to cache forever. immutable +

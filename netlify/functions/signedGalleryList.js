@@ -8,28 +8,51 @@
 // images aren't reachable even if someone knows the cloud name + public_id.
 // The password is a real gate, not a UI veil.
 //
-// Cost note: URL signing is a LOCAL operation (no Cloudinary API call per
-// URL). One invocation lists the tag (a few paginated Admin API calls,
-// memoized) and signs all ~N×3 URLs locally, returning them in one JSON
-// payload. The browser then loads/downloads images straight from Cloudinary
-// using those signed URLs — none of that touches Netlify. So function usage
-// scales with page loads, not photo count.
+// Speed: the Cloudinary Admin search for a 1000+ photo gallery takes ~20s
+// (it streams every asset's metadata), which made a cold page load crawl.
+// Since signed galleries don't change between deploys, the asset list is
+// precomputed into a build-time manifest (scripts/build-gallery-manifest.mjs)
+// that this function reads instantly; it only mints the (non-expiring) signed
+// URLs per request, which is a fast local crypto op. If the manifest is
+// missing (e.g. generation was skipped), it falls back to the live search.
+//
+// Cost note: signing is LOCAL (no Cloudinary call per URL); the browser then
+// loads/downloads images straight from Cloudinary. Function usage scales with
+// page loads, not photo count — and most repeat loads are served from the
+// browser's private cache (see cacheControl.privateBrowser).
 
+import { readFileSync } from "node:fs";
 import { v2 as cloudinary } from "cloudinary";
 import { getEnv } from "./_shared/env.js";
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
-import { CLOUD_NAME, SCOPE_RE } from "./_shared/gallery.js";
+import { CLOUD_NAME, SCOPE_RE, toLeanEntry } from "./_shared/gallery.js";
 
-// no-store: the response carries access-granting signed URLs and is only for
-// an authenticated viewer — it must never sit in a shared (Cloudflare/Netlify)
-// edge cache keyed by URL alone.
-const jsonResponse = createJsonResponder(cacheControl.none);
+// Success: per-viewer browser cache (10 min) so a returning authed browser
+// reuses the list without re-hitting the function. Errors/gate failures are
+// never cached.
+const okResponse = createJsonResponder(cacheControl.privateBrowser(600));
+const errResponse = createJsonResponder(cacheControl.none);
 
-// Memoize the upstream listing per tag (the contents change rarely). Signing
-// is re-done per request — it's local + cheap — so memoizing the raw list is
-// enough to keep Admin API calls down when the gallery is hit repeatedly.
+// Fallback live-listing memo (only used when the manifest is absent).
 const listMemo = createMemo(60_000);
+
+// Build-time manifests. Static `new URL(...)` so Netlify's bundler traces and
+// bundles the file; a missing/empty file yields null and we fall back to the
+// live search. Reading the precomputed list is what makes the load instant.
+const MANIFEST_URLS = {
+	wedding: new URL("./_generated/gallery-wedding.json", import.meta.url),
+};
+function loadManifest(tag) {
+	const u = MANIFEST_URLS[tag];
+	if (!u) return null;
+	try {
+		const entries = JSON.parse(readFileSync(u, "utf8"));
+		return Array.isArray(entries) && entries.length ? entries : null;
+	} catch {
+		return null;
+	}
+}
 
 let configured = false;
 function configure(apiKey, apiSecret) {
@@ -76,7 +99,7 @@ async function listAuthenticated(tag, apiKey, apiSecret) {
 // public helpers in lib/cloudinary.js (thumb 800 / full 2400 / jpg download)
 // but as authenticated, signed URLs. `crop: limit` avoids upscaling.
 const SIGNED = { type: "authenticated", sign_url: true, secure: true };
-function signedUrls(publicId, displayName) {
+function withSignedUrls(entry) {
 	// Download: bounded to 2400px @ q_85 jpg with fl_keep_iptc so the file
 	// retains its embedded EXIF/IPTC/XMP metadata (incl. capture date) while
 	// staying ~0.8 MB instead of the multi-MB original — roughly 1/8th the
@@ -84,79 +107,22 @@ function signedUrls(publicId, displayName) {
 	// transformed delivery would strip all metadata; q_auto is incompatible
 	// with keep_iptc (Cloudinary rejects it), so quality is fixed. fl_attachment
 	// forces the download and carries a readable filename (URL-safe-sanitized).
-	const safeName = displayName ? String(displayName).replace(/[^a-zA-Z0-9_-]+/g, "_") : "";
+	const { public_id, display_name } = entry;
+	const safeName = display_name ? String(display_name).replace(/[^a-zA-Z0-9_-]+/g, "_") : "";
 	const attach = safeName ? `attachment:${safeName}` : "attachment";
 	return {
-		thumb: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 800, crop: "limit" }] }),
-		full: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 2400, crop: "limit" }] }),
-		download: cloudinary.url(publicId, { ...SIGNED, transformation: [{ width: 2400, crop: "limit", quality: 85, fetch_format: "jpg", flags: ["keep_iptc", attach] }] }),
+		...entry,
+		thumb: cloudinary.url(public_id, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 800, crop: "limit" }] }),
+		full: cloudinary.url(public_id, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 2400, crop: "limit" }] }),
+		download: cloudinary.url(public_id, { ...SIGNED, transformation: [{ width: 2400, crop: "limit", quality: 85, fetch_format: "jpg", flags: ["keep_iptc", attach] }] }),
 	};
-}
-
-// EXIF capture time. Cloudinary's image_metadata returns EXIF dates as
-// "2025:09:14 16:23:01"; normalize to a lexically-sortable, zone-less ISO
-// shape ("2025-09-14T16:23:01") so plain string compare orders photos
-// chronologically. Returns null when the photo carries no capture date
-// (screenshots, metadata-stripped images) — the caller falls back to
-// created_at (upload time) for those.
-function exifCaptureDate(r) {
-	const m = r.image_metadata || {};
-	// Prefer true capture time (EXIF). Fall back to IPTC creation fields for
-	// images whose EXIF capture date was stripped — e.g. lab-scanned film,
-	// which carries DateCreated / DigitalCreationDate instead. Deliberately
-	// NOT DateTime: that's the edit/export timestamp, not when it was shot.
-	const candidates = [
-		m.DateTimeOriginal,
-		m.DateTimeDigitized,
-		m.DateCreated,
-		m.DigitalCreationDate && m.DigitalCreationTime
-			? `${m.DigitalCreationDate} ${m.DigitalCreationTime}`
-			: m.DigitalCreationDate,
-	];
-	for (const raw of candidates) {
-		if (!raw) continue;
-		const dt = /^(\d{4})[:-](\d{2})[:-](\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(String(raw));
-		if (dt) {
-			const [, y, mo, d, h, mi, s] = dt;
-			return `${y}-${mo}-${d}T${h}:${mi}:${s}`;
-		}
-		// Date-only (e.g. DigitalCreationDate "2025:07:09" with no time).
-		const dOnly = /^(\d{4})[:-](\d{2})[:-](\d{2})$/.exec(String(raw));
-		if (dOnly) {
-			const [, y, mo, d] = dOnly;
-			return `${y}-${mo}-${d}T00:00:00`;
-		}
-	}
-	return null;
-}
-
-function shape(resources) {
-	return resources.map((r) => {
-		const meta = r.metadata || {};
-		const ctx = r.context?.custom || r.context || {};
-		const caption = meta.caption || meta.Caption || ctx.caption || null;
-		return {
-			public_id: r.public_id,
-			// Best chronological sort key: EXIF capture time, else upload time.
-			captured_at: exifCaptureDate(r) || r.created_at,
-			// display_name is the original filename (the preset sets it from
-			// the upload). The client uses it for download filenames so guests
-			// get "IMG_1234.jpg" instead of the unguessable public_id.
-			display_name: r.display_name || null,
-			width: r.width,
-			height: r.height,
-			created_at: r.created_at,
-			caption,
-			...signedUrls(r.public_id, r.display_name),
-		};
-	});
 }
 
 export default async function handler(req) {
 	const url = new URL(req.url);
 	const tag = (url.searchParams.get("tag") || "").toLowerCase();
 	if (!SCOPE_RE.test(tag)) {
-		return jsonResponse({ error: "Invalid tag" }, 400);
+		return errResponse({ error: "Invalid tag" }, 400);
 	}
 
 	// Private galleries are ALWAYS gated — there is no public path here.
@@ -165,20 +131,25 @@ export default async function handler(req) {
 	const expected = getEnv(`GALLERY_${tag.toUpperCase()}_PASSWORD`);
 	const supplied = req.headers.get("x-gallery-password") || "";
 	if (!expected || supplied !== expected) {
-		return jsonResponse({ error: "unauthorized" }, 401);
+		return errResponse({ error: "unauthorized" }, 401);
 	}
 
 	const apiKey = getEnv("CLOUDINARY_API_KEY");
 	const apiSecret = getEnv("CLOUDINARY_API_SECRET");
 	if (!apiKey || !apiSecret) {
-		return jsonResponse({ error: "not_configured" }, 503);
+		return errResponse({ error: "not_configured" }, 503);
 	}
 	configure(apiKey, apiSecret);
 
 	try {
-		const resources = await listMemo(tag, () => listAuthenticated(tag, apiKey, apiSecret));
-		return jsonResponse({ resources: shape(resources) });
+		// Fast path: precomputed manifest. Fallback: live Admin search.
+		let entries = loadManifest(tag);
+		if (!entries) {
+			const raw = await listMemo(tag, () => listAuthenticated(tag, apiKey, apiSecret));
+			entries = raw.map(toLeanEntry);
+		}
+		return okResponse({ resources: entries.map(withSignedUrls) });
 	} catch (err) {
-		return jsonResponse({ error: err.code || "search_failed" }, 502);
+		return errResponse({ error: err.code || "search_failed" }, 502);
 	}
 }
