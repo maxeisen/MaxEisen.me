@@ -49,7 +49,7 @@ async function listAuthenticated(tag, apiKey, apiSecret) {
 		const body = {
 			expression: `tags=${tag} AND type:authenticated`,
 			max_results: 500,
-			with_field: ["metadata", "context"],
+			with_field: ["metadata", "context", "image_metadata"],
 		};
 		if (cursor) body.next_cursor = cursor;
 		const res = await fetch(searchUrl, {
@@ -84,6 +84,22 @@ function signedUrls(publicId) {
 	};
 }
 
+// EXIF capture time. Cloudinary's image_metadata returns EXIF dates as
+// "2025:09:14 16:23:01"; normalize to a lexically-sortable, zone-less ISO
+// shape ("2025-09-14T16:23:01") so plain string compare orders photos
+// chronologically. Returns null when the photo carries no capture date
+// (screenshots, metadata-stripped images) — the caller falls back to
+// created_at (upload time) for those.
+function exifCaptureDate(r) {
+	const m = r.image_metadata || {};
+	const raw = m.DateTimeOriginal || m.DateTimeDigitized || m.DateTime || null;
+	if (!raw) return null;
+	const match = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(String(raw));
+	if (!match) return null;
+	const [, y, mo, d, h, mi, s] = match;
+	return `${y}-${mo}-${d}T${h}:${mi}:${s}`;
+}
+
 function shape(resources) {
 	return resources.map((r) => {
 		const meta = r.metadata || {};
@@ -91,6 +107,12 @@ function shape(resources) {
 		const caption = meta.caption || meta.Caption || ctx.caption || null;
 		return {
 			public_id: r.public_id,
+			// Best chronological sort key: EXIF capture time, else upload time.
+			captured_at: exifCaptureDate(r) || r.created_at,
+			// display_name is the original filename (the preset sets it from
+			// the upload). The client uses it for download filenames so guests
+			// get "IMG_1234.jpg" instead of the unguessable public_id.
+			display_name: r.display_name || null,
 			width: r.width,
 			height: r.height,
 			created_at: r.created_at,

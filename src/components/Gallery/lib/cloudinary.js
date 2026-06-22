@@ -80,12 +80,15 @@ export function downloadUrl(photo) {
 }
 
 /**
- * Filename to use when saving a photo. We strip the Cloudinary path prefix
- * (everything before the last `/`) and append `.jpg` so the user gets a
- * readable name in their Downloads / Photos app.
+ * Filename to use when saving a photo. Signed galleries carry a
+ * `display_name` (the original upload filename, e.g. "IMG_1234") — prefer
+ * that so guests get a readable name instead of an unguessable public_id.
+ * Public galleries have no display_name, so we fall back to the last path
+ * segment of the public_id. Either way we strip any extension and append
+ * `.jpg` (downloads are delivered as jpg).
  */
 export function downloadFilename(photo) {
-    const id = String(photo.public_id || "photo");
-    const last = id.split("/").pop() || "photo";
-    return `${last}.jpg`;
+    const base = photo.display_name || String(photo.public_id || "photo").split("/").pop() || "photo";
+    const stem = base.replace(/\.[a-z0-9]+$/i, "");
+    return `${stem}.jpg`;
 }

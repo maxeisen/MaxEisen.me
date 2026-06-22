@@ -22,7 +22,7 @@
         tag,
         /** Title for the <h1>. */
         title = "Gallery",
-        /** "date-desc" | "random" — ordering applied client-side after fetch. */
+        /** "date-desc" | "captured-asc" | "random" — ordering applied client-side after fetch. */
         sort = "random",
         /** When set, this turns on the PasswordGate AND sends the password
             header on /.netlify/functions/galleryList. The value is also the
@@ -123,6 +123,12 @@
         const next = [...arr];
         if (sort === "date-desc") {
             next.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+        } else if (sort === "captured-asc") {
+            // Chronological by capture time (EXIF), oldest first — walks the
+            // day in order. Falls back to upload time when a photo lacks EXIF.
+            next.sort((a, b) =>
+                (a.captured_at || a.created_at || "").localeCompare(b.captured_at || b.created_at || ""),
+            );
         } else if (sort === "random") {
             for (let i = next.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));

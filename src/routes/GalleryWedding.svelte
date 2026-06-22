@@ -20,7 +20,7 @@
 <Gallery
     tag="wedding"
     title="Wedding"
-    sort="date-desc"
+    sort="captured-asc"
     passwordScope="wedding"
     signed
     bulkDownloadEnabled
