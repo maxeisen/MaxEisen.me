@@ -22,7 +22,7 @@
         tag,
         /** Title for the <h1>. */
         title = "Gallery",
-        /** "date-desc" | "captured-asc" | "random" — ordering applied client-side after fetch. */
+        /** "date-desc" | "captured-asc" | "filename-asc" | "random" — ordering applied client-side after fetch. */
         sort = "random",
         /** When set, this turns on the PasswordGate AND sends the password
             header on /.netlify/functions/galleryList. The value is also the
@@ -129,6 +129,13 @@
             next.sort((a, b) =>
                 (a.captured_at || a.created_at || "").localeCompare(b.captured_at || b.created_at || ""),
             );
+        } else if (sort === "filename-asc") {
+            // Natural (numeric-aware) order by original filename. Photographers
+            // number files in capture order, so e.g. ..._1608 precedes ..._1641
+            // and ..._999 precedes ..._1000. More reliable than EXIF for a
+            // studio set whose metadata was stripped on export.
+            const key = (p) => p.display_name || p.public_id || "";
+            next.sort((a, b) => key(a).localeCompare(key(b), undefined, { numeric: true, sensitivity: "base" }));
         } else if (sort === "random") {
             for (let i = next.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
