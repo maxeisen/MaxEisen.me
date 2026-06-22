@@ -27,6 +27,7 @@
 <script>
     import { onMount } from "svelte";
     import { thumbUrl, lightboxUrl } from "./lib/cloudinary.js";
+    import { packColumns } from "./lib/packColumns.js";
 
     let {
         photos = [],
@@ -59,18 +60,7 @@
         if (w <= 1200) return 3;
         return 4;
     }
-    const columns = $derived.by(() => {
-        const n = Math.max(1, columnCount);
-        const cols = Array.from({ length: n }, () => []);
-        const heights = new Array(n).fill(0);
-        photos.forEach((p, originalIdx) => {
-            let c = 0;
-            for (let k = 1; k < n; k++) if (heights[k] < heights[c]) c = k;
-            cols[c].push({ p, originalIdx });
-            heights[c] += p.width && p.height ? p.height / p.width : 1;
-        });
-        return cols;
-    });
+    const columns = $derived(packColumns(photos, columnCount));
 
     function preloadFullSize(idx) {
         if (idx < 0 || idx >= photos.length) return;

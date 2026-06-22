@@ -14,6 +14,7 @@
     import Lightbox from "./Lightbox.svelte";
     import Slideshow from "./Slideshow.svelte";
     import { downloadPhotos, downloadOne } from "./lib/download.js";
+    import { sortPhotos } from "./lib/sortPhotos.js";
     import BackLink from "../../lib/ui/BackLink.svelte";
     import { fetchJson, FetchError } from "../../lib/data/fetchJson.js";
 
@@ -119,38 +120,6 @@
     // Persist intro open/close across visits so collapsed stays collapsed.
     const INTRO_KEY = `gallery-intro-open:${tag}`;
 
-    function sortPhotos(arr) {
-        const next = [...arr];
-        if (sort === "date-desc") {
-            next.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
-        } else if (sort === "captured-asc") {
-            // Chronological by capture time, oldest first — walks the day in
-            // order. Falls back to upload time when a photo has no date at
-            // all. Ties (e.g. batch-scanned film sharing one timestamp) break
-            // by natural filename order so roll/frame sequence is preserved.
-            const t = (p) => p.captured_at || p.created_at || "";
-            const name = (p) => p.display_name || p.public_id || "";
-            next.sort(
-                (a, b) =>
-                    t(a).localeCompare(t(b)) ||
-                    name(a).localeCompare(name(b), undefined, { numeric: true, sensitivity: "base" }),
-            );
-        } else if (sort === "filename-asc") {
-            // Natural (numeric-aware) order by original filename. Photographers
-            // number files in capture order, so e.g. ..._1608 precedes ..._1641
-            // and ..._999 precedes ..._1000. More reliable than EXIF for a
-            // studio set whose metadata was stripped on export.
-            const key = (p) => p.display_name || p.public_id || "";
-            next.sort((a, b) => key(a).localeCompare(key(b), undefined, { numeric: true, sensitivity: "base" }));
-        } else if (sort === "random") {
-            for (let i = next.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [next[i], next[j]] = [next[j], next[i]];
-            }
-        }
-        return next;
-    }
-
     async function fetchPhotos() {
         loading = true;
         error = "";
@@ -161,7 +130,7 @@
             const url = `/.netlify/functions/${fn}?tag=${encodeURIComponent(tag)}`;
             const headers = passwordScope && password ? { "X-Gallery-Password": password } : {};
             const data = await fetchJson(url, { headers });
-            photos = sortPhotos(data.resources || []);
+            photos = sortPhotos(data.resources || [], sort);
         } catch (e) {
             if (e instanceof FetchError && e.status === 401) {
                 // Stored password no longer valid — clear it and re-show the gate.
@@ -214,7 +183,7 @@
         scope={passwordScope}
         bind:password
         title={title}
-        hint="Friends-only gallery."
+        hint="Private gallery."
     />
 {/if}
 

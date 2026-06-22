@@ -14,7 +14,7 @@
     import { onMount } from "svelte";
     import GateOverlay from "../../lib/ui/GateOverlay.svelte";
 
-    let { scope, password = $bindable(null), title = "Gallery", hint = "Friends-only gallery." } = $props();
+    let { scope, password = $bindable(null), title = "Gallery", hint = "Private gallery." } = $props();
 
     const STORAGE_KEY = `galleryPassword:${scope}`;
 
