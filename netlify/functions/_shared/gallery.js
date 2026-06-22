@@ -77,15 +77,23 @@ export function sceneSlugs(r) {
 	return (r.tags || []).filter((t) => typeof t === "string" && t.startsWith("scene:")).map((t) => t.slice(6));
 }
 
-// A person definition lives in context on their representative photo:
-// pslug (key), pname (display name), pbox ("x_y_w_h" fractional face box, or
-// empty → chip falls back to face-gravity cropping). Returns null if absent.
-export function personDef(r) {
+// Person definitions stored in context on a representative photo. A single
+// photo can define MORE THAN ONE person (when it's the best face for several),
+// each with their own face box — so chips never collide on the wrong face.
+// Format: `pdefs` = "slug~Name~x_y_w_h;slug2~Name2~x_y_w_h". Returns [].
+export function personDefs(r) {
 	const ctx = r.context?.custom || r.context || {};
-	if (!ctx.pslug) return null;
-	const parts = ctx.pbox ? String(ctx.pbox).split("_").map(Number) : [];
-	const box = parts.length === 4 && parts.every((n) => Number.isFinite(n)) ? parts : null;
-	return { slug: ctx.pslug, name: ctx.pname || ctx.pslug, repPublicId: r.public_id, box };
+	if (!ctx.pdefs) return [];
+	return String(ctx.pdefs)
+		.split(";")
+		.map((entry) => {
+			const [slug, name, boxStr] = entry.split("~");
+			if (!slug) return null;
+			const parts = boxStr ? boxStr.split("_").map(Number) : [];
+			const box = parts.length === 4 && parts.every((n) => Number.isFinite(n)) ? parts : null;
+			return { slug, name: name || slug, repPublicId: r.public_id, box };
+		})
+		.filter(Boolean);
 }
 
 // Assemble the gallery payload from raw Cloudinary resources: lean photos
@@ -102,8 +110,7 @@ export function buildGalleryData(resources) {
 		lean.scenes = sceneSlugs(r);
 		photos.push(lean);
 		for (const s of slugs) counts[s] = (counts[s] || 0) + 1;
-		const def = personDef(r);
-		if (def) defs[def.slug] = def;
+		for (const def of personDefs(r)) defs[def.slug] = def;
 	}
 	const people = Object.values(defs)
 		.map((d) => ({ ...d, count: counts[d.slug] || 0 }))

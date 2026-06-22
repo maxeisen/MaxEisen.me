@@ -89,7 +89,7 @@ async function main() {
 
 	const index = [];
 	const seenSlug = new Set();
-	const usedReps = new Set();
+	const byRep = new Map(); // repPublicId -> ["slug~Name~x_y_w_h", ...]
 	for (const [rankStr, name] of Object.entries(names)) {
 		const rank = Number(rankStr);
 		const cluster = byRank.get(rank);
@@ -99,37 +99,31 @@ async function main() {
 		seenSlug.add(slug);
 
 		const photoIds = cluster.photos.map((s) => dnMap[s]).filter(Boolean);
-		let repId = dnMap[cluster.representative.stem];
-		let box = cluster.representative.bbox_frac.join("_"); // x_y_w_h fractions
+		const repId = dnMap[cluster.representative.stem];
 		if (!repId || photoIds.length === 0) { console.warn(`  ${name}: no Cloudinary match — skip`); continue; }
-		// A person's definition (name + face box) is stored as context on a
-		// representative photo. If that photo already defines someone else,
-		// fall back to another of their photos with an empty box (chip then
-		// uses face-gravity cropping) so two defs never collide on one asset.
-		if (usedReps.has(repId)) {
-			const alt = photoIds.find((id) => !usedReps.has(id));
-			if (alt) { repId = alt; box = ""; }
-		}
-		usedReps.add(repId);
+		const box = cluster.representative.bbox_frac.join("_"); // x_y_w_h fractions
 
 		index.push({ slug, name, count: photoIds.length });
 		console.log(`  face:${slug.padEnd(14)} ${String(photoIds.length).padStart(3)} photos`);
 		if (!DRY) {
-			// add_tag / add_context accept up to 1000 public_ids per call.
+			// add_tag accepts up to 1000 public_ids per call; none exceed that.
 			await cloudinary.uploader.add_tag(`face:${slug}`, photoIds, { type: "authenticated", resource_type: "image" });
-			await cloudinary.uploader.add_context(
-				{ pslug: slug, pname: name, pbox: box },
-				[repId],
-				{ type: "authenticated", resource_type: "image" },
-			);
 		}
+		// Group each person's definition (its OWN correct face box) under its
+		// representative photo. A photo that's the rep for several people holds
+		// all their defs, so chips never collide on the wrong face.
+		if (!byRep.has(repId)) byRep.set(repId, []);
+		byRep.get(repId).push(`${slug}~${name}~${box}`);
 	}
 
 	if (DRY) {
-		console.log(`\n[dry-run] would tag + define ${index.length} people`);
+		console.log(`\n[dry-run] would tag ${index.length} people + define across ${byRep.size} representative photos`);
 		return;
 	}
-	console.log(`\nTagged ${index.length} people + wrote definitions to representative-photo context.`);
+	for (const [repId, defs] of byRep) {
+		await cloudinary.uploader.add_context({ pdefs: defs.join(";") }, [repId], { type: "authenticated", resource_type: "image" });
+	}
+	console.log(`\nTagged ${index.length} people + wrote pdefs to ${byRep.size} representative photos.`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

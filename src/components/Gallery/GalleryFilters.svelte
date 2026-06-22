@@ -15,7 +15,7 @@
         scenes = [],
         selectedPeople,      // SvelteSet<slug>
         selectedScenes,      // SvelteSet<slug>
-        peopleMode = "any",  // "any" | "all"
+        peopleMode = "all",  // "all" | "any"
         resultCount = 0,
         total = 0,
         onTogglePerson,
@@ -50,7 +50,7 @@
                         </div>
                     {/if}
                 </div>
-                <div class="scroller" role="group" aria-label="Filter by person">
+                <div class="people" role="group" aria-label="Filter by person">
                     {#each people as p (p.slug)}
                         <button
                             type="button"
@@ -75,7 +75,7 @@
         {#if scenes.length}
             <div class="group">
                 <div class="group-head"><h2 class="group-title">Scenes</h2></div>
-                <div class="scroller pills" role="group" aria-label="Filter by scene">
+                <div class="scenes" role="group" aria-label="Filter by scene">
                     {#each scenes as s (s.slug)}
                         <button
                             type="button"
@@ -130,19 +130,37 @@
         margin: 0;
     }
 
-    /* Horizontal scroll keeps long lists tidy; thin scrollbar, momentum on touch. */
-    .scroller {
-        display: flex;
-        gap: 0.55rem;
-        overflow-x: auto;
-        padding: 0.25rem 0.1rem;
-        scrollbar-width: thin;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x proximity;
+    /* People: a multi-row grid on desktop (no scrollbar) — 11 across at full
+       width → tidy even rows. Collapses columns as it narrows, then becomes a
+       horizontal scroller on phones with the scrollbar hidden and a right-edge
+       fade hinting there's more to swipe to. */
+    .people {
+        display: grid;
+        grid-template-columns: repeat(11, minmax(0, 1fr));
+        gap: 0.9rem 0.4rem;
+        justify-items: center;
     }
-    .scroller.pills { flex-wrap: nowrap; }
-    .scroller::-webkit-scrollbar { height: 6px; }
-    .scroller::-webkit-scrollbar-thumb { background: var(--main-green-translucent, rgba(80,120,90,0.4)); border-radius: 3px; }
+    @media (max-width: 1200px) { .people { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+    @media (max-width: 900px)  { .people { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+    /* Scenes: wrap to multiple rows on desktop; horizontal scroll on phones. */
+    .scenes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    @media (max-width: 640px) {
+        .people, .scenes {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 0.6rem;
+            padding-bottom: 0.3rem;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            /* fade the right edge → "there's more this way" */
+            -webkit-mask-image: linear-gradient(to right, #000 90%, transparent);
+            mask-image: linear-gradient(to right, #000 90%, transparent);
+        }
+        .people::-webkit-scrollbar, .scenes::-webkit-scrollbar { display: none; }
+    }
 
     /* Person chip: round avatar + name (clearly distinct from scene pills). */
     .person {
@@ -150,13 +168,12 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.3rem;
-        width: 64px;
+        gap: 0.35rem;
+        width: 72px;
         padding: 0;
         border: 0;
         background: none;
         cursor: pointer;
-        scroll-snap-align: start;
     }
     .person img {
         width: 56px;
@@ -168,13 +185,16 @@
         transition: border-color 0.15s ease, transform 0.1s ease;
     }
     .person .name {
-        font-size: 0.72rem;
-        line-height: 1;
+        font-size: 0.82rem;
+        line-height: 1.15;
         color: var(--paragraph-colour);
-        max-width: 64px;
+        max-width: 72px;
+        min-height: 1.9em;            /* reserve 2 lines so chips align evenly */
+        text-align: center;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;        /* full first names, wrapping to 2 lines */
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
         transition: color 0.15s ease;
     }
     .person:hover img { transform: translateY(-1px); }

@@ -13,6 +13,15 @@
     // Scene filter chips — displayed in this order, but only for scenes that
     // actually have photos tagged `scene:<slug>` in Cloudinary. Reorder / add
     // / rename freely; the slug is the Cloudinary tag suffix.
+    // People filter display order (slugs). Unlisted people fall to the end.
+    const peopleOrder = [
+        "lara", "max", "michael", "robin", "elan", "rosanne", "jen", "stephanie",
+        "daniel", "tasha", "holden", "hayley", "kai", "ryland", "judianne",
+        "maverick", "beau", "suzanne", "gavin", "marty-ez", "jane", "alex",
+        "sarah", "olivia-d", "olivia-f", "laura", "judy", "gabi", "matthew-p",
+        "andrew", "dakota", "matthew-g", "lewis",
+    ];
+
     const scenes = [
         { slug: "getting-ready", label: "Getting Ready" },
         { slug: "reveal", label: "Reveal" },
@@ -49,6 +58,7 @@
     signed
     bulkDownloadEnabled
     faceFilter
+    {peopleOrder}
     {scenes}
 >
     {#snippet intro()}

@@ -4,7 +4,7 @@ import {
 	toLeanEntry,
 	faceSlugs,
 	sceneSlugs,
-	personDef,
+	personDefs,
 	buildGalleryData,
 	SIGNED_GALLERY_TAGS,
 	SCOPE_RE,
@@ -109,24 +109,25 @@ describe("faceSlugs / sceneSlugs", () => {
 	});
 });
 
-describe("personDef", () => {
-	it("parses a definition from rep-photo context", () => {
-		expect(
-			personDef({ public_id: "p1", context: { custom: { pslug: "lara", pname: "Lara", pbox: "0.1_0.2_0.3_0.4" } } }),
-		).toEqual({ slug: "lara", name: "Lara", repPublicId: "p1", box: [0.1, 0.2, 0.3, 0.4] });
+describe("personDefs", () => {
+	it("parses multiple definitions from one rep photo's pdefs (each with its own box)", () => {
+		const r = { public_id: "p1", context: { custom: { pdefs: "lara~Lara~0.1_0.2_0.3_0.4;max~Max~0.5_0.5_0.2_0.2" } } };
+		expect(personDefs(r)).toEqual([
+			{ slug: "lara", name: "Lara", repPublicId: "p1", box: [0.1, 0.2, 0.3, 0.4] },
+			{ slug: "max", name: "Max", repPublicId: "p1", box: [0.5, 0.5, 0.2, 0.2] },
+		]);
 	});
-	it("returns null when the photo defines no person", () => {
-		expect(personDef({ public_id: "p1", context: { custom: { caption: "hi" } } })).toBeNull();
+	it("returns [] when the photo defines no person", () => {
+		expect(personDefs({ public_id: "p1", context: { custom: { caption: "hi" } } })).toEqual([]);
 	});
-	it("nulls the box when pbox is empty/malformed (chip falls back to face crop)", () => {
-		expect(personDef({ public_id: "p1", context: { custom: { pslug: "x", pbox: "" } } }).box).toBeNull();
-		expect(personDef({ public_id: "p1", context: { custom: { pslug: "x", pbox: "1_2" } } }).box).toBeNull();
+	it("nulls a malformed box", () => {
+		expect(personDefs({ public_id: "p1", context: { custom: { pdefs: "x~X~1_2" } } })[0].box).toBeNull();
 	});
 });
 
 describe("buildGalleryData", () => {
 	const resources = [
-		{ public_id: "a", tags: ["face:lara", "scene:ceremony"], context: { custom: { pslug: "lara", pname: "Lara", pbox: "0.1_0.2_0.3_0.4" } } },
+		{ public_id: "a", tags: ["face:lara", "scene:ceremony"], context: { custom: { pdefs: "lara~Lara~0.1_0.2_0.3_0.4" } } },
 		{ public_id: "b", tags: ["face:lara", "face:max"] },
 	];
 	const { photos, people } = buildGalleryData(resources);

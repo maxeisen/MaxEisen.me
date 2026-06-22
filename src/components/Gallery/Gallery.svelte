@@ -51,6 +51,9 @@
         /** Scene filter config: ordered [{ slug, label }]. The UI shows a chip
             only for scenes that actually appear in the photos. */
         scenes = [],
+        /** People filter display order (array of slugs). Unlisted people fall
+            to the end. Defaults to API order (most-photographed first). */
+        peopleOrder = [],
         /** Intro snippet — fully arbitrary About markup. */
         intro,
     } = $props();
@@ -68,7 +71,7 @@
     let people = $state([]);                 // [{slug,name,count,chip}] from the API
     const selectedPeople = new SvelteSet();  // active person slugs
     const selectedScenes = new SvelteSet();  // active scene slugs
-    let peopleMode = $state("any");          // "any" (union) | "all" (intersection)
+    let peopleMode = $state("all");          // "all" (intersection) | "any" (union)
 
     // Bulk-download selection state. SvelteSet is reactive on mutation.
     let selectionMode = $state(false);
@@ -136,6 +139,12 @@
     // === filtering ======================================================
     // Show a scene chip only for scenes that actually appear in the photos.
     const presentScenes = $derived(scenes.filter((s) => photos.some((p) => (p.scenes || []).includes(s.slug))));
+    // People in the configured display order (unlisted fall to the end).
+    const orderedPeople = $derived.by(() => {
+        if (!peopleOrder.length) return people;
+        const idx = new Map(peopleOrder.map((s, i) => [s, i]));
+        return [...people].sort((a, b) => (idx.get(a.slug) ?? 1e9) - (idx.get(b.slug) ?? 1e9));
+    });
     const filtersShown = $derived((faceFilter && people.length > 0) || presentScenes.length > 0);
     const selPeople = $derived([...selectedPeople]);
     const selScenes = $derived([...selectedScenes]);
@@ -330,7 +339,7 @@
     {:else}
         {#if filtersShown}
             <GalleryFilters
-                people={faceFilter ? people : []}
+                people={faceFilter ? orderedPeople : []}
                 scenes={presentScenes}
                 {selectedPeople}
                 {selectedScenes}
