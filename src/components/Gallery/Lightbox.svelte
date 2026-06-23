@@ -170,6 +170,11 @@
         align-items: center;
         justify-content: center;
         cursor: zoom-out;
+        /* Swiping between photos must not pan/scroll the page behind (the body
+           overflow lock alone isn't enough on iOS). We read swipe coordinates
+           ourselves, so the browser needs no touch panning here. */
+        touch-action: none;
+        overscroll-behavior: contain;
     }
     .lightbox.open { display: flex; }
     .lightbox img {
