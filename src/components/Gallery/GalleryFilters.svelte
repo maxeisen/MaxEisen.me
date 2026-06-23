@@ -170,6 +170,10 @@
             mask-image: linear-gradient(to right, #000 90%, transparent);
         }
         .people::-webkit-scrollbar, .scenes::-webkit-scrollbar { display: none; }
+        /* keep chips compact on phones (the desktop sizes are larger) */
+        .person { width: 70px; }
+        .person img { width: 58px; height: 58px; }
+        .person .name { max-width: 70px; }
     }
 
     /* Person chip: round avatar + name (clearly distinct from scene pills). */
@@ -178,16 +182,16 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.35rem;
-        width: 72px;
+        gap: 0.4rem;
+        width: 92px;
         padding: 0;
         border: 0;
         background: none;
         cursor: pointer;
     }
     .person img {
-        width: 56px;
-        height: 56px;
+        width: 78px;
+        height: 78px;
         border-radius: 50%;
         object-fit: cover;
         background: var(--main-green-translucent, rgba(80,120,90,0.2));
@@ -198,7 +202,7 @@
         font-size: 0.82rem;
         line-height: 1.15;
         color: var(--paragraph-colour);
-        max-width: 72px;
+        max-width: 92px;
         min-height: 1.9em;            /* reserve 2 lines so chips align evenly */
         text-align: center;
         display: -webkit-box;

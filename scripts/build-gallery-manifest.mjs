@@ -11,13 +11,21 @@
 // repo is public and these carry filenames/timestamps). Regenerated on every
 // deploy; run `npm run gallery:manifest` locally to refresh it for dev.
 //
-// Non-fatal by design: any failure (no creds, API error) logs and exits 0 so
-// the build still succeeds — the function falls back to the live search.
+// Failure modes:
+//   - No creds / API/network error → non-fatal, exit 0; the function falls
+//     back to the live Admin search at request time.
+//   - People list incomplete (someone tagged face:<slug> has no definition)
+//     → retry (Cloudinary's search index is eventually-consistent and may lag
+//     a just-written context); if still short after retries, FAIL the build
+//     (exit 1) so the previous complete deploy stays live rather than shipping
+//     a gallery missing a filter chip.
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CLOUD_NAME, SIGNED_GALLERY_TAGS, buildGalleryData } from "../netlify/functions/_shared/gallery.js";
+import { CLOUD_NAME, SIGNED_GALLERY_TAGS, buildGalleryData, faceSlugs } from "../netlify/functions/_shared/gallery.js";
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../..");
 const OUT_DIR = path.join(ROOT, "netlify/functions/_generated");
@@ -55,6 +63,24 @@ async function listAuthenticated(tag, auth) {
 	return out;
 }
 
+// Build one tag's data, retrying while the search index lags behind a recent
+// context write (every person tagged face:<slug> should have a definition).
+async function buildTag(tag, auth) {
+	let last;
+	for (let attempt = 1; attempt <= 4; attempt++) {
+		const raw = await listAuthenticated(tag, auth);
+		const data = buildGalleryData(raw);
+		const tagged = new Set(raw.flatMap(faceSlugs));
+		const defined = new Set(data.people.map((p) => p.slug));
+		const missing = [...tagged].filter((s) => !defined.has(s));
+		last = { data, missing };
+		if (!missing.length) return data;
+		console.warn(`[gallery-manifest] ${tag}: ${missing.length} tagged people missing definitions (${missing.join(", ")}); index settling, retry ${attempt}/4…`);
+		await sleep(8000);
+	}
+	throw Object.assign(new Error(`${tag}: ${last.missing.length} people still missing after retries (${last.missing.join(", ")})`), { fatal: true });
+}
+
 async function main() {
 	const { key, secret } = loadCreds();
 	if (!key || !secret) {
@@ -65,8 +91,7 @@ async function main() {
 	fs.mkdirSync(OUT_DIR, { recursive: true });
 
 	for (const tag of SIGNED_GALLERY_TAGS) {
-		const raw = await listAuthenticated(tag, auth);
-		const { photos, people } = buildGalleryData(raw);
+		const { photos, people } = await buildTag(tag, auth);
 		photos.sort((a, b) => (a.captured_at || a.created_at || "").localeCompare(b.captured_at || b.created_at || ""));
 		const outPath = path.join(OUT_DIR, `gallery-${tag}.json`);
 		fs.writeFileSync(outPath, JSON.stringify({ photos, people }));
@@ -75,6 +100,12 @@ async function main() {
 }
 
 main().catch((err) => {
+	if (err.fatal) {
+		// Incomplete people list → fail the build; keep the last good deploy.
+		console.error("[gallery-manifest] FATAL:", err.message);
+		process.exit(1);
+	}
+	// Network / API / creds issue → non-fatal; function live-searches at runtime.
 	console.warn("[gallery-manifest] generation failed (non-fatal):", err.message);
 	process.exit(0);
 });

@@ -63,6 +63,7 @@
 >
     {#snippet intro()}
         <p>Photos from Max and Lara's wedding day - a private gallery for family and friends.</p>
+        <p><strong>Find your photos fast.</strong> Use the filters above the grid: tap a face to see photos of that person, tap a scene (Ceremony, Party, Family…) to jump to that moment, or combine the two. Select a few people and toggle <em>Any</em>/<em>All</em> to switch between "in any of their photos" and "only together."</p>
         <p>Tap any photo to view it full-screen, start a slideshow, or select photos to download (individually or in bulk).</p>
     {/snippet}
 </Gallery>

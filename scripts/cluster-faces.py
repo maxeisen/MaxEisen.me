@@ -276,17 +276,20 @@ def main():
 
     print(f"\n→ {len(ordered_labels)} people | recovered {recovered} extra faces via pass 2 | {noise} unmatched\n")
     print(f"{'person':>7}  {'faces':>5}  {'photos':>6}")
+    def frac_of(i):
+        x1, y1, x2, y2 = faces[i]["bbox"]
+        w, h = faces[i]["dims"]
+        return [round(x1 / w, 5), round(y1 / h, 5), round((x2 - x1) / w, 5), round((y2 - y1) / h, 5)]
+
     for rank, lab in enumerate(ordered_labels):
         idxs = sorted(assigned[lab], key=lambda i: faces[i]["det"], reverse=True)
         photos = sorted({faces[i]["stem"] for i in idxs})
-        # Representative = best CLEAN face (sharp/frontal) for a good chip.
-        rep = faces[max(clean_members[lab], key=lambda i: faces[i]["det"])]
-        rx1, ry1, rx2, ry2 = rep["bbox"]
-        rw, rh = rep["dims"]
-        bbox_frac = [
-            round(rx1 / rw, 5), round(ry1 / rh, 5),
-            round((rx2 - rx1) / rw, 5), round((ry2 - ry1) / rh, 5),
-        ]
+        # Candidate chip faces = the cluster's best CLEAN faces (sharp/frontal),
+        # so a human can pick the most flattering one. candidates[0] is the
+        # default representative (highest detection score).
+        clean_sorted = sorted(clean_members[lab], key=lambda i: faces[i]["det"], reverse=True)
+        candidates = [{"stem": faces[i]["stem"], "bbox_frac": frac_of(i)} for i in clean_sorted[:9]]
+        rep = candidates[0]
         sheet = montage([faces[i]["crop"] for i in idxs[:args.max_sheet]])
         name = f"cluster_{rank:03d}_n{len(idxs)}_p{len(photos)}.jpg"
         cv2.imwrite(str(out / name), sheet)
@@ -294,7 +297,8 @@ def main():
             "rank": rank,
             "num_faces": len(idxs),
             "num_photos": len(photos),
-            "representative": {"stem": rep["stem"], "bbox_frac": bbox_frac},
+            "representative": {"stem": rep["stem"], "bbox_frac": rep["bbox_frac"]},
+            "candidates": candidates,
             "photos": photos,
             "sheet": name,
         })
