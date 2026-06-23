@@ -72,6 +72,7 @@
     const selectedPeople = new SvelteSet();  // active person slugs
     const selectedScenes = new SvelteSet();  // active scene slugs
     let peopleMode = $state("all");          // "all" (intersection) | "any" (union)
+    let sceneMode = $state("any");           // "any" (union) | "all" (intersection)
 
     // Bulk-download selection state. SvelteSet is reactive on mutation.
     let selectionMode = $state(false);
@@ -158,7 +159,8 @@
                 || (peopleMode === "all" ? selPeople.every((s) => pl.includes(s)) : selPeople.some((s) => pl.includes(s)));
             if (!okP) return false;
             const sl = p.scenes || [];
-            return !selScenes.length || selScenes.some((s) => sl.includes(s));
+            return !selScenes.length
+                || (sceneMode === "all" ? selScenes.every((s) => sl.includes(s)) : selScenes.some((s) => sl.includes(s)));
         });
     });
     function togglePerson(slug) { selectedPeople.has(slug) ? selectedPeople.delete(slug) : selectedPeople.add(slug); }
@@ -344,11 +346,13 @@
                 {selectedPeople}
                 {selectedScenes}
                 {peopleMode}
+                {sceneMode}
                 resultCount={displayPhotos.length}
                 total={photos.length}
                 onTogglePerson={togglePerson}
                 onToggleScene={toggleScene}
                 onSetMode={(m) => (peopleMode = m)}
+                onSetSceneMode={(m) => (sceneMode = m)}
                 onClear={clearFilters}
             />
         {/if}

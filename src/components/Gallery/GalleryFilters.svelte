@@ -16,11 +16,13 @@
         selectedPeople,      // SvelteSet<slug>
         selectedScenes,      // SvelteSet<slug>
         peopleMode = "all",  // "all" | "any"
+        sceneMode = "any",   // "any" | "all"
         resultCount = 0,
         total = 0,
         onTogglePerson,
         onToggleScene,
         onSetMode,
+        onSetSceneMode,
         onClear,
     } = $props();
 
@@ -32,7 +34,7 @@
     const summary = $derived.by(() => {
         const parts = [];
         if (selPeople.length) parts.push(selPeople.map((p) => p.name).join(peopleMode === "all" ? " + " : " / "));
-        if (selScenes.length) parts.push(selScenes.map((s) => s.label).join(", "));
+        if (selScenes.length) parts.push(selScenes.map((s) => s.label).join(sceneMode === "all" ? " + " : " / "));
         return parts.join("  ·  ");
     });
 </script>
@@ -74,7 +76,15 @@
 
         {#if scenes.length}
             <div class="group">
-                <div class="group-head"><h2 class="group-title">Scenes</h2></div>
+                <div class="group-head">
+                    <h2 class="group-title">Scenes</h2>
+                    {#if selectedScenes.size >= 2}
+                        <div class="mode" role="group" aria-label="Scene match mode">
+                            <button type="button" class:on={sceneMode === "any"} onclick={() => onSetSceneMode("any")}>Any</button>
+                            <button type="button" class:on={sceneMode === "all"} onclick={() => onSetSceneMode("all")}>All</button>
+                        </div>
+                    {/if}
+                </div>
                 <div class="scenes" role="group" aria-label="Filter by scene">
                     {#each scenes as s (s.slug)}
                         <button
