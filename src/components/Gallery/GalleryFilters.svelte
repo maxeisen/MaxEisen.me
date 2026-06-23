@@ -217,6 +217,8 @@
         .person { width: 70px; }
         .person img { width: 58px; height: 58px; }
         .person .name { max-width: 70px; }
+        /* 16px min prevents iOS from auto-zooming the page on focus */
+        .people-search { font-size: 16px; }
     }
 
     /* Person chip: round avatar + name (clearly distinct from scene pills). */
