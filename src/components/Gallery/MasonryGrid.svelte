@@ -15,11 +15,12 @@
     The lightbox navigates the original chronological `photos` order, which
     now matches the visual flow (next ≈ the photo to the right / next row).
 
-    Owns the preload-on-interaction logic:
+    Owns the full-size preload logic — DESKTOP ONLY (touch devices skip it
+    entirely; see isCoarse — it was the main mobile perf drag):
       - hover (80ms debounce) — desktop pointer
-      - touchstart — mobile head start
-      - IntersectionObserver (rootMargin 300px) — works for any input
+      - IntersectionObserver (rootMargin 300px) — warms near-viewport photos
       - first-10 background warm on mount
+    On mobile the grid shows only w_800 thumbnails; the full loads on open.
 
     Emits `onopen(idx)` when a figure is clicked in normal mode,
     `ontoggle(idx)` when clicked while `selectionMode` is on.
@@ -48,6 +49,14 @@
     let gridEl = $state();
     const lightboxPreloaded = new Set();
 
+    // Touch devices: skip ALL background full-size preloading. On desktop we
+    // warm the 2400px lightbox image as photos scroll near the viewport, but on
+    // mobile that meant dozens of full-res images decoding in the background
+    // while scrolling — the main cause of poor mobile performance. On mobile
+    // the grid shows only the w_800 thumbnails; the full loads only when a
+    // photo is actually opened.
+    const isCoarse = typeof window !== "undefined" && window.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
+
     // === responsive masonry packing =====================================
     // Pack photos left-to-right into N columns, each new photo going to the
     // currently-shortest column. Column widths are equal, so a photo's
@@ -55,9 +64,8 @@
     // the breakpoint changes (see onResize in onMount).
     let columnCount = $state(4);
     function columnsForWidth(w) {
-        if (w <= 480) return 1;
-        if (w <= 800) return 2;
-        if (w <= 1200) return 3;
+        if (w <= 640) return 2;    // phones: a denser "mini" grid → smaller cells
+        if (w <= 1024) return 3;
         return 4;
     }
     const columns = $derived(packColumns(photos, columnCount));
@@ -253,9 +261,8 @@
         columnCount = columnsForWidth(window.innerWidth);
 
         // Background warm: first 10 lightbox URLs so prev/next is already
-        // cached by the time anyone opens anything. Browser's
-        // 6-concurrent-per-origin limit naturally throttles.
-        for (let i = 0; i < Math.min(10, photos.length); i++) preloadFullSize(i);
+        // cached by the time anyone opens anything (desktop only — see isCoarse).
+        if (!isCoarse) for (let i = 0; i < Math.min(10, photos.length); i++) preloadFullSize(i);
 
         // Re-pack only when the breakpoint actually changes (not every px),
         // so resizing doesn't thrash the DOM.
@@ -272,7 +279,8 @@
     // the layout repacks, since the figures are re-created on a column change.
     $effect(() => {
         columns; // dependency: re-observe after a repack
-        if (typeof window === "undefined" || !("IntersectionObserver" in window) || !gridEl) return;
+        // No background full-size warming on touch devices (see isCoarse).
+        if (isCoarse || typeof window === "undefined" || !("IntersectionObserver" in window) || !gridEl) return;
         const io = new IntersectionObserver((entries) => {
             for (const entry of entries) {
                 if (!entry.isIntersecting) continue;
@@ -312,7 +320,6 @@
             onfocusin={() => onHover(originalIdx)}
             onmouseout={onHoverOut}
             onfocusout={onHoverOut}
-            ontouchstart={() => preloadFullSize(originalIdx)}
         >
             <div
                 style:padding-bottom={pad}
