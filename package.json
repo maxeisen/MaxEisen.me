@@ -11,7 +11,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
-    "gallery:manifest": "node scripts/build-gallery-manifest.mjs"
+    "gallery:manifest": "node scripts/build-gallery-manifest.mjs",
+    "gallery:chip": "node scripts/set-chip.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
