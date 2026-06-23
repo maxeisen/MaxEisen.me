@@ -112,11 +112,59 @@
         else if (e.key === "ArrowLeft") prev();
     }
 
+    // Touch: 1-finger swipe navigates; 2-finger pinch zooms just the photo and
+    // snaps back on release. touch-action:none on the overlay stops the
+    // browser's own pan/zoom, so these don't move the page behind.
     let touchStartX = null;
+    let pinching = false;
+    let pinchStartDist = 0;
+    let snapTimer = 0;
+    const dist2 = (a, b) => Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+
     function onTouchStart(e) {
-        if (e.touches.length === 1) touchStartX = e.touches[0].clientX;
+        if (e.touches.length === 2) {
+            pinching = true;
+            touchStartX = null; // a pinch is not a swipe
+            const [a, b] = e.touches;
+            pinchStartDist = dist2(a, b) || 1;
+            if (imgEl) {
+                clearTimeout(snapTimer);
+                // Zoom about the midpoint between the fingers.
+                const r = imgEl.getBoundingClientRect();
+                const mx = (a.clientX + b.clientX) / 2;
+                const my = (a.clientY + b.clientY) / 2;
+                const ox = Math.max(0, Math.min(100, ((mx - r.left) / r.width) * 100));
+                const oy = Math.max(0, Math.min(100, ((my - r.top) / r.height) * 100));
+                imgEl.style.transition = "none";
+                imgEl.style.transformOrigin = `${ox}% ${oy}%`;
+            }
+        } else if (e.touches.length === 1 && !pinching) {
+            touchStartX = e.touches[0].clientX;
+        }
     }
+
+    function onTouchMove(e) {
+        if (!pinching || e.touches.length < 2 || !imgEl) return;
+        const [a, b] = e.touches;
+        const scale = Math.max(1, Math.min(dist2(a, b) / pinchStartDist, 4));
+        imgEl.style.transform = `scale(${scale})`;
+    }
+
     function onTouchEnd(e) {
+        if (pinching) {
+            if (e.touches.length < 2) {
+                // Last pinch finger lifted → snap the photo back.
+                pinching = false;
+                if (imgEl) {
+                    imgEl.style.transition = "transform 0.25s ease";
+                    imgEl.style.transform = "";
+                    snapTimer = setTimeout(() => {
+                        if (imgEl) { imgEl.style.transition = ""; imgEl.style.transformOrigin = ""; }
+                    }, 280);
+                }
+            }
+            return; // never treat the end of a pinch as a swipe
+        }
         if (touchStartX == null) return;
         const dx = (e.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
         if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
@@ -138,6 +186,7 @@
     aria-label="Photo viewer"
     onclick={onBackgroundClick}
     ontouchstart={onTouchStart}
+    ontouchmove={onTouchMove}
     ontouchend={onTouchEnd}
 >
     {#if downloadEnabled}
