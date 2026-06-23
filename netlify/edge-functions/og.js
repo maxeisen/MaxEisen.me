@@ -22,7 +22,7 @@ const DEFAULT = {
 // path -> { title (document + og), desc, card (short text drawn on the image) }
 const META = {
 	"/": DEFAULT,
-	"/gallery": { title: "Photo Galleries — Max Eisen", desc: "Photo galleries — cycling, running, and more.", card: "Galleries" },
+	"/gallery": { title: "Gallery — Max Eisen", desc: "A gallery of photos taken with my Fujifilm X100S.", card: "Gallery" },
 	"/gallery/ride": { title: "Cycling — Max Eisen", desc: "Photos from the road, cycling around Toronto and beyond.", card: "Cycling" },
 	"/gallery/run": { title: "Running — Max Eisen", desc: "Photos from runs around Toronto and beyond.", card: "Running" },
 	"/dashboard": { title: "Live Dashboard — Max Eisen", desc: "A live look at what I'm listening to, riding, and reading.", card: "Live Dashboard" },
