@@ -424,6 +424,10 @@
         margin: 0 auto;
         padding: 3rem 1.5rem 4rem;
     }
+    /* Slimmer side padding on phones → bigger thumbnails edge-to-edge. */
+    @media (max-width: 640px) {
+        .container { padding: 1.5rem 0.5rem 3rem; }
+    }
 
     .gallery-header {
         display: flex;

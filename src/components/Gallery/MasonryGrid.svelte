@@ -68,7 +68,29 @@
         if (w <= 1024) return 3;
         return 4;
     }
-    const columns = $derived(packColumns(photos, columnCount));
+    // Progressive rendering: only mount a window of photos and grow it as the
+    // user nears the bottom. Mounting 1400+ <img> nodes at once is heavy
+    // (especially on mobile). Shortest-column packing is prefix-stable, so
+    // growing the slice never reshuffles already-mounted figures — they stay
+    // put and new ones append. Reset to the first batch whenever the photo set
+    // changes (filter/sort), keying off the new array reference.
+    const BATCH = isCoarse ? 100 : 400;
+    let visibleCount = $state(BATCH);
+    $effect(() => { photos; visibleCount = BATCH; });
+    const shown = $derived(photos.slice(0, visibleCount));
+    const columns = $derived(packColumns(shown, columnCount));
+
+    // Grow the window when a sentinel below the grid nears the viewport.
+    let sentinel = $state();
+    $effect(() => {
+        if (!sentinel || visibleCount >= photos.length || typeof window === "undefined") return;
+        const io = new IntersectionObserver(
+            (entries) => { if (entries.some((e) => e.isIntersecting)) visibleCount = Math.min(photos.length, visibleCount + BATCH); },
+            { rootMargin: "600px" },
+        );
+        io.observe(sentinel);
+        return () => io.disconnect();
+    });
 
     function preloadFullSize(idx) {
         if (idx < 0 || idx >= photos.length) return;
@@ -369,18 +391,28 @@
     {/each}
 </div>
 
+{#if visibleCount < photos.length}
+    <div class="grid-sentinel" bind:this={sentinel} aria-hidden="true"></div>
+{/if}
+
 <style>
     .gallery {
         display: flex;
         align-items: flex-start;
         gap: 1rem;
     }
+    .grid-sentinel { height: 1px; }
     .gallery .col {
         flex: 1 1 0;
         min-width: 0;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+    /* Tighter gaps on phones so the thumbnails render bigger. */
+    @media (max-width: 640px) {
+        .gallery { gap: 0.3rem; }
+        .gallery .col { gap: 0.3rem; }
     }
 
     .gallery :global(figure) {
