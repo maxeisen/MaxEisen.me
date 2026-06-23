@@ -30,6 +30,16 @@
     const selScenes = $derived(scenes.filter((s) => selectedScenes.has(s.slug)));
     const active = $derived(selPeople.length + selScenes.length > 0);
 
+    // Type-to-find: narrow which people chips are shown (helps guests find
+    // themselves). Only worth showing on larger people lists. Selection state
+    // is unaffected — a selected person filtered out of view stays selected.
+    let peopleQuery = $state("");
+    const showSearch = $derived(people.length > 10);
+    const shownPeople = $derived.by(() => {
+        const q = peopleQuery.trim().toLowerCase();
+        return q ? people.filter((p) => p.name.toLowerCase().includes(q)) : people;
+    });
+
     // Human-readable active-filter summary, e.g. "Lara + Max  ·  Ceremony, Party".
     const summary = $derived.by(() => {
         const parts = [];
@@ -45,6 +55,15 @@
             <div class="group">
                 <div class="group-head">
                     <h2 class="group-title">People</h2>
+                    {#if showSearch}
+                        <input
+                            class="people-search"
+                            type="search"
+                            placeholder="Find a name…"
+                            bind:value={peopleQuery}
+                            aria-label="Search people by name"
+                        />
+                    {/if}
                     {#if selectedPeople.size >= 2}
                         <div class="mode" role="group" aria-label="Match mode">
                             <button type="button" class:on={peopleMode === "any"} onclick={() => onSetMode("any")}>Any</button>
@@ -52,8 +71,11 @@
                         </div>
                     {/if}
                 </div>
+                {#if shownPeople.length === 0}
+                    <p class="no-match">No one matches "{peopleQuery}".</p>
+                {/if}
                 <div class="people" role="group" aria-label="Filter by person">
-                    {#each people as p (p.slug)}
+                    {#each shownPeople as p (p.slug)}
                         <button
                             type="button"
                             class="person"
@@ -124,7 +146,28 @@
     .group-head {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem 0.75rem;
+    }
+    .people-search {
+        flex: 1 1 150px;
+        max-width: 240px;
+        padding: 0.35rem 0.7rem;
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--header-colour);
+        background: var(--inner-background, rgba(0, 0, 0, 0.18));
+        border: 1.5px solid var(--main-green-translucent, rgba(80, 120, 90, 0.4));
+        border-radius: 999px;
+        outline: none;
+    }
+    .people-search::placeholder { color: var(--paragraph-colour); opacity: 0.6; }
+    .people-search:focus { border-color: var(--main-green, #4a7c59); }
+    .no-match {
+        margin: 0.1rem 0 0.3rem;
+        font-size: 0.82rem;
+        color: var(--paragraph-colour);
+        opacity: 0.7;
     }
     .group-title {
         margin: 0;
