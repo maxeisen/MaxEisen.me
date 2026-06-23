@@ -7,17 +7,21 @@
     import { trimListToFit } from "../lib/utils.js";
     import { fetchJson } from "../../../lib/data/fetchJson.js";
     import { createPoller } from "../../../lib/data/poller.js";
+    import { bindTrimOnResize } from "../lib/listResize.js";
+    import { listLoadState, listStateMessage } from "../lib/listState.js";
+    import WidgetHeader from "./WidgetHeader.svelte";
 
     let listEl = $state();
     let stories = $state(null); // null = loading, [] = empty/error
     let stopPoll;
-    let resizeTimer;
-    let resizeListener;
+    let stopResizeTrim;
 
     function hostnameOf(url) {
         try { return new URL(url).hostname.replace(/^www\./, ""); }
         catch { return null; }
     }
+    const storiesState = $derived(listLoadState(stories));
+    const storiesMessage = $derived(listStateMessage(storiesState, "Loading…", "Unavailable"));
 
     async function load() {
         try {
@@ -35,26 +39,18 @@
     onMount(() => {
         load();
         stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 15_000 });
-        resizeListener = () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => trimListToFit(listEl), 100);
-        };
-        window.addEventListener("resize", resizeListener);
+        stopResizeTrim = bindTrimOnResize(listEl);
     });
     onDestroy(() => {
         stopPoll?.();
-        clearTimeout(resizeTimer);
-        window.removeEventListener("resize", resizeListener);
+        stopResizeTrim?.();
     });
 </script>
 
-<a class="profile-link" href="https://news.ycombinator.com/" target="_blank" rel="noreferrer">HN ↗</a>
-<div class="widget-label">Hacker News</div>
+<WidgetHeader profileHref="https://news.ycombinator.com/" profileLabel="HN" label="Hacker News" />
 <ol class="hn-list" bind:this={listEl}>
-    {#if stories === null}
-        <li class="widget-empty">Loading…</li>
-    {:else if stories.length === 0}
-        <li class="widget-empty">Unavailable</li>
+    {#if storiesMessage}
+        <li class="widget-empty">{storiesMessage}</li>
     {:else}
         {#each stories as s (s.id)}
             {@const href = s.url || `https://news.ycombinator.com/item?id=${s.id}`}

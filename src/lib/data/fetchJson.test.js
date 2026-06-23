@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { fetchJson, FetchError } from "./fetchJson.js";
+import { fetchJson, FetchError, isFetchErrorStatus } from "./fetchJson.js";
 
 const realFetch = global.fetch;
 afterEach(() => {
@@ -54,5 +54,19 @@ describe("fetchJson", () => {
 		const err = await fetchJson("/x", { signal: ac.signal }).catch((e) => e);
 		expect(err.name).toBe("AbortError");
 		expect(err).not.toBeInstanceOf(FetchError);
+	});
+});
+
+describe("isFetchErrorStatus", () => {
+	it("matches the status for FetchError instances", () => {
+		const err = new FetchError(503, "Service Unavailable", "/x");
+		expect(isFetchErrorStatus(err, 503)).toBe(true);
+		expect(isFetchErrorStatus(err, 401)).toBe(false);
+	});
+
+	it("returns false for non-FetchError values", () => {
+		expect(isFetchErrorStatus(new Error("boom"), 503)).toBe(false);
+		expect(isFetchErrorStatus({ status: 503 }, 503)).toBe(false);
+		expect(isFetchErrorStatus(null, 503)).toBe(false);
 	});
 });

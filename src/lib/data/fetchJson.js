@@ -18,6 +18,19 @@ export class FetchError extends Error {
 }
 
 /**
+ * Narrow an unknown error to a FetchError with a specific status code.
+ *
+ * Useful for widget code paths like "503 => hide this card".
+ *
+ * @param {unknown} err
+ * @param {number} status
+ * @returns {boolean}
+ */
+export function isFetchErrorStatus(err, status) {
+	return err instanceof FetchError && err.status === status;
+}
+
+/**
  * Fetch a URL and parse the JSON body.
  *
  * @param {string} url

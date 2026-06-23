@@ -16,8 +16,9 @@
     import {
         makeViz, drawViz, vibeFromTrack, paletteForVibe, extractAlbumPalette,
     } from "../lib/viz.js";
-    import { fetchJson, FetchError } from "../../../lib/data/fetchJson.js";
+    import { fetchJson, isFetchErrorStatus } from "../../../lib/data/fetchJson.js";
     import { createPoller } from "../../../lib/data/poller.js";
+    import WidgetHeader from "./WidgetHeader.svelte";
 
     let canvasEl = $state();
     let vizCtx = null;
@@ -73,7 +74,7 @@
                 if (ttl > 0 && ttl < 1000 * 60 * 30) setTimeout(load, ttl + 800);
             }
         } catch (e) {
-            if (e instanceof FetchError && e.status === 503) { hidden = true; return; }
+            if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
             spotify.data = { _error: true };
             spotify.playing = false;
         }
@@ -142,7 +143,7 @@
 
 {#if !hidden}
     <canvas class="spotify-viz" class:active={vizActive} bind:this={canvasEl} aria-hidden="true"></canvas>
-    <a class="profile-link" href="https://open.spotify.com/user/maxeisen" target="_blank" rel="noreferrer">Spotify ↗</a>
+    <WidgetHeader profileHref="https://open.spotify.com/user/maxeisen" profileLabel="Spotify" />
     {#if vizActive}
         <button
             class="viz-fullscreen-btn"

@@ -6,9 +6,12 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { timeAgo, trimListToFit } from "../lib/utils.js";
-    import { FetchError } from "../../../lib/data/fetchJson.js";
-    import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
+    import { isFetchErrorStatus } from "../../../lib/data/fetchJson.js";
     import { createPoller } from "../../../lib/data/poller.js";
+    import { createSWRWidgetFeed } from "../lib/widgetFeed.js";
+    import { bindTrimOnResize } from "../lib/listResize.js";
+    import { listLoadState, listStateMessage } from "../lib/listState.js";
+    import WidgetHeader from "./WidgetHeader.svelte";
     import {
         STRAVA_ICONS,
         formatDistance,
@@ -22,8 +25,7 @@
     let activities = $state(null); // null = loading
     let ytd = $state(null); // { run, ride } YTD totals, or null
     let stopPoll;
-    let resizeTimer;
-    let resizeListener;
+    let stopResizeTrim;
 
     // Whole-km, comma-grouped — YTD distances are large enough that
     // decimals are noise (e.g. "1,250 km").
@@ -31,6 +33,8 @@
         if (m == null) return "0 km";
         return `${Math.round(m / 1000).toLocaleString()} km`;
     }
+    const activitiesState = $derived(listLoadState(activities));
+    const activitiesMessage = $derived(listStateMessage(activitiesState, "Loading…", "Strava unavailable"));
 
     // Year-to-date run + ride totals from the profile endpoint. Strava's
     // stats API only exposes run/ride/swim YTD (no walk total), so this is
@@ -40,15 +44,11 @@
         ytd = data?.ytd || null;
         requestAnimationFrame(() => trimListToFit(listEl));
     }
-    async function loadYtd() {
-        try {
-            const data = await fetchJsonSwr("/.netlify/functions/stravaProfile", {
-                maxAgeMs: 60_000,
-                onRevalidate: applyYtd,
-            });
-            applyYtd(data);
-        } catch { /* leave ytd null — footer stays hidden */ }
-    }
+    const ytdFeed = createSWRWidgetFeed({
+        url: "/.netlify/functions/stravaProfile",
+        apply: applyYtd,
+        onError: () => {}, // keep footer hidden on failure
+    });
 
     function applyFeed(data) {
         activities = (data?.activities || []).slice(0, 5);
@@ -58,46 +58,34 @@
     // intro modals + Toronto map already use. SWR serves a re-mount instantly
     // and dedupes; the 5-min poll still revalidates past the 60s window.
     // Slice to 5 client-side for the dashboard's display.
-    async function load() {
-        try {
-            const data = await fetchJsonSwr("/.netlify/functions/stravaFeed?limit=30", {
-                maxAgeMs: 60_000,
-                onRevalidate: applyFeed,
-            });
-            applyFeed(data);
-        } catch (e) {
-            if (e instanceof FetchError && e.status === 503) { hidden = true; return; }
+    const feed = createSWRWidgetFeed({
+        url: "/.netlify/functions/stravaFeed?limit=30",
+        apply: applyFeed,
+        onError: (e) => {
+            if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
             activities = [];
-        }
-    }
+        },
+    });
 
     onMount(() => {
-        load();
-        loadYtd();
+        feed.load();
+        ytdFeed.load();
         // Poll the feed on the 5-min cadence; refresh YTD on resume too so a
         // returning viewer sees current numbers. Both pause while hidden.
-        stopPoll = createPoller(() => { load(); loadYtd(); }, 1000 * 60 * 5, { jitterMs: 15_000 });
-        resizeListener = () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => trimListToFit(listEl), 100);
-        };
-        window.addEventListener("resize", resizeListener);
+        stopPoll = createPoller(() => { feed.load(); ytdFeed.load(); }, 1000 * 60 * 5, { jitterMs: 15_000 });
+        stopResizeTrim = bindTrimOnResize(listEl);
     });
     onDestroy(() => {
         stopPoll?.();
-        clearTimeout(resizeTimer);
-        window.removeEventListener("resize", resizeListener);
+        stopResizeTrim?.();
     });
 </script>
 
 {#if !hidden}
-    <a class="profile-link" href="https://www.strava.com/athletes/92118908" target="_blank" rel="noreferrer">Strava ↗</a>
-    <div class="widget-label">Physical Activity</div>
+    <WidgetHeader profileHref="https://www.strava.com/athletes/92118908" profileLabel="Strava" label="Physical Activity" />
     <ol class="strava-list" bind:this={listEl}>
-        {#if activities === null}
-            <li class="widget-empty">Loading…</li>
-        {:else if activities.length === 0}
-            <li class="widget-empty">Strava unavailable</li>
+        {#if activitiesMessage}
+            <li class="widget-empty">{activitiesMessage}</li>
         {:else}
             {#each activities as a (a.id ?? a.startDate ?? a.name)}
                 {@const icon = STRAVA_ICONS[a.type] || "🏃"}

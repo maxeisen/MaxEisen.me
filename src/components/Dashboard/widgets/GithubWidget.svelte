@@ -5,9 +5,9 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { timeAgo } from "../lib/utils.js";
-    import { FetchError } from "../../../lib/data/fetchJson.js";
-    import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
-    import { createPoller } from "../../../lib/data/poller.js";
+    import { isFetchErrorStatus } from "../../../lib/data/fetchJson.js";
+    import { createSWRWidgetFeed } from "../lib/widgetFeed.js";
+    import WidgetHeader from "./WidgetHeader.svelte";
 
     let hidden = $state(false);
     let repo = $state("—");
@@ -66,31 +66,26 @@
         }
     }
 
-    // SWR: a re-mount serves the cached payload instantly; the 5-min poll runs
-    // past the 60s cache window so it still revalidates on cadence.
-    async function load() {
-        try {
-            const data = await fetchJsonSwr("/.netlify/functions/githubLatest", {
-                maxAgeMs: 60_000,
-                onRevalidate: apply,
-            });
-            apply(data);
-        } catch (e) {
-            if (e instanceof FetchError && e.status === 503) { hidden = true; return; }
+    // Shared SWR + poll lifecycle helper keeps widget data loading consistent
+    // across dashboard cards while each widget owns its own `apply()` mapper.
+    const feed = createSWRWidgetFeed({
+        url: "/.netlify/functions/githubLatest",
+        apply,
+        onError: (e) => {
+            if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
             message = "GitHub unavailable";
             meta = "";
-        }
-    }
+        },
+    });
 
     onMount(() => {
-        load();
-        stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 15_000 });
+        stopPoll = feed.start();
     });
     onDestroy(() => stopPoll?.());
 </script>
 
 {#if !hidden}
-    <a class="profile-link" href="https://github.com/maxeisen" target="_blank" rel="noreferrer">GitHub ↗</a>
+    <WidgetHeader profileHref="https://github.com/maxeisen" profileLabel="GitHub" />
     <a class="github-main" href={widgetHref} target="_blank" rel="noreferrer">
         <div class="widget-label">Code Activity</div>
         <div class="github-repo">{repo}</div>
