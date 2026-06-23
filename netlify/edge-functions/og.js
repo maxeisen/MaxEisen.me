@@ -29,7 +29,7 @@ const META = {
 	"/toronto": { title: "My Toronto — Max Eisen", desc: "A personal map of my Toronto.", card: "My Toronto" },
 	"/bach": { title: "Bach — Max Eisen", desc: "An interactive party game.", card: "Bach" },
 	// Private + noindex: a neutral card so sharing the link never reveals photos.
-	"/gallery/wedding": { title: "Private Gallery", desc: "A private gallery.", card: "Private Gallery" },
+	"/gallery/wedding": { title: "Max and Lara's Wedding", desc: "A private gallery of Max and Lara's wedding photos.", card: "Max and Lara's Wedding" },
 };
 
 // Cloudinary card: the short title in white serif over the branded backdrop,
