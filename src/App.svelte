@@ -1,6 +1,7 @@
 <!--
     App shell / router. Each route in ROUTES lazy-loads its component as a
-    separate Vite chunk; the homepage renders for "/" and any unknown path.
+    separate Vite chunk; "/" renders Home. Unknown paths redirect to the
+    standalone /404.html page (see netlify.toml allowlist + redirect below).
 
     Navigation is client-side: same-origin links to the homepage or a known
     route are intercepted and handled with pushState + a component swap, so
@@ -41,6 +42,18 @@
     const NO_CLIENT_NAV = new Set(['/bach']);
 
     const isRoute = $derived(pathname in ROUTES);
+    const isHome = $derived(pathname === '/');
+
+    // Unknown paths (e.g. /gallery/nasdjhba) used to fall through to Home,
+    // which half-loaded off-nest URLs. Full navigation to the static 404
+    // page — also covers vite preview / popstate when netlify.toml isn't
+    // in play.
+    $effect(() => {
+        if (typeof window === 'undefined') return;
+        if (pathname !== '/' && !(pathname in ROUTES)) {
+            window.location.replace('/404.html');
+        }
+    });
 
     // === page transitions ==============================================
     // Pure opacity cross-fade — no transform, so it's safe across both
@@ -206,7 +219,7 @@
                         <Spinner size={38} stroke={3} />
                     </div>
                 {/if}
-            {:else}
+            {:else if isHome}
                 <Home />
             {/if}
         </div>

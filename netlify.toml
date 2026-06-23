@@ -74,10 +74,46 @@
   to = "/@fs/:splat"
   status = 200
 
-# SPA catch-all: every Svelte route (/, /gallery, /gallery/ride,
-# /gallery/run, /dashboard) routes through index.html where the App.svelte
-# router lazy-loads the matching route component.
+# SPA rewrites — only known App.svelte routes boot index.html. Keep this
+# list in sync with ROUTES in src/App.svelte (+ "/" for the homepage).
+# Static files (resume.html, 404.html, /build/*, /styles/*, …) are served
+# as-is before these rules run. Anything else falls through to 404.html.
 [[redirects]]
-  from = "/*"
+  from = "/"
   to = "/index.html"
   status = 200
+[[redirects]]
+  from = "/gallery"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/gallery/ride"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/gallery/run"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/gallery/wedding"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/dashboard"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/toronto"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/bach"
+  to = "/index.html"
+  status = 200
+
+# Unknown paths (e.g. /afgrgadsf, /gallery/nasdjhba) → the standalone
+# 404 page with a real 404 status, not a half-loaded homepage.
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
