@@ -19,7 +19,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 import { v2 as cloudinary } from "cloudinary";
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../..");
@@ -48,6 +48,26 @@ function creds() {
 	return { key, secret };
 }
 
+// Find the passed-in person's face in a full photo (not just the most
+// prominent one). Uses their current chip as a reference + insightface (local
+// venv). Returns "x_y_w_h" or "" (caller falls back to face-gravity crop).
+const VENV = `${process.env.HOME}/.venvs/faces/bin/python`;
+function matchFace(p, targetId) {
+	if (!fs.existsSync(VENV)) { console.warn("  (face-match venv missing — using face-gravity crop)"); return ""; }
+	const S = { type: "authenticated", sign_url: true, secure: true };
+	const [x, y, w, h] = p.box, m = 0.8, r = (n) => Math.round(n * 1e4) / 1e4;
+	const nx = Math.max(0, x - w * m), ny = Math.max(0, y - h * m), nw = Math.min(1 - nx, w * (1 + 2 * m)), nh = Math.min(1 - ny, h * (1 + 2 * m));
+	const refUrl = cloudinary.url(p.repPublicId, { ...S, transformation: [{ crop: "crop", x: r(nx), y: r(ny), width: r(nw), height: r(nh) }, { width: 420, crop: "limit", fetch_format: "jpg", quality: "auto" }] });
+	const tgtUrl = cloudinary.url(targetId, { ...S, transformation: [{ width: 800, crop: "limit", fetch_format: "jpg", quality: "auto" }] });
+	try {
+		const out = execFileSync(VENV, [path.join(ROOT, "scripts/_match-face.py"), refUrl, tgtUrl], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+		const mm = out.match(/BOX (\S+) sim=([\d.]+)/);
+		if (mm) { console.log(`  pinpointed ${p.name}'s face (sim ${mm[2]})`); return mm[1]; }
+		console.warn(`  couldn't pinpoint ${p.name} (${out.trim().split("\n").pop()}); using face-gravity crop`);
+		return "";
+	} catch (e) { console.warn("  face-match failed; using face-gravity crop:", String(e.message).split("\n")[0]); return ""; }
+}
+
 async function pdefsOf(id) {
 	const r = await cloudinary.api.resource(id, { type: "authenticated", context: true });
 	const pd = r.context?.custom?.pdefs || "";
@@ -74,9 +94,15 @@ async function main() {
 		console.warn(`Note: "${p.name}" isn't tagged in that photo — the chip may crop the wrong face. Proceeding.`);
 	}
 
-	const box = boxArg ? boxArg.split(",").map(Number).join("_") : ""; // "" → face-gravity crop
+	// Crop box: explicit --box wins; else hone in on THIS person's face in the
+	// photo (default); --no-find uses Cloudinary's generic prominent-face crop.
+	let box;
+	if (boxArg) box = boxArg.split(",").map(Number).join("_");
+	else if (process.argv.includes("--no-find")) box = "";
+	else box = matchFace(p, target.public_id);
+
 	const oldRep = p.repPublicId;
-	console.log(`${p.name}: ${oldRep} -> ${target.public_id}${box ? ` (box ${box})` : " (auto face crop)"}`);
+	console.log(`${p.name}: ${oldRep} -> ${target.public_id} ${box ? `(face box ${box})` : "(face-gravity crop)"}`);
 	if (DRY) { console.log("[dry-run] no changes made"); return; }
 
 	// Remove from old rep photo, add to the target photo (handle same photo).
