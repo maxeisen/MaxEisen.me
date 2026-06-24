@@ -1,7 +1,8 @@
 <!--
     Spotify now playing + WebGL visualizer behind the album art. Owns the
-    data fetch (polled every 10s) and updates the shared spotify + viz
-    stores so the fullscreen overlay can render the same scene.
+    data fetch (polled every 30s, plus a one-shot refetch ~2s after each
+    track's expected end) and updates the shared spotify + viz stores so the
+    fullscreen overlay can render the same scene.
 
     Visualizer pipeline:
       1. fetch /spotifyNowPlaying
@@ -26,6 +27,7 @@
     let hidden = $state(false);
     let stopPoll;
     let stopTick;
+    let endTimer = 0; // single pending "refetch at track end" timer
 
     let now = $state(Date.now()); // re-derives elapsed/progress fill each second
 
@@ -55,6 +57,7 @@
     }
 
     async function load() {
+        clearTimeout(endTimer); // ensure only one end-of-track refetch is ever pending
         try {
             const data = await fetchJson("/.netlify/functions/spotifyNowPlaying");
             if (!data || (!data.track && !data.playing)) {
@@ -68,10 +71,16 @@
             spotify.progressMs = data.progressMs || 0;
             spotify.fetchedAt = Date.now();
             await applyTrackData(data);
+            // Refetch ~2s after the track is expected to end — the moment a new
+            // song starts is exactly when the 30s poll feels most stale. Only
+            // ONE timer is pending (cleared at the top of load), so repeated
+            // polls don't pile up into a burst of calls at song end; skipped
+            // while the tab is hidden (the poll refreshes on return).
             if (data.playing && data.durationMs) {
-                // refetch shortly after the track is expected to finish
-                const ttl = data.durationMs - (data.progressMs || 0);
-                if (ttl > 0 && ttl < 1000 * 60 * 30) setTimeout(load, ttl + 800);
+                const remaining = data.durationMs - (data.progressMs || 0);
+                if (remaining > 0 && remaining < 1000 * 60 * 30) {
+                    endTimer = setTimeout(() => { if (!document.hidden) load(); }, remaining + 2000);
+                }
             }
         } catch (e) {
             if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
@@ -136,6 +145,7 @@
     });
     onDestroy(() => {
         cancelAnimationFrame(raf);
+        clearTimeout(endTimer);
         stopPoll?.();
         stopTick?.();
     });
