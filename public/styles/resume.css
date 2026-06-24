@@ -49,23 +49,7 @@ body {
     }
 }
 
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-}
+/* Unstyled scrollbar → OS-native (overlay on macOS); see index.css note. */
 
 ::selection {
     background: var(--main-green-translucent);

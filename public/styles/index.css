@@ -31,23 +31,11 @@ body {
     }
 }
 
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--nav-background);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-}
+/* No custom ::-webkit-scrollbar styling — styling it forces WebKit to use a
+   classic, always-visible scrollbar that reserves layout width (and shifts
+   content when a modal locks scroll). Leaving it unstyled keeps the OS-native
+   scrollbar: on macOS that's the overlay scrollbar (hidden until you scroll,
+   floats over content, reserves no width). */
 
 ::selection {
     background: var(--main-green-translucent);
