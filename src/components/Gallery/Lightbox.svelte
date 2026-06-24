@@ -112,59 +112,87 @@
         else if (e.key === "ArrowLeft") prev();
     }
 
-    // Touch: 1-finger swipe navigates; 2-finger pinch zooms just the photo and
-    // snaps back on release. touch-action:none on the overlay stops the
-    // browser's own pan/zoom, so these don't move the page behind.
-    let touchStartX = null;
-    let pinching = false;
-    let pinchStartDist = 0;
-    let snapTimer = 0;
+    // Touch gestures on the photo (touch-action:none on the overlay stops the
+    // browser's own pan/zoom so none of this moves the page behind):
+    //   • quick 1-finger drag      → swipe to prev/next
+    //   • 1-finger press-and-hold   → "peek": zoom in at that point, drag to
+    //                                  pan, release to snap back (Instagram-ish)
+    //   • 2-finger pinch            → zoom, release to snap back
+    const PEEK_SCALE = 2.5;
+    const HOLD_MS = 220;     // press this long (without moving) → enter zoom
+    const MOVE_CANCEL = 12;  // px moved before that → it's a swipe, not a zoom
     const dist2 = (a, b) => Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(v, hi));
+
+    let touchStartX = null, touchStartY = null;
+    let pinching = false, pinchStartDist = 0;
+    let peeking = false, peekTimer = 0, peekStart = null, peekRect = null;
+    let snapTimer = 0;
+
+    function snapBack() {
+        if (!imgEl) return;
+        imgEl.style.transition = "transform 0.25s ease";
+        imgEl.style.transform = "";
+        snapTimer = setTimeout(() => { if (imgEl) { imgEl.style.transition = ""; imgEl.style.transformOrigin = ""; } }, 280);
+    }
+    function setOrigin(x, y) {
+        peekRect = imgEl.getBoundingClientRect();
+        const ox = clamp(((x - peekRect.left) / peekRect.width) * 100, 0, 100);
+        const oy = clamp(((y - peekRect.top) / peekRect.height) * 100, 0, 100);
+        imgEl.style.transformOrigin = `${ox}% ${oy}%`;
+    }
+    function startPeek() {
+        if (!imgEl || !peekStart) return;
+        peeking = true;
+        clearTimeout(snapTimer);
+        setOrigin(peekStart.x, peekStart.y);
+        imgEl.style.transition = "transform 0.18s ease"; // smooth zoom-in
+        imgEl.style.transform = `scale(${PEEK_SCALE})`;
+    }
 
     function onTouchStart(e) {
         if (e.touches.length === 2) {
-            pinching = true;
-            touchStartX = null; // a pinch is not a swipe
+            clearTimeout(peekTimer); peekTimer = 0; peeking = false;
+            pinching = true; touchStartX = null;
             const [a, b] = e.touches;
             pinchStartDist = dist2(a, b) || 1;
-            if (imgEl) {
-                clearTimeout(snapTimer);
-                // Zoom about the midpoint between the fingers.
-                const r = imgEl.getBoundingClientRect();
-                const mx = (a.clientX + b.clientX) / 2;
-                const my = (a.clientY + b.clientY) / 2;
-                const ox = Math.max(0, Math.min(100, ((mx - r.left) / r.width) * 100));
-                const oy = Math.max(0, Math.min(100, ((my - r.top) / r.height) * 100));
-                imgEl.style.transition = "none";
-                imgEl.style.transformOrigin = `${ox}% ${oy}%`;
-            }
+            if (imgEl) { clearTimeout(snapTimer); imgEl.style.transition = "none"; setOrigin((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2); }
         } else if (e.touches.length === 1 && !pinching) {
-            touchStartX = e.touches[0].clientX;
+            const t = e.touches[0];
+            touchStartX = t.clientX; touchStartY = t.clientY;
+            peekStart = { x: t.clientX, y: t.clientY };
+            clearTimeout(peekTimer);
+            peekTimer = setTimeout(startPeek, HOLD_MS);
         }
     }
 
     function onTouchMove(e) {
-        if (!pinching || e.touches.length < 2 || !imgEl) return;
-        const [a, b] = e.touches;
-        const scale = Math.max(1, Math.min(dist2(a, b) / pinchStartDist, 4));
-        imgEl.style.transform = `scale(${scale})`;
+        if (pinching && e.touches.length === 2 && imgEl) {
+            imgEl.style.transform = `scale(${clamp(dist2(e.touches[0], e.touches[1]) / pinchStartDist, 1, 4)})`;
+            return;
+        }
+        if (e.touches.length !== 1) return;
+        const t = e.touches[0];
+        if (peeking && imgEl) {
+            // Pan: drag follows the finger, clamped so the photo can't leave view.
+            const maxX = ((PEEK_SCALE - 1) * peekRect.width) / 2;
+            const maxY = ((PEEK_SCALE - 1) * peekRect.height) / 2;
+            const dx = clamp(t.clientX - peekStart.x, -maxX, maxX);
+            const dy = clamp(t.clientY - peekStart.y, -maxY, maxY);
+            imgEl.style.transition = "none";
+            imgEl.style.transform = `translate(${dx}px, ${dy}px) scale(${PEEK_SCALE})`;
+            return;
+        }
+        // Still pending: enough movement means a swipe, so cancel the hold.
+        if (peekTimer && Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY) > MOVE_CANCEL) {
+            clearTimeout(peekTimer); peekTimer = 0;
+        }
     }
 
     function onTouchEnd(e) {
-        if (pinching) {
-            if (e.touches.length < 2) {
-                // Last pinch finger lifted → snap the photo back.
-                pinching = false;
-                if (imgEl) {
-                    imgEl.style.transition = "transform 0.25s ease";
-                    imgEl.style.transform = "";
-                    snapTimer = setTimeout(() => {
-                        if (imgEl) { imgEl.style.transition = ""; imgEl.style.transformOrigin = ""; }
-                    }, 280);
-                }
-            }
-            return; // never treat the end of a pinch as a swipe
-        }
+        clearTimeout(peekTimer); peekTimer = 0;
+        if (pinching) { if (e.touches.length < 2) { pinching = false; snapBack(); } return; }
+        if (peeking) { peeking = false; snapBack(); return; }
         if (touchStartX == null) return;
         const dx = (e.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
         if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
