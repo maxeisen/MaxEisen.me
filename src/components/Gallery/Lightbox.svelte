@@ -113,86 +113,80 @@
     }
 
     // Touch gestures on the photo (touch-action:none on the overlay stops the
-    // browser's own pan/zoom so none of this moves the page behind):
-    //   • quick 1-finger drag      → swipe to prev/next
-    //   • 1-finger press-and-hold   → "peek": zoom in at that point, drag to
-    //                                  pan, release to snap back (Instagram-ish)
-    //   • 2-finger pinch            → zoom, release to snap back
-    const PEEK_SCALE = 2.5;
-    const HOLD_MS = 220;     // press this long (without moving) → enter zoom
-    const MOVE_CANCEL = 12;  // px moved before that → it's a swipe, not a zoom
+    // browser's own pan/zoom, so none of this moves the page behind):
+    //   • 1-finger drag        → swipe to prev/next (NEVER zooms)
+    //   • 2-finger pinch        → zoom in (only way to start a zoom)
+    //   • then lift to 1 finger → stays zoomed; drag that finger to pan around
+    //   • release all fingers   → snaps back to normal
     const dist2 = (a, b) => Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(v, hi));
 
-    let touchStartX = null, touchStartY = null;
-    let pinching = false, pinchStartDist = 0;
-    let peeking = false, peekTimer = 0, peekStart = null, peekRect = null;
+    let touchStartX = null;          // 1-finger swipe tracking (only when not zoomed)
+    let zooming = false;
+    let pinchStartDist = 0;
+    let scale = 1, tx = 0, ty = 0;   // current transform
+    let panStart = null, panBase = null;
+    let zoomRect = null;             // image rect at zoom start (origin + pan clamp)
     let snapTimer = 0;
 
+    function applyTransform() { imgEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
     function snapBack() {
+        zooming = false; scale = 1; tx = 0; ty = 0; panStart = null;
         if (!imgEl) return;
         imgEl.style.transition = "transform 0.25s ease";
         imgEl.style.transform = "";
         snapTimer = setTimeout(() => { if (imgEl) { imgEl.style.transition = ""; imgEl.style.transformOrigin = ""; } }, 280);
     }
-    function setOrigin(x, y) {
-        peekRect = imgEl.getBoundingClientRect();
-        const ox = clamp(((x - peekRect.left) / peekRect.width) * 100, 0, 100);
-        const oy = clamp(((y - peekRect.top) / peekRect.height) * 100, 0, 100);
-        imgEl.style.transformOrigin = `${ox}% ${oy}%`;
-    }
-    function startPeek() {
-        if (!imgEl || !peekStart) return;
-        peeking = true;
-        clearTimeout(snapTimer);
-        setOrigin(peekStart.x, peekStart.y);
-        imgEl.style.transition = "transform 0.18s ease"; // smooth zoom-in
-        imgEl.style.transform = `scale(${PEEK_SCALE})`;
-    }
 
     function onTouchStart(e) {
         if (e.touches.length === 2) {
-            clearTimeout(peekTimer); peekTimer = 0; peeking = false;
-            pinching = true; touchStartX = null;
             const [a, b] = e.touches;
-            pinchStartDist = dist2(a, b) || 1;
-            if (imgEl) { clearTimeout(snapTimer); imgEl.style.transition = "none"; setOrigin((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2); }
-        } else if (e.touches.length === 1 && !pinching) {
-            const t = e.touches[0];
-            touchStartX = t.clientX; touchStartY = t.clientY;
-            peekStart = { x: t.clientX, y: t.clientY };
-            clearTimeout(peekTimer);
-            peekTimer = setTimeout(startPeek, HOLD_MS);
+            clearTimeout(snapTimer);
+            touchStartX = null;
+            if (!zooming) {
+                zooming = true; scale = 1; tx = 0; ty = 0;
+                zoomRect = imgEl?.getBoundingClientRect();
+                if (imgEl && zoomRect) {
+                    const mx = (a.clientX + b.clientX) / 2, my = (a.clientY + b.clientY) / 2;
+                    imgEl.style.transformOrigin = `${clamp(((mx - zoomRect.left) / zoomRect.width) * 100, 0, 100)}% ${clamp(((my - zoomRect.top) / zoomRect.height) * 100, 0, 100)}%`;
+                }
+            }
+            pinchStartDist = dist2(a, b) / (scale || 1) || 1; // continue from current scale
+            if (imgEl) imgEl.style.transition = "none";
+        } else if (e.touches.length === 1 && !zooming) {
+            touchStartX = e.touches[0].clientX; // swipe candidate — one finger never zooms
         }
     }
 
     function onTouchMove(e) {
-        if (pinching && e.touches.length === 2 && imgEl) {
-            imgEl.style.transform = `scale(${clamp(dist2(e.touches[0], e.touches[1]) / pinchStartDist, 1, 4)})`;
+        if (!imgEl) return;
+        if (zooming && e.touches.length >= 2) {
+            scale = clamp(dist2(e.touches[0], e.touches[1]) / pinchStartDist, 1, 4);
+            applyTransform();
             return;
         }
-        if (e.touches.length !== 1) return;
-        const t = e.touches[0];
-        if (peeking && imgEl) {
-            // Pan: drag follows the finger, clamped so the photo can't leave view.
-            const maxX = ((PEEK_SCALE - 1) * peekRect.width) / 2;
-            const maxY = ((PEEK_SCALE - 1) * peekRect.height) / 2;
-            const dx = clamp(t.clientX - peekStart.x, -maxX, maxX);
-            const dy = clamp(t.clientY - peekStart.y, -maxY, maxY);
-            imgEl.style.transition = "none";
-            imgEl.style.transform = `translate(${dx}px, ${dy}px) scale(${PEEK_SCALE})`;
-            return;
-        }
-        // Still pending: enough movement means a swipe, so cancel the hold.
-        if (peekTimer && Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY) > MOVE_CANCEL) {
-            clearTimeout(peekTimer); peekTimer = 0;
+        if (zooming && e.touches.length === 1 && panStart) {
+            const t = e.touches[0];
+            const maxX = ((scale - 1) * (zoomRect?.width || 0)) / 2;
+            const maxY = ((scale - 1) * (zoomRect?.height || 0)) / 2;
+            tx = clamp(panBase.tx + (t.clientX - panStart.x), -maxX, maxX);
+            ty = clamp(panBase.ty + (t.clientY - panStart.y), -maxY, maxY);
+            applyTransform();
         }
     }
 
     function onTouchEnd(e) {
-        clearTimeout(peekTimer); peekTimer = 0;
-        if (pinching) { if (e.touches.length < 2) { pinching = false; snapBack(); } return; }
-        if (peeking) { peeking = false; snapBack(); return; }
+        if (zooming) {
+            if (e.touches.length === 0) {
+                snapBack();                       // last finger up → reset
+            } else if (e.touches.length === 1) {
+                // Dropped to one finger: keep the zoom, pan with this finger.
+                panStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                panBase = { tx, ty };
+                if (imgEl) imgEl.style.transition = "none";
+            }
+            return;                               // a zoom gesture is never a swipe
+        }
         if (touchStartX == null) return;
         const dx = (e.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
         if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
