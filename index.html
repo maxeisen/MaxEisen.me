@@ -37,7 +37,8 @@ https://github.com/maxeisen/
     <meta name="viewport" content="width=device-width"/>
     <meta name="description" content="Max Eisen's personal portfolio website."/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#002723"/>
+    <!-- Kept in sync with the active light/dark theme by setTheme() below. -->
+    <meta name="theme-color" content="#1c1a17"/>
     <link rel=canonical href="https://maxeisen.me"/>
     <link rel='manifest' href='/manifest.json'>
     <!-- Warm the connection to the image CDN — gallery + dashboard pull
@@ -120,6 +121,10 @@ https://github.com/maxeisen/
         function setTheme(theme) {
             localStorage.setItem("theme", theme);
             document.documentElement.setAttribute("data-theme", theme);
+            // Keep the browser/PWA chrome (status bar, address bar) matching the
+            // theme's background — dark #1c1a17 / light #f0e7d6 (= --background-one).
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute("content", theme === "dark" ? "#1c1a17" : "#f0e7d6");
         }
 
         function toggleTheme() {
