@@ -1,5 +1,5 @@
 // Returns up to 30 recent activities from Strava that pass the distance
-// filter (walks ≥7km, runs ≥5km, rides ≥20km). No server-side type
+// filter (walks ≥7km, runs ≥5km, rides ≥10km). No server-side type
 // filter — callers decide how to split or filter.
 //
 // Used by:
@@ -34,7 +34,7 @@ function passesFilter(activity) {
 	const distance = activity.distance || 0;
 	if (/Walk|Hike/i.test(type)) return distance >= 7000;
 	if (/Run/i.test(type)) return distance >= 5000;
-	if (/Ride/i.test(type)) return distance >= 20000;
+	if (/Ride/i.test(type)) return distance >= 10000;
 	return false;
 }
 
