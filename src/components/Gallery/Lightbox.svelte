@@ -11,6 +11,7 @@
     import { onMount } from "svelte";
     import { lightboxUrl } from "./lib/cloudinary.js";
     import { downloadOne } from "./lib/download.js";
+    import { lockBodyScroll, unlockBodyScroll } from "../../lib/ui/bodyScrollLock.js";
 
     let {
         photos = [],
@@ -83,7 +84,6 @@
         if (imgEl) imgEl.removeAttribute("src");
         spinnerVisible = false;
         captionVisible = false;
-        document.body.style.overflow = "";
         loadToken++;
     }
 
@@ -92,12 +92,11 @@
     $effect(() => {
         if (open && !wasOpen) {
             showAt(index, { keepCurrent: false });
-            document.body.style.overflow = "hidden";
+            lockBodyScroll();
         } else if (!open && wasOpen) {
-            // Already cleared in close(); this branch covers parent-driven close.
             spinnerVisible = false;
             captionVisible = false;
-            document.body.style.overflow = "";
+            unlockBodyScroll();
         }
         wasOpen = open;
     });

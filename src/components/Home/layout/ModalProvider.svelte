@@ -18,17 +18,13 @@
 	import { setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import CloseButton from '../../../lib/ui/CloseButton.svelte';
+	import { lockBodyScroll, unlockBodyScroll } from '../../../lib/ui/bodyScrollLock.js';
 
 	let current = $state(null);
-	let previousBodyOverflow = '';
 
 	$effect(() => {
 		if (!current) return;
-		// Lock body scroll for as long as a modal is open. Stash the
-		// previous overflow so we can restore it on close (rather than
-		// hard-coding "scroll" or "auto").
-		previousBodyOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
+		lockBodyScroll();
 
 		const handleKeydown = (e) => {
 			if (e.key === 'Escape') close();
@@ -36,7 +32,7 @@
 		window.addEventListener('keydown', handleKeydown);
 		return () => {
 			window.removeEventListener('keydown', handleKeydown);
-			document.body.style.overflow = previousBodyOverflow;
+			unlockBodyScroll();
 		};
 	});
 

@@ -12,6 +12,7 @@
 <script>
     import { onMount } from "svelte";
     import { slideshowUrl } from "./lib/cloudinary.js";
+    import { lockBodyScroll, unlockBodyScroll } from "../../lib/ui/bodyScrollLock.js";
 
     let {
         photos = [],
@@ -116,7 +117,7 @@
             imgA.onerror = startWhenReady;
         }
 
-        document.body.style.overflow = "hidden";
+        lockBodyScroll();
         const req = containerEl?.requestFullscreen || containerEl?.webkitRequestFullscreen;
         if (req) { try { req.call(containerEl)?.catch?.(() => {}); } catch {} }
         acquireWakeLock();
@@ -132,7 +133,7 @@
         bVisible = false;
         aSrc = "";
         bSrc = "";
-        document.body.style.overflow = "";
+        unlockBodyScroll();
         releaseWakeLock();
     }
 
