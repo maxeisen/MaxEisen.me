@@ -2,6 +2,7 @@
 // Validates BACH_PASSWORD for the host/player gate UI.
 
 import { getEnv, jsonResponse, readBody, normalizePassword } from "./_lib.js";
+import { secureCompare } from "../_shared/secureCompare.js";
 
 export default async function handler(req) {
 	if (req.method !== "POST") {
@@ -17,7 +18,7 @@ export default async function handler(req) {
 	if (!expected) {
 		return jsonResponse({ error: "not_configured" }, 503);
 	}
-	if (supplied !== expected) {
+	if (!secureCompare(supplied, expected)) {
 		return jsonResponse({ error: "Unauthorized" }, 401);
 	}
 

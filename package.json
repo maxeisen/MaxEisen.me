@@ -29,7 +29,6 @@
     "maplibre-gl": "^5.24.0",
     "marked": "^4.0.12",
     "openai": "^6.41.0",
-    "passkit-generator": "^3.5.7",
     "qrcode": "^1.5.4",
     "query-string": "^6.14.1",
     "sharp": "^0.34.5",

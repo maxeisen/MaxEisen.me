@@ -1,6 +1,6 @@
 // MaxEisen.me service worker
 // Bump SHELL_VERSION to force clients to refresh the precache.
-const SHELL_VERSION = "v11";
+const SHELL_VERSION = "v12";
 const SHELL_CACHE = `maxeisen-shell-${SHELL_VERSION}`;
 const RUNTIME_CACHE = `maxeisen-runtime-${SHELL_VERSION}`;
 
@@ -89,6 +89,10 @@ self.addEventListener("fetch", (event) => {
 	// removes that skew class entirely. (Trade-off: build assets aren't
 	// available offline; precached HTML shells still are.)
 	if (url.pathname.startsWith("/build/")) return;
+
+	// Static images are large and already HTTP-cached by Netlify/Cloudflare;
+	// caching them in the SW runtime store bloats storage with little benefit.
+	if (url.pathname.startsWith("/img/")) return;
 
 	// Everything else same-origin (HTML navigations, manifest, fonts, icons,
 	// static /styles) is network-first with a cache fallback for offline.

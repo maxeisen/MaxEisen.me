@@ -27,6 +27,7 @@ import { getEnv } from "./_shared/env.js";
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
 import { CLOUD_NAME, SCOPE_RE, buildGalleryData } from "./_shared/gallery.js";
+import { secureCompare } from "./_shared/secureCompare.js";
 
 // Success: per-viewer browser cache (10 min) so a returning authed browser
 // reuses the list without re-hitting the function. Errors/gate failures are
@@ -155,7 +156,7 @@ export default async function handler(req) {
 	// scopes exist).
 	const expected = getEnv(`GALLERY_${tag.toUpperCase()}_PASSWORD`);
 	const supplied = req.headers.get("x-gallery-password") || "";
-	if (!expected || supplied !== expected) {
+	if (!expected || !secureCompare(supplied, expected)) {
 		return errResponse({ error: "unauthorized" }, 401);
 	}
 

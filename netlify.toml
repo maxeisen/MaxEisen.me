@@ -23,6 +23,17 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Baseline security headers for all responses. CSP omitted for now — index.html
+# relies on inline scripts (theme toggle, GA, SW registration); add later with
+# nonces if we extract those to external modules.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+
 # Story text only (~OpenAI). TTS is a separate function so we stay under Netlify's
 # sync limit (10s default, 26s max on Pro). Local `netlify dev` honors these overrides.
 [functions."bach-story"]

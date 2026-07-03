@@ -9,6 +9,7 @@ import { Buffer } from "node:buffer";
 import { getStore } from "@netlify/blobs";
 import { getEnv } from "../_shared/env.js";
 import { createJsonResponder, cacheControl } from "../_shared/http.js";
+import { secureCompare } from "../_shared/secureCompare.js";
 
 // Re-export so every bach handler keeps importing getEnv from "./_lib.js".
 export { getEnv };
@@ -24,7 +25,7 @@ export function normalizePassword(pw) {
 export function passwordOk(req) {
 	const expected = normalizePassword(getEnv("BACH_PASSWORD"));
 	const supplied = normalizePassword(req.headers.get("x-bach-password"));
-	return Boolean(expected) && supplied === expected;
+	return Boolean(expected) && secureCompare(supplied, expected);
 }
 
 export function getSessionStore() {

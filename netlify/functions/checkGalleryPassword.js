@@ -13,6 +13,7 @@
 import { getEnv } from "./_shared/env.js";
 import { createJsonResponder } from "./_shared/http.js";
 import { SCOPE_RE } from "./_shared/gallery.js";
+import { secureCompare } from "./_shared/secureCompare.js";
 
 // This endpoint intentionally sets no Cache-Control (a password check must
 // never be cached); a bare responder emits only Content-Type.
@@ -41,7 +42,7 @@ export default async function handler(req) {
 
 	// No env var → behave as if the password is just wrong. Don't tip off
 	// callers about which scopes are real on this deployment.
-	if (!expected || password !== expected) {
+	if (!expected || !secureCompare(password, expected)) {
 		return jsonResponse({ error: "Unauthorized" }, 401);
 	}
 

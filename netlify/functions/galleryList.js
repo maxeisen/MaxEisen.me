@@ -2,6 +2,7 @@ import { getEnv } from "./_shared/env.js";
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
 import { CLOUD_NAME, SCOPE_RE } from "./_shared/gallery.js";
+import { secureCompare } from "./_shared/secureCompare.js";
 
 const jsonResponse = createJsonResponder(cacheControl.swr(300, 900));
 
@@ -90,7 +91,7 @@ export default async function handler(req) {
 		const supplied = req.headers.get("x-gallery-password") || "";
 		// Missing env var → behave the same as a wrong password. Don't tell
 		// clients which scopes are real on this deployment.
-		if (!expected || supplied !== expected) {
+		if (!expected || !secureCompare(supplied, expected)) {
 			return jsonResponse({ error: "unauthorized" }, 401, { "Cache-Control": "no-store" });
 		}
 	}

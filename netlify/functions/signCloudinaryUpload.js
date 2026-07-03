@@ -11,6 +11,7 @@
 import { getEnv } from "./_shared/env.js";
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { CLOUD_NAME, SCOPE_RE } from "./_shared/gallery.js";
+import { secureCompare } from "./_shared/secureCompare.js";
 
 const jsonResponse = createJsonResponder(cacheControl.none);
 
@@ -56,7 +57,7 @@ export default async function handler(req) {
 	// nonexistent (401) rather than leaking a 503 "not configured".
 	const supplied = req.headers.get("x-gallery-password") || "";
 	const expected = getEnv(scope.passwordEnv);
-	if (!expected || supplied !== expected) {
+	if (!expected || !secureCompare(supplied, expected)) {
 		return jsonResponse({ error: "unauthorized" }, 401);
 	}
 

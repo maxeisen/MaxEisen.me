@@ -5,7 +5,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { trimListToFit } from "../lib/utils.js";
-    import { fetchJson } from "../../../lib/data/fetchJson.js";
+    import { fetchJsonSwr } from "../../../lib/data/swrCache.js";
     import { createPoller } from "../../../lib/data/poller.js";
     import { bindTrimOnResize } from "../lib/listResize.js";
     import { listLoadState, listStateMessage } from "../lib/listState.js";
@@ -23,11 +23,13 @@
     const storiesState = $derived(listLoadState(stories));
     const storiesMessage = $derived(listStateMessage(storiesState, "Loading…", "Unavailable"));
 
+    const HN_MAX_AGE_MS = 1000 * 60 * 5;
+
     async function load() {
         try {
-            const ids = (await fetchJson("https://hacker-news.firebaseio.com/v0/topstories.json")).slice(0, 6);
+            const ids = (await fetchJsonSwr("https://hacker-news.firebaseio.com/v0/topstories.json", { maxAgeMs: HN_MAX_AGE_MS })).slice(0, 6);
             const items = await Promise.all(
-                ids.map((id) => fetchJson(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)),
+                ids.map((id) => fetchJsonSwr(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, { maxAgeMs: HN_MAX_AGE_MS })),
             );
             stories = items.filter(Boolean);
             requestAnimationFrame(() => trimListToFit(listEl));
