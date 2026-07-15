@@ -83,7 +83,7 @@
         if (imgEl) imgEl.removeAttribute("src");
         spinnerVisible = false;
         captionVisible = false;
-        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
         loadToken++;
     }
 
@@ -92,12 +92,12 @@
     $effect(() => {
         if (open && !wasOpen) {
             showAt(index, { keepCurrent: false });
-            document.body.style.overflow = "hidden";
+            document.documentElement.style.overflow = "hidden";
         } else if (!open && wasOpen) {
             // Already cleared in close(); this branch covers parent-driven close.
             spinnerVisible = false;
             captionVisible = false;
-            document.body.style.overflow = "";
+            document.documentElement.style.overflow = "";
         }
         wasOpen = open;
     });

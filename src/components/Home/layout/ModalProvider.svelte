@@ -19,15 +19,17 @@
 	import { fade } from 'svelte/transition';
 	import CloseButton from '../../../lib/ui/CloseButton.svelte';
 	let current = $state(null);
-	let previousBodyOverflow = '';
+	let previousHtmlOverflow = '';
 
 	$effect(() => {
 		if (!current) return;
-		// Lock background scroll while a modal is open. Overlay scrollbars
-		// (the macOS default) reserve no layout width, so hiding overflow
-		// causes no horizontal shift — no gutter compensation needed.
-		previousBodyOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
+		// Lock background scroll while a modal is open. We hide overflow on
+		// <html> (the page scroll container — see index.css) rather than
+		// <body>: <html> honours `scrollbar-gutter: stable` through
+		// overflow:hidden, so the reserved scrollbar space stays put and the
+		// page never shifts sideways when the modal opens.
+		previousHtmlOverflow = document.documentElement.style.overflow;
+		document.documentElement.style.overflow = 'hidden';
 
 		const handleKeydown = (e) => {
 			if (e.key === 'Escape') close();
@@ -35,7 +37,7 @@
 		window.addEventListener('keydown', handleKeydown);
 		return () => {
 			window.removeEventListener('keydown', handleKeydown);
-			document.body.style.overflow = previousBodyOverflow;
+			document.documentElement.style.overflow = previousHtmlOverflow;
 		};
 	});
 

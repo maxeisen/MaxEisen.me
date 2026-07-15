@@ -1,6 +1,18 @@
 html {
     box-sizing: border-box;
     scroll-behavior: smooth;
+    /* Own the page scroll on <html> instead of letting the browser propagate
+       <body>'s overflow to the viewport. This matters because a propagated
+       viewport scrollbar ignores scrollbar-gutter when overflow flips to
+       hidden (a modal lock), so content would still shift. As a normal scroll
+       container, <html> honours the reserved gutter even through
+       overflow:hidden. `scrollbar-gutter: stable` then reserves that space
+       permanently, so content never shifts sideways when the scrollbar
+       appears/disappears — opening a modal/lightbox (which lock scroll on
+       <html>) or moving to a non-scrolling route like /dashboard. No-op on
+       overlay scrollbars (macOS trackpad); reserves ~15px on classic ones. */
+    overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 *, *:before, *:after {
@@ -32,10 +44,10 @@ body {
 }
 
 /* No custom ::-webkit-scrollbar styling — styling it forces WebKit to use a
-   classic, always-visible scrollbar that reserves layout width (and shifts
-   content when a modal locks scroll). Leaving it unstyled keeps the OS-native
-   scrollbar: on macOS that's the overlay scrollbar (hidden until you scroll,
-   floats over content, reserves no width). */
+   classic, always-visible scrollbar. We keep the OS-native scrollbar (overlay
+   on macOS trackpad; classic when a mouse is attached or "always show" is set).
+   Layout stability across both is handled by `scrollbar-gutter: stable` on
+   <html> above, not by styling the scrollbar. */
 
 ::selection {
     background: var(--main-green-translucent);

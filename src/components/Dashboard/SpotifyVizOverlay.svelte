@@ -38,7 +38,7 @@
 
     function close() {
         viz.overlayOpen = false;
-        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
     }
     function onBackdropClick(e) {
         if (e.target === e.currentTarget || e.target === canvasEl) close();
@@ -46,7 +46,7 @@
 
     $effect(() => {
         if (viz.overlayOpen) {
-            document.body.style.overflow = "hidden";
+            document.documentElement.style.overflow = "hidden";
             if (!vizCtx && canvasEl && window.WebGLRenderingContext) {
                 vizCtx = makeViz(canvasEl);
                 if (vizCtx) loop();
@@ -72,7 +72,7 @@
         cancelAnimationFrame(raf);
         clearInterval(progressTick);
         document.removeEventListener("keydown", keyHandler);
-        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
     });
 </script>
 

@@ -116,7 +116,7 @@
             imgA.onerror = startWhenReady;
         }
 
-        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
         const req = containerEl?.requestFullscreen || containerEl?.webkitRequestFullscreen;
         if (req) { try { req.call(containerEl)?.catch?.(() => {}); } catch {} }
         acquireWakeLock();
@@ -132,7 +132,7 @@
         bVisible = false;
         aSrc = "";
         bSrc = "";
-        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
         releaseWakeLock();
     }
 
