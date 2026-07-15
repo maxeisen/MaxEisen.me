@@ -18,13 +18,16 @@
 	import { setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import CloseButton from '../../../lib/ui/CloseButton.svelte';
-	import { lockBodyScroll, unlockBodyScroll } from '../../../lib/ui/bodyScrollLock.js';
-
 	let current = $state(null);
+	let previousBodyOverflow = '';
 
 	$effect(() => {
 		if (!current) return;
-		lockBodyScroll();
+		// Lock background scroll while a modal is open. Overlay scrollbars
+		// (the macOS default) reserve no layout width, so hiding overflow
+		// causes no horizontal shift — no gutter compensation needed.
+		previousBodyOverflow = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
 
 		const handleKeydown = (e) => {
 			if (e.key === 'Escape') close();
@@ -32,7 +35,7 @@
 		window.addEventListener('keydown', handleKeydown);
 		return () => {
 			window.removeEventListener('keydown', handleKeydown);
-			unlockBodyScroll();
+			document.body.style.overflow = previousBodyOverflow;
 		};
 	});
 

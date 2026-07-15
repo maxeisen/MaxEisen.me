@@ -12,7 +12,6 @@
     import { spotify, viz } from "./lib/stores.svelte.js";
     import { makeViz, drawViz } from "./lib/viz.js";
     import { pad, timeAgo } from "./lib/utils.js";
-    import { lockBodyScroll, unlockBodyScroll } from "../../lib/ui/bodyScrollLock.js";
 
     let canvasEl = $state();
     let vizCtx = null;
@@ -39,19 +38,20 @@
 
     function close() {
         viz.overlayOpen = false;
+        document.body.style.overflow = "";
     }
     function onBackdropClick(e) {
         if (e.target === e.currentTarget || e.target === canvasEl) close();
     }
 
     $effect(() => {
-        if (!viz.overlayOpen) return;
-        lockBodyScroll();
-        if (!vizCtx && canvasEl && window.WebGLRenderingContext) {
-            vizCtx = makeViz(canvasEl);
-            if (vizCtx) loop();
+        if (viz.overlayOpen) {
+            document.body.style.overflow = "hidden";
+            if (!vizCtx && canvasEl && window.WebGLRenderingContext) {
+                vizCtx = makeViz(canvasEl);
+                if (vizCtx) loop();
+            }
         }
-        return () => unlockBodyScroll();
     });
 
     function loop() {
@@ -72,7 +72,7 @@
         cancelAnimationFrame(raf);
         clearInterval(progressTick);
         document.removeEventListener("keydown", keyHandler);
-        unlockBodyScroll();
+        document.body.style.overflow = "";
     });
 </script>
 
