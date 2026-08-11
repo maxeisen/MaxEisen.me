@@ -16,6 +16,8 @@ import {
 	weekSessions,
 	plannedKm,
 	plannedLongRunKm,
+	plannedRunsByDay,
+	matchRunsToPlan,
 } from "./plan.js";
 
 const PLAN = {
@@ -298,5 +300,100 @@ describe("weekDays", () => {
 		expect(days).toHaveLength(7);
 		expect(days[0]).toBe("2026-08-10");
 		expect(days[6]).toBe("2026-08-16");
+	});
+});
+
+describe("plannedRunsByDay", () => {
+	const PLAN_WITH_SESSIONS = {
+		weeks: [
+			{
+				start: "2026-08-10",
+				sessions: [
+					{ day: "Monday", type: "rest" },
+					{ day: "Tuesday", type: "easy run", distanceKm: 10, detail: "conversational" },
+					{ day: "Tuesday", type: "strength" },
+					{ day: "Wednesday", type: "intervals", distanceKm: 12, detail: "6x800m" },
+					{ day: "Sunday", type: "long run", distanceKm: 30 },
+				],
+			},
+		],
+	};
+
+	it("keys the block's running sessions by date", () => {
+		const byDay = plannedRunsByDay(PLAN_WITH_SESSIONS);
+		expect([...byDay.keys()]).toEqual(["2026-08-11", "2026-08-12", "2026-08-16"]);
+		expect(byDay.get("2026-08-11")).toHaveLength(1);
+	});
+
+	it("leaves out rest and strength, which put no kilometres on your legs", () => {
+		const byDay = plannedRunsByDay(PLAN_WITH_SESSIONS);
+		expect(byDay.has("2026-08-10")).toBe(false);
+		expect(byDay.get("2026-08-11")[0].type).toBe("easy run");
+	});
+
+	it("is empty for a plan entered as weekly totals only", () => {
+		expect(plannedRunsByDay(PLAN).size).toBe(0);
+	});
+});
+
+describe("matchRunsToPlan", () => {
+	const PLAN_WITH_SESSIONS = {
+		weeks: [
+			{
+				start: "2026-08-10",
+				sessions: [
+					{ day: "Tuesday", type: "easy run", distanceKm: 10, detail: "conversational" },
+					{ day: "Wednesday", type: "intervals", distanceKm: 12, detail: "6x800m" },
+					{ day: "Wednesday", type: "easy run", distanceKm: 5, detail: "shakeout" },
+				],
+			},
+		],
+	};
+
+	const run = (startDateLocal) => ({ startDateLocal });
+
+	it("tags a run with the session planned for its day", () => {
+		const [match] = matchRunsToPlan([run("2026-08-11T06:30:00")], PLAN_WITH_SESSIONS);
+		expect(match).toEqual({
+			planned: true,
+			type: "easy run",
+			detail: "conversational",
+			distanceKm: 10,
+		});
+	});
+
+	it("marks a run on an unplanned day as extra", () => {
+		const [match] = matchRunsToPlan([run("2026-08-13T07:00:00")], PLAN_WITH_SESSIONS);
+		expect(match.planned).toBe(false);
+		expect(match.type).toBeNull();
+	});
+
+	it("gives a day's second run the day's second session", () => {
+		const matches = matchRunsToPlan(
+			[run("2026-08-12T06:00:00"), run("2026-08-12T18:00:00")],
+			PLAN_WITH_SESSIONS,
+		);
+		expect(matches.map((m) => m.type)).toEqual(["intervals", "easy run"]);
+	});
+
+	it("calls a double on a single-session day what it is", () => {
+		const matches = matchRunsToPlan(
+			[run("2026-08-11T06:00:00"), run("2026-08-11T18:00:00")],
+			PLAN_WITH_SESSIONS,
+		);
+		expect(matches.map((m) => m.planned)).toEqual([true, false]);
+	});
+
+	it("returns one entry per run, in order, whatever the plan says", () => {
+		const runs = [run("2026-08-11T06:00:00"), run(null), run("2026-08-30T06:00:00")];
+		const matches = matchRunsToPlan(runs, { weeks: [] });
+		expect(matches).toHaveLength(3);
+		expect(matches.every((m) => m.planned === false)).toBe(true);
+	});
+
+	it("treats a plan with no day-level sessions as no match, not as a crash", () => {
+		expect(matchRunsToPlan([run("2026-08-11T06:00:00")], PLAN)[0].planned).toBe(false);
+		expect(matchRunsToPlan([run("2026-08-11T06:00:00")], null)[0].planned).toBe(false);
+		expect(matchRunsToPlan(null, PLAN)).toEqual([]);
 	});
 });

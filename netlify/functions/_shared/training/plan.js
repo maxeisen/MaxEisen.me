@@ -315,6 +315,63 @@ export function upcomingWeeks(plan, today, limit = 4) {
 }
 
 /**
+ * Every planned running session in the block, grouped by the day it falls on.
+ *
+ * @param {object} plan
+ * @returns {Map<string, object[]>}
+ */
+export function plannedRunsByDay(plan) {
+	const byDay = new Map();
+	for (const week of plan?.weeks || []) {
+		for (const session of weekSessions(week)) {
+			if (!session.isRun) continue;
+			const list = byDay.get(session.date);
+			if (list) list.push(session);
+			else byDay.set(session.date, [session]);
+		}
+	}
+	return byDay;
+}
+
+/**
+ * Tag each run with the planned session it fulfilled, or as an extra.
+ *
+ * Matching is by day, in order: the first run on a day takes the first session
+ * planned for it, and so on. A day with two planned sessions and one run
+ * therefore leaves the second unclaimed, and a second run on a single-session
+ * day comes back as an extra — which is what a double is.
+ *
+ * Nothing here tries to check that the run resembles the session. A 6 km
+ * shuffle on a day the plan wanted 6×800m is still the day's session, run
+ * badly; calling it an extra because the distance disagreed would be a worse
+ * lie than calling it planned.
+ *
+ * @param {object[]} runs shaped activities, ascending by start time.
+ * @param {object} plan
+ * @returns {{planned: boolean, type: string|null, detail: string|null,
+ *   distanceKm: number|null}[]} one entry per run, in the same order.
+ */
+export function matchRunsToPlan(runs, plan) {
+	const byDay = plannedRunsByDay(plan);
+	const claimed = new Map();
+
+	return (runs || []).map((run) => {
+		const day = toDayKey(run?.startDateLocal);
+		const sessions = (day && byDay.get(day)) || [];
+		const used = claimed.get(day) || 0;
+		const session = sessions[used];
+		if (!session) return { planned: false, type: null, detail: null, distanceKm: null };
+		claimed.set(day, used + 1);
+		return {
+			planned: true,
+			type: session.type || null,
+			detail: session.detail || null,
+			distanceKm: Number.isFinite(Number(session.distanceKm)) ? Number(session.distanceKm) : null,
+		};
+	});
+}
+
+/**
  * Day keys for the current week, Monday through Sunday.
  *
  * @param {string} today
