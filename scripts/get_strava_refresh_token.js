@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * One-shot helper to obtain a Strava refresh token for the Last Activity widget.
+ * One-shot helper to obtain a Strava refresh token for the Last Activity widget
+ * and the /training dashboard.
  *
  * Setup:
  *   1. Create an API app at https://www.strava.com/settings/api
@@ -15,6 +16,10 @@
  *        STRAVA_CLIENT_ID
  *        STRAVA_CLIENT_SECRET
  *        STRAVA_REFRESH_TOKEN
+ *
+ * Re-run this whenever SCOPES below changes — a refresh token only ever carries
+ * the scopes it was originally granted, so widening the list here has no effect
+ * on production until the new token replaces STRAVA_REFRESH_TOKEN.
  */
 
 import http from "node:http";
@@ -22,7 +27,13 @@ import http from "node:http";
 const CLIENT_ID = process.env.STRAVA_CLIENT_ID;
 const CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
 const REDIRECT_URI = "http://127.0.0.1:8889/exchange_token";
-const SCOPES = "read,activity:read";
+
+// activity:read_all — trainingSync needs the full activity history, including
+//   runs marked private. Those are filtered out again in shapeActivity() before
+//   anything reaches the public /training payload; see netlify/functions/
+//   _shared/training/shape.js.
+// profile:read_all — /athlete/zones, for the athlete's configured HR zones.
+const SCOPES = "read,activity:read_all,profile:read_all";
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
 	console.error("Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET in the env before running.");

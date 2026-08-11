@@ -1,0 +1,1058 @@
+{
+  "race": {
+    "name": "Bank of America Chicago Marathon",
+    "date": "2026-10-11",
+    "goalTimeSec": 13200,
+    "distanceM": 42195
+  },
+  "thresholds": {
+    "maxHr": 195,
+    "restingHr": 47,
+    "lactateThresholdHr": 175,
+    "thresholdPaceSecPerKm": 255,
+    "marathonPaceSecPerKm": 313
+  },
+  "weeks": [
+    {
+      "start": "2026-05-25",
+      "targetKm": 23.0,
+      "longRunKm": 13.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "On Off Ks, 5km"
+        },
+        {
+          "type": "long run",
+          "detail": "Progressive, 13km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "easy run",
+          "distanceKm": 5.0,
+          "detail": "5km Easy Run"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Friday",
+          "type": "tempo",
+          "distanceKm": 5.0,
+          "detail": "On Off Ks"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 13.0,
+          "detail": "13km Progressive Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-06-01",
+      "targetKm": 25.5,
+      "longRunKm": 14.0,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "1km Repeats, 5.5km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "long run",
+          "distanceKm": 14.0,
+          "detail": "14km Long Run"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 5.5,
+          "detail": "1km Repeats"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 6.0,
+          "detail": "6km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "rest",
+          "detail": "Rest"
+        }
+      ]
+    },
+    {
+      "start": "2026-06-08",
+      "targetKm": 28.5,
+      "longRunKm": 15.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Progressive Run, 6km"
+        },
+        {
+          "type": "long run",
+          "detail": "Block, 15km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 6.0,
+          "detail": "Progressive Run"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 7.5,
+          "detail": "7.5km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 15.0,
+          "detail": "15km Block Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-06-15",
+      "targetKm": 21.0,
+      "longRunKm": 9.0,
+      "key": [],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Tuesday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Wednesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Thursday",
+          "type": "easy run",
+          "distanceKm": 6.0,
+          "detail": "6km Easy Run"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 6.0,
+          "detail": "6km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 9.0,
+          "detail": "9km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-06-22",
+      "targetKm": 32.0,
+      "longRunKm": 17.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Tempo 2-1-1, 7.5km"
+        },
+        {
+          "type": "long run",
+          "detail": "Progressive, 17km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Tuesday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 7.5,
+          "detail": "Tempo 2-1-1"
+        },
+        {
+          "day": "Thursday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 7.5,
+          "detail": "7.5km Easy Run"
+        },
+        {
+          "day": "Friday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 17.0,
+          "detail": "17km Progressive Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-06-29",
+      "targetKm": 0,
+      "longRunKm": 0,
+      "key": [],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "rest",
+          "detail": "Rest"
+        }
+      ]
+    },
+    {
+      "start": "2026-07-06",
+      "targetKm": 10.0,
+      "longRunKm": 0,
+      "key": [],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "easy run",
+          "distanceKm": 5.0,
+          "detail": "5km Easy Run"
+        },
+        {
+          "day": "Thursday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Friday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "easy run",
+          "distanceKm": 5.0,
+          "detail": "5km Easy Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-07-13",
+      "targetKm": 32.0,
+      "longRunKm": 13.0,
+      "key": [],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "easy run",
+          "distanceKm": 10.0,
+          "detail": "10km Easy Run"
+        },
+        {
+          "day": "Thursday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 9.0,
+          "detail": "9km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 13.0,
+          "detail": "13km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-07-20",
+      "targetKm": 33.9,
+      "longRunKm": 15.0,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "Rolling 300s, 8.9km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Tuesday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 8.9,
+          "detail": "Rolling 300s"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 10.0,
+          "detail": "10km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 15.0,
+          "detail": "15km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-07-27",
+      "targetKm": 37.0,
+      "longRunKm": 17.0,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "Mile Repeats, 10km"
+        },
+        {
+          "type": "long run",
+          "detail": "Race Practice, 17km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Tuesday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 10.0,
+          "detail": "Mile Repeats"
+        },
+        {
+          "day": "Thursday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 10.0,
+          "detail": "10km Easy Run"
+        },
+        {
+          "day": "Friday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 17.0,
+          "detail": "17km Race Practice Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-08-03",
+      "targetKm": 23.0,
+      "longRunKm": 10.0,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "800m Repeats, 6km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 6.0,
+          "detail": "800m Repeats"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 7.0,
+          "detail": "7km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 10.0,
+          "detail": "10km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-08-10",
+      "targetKm": 35.5,
+      "longRunKm": 20.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Tempo 5km, 7.5km session"
+        },
+        {
+          "type": "long run",
+          "detail": "Race Practice, 20km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 7.5,
+          "detail": "Tempo 5km"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 8.0,
+          "detail": "8km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 20.0,
+          "detail": "20km Race Practice Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-08-17",
+      "targetKm": 39.0,
+      "longRunKm": 23.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Tempo 6km, 8km session"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 8.0,
+          "detail": "Tempo 6km"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 8.0,
+          "detail": "8km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 23.0,
+          "detail": "23km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-08-24",
+      "targetKm": 43.0,
+      "longRunKm": 26.0,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "1km Repeats, 8km"
+        },
+        {
+          "type": "long run",
+          "detail": "Progressive Repeat, 26km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 8.0,
+          "detail": "1km Repeats"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 9.0,
+          "detail": "9km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 26.0,
+          "detail": "26km Progressive Repeat Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-08-31",
+      "targetKm": 25.5,
+      "longRunKm": 13.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Progressive Run, 5.5km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 5.5,
+          "detail": "Progressive Run"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 7.0,
+          "detail": "7km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 13.0,
+          "detail": "13km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-09-07",
+      "targetKm": 47.0,
+      "longRunKm": 30.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Tempo 3-2-1, 9km"
+        },
+        {
+          "type": "long run",
+          "detail": "Race Practice, 30km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 9.0,
+          "detail": "Tempo 3-2-1"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 8.0,
+          "detail": "8km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 30.0,
+          "detail": "30km Race Practice Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-09-14",
+      "targetKm": 49.5,
+      "longRunKm": 34.0,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "Progressive Mile Repeats, 9km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 9.0,
+          "detail": "Progressive Mile Repeats"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 6.5,
+          "detail": "6.5km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 34.0,
+          "detail": "34km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-09-21",
+      "targetKm": 35.1,
+      "longRunKm": 21.1,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Over and Unders 1km, 8km"
+        },
+        {
+          "type": "long run",
+          "detail": "Half Marathon Race Practice, 21.1km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 8.0,
+          "detail": "Over and Unders 1km"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 6.0,
+          "detail": "6km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 21.1,
+          "detail": "Half Marathon Race Practice Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-09-28",
+      "targetKm": 25.0,
+      "longRunKm": 13.0,
+      "key": [
+        {
+          "type": "tempo",
+          "detail": "Tempo 2km Repeats, 6.5km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "tempo",
+          "distanceKm": 6.5,
+          "detail": "Tempo 2km Repeats"
+        },
+        {
+          "day": "Thursday",
+          "type": "strength",
+          "detail": "25m - 35m Legs & Core"
+        },
+        {
+          "day": "Friday",
+          "type": "easy run",
+          "distanceKm": 5.5,
+          "detail": "5.5km Easy Run"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "long run",
+          "distanceKm": 13.0,
+          "detail": "13km Long Run"
+        }
+      ]
+    },
+    {
+      "start": "2026-10-05",
+      "targetKm": 48.7,
+      "longRunKm": 42.2,
+      "key": [
+        {
+          "type": "intervals",
+          "detail": "Race Pace Fartlek, 6.5km"
+        },
+        {
+          "type": "race",
+          "detail": "Bank of America Chicago Marathon, 42.2km"
+        }
+      ],
+      "sessions": [
+        {
+          "day": "Monday",
+          "type": "strength",
+          "detail": "25m - 35m Full Body"
+        },
+        {
+          "day": "Tuesday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Wednesday",
+          "type": "intervals",
+          "distanceKm": 6.5,
+          "detail": "Race Pace Fartlek"
+        },
+        {
+          "day": "Thursday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Friday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Saturday",
+          "type": "rest",
+          "detail": "Rest"
+        },
+        {
+          "day": "Sunday",
+          "type": "race",
+          "distanceKm": 42.2,
+          "detail": "Bank of America Chicago Marathon"
+        }
+      ]
+    }
+  ]
+}

@@ -247,7 +247,7 @@
 
         <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
 
-        <p class="intro-extras">While you're here, peek at my <a class="intro-link" href="/gallery">photo gallery</a> or my live <a class="intro-link" href="/dashboard">dashboard</a>.</p>
+        <p class="intro-extras">While you're here, peek at my <a class="intro-link" href="/gallery">photo gallery</a>, my live <a class="intro-link" href="/dashboard">dashboard</a>, or follow my <a class="intro-link" href="/training">marathon training</a>.</p>
     </div>
 </div>
 

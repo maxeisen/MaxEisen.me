@@ -1,0 +1,258 @@
+// Assemble the full dashboard payload from the engine modules.
+//
+// This is the only place the pieces meet, and it stays a pure function of
+// (activities, plan, today) so the whole dashboard can be exercised in tests
+// without Strava, Blobs, or a clock.
+
+import { dailyLoads } from "./load.js";
+import { acwr, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
+import { hrZoneFloors, intensitySplit } from "./zones.js";
+import { efficiencyTrend } from "./efficiency.js";
+import { collectBestEfforts, publicRun } from "./shape.js";
+import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
+import {
+	blockRange,
+	comparePlan,
+	currentWeek as findCurrentWeek,
+	dayOfWeek,
+	daysToRace,
+	upcomingWeeks,
+	weekDays,
+	weeksToRace,
+} from "./plan.js";
+import { recommendations } from "./recommend.js";
+import { toDayKey } from "./dates.js";
+
+// How far back the intensity distribution looks. A whole block averages away
+// the thing you'd act on; four weeks reflects current habits.
+const INTENSITY_WINDOW_DAYS = 28;
+
+// Long runs considered when reporting decoupling.
+const LONG_RUN_MIN_M = 18000;
+
+function withinDays(activities, today, days) {
+	const cutoff = new Date(`${today}T00:00:00Z`).getTime() - days * 86_400_000;
+	return activities.filter((a) => {
+		const day = toDayKey(a.startDateLocal);
+		return day && new Date(`${day}T00:00:00Z`).getTime() >= cutoff;
+	});
+}
+
+/**
+ * The current week day by day, with each planned session alongside whatever was
+ * actually run that day.
+ *
+ * This is the only place the plan and the log meet at day resolution, which is
+ * what makes "did I do Wednesday's tempo?" answerable rather than leaving only
+ * a weekly total that hides which session was skipped.
+ *
+ * @param {object} week a week from comparePlan().
+ * @param {object[]} runs shaped activities.
+ * @param {string} today day key.
+ * @returns {object[]} seven days, Monday first.
+ */
+function planDays(week, runs, today) {
+	if (!week?.start) return [];
+	const done = new Map();
+	for (const run of runs) {
+		const day = toDayKey(run.startDateLocal);
+		if (!day) continue;
+		if (!done.has(day)) done.set(day, []);
+		done.get(day).push(run);
+	}
+
+	return weekDays(week.start).map((date) => {
+		const actual = done.get(date) || [];
+		return {
+			date,
+			isToday: date === today,
+			isPast: date < today,
+			planned: (week.sessions || []).map((s) => ({
+				type: s.type,
+				detail: s.detail,
+				distanceKm: Number.isFinite(Number(s.distanceKm)) ? Number(s.distanceKm) : null,
+				isRun: s.isRun === true,
+				date: s.date,
+			})).filter((s) => s.date === date),
+			actualKm: actual.reduce((sum, r) => sum + (Number(r.distanceM) || 0), 0) / 1000,
+			runs: actual.length,
+		};
+	});
+}
+
+/**
+ * Build the dashboard payload.
+ *
+ * @param {object} input
+ * @param {object[]} input.activities shaped activities, any order.
+ * @param {object} input.plan parsed marathon-plan.json.
+ * @param {string} input.today day key.
+ * @returns {object}
+ */
+export function buildDashboard({ activities = [], plan = {}, today }) {
+	const day = toDayKey(today) || toDayKey(new Date());
+	const runs = [...activities].sort((a, b) =>
+		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
+	);
+
+	const thresholds = plan?.thresholds || {};
+	const race = plan?.race || {};
+	const range = blockRange(plan, runs, day);
+
+	const loads = dailyLoads(runs);
+	const series = range ? fitnessSeries(loads, range) : [];
+	// Report against today, not the end of the block — the series runs forward
+	// to race day, where CTL has decayed to nothing because no runs exist yet.
+	const latest = series.find((d) => d.date === day) || series.at(-1) || null;
+	const ratio = acwr(loads, day);
+
+	const weeks = comparePlan(
+		weeklySummaries(runs, range || {}),
+		plan,
+	).map((week, i, all) => {
+		const previous = all[i - 1];
+		return {
+			...week,
+			rampPct: rampRate(week.distanceM, previous?.distanceM ?? 0),
+			longRunSharePct: longRunShare(week),
+		};
+	});
+
+	const current = findCurrentWeek(weeks, day);
+	const currentIndex = current ? weeks.indexOf(current) : -1;
+	const previous = currentIndex > 0 ? weeks[currentIndex - 1] : null;
+	const weekComplete = dayOfWeek(day) >= 7;
+
+	// Week-over-week ramp and long-run share are only meaningful across whole
+	// weeks. Measured on a Tuesday, a perfectly normal week reads as a 100%
+	// collapse in volume purely because most of it hasn't happened yet, so
+	// mid-week these describe the last completed week instead.
+	const riskWeek = weekComplete ? current : previous;
+
+	const recentRuns = withinDays(runs, day, INTENSITY_WINDOW_DAYS);
+	const intensity = intensitySplit(recentRuns, thresholds);
+
+	// Zone 4 is where an effort stops being aerobic, which is the line the
+	// efficiency trend needs in order to compare like with like.
+	const zoneFloors = hrZoneFloors(thresholds);
+	const efficiency = efficiencyTrend(runs, { aerobicCeilingHr: zoneFloors?.[3] ?? null });
+
+	const prediction = predictRace(collectBestEfforts(runs), race.distanceM || 42195);
+	const goalPace = goalPaceSecPerKm(race.goalTimeSec, race.distanceM || 42195);
+	const delta = prediction ? goalDelta(prediction.predictedSec, race.goalTimeSec) : null;
+
+	const lastLongRun = [...runs]
+		.reverse()
+		.find((a) => a.distanceM >= LONG_RUN_MIN_M && Number.isFinite(a.decouplingPct));
+
+	const remainingDays = daysToRace(plan, day);
+	const totals = runs.reduce(
+		(acc, a) => {
+			acc.distanceM += a.distanceM || 0;
+			acc.movingTimeSec += a.movingTimeSec || 0;
+			acc.runs += 1;
+			return acc;
+		},
+		{ distanceM: 0, movingTimeSec: 0, runs: 0 },
+	);
+
+	const summary = {
+		race: {
+			name: race.name || null,
+			date: race.date || null,
+			distanceM: race.distanceM || 42195,
+			goalTimeSec: race.goalTimeSec || null,
+			goalPaceSecPerKm: goalPace,
+		},
+		daysToRace: remainingDays,
+		weeksToRace: weeksToRace(plan, day),
+		totals,
+		latest: latest
+			? { date: latest.date, ctl: latest.ctl, atl: latest.atl, tsb: latest.tsb }
+			: null,
+		acwr: ratio,
+		intensity,
+		riskWeek: riskWeek
+			? {
+					start: riskWeek.start,
+					rampPct: riskWeek.rampPct,
+					longRunSharePct: riskWeek.longRunSharePct,
+					// Lets the UI label these "this week" or "last week"
+					// rather than quietly describing a different week.
+					isCurrentWeek: weekComplete,
+				}
+			: null,
+		prediction: prediction
+			? {
+					predictedSec: prediction.predictedSec,
+					riegelSec: prediction.riegelSec,
+					vdotSec: prediction.vdotSec,
+					vdot: prediction.vdot,
+					basis: prediction.basis,
+					deltaSec: delta?.deltaSec ?? null,
+					onTrack: delta?.onTrack ?? null,
+				}
+			: null,
+		longRun: lastLongRun
+			? {
+					id: lastLongRun.id,
+					name: lastLongRun.name,
+					date: toDayKey(lastLongRun.startDateLocal),
+					distanceM: lastLongRun.distanceM,
+					decouplingPct: lastLongRun.decouplingPct,
+				}
+			: null,
+		efficiency: {
+			changePct: efficiency.changePct,
+			first: efficiency.first,
+			latest: efficiency.latest,
+			runs: efficiency.points.length,
+		},
+	};
+
+	const advice = recommendations({
+		acwr: ratio,
+		latest: summary.latest || {},
+		intensity,
+		currentWeek: current
+			? {
+					...current,
+					// Only judge a week's volume against plan once it's actually over.
+					weekComplete,
+				}
+			: null,
+		previousWeek: previous,
+		// Ramp and long-run share are shape-of-the-week measures, so they're
+		// judged on the last whole week. Carrying the volumes alongside them
+		// keeps the advice text describing the same week as its metric.
+		rampBasis: riskWeek
+			? {
+					rampPct: riskWeek.rampPct,
+					longRunSharePct: riskWeek.longRunSharePct,
+					actualKm: riskWeek.actualKm,
+					previousKm: weekComplete ? previous?.actualKm : weeks[currentIndex - 2]?.actualKm,
+					isCurrentWeek: weekComplete,
+				}
+			: null,
+		prediction: summary.prediction,
+		goal: { goalTimeSec: race.goalTimeSec, goalPaceSecPerKm: goalPace },
+		daysToRace: remainingDays,
+		longRunDecouplingPct: lastLongRun?.decouplingPct ?? null,
+	});
+
+	return {
+		generatedAt: new Date().toISOString(),
+		today: day,
+		summary,
+		// Only the portion of the series that has happened; the tail to race
+		// day is empty by construction and would draw a slide to zero.
+		series: series.filter((d) => d.date <= day),
+		efficiency: { points: efficiency.points, trend: efficiency.trend },
+		weeks,
+		week: current ? { start: current.start, days: planDays(current, runs, day) } : null,
+		upcoming: upcomingWeeks(plan, day),
+		recommendations: advice,
+		runs: runs.slice(-30).reverse().map(publicRun),
+		thresholds,
+	};
+}

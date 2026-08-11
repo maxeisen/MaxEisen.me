@@ -26,6 +26,7 @@ const META = {
 	"/gallery/ride": { title: "Cycling — Max Eisen", desc: "Photos from the road, cycling around Toronto and beyond.", card: "Cycling" },
 	"/gallery/run": { title: "Running — Max Eisen", desc: "Photos from runs around Toronto and beyond.", card: "Running" },
 	"/dashboard": { title: "Live Dashboard — Max Eisen", desc: "A live look at what I'm listening to, riding, and reading.", card: "Live Dashboard" },
+	"/training": { title: "Road to Chicago — Max Eisen", desc: "Live marathon training dashboard: weekly volume, fitness and fatigue, intensity balance, and where I'm projected to finish.", card: "Road to Chicago" },
 	"/toronto": { title: "My Toronto — Max Eisen", desc: "A personal map of my Toronto.", card: "My Toronto" },
 	"/bach": { title: "Bach — Max Eisen", desc: "An interactive party game.", card: "Bach" },
 	// Private + noindex: a neutral card so sharing the link never reveals photos.
@@ -92,5 +93,5 @@ export default async function handler(request, context) {
 }
 
 export const config = {
-	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/toronto", "/bach"],
+	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/training", "/toronto", "/bach"],
 };

@@ -9,8 +9,17 @@
 # Bundle the precomputed gallery manifests with the functions so
 # signedGalleryList can read them instead of running a ~20s Admin search per
 # load. Generated at build time (see scripts/build-gallery-manifest.mjs).
+#
+# marathon-plan.json is the hand-authored training plan behind /training. The
+# functions import it as JSON so the bundler inlines it (see
+# _shared/training/planFile.js for why reading it from disk doesn't work), but
+# it's listed here too so the file is present if that import ever goes back to
+# a runtime read.
 [functions]
-  included_files = ["netlify/functions/_generated/**"]
+  included_files = [
+    "netlify/functions/_generated/**",
+    "public/content/marathon-plan.json",
+  ]
 
 # /build/* is content-hashed (see vite.config.js) — every filename changes
 # when its contents change, so these are safe to cache forever. immutable +
@@ -48,6 +57,13 @@
 
 [functions."bach-story-images-background"]
   timeout = 900
+
+# Strava sync for /training. Netlify caps scheduled functions at 30s;
+# trainingSync bounds its own work to fit (see DETAIL_BUDGET) and defers the
+# remainder to the next run, so a cold-start backfill fills in over a few hours.
+# The hourly schedule itself is declared in the function's own `config` export.
+[functions."trainingSync"]
+  timeout = 30
 
 [dev]
   command = "vite"
@@ -111,6 +127,10 @@
   status = 200
 [[redirects]]
   from = "/dashboard"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/training"
   to = "/index.html"
   status = 200
 [[redirects]]
