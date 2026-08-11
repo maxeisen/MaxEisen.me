@@ -109,10 +109,15 @@
         margin: var(--space-2) 0 0 0;
     }
 
+    /* The number and its label share a left edge. Right-aligning them against
+       each other only looks deliberate while the countdown is opposite the
+       race name; the moment it wraps underneath — which depends on how long
+       the race is called, not on any one breakpoint — it leaves the number
+       floating in from the margin with nothing to line up with. */
     .countdown {
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
+        align-items: flex-start;
         line-height: 1;
     }
     .countdown-value {
@@ -130,10 +135,8 @@
         opacity: 0.7;
         margin-top: var(--space-2);
     }
-    /* Once the countdown wraps under the race name it's no longer opposite
-       anything, and right-aligning it against its own label leaves the number
-       floating in from the margin with nothing to line up with. Send both back
-       to the page's left edge. */
+    /* On a phone the countdown costs two lines of a short screen for one
+       number; put it on one. */
     @media (max-width: 620px) {
         .countdown {
             flex-direction: row;
