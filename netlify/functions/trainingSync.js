@@ -1,21 +1,29 @@
 // Scheduled incremental sync of Strava runs into the training Blobs store.
 //
-// Runs hourly. The /training page reads only from Blobs, so nothing here is in
-// a user's request path and it can afford to be slow and careful.
+// The /training page reads only from Blobs, so nothing here is in a user's
+// request path and it can afford to be slow and careful.
 //
 // Why a sync at all, rather than fetching on demand: the dashboard needs the
 // whole training block with per-activity detail and streams, which is hundreds
-// of upstream calls. Strava allows roughly 200 requests per 15 minutes, so
-// that can't happen per page load — and the streams are only needed once,
-// since a completed run never changes.
+// of upstream calls. Strava rate-limits per 15 minutes, so that can't happen
+// per page load — and the streams are only needed once, since a completed run
+// never changes.
 //
 // Backfill is handled by the same code path as the incremental case. Each
-// invocation enriches at most DETAIL_BUDGET activities, so a cold start walks
-// backwards through the block over several hours instead of blowing the rate
-// limit in one go. That's deliberate: the first deploy fills in gradually.
+// invocation enriches a bounded number of activities and defers the rest, so a
+// cold start walks backwards through the block over a few invocations instead
+// of blowing the rate limit in one go.
+//
+// Until that backfill finishes the dashboard is showing a truncated history —
+// fitness is a 42-day average, so a partial index reads as a much lower CTL
+// than the athlete actually has. Two things follow from that, and both are
+// load-bearing: the schedule is frequent enough that a cold start converges in
+// under an hour, and the cursor's `outstanding` count is published so
+// trainingData can tell the page it's still filling in rather than letting
+// provisional numbers pass for final ones.
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
-import { STRAVA_API_BASE, getAccessToken } from "./_shared/strava.js";
+import { STRAVA_API_BASE, callsRemaining, getAccessToken, readQuota } from "./_shared/strava.js";
 import { SHAPE_VERSION, isTrackableRun, shapeActivity } from "./_shared/training/shape.js";
 import { loadPlan } from "./_shared/training/planFile.js";
 import {
@@ -30,15 +38,20 @@ import {
 
 const jsonResponse = createJsonResponder(cacheControl.none);
 
-// Netlify caps scheduled functions at 30 seconds, which is the real
-// constraint here rather than Strava's rate limit. Detail + streams is 2
-// upstream calls per activity, so this budget is 30 calls per invocation —
-// well inside the ~200-per-15-minutes allowance, and fast enough to finish
-// comfortably within the timeout at the concurrency below.
-const DETAIL_BUDGET = 15;
-const FETCH_CONCURRENCY = 4;
+// Detail + streams is 2 upstream calls per activity, so this budget is 60
+// calls per invocation. Three things bound the work and the smallest wins:
+// this count, the wall-clock deadline below, and Strava's own reported quota
+// (QUOTA_SHARE). A block plus its run-up is on the order of 70 runs, so a cold
+// start now converges in two or three invocations rather than a working day.
+const DETAIL_BUDGET = 30;
+const FETCH_CONCURRENCY = 5;
 const PER_PAGE = 100;
 const MAX_PAGES = 4;
+
+// The most of each Strava rate-limit window this job will spend. The same app
+// credentials serve the /dashboard widgets, which are in a visitor's request
+// path, so a backfill must not be able to starve them into 429s.
+const QUOTA_SHARE = { shortShare: 0.6, dailyShare: 0.6 };
 
 // Stop enriching with time to spare and write what we have. Overrunning the
 // 30s limit doesn't just truncate the work — the invocation is killed before
@@ -85,16 +98,28 @@ async function mapWithConcurrency(items, limit, mapper) {
 // coordinates, and gap.js for why GAP doesn't need them.
 const STREAM_KEYS = "time,distance,heartrate,velocity_smooth,altitude,grade_smooth";
 
+// Last quota Strava reported, updated on every response (including errors —
+// a 429 carries the headers that say how long we've overshot by).
+let quota = null;
+
 async function stravaGet(path, token) {
 	const res = await fetch(`${STRAVA_API_BASE}${path}`, {
 		headers: { Authorization: `Bearer ${token}` },
 	});
+	quota = readQuota(res.headers) ?? quota;
 	if (!res.ok) {
 		const err = new Error(`Strava ${path} failed: ${res.status}`);
 		err.status = res.status;
 		throw err;
 	}
 	return res.json();
+}
+
+// Enough headroom left for one more activity? Two calls each. Infinity when
+// Strava hasn't told us anything, in which case DETAIL_BUDGET is the only
+// bound — which is what the tests and local runs see.
+function hasQuotaForOneMore() {
+	return callsRemaining(quota, QUOTA_SHARE) >= 2;
 }
 
 // The athlete's configured HR zones. Optional — falls back to percentages of
@@ -138,6 +163,11 @@ async function fetchStreams(id, token) {
 }
 
 export default async function handler(req) {
+	// Netlify reuses warm instances, and a quota reading from a previous
+	// invocation describes a window that has almost certainly rolled over
+	// since. Start blind and let this run's first response say where we are.
+	quota = null;
+
 	let token;
 	try {
 		token = await getAccessToken();
@@ -174,7 +204,6 @@ export default async function handler(req) {
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
 
-	const zones = (await fetchAthleteZones(token)) || (await readJson(store, ATHLETE_KEY, null));
 	const thresholds = plan.thresholds;
 
 	// Private runs and other sports are dropped here, before we spend any
@@ -199,13 +228,29 @@ export default async function handler(req) {
 		.sort((a, b) => String(b.start_date_local).localeCompare(String(a.start_date_local)));
 	const needsDetail = pending.slice(0, DETAIL_BUDGET);
 
+	// Zones only move when the athlete edits them, and every avoidable call is
+	// quota the dashboard widgets can have instead. Refresh them when there's
+	// enrichment to spend them on, or when we've never managed to store any.
+	const storedZones = await readJson(store, ATHLETE_KEY, null);
+	const zones =
+		needsDetail.length > 0 || !storedZones
+			? (await fetchAthleteZones(token)) || storedZones
+			: storedZones;
+
 	const deadline = Date.now() + WORK_DEADLINE_MS;
 	let rateLimited = false;
 	let timedOut = false;
+	let quotaPaused = false;
 	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (summary) => {
 		if (rateLimited) return null;
 		if (Date.now() > deadline) {
 			timedOut = true;
+			return null;
+		}
+		// Stop before Strava has to say no: a 429 costs a call and, if we kept
+		// going, would eat into the window the /dashboard widgets need.
+		if (!hasQuotaForOneMore()) {
+			quotaPaused = true;
 			return null;
 		}
 		try {
@@ -249,6 +294,8 @@ export default async function handler(req) {
 			lastRunAt: new Date().toISOString(),
 			lastActivityEpoch: outstanding.length === 0 ? latestEpoch : cursor?.lastActivityEpoch || null,
 			outstanding: outstanding.length,
+			// What the page needs to describe a partial history honestly.
+			stored: merged.length,
 		}),
 	]);
 
@@ -262,10 +309,17 @@ export default async function handler(req) {
 		shapeVersion: SHAPE_VERSION,
 		rescan,
 		rateLimited,
+		quotaPaused,
 		timedOut,
 	});
 }
 
+// Every 20 minutes. Once caught up an invocation is two upstream calls (a
+// token refresh and one activity listing), so the steady-state cost of this
+// cadence is negligible; what it buys is the cold start. A schedule is also
+// the ONLY thing that ever writes this store — a scheduled function can't be
+// invoked over HTTP — so the gap between deploying and the first tick is
+// exactly how long the dashboard has no runs on it at all.
 export const config = {
-	schedule: "@hourly",
+	schedule: "*/20 * * * *",
 };

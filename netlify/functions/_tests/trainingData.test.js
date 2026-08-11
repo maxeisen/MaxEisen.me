@@ -49,8 +49,12 @@ function rawRun(overrides = {}) {
 
 const PLAN_THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288 };
 
-function seed(records) {
-	store.get.mockImplementation(async (key) => (key === "index.json" ? records : null));
+function seed(records, cursor = null) {
+	store.get.mockImplementation(async (key) => {
+		if (key === "index.json") return records;
+		if (key === "cursor.json") return cursor;
+		return null;
+	});
 }
 
 // Read the body once, as text, and parse from that — the raw JSON is what the
@@ -168,6 +172,33 @@ describe("trainingData behaviour", () => {
 		seed("not an array");
 		const { body } = await payload();
 		expect(body.runs).toEqual([]);
+	});
+
+	// Every metric on the page reads the whole block, so a half-synced index
+	// doesn't produce slightly-off numbers — it produces numbers for training
+	// that didn't happen. The page can only say so if the payload tells it.
+	it("reports that the history is still being imported", async () => {
+		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }), {
+			lastRunAt: "2026-08-09T12:00:00.000Z",
+			outstanding: 42,
+			stored: 15,
+		});
+		const { body } = await payload();
+		expect(body.sync).toMatchObject({ hasSynced: true, outstanding: 42, backfilling: true });
+	});
+
+	it("distinguishes a complete history from one that has never synced", async () => {
+		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }), {
+			lastRunAt: "2026-08-09T12:00:00.000Z",
+			outstanding: 0,
+		});
+		expect((await payload()).body.sync).toMatchObject({ hasSynced: true, backfilling: false });
+
+		vi.resetModules();
+		// No cursor at all: the scheduled sync has not completed even once,
+		// which is exactly the state a freshly deployed dashboard is in.
+		seed([], null);
+		expect((await payload()).body.sync).toMatchObject({ hasSynced: false, backfilling: false });
 	});
 
 	it("reports the race it is counting down to", async () => {

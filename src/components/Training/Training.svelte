@@ -15,6 +15,7 @@
     import { fetchJsonSwr } from "../../lib/data/swrCache.js";
     import { createPoller } from "../../lib/data/poller.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
+    import SyncNotice from "./sections/SyncNotice.svelte";
     import Recommendations from "./sections/Recommendations.svelte";
     import VolumeChart from "./sections/VolumeChart.svelte";
     import FitnessChart from "./sections/FitnessChart.svelte";
@@ -93,6 +94,8 @@
         </div>
     {:else}
         <RaceHeader summary={data.summary} />
+
+        <SyncNotice sync={data.sync} runCount={data.runs?.length ?? 0} />
 
         <div class="grid">
             <div class="col-wide">
