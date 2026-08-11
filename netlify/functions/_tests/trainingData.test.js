@@ -13,8 +13,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const store = { get: vi.fn(), setJSON: vi.fn() };
 vi.mock("@netlify/blobs", () => ({ getStore: () => store }));
 
-import { shapeActivities } from "./_shared/training/shape.js";
-import { loadPlan } from "./_shared/training/planFile.js";
+import { shapeActivities } from "../_shared/training/shape.js";
+import { loadPlan } from "../_shared/training/planFile.js";
 
 const LAT = 43.6532;
 const LNG = -79.3832;
@@ -61,7 +61,7 @@ function seed(records) {
 // and would otherwise let the first test's data answer every later one, so each
 // call gets a fresh module instance.
 async function payload() {
-	const { default: handler } = await import("./trainingData.js");
+	const { default: handler } = await import("../trainingData.js");
 	const res = await handler();
 	expect(res.status).toBe(200);
 	const text = await res.text();
