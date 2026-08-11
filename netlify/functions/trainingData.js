@@ -15,7 +15,7 @@ import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
 import { buildDashboard } from "./_shared/training/metrics.js";
 import { loadPlan } from "./_shared/training/planFile.js";
-import { INDEX_KEY, getTrainingStore, readJson } from "./_shared/training/store.js";
+import { CURSOR_KEY, INDEX_KEY, getTrainingStore, readJson } from "./_shared/training/store.js";
 import { toDayKey } from "./_shared/training/dates.js";
 
 // The underlying data only changes when the hourly sync runs, so a 10-minute
@@ -26,14 +26,40 @@ const errResponse = createJsonResponder(cacheControl.none);
 // Absorb bursts that get past a cold edge cache.
 const memo = createMemo(60_000);
 
+// Where the sync has got to, in the terms the page needs.
+//
+// Every metric here is a function of the whole history — fitness is a 42-day
+// average, and the race prediction reads the block's best efforts — so a
+// half-filled index doesn't produce slightly-off numbers, it produces numbers
+// for a training block the athlete didn't do. Until the backfill lands, that
+// has to be said out loud rather than left to look like a bad month.
+function syncState(cursor) {
+	const outstanding = Number(cursor?.outstanding);
+	const pending = Number.isFinite(outstanding) ? Math.max(0, outstanding) : 0;
+	return {
+		lastRunAt: cursor?.lastRunAt || null,
+		// No cursor at all means the scheduled sync has never completed —
+		// on a fresh deploy the page is live before the first tick fires.
+		hasSynced: Boolean(cursor?.lastRunAt),
+		outstanding: pending,
+		backfilling: pending > 0,
+	};
+}
+
 async function build(today) {
 	const store = getTrainingStore();
-	const activities = await readJson(store, INDEX_KEY, []);
-	return buildDashboard({
-		activities: Array.isArray(activities) ? activities : [],
-		plan: loadPlan(),
-		today,
-	});
+	const [activities, cursor] = await Promise.all([
+		readJson(store, INDEX_KEY, []),
+		readJson(store, CURSOR_KEY, null),
+	]);
+	return {
+		...buildDashboard({
+			activities: Array.isArray(activities) ? activities : [],
+			plan: loadPlan(),
+			today,
+		}),
+		sync: syncState(cursor),
+	};
 }
 
 export default async function handler() {

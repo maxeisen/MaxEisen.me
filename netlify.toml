@@ -60,8 +60,8 @@
 
 # Strava sync for /training. Netlify caps scheduled functions at 30s;
 # trainingSync bounds its own work to fit (see DETAIL_BUDGET) and defers the
-# remainder to the next run, so a cold-start backfill fills in over a few hours.
-# The hourly schedule itself is declared in the function's own `config` export.
+# remainder to the next run, so a cold-start backfill fills in over the first
+# hour. The schedule itself is declared in the function's own `config` export.
 [functions."trainingSync"]
   timeout = 30
 

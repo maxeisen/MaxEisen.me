@@ -38,6 +38,27 @@
             return { ...slot, y: HEIGHT - (week.targetKm / ceiling) * HEIGHT, target: week.targetKm };
         }),
     );
+
+    // Only the weeks that get a date label, positioned as a percentage of the
+    // chart width. They're placed rather than laid out because a label per bar
+    // in normal flow can't shrink below its own text: sixteen nowrap dates set
+    // a ~540px floor on the card, which on a phone is wider than the viewport
+    // and drags the whole page out with it. Absolute + clipped means the axis
+    // is exactly as wide as the chart at every size.
+    const ticks = $derived(
+        shown
+            .map((week, i) => ({ week, i }))
+            .filter(({ i }) => i === 0 || i === shown.length - 1 || i % 4 === 0)
+            .map(({ week, i }) => ({
+                key: week.start,
+                label: axisDate(week.start),
+                // Centre of the bar's slot.
+                pct: ((i + 0.5) / shown.length) * 100,
+                // The end labels would be half-clipped if centred, so they
+                // anchor to the edges instead.
+                anchor: i === 0 ? "start" : i === shown.length - 1 ? "end" : "middle",
+            })),
+    );
 </script>
 
 <section class="card">
@@ -79,8 +100,15 @@
         </svg>
 
         <div class="axis">
-            {#each shown as week, i}
-                <span class:show={i === 0 || i === shown.length - 1 || i % 4 === 0}>{axisDate(week.start)}</span>
+            {#each ticks as tick (tick.key)}
+                <span
+                    class="tick {tick.anchor}"
+                    style={tick.anchor === "start"
+                        ? "left: 0"
+                        : tick.anchor === "end"
+                          ? "right: 0"
+                          : `left: ${tick.pct}%`}
+                >{tick.label}</span>
             {/each}
         </div>
     {/if}
@@ -152,18 +180,22 @@
     }
 
     .axis {
-        display: flex;
+        position: relative;
+        height: 1.2em;
         margin-top: var(--space-2);
+        /* Belt and braces: a label can never widen the card, whatever the
+           week count or the locale's date length. */
+        overflow: hidden;
     }
-    .axis span {
-        flex: 1;
-        text-align: center;
+    .tick {
+        position: absolute;
+        top: 0;
         font-size: var(--font-2xs);
         color: var(--paragraph-colour);
-        opacity: 0;
+        opacity: 0.6;
         white-space: nowrap;
     }
-    .axis span.show { opacity: 0.6; }
+    .tick.middle { transform: translateX(-50%); }
 
     .empty {
         font-size: var(--font-sm);

@@ -170,4 +170,27 @@
         opacity: 0.7;
         margin: 0;
     }
+
+    /* On a phone the two stat columns leave the run name barely 40px, which
+       ellipses every title down to a word. Give the name the full width and
+       drop the numbers onto a second line under it. */
+    @media (max-width: 540px) {
+        .row {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: var(--space-1) var(--space-4);
+        }
+        .row-main { flex-basis: 100%; }
+        /* Distance/time to the left edge, pace/GAP to the right, on a line of
+           their own under the name. */
+        .row-stat {
+            min-width: 0;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .row-stat + .row-stat {
+            align-items: flex-end;
+            text-align: right;
+        }
+    }
 </style>
