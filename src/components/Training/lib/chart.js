@@ -138,3 +138,92 @@ export function gaugePosition(value, domain, width) {
 	const x = scaleLinear(domain, [0, width])(value);
 	return Math.max(0, Math.min(width, x));
 }
+
+// How much history every chart on the page shows. One window across all of
+// them is what makes them comparable: a volume chart running to race day
+// beside a fitness chart running to today invites you to read a shape into
+// two different x-axes. Twelve weeks is long enough to see a block develop
+// and short enough that a single week is still a distinguishable bar.
+export const CHART_WEEKS = 12;
+export const CHART_DAYS = CHART_WEEKS * 7;
+
+/**
+ * Trailing slice of a date-keyed series, ending at `today`.
+ *
+ * @param {{date: string}[]} points ascending by date.
+ * @param {string} today day key.
+ * @param {number} [days]
+ * @returns {object[]}
+ */
+export function withinWindow(points, today, days = CHART_DAYS) {
+	if (!today) return (points || []).slice(-days);
+	const cutoff = new Date(`${today}T00:00:00Z`).getTime() - days * 86_400_000;
+	if (Number.isNaN(cutoff)) return points || [];
+	return (points || []).filter((p) => {
+		const at = new Date(`${String(p?.date).slice(0, 10)}T00:00:00Z`).getTime();
+		return !Number.isNaN(at) && at >= cutoff;
+	});
+}
+
+// Round a range end to a "nice" number — 1, 2, 5 or 10 times a power of ten.
+// Axis labels are there to be read at a glance, and 0/10/20/30 is readable in
+// a way that 0/8.3/16.6/24.9 is not.
+function niceNum(range, round) {
+	if (!(range > 0)) return 1;
+	const exponent = Math.floor(Math.log10(range));
+	const fraction = range / 10 ** exponent;
+	let nice;
+	if (round) {
+		nice = fraction < 1.5 ? 1 : fraction < 3 ? 2 : fraction < 7 ? 5 : 10;
+	} else {
+		nice = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+	}
+	return nice * 10 ** exponent;
+}
+
+/**
+ * An axis: the domain rounded outwards to round numbers, and the tick values
+ * inside it.
+ *
+ * @param {[number, number]} extent data min and max.
+ * @param {number} [count] rough number of intervals wanted.
+ * @returns {{min: number, max: number, step: number, ticks: number[]}}
+ */
+export function niceScale([min, max], count = 4) {
+	let lo = Number.isFinite(min) ? min : 0;
+	let hi = Number.isFinite(max) ? max : 1;
+	if (hi < lo) [lo, hi] = [hi, lo];
+	// A flat series still needs an axis with two ends to it.
+	if (hi === lo) hi = lo === 0 ? 1 : lo + Math.abs(lo) * 0.1;
+
+	const step = niceNum(niceNum(hi - lo, false) / Math.max(1, count), true);
+	const niceMin = Math.floor(lo / step) * step;
+	const niceMax = Math.ceil(hi / step) * step;
+
+	const ticks = [];
+	// Accumulating in floating point drifts (0.1 + 0.2 …), so step off an
+	// integer index instead and round to the step's own precision.
+	const decimals = Math.max(0, -Math.floor(Math.log10(step)));
+	const total = Math.round((niceMax - niceMin) / step);
+	for (let i = 0; i <= total; i++) {
+		ticks.push(Number((niceMin + i * step).toFixed(decimals + 2)));
+	}
+	return { min: niceMin, max: niceMax, step, ticks, decimals };
+}
+
+/**
+ * Turn tick values into the positions and labels an axis renders.
+ *
+ * @param {{min: number, max: number, ticks: number[]}} scale
+ * @param {(value: number) => string} [format]
+ * @returns {{value: number, label: string, pct: number}[]} pct measured from
+ *   the bottom of the plot.
+ */
+export function axisTicks(scale, format = (v) => String(v)) {
+	if (!scale || !(scale.max > scale.min)) return [];
+	return scale.ticks.map((value) => ({
+		value,
+		label: format(value),
+		pct: ((value - scale.min) / (scale.max - scale.min)) * 100,
+	}));
+}

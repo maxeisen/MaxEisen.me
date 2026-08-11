@@ -6,7 +6,9 @@
     adaptation that either genuinely easy or genuinely hard running gives.
 -->
 <script>
+    import Card from "../../../lib/ui/Card.svelte";
     import { formatDuration, pct } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
     let { intensity = null, target = 80 } = $props();
 
@@ -20,11 +22,10 @@
     const onTarget = $derived(easyShare !== null && easyShare >= target - 5);
 </script>
 
-<section class="card">
-    <div class="card-head">
-        <h2>Intensity mix</h2>
+<Card title="Intensity mix" info={GLOSSARY.intensity}>
+    {#snippet aside()}
         <span class="window">last 4 weeks</span>
-    </div>
+    {/snippet}
 
     {#if total === 0}
         <p class="empty">No runs in the last four weeks.</p>
@@ -63,23 +64,9 @@
             {/if}
         </p>
     {/if}
-</section>
+</Card>
 
 <style>
-    .card-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: var(--space-3);
-        margin-bottom: var(--space-4);
-    }
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0;
-    }
     .window {
         font-size: var(--font-2xs);
         text-transform: uppercase;
@@ -94,12 +81,12 @@
         height: 28px;
         border-radius: var(--radius-sm);
         overflow: hidden;
-        background: var(--inner-background);
+        background: var(--item-background);
     }
     .segment { height: 100%; }
-    .segment-easy { background: var(--main-green); }
-    .segment-moderate { background: #d9b777; }
-    .segment-hard { background: var(--color-error); }
+    .segment-easy { background: var(--tone-good); }
+    .segment-moderate { background: var(--tone-warn); }
+    .segment-hard { background: var(--tone-bad); }
     .target-line {
         position: absolute;
         top: -3px;
@@ -130,9 +117,9 @@
         border-radius: 50%;
         align-self: center;
     }
-    .dot-easy { background: var(--main-green); }
-    .dot-moderate { background: #d9b777; }
-    .dot-hard { background: var(--color-error); }
+    .dot-easy { background: var(--tone-good); }
+    .dot-moderate { background: var(--tone-warn); }
+    .dot-hard { background: var(--tone-bad); }
     .legend-label { opacity: 0.75; }
     .legend strong {
         font-family: var(--font-serif);
@@ -146,7 +133,7 @@
         opacity: 0.85;
         margin: var(--space-4) 0 0 0;
     }
-    .verdict.good { color: var(--main-green); }
+    .verdict.good { color: var(--tone-good); opacity: 1; }
     .empty {
         font-size: var(--font-sm);
         color: var(--paragraph-colour);

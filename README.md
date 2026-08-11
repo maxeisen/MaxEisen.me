@@ -56,10 +56,10 @@ src/
   App.svelte        Top-level router → feature roots
   components/<Feature>/   One folder per route/feature (Home, Gallery,
                           Dashboard, Toronto, Bach). Sub-folders group
-                          presentation (sections/ widgets/ host/ player/
-                          modals/ layout/) and feature logic (lib/).
+                          presentation (sections/ widgets/ charts/ host/
+                          player/ modals/ layout/) and feature logic (lib/).
   lib/              Cross-feature code, NOT tied to one route:
-    ui/             Shared presentational components (BackLink, Button,
+    ui/             Shared presentational components (BackLink, Button, Card,
                     CloseButton, GateOverlay, Spinner)
     data/           Client data layer (fetchJson, swrCache, concurrent)
     strava.js       Promoted feature-agnostic helpers (format/decode)
@@ -69,6 +69,11 @@ netlify/functions/  Serverless endpoints (see re-export pattern below)
 
 Rule of thumb: a component or helper used by **one** feature lives under that
 feature's folder; once a **second** feature needs it, promote it to `src/lib/`.
+
+`lib/ui/Card.svelte` is the site's panel surface — the same recipe as the
+`/dashboard` widget shell, plus a header and an optional "i" disclosure that
+explains the panel's metrics. Every `/training` section is built on it, so the
+card chrome is defined once rather than restated per section.
 
 ### Netlify function re-export pattern
 
@@ -129,6 +134,16 @@ blocks. Other stylesheets (e.g. `resume.css`) load `global.css` first and
 **consume** the shared tokens rather than redefining them. Svelte components
 reference the same `var(--…)` tokens, so a value changes in exactly one place.
 
+Status colour is a token too: `--tone-good` / `--tone-warn` / `--tone-bad` /
+`--tone-info` (each with a `-bg` tint) are resolved per theme, because a colour
+that carries meaning — "on track" against "watch this" — has to stay legible on
+both backgrounds and can't be two shades of the same accent.
+
+Two surfaces make nesting legible: a panel is `--inner-background`, and
+anything inside one (stat tiles, list rows, recommendation cards) is
+`--item-background`. Using the same token for both makes a card inside a card
+disappear.
+
 ### Testing
 
 Logic-first with [Vitest](https://vitest.dev). Tests target pure logic and the
@@ -141,8 +156,9 @@ handlers are exercised through Node's global `Request`/`Response` with
 A handful of [Playwright](https://playwright.dev) smoke tests in `e2e/`
 (`*.e2e.js`) guard the lowest-risk/highest-value flows — the homepage boots,
 `/dashboard` mounts its widget grid, `/gallery` renders and its photo fetch
-settles, and `/training` renders its sections without any of them growing wider
-than a phone screen. They run against `vite preview` (the static build, no
+settles, and `/training` renders its sections — labelled axes, plan-matched run
+log, working "i" disclosures — without any of them growing wider than a phone
+screen. They run against `vite preview` (the static build, no
 Functions), so they assert routes render rather than live data; `/training`
 needs a payload before it draws anything wide, so it gets one from the real
 metrics engine (`e2e/fixtures/trainingPayload.js`) via a route stub. Install the browser once with

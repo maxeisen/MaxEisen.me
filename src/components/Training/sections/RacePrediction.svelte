@@ -7,7 +7,9 @@
     marathon projection made from a shorter effort.
 -->
 <script>
+    import Card from "../../../lib/ui/Card.svelte";
     import { clock, km, pace, shortDate, signedClock } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
     let { summary = null } = $props();
 
@@ -16,9 +18,7 @@
     const basis = $derived(prediction?.basis || null);
 </script>
 
-<section class="card">
-    <h2>Projected finish</h2>
-
+<Card title="Projected finish" info={GLOSSARY.prediction}>
     {#if !prediction}
         <p class="empty">
             No hard effort of 5&nbsp;km or longer yet to project from. Race a parkrun or run a
@@ -61,16 +61,9 @@
             </p>
         {/if}
     {/if}
-</section>
+</Card>
 
 <style>
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0 0 var(--space-4) 0;
-    }
     .headline {
         display: flex;
         align-items: baseline;
@@ -87,9 +80,9 @@
         font-size: clamp(2rem, 6vw, 2.8rem);
         font-weight: 700;
         letter-spacing: -0.03em;
-        color: var(--color-error-soft);
+        color: var(--tone-bad);
     }
-    .projected.ahead strong { color: var(--main-green); }
+    .projected.ahead strong { color: var(--tone-good); }
     .projected span {
         font-size: var(--font-2xs);
         text-transform: uppercase;
@@ -103,10 +96,10 @@
         font-weight: 600;
         padding: var(--space-1) var(--space-3);
         border-radius: var(--radius-pill);
-        background: var(--inner-background);
-        color: var(--color-error-soft);
+        background: var(--tone-bad-bg);
+        color: var(--tone-bad);
     }
-    .delta.ahead { color: var(--main-green); }
+    .delta.ahead { background: var(--tone-good-bg); color: var(--tone-good); }
 
     .models {
         display: grid;

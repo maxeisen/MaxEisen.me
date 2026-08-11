@@ -6,7 +6,9 @@
     the recommendation engine is what decides whether a shortfall matters.
 -->
 <script>
+    import Card from "../../../lib/ui/Card.svelte";
     import { pct, shortDate, weekday } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
     let { currentWeek = null, week = null, upcoming = [] } = $props();
 
@@ -36,9 +38,7 @@
     );
 </script>
 
-<section class="card">
-    <h2>This week</h2>
-
+<Card title="This week" info={GLOSSARY.week}>
     {#if !currentWeek}
         <p class="empty">No runs logged this week yet.</p>
     {:else}
@@ -135,16 +135,9 @@
             </ul>
         </div>
     {/if}
-</section>
+</Card>
 
 <style>
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0 0 var(--space-4) 0;
-    }
     .metric { margin-bottom: var(--space-4); }
     .metric-head {
         display: flex;
@@ -177,7 +170,7 @@
     .track {
         height: 6px;
         border-radius: var(--radius-pill);
-        background: var(--inner-background);
+        background: var(--item-background);
         overflow: hidden;
     }
     .fill {
@@ -250,13 +243,14 @@
     }
     .day-km { font-family: var(--font-serif); text-align: right; white-space: nowrap; }
     .day-km strong { color: var(--main-green); font-weight: 600; }
+    .day.done .day-km strong { color: var(--tone-good); }
     .day.extra .day-km strong { color: var(--header-colour); }
     .mark {
         font-family: var(--font-sans);
         font-size: var(--font-2xs);
         opacity: 0.5;
     }
-    .day.missed .mark { color: var(--warning-colour, #b4652a); opacity: 0.9; }
+    .day.missed .mark { color: var(--tone-warn); opacity: 1; font-weight: 600; }
 
     .key {
         list-style: none;

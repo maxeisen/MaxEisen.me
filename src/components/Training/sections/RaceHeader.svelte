@@ -80,10 +80,11 @@
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
-        gap: var(--space-5);
+        gap: var(--space-3) var(--space-5);
         flex-wrap: wrap;
         margin-bottom: var(--space-6);
     }
+    .race-intro { min-width: 0; }
     .eyebrow {
         font-size: var(--font-2xs);
         font-weight: 600;
@@ -129,6 +130,19 @@
         opacity: 0.7;
         margin-top: var(--space-2);
     }
+    /* Once the countdown wraps under the race name it's no longer opposite
+       anything, and right-aligning it against its own label leaves the number
+       floating in from the margin with nothing to line up with. Send both back
+       to the page's left edge. */
+    @media (max-width: 620px) {
+        .countdown {
+            flex-direction: row;
+            align-items: baseline;
+            gap: var(--space-2);
+        }
+        .countdown-value { font-size: 2.25rem; }
+        .countdown-label { margin-top: 0; }
+    }
 
     .headline-stats {
         display: grid;
@@ -159,8 +173,8 @@
         color: var(--header-colour);
         letter-spacing: -0.02em;
     }
-    .stat-value.ahead { color: var(--main-green); }
-    .stat-value.behind { color: var(--color-error-soft); }
+    .stat-value.ahead { color: var(--tone-good); }
+    .stat-value.behind { color: var(--tone-bad); }
     .stat-note {
         font-size: var(--font-xs);
         color: var(--paragraph-colour);
