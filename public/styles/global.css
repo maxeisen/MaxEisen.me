@@ -67,6 +67,13 @@
     --color-error: #d97777;
     --color-error-soft: #e89a9a;
 
+    /* Status tones — good / warn / bad / info — are resolved per theme below,
+       because a colour that carries meaning has to stay legible on both
+       backgrounds, and the accent (--main-green) can't do the job on its own:
+       a page that says "on track" and "watch this" in two shades of the same
+       sage tells you nothing at a glance. Each tone has a `-bg` tint for
+       chips and panels. */
+
     /* Breakpoint reference values (JS matchMedia; @media cannot read vars) */
     --bp-xs: 460px;
     --bp-sm: 620px;
@@ -82,6 +89,15 @@
 [data-theme="dark"] {
     --main-green: #b8a888;
     --main-green-translucent: rgba(184, 168, 136, 0.3);
+
+    --tone-good: #8fc7a9;
+    --tone-good-bg: rgba(143, 199, 169, 0.16);
+    --tone-warn: #e0b566;
+    --tone-warn-bg: rgba(224, 181, 102, 0.16);
+    --tone-bad: #e89a9a;
+    --tone-bad-bg: rgba(232, 154, 154, 0.16);
+    --tone-info: #a8c0dc;
+    --tone-info-bg: rgba(168, 192, 220, 0.16);
     --background-one: #1c1a17;
     --background-two: #0d0c0a;
     --background-accent: #3d2a18;
@@ -130,6 +146,15 @@
 [data-theme="light"] {
     --main-green: #6b7a5a;
     --main-green-translucent: rgba(107, 122, 90, 0.3);
+
+    --tone-good: #3f7d5c;
+    --tone-good-bg: rgba(63, 125, 92, 0.14);
+    --tone-warn: #9a6114;
+    --tone-warn-bg: rgba(154, 97, 20, 0.14);
+    --tone-bad: #ab362f;
+    --tone-bad-bg: rgba(171, 54, 47, 0.12);
+    --tone-info: #3b5c85;
+    --tone-info-bg: rgba(59, 92, 133, 0.12);
     --background-one: #f0e7d6;
     --background-two: #d8c9a3;
     --background-accent: #b8c4a3;
