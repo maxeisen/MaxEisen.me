@@ -141,8 +141,11 @@ handlers are exercised through Node's global `Request`/`Response` with
 A handful of [Playwright](https://playwright.dev) smoke tests in `e2e/`
 (`*.e2e.js`) guard the lowest-risk/highest-value flows — the homepage boots,
 `/dashboard` mounts its widget grid, `/gallery` renders and its photo fetch
-settles. They run against `vite preview` (the static build, no Functions), so
-they assert routes render rather than live data. Install the browser once with
+settles, and `/training` renders its sections without any of them growing wider
+than a phone screen. They run against `vite preview` (the static build, no
+Functions), so they assert routes render rather than live data; `/training`
+needs a payload before it draws anything wide, so it gets one from the real
+metrics engine (`e2e/fixtures/trainingPayload.js`) via a route stub. Install the browser once with
 `npx playwright install chromium`, then `npm run test:e2e`. A full Bach round is
 deliberately **not** an E2E: it spans multiple concurrent clients and external
 OpenAI/TTS/image calls, so its logic is covered by unit tests instead.

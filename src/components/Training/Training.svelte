@@ -158,6 +158,10 @@
         .grid { grid-template-columns: minmax(0, 1fr); }
         .training { padding: var(--space-5) var(--space-4) var(--space-7); }
     }
+    /* 24px of card padding either side costs a seventh of a phone screen. */
+    @media (max-width: 540px) {
+        .training :global(.card) { padding: var(--space-4); }
+    }
 
     /* Shared card shell for every section. Declared once here and applied to
        the children via :global so each section doesn't restate it. */
