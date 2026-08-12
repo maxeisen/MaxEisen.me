@@ -22,7 +22,7 @@
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { linePath, niceScale, scaleLinear } from "../lib/chart.js";
-    import { daysAgo, formatDistance, formatDuration, km, pace, pct, signed } from "../lib/format.js";
+    import { daysAgo, formatDistance, formatDuration, pace, pct, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { run = null } = $props();
@@ -39,6 +39,15 @@
 
     // Strava's workout_type, as the run log reads it.
     const TAGS = { 1: "Race", 2: "Long run", 3: "Workout" };
+
+    // And on the same terms as the log: Strava's label only earns space when
+    // it says something the plan match doesn't. "long run · Long run" doesn't.
+    const stravaTag = $derived.by(() => {
+        const tag = TAGS[run?.workoutType];
+        if (!tag) return null;
+        const planType = run?.plan?.planned ? String(run.plan.type || "") : "";
+        return tag.toLowerCase() === planType.toLowerCase() ? null : tag;
+    });
 
     const splits = $derived((run?.splits || []).filter((s) => s.paceSecPerKm > 0));
 
@@ -77,15 +86,17 @@
 
     const averageY = $derived(run?.paceSecPerKm > 0 ? y(run.paceSecPerKm) : null);
 
-    // A number under every kilometre is unreadable on a phone, so label the
-    // ends and every fifth in between, dropping any that would crowd the last.
+    // A number under every kilometre is unreadable on a phone, so thin them to
+    // about half a dozen: both ends, then an even step in between, dropping
+    // any that would crowd the last one.
+    const tickStep = $derived(Math.max(1, Math.ceil(splits.length / 6)));
     const xTicks = $derived(
         splits
             .map((s, i) => ({ s, i }))
             .filter(({ i }) => {
                 const last = splits.length - 1;
                 if (i === 0 || i === last) return true;
-                return (i + 1) % 5 === 0 && last - i >= 3;
+                return i % tickStep === 0 && last - i >= tickStep;
             })
             .map(({ s, i }) => ({
                 key: s.km,
@@ -116,19 +127,20 @@
     const relativeSize = $derived.by(() => {
         if (!(load?.vsTypicalPct > 0) || load.runsCompared < 3) return null;
         const ratio = load.vsTypicalPct;
-        if (ratio >= 140) return "much bigger than your usual run";
-        if (ratio >= 110) return "bigger than your usual run";
-        if (ratio > 90) return "about the size of your usual run";
-        if (ratio > 60) return "smaller than your usual run";
-        return "much smaller than your usual run";
+        if (ratio >= 140) return "much bigger than usual for you";
+        if (ratio >= 110) return "bigger than usual for you";
+        if (ratio > 90) return "about your usual size";
+        if (ratio > 60) return "smaller than usual for you";
+        return "much smaller than usual for you";
     });
 
     /** "…and the hardest in three weeks", where that's true and worth saying. */
     const standout = $derived.by(() => {
         if (!load || !(load.load > 0) || load.runsCompared < 5) return null;
         if (load.daysSinceAsHard === null) return "the hardest run of the block so far";
-        if (load.daysSinceAsHard >= 7) return `the hardest since ${daysAgo(load.daysSinceAsHard).toLowerCase()}`;
-        return null;
+        if (load.daysSinceAsHard < 7) return null;
+        const weeks = Math.round(load.daysSinceAsHard / 7);
+        return weeks === 1 ? "the hardest in a week" : `the hardest in ${weeks} weeks`;
     });
 
     const fade = $derived(run?.pacing?.fadePct ?? null);
@@ -148,12 +160,18 @@
             list.push({ term: "Load", value: Math.round(load.load), note: relativeLoadNote() });
         }
         if (week?.sharePct > 0) {
-            list.push({ term: "Of the week", value: pct(week.sharePct), note: `${km((week.targetKm || 0) * 1000)} planned` });
+            list.push({
+                term: "Of the week",
+                value: pct(week.sharePct),
+                note: `${Math.round(week.targetKm)} km target`,
+            });
         }
         if (run?.elevationGainM > 0) {
             list.push({ term: "Climb", value: `${Math.round(run.elevationGainM)} m` });
         }
-        if (run?.gapPaceSecPerKm > 0) {
+        // Only worth its own cell on a run where the hills moved it; on a flat
+        // one it's the average pace again, printed twice.
+        if (Math.abs((run?.gapPaceSecPerKm ?? 0) - (run?.paceSecPerKm ?? 0)) >= GAP_DIVERGENCE_SEC) {
             list.push({ term: "Grade adjusted", value: pace(run.gapPaceSecPerKm) });
         }
         if (run?.averageCadence > 0) {
@@ -199,7 +217,7 @@
             {:else}
                 <span class="tag extra">extra</span>
             {/if}
-            {#if TAGS[run.workoutType]}<span class="tag">{TAGS[run.workoutType]}</span>{/if}
+            {#if stravaTag}<span class="tag">{stravaTag}</span>{/if}
             {#if run.effort}<span class="tag effort-{run.effort}">{run.effort}</span>{/if}
             {#if planned && run.plan.distanceKm}<span class="planned-km">{run.plan.distanceKm} km asked for</span>{/if}
         </p>
@@ -242,8 +260,10 @@
                     </svg>
                 </ChartFrame>
                 <p class="legend">
-                    kilometre · faster is higher
-                    {#if showGap}<span class="swatch gap-swatch"></span> grade adjusted{/if}
+                    <span>kilometre · faster is higher</span>
+                    <!-- Swatch and label in one span: wrapped apart, a dash
+                         sitting alone at the end of a line is just a dash. -->
+                    {#if showGap}<span class="key"><span class="swatch"></span> grade adjusted</span>{/if}
                     {#if pacingNote}<span class="pacing">{pacingNote}</span>{/if}
                 </p>
             </div>
@@ -409,12 +429,17 @@
         color: var(--paragraph-colour);
         opacity: 0.55;
     }
+    .key {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        white-space: nowrap;
+    }
     .swatch {
         display: inline-block;
         width: 14px;
         height: 0;
         border-top: 1.5px dashed var(--paragraph-colour);
-        margin-left: var(--space-2);
     }
     .pacing {
         padding-left: var(--space-2);

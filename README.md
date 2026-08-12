@@ -91,8 +91,12 @@ commented as such — no `setPointerCapture` (it redirects the synthesized click
 away from anchors inside a panel), and `draggingId` is only set once the
 pointer passes the threshold (the `dragging` class carries
 `pointer-events: none`, which would otherwise swallow ordinary clicks). The
-pure parts — validating a stored layout, swapping slots — live in
-`lib/ui/layoutStore.js` so they're testable without compiling runes.
+pure parts — reconciling a stored layout, swapping slots — live in
+`lib/ui/layoutStore.js` so they're testable without compiling runes. Reconciling
+rather than validating is deliberate: a saved list of nine ids isn't a
+permutation of ten, so adding a panel used to silently reset the arrangement of
+anyone who had made one. Now the saved order is kept, unknown ids are dropped,
+and a new panel is slotted in at its default position.
 
 `lib/ui/editMode.svelte.js` wraps that in the rule both pages follow: dragging
 is free while the layout is wide enough to be pointer-driven, and behind the
