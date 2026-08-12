@@ -53,6 +53,24 @@ export const HRV_DROP_PCT = 15;
 // from two nights that happen to be in range.
 const MIN_NIGHTS = 3;
 
+// Shorter than this isn't a night, it's the ring being picked up and put down
+// again. Oura files these as a main sleep period all the same — a real one
+// arrived reading four minutes at 24% efficiency with no heart rate at all —
+// and averaging one into a week drops the figure by an hour and raises exactly
+// the false alarm this panel exists to avoid.
+//
+// This is the same rule as a missing night, applied to a record that is
+// technically present: a ring that wasn't worn has nothing to say either way,
+// and the honest response is to skip it rather than call it sleep. The
+// inconsistency it fixes is already visible in the data — a record like that
+// carries no heart rate, so the resting-rate baseline had dropped it while the
+// sleep baseline kept it, and the two were describing different nights.
+//
+// An hour rather than Oura's own three-hour long_sleep boundary, because a
+// genuinely dreadful night is signal worth keeping and only an artefact falls
+// below this.
+const MIN_NIGHT_SEC = 3600;
+
 /** The main sleep period of a night, or null if there wasn't one. */
 function mainPeriod(periods) {
 	const nights = (periods || []).filter((p) => MAIN_SLEEP_TYPES.has(p?.type));
@@ -84,8 +102,11 @@ export function shapeNight({ day, periods = [], dailySleep = null, readiness = n
 	if (!main) return null;
 
 	const nights = (periods || []).filter((p) => MAIN_SLEEP_TYPES.has(p?.type));
+	// Summed rather than taken from the main period: two broken stretches of
+	// forty minutes is a real, bad night, and the floor applies to the night
+	// rather than to whichever piece of it Oura called the main one.
 	const sleepSec = nights.reduce((sum, p) => sum + (reading(p?.total_sleep_duration) || 0), 0);
-	if (!(sleepSec > 0)) return null;
+	if (!(sleepSec >= MIN_NIGHT_SEC)) return null;
 
 	const finite = (value) => (Number.isFinite(reading(value)) ? reading(value) : null);
 
