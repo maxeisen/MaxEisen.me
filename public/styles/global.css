@@ -239,6 +239,7 @@
 
 .drag-tile {
     cursor: grab;
+
     /* A press that turns into a drag mustn't start selecting text on the
        way, and mustn't be read as a scroll. Pages release both once their
        layout collapses, where dragging waits to be asked for. */
