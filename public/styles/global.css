@@ -204,6 +204,80 @@
    Multi-layer radial-gradient "drift" used by the homepage + resume (body) and
    the /gallery and /dashboard route bodies, all referencing this one keyframe.
    The standalone /404 keeps its own copy (it doesn't load this file). */
+
+/* iOS-style jiggle for a grid in edit mode, on /dashboard and /training. Two
+   of them, applied to alternating tiles, so a grid doesn't rock in lockstep.
+   Global because keyframes declared inside a Svelte component are scoped to
+   it, and these belong to both. */
+@keyframes edit-jiggle-a {
+    0%   { transform: rotate(-0.5deg) translate(0, 0); }
+    50%  { transform: rotate(0.5deg)  translate(0, -1px); }
+    100% { transform: rotate(-0.5deg) translate(0, 0); }
+}
+
+@keyframes edit-jiggle-b {
+    0%   { transform: rotate(0.55deg)  translate(0, -1px); }
+    50%  { transform: rotate(-0.55deg) translate(0, 0); }
+    100% { transform: rotate(0.55deg)  translate(0, -1px); }
+}
+
+/* === Rearrangeable grids ===
+   How a draggable grid looks and responds, for the pages driven by
+   lib/ui/reorder + lib/ui/editMode: /dashboard's widgets and /training's
+   panels. Both mark their container `.drag-grid` and their tiles
+   `.drag-tile`, and the classes the drag itself sets — is-dragging,
+   is-editing, dragging, drop-target — mean the same thing on both.
+
+   Here rather than in either component because these rules ARE the feel of
+   the thing: the grab cursor, the gestures a tile swallows, whether it
+   jiggles and how fast. Two copies is how the two pages came to behave
+   differently in the first place. What stays local to each page is what
+   genuinely differs: where its layout collapses, and how its tiles
+   alternate between the two jiggles. */
+.drag-grid.is-dragging,
+.drag-grid.is-dragging * { cursor: grabbing !important; }
+
+.drag-tile {
+    cursor: grab;
+
+    /* A press that turns into a drag mustn't start selecting text on the
+       way, and mustn't be read as a scroll. Pages release both once their
+       layout collapses, where dragging waits to be asked for. */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* pointer-events off so elementFromPoint can find the slot underneath. */
+.drag-tile.dragging {
+    cursor: grabbing;
+    pointer-events: none;
+    opacity: 0.92;
+}
+
+/* The slot a drop would land in. Dashed, and faded in rather than snapped on.
+   Each page sets the two geometry properties to suit its own tiles; the
+   treatment itself is the same on both. */
+.drag-grid .slot {
+    outline: 2px dashed transparent;
+    outline-offset: var(--drop-outline-offset, -8px);
+    border-radius: var(--drop-outline-radius, 20px);
+    transition: outline 0.15s ease;
+}
+.drag-grid .slot.drop-target { outline-color: var(--main-green); }
+
+.drag-grid.is-editing .drag-tile {
+    animation: edit-jiggle-a 0.42s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform;
+}
+.drag-grid.is-editing .drag-tile.dragging { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .drag-grid.is-editing .drag-tile,
+    .drag-grid.is-editing .drag-tile.dragging { animation: none; }
+}
+
 @keyframes gradient {
     0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
     16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }

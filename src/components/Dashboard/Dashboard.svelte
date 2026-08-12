@@ -2,9 +2,8 @@
     Dashboard scaffold. Owns:
       - the slot grid (3 rows × 4 cols, mobile collapse + container queries)
       - the layout state ($state array of widget IDs, persisted to localStorage)
-      - drag-and-drop between slots (whole-widget drag, 5px threshold, no
-        setPointerCapture so anchor clicks aren't redirected)
-      - edit mode toggle (mobile only; required before drag is enabled)
+      - drag-and-drop between slots, and the edit mode that gates it on mobile,
+        both from lib/ui (reorder + editMode) and shared with /training
 
     Widget components are content-only — Dashboard provides the .widget wrapper
     div (or <a> for the gallery widget which is a link). Each widget id maps
@@ -22,7 +21,8 @@
     import HackerNewsWidget from "./widgets/HackerNewsWidget.svelte";
     import SpotifyVizOverlay from "./SpotifyVizOverlay.svelte";
     import BackLink from "../../lib/ui/BackLink.svelte";
-    import { createReorder } from "../../lib/ui/reorder.svelte.js";
+    import EditToggle from "../../lib/ui/EditToggle.svelte";
+    import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
 
     const WIDGETS = {
         clock:   { component: ClockWidget,      kind: "div" },
@@ -43,59 +43,28 @@
     const DEFAULT_ORDER = ["clock", "gallery", "weather", "spotify", "strava", "github", "hn"];
     const LAYOUT_KEY = "dashboard-layout";
 
-    let isEditing = $state(false);
-    let isResponsive = $state(false);
-
     let dashboardEl;
-    let responsiveQuery;
-    let onResponsiveChange;
-    let clickCapture;
 
-    // Drag mechanics live in lib/ui/reorder — /training uses the same ones.
-    // Dragging is free on desktop and gated behind edit mode once the layout
-    // goes responsive, where a press-and-drag is otherwise a scroll.
-    const reorder = createReorder({
+    // Drag mechanics and the edit mode that gates them both live in lib/ui —
+    // /training runs the same ones. Dragging is free on desktop and behind the
+    // toggle once the layout goes responsive, where a press-and-drag is
+    // otherwise a scroll.
+    const { reorder, edit } = createRearrangeable({
+        gridId: "dashboard-grid",
+        responsiveQuery: "(max-width: 1100px)",
         order: DEFAULT_ORDER,
         storageKey: LAYOUT_KEY,
-        enabled: () => !(isResponsive && !isEditing),
         // Swap-flash + forced resize so list trimming and the viz canvas re-fit.
         onReorder: () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize"))),
     });
     const layout = $derived(reorder.layout);
 
-    function toggleEditing(e) {
-        e.stopPropagation();
-        isEditing = !isEditing;
-    }
-
     onMount(() => {
         reorder.restore();
-
-        responsiveQuery = window.matchMedia("(max-width: 1100px)");
-        isResponsive = responsiveQuery.matches;
-        onResponsiveChange = (e) => {
-            isResponsive = e.matches;
-            if (!e.matches) isEditing = false;
-        };
-        responsiveQuery.addEventListener("change", onResponsiveChange);
-
-        // Capture-phase click suppression. Beats anchor navigation. Suppresses
-        // inside the dashboard within 300ms of drag, and at all times while
-        // editing (matches iOS jiggle-mode where taps don't open icons).
-        clickCapture = (e) => {
-            if (!e.target.closest("#dashboard-grid")) return;
-            if (reorder.suppressesClick() || isEditing) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        };
-        document.addEventListener("click", clickCapture, true);
+        edit.listen();
     });
 
-    onDestroy(() => {
-        responsiveQuery?.removeEventListener("change", onResponsiveChange);
-        document.removeEventListener("click", clickCapture, true);
-    });
+    onDestroy(() => edit.stop());
 </script>
 
 <svelte:head>
@@ -106,21 +75,13 @@
 
 <BackLink />
 
-<button
-    class="dashboard-edit-btn"
-    class:active={isEditing}
-    type="button"
-    aria-pressed={isEditing ? "true" : "false"}
-    aria-label="Toggle layout edit mode"
-    onclick={toggleEditing}
->
-    <span class="dashboard-edit-icon" aria-hidden="true">✎</span>
-    <span class="dashboard-edit-label">{isEditing ? "Done" : "Edit"}</span>
-</button>
+{#if edit.isResponsive}
+    <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
+{/if}
 
 <div
-    class="dashboard"
-    class:is-editing={isEditing}
+    class="dashboard drag-grid"
+    class:is-editing={edit.isEditing}
     class:is-dragging={reorder.isDragging}
     bind:this={dashboardEl}
     id="dashboard-grid"
@@ -134,7 +95,7 @@
         >
             {#if cfg.kind === "a"}
                 <a
-                    class="widget widget-{widgetId}"
+                    class="widget drag-tile widget-{widgetId}"
                     class:dragging={reorder.draggingId === widgetId}
                     data-widget={widgetId}
                     href={cfg.href}
@@ -145,7 +106,7 @@
                 </a>
             {:else}
                 <div
-                    class="widget widget-{widgetId}"
+                    class="widget drag-tile widget-{widgetId}"
                     class:dragging={reorder.draggingId === widgetId}
                     data-widget={widgetId}
                     style:transform={reorder.transformFor(widgetId)}
@@ -194,9 +155,11 @@
         max-width: 1800px;
         margin: 0 auto;
     }
+    /* The grab cursor, the swallowed gestures and the jiggle are in global.css
+       under "Rearrangeable grids", shared with /training. What's left here is
+       what this page does differently — starting with a grid that clips at
+       100vh and has to stop while something is being dragged out of it. */
     .dashboard.is-dragging { overflow: visible; }
-    .dashboard.is-dragging,
-    .dashboard.is-dragging :global(*) { cursor: grabbing !important; }
 
     :global(.widget) {
         position: relative;
@@ -241,15 +204,15 @@
     }
     :global(.profile-link:hover) { opacity: 1; }
 
+    /* Widgets fill their slot edge to edge, so the drop outline is drawn
+       inside them; the treatment itself is in global.css. */
     .slot {
         display: flex;
         min-width: 0;
         min-height: 0;
         position: relative;
-        border-radius: 20px;
-        transition: outline 0.15s ease;
-        outline: 2px dashed transparent;
-        outline-offset: -8px;
+        --drop-outline-offset: -8px;
+        --drop-outline-radius: 20px;
         container-type: size;
         container-name: slot;
     }
@@ -261,20 +224,12 @@
         height: 100%;
         min-width: 0;
         min-height: 0;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        -webkit-user-select: none;
     }
     .slot > :global(.widget.dragging) {
-        cursor: grabbing;
-        opacity: 0.92;
         box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
         z-index: 1000;
         transition: box-shadow 0.15s ease;
-        pointer-events: none;
     }
-    .slot.drop-target { outline-color: var(--main-green); }
 
     .slot > :global(.widget-gallery) {
         padding: 0;
@@ -365,67 +320,15 @@
         :global(.widget-weather .weather-stats) { grid-template-columns: 1fr 1fr; gap: 0.3rem 0.75rem; font-size: 0.78rem; }
     }
 
-    /* === edit mode (mobile only) === */
-    .dashboard-edit-btn {
-        display: none;
-        position: fixed;
-        top: 0.5rem;
-        right: 0.75rem;
-        z-index: 50;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.45rem 0.85rem;
-        background: var(--inner-background, rgba(0, 0, 0, 0.35));
-        border: 1px solid var(--main-green-translucent);
-        border-radius: 999px;
-        color: var(--main-green);
-        font-family: inherit;
-        font-size: 0.85rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        cursor: pointer;
-        opacity: 0.85;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
-    }
-    .dashboard-edit-btn:hover { opacity: 1; }
-    .dashboard-edit-btn:active { transform: scale(0.96); }
-    .dashboard-edit-btn.active {
-        background: var(--main-green);
-        color: var(--background-one);
-        border-color: var(--main-green);
-        opacity: 1;
-    }
-    .dashboard-edit-icon { font-size: 0.95rem; line-height: 1; }
-
-    /* iOS-style jiggle while in edit mode. Two animations + odd/even
-       offsets so widgets don't move in lockstep. */
-    @keyframes widget-jiggle-a {
-        0%   { transform: rotate(-0.5deg) translate(0, 0); }
-        50%  { transform: rotate(0.5deg)  translate(0, -1px); }
-        100% { transform: rotate(-0.5deg) translate(0, 0); }
-    }
-    @keyframes widget-jiggle-b {
-        0%   { transform: rotate(0.55deg)  translate(0, -1px); }
-        50%  { transform: rotate(-0.55deg) translate(0, 0); }
-        100% { transform: rotate(0.55deg)  translate(0, -1px); }
-    }
-    .dashboard.is-editing .slot > :global(.widget) {
-        animation: widget-jiggle-a 0.42s ease-in-out infinite;
-        transform-origin: center;
-        will-change: transform;
-    }
-    .dashboard.is-editing .slot:nth-child(odd) > :global(.widget) {
-        animation-name: widget-jiggle-b;
+    /* === edit mode (mobile only) ===
+       The toggle is lib/ui/EditToggle and the jiggle is in global.css, both
+       shared with /training. Alternate slots take the second of the two, so
+       the grid doesn't rock in lockstep — this page alternates by slot,
+       /training by column. */
+    .dashboard.is-editing .slot:nth-child(odd) > :global(.widget:not(.dragging)) {
+        animation-name: edit-jiggle-b;
         animation-duration: 0.46s;
         animation-delay: -0.18s;
-    }
-    .dashboard.is-editing .slot > :global(.widget.dragging) { animation: none; }
-
-    @media (prefers-reduced-motion: reduce) {
-        .dashboard.is-editing .slot > :global(.widget),
-        .dashboard.is-editing .slot:nth-child(odd) > :global(.widget) { animation: none; }
     }
 
     @media (max-width: 1100px) {
@@ -439,7 +342,7 @@
         .slot { container-type: inline-size; }
         .slot-large, .slot-small { grid-column: span 2; }
         .slot > :global(.widget-gallery) { aspect-ratio: 16 / 9; }
-        .dashboard-edit-btn { display: inline-flex; }
+        /* A finger scrolls the page until edit mode says otherwise. */
         .slot > :global(.widget) { touch-action: auto; cursor: default; }
         .dashboard.is-editing .slot > :global(.widget) { touch-action: none; }
     }
