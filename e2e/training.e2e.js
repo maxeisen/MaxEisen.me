@@ -65,6 +65,93 @@ test("the charts are labelled with the values they plot", async ({ page }) => {
 	expect(labels.some((text) => Number(text) > 0)).toBe(true);
 });
 
+// Rearranging shares its machinery with /dashboard (lib/ui/reorder), but this
+// page gates it behind the Rearrange button, so the interesting part is that
+// the gate opens, a drop lands in the right slot, and the choice survives a
+// reload.
+test.describe("rearranging the panels", () => {
+	const panelAt = (page, idx) => page.locator(`[data-slot-index="${idx}"] .panel`);
+
+	async function dragPanel(page, fromIdx, toIdx) {
+		const source = await panelAt(page, fromIdx).boundingBox();
+		const target = await page.locator(`[data-slot-index="${toIdx}"]`).boundingBox();
+		await page.mouse.move(source.x + source.width / 2, source.y + 24);
+		await page.mouse.down();
+		await page.mouse.move(target.x + target.width / 2, target.y + 24, { steps: 14 });
+		await page.mouse.up();
+	}
+
+	test("panels stay put until you ask to rearrange them", async ({ page }) => {
+		await page.goto("/training");
+		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
+
+		await dragPanel(page, 0, 4);
+		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
+	});
+
+	test("a drag swaps the two panels and the layout is remembered", async ({ page }) => {
+		await page.goto("/training");
+		const displaced = await panelAt(page, 4).getAttribute("data-panel");
+
+		await page.getByRole("button", { name: "Rearrange" }).click();
+		await dragPanel(page, 0, 4);
+
+		await expect(panelAt(page, 4)).toHaveAttribute("data-panel", "volume");
+		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", displaced);
+
+		await page.reload();
+		await expect(panelAt(page, 4)).toHaveAttribute("data-panel", "volume");
+
+		// And there's a way back out of any arrangement.
+		await page.getByRole("button", { name: "Rearrange" }).click();
+		await page.getByRole("button", { name: "Reset" }).click();
+		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
+	});
+
+	test("the arrow keys move a panel without a pointer", async ({ page }) => {
+		await page.goto("/training");
+		await page.getByRole("button", { name: "Rearrange" }).click();
+
+		await page.locator('[data-slot-index="0"] .panel-handle').focus();
+		await page.keyboard.press("ArrowRight");
+
+		await expect(panelAt(page, 1)).toHaveAttribute("data-panel", "volume");
+	});
+
+	// On a phone the panels are most of the page, so a panel that swallowed
+	// touch gestures to be draggable would strand you at whichever one you
+	// started on. Touch drags go through the handle instead, and it's the only
+	// thing allowed to take touch-action away from the scroller.
+	test("a finger can still scroll the page while rearranging", async ({ page }) => {
+		await page.setViewportSize(PHONE);
+		await page.goto("/training");
+		await page.getByRole("button", { name: "Rearrange" }).click();
+
+		const blocked = await page.evaluate(() =>
+			[...document.querySelectorAll("#training-grid *")]
+				.filter((el) => getComputedStyle(el).touchAction === "none")
+				.map((el) => el.className.toString().split(" ")[0]),
+		);
+		expect([...new Set(blocked)]).toEqual(["panel-handle"]);
+	});
+
+	test("taps inside a panel don't fire while rearranging", async ({ page }) => {
+		await page.goto("/training");
+		const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
+		const info = card.getByRole("button", { name: /Weekly volume/i });
+
+		await page.getByRole("button", { name: "Rearrange" }).click();
+		// force: panels jiggle while editing, so nothing inside one is ever
+		// "stable" — which is exactly the state this is testing.
+		await info.click({ force: true });
+		await expect(info).toHaveAttribute("aria-expanded", "false");
+
+		await page.getByRole("button", { name: "Done" }).click();
+		await info.click();
+		await expect(info).toHaveAttribute("aria-expanded", "true");
+	});
+});
+
 for (const viewport of [PHONE, NARROW_PHONE]) {
 	test(`training page fits a ${viewport.width}px viewport`, async ({ page }) => {
 		await page.setViewportSize(viewport);

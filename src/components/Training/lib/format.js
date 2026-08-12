@@ -102,6 +102,32 @@ export function weekday(dayKey) {
 }
 
 /**
+ * The week a Monday starts, as the range it actually covers: "17–23 Aug",
+ * or "31 Aug – 6 Sept" where the week straddles two months.
+ *
+ * A training week is seven days, and labelling it with its Monday alone asks
+ * the reader to do the arithmetic every time they want to know whether a
+ * given Saturday falls inside it.
+ *
+ * @param {string} weekStart Monday day key.
+ * @returns {string}
+ */
+export function weekRange(weekStart) {
+	if (!weekStart) return "";
+	const start = new Date(`${String(weekStart).slice(0, 10)}T12:00:00Z`);
+	if (Number.isNaN(start.getTime())) return "";
+	const end = new Date(start.getTime() + 6 * 86_400_000);
+
+	const day = (d) => d.toLocaleDateString("en-GB", { day: "numeric", timeZone: "UTC" });
+	const dayMonth = (d) =>
+		d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+
+	return start.getUTCMonth() === end.getUTCMonth()
+		? `${day(start)}–${dayMonth(end)}`
+		: `${dayMonth(start)} – ${dayMonth(end)}`;
+}
+
+/**
  * Month-and-day label for chart axes.
  *
  * @param {string} dayKey

@@ -116,14 +116,20 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        max-height: 520px;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        max-height: 560px;
         overflow-y: auto;
     }
+    /* A hairline between rows as well as the gap: a two-line row on a phone
+       otherwise runs straight into the next one's title. */
+    .log li + li { border-top: 1px solid var(--main-green-translucent); padding-top: var(--space-2); }
     .row {
         display: flex;
         align-items: center;
         gap: var(--space-4);
-        padding: var(--space-3);
+        padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
         border-radius: var(--radius-sm);
         text-decoration: none;
         color: inherit;
@@ -149,9 +155,10 @@
     .row-meta {
         display: block;
         font-size: var(--font-2xs);
+        line-height: 1.7;
         color: var(--paragraph-colour);
         opacity: 0.7;
-        margin-top: 2px;
+        margin-top: 3px;
     }
     .tag {
         display: inline-block;
@@ -213,10 +220,12 @@
        ellipses every title down to a word. Give the name the full width and
        drop the numbers onto a second line under it. */
     @media (max-width: 540px) {
+        .log { gap: var(--space-3); }
+        .log li + li { padding-top: var(--space-3); }
         .row {
             flex-wrap: wrap;
             justify-content: space-between;
-            gap: var(--space-1) var(--space-4);
+            gap: var(--space-2) var(--space-4);
         }
         .row-main { flex-basis: 100%; }
         /* Distance/time to the left edge, pace/GAP to the right, on a line of
