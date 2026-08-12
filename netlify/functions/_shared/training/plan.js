@@ -103,6 +103,24 @@ export function plannedLongRunKm(week) {
 	return longs.length === 0 ? 0 : Math.max(...longs.map((s) => Number(s.distanceKm) || 0));
 }
 
+function longRunStatus(actualKm, date, today) {
+	if (actualKm > 0) {
+		return "done";
+	}
+	// A day is only missed once it's over: at 8am on Sunday the long run is
+	// still ahead of you, and calling it missed would be both wrong and
+	// demoralising.
+	return date < toDayKey(today) ? "missed" : "ahead";
+}
+
+/** The longest single run of a day, in kilometres. */
+function longestRunOn(runs, date) {
+	const distances = (runs || [])
+		.filter((run) => toDayKey(run?.startDateLocal) === date)
+		.map((run) => (Number(run.distanceM) || 0) / 1000);
+	return distances.length > 0 ? Math.max(...distances) : 0;
+}
+
 /**
  * The week's long run, as the session it is rather than a running total.
  *
@@ -132,28 +150,14 @@ export function weekLongRun(week, runs, today) {
 
 	// The longest run of that day, not the day's total: a shakeout after the
 	// long run is a double, not twenty-nine kilometres of long run.
-	const onTheDay = (runs || [])
-		.filter((run) => toDayKey(run?.startDateLocal) === session.date)
-		.map((run) => (Number(run.distanceM) || 0) / 1000);
-	const actualKm = onTheDay.length > 0 ? Math.max(...onTheDay) : 0;
-	const targetKm = Number(session.distanceKm) || null;
+	const actualKm = longestRunOn(runs, session.date);
 
 	return {
 		date: session.date,
-		targetKm,
+		targetKm: Number(session.distanceKm) || null,
 		actualKm,
 		status: longRunStatus(actualKm, session.date, today),
 	};
-}
-
-function longRunStatus(actualKm, date, today) {
-	if (actualKm > 0) {
-		return "done";
-	}
-	// A day is only missed once it's over: at 8am on Sunday the long run is
-	// still ahead of you, and calling it missed would be both wrong and
-	// demoralising.
-	return date < toDayKey(today) ? "missed" : "ahead";
 }
 
 /**
