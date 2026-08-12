@@ -18,6 +18,7 @@ import {
 	plannedLongRunKm,
 	plannedRunsByDay,
 	matchRunsToPlan,
+	weekLongRun,
 } from "./plan.js";
 
 const PLAN = {
@@ -81,6 +82,86 @@ describe("comparePlan", () => {
 		expect(out[1].targetKm).toBeNull();
 		expect(out[1].volumePct).toBeNull();
 		expect(out[1].actualKm).toBe(50);
+	});
+
+	it("doesn't report a long run's progress as a weekly total", () => {
+		// The longest run so far isn't the long run partly done, and reporting
+		// it as one had every easy run filling the long-run bar as well as the
+		// volume one.
+		const out = comparePlan(weeks, PLAN);
+		expect(out[0]).not.toHaveProperty("actualLongRunKm");
+		expect(out[0]).not.toHaveProperty("longRunPct");
+	});
+});
+
+describe("weekLongRun", () => {
+	const week = {
+		start: "2026-06-22",
+		sessions: weekSessions({
+			start: "2026-06-22",
+			sessions: [
+				{ day: "Wednesday", type: "tempo", distanceKm: 7.5 },
+				{ day: "Sunday", type: "long run", distanceKm: 17 },
+			],
+		}),
+	};
+	const run = (date, km) => ({ startDateLocal: `${date}T07:00:00Z`, distanceM: km * 1000 });
+
+	it("stays ahead of you while the day is still to come", () => {
+		const out = weekLongRun(week, [run("2026-06-24", 7.6)], "2026-06-24");
+		expect(out).toMatchObject({ date: "2026-06-28", targetKm: 17, actualKm: 0, status: "ahead" });
+	});
+
+	it("is not filled in by the rest of the week's running", () => {
+		// Four easy days, the longest of them 12 km: none of that is any part
+		// of Sunday's 17.
+		const runs = [
+			run("2026-06-23", 8),
+			run("2026-06-24", 12),
+			run("2026-06-26", 9),
+			run("2026-06-27", 6),
+		];
+		expect(weekLongRun(week, runs, "2026-06-27").actualKm).toBe(0);
+	});
+
+	it("reports what was actually run once the day comes", () => {
+		const out = weekLongRun(week, [run("2026-06-28", 16.4)], "2026-06-28");
+		expect(out).toMatchObject({ actualKm: 16.4, status: "done" });
+	});
+
+	it("counts the longer of a double rather than the day's total", () => {
+		const runs = [run("2026-06-28", 17.2), run("2026-06-28", 4)];
+		expect(weekLongRun(week, runs, "2026-06-29").actualKm).toBe(17.2);
+	});
+
+	it("calls it missed only once the day is over", () => {
+		expect(weekLongRun(week, [], "2026-06-28").status).toBe("ahead");
+		expect(weekLongRun(week, [], "2026-06-29").status).toBe("missed");
+	});
+
+	it("says nothing about a week with no long run planned", () => {
+		const easyWeek = {
+			sessions: weekSessions({
+				start: "2026-06-22",
+				sessions: [{ day: "Wednesday", type: "easy run", distanceKm: 8 }],
+			}),
+		};
+		expect(weekLongRun(easyWeek, [], "2026-06-24")).toBeNull();
+		expect(weekLongRun(null, [], "2026-06-24")).toBeNull();
+	});
+
+	it("treats race day as the long run it is", () => {
+		const raceWeek = {
+			sessions: weekSessions({
+				start: "2026-10-05",
+				sessions: [{ day: "Sunday", type: "race", distanceKm: 42.2 }],
+			}),
+		};
+		expect(weekLongRun(raceWeek, [], "2026-10-06")).toMatchObject({
+			date: "2026-10-11",
+			targetKm: 42.2,
+			status: "ahead",
+		});
 	});
 });
 

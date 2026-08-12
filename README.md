@@ -91,8 +91,12 @@ commented as such — no `setPointerCapture` (it redirects the synthesized click
 away from anchors inside a panel), and `draggingId` is only set once the
 pointer passes the threshold (the `dragging` class carries
 `pointer-events: none`, which would otherwise swallow ordinary clicks). The
-pure parts — validating a stored layout, swapping slots — live in
-`lib/ui/layoutStore.js` so they're testable without compiling runes.
+pure parts — reconciling a stored layout, swapping slots — live in
+`lib/ui/layoutStore.js` so they're testable without compiling runes. Reconciling
+rather than validating is deliberate: a saved list of nine ids isn't a
+permutation of ten, so adding a panel used to silently reset the arrangement of
+anyone who had made one. Now the saved order is kept, unknown ids are dropped,
+and a new panel is slotted in at its default position.
 
 `lib/ui/editMode.svelte.js` wraps that in the rule both pages follow: dragging
 is free while the layout is wide enough to be pointer-driven, and behind the
@@ -110,6 +114,12 @@ outline. A page opts in by marking its container `drag-grid` and its tiles
 `dragging`, `drop-target` — mean the same thing on both. That's deliberately
 not per-component: those rules are the feel of the thing, and keeping a copy
 each is how the two pages came to behave differently in the first place.
+
+Because the slots are fixed, the columns are independent: a heavy one just ends
+further down the page rather than pulling anything up beside it. So `/training`'s
+default order is balanced by measured height as well as by subject, and an e2e
+test holds the two columns to within a quarter of each other — hand-balancing is
+the kind of thing that rots quietly the next time a panel is added.
 
 What a page still says for itself is what genuinely differs: where its layout
 collapses (1100px, 860px), which tiles take the second jiggle so the grid

@@ -17,11 +17,11 @@
             ? Math.min(100, (currentWeek.actualKm / currentWeek.targetKm) * 100)
             : null,
     );
-    const longRunProgress = $derived(
-        currentWeek?.longRunTargetKm > 0
-            ? Math.min(100, (currentWeek.actualLongRunKm / currentWeek.longRunTargetKm) * 100)
-            : null,
-    );
+
+    // The long run is one session on one day, so it gets a line rather than a
+    // bar: a bar would fill up all week on whichever easy run happened to be
+    // the longest so far, which is not a long run in progress.
+    const longRun = $derived(week?.longRun || null);
 
     // A day is only "missed" once it's over. Today's session is still ahead of
     // you at 8am, and calling it missed would be both wrong and demoralising.
@@ -65,18 +65,24 @@
             {/if}
         </div>
 
-        <div class="metric">
-            <div class="metric-head">
-                <span>Long run</span>
-                <strong>
-                    {currentWeek.actualLongRunKm.toFixed(1)} km
-                    {#if currentWeek.longRunTargetKm}<span class="target">of {currentWeek.longRunTargetKm}</span>{/if}
-                </strong>
-            </div>
-            {#if longRunProgress !== null}
-                <div class="track"><div class="fill" style="width: {longRunProgress}%"></div></div>
-            {/if}
-        </div>
+        {#if longRun}
+            <p class="long-run {longRun.status}">
+                <span class="long-run-label">Long run</span>
+                <!-- A distance actually run is what says it happened, so the
+                     done state doesn't need a word for it; the other two do. -->
+                {#if longRun.status === "done"}
+                    <strong>{longRun.actualKm.toFixed(1)} km</strong>
+                    <span class="long-run-note">
+                        {longRun.targetKm ? `of ${longRun.targetKm} · ` : ""}{weekday(longRun.date)}
+                    </span>
+                {:else}
+                    <strong>{longRun.targetKm ? `${longRun.targetKm} km` : "planned"}</strong>
+                    <span class="long-run-note">
+                        · {weekday(longRun.date)}{longRun.status === "missed" ? " · not run" : ""}
+                    </span>
+                {/if}
+            </p>
+        {/if}
 
         {#if days.length}
             <ol class="days">
@@ -198,6 +204,29 @@
         opacity: 0.55;
         margin: 0;
     }
+
+    .long-run {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        margin: 0 0 var(--space-4) 0;
+        font-size: var(--font-xs);
+    }
+    .long-run-label {
+        font-size: var(--font-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--main-green);
+    }
+    .long-run strong {
+        font-family: var(--font-serif);
+        font-weight: 600;
+        color: var(--header-colour);
+    }
+    .long-run.done strong { color: var(--tone-good); }
+    .long-run.missed strong { color: var(--tone-warn); }
+    .long-run-note { color: var(--paragraph-colour); opacity: 0.6; }
 
     .days {
         list-style: none;

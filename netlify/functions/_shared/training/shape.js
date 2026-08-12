@@ -50,6 +50,13 @@ export function isTrackableRun(raw) {
 	return RUN_TYPES.has(raw.sport_type || raw.type);
 }
 
+// What counts as a kilometre when reading splits. A run almost never ends on a
+// round number, so the last split is usually a fragment whose "pace" is an
+// artefact of where you happened to stop — a 40 m tail at 9:00/km is a walk to
+// the door, not a collapse. Kept in storage, left out of anything that ranks or
+// plots splits.
+export const WHOLE_SPLIT_M = 600;
+
 // Per-kilometre splits, keeping only what the charts and GAP need.
 function shapeSplits(splits) {
 	return (splits || [])
@@ -188,6 +195,58 @@ export function publicRun(activity) {
 		workoutType: activity?.workoutType,
 		paceSecPerKm: activity?.paceSecPerKm,
 		gapPaceSecPerKm: activity?.gapPaceSecPerKm,
+	};
+}
+
+function publicZoneSeconds(zoneSeconds) {
+	return Array.isArray(zoneSeconds) ? [...zoneSeconds] : null;
+}
+
+// Pace, grade adjustment and heart rate, for the kilometres that were one.
+function publicSplits(splits) {
+	return (splits || [])
+		.filter((s) => s.distanceM >= WHOLE_SPLIT_M)
+		.map((s) => ({
+			km: s.km,
+			paceSecPerKm: s.paceSecPerKm,
+			gapPaceSecPerKm: s.gapPaceSecPerKm,
+			averageHr: s.averageHr,
+		}));
+}
+
+/**
+ * The same, for the one run the dashboard looks at in detail.
+ *
+ * The log carries thirty runs and draws two numbers from each, so publicRun is
+ * as narrow as that job allows. A single run being examined on its own is a
+ * different trade: the sync has already computed its splits, its time in each
+ * heart-rate zone, its decoupling and its load, and none of that is derivable
+ * in the browser from what the log carries.
+ *
+ * The privacy line is the same one shape.js draws everywhere else — nothing
+ * here is geographic. Per-kilometre pace, heart rate and grade adjustment
+ * describe an effort, not a place, and unlike the stored splits the
+ * per-kilometre elevation isn't carried: a hill profile is the one part of a
+ * split list that starts to describe a route rather than a run. The total climb
+ * is enough to read the pace by, and is already public on the log.
+ *
+ * @param {object} activity a stored, shaped activity.
+ * @returns {object|null} safe to serve.
+ */
+export function publicLastRun(activity) {
+	if (!activity) {
+		return null;
+	}
+	return {
+		...publicRun(activity),
+		elapsedTimeSec: activity.elapsedTimeSec,
+		maxHr: activity.maxHr,
+		averageCadence: activity.averageCadence,
+		load: activity.load,
+		loadMethod: activity.loadMethod,
+		decouplingPct: activity.decouplingPct,
+		zoneSeconds: publicZoneSeconds(activity.zoneSeconds),
+		splits: publicSplits(activity.splits),
 	};
 }
 

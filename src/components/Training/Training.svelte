@@ -24,6 +24,7 @@
     import { createPoller } from "../../lib/data/poller.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
+    import LastRun from "./sections/LastRun.svelte";
     import Recommendations from "./sections/Recommendations.svelte";
     import VolumeChart from "./sections/VolumeChart.svelte";
     import FitnessChart from "./sections/FitnessChart.svelte";
@@ -36,18 +37,29 @@
 
     const ENDPOINT = "/.netlify/functions/trainingData";
 
-    // Slots 0–3 are the wide column, 4–7 the narrow one, 8 the full-width
+    // Slots 0–4 are the wide column, 5–8 the narrow one, 9 the full-width
     // row underneath. A panel can sit in any of them; the charts and the run
     // log all reflow to their container, so a "narrow" chart is a narrower
     // chart rather than a broken one.
+    //
+    // The split is by height as much as by subject, because the columns are
+    // independent and a heavy one just runs on past the other: with the last
+    // run and the recommendations — the two tallest panels — both on the left,
+    // it ended a thousand pixels below the right. Left is how the training is
+    // going, right is what to do and what's on. Worth re-measuring whenever a
+    // panel is added, since nothing here keeps the two columns level on its
+    // own.
     const DEFAULT_ORDER = [
-        "volume", "fitness", "efficiency", "recommendations",
-        "prediction", "load", "intensity", "week",
+        "lastRun", "volume", "fitness", "efficiency", "prediction",
+        "recommendations", "week", "load", "intensity",
         "runs",
     ];
-    const WIDE_SLOTS = 4;
+    const WIDE_SLOTS = 5;
     const NARROW_SLOTS = 4;
-    const LAYOUT_KEY = "training-layout";
+    // Versioned: a layout saved against the old order would keep the imbalance
+    // this fixes, and the arrangement is a convenience rather than anything
+    // worth carrying forward at the cost of the fix.
+    const LAYOUT_KEY = "training-layout-2";
 
     let data = $state(null);
     let error = $state("");
@@ -141,7 +153,9 @@
 {/snippet}
 
 {#snippet panelBody(id)}
-    {#if id === "volume"}
+    {#if id === "lastRun"}
+        <LastRun run={data.lastRun} />
+    {:else if id === "volume"}
         <VolumeChart weeks={data.weeks} today={data.today} />
     {:else if id === "fitness"}
         <FitnessChart series={data.series} today={data.today} />

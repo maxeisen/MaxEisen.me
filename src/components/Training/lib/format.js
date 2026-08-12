@@ -101,17 +101,6 @@ export function weekday(dayKey) {
 	return date.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
 }
 
-/**
- * The week a Monday starts, as the range it actually covers: "17–23 Aug",
- * or "31 Aug – 6 Sept" where the week straddles two months.
- *
- * A training week is seven days, and labelling it with its Monday alone asks
- * the reader to do the arithmetic every time they want to know whether a
- * given Saturday falls inside it.
- *
- * @param {string} weekStart Monday day key.
- * @returns {string}
- */
 /** The day key as a UTC-noon Date, or null if there isn't a usable one. */
 function utcNoon(dayKey) {
 	const date = new Date(`${String(dayKey ?? "").slice(0, 10)}T12:00:00Z`);
@@ -134,9 +123,77 @@ function span(start, end) {
 		: `${dayMonth(start)} – ${dayMonth(end)}`;
 }
 
+/**
+ * The week a Monday starts, as the range it actually covers: "17–23 Aug",
+ * or "31 Aug – 6 Sept" where the week straddles two months.
+ *
+ * A training week is seven days, and labelling it with its Monday alone asks
+ * the reader to do the arithmetic every time they want to know whether a
+ * given Saturday falls inside it.
+ *
+ * @param {string} weekStart Monday day key.
+ * @returns {string}
+ */
 export function weekRange(weekStart) {
 	const start = utcNoon(weekStart);
 	return start ? span(start, sixDaysOn(start)) : "";
+}
+
+// The days that have a name rather than a count. A Map rather than an object
+// so looking one up by a number isn't an indexing expression.
+const NAMED_DAYS = new Map([
+	[0, "Today"],
+	[1, "Yesterday"],
+]);
+
+// Number.isFinite, not `>= 0`: null compares as zero, and "null days ago" is
+// how that gets found out.
+const isDayCount = (days) => Number.isFinite(days) && days >= 0;
+
+function weeksAgo(days) {
+	const weeks = Math.round(days / 7);
+	return weeks === 1 ? "Last week" : `${weeks} weeks ago`;
+}
+
+/**
+ * How long ago a day was, in the words you'd use out loud.
+ *
+ * @param {number} days whole days between the day and today.
+ * @returns {string}
+ */
+export function daysAgo(days) {
+	if (!isDayCount(days)) {
+		return "";
+	}
+	if (NAMED_DAYS.has(days)) {
+		return NAMED_DAYS.get(days);
+	}
+	if (days < 7) {
+		return `${days} days ago`;
+	}
+	return weeksAgo(days);
+}
+
+/**
+ * A number with its sign kept, for deltas where "+0.3" and "0.3" mean
+ * different things.
+ *
+ * @param {number} value
+ * @param {number} [digits]
+ * @returns {string}
+ */
+export function signed(value, digits = 1) {
+	if (!Number.isFinite(value)) {
+		return "—";
+	}
+	// Round first, then read the sign off the result: -0.04 to one decimal is
+	// zero, and "-0.0" reads as a decrease that didn't happen.
+	const rounded = Number(value.toFixed(digits));
+	const magnitude = Math.abs(rounded).toFixed(digits);
+	if (rounded > 0) {
+		return `+${magnitude}`;
+	}
+	return rounded < 0 ? `-${magnitude}` : magnitude;
 }
 
 /**

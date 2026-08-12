@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { weekRange, pace, clock, km, pct, shortDate } from "./format.js";
+import { weekRange, pace, clock, km, pct, shortDate, daysAgo, signed } from "./format.js";
 
 describe("weekRange", () => {
 	it("covers the seven days from the Monday", () => {
@@ -17,6 +17,41 @@ describe("weekRange", () => {
 	it("has nothing to say about a missing or unparseable week", () => {
 		expect(weekRange(null)).toBe("");
 		expect(weekRange("not-a-date")).toBe("");
+	});
+});
+
+describe("daysAgo", () => {
+	it("says today and yesterday rather than counting them", () => {
+		expect(daysAgo(0)).toBe("Today");
+		expect(daysAgo(1)).toBe("Yesterday");
+	});
+
+	it("counts days inside the week and weeks beyond it", () => {
+		expect(daysAgo(3)).toBe("3 days ago");
+		expect(daysAgo(7)).toBe("Last week");
+		expect(daysAgo(18)).toBe("3 weeks ago");
+	});
+
+	it("has nothing to say about a day it can't place", () => {
+		expect(daysAgo(null)).toBe("");
+		expect(daysAgo(-2)).toBe("");
+	});
+});
+
+describe("signed", () => {
+	it("keeps the sign on both directions", () => {
+		expect(signed(0.34)).toBe("+0.3");
+		expect(signed(-1.25)).toBe("-1.3");
+	});
+
+	// A change of -0.04 is not a decrease worth drawing a minus sign for.
+	it("never prints a negative zero", () => {
+		expect(signed(-0.04)).toBe("0.0");
+		expect(signed(0)).toBe("0.0");
+	});
+
+	it("takes the precision it's given", () => {
+		expect(signed(12.4, 0)).toBe("+12");
 	});
 });
 

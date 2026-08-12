@@ -13,6 +13,20 @@
 // into saying different things.
 
 export const GLOSSARY = {
+	lastRun: {
+		title: "Last run",
+		body: [
+			"The most recent run in the block, read against your own recent history rather than in isolation — a load of 90 is a big day or an ordinary Tuesday depending entirely on whose 90 it is.",
+			"The chart is pace for each kilometre, drawn with faster higher up. The dotted line across it is the run's own average, so the shape tells you whether it held together; grade-adjusted pace appears over it only when the hills made the two differ.",
+		],
+		terms: [
+			{ term: "Load", definition: "This run's training stress, from time spent at each heart rate. Compared here against the median run of your last six weeks, so 130% means half again as hard as your usual." },
+			{ term: "Fitness, fatigue and form", definition: "What the day's running moved. Fitness is the 42-day average of load, fatigue the 7-day one, form the difference. A hard run always adds more fatigue than fitness — that's the trade you're making." },
+			{ term: "Fade", definition: "How much slower the second half of the run was than the first. Under about 2% is even pacing; a negative number means you finished quicker than you started. On a workout the halves are just describing the session — intervals, then a jog home." },
+			{ term: "Drift", definition: "Aerobic decoupling: how far pace-per-heartbeat slipped between the halves of the run. Under 5% means the distance is within your aerobic base. Only shown for runs held at one effort, since on an interval session it measures the intervals rather than your base." },
+		],
+	},
+
 	volume: {
 		title: "Weekly volume",
 		body: [
@@ -112,6 +126,7 @@ export const GLOSSARY = {
 		terms: [
 			{ term: "Missed", definition: "A past day that had a run planned and none recorded." },
 			{ term: "Extra", definition: "A day you ran that had no run planned." },
+			{ term: "Long run", definition: "The week's long run is a single session on a single day, so it's reported as one: still ahead of you, done, or gone by. It deliberately doesn't have a progress bar — kilometres from the rest of the week aren't part of it." },
 		],
 	},
 

@@ -56,6 +56,69 @@ test("the run log says which runs were the plan", async ({ page }) => {
 	await expect(log.locator(".tag.extra-tag").first()).toBeVisible();
 });
 
+test("the last run is reported with what it did to the training", async ({ page }) => {
+	await page.goto("/training");
+	const panel = page.locator("section.card").filter({ hasText: "Last run" }).first();
+
+	// What it was: the run itself, linked out to Strava for the map the
+	// payload deliberately doesn't carry.
+	await expect(panel.getByRole("link").first()).toHaveAttribute(
+		"href",
+		/strava\.com\/activities\/\d+/,
+	);
+
+	// How it went: a pace per kilometre, on an axis labelled in paces.
+	const paces = await panel.locator(".y-axis span").allTextContents();
+	expect(paces.length).toBeGreaterThan(2);
+	expect(paces.every((label) => /^\d+:\d{2}$/.test(label))).toBe(true);
+
+	// What it changed: all three of fitness, fatigue and form, each with a
+	// signed delta rather than just a value.
+	const changes = panel.locator(".change");
+	await expect(changes).toHaveCount(3);
+	for (const label of ["Fitness", "Fatigue", "Form"]) {
+		await expect(panel.getByText(label, { exact: true })).toBeVisible();
+	}
+	await expect(changes.first().locator("strong")).toHaveText(/^[+-]?\d/);
+});
+
+test("the week's long run is a day rather than a bar that fills up all week", async ({ page }) => {
+	await page.goto("/training");
+	// By its heading, not its text: "Load and risk" says "this week's ramp".
+	const week = page
+		.locator("section.card")
+		.filter({ has: page.getByRole("heading", { name: "This week" }) });
+
+	// One bar, and it's the volume one. The long run had a second, which every
+	// easy run filled in on its way past — the same kilometres, counted twice.
+	await expect(week.locator(".track")).toHaveCount(1);
+
+	// The fixture stands on a Tuesday, so Sunday's long run is still ahead: it
+	// reads as the day it falls on rather than as a number partly reached.
+	const longRun = week.locator(".long-run");
+	await expect(longRun).toHaveClass(/ahead/);
+	await expect(longRun).toContainText("Long run");
+	await expect(longRun).toContainText("Sun");
+	await expect(longRun).toContainText("20 km");
+});
+
+test("neither column runs on far past the other", async ({ page }) => {
+	// The columns are independent, so a heavy one simply ends further down the
+	// page: with the two tallest panels both on the left it finished a
+	// thousand pixels below the right. The default order is hand-balanced,
+	// which is exactly the kind of thing that rots quietly when a panel is
+	// added, so the tolerance here is wide enough to allow real variation and
+	// tight enough to notice a column of leftovers.
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto("/training");
+
+	const [left, right] = await page
+		.locator("#training-grid .col:not(.col-full)")
+		.evaluateAll((cols) => cols.map((col) => col.getBoundingClientRect().height));
+
+	expect(Math.min(left, right) / Math.max(left, right)).toBeGreaterThan(0.75);
+});
+
 test("the charts are labelled with the values they plot", async ({ page }) => {
 	await page.goto("/training");
 	const volume = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
@@ -73,26 +136,52 @@ test.describe("rearranging the panels", () => {
 	const panelAt = (page, idx) => page.locator(`[data-slot-index="${idx}"] .panel`);
 	const editToggle = (page) => page.getByRole("button", { name: "Toggle layout edit mode" });
 
+	// Both ends of a drag have to be on screen at once: a pointer can't travel
+	// past the viewport, and the drop target is found by hit-testing whatever
+	// is under it. Panels are tall — stacked on a phone, one is taller than the
+	// screen — so centre the point halfway between the two slots and then aim
+	// at the middle of whatever part of each is actually showing. Scrolling is
+	// instant because the site scrolls smoothly, and a drag measured
+	// mid-animation aims at where the panels used to be.
 	async function dragPanel(page, fromIdx, toIdx) {
-		const source = await panelAt(page, fromIdx).boundingBox();
-		const target = await page.locator(`[data-slot-index="${toIdx}"]`).boundingBox();
-		await page.mouse.move(source.x + source.width / 2, source.y + 24);
+		await page.evaluate(([from, to]) => {
+			const centre = (i) => {
+				const box = document.querySelector(`[data-slot-index="${i}"]`).getBoundingClientRect();
+				return box.top + box.height / 2 + window.scrollY;
+			};
+			const between = (centre(from) + centre(to)) / 2;
+			window.scrollTo({ top: Math.max(0, between - window.innerHeight / 2), behavior: "instant" });
+		}, [fromIdx, toIdx]);
+
+		const { height } = page.viewportSize();
+		const visibleMiddle = (box) => ({
+			x: box.x + box.width / 2,
+			y: (Math.max(box.y, 12) + Math.min(box.y + box.height, height - 12)) / 2,
+		});
+
+		const source = visibleMiddle(await panelAt(page, fromIdx).boundingBox());
+		const target = visibleMiddle(await page.locator(`[data-slot-index="${toIdx}"]`).boundingBox());
+
+		await page.mouse.move(source.x, source.y);
 		await page.mouse.down();
-		await page.mouse.move(target.x + target.width / 2, target.y + 24, { steps: 14 });
+		await page.mouse.move(target.x, target.y, { steps: 14 });
 		await page.mouse.up();
 	}
 
 	test("a drag swaps the two panels and the layout is remembered", async ({ page }) => {
 		await page.goto("/training");
-		const displaced = await panelAt(page, 4).getAttribute("data-panel");
+		const dragged = await panelAt(page, 0).getAttribute("data-panel");
+		// Slot 5 is the top of the narrow column: a swap across the page, and
+		// the two panels most likely to be on screen together.
+		const displaced = await panelAt(page, 5).getAttribute("data-panel");
 
-		await dragPanel(page, 0, 4);
+		await dragPanel(page, 0, 5);
 
-		await expect(panelAt(page, 4)).toHaveAttribute("data-panel", "volume");
+		await expect(panelAt(page, 5)).toHaveAttribute("data-panel", dragged);
 		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", displaced);
 
 		await page.reload();
-		await expect(panelAt(page, 4)).toHaveAttribute("data-panel", "volume");
+		await expect(panelAt(page, 5)).toHaveAttribute("data-panel", dragged);
 	});
 
 	// A press that doesn't travel is still a click, which is what keeps every
@@ -114,6 +203,7 @@ test.describe("rearranging the panels", () => {
 	test("on a phone the panels wait to be told", async ({ page }) => {
 		await page.setViewportSize(PHONE);
 		await page.goto("/training");
+		const first = await panelAt(page, 0).getAttribute("data-panel");
 
 		// Dragging is off, so the page still scrolls with a finger rather than
 		// picking up whichever panel it landed on.
@@ -121,19 +211,14 @@ test.describe("rearranging the panels", () => {
 		expect(idle).toBe("auto");
 
 		await dragPanel(page, 0, 1);
-		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
+		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", first);
 
 		await editToggle(page).click();
 		const editing = await panelAt(page, 0).evaluate((el) => getComputedStyle(el).touchAction);
 		expect(editing).toBe("none");
 
-		// A drag can only reach as far as the viewport: stacked panels are a
-		// screen tall each, so put both of them on it first. Instant, because
-		// the site scrolls smoothly and a drag measured mid-animation aims at
-		// where the panels used to be.
-		await page.evaluate(() => window.scrollTo({ top: 480, behavior: "instant" }));
 		await dragPanel(page, 0, 1);
-		await expect(panelAt(page, 1)).toHaveAttribute("data-panel", "volume");
+		await expect(panelAt(page, 1)).toHaveAttribute("data-panel", first);
 	});
 
 	test("taps inside a panel don't fire while editing", async ({ page }) => {

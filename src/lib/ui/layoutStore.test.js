@@ -15,14 +15,24 @@ describe("validateLayout", () => {
 		expect(stored[0]).toBe("c");
 	});
 
-	it("rejects a layout from a version with different panels", () => {
-		expect(validateLayout(["a", "b", "gone"], DEFAULTS)).toBeNull();
-		expect(validateLayout(["a", "b"], DEFAULTS)).toBeNull();
-		expect(validateLayout(["a", "b", "c", "d"], DEFAULTS)).toBeNull();
+	// Adding a panel used to cost everyone the arrangement they'd made, since
+	// a saved list of three isn't a permutation of four.
+	it("keeps the saved order and slots a new panel into its default place", () => {
+		expect(validateLayout(["c", "a", "b"], ["a", "b", "c", "d"])).toEqual(["c", "a", "b", "d"]);
+		expect(validateLayout(["c", "a", "b"], ["new", "a", "b", "c"])).toEqual(["new", "c", "a", "b"]);
 	});
 
-	it("rejects duplicates, which would leave a slot empty", () => {
-		expect(validateLayout(["a", "a", "b"], DEFAULTS)).toBeNull();
+	it("drops a panel the page no longer has", () => {
+		expect(validateLayout(["a", "b", "gone", "c"], DEFAULTS)).toEqual(["a", "b", "c"]);
+	});
+
+	it("drops duplicates, which would otherwise leave a slot empty", () => {
+		expect(validateLayout(["a", "a", "b"], DEFAULTS)).toEqual(["a", "b", "c"]);
+	});
+
+	it("always returns a full layout, whatever it was handed", () => {
+		expect(validateLayout([], DEFAULTS)).toEqual(DEFAULTS);
+		expect(validateLayout([1, 2, 3], DEFAULTS)).toEqual(DEFAULTS);
 	});
 
 	it("rejects anything that isn't an array", () => {
