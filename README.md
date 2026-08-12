@@ -66,8 +66,9 @@ src/
                           player/ modals/ layout/) and feature logic (lib/).
   lib/              Cross-feature code, NOT tied to one route:
     ui/             Shared presentational components (BackLink, Button, Card,
-                    CloseButton, GateOverlay, Spinner) + reorder (drag-to-
-                    rearrange) and its storage half, layoutStore
+                    CloseButton, EditToggle, GateOverlay, Spinner) + reorder
+                    (drag-to-rearrange), editMode (when it's allowed) and
+                    layoutStore (where the arrangement is kept)
     data/           Client data layer (fetchJson, swrCache, concurrent)
     strava.js       Promoted feature-agnostic helpers (format/decode)
     tilt.js         Reusable Svelte action
@@ -93,10 +94,16 @@ pointer passes the threshold (the `dragging` class carries
 pure parts — validating a stored layout, swapping slots — live in
 `lib/ui/layoutStore.js` so they're testable without compiling runes.
 
-The two pages gate it differently. `/dashboard` drags freely on desktop and
-behind an Edit toggle once responsive; `/training` is always behind its
-Rearrange toggle, because those panels are full of links and scrollable lists
-and a stray drag would cost you a text selection or a tap.
+`lib/ui/editMode.svelte.js` wraps that in the rule both pages follow: dragging
+is free while the layout is wide enough to be pointer-driven, and behind the
+`lib/ui/EditToggle` pill once it collapses, where a press-and-drag is otherwise
+how you scroll. It also owns the capture-phase click suppression that keeps a
+drag from opening whatever it finished on, and keeps taps inert while editing —
+the iOS jiggle-mode rule. `createRearrangeable()` hands back a reorder instance
+and its edit mode already wired together; the only thing the two pages set
+differently is where their own layout collapses (1100px, 860px). The jiggle
+keyframes are in `global.css`, since keyframes declared inside a component are
+scoped to it and these belong to both.
 
 ### Netlify function re-export pattern
 
@@ -178,10 +185,12 @@ handlers are exercised through Node's global `Request`/`Response` with
 
 A handful of [Playwright](https://playwright.dev) smoke tests in `e2e/`
 (`*.e2e.js`) guard the lowest-risk/highest-value flows — the homepage boots,
-`/dashboard` mounts its widget grid, `/gallery` renders and its photo fetch
-settles, and `/training` renders its sections — labelled axes, plan-matched run
-log, working "i" disclosures, panels that rearrange and stay rearranged —
-without any of them growing wider than a phone screen. They run against `vite preview` (the static build, no
+`/gallery` renders and its photo fetch settles, and `/training` renders its
+sections — labelled axes, plan-matched run log, working "i" disclosures —
+without any of them growing wider than a phone screen. Rearranging is asserted
+on both pages that do it, since they share the code: a drag swaps two tiles and
+survives a reload, the Edit toggle is absent until the layout collapses, and on
+a phone the tiles keep `touch-action` (and their taps) until it's pressed. They run against `vite preview` (the static build, no
 Functions), so they assert routes render rather than live data; `/training`
 needs a payload before it draws anything wide, so it gets one from the real
 metrics engine (`e2e/fixtures/trainingPayload.js`) via a route stub. Install the browser once with
