@@ -41,21 +41,23 @@ const asMap = (loads) => (loads instanceof Map ? loads : new Map(Object.entries(
  * what lets fatigue actually decay during a taper — so the range is filled in
  * densely rather than iterating only the days that have activities.
  *
- * Fitness and fatigue can be fed from different books. Cross-training is the
- * reason: a long ride genuinely costs you recovery, so it belongs in fatigue,
- * but it builds none of the running-specific durability that CTL is standing in
- * for here, and letting it inflate fitness would flatter a marathon build for
- * work the legs never did. Pass `fatigueLoadsByDay` to say "these days cost
- * this much, even though only some of it was running".
+ * Both traces are fed from the same book, and that is what makes form readable
+ * rather than a number that happens to be negative. Because fitness and fatigue
+ * are averages of the same daily load, they converge at a steady training rate
+ * and form settles around zero, so "+5 is fresh, −20 is buried" means something.
+ * Feed fatigue from a wider source than fitness — cross-training was the
+ * tempting one — and that equilibrium breaks: fatigue settles higher than
+ * fitness can ever climb, and form sits permanently negative by roughly the
+ * daily load of whatever the extra source was, no matter how recovered you
+ * actually are. Anything that costs recovery either earns fitness too, or stays
+ * out of both.
  *
- * @param {Map<string, number>|object} loadsByDay day key to running load.
- * @param {{from: string, to: string, fatigueLoadsByDay?: Map<string, number>|object}} range
+ * @param {Map<string, number>|object} loadsByDay day key to load.
+ * @param {{from: string, to: string}} range
  * @returns {{date: string, load: number, ctl: number, atl: number, tsb: number}[]}
- *   `load` is the running load for the day; fatigue may have been fed more.
  */
-export function fitnessSeries(loadsByDay, { from, to, fatigueLoadsByDay = null }) {
+export function fitnessSeries(loadsByDay, { from, to }) {
 	const lookup = asMap(loadsByDay);
-	const fatigueLookup = fatigueLoadsByDay ? asMap(fatigueLoadsByDay) : lookup;
 	const days = eachDay(from, to);
 	if (days.length === 0) return [];
 
@@ -69,7 +71,7 @@ export function fitnessSeries(loadsByDay, { from, to, fatigueLoadsByDay = null }
 		const tsb = ctl - atl;
 		const load = Number(lookup.get(date)) || 0;
 		ctl += (load - ctl) * ctlAlpha;
-		atl += ((Number(fatigueLookup.get(date)) || 0) - atl) * atlAlpha;
+		atl += (load - atl) * atlAlpha;
 		return { date, load, ctl, atl, tsb };
 	});
 }

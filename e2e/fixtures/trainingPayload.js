@@ -70,12 +70,35 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 	const end = new Date(`${today}T00:00:00Z`);
 	for (const day = new Date(start); day <= end; day.setUTCDate(day.getUTCDate() + 1)) {
 		const dow = day.getUTCDay();
-		if (dow === 1 || dow === 6) continue; // strength / rest
+		if (dow === 1) continue; // strength
+		const date = day.toISOString().slice(0, 10);
+
+		// Saturday is a ride. It's here so the log renders one: a ride reaches
+		// that list and no metric on the page, and a fixture of nothing but
+		// runs can't tell the difference between that working and the ride
+		// support having quietly disappeared.
+		if (dow === 6) {
+			const rideDistance = 45000 + next() * 25000;
+			raw.push({
+				id: id++,
+				name: "Saturday Ride",
+				type: "Ride",
+				"sport_type": "Ride",
+				private: false,
+				"start_date_local": `${date}T09:00:00Z`,
+				distance: rideDistance,
+				// Around 25–30 km/h, which is the number the row shows.
+				"moving_time": Math.round(rideDistance / (7 + next())),
+				"total_elevation_gain": Math.round(next() * 400),
+				"average_heartrate": 132 + next() * 12,
+			});
+			continue;
+		}
+
 		const isLong = dow === 0;
 		const distance = isLong ? 16000 + next() * 8000 : 6000 + next() * 6000;
 		const paceSecPerKm = isLong ? 330 + next() * 25 : 300 + next() * 40;
 		const movingTime = Math.round((distance / 1000) * paceSecPerKm);
-		const date = day.toISOString().slice(0, 10);
 		const averageHr = 138 + next() * 22;
 
 		raw.push({

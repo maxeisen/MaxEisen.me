@@ -29,7 +29,7 @@ test("training route renders its sections", async ({ page }) => {
 	await expect(page).toHaveTitle(/Road to Chicago/i);
 	await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Weekly volume" })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Runs this block" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Recent activity" })).toBeVisible();
 });
 
 test("every card explains its own metrics on demand", async ({ page }) => {
@@ -49,11 +49,22 @@ test("every card explains its own metrics on demand", async ({ page }) => {
 
 test("the run log says which runs were the plan", async ({ page }) => {
 	await page.goto("/training");
-	const log = page.locator("section.card").filter({ hasText: "Runs this block" }).first();
+	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
 	// The fixture runs the real plan file, which has day-level sessions, so
 	// both kinds have to appear: matched sessions and unplanned extras.
 	await expect(log.locator(".tag.plan").first()).toBeVisible();
 	await expect(log.locator(".tag.extra-tag").first()).toBeVisible();
+});
+
+test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
+	await page.goto("/training");
+	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
+	const ride = log.locator(".row.ride").first();
+
+	await expect(ride.locator(".tag.ride-tag")).toHaveText("ride");
+	// km/h rather than the min/km every run in the list is reported in.
+	await expect(ride).toContainText(/\d+\.\d km\/h/);
+	await expect(ride).toContainText("avg speed");
 });
 
 test("the last run is reported with what it did to the training", async ({ page }) => {
