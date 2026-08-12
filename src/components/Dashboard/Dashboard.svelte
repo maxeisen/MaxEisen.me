@@ -22,6 +22,7 @@
     import HackerNewsWidget from "./widgets/HackerNewsWidget.svelte";
     import SpotifyVizOverlay from "./SpotifyVizOverlay.svelte";
     import BackLink from "../../lib/ui/BackLink.svelte";
+    import { createReorder } from "../../lib/ui/reorder.svelte.js";
 
     const WIDGETS = {
         clock:   { component: ClockWidget,      kind: "div" },
@@ -41,109 +42,26 @@
 
     const DEFAULT_ORDER = ["clock", "gallery", "weather", "spotify", "strava", "github", "hn"];
     const LAYOUT_KEY = "dashboard-layout";
-    const DRAG_THRESHOLD = 5;
 
-    function loadLayout() {
-        try {
-            const raw = localStorage.getItem(LAYOUT_KEY);
-            if (!raw) return null;
-            const arr = JSON.parse(raw);
-            if (!Array.isArray(arr) || arr.length !== DEFAULT_ORDER.length) return null;
-            if (new Set(arr).size !== arr.length) return null;
-            if (!arr.every((id) => DEFAULT_ORDER.includes(id))) return null;
-            return arr;
-        } catch { return null; }
-    }
-
-    let layout = $state([...DEFAULT_ORDER]);
     let isEditing = $state(false);
     let isResponsive = $state(false);
-    let isDragging = $state(false);
-    let draggingId = $state(null);
-    let dropTargetIdx = $state(null);
-    let dragTransform = $state(null); // { x, y } | null
 
     let dashboardEl;
-    let widgetEls = {}; // id -> element (for transform during drag)
-    let suppressClickUntil = 0;
     let responsiveQuery;
     let onResponsiveChange;
     let clickCapture;
 
-    function swap(srcIdx, dstIdx) {
-        if (srcIdx === dstIdx) return;
-        const next = [...layout];
-        [next[srcIdx], next[dstIdx]] = [next[dstIdx], next[srcIdx]];
-        layout = next;
-        try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch {}
-        // Brief swap-flash + force-resize so list trimming + viz canvas re-fit.
-        requestAnimationFrame(() => {
-            window.dispatchEvent(new Event("resize"));
-        });
-    }
-
-    // Whole-widget drag. Listeners are attached on pointerdown and torn down
-    // on pointerup. We intentionally do NOT setPointerCapture — capturing
-    // redirects the synthesized click to the widget instead of the actual
-    // anchor inside, breaking link navigation.
-    //
-    // We deliberately do NOT set draggingId until the user crosses the 5px
-    // threshold. `class:dragging` adds pointer-events:none on the widget; if
-    // it flips on at pointerdown, the synthetic click after a non-drag press
-    // dispatches to the slot underneath instead of the anchor inside, and
-    // nothing in the widget becomes clickable. Defer it to onMove.
-    function initDrag(widgetId, e) {
-        if (e.button !== undefined && e.button !== 0) return;
-        if (draggingId !== null) return;
-        if (isResponsive && !isEditing) return;
-
-        const pointerId = e.pointerId;
-        const startX = e.clientX;
-        const startY = e.clientY;
-        let started = false;
-
-        const onMove = (ev) => {
-            if (ev.pointerId !== pointerId) return;
-            const dx = ev.clientX - startX;
-            const dy = ev.clientY - startY;
-            if (!started) {
-                if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-                started = true;
-                draggingId = widgetId;
-                isDragging = true;
-            }
-            ev.preventDefault();
-            dragTransform = { x: dx, y: dy };
-            // .dragging has pointer-events: none in CSS so elementFromPoint
-            // pierces through to the slot under the cursor.
-            const el = document.elementFromPoint(ev.clientX, ev.clientY);
-            const slot = el?.closest(".slot[data-slot-index]");
-            const idx = slot ? Number(slot.dataset.slotIndex) : null;
-            const srcIdx = layout.indexOf(widgetId);
-            dropTargetIdx = (idx != null && idx !== srcIdx) ? idx : null;
-        };
-
-        const onEnd = (ev) => {
-            if (ev.pointerId !== pointerId) return;
-            document.removeEventListener("pointermove", onMove);
-            document.removeEventListener("pointerup", onEnd);
-            document.removeEventListener("pointercancel", onEnd);
-            if (started) {
-                const srcIdx = layout.indexOf(widgetId);
-                const dstIdx = dropTargetIdx;
-                if (dstIdx != null && dstIdx !== srcIdx) swap(srcIdx, dstIdx);
-                suppressClickUntil = Date.now() + 300;
-            }
-            isDragging = false;
-            draggingId = null;
-            dropTargetIdx = null;
-            dragTransform = null;
-        };
-
-        document.addEventListener("pointermove", onMove);
-        document.addEventListener("pointerup", onEnd);
-        document.addEventListener("pointercancel", onEnd);
-    }
+    // Drag mechanics live in lib/ui/reorder — /training uses the same ones.
+    // Dragging is free on desktop and gated behind edit mode once the layout
+    // goes responsive, where a press-and-drag is otherwise a scroll.
+    const reorder = createReorder({
+        order: DEFAULT_ORDER,
+        storageKey: LAYOUT_KEY,
+        enabled: () => !(isResponsive && !isEditing),
+        // Swap-flash + forced resize so list trimming and the viz canvas re-fit.
+        onReorder: () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize"))),
+    });
+    const layout = $derived(reorder.layout);
 
     function toggleEditing(e) {
         e.stopPropagation();
@@ -151,8 +69,7 @@
     }
 
     onMount(() => {
-        const stored = loadLayout();
-        if (stored) layout = stored;
+        reorder.restore();
 
         responsiveQuery = window.matchMedia("(max-width: 1100px)");
         isResponsive = responsiveQuery.matches;
@@ -167,7 +84,7 @@
         // editing (matches iOS jiggle-mode where taps don't open icons).
         clickCapture = (e) => {
             if (!e.target.closest("#dashboard-grid")) return;
-            if (Date.now() < suppressClickUntil || isEditing) {
+            if (reorder.suppressesClick() || isEditing) {
                 e.preventDefault();
                 e.stopPropagation();
             }
@@ -204,7 +121,7 @@
 <div
     class="dashboard"
     class:is-editing={isEditing}
-    class:is-dragging={isDragging}
+    class:is-dragging={reorder.isDragging}
     bind:this={dashboardEl}
     id="dashboard-grid"
 >
@@ -212,27 +129,27 @@
         {@const cfg = WIDGETS[widgetId]}
         <div
             class="slot slot-{SLOT_SIZES[idx]}"
-            class:drop-target={dropTargetIdx === idx}
+            class:drop-target={reorder.dropTargetIdx === idx}
             data-slot-index={idx}
         >
             {#if cfg.kind === "a"}
                 <a
                     class="widget widget-{widgetId}"
-                    class:dragging={draggingId === widgetId}
+                    class:dragging={reorder.draggingId === widgetId}
                     data-widget={widgetId}
                     href={cfg.href}
-                    style:transform={draggingId === widgetId && dragTransform ? `translate(${dragTransform.x}px, ${dragTransform.y}px) scale(1.02)` : null}
-                    onpointerdown={(e) => initDrag(widgetId, e)}
+                    style:transform={reorder.transformFor(widgetId)}
+                    onpointerdown={(e) => reorder.start(widgetId, e)}
                 >
                     <cfg.component />
                 </a>
             {:else}
                 <div
                     class="widget widget-{widgetId}"
-                    class:dragging={draggingId === widgetId}
+                    class:dragging={reorder.draggingId === widgetId}
                     data-widget={widgetId}
-                    style:transform={draggingId === widgetId && dragTransform ? `translate(${dragTransform.x}px, ${dragTransform.y}px) scale(1.02)` : null}
-                    onpointerdown={(e) => initDrag(widgetId, e)}
+                    style:transform={reorder.transformFor(widgetId)}
+                    onpointerdown={(e) => reorder.start(widgetId, e)}
                 >
                     <cfg.component />
                 </div>
