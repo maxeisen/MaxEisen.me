@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
+	RIDE_MIN_M,
 	SHAPE_VERSION,
+	isTrackableRide,
 	isTrackableRun,
 	shapeActivity,
 	shapeActivities,
@@ -203,5 +205,92 @@ describe("collectBestEfforts", () => {
 
 	it("handles activities with no efforts", () => {
 		expect(collectBestEfforts([{}, { bestEfforts: [] }])).toEqual([]);
+	});
+});
+
+function rawRide(overrides = {}) {
+	return {
+		id: 555,
+		name: "Evening Ride",
+		type: "Ride",
+		sport_type: "Ride",
+		private: false,
+		start_date_local: "2026-08-11T18:00:00Z",
+		distance: 45000,
+		moving_time: 5400,
+		elapsed_time: 5600,
+		total_elevation_gain: 320,
+		average_heartrate: 138,
+		max_heartrate: 165,
+		start_latlng: [43.6532, -79.3832],
+		map: { summary_polyline: "_p~iF~ps|U_ulLnnqC" },
+		...overrides,
+	};
+}
+
+describe("isTrackableRide", () => {
+	it("takes a ride long enough to have cost something", () => {
+		expect(isTrackableRide(rawRide())).toBe(true);
+		expect(isTrackableRide(rawRide({ sport_type: "GravelRide" }))).toBe(true);
+		expect(isTrackableRide(rawRide({ sport_type: "MountainBikeRide" }))).toBe(true);
+	});
+
+	it("ignores the commute", () => {
+		// The whole point of the threshold: a few kilometres to the office is
+		// transport, and letting it through would put a smear of fatigue on
+		// most weekdays.
+		expect(isTrackableRide(rawRide({ distance: 3000 }))).toBe(false);
+		expect(isTrackableRide(rawRide({ distance: RIDE_MIN_M }))).toBe(false);
+		expect(isTrackableRide(rawRide({ distance: RIDE_MIN_M + 1 }))).toBe(true);
+	});
+
+	it("keeps private rides private", () => {
+		expect(isTrackableRide(rawRide({ private: true }))).toBe(false);
+	});
+
+	it("is not fooled by a run", () => {
+		expect(isTrackableRide(rawRun())).toBe(false);
+		expect(isTrackableRun(rawRide())).toBe(false);
+	});
+});
+
+describe("shapeActivity for rides", () => {
+	const shaped = () => shapeActivity(rawRide(), { thresholds: THRESHOLDS });
+
+	it("marks it as a ride so nothing downstream mistakes it for a run", () => {
+		expect(shaped().sport).toBe("ride");
+		expect(shapeActivity(rawRun(), { thresholds: THRESHOLDS }).sport).toBe("run");
+	});
+
+	it("carries no running measures at all", () => {
+		const ride = shaped();
+		// All of these would be arithmetically fine and completely misleading
+		// in a column beside a run's.
+		expect(ride.paceSecPerKm).toBeNull();
+		expect(ride.gapPaceSecPerKm).toBeNull();
+		expect(ride.decouplingPct).toBeNull();
+		expect(ride.splits).toEqual([]);
+		expect(ride.bestEfforts).toEqual([]);
+	});
+
+	it("scores it from heart rate, on the same scale as a run", () => {
+		const ride = shaped();
+		expect(ride.load).toBeGreaterThan(0);
+		expect(ride.loadMethod).toBe("hr");
+	});
+
+	it("leaves a ride with no heart rate unscored rather than guessing", () => {
+		// The pace fallback reads a threshold *running* pace. Pointing it at a
+		// bike would mint load out of the fact that bikes are faster.
+		const ride = shapeActivity(rawRide({ average_heartrate: null }), { thresholds: THRESHOLDS });
+		expect(ride.load).toBe(0);
+		expect(ride.loadMethod).toBeNull();
+	});
+
+	it("drops a ride's route just as thoroughly", () => {
+		const json = JSON.stringify(shaped());
+		expect(json).not.toContain("43.65");
+		expect(json).not.toContain("_p~iF");
+		expect(json).not.toContain("polyline");
 	});
 });

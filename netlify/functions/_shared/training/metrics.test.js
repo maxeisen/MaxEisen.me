@@ -422,3 +422,97 @@ describe("buildDashboard privacy, end to end", () => {
 		]);
 	});
 });
+
+// A ride is allowed to make you tired and nothing else. These are the lines it
+// must not cross: every running measure on the page has to read the same with
+// a ride in the block as without one.
+describe("buildDashboard with rides", () => {
+	const RIDE = {
+		id: 9001,
+		name: "Long ride",
+		sport: "ride",
+		type: "Ride",
+		// Yesterday, so its fatigue has actually landed by today. Form is read
+		// from the state you woke up with, so a ride logged this morning
+		// rightly hasn't reached today's number yet.
+		startDateLocal: "2026-08-10T07:00:00",
+		distanceM: 60000,
+		movingTimeSec: 7200,
+		averageHr: 140,
+		load: 90,
+	};
+
+	const runsOnly = () =>
+		buildDashboard({ activities: block("2026-08-11", 10), plan: PLAN, today: "2026-08-11" });
+	const withRide = () =>
+		buildDashboard({
+			activities: [...block("2026-08-11", 10), RIDE],
+			plan: PLAN,
+			today: "2026-08-11",
+		});
+
+	it("leaves weekly volume and long-run share to the runs", () => {
+		const before = runsOnly();
+		const after = withRide();
+		expect(after.weeks.map((w) => w.distanceM)).toEqual(before.weeks.map((w) => w.distanceM));
+		expect(after.weeks.map((w) => w.longRunSharePct)).toEqual(
+			before.weeks.map((w) => w.longRunSharePct),
+		);
+		// 60 km on a bike is not a 60 km long run.
+		expect(after.weeks.every((w) => w.longestRunM <= 12000)).toBe(true);
+	});
+
+	it("keeps rides out of the acute:chronic ratio", () => {
+		// ACWR earns its keep as a running injury signal, and cycling doesn't
+		// load the same tissues. Diluting it would cost more than it adds.
+		expect(withRide().summary.acwr).toEqual(runsOnly().summary.acwr);
+	});
+
+	it("leaves totals, intensity and race prediction untouched", () => {
+		const before = runsOnly();
+		const after = withRide();
+		expect(after.summary.totals).toEqual(before.summary.totals);
+		expect(after.summary.intensity).toEqual(before.summary.intensity);
+		expect(after.summary.prediction).toEqual(before.summary.prediction);
+	});
+
+	it("builds no fitness", () => {
+		expect(withRide().summary.latest.ctl).toBeCloseTo(runsOnly().summary.latest.ctl, 10);
+	});
+
+	it("costs fatigue, and so costs form", () => {
+		const before = runsOnly();
+		const after = withRide();
+		expect(after.summary.latest.atl).toBeGreaterThan(before.summary.latest.atl);
+		// Form is fitness minus fatigue, so a ride you haven't recovered from
+		// should leave you reading as less ready, not more.
+		expect(after.summary.latest.tsb).toBeLessThan(before.summary.latest.tsb);
+	});
+
+	it("shows the ride in the log, in date order, marked as a ride", () => {
+		const log = withRide().runs;
+		const ride = log.find((a) => a.id === RIDE.id);
+		expect(ride).toBeTruthy();
+		expect(ride.sport).toBe("ride");
+		expect(ride.load).toBe(90);
+		expect(log.filter((a) => a.sport === "run")).toHaveLength(10);
+		const dates = log.map((a) => a.startDateLocal);
+		expect([...dates].sort().reverse()).toEqual(dates);
+	});
+
+	it("does not displace runs from the log", () => {
+		expect(withRide().runs.filter((a) => a.sport === "run")).toHaveLength(
+			runsOnly().runs.length,
+		);
+	});
+
+	it("treats a record with no sport as a run, as every stored one is", () => {
+		// Everything already in Blobs was written before rides were tracked,
+		// and is served for as long as it takes the sync to re-shape it.
+		const legacy = block("2026-08-11", 3);
+		expect(legacy.every((a) => a.sport === undefined)).toBe(true);
+		const out = buildDashboard({ activities: legacy, plan: PLAN, today: "2026-08-11" });
+		expect(out.summary.totals.runs).toBe(3);
+		expect(out.runs.every((a) => a.sport === "run")).toBe(true);
+	});
+});

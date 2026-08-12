@@ -98,16 +98,31 @@ function planDays(week, runs, today) {
  */
 export function buildDashboard({ activities = [], plan = {}, today }) {
 	const day = toDayKey(today) || toDayKey(new Date());
-	const runs = [...activities].sort((a, b) =>
+	const sorted = [...activities].sort((a, b) =>
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
 	);
+
+	// Everything on this page is a running measure unless it says otherwise.
+	// Rides are held apart from the first line so that volume, long-run share,
+	// intensity, efficiency, race prediction and the acute:chronic ratio all
+	// keep meaning exactly what they meant before rides existed.
+	const runs = sorted.filter((a) => a?.sport !== "ride");
+	const rides = sorted.filter((a) => a?.sport === "ride");
 
 	const thresholds = plan?.thresholds || {};
 	const race = plan?.race || {};
 	const range = blockRange(plan, runs, day);
 
 	const loads = dailyLoads(runs);
-	const series = range ? fitnessSeries(loads, range) : [];
+	// The one place a ride is allowed to count. It reaches fatigue, because a
+	// long ride genuinely leaves you less ready for tomorrow's session, and
+	// stops there — it earns no fitness and, deliberately, no place in ACWR,
+	// whose injury-risk evidence is about the tissue loading of the sport being
+	// ramped. Cycling load in that ratio would dilute the best warning here.
+	const fatigueLoads = rides.length > 0 ? dailyLoads(sorted) : null;
+	const series = range
+		? fitnessSeries(loads, { ...range, fatigueLoadsByDay: fatigueLoads })
+		: [];
 	// Report against today, not the end of the block — the series runs forward
 	// to race day, where CTL has decayed to nothing because no runs exist yet.
 	const latest = series.find((d) => d.date === day) || series.at(-1) || null;
@@ -287,9 +302,18 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		// allows out.
 		runs: (() => {
 			const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
-			return runs
+			const logged = runs
 				.slice(from)
-				.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }))
+				.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }));
+			// Rides join the log across the span it already covers rather than
+			// competing for its thirty places. This stays a log of runs that
+			// admits what else was tiring you out, not a feed of everything.
+			const earliest = toDayKey(logged[0]?.startDateLocal);
+			const alongside = earliest
+				? rides.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)
+				: [];
+			return [...logged, ...alongside]
+				.sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)))
 				.reverse();
 		})(),
 		thresholds,
