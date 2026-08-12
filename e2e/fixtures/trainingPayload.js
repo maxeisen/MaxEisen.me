@@ -29,6 +29,28 @@ const NAMES = [
 	"Recovery Shakeout",
 ];
 
+// A minute-by-minute recording of one run, which is what the sync derives time
+// in zones and aerobic drift from (see shape.js). Without one, those are null
+// and the last-run panel renders its "no heart rate" path — real for a manual
+// entry, but not what the page normally shows.
+function streamsFor({ distance, movingTime, averageHr, next }) {
+	const steps = Math.max(20, Math.round(movingTime / 60));
+	const time = [];
+	const distanceStream = [];
+	const heartrate = [];
+	const grade = [];
+
+	for (let i = 0; i <= steps; i++) {
+		time.push(Math.round((movingTime / steps) * i));
+		distanceStream.push((distance / steps) * i);
+		// Drifting up through the run, the way heart rate does at a fixed
+		// effort, plus enough noise to land either side of a zone floor.
+		heartrate.push(averageHr - 6 + (12 * i) / steps + (next() - 0.5) * 6);
+		grade.push((next() - 0.5) * 3);
+	}
+	return { time, distance: distanceStream, heartrate, grade_smooth: grade };
+}
+
 /**
  * @param {object} [options]
  * @param {string} [options.today] day key the dashboard is built against.
@@ -50,6 +72,7 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 		const paceSecPerKm = isLong ? 330 + next() * 25 : 300 + next() * 40;
 		const movingTime = Math.round((distance / 1000) * paceSecPerKm);
 		const date = day.toISOString().slice(0, 10);
+		const averageHr = 138 + next() * 22;
 
 		raw.push({
 			id: id++,
@@ -64,8 +87,9 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 			moving_time: movingTime,
 			elapsed_time: movingTime + 90,
 			total_elevation_gain: Math.round(next() * 120),
-			average_heartrate: 138 + next() * 22,
+			average_heartrate: averageHr,
 			max_heartrate: 172 + next() * 15,
+			average_cadence: 84 + next() * 6,
 			workout_type: isLong ? 2 : dow === 5 ? 3 : 0,
 			splits_metric: Array.from({ length: Math.floor(distance / 1000) }, () => ({
 				distance: 1000,
@@ -77,12 +101,19 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 				{ name: "5k", distance: 5000, elapsed_time: Math.round(paceSecPerKm * 5 * 0.92) },
 				{ name: "10k", distance: 10000, elapsed_time: Math.round(paceSecPerKm * 10 * 0.95) },
 			],
+			streams: streamsFor({ distance, movingTime, averageHr, next }),
 		});
 	}
 
 	return {
 		...buildDashboard({
-			activities: shapeActivities(raw, { thresholds: plan.thresholds }),
+			// Streams are per-activity here, where the real sync fetches them
+			// one run at a time; shapeActivities takes one set for the batch,
+			// so shape each run with its own.
+			activities: raw
+				.map(({ streams, ...activity }) =>
+					shapeActivities([activity], { streams, thresholds: plan.thresholds })[0])
+				.filter(Boolean),
 			plan,
 			today,
 		}),

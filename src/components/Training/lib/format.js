@@ -101,17 +101,6 @@ export function weekday(dayKey) {
 	return date.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" });
 }
 
-/**
- * The week a Monday starts, as the range it actually covers: "17–23 Aug",
- * or "31 Aug – 6 Sept" where the week straddles two months.
- *
- * A training week is seven days, and labelling it with its Monday alone asks
- * the reader to do the arithmetic every time they want to know whether a
- * given Saturday falls inside it.
- *
- * @param {string} weekStart Monday day key.
- * @returns {string}
- */
 /** The day key as a UTC-noon Date, or null if there isn't a usable one. */
 function utcNoon(dayKey) {
 	const date = new Date(`${String(dayKey ?? "").slice(0, 10)}T12:00:00Z`);
@@ -134,9 +123,50 @@ function span(start, end) {
 		: `${dayMonth(start)} – ${dayMonth(end)}`;
 }
 
+/**
+ * The week a Monday starts, as the range it actually covers: "17–23 Aug",
+ * or "31 Aug – 6 Sept" where the week straddles two months.
+ *
+ * A training week is seven days, and labelling it with its Monday alone asks
+ * the reader to do the arithmetic every time they want to know whether a
+ * given Saturday falls inside it.
+ *
+ * @param {string} weekStart Monday day key.
+ * @returns {string}
+ */
 export function weekRange(weekStart) {
 	const start = utcNoon(weekStart);
 	return start ? span(start, sixDaysOn(start)) : "";
+}
+
+/**
+ * How long ago a day was, in the words you'd use out loud.
+ *
+ * @param {number} days whole days between the day and today.
+ * @returns {string}
+ */
+export function daysAgo(days) {
+	if (!Number.isFinite(days) || days < 0) return "";
+	if (days === 0) return "Today";
+	if (days === 1) return "Yesterday";
+	if (days < 7) return `${days} days ago`;
+	const weeks = Math.round(days / 7);
+	return weeks === 1 ? "Last week" : `${weeks} weeks ago`;
+}
+
+/**
+ * A number with its sign kept, for deltas where "+0.3" and "0.3" mean
+ * different things.
+ *
+ * @param {number} value
+ * @param {number} [digits]
+ * @returns {string}
+ */
+export function signed(value, digits = 1) {
+	if (!Number.isFinite(value)) return "—";
+	const rounded = value.toFixed(digits);
+	// Rounding can land on a signed zero, and "-0.0" reads as a decrease.
+	return Number(rounded) > 0 ? `+${rounded}` : rounded.replace(/^-0(\.0+)?$/, "0$1");
 }
 
 /**

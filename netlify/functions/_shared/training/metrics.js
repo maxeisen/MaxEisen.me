@@ -9,6 +9,7 @@ import { acwr, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./
 import { hrZoneFloors, intensitySplit } from "./zones.js";
 import { efficiencyTrend } from "./efficiency.js";
 import { collectBestEfforts, publicRun } from "./shape.js";
+import { lastRunDetail } from "./lastRun.js";
 import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
 import {
 	blockRange,
@@ -150,6 +151,11 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		.reverse()
 		.find((a) => a.distanceM >= LONG_RUN_MIN_M && Number.isFinite(a.decouplingPct));
 
+	// Matched over the whole block rather than per view: a day whose first run
+	// falls outside the log would otherwise let its second run claim the
+	// session the first one already did.
+	const planMatches = matchRunsToPlan(runs, plan);
+
 	const remainingDays = daysToRace(plan, day);
 	const totals = runs.reduce(
 		(acc, a) => {
@@ -256,19 +262,25 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		week: current ? { start: current.start, days: planDays(current, runs, day) } : null,
 		upcoming: upcomingWeeks(plan, day),
 		recommendations: advice,
+		// The freshest run, read against the athlete's own recent history —
+		// the one panel that's about a single session rather than a trend.
+		lastRun: lastRunDetail({
+			runs,
+			series,
+			weeks,
+			planMatch: planMatches.at(-1) ?? null,
+			thresholds,
+			today: day,
+		}),
 		// The log carries its plan match so the page can say which runs were
 		// the plan and which were extra. The match comes from the plan file
 		// rather than from Strava, so it adds nothing to what publicRun()
 		// allows out.
 		runs: (() => {
-			// Matched over the whole block, then sliced: a day whose first run
-			// falls outside the log would otherwise let its second run claim
-			// the session the first one already did.
-			const matches = matchRunsToPlan(runs, plan);
 			const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
 			return runs
 				.slice(from)
-				.map((run, i) => ({ ...publicRun(run), plan: matches[from + i] }))
+				.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }))
 				.reverse();
 		})(),
 		thresholds,

@@ -192,6 +192,45 @@ export function publicRun(activity) {
 }
 
 /**
+ * The same, for the one run the dashboard looks at in detail.
+ *
+ * The log carries thirty runs and draws two numbers from each, so publicRun is
+ * as narrow as that job allows. A single run being examined on its own is a
+ * different trade: the sync has already computed its splits, its time in each
+ * heart-rate zone, its decoupling and its load, and none of that is derivable
+ * in the browser from what the log carries.
+ *
+ * The privacy line is the same one shape.js draws everywhere else — nothing
+ * here is geographic. Per-kilometre pace, heart rate and grade adjustment
+ * describe an effort, not a place, and unlike the stored splits the
+ * per-kilometre elevation isn't carried: a hill profile is the one part of a
+ * split list that starts to describe a route rather than a run. The total climb
+ * is enough to read the pace by, and is already public on the log.
+ *
+ * @param {object} activity a stored, shaped activity.
+ * @returns {object|null} safe to serve.
+ */
+export function publicLastRun(activity) {
+	if (!activity) return null;
+	return {
+		...publicRun(activity),
+		elapsedTimeSec: activity.elapsedTimeSec ?? null,
+		maxHr: activity.maxHr ?? null,
+		averageCadence: activity.averageCadence ?? null,
+		load: Number.isFinite(activity.load) ? activity.load : null,
+		loadMethod: activity.loadMethod ?? null,
+		decouplingPct: activity.decouplingPct ?? null,
+		zoneSeconds: Array.isArray(activity.zoneSeconds) ? [...activity.zoneSeconds] : null,
+		splits: (activity.splits || []).map((s) => ({
+			km: s.km,
+			paceSecPerKm: s.paceSecPerKm ?? null,
+			gapPaceSecPerKm: s.gapPaceSecPerKm ?? null,
+			averageHr: s.averageHr ?? null,
+		})),
+	};
+}
+
+/**
  * Shape a batch, dropping everything that isn't a public run.
  *
  * @param {object[]} rawActivities

@@ -3,33 +3,46 @@
 // reorder.svelte.js) so it can be tested without compiling runes — this is
 // where the interesting failure cases are.
 
-/**
- * A stored layout is only usable if it is still a permutation of the panels
- * the page has today: same length, no duplicates, no unknown ids.
- */
-function isPermutationOf(stored, defaults) {
-	return stored.length === defaults.length
-		&& new Set(stored).size === stored.length
-		&& stored.every((id) => defaults.includes(id));
+/** The stored ids the page still has panels for, in the order they were saved. */
+function keepKnown(stored, defaults) {
+	const known = new Set(defaults);
+	return [...new Set(stored.filter((id) => known.has(id)))];
 }
 
 /**
- * A renamed panel, a truncated write, or a layout saved by an older version of
- * the page all fail validation and fall back to the default, which is much
- * better than rendering a grid with holes or duplicates in it.
+ * Put back whatever the stored layout didn't account for, each at the position
+ * it holds by default. A panel added since the layout was saved therefore turns
+ * up where the page meant it to be, and everything already arranged keeps its
+ * order around it.
+ */
+function withMissing(layout, defaults) {
+	const filled = [...layout];
+	for (const [idx, id] of defaults.entries()) {
+		if (!filled.includes(id)) {
+			filled.splice(Math.min(idx, filled.length), 0, id);
+		}
+	}
+	return filled;
+}
+
+/**
+ * Reconcile a stored layout with the panels the page has today.
+ *
+ * Anything that can't be trusted is discarded rather than rendered: a duplicate
+ * would draw one panel twice, an unknown id would draw a hole. What is trusted
+ * is the order — so adding or removing a panel costs the reader the position of
+ * that one panel, not the arrangement they made.
  *
  * @param {unknown} stored parsed value from storage.
  * @param {string[]} defaults the page's default order.
- * @returns {string[] | null} the layout, or null if it can't be trusted.
+ * @returns {string[] | null} a full layout, or null if there was nothing to
+ *   read at all.
  */
 function validateLayout(stored, defaults) {
 	if (!Array.isArray(stored)) {
 		return null;
 	}
-	if (!isPermutationOf(stored, defaults)) {
-		return null;
-	}
-	return [...stored];
+	return withMissing(keepKnown(stored, defaults), defaults);
 }
 
 /**
@@ -96,8 +109,4 @@ function swapSlots(layout, srcIdx, dstIdx) {
 	});
 }
 
-// Exported down here rather than inline. Static analysis reads this repo's JS
-// with a parser that predates ES modules: an `export` keyword mid-file makes
-// it lose the thread and misread everything after it, which it then reports as
-// phantom findings against the try/catch above. A trailing list parses.
 export { validateLayout, readLayout, writeLayout, swapSlots };

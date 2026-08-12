@@ -292,6 +292,25 @@ describe("buildDashboard", () => {
 		expect(out.runs[0].startDateLocal > out.runs[1].startDateLocal).toBe(true);
 	});
 
+	it("singles out the last run, with what it did to the week and to form", () => {
+		const out = buildDashboard({
+			activities: block("2026-08-11", 12),
+			plan: PLAN,
+			today: "2026-08-11",
+		});
+
+		expect(out.lastRun.date).toBe("2026-08-11");
+		expect(out.lastRun.id).toBe(out.runs[0].id);
+		expect(out.lastRun.impact.form.atlDelta).toBeGreaterThan(0);
+		expect(out.lastRun.impact.week.start).toBe("2026-08-10");
+		expect(out.lastRun.impact.load.vsTypicalPct).toBeGreaterThan(0);
+	});
+
+	it("has no last run to describe before anything is synced", () => {
+		const out = buildDashboard({ activities: [], plan: PLAN, today: "2026-08-11" });
+		expect(out.lastRun).toBeNull();
+	});
+
 	it("predicts a race time from best efforts", () => {
 		const runs = block("2026-08-11", 6);
 		runs[5].bestEfforts = [
@@ -358,5 +377,18 @@ describe("buildDashboard privacy, end to end", () => {
 		expect(json).not.toContain("polyline");
 		expect(json).not.toContain("latlng");
 		expect(json).not.toContain("43.65");
+	});
+
+	// The deep dive is the one place per-kilometre data is served, so it gets
+	// the same treatment: what it needs to draw a pace profile, and no more.
+	it("serves the last run's splits without their hill profile", () => {
+		expect(payload.lastRun.id).toBe(2);
+		expect(payload.lastRun.splits).toHaveLength(1);
+		expect(Object.keys(payload.lastRun.splits[0]).sort()).toEqual([
+			"averageHr",
+			"gapPaceSecPerKm",
+			"km",
+			"paceSecPerKm",
+		]);
 	});
 });
