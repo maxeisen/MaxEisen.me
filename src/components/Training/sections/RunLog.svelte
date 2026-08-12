@@ -19,22 +19,11 @@
     import Card from "../../../lib/ui/Card.svelte";
     import { formatDistance, formatDuration, pace, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
+    import { stravaTag } from "../lib/runTags.js";
 
     let { runs = [], total = null } = $props();
 
-    // Strava's workout_type on a run: 1 race, 2 long run, 3 workout.
-    const TAGS = { 1: "Race", 2: "Long run", 3: "Workout" };
-
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
-
-    // Strava's own label only earns space when it says something the plan
-    // match doesn't — "long run · Long run" on a row is just noise.
-    function stravaTag(run) {
-        const tag = TAGS[run.workoutType];
-        if (!tag) return null;
-        const planType = run.plan?.planned ? String(run.plan.type || "") : "";
-        return tag.toLowerCase() === planType.toLowerCase() ? null : tag;
-    }
 </script>
 
 <Card title="Runs this block" info={GLOSSARY.runs}>
@@ -52,7 +41,7 @@
     {/snippet}
 
     {#if runs.length === 0}
-        <p class="empty">Nothing synced yet.</p>
+        <p class="card-empty">Nothing synced yet.</p>
     {:else}
         <ul class="log">
             {#each runs as run (run.id)}
@@ -77,7 +66,7 @@
                                         {run.plan.type || "planned"}
                                     </span>
                                 {:else}
-                                    <span class="tag extra-tag">extra</span>
+                                    <span class="tag extra">extra</span>
                                 {/if}
                                 {#if tag}<span class="tag">{tag}</span>{/if}
                                 {#if run.averageHr}· {Math.round(run.averageHr)} bpm{/if}
@@ -160,27 +149,8 @@
         opacity: 0.7;
         margin-top: 3px;
     }
-    .tag {
-        display: inline-block;
-        padding: 1px 6px;
-        margin: 0 2px;
-        border-radius: var(--radius-pill);
-        background: var(--main-green-translucent);
-        color: var(--main-green);
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
-    .tag.plan {
-        background: var(--tone-good-bg);
-        color: var(--tone-good);
-        text-transform: lowercase;
-    }
-    .tag.extra-tag {
-        background: transparent;
-        border: 1px solid var(--main-green-translucent);
-        color: var(--paragraph-colour);
-        opacity: 0.8;
-    }
+    /* The pill itself is a card convention; a row just needs it to breathe. */
+    .tag { margin: 0 2px; }
 
     .row-stat {
         display: flex;
@@ -207,13 +177,6 @@
     .row-stat span.adjusted {
         color: var(--main-green);
         opacity: 1;
-    }
-
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
     }
 
     /* On a phone the two stat columns leave the run name barely 40px, which

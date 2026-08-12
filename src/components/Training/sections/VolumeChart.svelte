@@ -78,7 +78,7 @@
     {/snippet}
 
     {#if shown.length === 0}
-        <p class="empty">No weeks recorded yet.</p>
+        <p class="card-empty">No weeks recorded yet.</p>
     {:else}
         <ChartFrame height={190} {yTicks} {xTicks} label="Weekly running volume in kilometres against plan">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
@@ -107,7 +107,7 @@
                 {/each}
             </svg>
         </ChartFrame>
-        <p class="unit">kilometres per week</p>
+        <p class="chart-unit">kilometres per week</p>
     {/if}
 </Card>
 
@@ -161,18 +161,4 @@
         stroke-linecap: round;
     }
 
-    .unit {
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.5;
-    }
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
-    }
 </style>

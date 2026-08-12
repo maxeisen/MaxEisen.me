@@ -46,7 +46,7 @@
     {/snippet}
 
     {#if !currentWeek}
-        <p class="empty">No runs logged this week yet.</p>
+        <p class="card-empty">No runs logged this week yet.</p>
     {:else}
         <div class="metric">
             <div class="metric-head">
@@ -378,10 +378,4 @@
     }
     .week-long { opacity: 0.55; min-width: 92px; text-align: right; }
 
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
-    }
 </style>

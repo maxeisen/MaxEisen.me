@@ -87,7 +87,7 @@
     {/snippet}
 
     {#if items.length === 0}
-        <p class="empty">Not enough training data yet to say anything useful.</p>
+        <p class="card-empty">Not enough training data yet to say anything useful.</p>
     {:else}
         <ul>
             {#each items as rec (rec.id)}
@@ -116,12 +116,6 @@
         letter-spacing: 0.1em;
         color: var(--paragraph-colour);
         opacity: 0.65;
-        margin: 0;
-    }
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
         margin: 0;
     }
     ul {

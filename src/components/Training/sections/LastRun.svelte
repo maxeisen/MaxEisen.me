@@ -24,6 +24,7 @@
     import { linePath, niceScale, scaleLinear } from "../lib/chart.js";
     import { daysAgo, formatDistance, formatDuration, pace, pct, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
+    import { stravaTag as tagFor } from "../lib/runTags.js";
 
     let { run = null } = $props();
 
@@ -37,17 +38,7 @@
     // Below this the two pace lines are the same line with a wobble.
     const GAP_DIVERGENCE_SEC = 4;
 
-    // Strava's workout_type, as the run log reads it.
-    const TAGS = { 1: "Race", 2: "Long run", 3: "Workout" };
-
-    // And on the same terms as the log: Strava's label only earns space when
-    // it says something the plan match doesn't. "long run · Long run" doesn't.
-    const stravaTag = $derived.by(() => {
-        const tag = TAGS[run?.workoutType];
-        if (!tag) return null;
-        const planType = run?.plan?.planned ? String(run.plan.type || "") : "";
-        return tag.toLowerCase() === planType.toLowerCase() ? null : tag;
-    });
+    const stravaTag = $derived(tagFor(run));
 
     const splits = $derived((run?.splits || []).filter((s) => s.paceSecPerKm > 0));
 
@@ -227,7 +218,7 @@
     {/snippet}
 
     {#if !run}
-        <p class="empty">Nothing synced yet.</p>
+        <p class="card-empty">Nothing synced yet.</p>
     {:else}
         <a class="title" href="https://www.strava.com/activities/{run.id}" target="_blank" rel="noreferrer">
             {run.name}
@@ -356,26 +347,6 @@
         gap: var(--space-2);
         margin: var(--space-2) 0 0;
         font-size: var(--font-2xs);
-    }
-    .tag {
-        display: inline-block;
-        padding: 1px 6px;
-        border-radius: var(--radius-pill);
-        background: var(--main-green-translucent);
-        color: var(--main-green);
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
-    .tag.plan {
-        background: var(--tone-good-bg);
-        color: var(--tone-good);
-        text-transform: lowercase;
-    }
-    .tag.extra {
-        background: transparent;
-        border: 1px solid var(--main-green-translucent);
-        color: var(--paragraph-colour);
-        opacity: 0.8;
     }
     /* The effort a run turned out to be, which is not always the one it was
        meant to be — worth its own colour rather than another green pill. */
@@ -549,13 +520,6 @@
         font-weight: 400;
         color: var(--paragraph-colour);
         opacity: 0.65;
-    }
-
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
     }
 
     @media (max-width: 540px) {

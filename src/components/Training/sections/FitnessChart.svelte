@@ -78,7 +78,7 @@
     {/snippet}
 
     {#if sampled.length < 2}
-        <p class="empty">Not enough history to plot yet.</p>
+        <p class="card-empty">Not enough history to plot yet.</p>
     {:else}
         <ChartFrame height={210} {yTicks} {xTicks} label="Fitness, fatigue and form over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
@@ -88,7 +88,7 @@
                 <path class="line fitness" d={linePath(ctlPoints)} />
             </svg>
         </ChartFrame>
-        <p class="unit">training load · last {CHART_WEEKS} weeks</p>
+        <p class="chart-unit">training load · last {CHART_WEEKS} weeks</p>
     {/if}
 </Card>
 
@@ -125,18 +125,4 @@
         stroke-dasharray: 3 3;
     }
 
-    .unit {
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.5;
-    }
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
-    }
 </style>

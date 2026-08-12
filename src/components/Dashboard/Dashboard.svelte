@@ -161,16 +161,18 @@
        100vh and has to stop while something is being dragged out of it. */
     .dashboard.is-dragging { overflow: visible; }
 
+    /* Same surface as a training-page Card, off the same tokens — a widget
+       just also has to be a flex container that clips its own overflow. */
     :global(.widget) {
         position: relative;
-        background: var(--inner-background, rgba(0, 0, 0, 0.25));
+        background: var(--inner-background);
         border: 1px solid var(--main-green-translucent);
-        border-radius: 20px;
-        padding: 1.5rem;
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
         display: flex;
         flex-direction: column;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(var(--blur-md));
+        -webkit-backdrop-filter: blur(var(--blur-md));
         min-height: 0;
         min-width: 0;
         overflow: hidden;

@@ -129,6 +129,53 @@
 		min-width: 0;
 	}
 
+	/* Conventions for what sections put inside a card. Scoped to descendants
+	   rather than emitted globally, so they can't reach /dashboard's widgets,
+	   which are a different surface with their own empty state.
+
+	   `card-empty` was eight identical copies and `chart-unit` three before
+	   they lived here. A section that wants to differ styles its own class —
+	   these names are deliberately specific so nothing collides by accident. */
+	.card :global(.card-empty) {
+		font-size: var(--font-sm);
+		color: var(--paragraph-colour);
+		opacity: 0.7;
+		margin: 0;
+	}
+	.card :global(.chart-unit) {
+		margin: var(--space-2) 0 0;
+		font-size: var(--font-2xs);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--paragraph-colour);
+		opacity: 0.5;
+	}
+
+	/* The pill that labels a run — the same one in the run log and on the
+	   last-run panel, which is why it isn't in either. Sizing is left to the
+	   caller: it inherits the font-size of the row it sits in. */
+	.card :global(.tag) {
+		display: inline-block;
+		padding: 1px 6px;
+		border-radius: var(--radius-pill);
+		background: var(--main-green-translucent);
+		color: var(--main-green);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+	}
+	/* Ran what was asked for, versus ran something extra. */
+	.card :global(.tag.plan) {
+		background: var(--tone-good-bg);
+		color: var(--tone-good);
+		text-transform: lowercase;
+	}
+	.card :global(.tag.extra) {
+		background: transparent;
+		border: 1px solid var(--main-green-translucent);
+		color: var(--paragraph-colour);
+		opacity: 0.8;
+	}
+
 	.info-btn {
 		flex: none;
 		width: 1.2rem;
