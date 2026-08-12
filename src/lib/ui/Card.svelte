@@ -55,7 +55,16 @@
 						aria-controls={panelId}
 						aria-label={open ? `Hide what ${title} means` : `What does ${title} mean?`}
 						onclick={() => (open = !open)}
-					>i</button>
+					>
+						<!-- Drawn rather than set: a lowercase "i" sits on its
+						     own baseline with a stem that doesn't fill the em
+						     box, so centring the glyph in a circle by line
+						     height always leaves it a pixel or two high. -->
+						<svg viewBox="0 0 16 16" aria-hidden="true">
+							<circle cx="8" cy="4.6" r="1.15" />
+							<rect x="6.85" y="7.2" width="2.3" height="5.4" rx="1.15" />
+						</svg>
+					</button>
 				{/if}
 			</svelte:element>
 			{#if aside}
@@ -122,8 +131,8 @@
 
 	.info-btn {
 		flex: none;
-		width: 1.15rem;
-		height: 1.15rem;
+		width: 1.2rem;
+		height: 1.2rem;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -132,14 +141,16 @@
 		border-radius: 50%;
 		background: transparent;
 		color: var(--main-green);
-		font-family: var(--font-serif);
-		font-size: 0.72rem;
-		font-style: italic;
-		font-weight: 700;
-		line-height: 1;
+		line-height: 0;
 		cursor: pointer;
 		opacity: 0.75;
 		transition: opacity 0.15s ease, background-color 0.15s ease;
+	}
+	.info-btn svg {
+		width: 68%;
+		height: 68%;
+		display: block;
+		fill: currentColor;
 	}
 	.info-btn:hover, .info-btn:focus-visible { opacity: 1; background: var(--main-green-translucent); }
 	.info-btn.open {

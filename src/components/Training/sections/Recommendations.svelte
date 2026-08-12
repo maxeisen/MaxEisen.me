@@ -17,10 +17,10 @@
     let { recommendations = [] } = $props();
 
     const SEVERITY = {
-        critical: { label: "Act now", tone: "bad", icon: "!" },
-        warning: { label: "Watch", tone: "warn", icon: "▲" },
-        info: { label: "Note", tone: "info", icon: "i" },
-        good: { label: "On track", tone: "good", icon: "✓" },
+        critical: { label: "Act now", tone: "bad", icon: "alert" },
+        warning: { label: "Watch", tone: "warn", icon: "warn" },
+        info: { label: "Note", tone: "info", icon: "info" },
+        good: { label: "On track", tone: "good", icon: "check" },
     };
 
     const items = $derived(
@@ -44,6 +44,35 @@
     }
 </script>
 
+<!--
+    Outline marks on a 16-unit box rather than typographic glyphs: "✓", "!" and
+    "▲" are set on a text baseline at different heights and optical weights, so
+    no amount of line-height gets all four sitting square in the same badge.
+    Shape carries the severity as well as colour does — the triangle is the one
+    you look for — which is what makes the ranking readable without relying on
+    hue at all.
+-->
+{#snippet glyph(kind)}
+    <svg class="rec-icon" viewBox="0 0 16 16" aria-hidden="true">
+        {#if kind === "warn"}
+            <path d="M8 2.6 L14.6 13.4 H1.4 Z" />
+            <path d="M8 6.4 V9.6" />
+            <circle class="dot" cx="8" cy="11.5" r="0.85" />
+        {:else}
+            <circle cx="8" cy="8" r="6.2" />
+            {#if kind === "check"}
+                <path d="M5 8.3 L7.1 10.4 L11 5.9" />
+            {:else if kind === "alert"}
+                <path d="M8 4.4 V8.6" />
+                <circle class="dot" cx="8" cy="11" r="0.85" />
+            {:else}
+                <circle class="dot" cx="8" cy="5" r="0.85" />
+                <path d="M8 7.4 V11.6" />
+            {/if}
+        {/if}
+    </svg>
+{/snippet}
+
 <Card title="What to do about it" info={GLOSSARY.recommendations}>
     {#snippet aside()}
         {#if counts.total > 0}
@@ -65,7 +94,7 @@
                 <li class="rec tone-{rec.meta.tone}">
                     <div class="rec-head">
                         <span class="rec-badge">
-                            <span class="rec-icon" aria-hidden="true">{rec.meta.icon}</span>
+                            {@render glyph(rec.meta.icon)}
                             {rec.meta.label}
                         </span>
                         {#if readout(rec)}
@@ -131,8 +160,8 @@
     .rec-badge {
         display: inline-flex;
         align-items: center;
-        gap: var(--space-2);
-        padding: 3px var(--space-2) 3px 5px;
+        gap: 5px;
+        padding: 3px var(--space-2) 3px 6px;
         border-radius: var(--radius-pill);
         background: var(--tone-bg);
         font-size: var(--font-2xs);
@@ -142,19 +171,19 @@
         color: var(--tone);
     }
     .rec-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.1em;
-        height: 1.1em;
-        border-radius: 50%;
-        background: var(--tone);
-        color: var(--badge-text-colour);
-        font-size: 0.85em;
-        font-weight: 700;
-        line-height: 1;
-        /* The glyphs are different sizes; nudge them onto the same centre. */
-        text-indent: 0.02em;
+        flex: none;
+        width: 1.25em;
+        height: 1.25em;
+        display: block;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .rec-icon .dot {
+        fill: currentColor;
+        stroke: none;
     }
 
     .rec-metric {
