@@ -80,7 +80,7 @@
 {/if}
 
 <div
-    class="dashboard"
+    class="dashboard drag-grid"
     class:is-editing={edit.isEditing}
     class:is-dragging={reorder.isDragging}
     bind:this={dashboardEl}
@@ -95,7 +95,7 @@
         >
             {#if cfg.kind === "a"}
                 <a
-                    class="widget widget-{widgetId}"
+                    class="widget drag-tile widget-{widgetId}"
                     class:dragging={reorder.draggingId === widgetId}
                     data-widget={widgetId}
                     href={cfg.href}
@@ -106,7 +106,7 @@
                 </a>
             {:else}
                 <div
-                    class="widget widget-{widgetId}"
+                    class="widget drag-tile widget-{widgetId}"
                     class:dragging={reorder.draggingId === widgetId}
                     data-widget={widgetId}
                     style:transform={reorder.transformFor(widgetId)}
@@ -155,9 +155,11 @@
         max-width: 1800px;
         margin: 0 auto;
     }
+    /* The grab cursor, the swallowed gestures and the jiggle are in global.css
+       under "Rearrangeable grids", shared with /training. What's left here is
+       what this page does differently — starting with a grid that clips at
+       100vh and has to stop while something is being dragged out of it. */
     .dashboard.is-dragging { overflow: visible; }
-    .dashboard.is-dragging,
-    .dashboard.is-dragging :global(*) { cursor: grabbing !important; }
 
     :global(.widget) {
         position: relative;
@@ -202,15 +204,15 @@
     }
     :global(.profile-link:hover) { opacity: 1; }
 
+    /* Widgets fill their slot edge to edge, so the drop outline is drawn
+       inside them; the treatment itself is in global.css. */
     .slot {
         display: flex;
         min-width: 0;
         min-height: 0;
         position: relative;
-        border-radius: 20px;
-        transition: outline 0.15s ease;
-        outline: 2px dashed transparent;
-        outline-offset: -8px;
+        --drop-outline-offset: -8px;
+        --drop-outline-radius: 20px;
         container-type: size;
         container-name: slot;
     }
@@ -222,20 +224,12 @@
         height: 100%;
         min-width: 0;
         min-height: 0;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        -webkit-user-select: none;
     }
     .slot > :global(.widget.dragging) {
-        cursor: grabbing;
-        opacity: 0.92;
         box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
         z-index: 1000;
         transition: box-shadow 0.15s ease;
-        pointer-events: none;
     }
-    .slot.drop-target { outline-color: var(--main-green); }
 
     .slot > :global(.widget-gallery) {
         padding: 0;
@@ -327,24 +321,14 @@
     }
 
     /* === edit mode (mobile only) ===
-       The toggle itself is lib/ui/EditToggle; the jiggle keyframes are in
-       global.css, shared with /training. Odd/even slots take different ones
-       so the grid doesn't rock in lockstep. */
-    .dashboard.is-editing .slot > :global(.widget) {
-        animation: edit-jiggle-a 0.42s ease-in-out infinite;
-        transform-origin: center;
-        will-change: transform;
-    }
-    .dashboard.is-editing .slot:nth-child(odd) > :global(.widget) {
+       The toggle is lib/ui/EditToggle and the jiggle is in global.css, both
+       shared with /training. Alternate slots take the second of the two, so
+       the grid doesn't rock in lockstep — this page alternates by slot,
+       /training by column. */
+    .dashboard.is-editing .slot:nth-child(odd) > :global(.widget:not(.dragging)) {
         animation-name: edit-jiggle-b;
         animation-duration: 0.46s;
         animation-delay: -0.18s;
-    }
-    .dashboard.is-editing .slot > :global(.widget.dragging) { animation: none; }
-
-    @media (prefers-reduced-motion: reduce) {
-        .dashboard.is-editing .slot > :global(.widget),
-        .dashboard.is-editing .slot:nth-child(odd) > :global(.widget) { animation: none; }
     }
 
     @media (max-width: 1100px) {

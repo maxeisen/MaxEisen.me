@@ -129,7 +129,7 @@
         data-slot-index={idx}
     >
         <div
-            class="panel"
+            class="panel drag-tile"
             class:dragging={reorder.draggingId === id}
             data-panel={id}
             style:transform={reorder.transformFor(id)}
@@ -183,7 +183,7 @@
         <SyncNotice sync={data.sync} runCount={data.runs?.length ?? 0} />
 
         <div
-            class="grid"
+            class="grid drag-grid"
             class:is-editing={edit.isEditing}
             class:is-dragging={reorder.isDragging}
             id="training-grid"
@@ -249,57 +249,32 @@
     }
     .col-full { grid-column: 1 / -1; }
 
-    /* The drop outline fades in rather than snapping on, as it does on the
-       dashboard: it's declared transparent here and coloured in below. */
+    /* Cards sit inside their slot, so the drop outline goes outside rather
+       than inset the way the dashboard's does. */
     .slot {
         min-width: 0;
-        outline: 2px dashed transparent;
-        outline-offset: 3px;
-        border-radius: var(--radius-xl);
-        transition: outline 0.15s ease;
+        --drop-outline-offset: 3px;
+        --drop-outline-radius: var(--radius-xl);
     }
-    /* Same affordances as a dashboard widget: the whole panel is the handle,
-       and a press that turns into a drag mustn't start selecting text on the
-       way. Both are lifted once the layout collapses, where dragging waits
-       for the Edit toggle. */
+    /* The grab cursor, the swallowed gestures and the jiggle are in
+       global.css under "Rearrangeable grids", shared with /dashboard. What's
+       left here is what this page does differently. */
     .panel {
         position: relative;
         min-width: 0;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        -webkit-user-select: none;
     }
     .panel.dragging {
-        /* pointer-events off so elementFromPoint finds the slot underneath. */
-        pointer-events: none;
         z-index: 20;
-        opacity: 0.92;
-        cursor: grabbing;
         /* The card surfaces are translucent, so a panel in flight would
            otherwise read as part of whatever it's passing over. */
         filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.35));
     }
-    .grid.is-dragging,
-    .grid.is-dragging :global(*) { cursor: grabbing !important; }
-    .slot.drop-target { outline-color: var(--main-green); }
-
-    /* Jiggle keyframes are in global.css, shared with /dashboard; the columns
-       alternate so the page doesn't rock in lockstep. */
-    .grid.is-editing .panel {
-        animation: edit-jiggle-a 0.42s ease-in-out infinite;
-        transform-origin: center;
-        will-change: transform;
-    }
-    .grid.is-editing .col:nth-child(even) .panel {
+    /* The second column takes the other jiggle, so the page doesn't rock in
+       lockstep — the dashboard alternates by slot, this by column. */
+    .grid.is-editing .col:nth-child(even) .panel:not(.dragging) {
         animation-name: edit-jiggle-b;
         animation-duration: 0.46s;
         animation-delay: -0.18s;
-    }
-    .grid.is-editing .panel.dragging { animation: none; }
-    @media (prefers-reduced-motion: reduce) {
-        .grid.is-editing .panel,
-        .grid.is-editing .col:nth-child(even) .panel { animation: none; }
     }
 
     @media (max-width: 1100px) {
