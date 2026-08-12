@@ -115,6 +115,12 @@ outline. A page opts in by marking its container `drag-grid` and its tiles
 not per-component: those rules are the feel of the thing, and keeping a copy
 each is how the two pages came to behave differently in the first place.
 
+Because the slots are fixed, the columns are independent: a heavy one just ends
+further down the page rather than pulling anything up beside it. So `/training`'s
+default order is balanced by measured height as well as by subject, and an e2e
+test holds the two columns to within a quarter of each other — hand-balancing is
+the kind of thing that rots quietly the next time a panel is added.
+
 What a page still says for itself is what genuinely differs: where its layout
 collapses (1100px, 860px), which tiles take the second jiggle so the grid
 doesn't rock in lockstep (by slot on the dashboard, by column on training), the

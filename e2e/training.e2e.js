@@ -102,6 +102,23 @@ test("the week's long run is a day rather than a bar that fills up all week", as
 	await expect(longRun).toContainText("20 km");
 });
 
+test("neither column runs on far past the other", async ({ page }) => {
+	// The columns are independent, so a heavy one simply ends further down the
+	// page: with the two tallest panels both on the left it finished a
+	// thousand pixels below the right. The default order is hand-balanced,
+	// which is exactly the kind of thing that rots quietly when a panel is
+	// added, so the tolerance here is wide enough to allow real variation and
+	// tight enough to notice a column of leftovers.
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto("/training");
+
+	const [left, right] = await page
+		.locator("#training-grid .col:not(.col-full)")
+		.evaluateAll((cols) => cols.map((col) => col.getBoundingClientRect().height));
+
+	expect(Math.min(left, right) / Math.max(left, right)).toBeGreaterThan(0.75);
+});
+
 test("the charts are labelled with the values they plot", async ({ page }) => {
 	await page.goto("/training");
 	const volume = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
