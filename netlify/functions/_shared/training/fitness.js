@@ -32,6 +32,8 @@ export const ACWR_CEILING = 1.5;
 // The conventional cap on week-over-week volume growth.
 export const SAFE_RAMP_PCT = 10;
 
+const asMap = (loads) => (loads instanceof Map ? loads : new Map(Object.entries(loads || {})));
+
 /**
  * Daily fitness/fatigue/form series across a date range.
  *
@@ -39,12 +41,21 @@ export const SAFE_RAMP_PCT = 10;
  * what lets fatigue actually decay during a taper — so the range is filled in
  * densely rather than iterating only the days that have activities.
  *
- * @param {Map<string, number>|object} loadsByDay day key to total load.
- * @param {{from: string, to: string}} range
+ * Fitness and fatigue can be fed from different books. Cross-training is the
+ * reason: a long ride genuinely costs you recovery, so it belongs in fatigue,
+ * but it builds none of the running-specific durability that CTL is standing in
+ * for here, and letting it inflate fitness would flatter a marathon build for
+ * work the legs never did. Pass `fatigueLoadsByDay` to say "these days cost
+ * this much, even though only some of it was running".
+ *
+ * @param {Map<string, number>|object} loadsByDay day key to running load.
+ * @param {{from: string, to: string, fatigueLoadsByDay?: Map<string, number>|object}} range
  * @returns {{date: string, load: number, ctl: number, atl: number, tsb: number}[]}
+ *   `load` is the running load for the day; fatigue may have been fed more.
  */
-export function fitnessSeries(loadsByDay, { from, to }) {
-	const lookup = loadsByDay instanceof Map ? loadsByDay : new Map(Object.entries(loadsByDay || {}));
+export function fitnessSeries(loadsByDay, { from, to, fatigueLoadsByDay = null }) {
+	const lookup = asMap(loadsByDay);
+	const fatigueLookup = fatigueLoadsByDay ? asMap(fatigueLoadsByDay) : lookup;
 	const days = eachDay(from, to);
 	if (days.length === 0) return [];
 
@@ -58,7 +69,7 @@ export function fitnessSeries(loadsByDay, { from, to }) {
 		const tsb = ctl - atl;
 		const load = Number(lookup.get(date)) || 0;
 		ctl += (load - ctl) * ctlAlpha;
-		atl += (load - atl) * atlAlpha;
+		atl += ((Number(fatigueLookup.get(date)) || 0) - atl) * atlAlpha;
 		return { date, load, ctl, atl, tsb };
 	});
 }

@@ -28,6 +28,18 @@ import { toDayKey } from "./dates.js";
 // (VirtualRun) — the training stress is real even if the GPS isn't.
 const RUN_TYPES = new Set(["Run", "TrailRun", "VirtualRun"]);
 
+// Rides are tracked for one reason: they cost recovery. They build no
+// running-specific durability, so they're kept well away from weekly volume,
+// long-run share and the acute:chronic ratio (see metrics.js) — they only ever
+// reach fatigue.
+const RIDE_TYPES = new Set(["Ride", "GravelRide", "MountainBikeRide", "VirtualRide"]);
+
+// Below this a ride is transport, not training. A few kilometres to the office
+// costs nothing worth modelling, and letting commutes through would put a small
+// bump of fatigue on most weekdays — enough to drag form down and make the
+// model answer for rides that were never training in the first place.
+export const RIDE_MIN_M = 20000;
+
 // Stamped onto every stored record. Several fields here are derived at sync
 // time from streams we don't keep (zone seconds, decoupling, GAP), so changing
 // how they're computed can't retroactively fix what's already in Blobs. Bumping
@@ -37,7 +49,8 @@ const RUN_TYPES = new Set(["Run", "TrailRun", "VirtualRun"]);
 // Bump on any change to the derived fields below or the maths behind them.
 // 2: HR zone floors moved to heart-rate reserve; GAP anchored to moving time
 //    and no longer thrown off by stopped time or GPS jumps.
-export const SHAPE_VERSION = 2;
+// 3: records carry `sport`, and rides over RIDE_MIN_M are tracked.
+export const SHAPE_VERSION = 3;
 
 /**
  * Is this a public run we should track?
@@ -48,6 +61,28 @@ export const SHAPE_VERSION = 2;
 export function isTrackableRun(raw) {
 	if (!raw || raw.private === true) return false;
 	return RUN_TYPES.has(raw.sport_type || raw.type);
+}
+
+/**
+ * Is this a ride long enough to have cost anything?
+ *
+ * @param {object} raw a Strava summary or detailed activity.
+ * @returns {boolean}
+ */
+export function isTrackableRide(raw) {
+	if (!raw || raw.private === true) return false;
+	if (!RIDE_TYPES.has(raw.sport_type || raw.type)) return false;
+	return (reading(raw.distance) || 0) > RIDE_MIN_M;
+}
+
+/**
+ * Is this anything the dashboard tracks at all?
+ *
+ * @param {object} raw a Strava summary or detailed activity.
+ * @returns {boolean}
+ */
+export function isTrackableActivity(raw) {
+	return isTrackableRun(raw) || isTrackableRide(raw);
 }
 
 // What counts as a kilometre when reading splits. A run almost never ends on a
@@ -111,7 +146,8 @@ function shapeBestEfforts(efforts, startDateLocal) {
  *   carries nothing measurable.
  */
 export function shapeActivity(raw, options = {}) {
-	if (!isTrackableRun(raw)) return null;
+	const isRide = isTrackableRide(raw);
+	if (!isRide && !isTrackableRun(raw)) return null;
 
 	const { streams = null, thresholds = {}, athleteZones = null } = options;
 
@@ -119,17 +155,23 @@ export function shapeActivity(raw, options = {}) {
 	const movingTimeSec = reading(raw.moving_time) || 0;
 	if (!(distanceM > 0) || !(movingTimeSec > 0)) return null;
 
-	const splits = shapeSplits(raw.splits_metric);
-	const gap = activityGap({
-		streams,
-		splits: raw.splits_metric,
-		distanceM,
-		movingTimeSec,
-	});
+	// Pace, grade adjustment, per-kilometre splits and best efforts are all
+	// foot-running measures. A bike's versions would be arithmetically valid
+	// and thoroughly misleading sitting in a column beside a run's, so a ride
+	// carries none of them rather than carrying numbers nobody should read.
+	const splits = isRide ? [] : shapeSplits(raw.splits_metric);
+	const gap = isRide
+		? null
+		: activityGap({
+				streams,
+				splits: raw.splits_metric,
+				distanceM,
+				movingTimeSec,
+			});
 
 	const floors = hrZoneFloors(thresholds, athleteZones);
 	const zoneSeconds = floors ? zoneSecondsFromStreams(streams, floors) : null;
-	const decoupling = aerobicDecoupling(streams);
+	const decoupling = isRide ? null : aerobicDecoupling(streams);
 
 	const averageHr = Number.isFinite(reading(raw.average_heartrate))
 		? reading(raw.average_heartrate)
@@ -138,7 +180,8 @@ export function shapeActivity(raw, options = {}) {
 	const shaped = {
 		id: raw.id,
 		v: SHAPE_VERSION,
-		name: String(raw.name || "Run"),
+		name: String(raw.name || (isRide ? "Ride" : "Run")),
+		sport: isRide ? "ride" : "run",
 		type: raw.sport_type || raw.type,
 		startDateLocal: raw.start_date_local || raw.start_date || null,
 		distanceM,
@@ -151,13 +194,15 @@ export function shapeActivity(raw, options = {}) {
 		sufferScore: Number.isFinite(reading(raw.suffer_score)) ? reading(raw.suffer_score) : null,
 		// 1 = race, 2 = long run, 3 = workout, 0/null = default.
 		workoutType: Number.isFinite(reading(raw.workout_type)) ? reading(raw.workout_type) : null,
-		paceSecPerKm: movingTimeSec / (distanceM / 1000),
+		paceSecPerKm: isRide ? null : movingTimeSec / (distanceM / 1000),
 		gapPaceSecPerKm: gap?.gapPaceSecPerKm ?? null,
 		gapSource: gap?.source ?? null,
 		zoneSeconds,
 		decouplingPct: decoupling?.decouplingPct ?? null,
 		splits,
-		bestEfforts: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
+		bestEfforts: isRide
+			? []
+			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
 	};
 
 	const load = activityLoad(shaped, thresholds);
@@ -186,6 +231,9 @@ export function publicRun(activity) {
 	return {
 		id: activity?.id,
 		name: activity?.name,
+		// Records written before rides were tracked have no `sport`, and every
+		// one of them is a run.
+		sport: activity?.sport === "ride" ? "ride" : "run",
 		type: activity?.type,
 		startDateLocal: activity?.startDateLocal,
 		distanceM: activity?.distanceM,
@@ -195,6 +243,9 @@ export function publicRun(activity) {
 		workoutType: activity?.workoutType,
 		paceSecPerKm: activity?.paceSecPerKm,
 		gapPaceSecPerKm: activity?.gapPaceSecPerKm,
+		// What the session cost. It's the only thing a ride has to say for
+		// itself in the log, and it describes an effort rather than a place.
+		load: activity?.load,
 	};
 }
 

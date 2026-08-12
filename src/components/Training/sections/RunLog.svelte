@@ -24,18 +24,36 @@
     let { runs = [], total = null } = $props();
 
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
+    const runCount = $derived(runs.filter((r) => r.sport !== "ride").length);
+    const rideCount = $derived(runs.filter((r) => r.sport === "ride").length);
+
+    // What a ride actually did to the training, spelled out. It's the one row
+    // type whose numbers need explaining, because the honest answer is that
+    // most of the page ignored it on purpose.
+    const RIDE_NOTE =
+        "Counts as fatigue only: a ride costs recovery, but builds no running-specific"
+        + " durability, so it adds nothing to weekly volume, fitness or injury risk.";
+
+    // Load comes from heart rate, which is the one measure that means the same
+    // thing on a bike as on foot. Without it there's nothing to score a ride
+    // by — running pace would just mint load out of bikes being faster — so it
+    // counts for nothing at all rather than for a guess.
+    const RIDE_UNSCORED =
+        "No heart rate recorded, so this ride is left unscored rather than guessed at from"
+        + " running pace. It adds nothing to the model.";
 </script>
 
 <Card title="Runs this block" info={GLOSSARY.runs}>
     {#snippet aside()}
         {#if runs.length}
             <span class="count">
-                {#if Number.isFinite(total) && total > runs.length}
-                    latest {runs.length} of {total}
+                {#if Number.isFinite(total) && total > runCount}
+                    latest {runCount} of {total}
                 {:else}
-                    {runs.length} runs
+                    {runCount} runs
                 {/if}
                 · {plannedCount} planned
+                {#if rideCount}· {rideCount} {rideCount === 1 ? "ride" : "rides"}{/if}
             </span>
         {/if}
     {/snippet}
@@ -45,6 +63,7 @@
     {:else}
         <ul class="log">
             {#each runs as run (run.id)}
+                {@const isRide = run.sport === "ride"}
                 {@const tag = stravaTag(run)}
                 {@const planned = run.plan?.planned === true}
                 {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
@@ -52,7 +71,8 @@
                 <li>
                     <a
                         class="row"
-                        class:extra={!planned}
+                        class:extra={!planned && !isRide}
+                        class:ride={isRide}
                         href="https://www.strava.com/activities/{run.id}"
                         target="_blank"
                         rel="noreferrer"
@@ -61,14 +81,16 @@
                             <span class="row-name">{run.name}</span>
                             <span class="row-meta">
                                 {shortDate(run.startDateLocal)}
-                                {#if planned}
+                                {#if isRide}
+                                    <span class="tag ride-tag" title={RIDE_NOTE}>ride</span>
+                                {:else if planned}
                                     <span class="tag plan" title={run.plan.detail || ""}>
                                         {run.plan.type || "planned"}
                                     </span>
                                 {:else}
                                     <span class="tag extra">extra</span>
                                 {/if}
-                                {#if tag}<span class="tag">{tag}</span>{/if}
+                                {#if tag && !isRide}<span class="tag">{tag}</span>{/if}
                                 {#if run.averageHr}· {Math.round(run.averageHr)} bpm{/if}
                                 {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
                             </span>
@@ -80,10 +102,24 @@
                         </div>
 
                         <div class="row-stat">
-                            <strong>{pace(run.paceSecPerKm)}</strong>
-                            <span class:adjusted={hilly}>
-                                {Number.isFinite(run.gapPaceSecPerKm) ? `${pace(run.gapPaceSecPerKm)} GAP` : "—"}
-                            </span>
+                            {#if isRide}
+                                <!-- A ride has no pace worth putting beside a
+                                     run's, so the column says what it did
+                                     instead of what it ran. An unscored ride
+                                     says so rather than showing a 0, which
+                                     would read as "this cost nothing" when it
+                                     means "this couldn't be measured". -->
+                                {@const scored = run.load > 0}
+                                <strong>{scored ? Math.round(run.load) : "—"}</strong>
+                                <span class="cost" title={scored ? RIDE_NOTE : RIDE_UNSCORED}>
+                                    {scored ? "fatigue only" : "no heart rate"}
+                                </span>
+                            {:else}
+                                <strong>{pace(run.paceSecPerKm)}</strong>
+                                <span class:adjusted={hilly}>
+                                    {Number.isFinite(run.gapPaceSecPerKm) ? `${pace(run.gapPaceSecPerKm)} GAP` : "—"}
+                                </span>
+                            {/if}
                         </div>
                     </a>
                 </li>
@@ -128,6 +164,9 @@
     /* Runs the plan didn't ask for still belong here, but shouldn't read with
        the same weight as the sessions that were the point of the week. */
     .row.extra { border-left-color: transparent; }
+    /* A ride is context rather than training, so it sits a step back from even
+       an unplanned run: dashed edge, and the whole row a touch quieter. */
+    .row.ride { border-left-style: dashed; border-left-color: var(--paragraph-colour); opacity: 0.75; }
     .row:hover { background: var(--main-green-translucent); }
 
     .row-main { flex: 1; min-width: 0; }
@@ -151,6 +190,16 @@
     }
     /* The pill itself is a card convention; a row just needs it to breathe. */
     .tag { margin: 0 2px; }
+    /* Its own tag rather than borrowing "extra", which already means a run the
+       plan didn't ask for. A ride isn't a run at all. Local rather than a card
+       convention because this is the only panel that shows one. */
+    .tag.ride-tag {
+        background: transparent;
+        border: 1px dashed var(--paragraph-colour);
+        color: var(--paragraph-colour);
+        text-transform: lowercase;
+        opacity: 0.9;
+    }
 
     .row-stat {
         display: flex;
@@ -172,6 +221,9 @@
         color: var(--paragraph-colour);
         opacity: 0.65;
     }
+    /* Says which book the number went into, since it isn't the one every
+       other row's numbers went into. */
+    .row-stat span.cost { font-style: italic; }
     /* Highlight GAP only when it actually differs from raw pace — otherwise
        it's noise on a flat run. */
     .row-stat span.adjusted {

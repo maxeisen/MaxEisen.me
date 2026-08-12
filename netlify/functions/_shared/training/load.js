@@ -120,6 +120,13 @@ export function activityLoad(activity, thresholds = {}) {
 	const trimp = banisterTrimp(durationSec, activity?.averageHr, thresholds);
 	if (trimp !== null) return { load: normalizeTrimp(trimp), method: "hr" };
 
+	// TRIMP is the one part of this model that doesn't care which sport you
+	// did — heart-rate reserve is heart-rate reserve. The fallback below very
+	// much does care: it reads a threshold *running* pace, so applying it to a
+	// bike would invent load out of the fact that bikes are faster. A ride
+	// without heart rate is therefore unscored rather than guessed at.
+	if (activity?.sport === "ride") return null;
+
 	const gap =
 		Number(activity?.gapPaceSecPerKm) ||
 		activityGap(activity)?.gapPaceSecPerKm ||

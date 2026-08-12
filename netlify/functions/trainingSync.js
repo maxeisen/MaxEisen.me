@@ -24,7 +24,12 @@
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { STRAVA_API_BASE, callsRemaining, getAccessToken, readQuota } from "./_shared/strava.js";
-import { SHAPE_VERSION, isTrackableRun, shapeActivity } from "./_shared/training/shape.js";
+import {
+	SHAPE_VERSION,
+	isTrackableActivity,
+	isTrackableRide,
+	shapeActivity,
+} from "./_shared/training/shape.js";
 import { loadPlan } from "./_shared/training/planFile.js";
 import {
 	ATHLETE_KEY,
@@ -206,9 +211,9 @@ export default async function handler(req) {
 
 	const thresholds = plan.thresholds;
 
-	// Private runs and other sports are dropped here, before we spend any
-	// upstream budget enriching them.
-	const candidates = summaries.filter(isTrackableRun);
+	// Private activities, other sports and short rides are dropped here, before
+	// we spend any upstream budget enriching them.
+	const candidates = summaries.filter(isTrackableActivity);
 
 	// Anything we've never seen, plus anything shaped by an older version of
 	// the shaping logic. Version checking is what makes a re-shape finish:
@@ -243,6 +248,16 @@ export default async function handler(req) {
 	let quotaPaused = false;
 	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (summary) => {
 		if (rateLimited) return null;
+
+		// A ride is complete as it stands. Everything the detailed activity
+		// and the streams would add — splits, best efforts, grade-adjusted
+		// pace, decoupling — is a running measure a ride doesn't carry, so it
+		// shapes straight from the summary for no API calls at all. Tracking
+		// rides therefore takes nothing from the budget the runs need.
+		if (isTrackableRide(summary)) {
+			return shapeActivity(summary, { thresholds, athleteZones: zones });
+		}
+
 		if (Date.now() > deadline) {
 			timedOut = true;
 			return null;
