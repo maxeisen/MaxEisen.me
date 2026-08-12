@@ -69,7 +69,7 @@
     {/snippet}
 
     {#if points.length < 2}
-        <p class="empty">Not enough aerobic runs with heart rate in the last {CHART_WEEKS} weeks to plot yet.</p>
+        <p class="card-empty">Not enough aerobic runs with heart rate in the last {CHART_WEEKS} weeks to plot yet.</p>
     {:else}
         <ChartFrame height={160} {yTicks} {xTicks} label="Efficiency factor per aerobic run over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
@@ -79,7 +79,7 @@
                 <path class="line" d={linePath(line)} />
             </svg>
         </ChartFrame>
-        <p class="unit">speed per heartbeat · {points.length} aerobic runs in the last {CHART_WEEKS} weeks</p>
+        <p class="chart-unit">speed per heartbeat · {points.length} aerobic runs in the last {CHART_WEEKS} weeks</p>
 
         <p class="note">
             {#if change !== null && change > 1}
@@ -122,14 +122,6 @@
         vector-effect: non-scaling-stroke;
     }
 
-    .unit {
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.5;
-    }
     .note {
         margin: var(--space-3) 0 0;
         font-size: var(--font-xs);
@@ -137,11 +129,5 @@
         color: var(--paragraph-colour);
         opacity: 0.75;
         max-width: 70ch;
-    }
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
     }
 </style>

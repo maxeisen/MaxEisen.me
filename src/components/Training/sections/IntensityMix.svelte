@@ -28,7 +28,7 @@
     {/snippet}
 
     {#if total === 0}
-        <p class="empty">No runs in the last four weeks.</p>
+        <p class="card-empty">No runs in the last four weeks.</p>
     {:else}
         <div class="bar" role="img" aria-label="Share of running time by intensity band">
             {#each bands as band}
@@ -134,10 +134,4 @@
         margin: var(--space-4) 0 0 0;
     }
     .verdict.good { color: var(--tone-good); opacity: 1; }
-    .empty {
-        font-size: var(--font-sm);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
-    }
 </style>

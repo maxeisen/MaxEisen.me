@@ -37,6 +37,10 @@
 
     const ENDPOINT = "/.netlify/functions/trainingData";
 
+    // The raw feed behind all of this, for anyone who wants to check the work.
+    // /dashboard's Strava widget used to point here; it now points at this page.
+    const STRAVA_PROFILE = "https://www.strava.com/athletes/92118908";
+
     // Slots 0–4 are the wide column, 5–8 the narrow one, 9 the full-width
     // row underneath. A panel can sit in any of them; the charts and the run
     // log all reflow to their container, so a "narrow" chart is a narrower
@@ -111,7 +115,6 @@
     }
 
     onMount(() => {
-        document.body.classList.add("training-page");
         reorder.restore();
         edit.listen();
         load();
@@ -125,7 +128,6 @@
     onDestroy(() => {
         stopPoll?.();
         edit.stop();
-        document.body.classList.remove("training-page");
     });
 </script>
 
@@ -221,6 +223,9 @@
                 heart-rate reserve, pace adjusted for gradient, and every recommendation shows the
                 number that triggered it. No route maps here by design.
             </p>
+            <p class="links">
+                <a href={STRAVA_PROFILE} target="_blank" rel="noreferrer">Strava profile ↗</a>
+            </p>
             {#if data.generatedAt}
                 <p class="stamp">Updated {new Date(data.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>
             {/if}
@@ -315,5 +320,14 @@
         margin: 0;
         max-width: 70ch;
     }
+    .links { margin-top: var(--space-3) !important; opacity: 1 !important; }
+    .links a {
+        font-size: var(--font-xs);
+        color: var(--main-green);
+        text-decoration: none;
+        opacity: 0.85;
+        transition: opacity 0.15s ease;
+    }
+    .links a:hover, .links a:focus-visible { opacity: 1; text-decoration: underline; }
     .stamp { margin-top: var(--space-2) !important; opacity: 0.45 !important; }
 </style>
