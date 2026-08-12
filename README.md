@@ -100,10 +100,24 @@ is free while the layout is wide enough to be pointer-driven, and behind the
 how you scroll. It also owns the capture-phase click suppression that keeps a
 drag from opening whatever it finished on, and keeps taps inert while editing —
 the iOS jiggle-mode rule. `createRearrangeable()` hands back a reorder instance
-and its edit mode already wired together; the only thing the two pages set
-differently is where their own layout collapses (1100px, 860px). The jiggle
-keyframes are in `global.css`, since keyframes declared inside a component are
-scoped to it and these belong to both.
+and its edit mode already wired together.
+
+The styling is shared the same way, under "Rearrangeable grids" in
+`global.css`: the grab cursor, the gestures a tile swallows so a press-and-drag
+isn't read as a scroll, how it looks in flight, the jiggle, and the dashed drop
+outline. A page opts in by marking its container `drag-grid` and its tiles
+`drag-tile`; the classes the drag sets — `is-dragging`, `is-editing`,
+`dragging`, `drop-target` — mean the same thing on both. That's deliberately
+not per-component: those rules are the feel of the thing, and keeping a copy
+each is how the two pages came to behave differently in the first place.
+
+What a page still says for itself is what genuinely differs: where its layout
+collapses (1100px, 860px), which tiles take the second jiggle so the grid
+doesn't rock in lockstep (by slot on the dashboard, by column on training), the
+shadow a tile lifts with (opaque widgets want a `box-shadow`, translucent cards
+a `drop-shadow`), and the drop outline's geometry, inset on the dashboard and
+outset on training, set through `--drop-outline-offset` and
+`--drop-outline-radius`.
 
 ### Netlify function re-export pattern
 
