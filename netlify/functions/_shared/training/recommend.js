@@ -58,7 +58,6 @@ export function recommendations(metrics) {
 		latest = {},
 		intensity = {},
 		currentWeek = null,
-		previousWeek = null,
 		rampBasis = null,
 		prediction = null,
 		goal = {},

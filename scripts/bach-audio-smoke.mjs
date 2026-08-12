@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 /** End-to-end bach story + audio smoke test against netlify dev (port 8888). */
-import { readFileSync } from "node:fs";
 
 const BASE = process.env.BACH_BASE || "http://localhost:8888";
 const FN = `${BASE}/.netlify/functions`;

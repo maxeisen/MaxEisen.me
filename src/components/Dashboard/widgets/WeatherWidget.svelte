@@ -7,7 +7,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { location, sun } from "../lib/stores.svelte.js";
-    import { pad } from "../lib/utils.js";
     import { createPoller } from "../../../lib/data/poller.js";
 
     const WMO = {

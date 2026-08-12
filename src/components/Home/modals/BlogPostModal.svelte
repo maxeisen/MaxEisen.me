@@ -8,8 +8,7 @@
     export let updated;
     export let content;
 
-    const postUrl = `https://maxeisen.me/blog/${id}`; // fake URL for storing claps
-    var postContent = "Loading..."
+    let postContent = "Loading..."
     
     fetch(`../content/blog/${content}.md`)
         .then(content => content.text())

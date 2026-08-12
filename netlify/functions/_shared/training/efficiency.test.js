@@ -11,14 +11,15 @@ function steady({ count, speedMps, hr, gradePct = 0, startTime = 0, startDistanc
 	const time = [];
 	const distance = [];
 	const heartrate = [];
-	const grade_smooth = [];
+	const gradeSmooth = [];
 	for (let i = 0; i <= count; i++) {
 		time.push(startTime + i);
 		distance.push(startDistance + i * speedMps);
 		heartrate.push(hr);
-		grade_smooth.push(gradePct);
+		gradeSmooth.push(gradePct);
 	}
-	return { time, distance, heartrate, grade_smooth };
+	// Keyed the way Strava streams arrive.
+	return { time, distance, heartrate, grade_smooth: gradeSmooth };
 }
 
 // Two steady blocks back to back, for decoupling.

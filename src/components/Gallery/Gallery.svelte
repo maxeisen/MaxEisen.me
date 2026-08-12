@@ -104,9 +104,6 @@
         else selectedIds.delete(id);
     }
 
-    // "All" means all currently-visible (filtered) photos.
-    const allSelected = $derived(displayPhotos.length > 0 && displayPhotos.every((p) => selectedIds.has(p.public_id)));
-
     function toggleAll() {
         if (allSelected) {
             for (const p of displayPhotos) selectedIds.delete(p.public_id);
@@ -163,6 +160,9 @@
                 || (sceneMode === "all" ? selScenes.every((s) => sl.includes(s)) : selScenes.some((s) => sl.includes(s)));
         });
     });
+    // "All" means all currently-visible (filtered) photos.
+    const allSelected = $derived(displayPhotos.length > 0 && displayPhotos.every((p) => selectedIds.has(p.public_id)));
+
     function togglePerson(slug) { selectedPeople.has(slug) ? selectedPeople.delete(slug) : selectedPeople.add(slug); }
     function toggleScene(slug) { selectedScenes.has(slug) ? selectedScenes.delete(slug) : selectedScenes.add(slug); }
     function clearFilters() { selectedPeople.clear(); selectedScenes.clear(); }

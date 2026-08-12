@@ -32,9 +32,10 @@
     };
 
     onMount(async () => {
-        if (userQuery.blog == 'true') {
+        if (userQuery.blog === 'true') {
             if (userQuery.postId) {
-                var blogPost = blogPosts.find(post => {return post.postId==userQuery.postId});
+                // postId is a number in the metadata and a string in the URL.
+                const blogPost = blogPosts.find(post => String(post.postId) === userQuery.postId);
                 blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.updated, blogPost.content)
             }
         }
@@ -44,7 +45,7 @@
 <h1 class="section-title" id="blog">Blog</h1>
 <div class="blog-subsection">
     {#each blogPosts as post}
-        {#if post.published == true}
+        {#if post.published === true}
             <div class="blog-item" tabindex="0" on:click={() => blogPostModal(post.postId, post.title, post.author, post.date, post.updated, post.content)}>
                 <h2 class="blog-name">{post.title}</h2>
                 <h2 class="blog-date">{post.date}</h2>
