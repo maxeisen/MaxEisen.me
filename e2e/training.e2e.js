@@ -67,6 +67,21 @@ test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
 	await expect(ride).toContainText("avg speed");
 });
 
+test("recovery is reported beside the training, not inside it", async ({ page }) => {
+	await page.goto("/training");
+	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
+
+	// An average night, in hours and minutes rather than a score out of 100.
+	await expect(panel.getByText(/^\d+h \d+m$/).first()).toBeVisible();
+	await expect(panel.getByText("average night, last 7")).toBeVisible();
+
+	// The measures that carry the argument: an overnight resting rate and a
+	// variability figure, each against the athlete's own baseline.
+	await expect(panel.getByText("Resting HR")).toBeVisible();
+	await expect(panel.getByText("HRV")).toBeVisible();
+	await expect(panel.locator(".bar").first()).toBeVisible();
+});
+
 test("the last run is reported with what it did to the training", async ({ page }) => {
 	await page.goto("/training");
 	const panel = page.locator("section.card").filter({ hasText: "Last run" }).first();

@@ -55,6 +55,29 @@ function streamsFor({ distance, movingTime, averageHr, next }) {
 	return { time, distance: distanceStream, heartrate, "grade_smooth": grade };
 }
 
+// A month of nights, already shaped the way the sync stores them. Enough for
+// the baselines to exist, and varied enough that the panel's chart has
+// something to draw and at least one night falls under the seven-hour line —
+// a fixture of identical perfect nights would pass a rendering test while
+// hiding whether the "short night" case draws at all.
+function nightsUpTo(today, next) {
+	const end = new Date(`${today}T00:00:00Z`);
+	return Array.from({ length: 28 }, (_, i) => {
+		const day = new Date(end);
+		day.setUTCDate(day.getUTCDate() - (27 - i));
+		const sleepSec = Math.round((6.2 + next() * 2.2) * 3600);
+		return {
+			day: day.toISOString().slice(0, 10),
+			sleepSec,
+			efficiencyPct: Math.round(86 + next() * 8),
+			restingHr: Math.round(45 + next() * 5),
+			averageHrv: Math.round(55 + next() * 20),
+			sleepScore: Math.round(70 + next() * 22),
+			readinessScore: Math.round(70 + next() * 22),
+		};
+	});
+}
+
 /**
  * @param {object} [options]
  * @param {string} [options.today] day key the dashboard is built against.
@@ -149,6 +172,7 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 					shapeActivities([activity], { streams, thresholds: plan.thresholds })[0])
 				.filter(Boolean),
 			plan,
+			recovery: nightsUpTo(today, next),
 			today,
 		}),
 		sync: { lastRunAt: `${today}T12:00:00.000Z`, hasSynced: true, outstanding: 0, backfilling: false },
