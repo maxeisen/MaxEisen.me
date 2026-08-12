@@ -112,11 +112,6 @@ export function weekday(dayKey) {
  * @param {string} weekStart Monday day key.
  * @returns {string}
  */
-export function weekRange(weekStart) {
-	const start = utcNoon(weekStart);
-	return start ? span(start, sixDaysOn(start)) : "";
-}
-
 /** The day key as a UTC-noon Date, or null if there isn't a usable one. */
 function utcNoon(dayKey) {
 	const date = new Date(`${String(dayKey ?? "").slice(0, 10)}T12:00:00Z`);
@@ -137,6 +132,11 @@ function span(start, end) {
 	return start.getUTCMonth() === end.getUTCMonth()
 		? `${day(start)}–${dayMonth(end)}`
 		: `${dayMonth(start)} – ${dayMonth(end)}`;
+}
+
+export function weekRange(weekStart) {
+	const start = utcNoon(weekStart);
+	return start ? span(start, sixDaysOn(start)) : "";
 }
 
 /**
