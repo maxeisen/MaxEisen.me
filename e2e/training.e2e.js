@@ -65,12 +65,13 @@ test("the charts are labelled with the values they plot", async ({ page }) => {
 	expect(labels.some((text) => Number(text) > 0)).toBe(true);
 });
 
-// Rearranging shares its machinery with /dashboard (lib/ui/reorder), but this
-// page gates it behind the Rearrange button, so the interesting part is that
-// the gate opens, a drop lands in the right slot, and the choice survives a
-// reload.
+// Rearranging is /dashboard's, code and behaviour both (lib/ui/reorder for the
+// drag, lib/ui/editMode for when it's allowed): drag a panel onto another to
+// swap them, free on a wide screen, behind the Edit toggle once the layout
+// collapses and a press-and-drag would otherwise be a scroll.
 test.describe("rearranging the panels", () => {
 	const panelAt = (page, idx) => page.locator(`[data-slot-index="${idx}"] .panel`);
+	const editToggle = (page) => page.getByRole("button", { name: "Toggle layout edit mode" });
 
 	async function dragPanel(page, fromIdx, toIdx) {
 		const source = await panelAt(page, fromIdx).boundingBox();
@@ -81,19 +82,10 @@ test.describe("rearranging the panels", () => {
 		await page.mouse.up();
 	}
 
-	test("panels stay put until you ask to rearrange them", async ({ page }) => {
-		await page.goto("/training");
-		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
-
-		await dragPanel(page, 0, 4);
-		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
-	});
-
 	test("a drag swaps the two panels and the layout is remembered", async ({ page }) => {
 		await page.goto("/training");
 		const displaced = await panelAt(page, 4).getAttribute("data-panel");
 
-		await page.getByRole("button", { name: "Rearrange" }).click();
 		await dragPanel(page, 0, 4);
 
 		await expect(panelAt(page, 4)).toHaveAttribute("data-panel", "volume");
@@ -101,52 +93,62 @@ test.describe("rearranging the panels", () => {
 
 		await page.reload();
 		await expect(panelAt(page, 4)).toHaveAttribute("data-panel", "volume");
-
-		// And there's a way back out of any arrangement.
-		await page.getByRole("button", { name: "Rearrange" }).click();
-		await page.getByRole("button", { name: "Reset" }).click();
-		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
 	});
 
-	test("the arrow keys move a panel without a pointer", async ({ page }) => {
-		await page.goto("/training");
-		await page.getByRole("button", { name: "Rearrange" }).click();
-
-		await page.locator('[data-slot-index="0"] .panel-handle').focus();
-		await page.keyboard.press("ArrowRight");
-
-		await expect(panelAt(page, 1)).toHaveAttribute("data-panel", "volume");
-	});
-
-	// On a phone the panels are most of the page, so a panel that swallowed
-	// touch gestures to be draggable would strand you at whichever one you
-	// started on. Touch drags go through the handle instead, and it's the only
-	// thing allowed to take touch-action away from the scroller.
-	test("a finger can still scroll the page while rearranging", async ({ page }) => {
-		await page.setViewportSize(PHONE);
-		await page.goto("/training");
-		await page.getByRole("button", { name: "Rearrange" }).click();
-
-		const blocked = await page.evaluate(() =>
-			[...document.querySelectorAll("#training-grid *")]
-				.filter((el) => getComputedStyle(el).touchAction === "none")
-				.map((el) => el.className.toString().split(" ")[0]),
-		);
-		expect([...new Set(blocked)]).toEqual(["panel-handle"]);
-	});
-
-	test("taps inside a panel don't fire while rearranging", async ({ page }) => {
+	// A press that doesn't travel is still a click, which is what keeps every
+	// link and disclosure inside a draggable panel working.
+	test("a press that goes nowhere still opens what it pressed", async ({ page }) => {
 		await page.goto("/training");
 		const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
 		const info = card.getByRole("button", { name: /Weekly volume/i });
 
-		await page.getByRole("button", { name: "Rearrange" }).click();
+		await info.click();
+		await expect(info).toHaveAttribute("aria-expanded", "true");
+	});
+
+	test("there's no toggle to find on a wide screen", async ({ page }) => {
+		await page.goto("/training");
+		await expect(editToggle(page)).toHaveCount(0);
+	});
+
+	test("on a phone the panels wait to be told", async ({ page }) => {
+		await page.setViewportSize(PHONE);
+		await page.goto("/training");
+
+		// Dragging is off, so the page still scrolls with a finger rather than
+		// picking up whichever panel it landed on.
+		const idle = await panelAt(page, 0).evaluate((el) => getComputedStyle(el).touchAction);
+		expect(idle).toBe("auto");
+
+		await dragPanel(page, 0, 1);
+		await expect(panelAt(page, 0)).toHaveAttribute("data-panel", "volume");
+
+		await editToggle(page).click();
+		const editing = await panelAt(page, 0).evaluate((el) => getComputedStyle(el).touchAction);
+		expect(editing).toBe("none");
+
+		// A drag can only reach as far as the viewport: stacked panels are a
+		// screen tall each, so put both of them on it first. Instant, because
+		// the site scrolls smoothly and a drag measured mid-animation aims at
+		// where the panels used to be.
+		await page.evaluate(() => window.scrollTo({ top: 480, behavior: "instant" }));
+		await dragPanel(page, 0, 1);
+		await expect(panelAt(page, 1)).toHaveAttribute("data-panel", "volume");
+	});
+
+	test("taps inside a panel don't fire while editing", async ({ page }) => {
+		await page.setViewportSize(PHONE);
+		await page.goto("/training");
+		const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
+		const info = card.getByRole("button", { name: /Weekly volume/i });
+
+		await editToggle(page).click();
 		// force: panels jiggle while editing, so nothing inside one is ever
 		// "stable" — which is exactly the state this is testing.
 		await info.click({ force: true });
 		await expect(info).toHaveAttribute("aria-expanded", "false");
 
-		await page.getByRole("button", { name: "Done" }).click();
+		await editToggle(page).click();
 		await info.click();
 		await expect(info).toHaveAttribute("aria-expanded", "true");
 	});

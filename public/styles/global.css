@@ -204,6 +204,22 @@
    Multi-layer radial-gradient "drift" used by the homepage + resume (body) and
    the /gallery and /dashboard route bodies, all referencing this one keyframe.
    The standalone /404 keeps its own copy (it doesn't load this file). */
+
+/* iOS-style jiggle for a grid in edit mode, on /dashboard and /training. Two
+   of them, applied to alternating tiles, so a grid doesn't rock in lockstep.
+   Global because keyframes declared inside a Svelte component are scoped to
+   it, and these belong to both. */
+@keyframes edit-jiggle-a {
+    0%   { transform: rotate(-0.5deg) translate(0, 0); }
+    50%  { transform: rotate(0.5deg)  translate(0, -1px); }
+    100% { transform: rotate(-0.5deg) translate(0, 0); }
+}
+@keyframes edit-jiggle-b {
+    0%   { transform: rotate(0.55deg)  translate(0, -1px); }
+    50%  { transform: rotate(-0.55deg) translate(0, 0); }
+    100% { transform: rotate(0.55deg)  translate(0, -1px); }
+}
+
 @keyframes gradient {
     0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
     16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }
