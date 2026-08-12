@@ -179,6 +179,47 @@ Polling cadences:
   `bach-state` (the hottest path) computes image readiness from blob-key
   presence instead of reading image bytes each poll.
 
+### Training data credentials
+
+`/training` reads from two accounts. Both are refreshed server-side by
+`trainingSync` and never reach the browser, and the page renders whatever is
+already in Blobs if either is absent — an unconfigured integration is a normal
+state, not an error.
+
+**Strava** (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN`)
+uses a long-lived refresh token: authorize once with
+`node scripts/get_strava_refresh_token.js`, paste the result into Netlify, and
+it keeps working.
+
+**Oura** (`OURA_CLIENT_ID`, `OURA_CLIENT_SECRET`, `OURA_REFRESH_TOKEN`) does
+not, and the difference matters. Personal access tokens were withdrawn at the
+end of 2025, so this is OAuth2 only, and **refresh tokens are single-use** —
+each refresh returns a successor and invalidates the token just spent. To set
+it up:
+
+1. Create an application at
+   [cloud.ouraring.com/oauth/applications](https://cloud.ouraring.com/oauth/applications)
+   with the redirect URI `http://localhost:8889/callback`.
+2. Put the client ID and secret in `.env`, then run
+   `node scripts/get_oura_refresh_token.js` and follow the printed link.
+3. Copy the refresh token it prints into Netlify as `OURA_REFRESH_TOKEN`.
+
+The `daily` scope is enough for everything the page shows. The portal will
+offer continuous heart rate, SpO2 and personal details too; `/training` is
+public, so the narrowest token that does the job is the one worth holding.
+
+`OURA_REFRESH_TOKEN` is a **bootstrap, not the live credential**. Live token
+state lives in Blobs and rotates on every refresh; the environment variable
+seeds the first one and is retried if the stored chain ever breaks, which makes
+recovery "run the script again and paste the new value" rather than a code
+change. Two consequences:
+
+- Don't run the token exchange locally against the value in Netlify. Oura
+  invalidates it on use and the successor would be written to your local blob
+  store, leaving production holding a dead token.
+- If the sync logs `Oura auth failed`, re-run the script rather than debugging
+  the code. That is the designed recovery path.
+
 ### Design tokens & theming
 
 `public/styles/global.css` is the single source of truth for design tokens —
@@ -241,10 +282,14 @@ unused CSS), which `vite build` prints too.
 Pull requests are also analysed by [Codacy](https://www.codacy.com). Two notes
 on making that agree with the above:
 
-- ESLint v8 there reads `.eslintrc.cjs`, but only once **Code patterns →
-  ESLint → Configuration file** is switched on for the repository. Until then
-  it analyses with its own defaults and reports several hundred issues that are
-  house style rather than defects.
+- ESLint v8 there reads `.eslintrc.cjs`, which requires **Code patterns →
+  ESLint → Configuration file** to be switched on for the repository. It is.
+  Turning it off makes Codacy analyse with its own defaults, which disagree
+  with the house style above on nearly every file — one-line guards, wire-format
+  field names, `console.warn` in Functions — and report a few hundred issues
+  that are convention rather than defects. Codacy doesn't re-analyse after a
+  pattern change, so a pull request open at the time needs a new commit before
+  it reflects one.
 - PMD is excluded from JavaScript in `.codacy.yaml`. Its JS parser predates ES
   modules and numeric separators, so it misreads the source rather than finding
   anything in it; the file explains the specific failures.

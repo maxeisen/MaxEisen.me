@@ -130,6 +130,20 @@ export const GLOSSARY = {
 		],
 	},
 
+	recovery: {
+		title: "Recovery",
+		body: [
+			"Sleep and overnight heart rate from an Oura ring, read the same way as the load panel: the last 7 days against the last 28, so every number here is recent measured against your own established normal rather than against anybody else's.",
+			"None of this feeds fitness, fatigue or form. Those are a closed system fed by training load alone, and that's what makes them readable — mixing a second source into part of it is how form ends up permanently negative. Recovery sits alongside instead, and shows up in the recommendations where the combination says more than either half: a 12% jump in volume means something different on eight hours a night than on six.",
+			"Nights with no record are skipped rather than counted as zero. A missing night is a ring left on the bedside table, not a night without sleep, and averaging it in would manufacture exactly the alarm this is meant to raise honestly.",
+		],
+		terms: [
+			{ term: "Resting HR", definition: "Your lowest heart rate overnight. Measured asleep, so it's a truer resting rate than any daytime reading, and a rise of about 5 bpm over baseline is a long-standing marker of illness or work you haven't absorbed." },
+			{ term: "HRV", definition: "Heart-rate variability, the beat-to-beat variation while you sleep. Higher generally means better recovered, but it's noisy night to night, which is why it's read as a week against a month." },
+			{ term: "Baseline", definition: "Your own 28-day average for the same measure. Everything here is a deviation from it rather than an absolute judgement." },
+		],
+	},
+
 	runs: {
 		title: "Recent activity",
 		body: [

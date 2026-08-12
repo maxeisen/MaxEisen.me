@@ -33,6 +33,7 @@
     import IntensityMix from "./sections/IntensityMix.svelte";
     import RacePrediction from "./sections/RacePrediction.svelte";
     import WeekPlan from "./sections/WeekPlan.svelte";
+    import Recovery from "./sections/Recovery.svelte";
     import RunLog from "./sections/RunLog.svelte";
 
     const ENDPOINT = "/.netlify/functions/trainingData";
@@ -55,15 +56,17 @@
     // own.
     const DEFAULT_ORDER = [
         "lastRun", "volume", "fitness", "efficiency", "prediction",
-        "recommendations", "week", "load", "intensity",
+        "recommendations", "week", "load", "recovery", "intensity",
         "runs",
     ];
     const WIDE_SLOTS = 5;
-    const NARROW_SLOTS = 4;
+    const NARROW_SLOTS = 5;
     // Versioned: a layout saved against the old order would keep the imbalance
     // this fixes, and the arrangement is a convenience rather than anything
     // worth carrying forward at the cost of the fix.
-    const LAYOUT_KEY = "training-layout-2";
+    // 3: recovery joins the narrow column. A saved layout of ten panels can't
+    //    place an eleventh, so the stored order would silently drop it.
+    const LAYOUT_KEY = "training-layout-3";
 
     let data = $state(null);
     let error = $state("");
@@ -173,6 +176,8 @@
         <IntensityMix intensity={data.summary?.intensity} />
     {:else if id === "week"}
         <WeekPlan {currentWeek} week={data.week} upcoming={data.upcoming} />
+    {:else if id === "recovery"}
+        <Recovery recovery={data.recovery} />
     {:else if id === "runs"}
         <RunLog runs={data.runs} total={data.summary?.totals?.runs} />
     {/if}

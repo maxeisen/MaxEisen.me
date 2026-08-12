@@ -125,6 +125,98 @@ describe("recommendations", () => {
 		expect(out.at(-1).severity).toBe("good");
 	});
 
+	// The recovery rules are the only ones reading something other than
+	// training load. What they're for is the combination: load is blind to
+	// whether a week was absorbed or merely survived, and sleep alone doesn't
+	// know whether you were also ramping.
+	describe("recovery", () => {
+		const hours = (h) => Math.round(h * 3600);
+		const slept = (h) => ({ recovery: { sleep: { recent: hours(h), baseline: hours(8) } } });
+
+		it("says nothing at all without a ring", () => {
+			const out = recommendations({ acwr: { ratio: 1.9 } });
+			expect(ids(out)).not.toContain("sleep-short");
+			expect(ids(out)).not.toContain("recovery-ok");
+		});
+
+		it("flags sustained short sleep on its own", () => {
+			const rec = find(recommendations(slept(6)), "sleep-short");
+			expect(rec.severity).toBe("warning");
+			expect(rec.detail).toContain("6h 0m");
+			// Against the athlete's own normal, not just the floor.
+			expect(rec.detail).toContain("8h 0m");
+		});
+
+		it("raises it to critical when the volume is also climbing", () => {
+			const out = recommendations({
+				...slept(6),
+				acwr: { ratio: 1.7 },
+			});
+			const rec = find(out, "sleep-and-ramp");
+			expect(rec.severity).toBe("critical");
+			expect(rec.detail).toContain("1.70");
+			// One rule about the pair, not two rules about the halves.
+			expect(ids(out)).not.toContain("sleep-short");
+		});
+
+		it("counts a volume jump as ramping too, not just the ratio", () => {
+			const out = recommendations({
+				...slept(6),
+				rampBasis: { rampPct: 22, actualKm: 70, previousKm: 57 },
+			});
+			expect(find(out, "sleep-and-ramp").detail).toContain("22%");
+		});
+
+		it("leaves short sleep alone when the training is steady", () => {
+			const out = recommendations({ ...slept(6), acwr: { ratio: 1.0 } });
+			expect(ids(out)).toContain("sleep-short");
+			expect(ids(out)).not.toContain("sleep-and-ramp");
+		});
+
+		it("flags an overnight heart rate above baseline", () => {
+			const rec = find(
+				recommendations({ recovery: { restingHr: { recent: 54, baseline: 47, delta: 7 } } }),
+				"rhr-elevated",
+			);
+			expect(rec.severity).toBe("warning");
+			expect(rec.threshold).toBe(5);
+			expect(rec.detail).toContain("54 bpm");
+		});
+
+		it("stays quiet on a heart rate that has barely moved", () => {
+			const out = recommendations({ recovery: { restingHr: { recent: 49, baseline: 47, delta: 2 } } });
+			expect(ids(out)).not.toContain("rhr-elevated");
+		});
+
+		it("notes suppressed variability without making it an instruction", () => {
+			const rec = find(
+				recommendations({ recovery: { hrv: { recent: 48, baseline: 65, deltaPct: -26 } } }),
+				"hrv-suppressed",
+			);
+			// Noisy enough night to night that it's context, not a verdict.
+			expect(rec.severity).toBe("info");
+			expect(rec.detail).toContain("26%");
+		});
+
+		it("confirms recovery is keeping up rather than only ever warning", () => {
+			const out = recommendations({
+				recovery: { sleep: { recent: hours(8) }, restingHr: { recent: 47, baseline: 47, delta: 0 } },
+			});
+			expect(find(out, "recovery-ok").severity).toBe("good");
+		});
+
+		it("won't call it fine while the heart rate is up", () => {
+			const out = recommendations({
+				recovery: {
+					sleep: { recent: hours(8) },
+					restingHr: { recent: 55, baseline: 47, delta: 8 },
+				},
+			});
+			expect(ids(out)).toContain("rhr-elevated");
+			expect(ids(out)).not.toContain("recovery-ok");
+		});
+	});
+
 	it("carries the triggering metric and threshold on every rule", () => {
 		const out = recommendations({
 			acwr: { ratio: 1.9 },

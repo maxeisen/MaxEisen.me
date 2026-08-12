@@ -24,6 +24,7 @@ import {
 	weeksToRace,
 } from "./plan.js";
 import { recommendations } from "./recommend.js";
+import { recoverySummary } from "./recovery.js";
 import { toDayKey } from "./dates.js";
 
 // How far back the intensity distribution looks. A whole block averages away
@@ -94,9 +95,11 @@ function planDays(week, runs, today) {
  * @param {object[]} input.activities shaped activities, any order.
  * @param {object} input.plan parsed marathon-plan.json.
  * @param {string} input.today day key.
+ * @param {object[]} [input.recovery] shaped nights from the Oura ring. Optional
+ *   throughout: the page predates it and reads the same without it.
  * @returns {object}
  */
-export function buildDashboard({ activities = [], plan = {}, today }) {
+export function buildDashboard({ activities = [], plan = {}, today, recovery = [] }) {
 	const day = toDayKey(today) || toDayKey(new Date());
 	const sorted = [...activities].sort((a, b) =>
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
@@ -156,6 +159,12 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 	// efficiency trend needs in order to compare like with like.
 	const zoneFloors = hrZoneFloors(thresholds);
 	const efficiency = efficiencyTrend(runs, { aerobicCeilingHr: zoneFloors?.[3] ?? null });
+
+	// Deliberately computed after everything above it and read by none of it.
+	// Recovery is the one input here that isn't training load, and the fitness
+	// model stays a closed system fed only by load — see recovery.js. It
+	// reaches the payload and the recommendations, and nothing else.
+	const recovered = recoverySummary(recovery, { today: day });
 
 	const prediction = predictRace(collectBestEfforts(runs), race.distanceM || 42195);
 	const goalPace = goalPaceSecPerKm(race.goalTimeSec, race.distanceM || 42195);
@@ -262,6 +271,7 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		goal: { goalTimeSec: race.goalTimeSec, goalPaceSecPerKm: goalPace },
 		daysToRace: remainingDays,
 		longRunDecouplingPct: lastLongRun?.decouplingPct ?? null,
+		recovery: recovered,
 	});
 
 	return {
@@ -272,6 +282,9 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		// day is empty by construction and would draw a slide to zero.
 		series: series.filter((d) => d.date <= day),
 		efficiency: { points: efficiency.points, trend: efficiency.trend },
+		// Null rather than an empty shell when the ring has nothing to say, so
+		// the panel can be absent instead of drawing a row of dashes.
+		recovery: recovered,
 		weeks,
 		week: current
 			? {

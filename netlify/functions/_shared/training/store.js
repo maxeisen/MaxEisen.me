@@ -6,6 +6,12 @@
 //   index.json  — every shaped run in the block
 //   athlete.json — the athlete's configured HR zones
 //   cursor.json — sync bookkeeping (last activity seen, last run time)
+//   recovery.json — a night's sleep and overnight heart rate, per day
+//   oura.json  — Oura's rotating OAuth tokens
+//
+// oura.json is the one key here that isn't a cache. Oura invalidates a refresh
+// token the moment it's used, so the successor is the only way back in and
+// losing it means re-authorising by hand — see _shared/oura.js.
 
 import { getStore } from "@netlify/blobs";
 
@@ -13,6 +19,8 @@ export const STORE_NAME = "training";
 export const INDEX_KEY = "index.json";
 export const ATHLETE_KEY = "athlete.json";
 export const CURSOR_KEY = "cursor.json";
+export const RECOVERY_KEY = "recovery.json";
+export const OURA_KEY = "oura.json";
 
 export function getTrainingStore() {
 	return getStore({ name: STORE_NAME, consistency: "strong" });

@@ -53,7 +53,7 @@ test("the run log says which runs were the plan", async ({ page }) => {
 	// The fixture runs the real plan file, which has day-level sessions, so
 	// both kinds have to appear: matched sessions and unplanned extras.
 	await expect(log.locator(".tag.plan").first()).toBeVisible();
-	await expect(log.locator(".tag.extra-tag").first()).toBeVisible();
+	await expect(log.locator(".tag.extra").first()).toBeVisible();
 });
 
 test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
@@ -65,6 +65,21 @@ test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
 	// km/h rather than the min/km every run in the list is reported in.
 	await expect(ride).toContainText(/\d+\.\d km\/h/);
 	await expect(ride).toContainText("avg speed");
+});
+
+test("recovery is reported beside the training, not inside it", async ({ page }) => {
+	await page.goto("/training");
+	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
+
+	// An average night, in hours and minutes rather than a score out of 100.
+	await expect(panel.getByText(/^\d+h \d+m$/).first()).toBeVisible();
+	await expect(panel.getByText("average night, last 7")).toBeVisible();
+
+	// The measures that carry the argument: an overnight resting rate and a
+	// variability figure, each against the athlete's own baseline.
+	await expect(panel.getByText("Resting HR")).toBeVisible();
+	await expect(panel.getByText("HRV")).toBeVisible();
+	await expect(panel.locator(".bar").first()).toBeVisible();
 });
 
 test("the last run is reported with what it did to the training", async ({ page }) => {
