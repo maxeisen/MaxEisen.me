@@ -43,6 +43,12 @@ npm test       # watch mode (Vitest)
 npm run test:run   # single run (CI / pre-commit)
 ```
 
+To lint:
+
+```bash
+npm run lint   # ESLint over .js, .mjs and .svelte
+```
+
 ## Architecture
 
 A Svelte 5 + Vite single-page app fronted by Netlify Functions. The notes below
@@ -182,6 +188,33 @@ metrics engine (`e2e/fixtures/trainingPayload.js`) via a route stub. Install the
 `npx playwright install chromium`, then `npm run test:e2e`. A full Bach round is
 deliberately **not** an E2E: it spans multiple concurrent clients and external
 OpenAI/TTS/image calls, so its logic is covered by unit tests instead.
+
+### Linting
+
+`.eslintrc.cjs` describes how this repo is actually written rather than a
+preset it doesn't follow, so the rules are readable while writing instead of
+turning up in a pull request review. Every rule that departs from the stock
+defaults carries its reason in the file; the recurring ones are one-line guards
+without braces (`if (!dayKey) return "";`), `snake_case` fields kept as they
+arrive from Strava and Cloudinary, `console.log` treated as output in
+`scripts/` and as a leftover everywhere else, and empty `catch` blocks where a
+failure genuinely means "the same as absent".
+
+It runs clean. Cyclomatic complexity is the one rule set to warn rather than
+error — a handful of older functions sit above the limit and splitting them up
+is its own piece of work — alongside Svelte's own compiler warnings (a11y,
+unused CSS), which `vite build` prints too.
+
+Pull requests are also analysed by [Codacy](https://www.codacy.com). Two notes
+on making that agree with the above:
+
+- ESLint v8 there reads `.eslintrc.cjs`, but only once **Code patterns →
+  ESLint → Configuration file** is switched on for the repository. Until then
+  it analyses with its own defaults and reports several hundred issues that are
+  house style rather than defects.
+- PMD is excluded from JavaScript in `.codacy.yaml`. Its JS parser predates ES
+  modules and numeric separators, so it misreads the source rather than finding
+  anything in it; the file explains the specific failures.
 
 ## Website Quality
 MaxEisen.me has been developed and tested for optimal performance, accessibility, best practices, and SEO using Google's Lighthouse evaluation tool. It's also a <a href="https://web.dev/progressive-web-apps/" rel="noreferrer" target="_blank">PWA</a>!
