@@ -50,6 +50,13 @@ export function isTrackableRun(raw) {
 	return RUN_TYPES.has(raw.sport_type || raw.type);
 }
 
+// What counts as a kilometre when reading splits. A run almost never ends on a
+// round number, so the last split is usually a fragment whose "pace" is an
+// artefact of where you happened to stop — a 40 m tail at 9:00/km is a walk to
+// the door, not a collapse. Kept in storage, left out of anything that ranks or
+// plots splits.
+export const WHOLE_SPLIT_M = 600;
+
 // Per-kilometre splits, keeping only what the charts and GAP need.
 function shapeSplits(splits) {
 	return (splits || [])
@@ -221,7 +228,7 @@ export function publicLastRun(activity) {
 		loadMethod: activity.loadMethod ?? null,
 		decouplingPct: activity.decouplingPct ?? null,
 		zoneSeconds: Array.isArray(activity.zoneSeconds) ? [...activity.zoneSeconds] : null,
-		splits: (activity.splits || []).map((s) => ({
+		splits: (activity.splits || []).filter((s) => s.distanceM >= WHOLE_SPLIT_M).map((s) => ({
 			km: s.km,
 			paceSecPerKm: s.paceSecPerKm ?? null,
 			gapPaceSecPerKm: s.gapPaceSecPerKm ?? null,

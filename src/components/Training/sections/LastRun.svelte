@@ -190,6 +190,12 @@
         return list;
     });
 
+    // "An easy run", "a moderate run". Only ever applied to the three efforts,
+    // so the first letter settles it.
+    function article(word) {
+        return /^[aeiou]/i.test(word) ? "An" : "A";
+    }
+
     function relativeLoadNote() {
         return load?.vsTypicalPct > 0 && load.runsCompared >= 3
             ? `${Math.round(load.vsTypicalPct)}% of typical`
@@ -286,7 +292,8 @@
                         The day's change, across {run.runsThatDay} runs.
                     {/if}
                     {#if relativeSize}
-                        A {run.effort || "steady"} run, {relativeSize}{standout ? `, and ${standout}` : ""}.
+                        {article(run.effort || "steady")} {run.effort || "steady"} run,
+                        {relativeSize}{standout ? `, and ${standout}` : ""}.
                     {/if}
                 </p>
             </div>

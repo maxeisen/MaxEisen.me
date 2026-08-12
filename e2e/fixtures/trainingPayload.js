@@ -91,12 +91,19 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 			max_heartrate: 172 + next() * 15,
 			average_cadence: 84 + next() * 6,
 			workout_type: isLong ? 2 : dow === 5 ? 3 : 0,
-			splits_metric: Array.from({ length: Math.floor(distance / 1000) }, () => ({
-				distance: 1000,
-				moving_time: Math.round(paceSecPerKm + (next() - 0.5) * 20),
-				elevation_difference: Math.round((next() - 0.5) * 12),
-				average_heartrate: 140 + next() * 20,
-			})),
+			// Whole kilometres, then the fragment Strava sends for however far
+			// past the last one you actually got. Real runs almost never end on
+			// a round number, and that stub's pace is where the panel's chart
+			// went wrong the first time.
+			splits_metric: Array.from({ length: Math.ceil(distance / 1000) }, (_, i) => {
+				const splitM = Math.min(1000, distance - i * 1000);
+				return {
+					distance: splitM,
+					moving_time: Math.round((paceSecPerKm + (next() - 0.5) * 20) * (splitM / 1000)),
+					elevation_difference: Math.round((next() - 0.5) * 12),
+					average_heartrate: 140 + next() * 20,
+				};
+			}),
 			best_efforts: [
 				{ name: "5k", distance: 5000, elapsed_time: Math.round(paceSecPerKm * 5 * 0.92) },
 				{ name: "10k", distance: 10000, elapsed_time: Math.round(paceSecPerKm * 10 * 0.95) },

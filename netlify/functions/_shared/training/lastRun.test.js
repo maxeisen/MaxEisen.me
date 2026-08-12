@@ -105,6 +105,17 @@ describe("lastRunDetail", () => {
 		}
 	});
 
+	// Found on real data: a 34 m tail at 9:40/km stretched the chart's axis
+	// from five minutes to ten and flattened the run itself into the top inch.
+	it("leaves the closing fragment of a kilometre off the chart", () => {
+		const detail = lastRunDetail({
+			runs: [run("2026-08-09", { splits: splits([300, 305, 298, 580], { lastDistanceM: 34 }) })],
+			today: "2026-08-09",
+		});
+
+		expect(detail.splits.map((s) => s.km)).toEqual([1, 2, 3]);
+	});
+
 	describe("what it did to fitness, fatigue and form", () => {
 		const range = { from: "2026-07-01", to: "2026-08-09" };
 
@@ -238,14 +249,17 @@ describe("lastRunDetail", () => {
 			expect(pacing.fadePct).toBeLessThan(0);
 		});
 
-		it("won't let a 200 m finish be the fastest kilometre", () => {
-			const runs = [
-				run("2026-08-09", { splits: splits([300, 305, 298, 200], { lastDistanceM: 200 }) }),
-			];
-			const { pacing } = lastRunDetail({ runs, today: "2026-08-09" });
+	it("won't let a 200 m finish be the fastest kilometre", () => {
+		const runs = [
+			run("2026-08-09", { splits: splits([300, 305, 298, 200], { lastDistanceM: 200 }) }),
+		];
+		const { pacing } = lastRunDetail({ runs, today: "2026-08-09" });
 
-			expect(pacing.fastest.km).toBe(3);
-		});
+		expect(pacing.fastest.km).toBe(3);
+		// It still counts towards the halves, where its own short distance
+		// weights it down to what it was.
+		expect(pacing.secondHalfPaceSecPerKm).toBeLessThan(298);
+	});
 
 		it("keeps quiet about a run too short to have halves", () => {
 			const runs = [run("2026-08-09", { splits: splits([300, 305]) })];

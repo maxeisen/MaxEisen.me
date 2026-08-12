@@ -13,7 +13,7 @@
 // entirely on whose 90 it is.
 
 import { addDays, daysBetween, toDayKey } from "./dates.js";
-import { publicLastRun } from "./shape.js";
+import { publicLastRun, WHOLE_SPLIT_M } from "./shape.js";
 import { classifyByPace } from "./zones.js";
 
 // How far back "a typical run for you" reaches. Six weeks holds a few long runs
@@ -22,11 +22,6 @@ const TYPICAL_WINDOW_DAYS = 42;
 
 // Halves of a run only say something when there are enough kilometres in each.
 const MIN_SPLITS_FOR_HALVES = 4;
-
-// A closing 200 m split has the pace of whatever the last thirty seconds were,
-// so short splits are ranked out of the fastest/slowest line rather than
-// winning it.
-const MIN_SPLIT_M = 600;
 
 // Where a run stops being easy, by the share of its time spent above zone 2.
 const HARD_SHARE_PCT = 20;
@@ -157,8 +152,10 @@ function pacing(splits) {
 	const half = Math.floor(list.length / 2);
 	const firstHalfPaceSecPerKm = paceOver(list.slice(0, half));
 	const secondHalfPaceSecPerKm = paceOver(list.slice(half));
+	// The closing fragment stays in the halves, where it's weighted by its own
+	// short distance, but it can't win fastest or slowest on a partial lap.
 	const ranked = list
-		.filter((s) => s.distanceM >= MIN_SPLIT_M)
+		.filter((s) => s.distanceM >= WHOLE_SPLIT_M)
 		.sort((a, b) => a.paceSecPerKm - b.paceSecPerKm);
 
 	return {
