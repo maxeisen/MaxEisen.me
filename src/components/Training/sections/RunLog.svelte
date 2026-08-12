@@ -1,5 +1,11 @@
 <!--
-    Recent runs.
+    Every run of the block, newest first, matched against the plan.
+
+    "Recent runs" was the wrong name twice over: the list is scoped to the
+    training block, and it says nothing about whether a run was the session the
+    plan asked for. The match comes from the payload (see plan.js's
+    matchRunsToPlan), so a run on a day with a planned session shows that
+    session, and everything else is marked as an extra.
 
     Raw pace and GAP sit side by side so the elevation adjustment is visible
     rather than hidden inside one blended number — on a hilly run they diverge
@@ -10,31 +16,54 @@
     activity on Strava for anyone who wants the map.
 -->
 <script>
+    import Card from "../../../lib/ui/Card.svelte";
     import { formatDistance, formatDuration, pace, shortDate } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
-    let { runs = [] } = $props();
+    let { runs = [], total = null } = $props();
 
     // Strava's workout_type on a run: 1 race, 2 long run, 3 workout.
     const TAGS = { 1: "Race", 2: "Long run", 3: "Workout" };
+
+    const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
+
+    // Strava's own label only earns space when it says something the plan
+    // match doesn't — "long run · Long run" on a row is just noise.
+    function stravaTag(run) {
+        const tag = TAGS[run.workoutType];
+        if (!tag) return null;
+        const planType = run.plan?.planned ? String(run.plan.type || "") : "";
+        return tag.toLowerCase() === planType.toLowerCase() ? null : tag;
+    }
 </script>
 
-<section class="card">
-    <div class="card-head">
-        <h2>Recent runs</h2>
-        <span class="count">{runs.length}</span>
-    </div>
+<Card title="Runs this block" info={GLOSSARY.runs}>
+    {#snippet aside()}
+        {#if runs.length}
+            <span class="count">
+                {#if Number.isFinite(total) && total > runs.length}
+                    latest {runs.length} of {total}
+                {:else}
+                    {runs.length} runs
+                {/if}
+                · {plannedCount} planned
+            </span>
+        {/if}
+    {/snippet}
 
     {#if runs.length === 0}
         <p class="empty">Nothing synced yet.</p>
     {:else}
         <ul class="log">
             {#each runs as run (run.id)}
-                {@const tag = TAGS[run.workoutType]}
+                {@const tag = stravaTag(run)}
+                {@const planned = run.plan?.planned === true}
                 {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
                     && Math.abs(run.gapPaceSecPerKm - run.paceSecPerKm) > 5}
                 <li>
                     <a
                         class="row"
+                        class:extra={!planned}
                         href="https://www.strava.com/activities/{run.id}"
                         target="_blank"
                         rel="noreferrer"
@@ -43,6 +72,13 @@
                             <span class="row-name">{run.name}</span>
                             <span class="row-meta">
                                 {shortDate(run.startDateLocal)}
+                                {#if planned}
+                                    <span class="tag plan" title={run.plan.detail || ""}>
+                                        {run.plan.type || "planned"}
+                                    </span>
+                                {:else}
+                                    <span class="tag extra-tag">extra</span>
+                                {/if}
                                 {#if tag}<span class="tag">{tag}</span>{/if}
                                 {#if run.averageHr}· {Math.round(run.averageHr)} bpm{/if}
                                 {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
@@ -51,7 +87,7 @@
 
                         <div class="row-stat">
                             <strong>{formatDistance(run.distanceM)}</strong>
-                            <span>{formatDuration(run.movingTimeSec)}</span>
+                            <span>{formatDuration(run.movingTimeSec)}{#if planned && run.plan.distanceKm}&nbsp;· {run.plan.distanceKm} km planned{/if}</span>
                         </div>
 
                         <div class="row-stat">
@@ -65,22 +101,9 @@
             {/each}
         </ul>
     {/if}
-</section>
+</Card>
 
 <style>
-    .card-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        margin-bottom: var(--space-3);
-    }
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0;
-    }
     .count {
         font-size: var(--font-2xs);
         text-transform: uppercase;
@@ -104,8 +127,12 @@
         border-radius: var(--radius-sm);
         text-decoration: none;
         color: inherit;
+        border-left: 2px solid var(--main-green);
         transition: background-color 0.15s ease;
     }
+    /* Runs the plan didn't ask for still belong here, but shouldn't read with
+       the same weight as the sessions that were the point of the week. */
+    .row.extra { border-left-color: transparent; }
     .row:hover { background: var(--main-green-translucent); }
 
     .row-main { flex: 1; min-width: 0; }
@@ -135,6 +162,17 @@
         color: var(--main-green);
         font-weight: 600;
         letter-spacing: 0.04em;
+    }
+    .tag.plan {
+        background: var(--tone-good-bg);
+        color: var(--tone-good);
+        text-transform: lowercase;
+    }
+    .tag.extra-tag {
+        background: transparent;
+        border: 1px solid var(--main-green-translucent);
+        color: var(--paragraph-colour);
+        opacity: 0.8;
     }
 
     .row-stat {

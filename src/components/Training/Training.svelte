@@ -100,8 +100,8 @@
         <div class="grid">
             <div class="col-wide">
                 <VolumeChart weeks={data.weeks} today={data.today} />
-                <FitnessChart series={data.series} />
-                <AerobicEfficiency efficiency={data.efficiency} summary={data.summary} />
+                <FitnessChart series={data.series} today={data.today} />
+                <AerobicEfficiency efficiency={data.efficiency} summary={data.summary} today={data.today} />
                 <Recommendations recommendations={data.recommendations} />
             </div>
 
@@ -113,7 +113,7 @@
             </div>
         </div>
 
-        <RunLog runs={data.runs} />
+        <RunLog runs={data.runs} total={data.summary?.totals?.runs} />
 
         <footer class="foot">
             <p>
@@ -129,10 +129,15 @@
 </main>
 
 <style>
+    /* The back link is fixed to the viewport's top-left, so the page has to
+       leave it room: at full width the container is centred well clear of it,
+       but once it reaches the edges the "Training for" eyebrow lands directly
+       under the button. Below 1100px that link becomes a 40px circle, hence
+       the extra clearance there. */
     .training {
         max-width: 1180px;
         margin: 0 auto;
-        padding: var(--space-6) var(--space-5) var(--space-8);
+        padding: var(--space-7) var(--space-5) var(--space-8);
     }
 
     .state {
@@ -157,23 +162,12 @@
         min-width: 0;
     }
 
+    @media (max-width: 1100px) {
+        .training { padding-top: 3.5rem; }
+    }
     @media (max-width: 860px) {
         .grid { grid-template-columns: minmax(0, 1fr); }
-        .training { padding: var(--space-5) var(--space-4) var(--space-7); }
-    }
-    /* 24px of card padding either side costs a seventh of a phone screen. */
-    @media (max-width: 540px) {
-        .training :global(.card) { padding: var(--space-4); }
-    }
-
-    /* Shared card shell for every section. Declared once here and applied to
-       the children via :global so each section doesn't restate it. */
-    .training :global(.card) {
-        background: var(--item-background);
-        border: 1px solid var(--main-green-translucent);
-        border-radius: var(--radius-lg);
-        padding: var(--space-5);
-        box-shadow: var(--inner-box-shadow);
+        .training { padding: 3.5rem var(--space-4) var(--space-7); }
     }
 
     .foot {

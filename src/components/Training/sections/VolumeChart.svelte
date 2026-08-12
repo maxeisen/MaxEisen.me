@@ -4,132 +4,114 @@
     Bars are what was actually run; the tick above each is the planned target,
     where one has been entered. Weeks with no plan entry simply have no tick,
     rather than reading as a target of zero.
+
+    The window stops at the current week rather than running on to race day.
+    Charting the weeks still to come stretched the axis across four months and
+    squeezed the training that has actually happened into the left half — and
+    what's planned ahead is already spelled out, week by week, further down the
+    page.
 -->
 <script>
-    import { bars } from "../lib/chart.js";
+    import Card from "../../../lib/ui/Card.svelte";
+    import ChartFrame from "../charts/ChartFrame.svelte";
+    import { axisTicks, bars, CHART_WEEKS, niceScale } from "../lib/chart.js";
     import { axisDate } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
     let { weeks = [], today = null } = $props();
 
     const WIDTH = 720;
     const HEIGHT = 180;
 
-    // The weekly series runs forward to race day so the plan can be laid over
-    // it, but weeks that are both unrun and unplanned carry nothing to draw —
-    // charting them squeezes the actual training into the left half behind a
-    // stretch of blank space.
-    const drawable = $derived(
-        weeks.filter((w) => !today || w.start <= today || w.targetKm > 0),
+    const shown = $derived(
+        weeks.filter((w) => !today || w.start <= today).slice(-CHART_WEEKS),
     );
-    const shown = $derived(drawable.slice(-16));
-    const ceiling = $derived(
-        Math.max(
-            10,
-            ...shown.map((w) => Math.max(w.actualKm || 0, w.targetKm || 0)),
-        ) * 1.1,
+
+    // Round the ceiling up to the axis's top gridline so the tallest bar ends
+    // at a labelled number rather than somewhere between two of them.
+    const scale = $derived(
+        niceScale(
+            [0, Math.max(10, ...shown.map((w) => Math.max(w.actualKm || 0, w.targetKm || 0)))],
+            4,
+        ),
     );
+    const yTicks = $derived(axisTicks(scale, (v) => String(Math.round(v))));
+
     const layout = $derived(
-        bars(shown.map((w) => w.actualKm || 0), { width: WIDTH, height: HEIGHT, max: ceiling }),
+        bars(shown.map((w) => w.actualKm || 0), { width: WIDTH, height: HEIGHT, max: scale.max }),
     );
     const targets = $derived(
         shown.map((week, i) => {
             const slot = layout[i];
             if (!slot || !(week.targetKm > 0)) return null;
-            return { ...slot, y: HEIGHT - (week.targetKm / ceiling) * HEIGHT, target: week.targetKm };
+            return { ...slot, y: HEIGHT - (week.targetKm / scale.max) * HEIGHT };
         }),
     );
 
-    // Only the weeks that get a date label, positioned as a percentage of the
-    // chart width. They're placed rather than laid out because a label per bar
-    // in normal flow can't shrink below its own text: sixteen nowrap dates set
-    // a ~540px floor on the card, which on a phone is wider than the viewport
-    // and drags the whole page out with it. Absolute + clipped means the axis
-    // is exactly as wide as the chart at every size.
-    const ticks = $derived(
+    // A date under every bar doesn't fit on a phone, so label every third week
+    // plus both ends — dropping any stepped label that would crowd the last
+    // one, which on a phone means two dates overlapping.
+    const xTicks = $derived(
         shown
             .map((week, i) => ({ week, i }))
-            .filter(({ i }) => i === 0 || i === shown.length - 1 || i % 4 === 0)
+            .filter(({ i }) => {
+                const last = shown.length - 1;
+                if (i === 0 || i === last) return true;
+                return i % 3 === 0 && last - i >= 3;
+            })
             .map(({ week, i }) => ({
                 key: week.start,
                 label: axisDate(week.start),
-                // Centre of the bar's slot.
                 pct: ((i + 0.5) / shown.length) * 100,
-                // The end labels would be half-clipped if centred, so they
-                // anchor to the edges instead.
                 anchor: i === 0 ? "start" : i === shown.length - 1 ? "end" : "middle",
             })),
     );
 </script>
 
-<section class="card">
-    <div class="card-head">
-        <h2>Weekly volume</h2>
+<Card title="Weekly volume" info={GLOSSARY.volume}>
+    {#snippet aside()}
         <p class="legend">
             <span class="swatch actual"></span> run
             <span class="swatch planned"></span> planned
+            <span class="window">last {CHART_WEEKS} weeks</span>
         </p>
-    </div>
+    {/snippet}
 
     {#if shown.length === 0}
         <p class="empty">No weeks recorded yet.</p>
     {:else}
-        <svg class="chart" viewBox="0 0 {WIDTH} {HEIGHT + 24}" preserveAspectRatio="none" role="img" aria-label="Weekly running volume against plan">
-            {#each layout as bar, i}
-                {@const week = shown[i]}
-                <rect
-                    class="bar"
-                    class:taper={week.isTaper}
-                    x={bar.x}
-                    y={bar.y}
-                    width={bar.width}
-                    height={bar.height}
-                    rx="2"
-                >
-                    <title>{axisDate(week.start)} — {bar.value.toFixed(1)} km{week.targetKm ? ` of ${week.targetKm} km planned` : ""}</title>
-                </rect>
-                {#if targets[i]}
-                    <line
-                        class="target"
-                        x1={targets[i].x - 2}
-                        x2={targets[i].x + targets[i].width + 2}
-                        y1={targets[i].y}
-                        y2={targets[i].y}
-                    />
-                {/if}
-            {/each}
-        </svg>
-
-        <div class="axis">
-            {#each ticks as tick (tick.key)}
-                <span
-                    class="tick {tick.anchor}"
-                    style={tick.anchor === "start"
-                        ? "left: 0"
-                        : tick.anchor === "end"
-                          ? "right: 0"
-                          : `left: ${tick.pct}%`}
-                >{tick.label}</span>
-            {/each}
-        </div>
+        <ChartFrame height={190} {yTicks} {xTicks} label="Weekly running volume in kilometres against plan">
+            <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
+                {#each layout as bar, i}
+                    {@const week = shown[i]}
+                    <rect
+                        class="bar"
+                        class:taper={week.isTaper}
+                        x={bar.x}
+                        y={bar.y}
+                        width={bar.width}
+                        height={bar.height}
+                        rx="2"
+                    >
+                        <title>{axisDate(week.start)} — {bar.value.toFixed(1)} km{week.targetKm ? ` of ${week.targetKm} km planned` : ""}</title>
+                    </rect>
+                    {#if targets[i]}
+                        <line
+                            class="target"
+                            x1={targets[i].x - 2}
+                            x2={targets[i].x + targets[i].width + 2}
+                            y1={targets[i].y}
+                            y2={targets[i].y}
+                        />
+                    {/if}
+                {/each}
+            </svg>
+        </ChartFrame>
+        <p class="unit">kilometres per week</p>
     {/if}
-</section>
+</Card>
 
 <style>
-    .card-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: var(--space-4);
-        margin-bottom: var(--space-4);
-        flex-wrap: wrap;
-    }
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0;
-    }
     .legend {
         display: flex;
         align-items: center;
@@ -140,6 +122,7 @@
         color: var(--paragraph-colour);
         opacity: 0.7;
         margin: 0;
+        flex-wrap: wrap;
     }
     .swatch {
         display: inline-block;
@@ -153,13 +136,12 @@
         background: var(--paragraph-colour);
         opacity: 0.6;
     }
-
-    .chart {
-        width: 100%;
-        height: 190px;
-        display: block;
-        overflow: visible;
+    .window {
+        padding-left: var(--space-2);
+        border-left: 1px solid var(--main-green-translucent);
+        opacity: 0.85;
     }
+
     .bar {
         fill: var(--main-green);
         opacity: 0.75;
@@ -179,24 +161,14 @@
         stroke-linecap: round;
     }
 
-    .axis {
-        position: relative;
-        height: 1.2em;
-        margin-top: var(--space-2);
-        /* Belt and braces: a label can never widen the card, whatever the
-           week count or the locale's date length. */
-        overflow: hidden;
-    }
-    .tick {
-        position: absolute;
-        top: 0;
+    .unit {
+        margin: var(--space-2) 0 0;
         font-size: var(--font-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
         color: var(--paragraph-colour);
-        opacity: 0.6;
-        white-space: nowrap;
+        opacity: 0.5;
     }
-    .tick.middle { transform: translateX(-50%); }
-
     .empty {
         font-size: var(--font-sm);
         color: var(--paragraph-colour);

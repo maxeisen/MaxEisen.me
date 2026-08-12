@@ -6,8 +6,10 @@
     strongest early warning available from training data alone.
 -->
 <script>
+    import Card from "../../../lib/ui/Card.svelte";
     import { gaugePosition } from "../lib/chart.js";
     import { pct } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
     // riskWeek is the last whole week, which mid-week is the previous one —
     // week-over-week ramp measured on a Tuesday would otherwise read as a
@@ -36,9 +38,7 @@
     const weekLabel = $derived(riskWeek?.isCurrentWeek ? "This week's" : "Last week's");
 </script>
 
-<section class="card">
-    <h2>Load and risk</h2>
-
+<Card title="Load and risk" info={GLOSSARY.load}>
     <div class="gauge-row">
         <div class="gauge-value tone-{status.tone}">
             <strong>{ratio === null ? "—" : ratio.toFixed(2)}</strong>
@@ -83,17 +83,9 @@
             <dd>{Number.isFinite(acwr?.chronic) ? Math.round(acwr.chronic) : "—"}</dd>
         </div>
     </dl>
-</section>
+</Card>
 
 <style>
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0 0 var(--space-4) 0;
-    }
-
     .gauge-row {
         display: flex;
         align-items: center;
@@ -119,14 +111,14 @@
         color: var(--paragraph-colour);
         opacity: 0.7;
     }
-    .tone-good strong { color: var(--main-green); }
-    .tone-bad strong { color: var(--color-error-soft); }
-    .tone-warn strong { color: #e0c288; }
+    .tone-good strong { color: var(--tone-good); }
+    .tone-bad strong { color: var(--tone-bad); }
+    .tone-warn strong { color: var(--tone-warn); }
 
     .gauge-wrap { flex: 1; min-width: 220px; }
     .gauge { width: 100%; height: 40px; display: block; }
     .track { fill: var(--paragraph-colour); opacity: 0.15; }
-    .safe { fill: var(--main-green); opacity: 0.35; }
+    .safe { fill: var(--tone-good); opacity: 0.35; }
     .marker {
         stroke: var(--header-colour);
         stroke-width: 3;
@@ -141,14 +133,27 @@
     }
 
     .status {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
         font-size: var(--font-sm);
         font-weight: 600;
         margin: var(--space-4) 0 0 0;
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-pill);
         color: var(--paragraph-colour);
+        background: var(--item-background);
     }
-    .status.tone-good { color: var(--main-green); }
-    .status.tone-bad { color: var(--color-error-soft); }
-    .status.tone-warn { color: #e0c288; }
+    .status::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+    .status.tone-good { color: var(--tone-good); background: var(--tone-good-bg); }
+    .status.tone-bad { color: var(--tone-bad); background: var(--tone-bad-bg); }
+    .status.tone-warn { color: var(--tone-warn); background: var(--tone-warn-bg); }
 
     .detail {
         display: grid;
@@ -170,5 +175,5 @@
         font-weight: 600;
         color: var(--header-colour);
     }
-    dd.over { color: var(--color-error-soft); }
+    dd.over { color: var(--tone-warn); }
 </style>

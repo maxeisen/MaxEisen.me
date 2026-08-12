@@ -104,6 +104,58 @@ describe("buildDashboard", () => {
 		expect(days[3].planned).toEqual([]);
 	});
 
+	it("tells the run log which runs were the plan and which were extra", () => {
+		// Monday and Tuesday planned; the runs land on Tuesday and Wednesday.
+		const planned = {
+			...PLAN,
+			weeks: [
+				{
+					start: "2026-08-10",
+					sessions: [
+						{ day: "Monday", type: "rest", detail: "Rest" },
+						{ day: "Tuesday", type: "easy run", distanceKm: 8, detail: "8km Easy Run" },
+					],
+				},
+			],
+		};
+		const out = buildDashboard({
+			activities: [
+				...block("2026-08-11", 1, { distanceM: 8000 }),
+				{ ...block("2026-08-12", 1, { distanceM: 6000 })[0], id: 2001 },
+			],
+			plan: planned,
+			today: "2026-08-12",
+		});
+
+		// Newest first, as the log renders it.
+		const [wednesday, tuesday] = out.runs;
+		expect(tuesday.plan).toEqual({
+			planned: true,
+			type: "easy run",
+			detail: "8km Easy Run",
+			distanceKm: 8,
+		});
+		expect(wednesday.plan.planned).toBe(false);
+	});
+
+	it("keeps the plan match aligned with the runs the log actually carries", () => {
+		// More runs than the log holds: the tail it ships must still be
+		// matched against the right days.
+		const planned = {
+			...PLAN,
+			weeks: [{ start: "2026-08-10", sessions: [{ day: "Tuesday", type: "long run", distanceKm: 24 }] }],
+		};
+		const out = buildDashboard({
+			activities: block("2026-08-11", 40),
+			plan: planned,
+			today: "2026-08-11",
+		});
+		expect(out.runs).toHaveLength(30);
+		expect(out.summary.totals.runs).toBe(40);
+		expect(out.runs[0].plan.type).toBe("long run");
+		expect(out.runs.filter((r) => r.plan.planned)).toHaveLength(1);
+	});
+
 	it("reports the week's targets from its sessions", () => {
 		const planned = {
 			...PLAN,

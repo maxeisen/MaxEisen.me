@@ -80,10 +80,11 @@
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
-        gap: var(--space-5);
+        gap: var(--space-3) var(--space-5);
         flex-wrap: wrap;
         margin-bottom: var(--space-6);
     }
+    .race-intro { min-width: 0; }
     .eyebrow {
         font-size: var(--font-2xs);
         font-weight: 600;
@@ -108,10 +109,15 @@
         margin: var(--space-2) 0 0 0;
     }
 
+    /* The number and its label share a left edge. Right-aligning them against
+       each other only looks deliberate while the countdown is opposite the
+       race name; the moment it wraps underneath — which depends on how long
+       the race is called, not on any one breakpoint — it leaves the number
+       floating in from the margin with nothing to line up with. */
     .countdown {
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
+        align-items: flex-start;
         line-height: 1;
     }
     .countdown-value {
@@ -128,6 +134,17 @@
         color: var(--paragraph-colour);
         opacity: 0.7;
         margin-top: var(--space-2);
+    }
+    /* On a phone the countdown costs two lines of a short screen for one
+       number; put it on one. */
+    @media (max-width: 620px) {
+        .countdown {
+            flex-direction: row;
+            align-items: baseline;
+            gap: var(--space-2);
+        }
+        .countdown-value { font-size: 2.25rem; }
+        .countdown-label { margin-top: 0; }
     }
 
     .headline-stats {
@@ -159,8 +176,8 @@
         color: var(--header-colour);
         letter-spacing: -0.02em;
     }
-    .stat-value.ahead { color: var(--main-green); }
-    .stat-value.behind { color: var(--color-error-soft); }
+    .stat-value.ahead { color: var(--tone-good); }
+    .stat-value.behind { color: var(--tone-bad); }
     .stat-note {
         font-size: var(--font-xs);
         color: var(--paragraph-colour);

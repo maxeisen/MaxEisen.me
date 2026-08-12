@@ -16,6 +16,7 @@ import {
 	currentWeek as findCurrentWeek,
 	dayOfWeek,
 	daysToRace,
+	matchRunsToPlan,
 	upcomingWeeks,
 	weekDays,
 	weeksToRace,
@@ -29,6 +30,10 @@ const INTENSITY_WINDOW_DAYS = 28;
 
 // Long runs considered when reporting decoupling.
 const LONG_RUN_MIN_M = 18000;
+
+// How many runs the log carries. Enough to scroll through a couple of months
+// of training without shipping the whole block's history to every visitor.
+const RUN_LOG_LIMIT = 30;
 
 function withinDays(activities, today, days) {
 	const cutoff = new Date(`${today}T00:00:00Z`).getTime() - days * 86_400_000;
@@ -252,7 +257,21 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		week: current ? { start: current.start, days: planDays(current, runs, day) } : null,
 		upcoming: upcomingWeeks(plan, day),
 		recommendations: advice,
-		runs: runs.slice(-30).reverse().map(publicRun),
+		// The log carries its plan match so the page can say which runs were
+		// the plan and which were extra. The match comes from the plan file
+		// rather than from Strava, so it adds nothing to what publicRun()
+		// allows out.
+		runs: (() => {
+			// Matched over the whole block, then sliced: a day whose first run
+			// falls outside the log would otherwise let its second run claim
+			// the session the first one already did.
+			const matches = matchRunsToPlan(runs, plan);
+			const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
+			return runs
+				.slice(from)
+				.map((run, i) => ({ ...publicRun(run), plan: matches[from + i] }))
+				.reverse();
+		})(),
 		thresholds,
 	};
 }

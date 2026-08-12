@@ -11,56 +11,75 @@
     would draw the week's workout schedule instead of a trend.
 -->
 <script>
-    import { extent, linePath, seriesPoints } from "../lib/chart.js";
+    import Card from "../../../lib/ui/Card.svelte";
+    import ChartFrame from "../charts/ChartFrame.svelte";
+    import { axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow } from "../lib/chart.js";
     import { axisDate } from "../lib/format.js";
+    import { GLOSSARY } from "../lib/glossary.js";
 
-    let { efficiency = null, summary = null } = $props();
+    let { efficiency = null, summary = null, today = null } = $props();
 
     const WIDTH = 720;
     const HEIGHT = 150;
 
-    const points = $derived(efficiency?.points || []);
-    const trend = $derived(efficiency?.trend || []);
+    const points = $derived(withinWindow(efficiency?.points || [], today));
+    const trend = $derived(withinWindow(efficiency?.trend || [], today));
     const stats = $derived(summary?.efficiency || null);
     const decoupling = $derived(summary?.longRun || null);
 
     // Both series share one domain so the smoothed line sits among the runs it
-    // was averaged from rather than on its own scale.
-    const domain = $derived(
-        extent([...points.map((p) => p.ef), ...trend.map((p) => p.ef)], { includeZero: false }),
+    // was averaged from rather than on its own scale. EF lives in a narrow band
+    // around 1.3, so the axis is not anchored to zero — that would compress a
+    // block's worth of progress into a flat line across the top.
+    const scale = $derived(
+        niceScale(
+            [
+                Math.min(...[...points, ...trend].map((p) => p.ef)),
+                Math.max(...[...points, ...trend].map((p) => p.ef)),
+            ],
+            3,
+        ),
     );
+    const domain = $derived([scale.min, scale.max]);
+    const yTicks = $derived(axisTicks(scale, (v) => v.toFixed(scale.step < 0.1 ? 2 : 1)));
 
     const dots = $derived(seriesPoints(points.map((p) => p.ef), { width: WIDTH, height: HEIGHT, domain }));
     const line = $derived(seriesPoints(trend.map((p) => p.ef), { width: WIDTH, height: HEIGHT, domain }));
 
+    const xTicks = $derived.by(() => {
+        if (points.length < 2) return [];
+        const middle = points[Math.floor(points.length / 2)];
+        return [
+            { key: "first", label: axisDate(points[0].date), pct: 0, anchor: "start" },
+            { key: "mid", label: axisDate(middle.date), pct: 50, anchor: "middle" },
+            { key: "last", label: axisDate(points.at(-1).date), pct: 100, anchor: "end" },
+        ];
+    });
+
     const change = $derived(Number.isFinite(stats?.changePct) ? stats.changePct : null);
 </script>
 
-<section class="card">
-    <div class="card-head">
-        <h2>Aerobic efficiency</h2>
+<Card title="Aerobic efficiency" info={GLOSSARY.efficiency}>
+    {#snippet aside()}
         {#if change !== null}
             <p class="readout" class:up={change > 0} class:down={change < 0}>
                 {change > 0 ? "+" : ""}{change.toFixed(1)}% over the block
             </p>
         {/if}
-    </div>
+    {/snippet}
 
     {#if points.length < 2}
-        <p class="empty">Not enough aerobic runs with heart rate to plot yet.</p>
+        <p class="empty">Not enough aerobic runs with heart rate in the last {CHART_WEEKS} weeks to plot yet.</p>
     {:else}
-        <svg class="chart" viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none" role="img" aria-label="Efficiency factor per run over the training block">
-            {#each dots as dot}
-                <circle class="dot" cx={dot.x} cy={dot.y} r="3" />
-            {/each}
-            <path class="line" d={linePath(line)} />
-        </svg>
-
-        <div class="axis">
-            <span>{axisDate(points[0].date)}</span>
-            <span>{points.length} aerobic runs</span>
-            <span>{axisDate(points.at(-1).date)}</span>
-        </div>
+        <ChartFrame height={160} {yTicks} {xTicks} label="Efficiency factor per aerobic run over the last {CHART_WEEKS} weeks">
+            <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
+                {#each dots as dot}
+                    <circle class="dot" cx={dot.x} cy={dot.y} r="3" />
+                {/each}
+                <path class="line" d={linePath(line)} />
+            </svg>
+        </ChartFrame>
+        <p class="unit">speed per heartbeat · {points.length} aerobic runs in the last {CHART_WEEKS} weeks</p>
 
         <p class="note">
             {#if change !== null && change > 1}
@@ -75,24 +94,9 @@
             {/if}
         </p>
     {/if}
-</section>
+</Card>
 
 <style>
-    .card-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: var(--space-4);
-        flex-wrap: wrap;
-        margin-bottom: var(--space-4);
-    }
-    h2 {
-        font-family: var(--font-serif);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0;
-    }
     .readout {
         font-size: var(--font-2xs);
         text-transform: uppercase;
@@ -101,17 +105,12 @@
         opacity: 0.75;
         margin: 0;
     }
-    .readout.up { color: var(--main-green); opacity: 1; }
-    .readout.down { color: var(--color-error-soft); opacity: 1; }
+    .readout.up { color: var(--tone-good); opacity: 1; }
+    .readout.down { color: var(--tone-bad); opacity: 1; }
 
-    .chart {
-        width: 100%;
-        height: 160px;
-        display: block;
-    }
     .dot {
         fill: var(--paragraph-colour);
-        opacity: 0.28;
+        opacity: 0.3;
         vector-effect: non-scaling-stroke;
     }
     .line {
@@ -123,13 +122,13 @@
         vector-effect: non-scaling-stroke;
     }
 
-    .axis {
-        display: flex;
-        justify-content: space-between;
-        margin-top: var(--space-2);
+    .unit {
+        margin: var(--space-2) 0 0;
         font-size: var(--font-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
         color: var(--paragraph-colour);
-        opacity: 0.6;
+        opacity: 0.5;
     }
     .note {
         margin: var(--space-3) 0 0;
