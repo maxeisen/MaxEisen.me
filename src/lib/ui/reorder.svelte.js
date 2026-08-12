@@ -18,6 +18,10 @@
 //     plain press dispatches its click to the slot rather than to whatever was
 //     pressed — nothing inside a panel would be clickable at all.
 
+// $state is a Svelte compiler intrinsic rather than an import, so tell plain-JS
+// linters about it.
+/* global $state */
+
 import { readLayout, writeLayout, swapSlots } from "./layoutStore.js";
 
 const CLICK_SUPPRESSION_MS = 300;
@@ -33,7 +37,7 @@ const CLICK_SUPPRESSION_MS = 300;
  * @param {() => boolean} [options.enabled] gate, e.g. "only in edit mode".
  * @param {() => void} [options.onReorder] side effects after a swap lands.
  */
-export function createReorder({
+function createReorder({
 	order,
 	storageKey,
 	slotSelector = ".slot[data-slot-index]",
@@ -52,62 +56,113 @@ export function createReorder({
 
 	function restore() {
 		const stored = readLayout(storageKey, defaults);
-		if (!stored) return false;
+		if (!stored) {
+			return false;
+		}
 		layout = stored;
 		return true;
 	}
 
 	function swap(srcIdx, dstIdx) {
 		const next = swapSlots(layout, srcIdx, dstIdx);
-		if (next === layout) return;
+		if (next === layout) {
+			return;
+		}
 		layout = next;
 		writeLayout(storageKey, layout);
 		onReorder();
 	}
 
+	// Left button only. Synthetic events, and pointer events for touch on some
+	// engines, leave `button` unset; that counts as primary.
+	function isPrimaryButton(event) {
+		return typeof event.button !== "number" || event.button === 0;
+	}
+
+	function canStart(event) {
+		return isPrimaryButton(event) && draggingId === null && enabled();
+	}
+
+	// `.dragging` sets pointer-events: none, so this looks straight through the
+	// panel being dragged to the slot underneath the pointer.
+	function slotUnder(x, y) {
+		const el = document.elementFromPoint(x, y);
+		return el ? el.closest(slotSelector) : null;
+	}
+
+	function slotIndexUnder(x, y) {
+		const slot = slotUnder(x, y);
+		const idx = slot ? Number(slot.dataset.slotIndex) : Number.NaN;
+		return Number.isFinite(idx) ? idx : null;
+	}
+
+	function updateDropTarget(id, x, y) {
+		const idx = slotIndexUnder(x, y);
+		dropTargetIdx = idx === layout.indexOf(id) ? null : idx;
+	}
+
+	function clearDrag() {
+		isDragging = false;
+		draggingId = null;
+		dropTargetIdx = null;
+		dragTransform = null;
+	}
+
 	function start(id, event) {
-		if (event.button !== undefined && event.button !== 0) return;
-		if (draggingId !== null) return;
-		if (!enabled()) return;
+		if (!canStart(event)) {
+			return;
+		}
 
 		const pointerId = event.pointerId;
 		const startX = event.clientX;
 		const startY = event.clientY;
 		let started = false;
 
+		// A press only becomes a drag once it has travelled far enough; until
+		// then the pointer still belongs to whatever is inside the panel.
+		const begin = (ev) => {
+			if (started) {
+				return true;
+			}
+			if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < threshold) {
+				return false;
+			}
+			started = true;
+			draggingId = id;
+			isDragging = true;
+			return true;
+		};
+
+		const drop = () => {
+			if (dropTargetIdx !== null) {
+				swap(layout.indexOf(id), dropTargetIdx);
+			}
+			suppressClickUntil = Date.now() + CLICK_SUPPRESSION_MS;
+		};
+
 		const onMove = (ev) => {
-			if (ev.pointerId !== pointerId) return;
-			const dx = ev.clientX - startX;
-			const dy = ev.clientY - startY;
-			if (!started) {
-				if (Math.hypot(dx, dy) < threshold) return;
-				started = true;
-				draggingId = id;
-				isDragging = true;
+			if (ev.pointerId !== pointerId) {
+				return;
+			}
+			if (!begin(ev)) {
+				return;
 			}
 			ev.preventDefault();
-			dragTransform = { x: dx, y: dy };
-
-			const under = document.elementFromPoint(ev.clientX, ev.clientY);
-			const slot = under?.closest(slotSelector);
-			const idx = slot ? Number(slot.dataset.slotIndex) : null;
-			const srcIdx = layout.indexOf(id);
-			dropTargetIdx = idx != null && Number.isFinite(idx) && idx !== srcIdx ? idx : null;
+			dragTransform = { x: ev.clientX - startX, y: ev.clientY - startY };
+			updateDropTarget(id, ev.clientX, ev.clientY);
 		};
 
 		const onEnd = (ev) => {
-			if (ev.pointerId !== pointerId) return;
+			if (ev.pointerId !== pointerId) {
+				return;
+			}
 			document.removeEventListener("pointermove", onMove);
 			document.removeEventListener("pointerup", onEnd);
 			document.removeEventListener("pointercancel", onEnd);
 			if (started) {
-				if (dropTargetIdx != null) swap(layout.indexOf(id), dropTargetIdx);
-				suppressClickUntil = Date.now() + CLICK_SUPPRESSION_MS;
+				drop();
 			}
-			isDragging = false;
-			draggingId = null;
-			dropTargetIdx = null;
-			dragTransform = null;
+			clearDrag();
 		};
 
 		document.addEventListener("pointermove", onMove);
@@ -116,14 +171,24 @@ export function createReorder({
 	}
 
 	return {
-		get layout() { return layout; },
-		get draggingId() { return draggingId; },
-		get dropTargetIdx() { return dropTargetIdx; },
-		get isDragging() { return isDragging; },
+		get layout() {
+			return layout;
+		},
+		get draggingId() {
+			return draggingId;
+		},
+		get dropTargetIdx() {
+			return dropTargetIdx;
+		},
+		get isDragging() {
+			return isDragging;
+		},
 
 		/** Inline transform for a panel mid-drag, or null when it's at rest. */
 		transformFor(id, { scale = 1.02 } = {}) {
-			if (draggingId !== id || !dragTransform) return null;
+			if (draggingId !== id || !dragTransform) {
+				return null;
+			}
 			return `translate(${dragTransform.x}px, ${dragTransform.y}px) scale(${scale})`;
 		},
 
@@ -147,3 +212,6 @@ export function createReorder({
 		},
 	};
 }
+
+// Exported here rather than inline, for the reason given in layoutStore.js.
+export { createReorder };

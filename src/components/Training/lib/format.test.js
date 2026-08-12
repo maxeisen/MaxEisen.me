@@ -39,7 +39,7 @@ describe("training formatters", () => {
 
 	it("reports missing values as an em dash rather than NaN", () => {
 		expect(pace(null)).toBe("—");
-		expect(km(undefined)).toBe("—");
+		expect(km()).toBe("—");
 		expect(pct(null)).toBe("—");
 		expect(shortDate("")).toBe("");
 	});
