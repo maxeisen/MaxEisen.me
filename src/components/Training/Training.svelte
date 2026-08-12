@@ -166,7 +166,7 @@
             class:dragging={reorder.draggingId === id}
             data-panel={id}
             style:transform={reorder.transformFor(id)}
-            onpointerdown={(e) => reorder.start(id, e)}
+            onpointerdown={(e) => { if (e.pointerType !== "touch") reorder.start(id, e); }}
         >
             {#if isEditing}
                 <button
@@ -174,6 +174,7 @@
                     type="button"
                     aria-label="Move {PANELS[id]} — use the arrow keys, or drag"
                     title="Drag to rearrange"
+                    onpointerdown={(e) => { e.stopPropagation(); reorder.start(id, e); }}
                     onkeydown={(e) => nudge(id, e)}
                 >
                     <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -320,10 +321,16 @@
         z-index: 20;
         opacity: 0.92;
         cursor: grabbing;
+        /* The card surfaces are translucent, so a panel in flight would
+           otherwise read as part of whatever it's passing over. */
+        filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.35));
     }
+    /* A finger dragging the panel body would have to give up scrolling
+       (touch-action: none) to do it, and on a phone the panels are most of
+       the page — you'd be stuck at whichever one you started on. So touch
+       drags from the handle only; a mouse can still grab anywhere. */
     .grid.is-editing .panel {
         cursor: grab;
-        touch-action: none;
         user-select: none;
     }
     .grid.is-editing .slot.drop-target {
@@ -350,9 +357,14 @@
         background: var(--background-one);
         color: var(--main-green);
         cursor: grab;
+        touch-action: none;
         box-shadow: var(--inner-box-shadow);
     }
     .panel-handle svg { width: 15px; height: 15px; display: block; fill: currentColor; }
+    @media (pointer: coarse) {
+        .panel-handle { width: 34px; height: 34px; top: -12px; right: -12px; }
+        .panel-handle svg { width: 18px; height: 18px; }
+    }
 
     /* iOS-style jiggle, matching /dashboard's edit mode. */
     @keyframes panel-jiggle {

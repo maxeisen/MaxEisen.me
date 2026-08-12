@@ -118,6 +118,23 @@ test.describe("rearranging the panels", () => {
 		await expect(panelAt(page, 1)).toHaveAttribute("data-panel", "volume");
 	});
 
+	// On a phone the panels are most of the page, so a panel that swallowed
+	// touch gestures to be draggable would strand you at whichever one you
+	// started on. Touch drags go through the handle instead, and it's the only
+	// thing allowed to take touch-action away from the scroller.
+	test("a finger can still scroll the page while rearranging", async ({ page }) => {
+		await page.setViewportSize(PHONE);
+		await page.goto("/training");
+		await page.getByRole("button", { name: "Rearrange" }).click();
+
+		const blocked = await page.evaluate(() =>
+			[...document.querySelectorAll("#training-grid *")]
+				.filter((el) => getComputedStyle(el).touchAction === "none")
+				.map((el) => el.className.toString().split(" ")[0]),
+		);
+		expect([...new Set(blocked)]).toEqual(["panel-handle"]);
+	});
+
 	test("taps inside a panel don't fire while rearranging", async ({ page }) => {
 		await page.goto("/training");
 		const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();

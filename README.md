@@ -60,7 +60,8 @@ src/
                           player/ modals/ layout/) and feature logic (lib/).
   lib/              Cross-feature code, NOT tied to one route:
     ui/             Shared presentational components (BackLink, Button, Card,
-                    CloseButton, GateOverlay, Spinner)
+                    CloseButton, GateOverlay, Spinner) + reorder (drag-to-
+                    rearrange) and its storage half, layoutStore
     data/           Client data layer (fetchJson, swrCache, concurrent)
     strava.js       Promoted feature-agnostic helpers (format/decode)
     tilt.js         Reusable Svelte action
@@ -74,6 +75,22 @@ feature's folder; once a **second** feature needs it, promote it to `src/lib/`.
 `/dashboard` widget shell, plus a header and an optional "i" disclosure that
 explains the panel's metrics. Every `/training` section is built on it, so the
 card chrome is defined once rather than restated per section.
+
+`lib/ui/reorder.svelte.js` is the drag-to-rearrange behaviour shared by
+`/dashboard` and `/training`. The model is slots, not lists: positions are
+fixed and sized by the page, and a drop swaps the two panels involved, so
+nothing reflows under the cursor mid-drag. Two details are load-bearing and
+commented as such — no `setPointerCapture` (it redirects the synthesized click
+away from anchors inside a panel), and `draggingId` is only set once the
+pointer passes the threshold (the `dragging` class carries
+`pointer-events: none`, which would otherwise swallow ordinary clicks). The
+pure parts — validating a stored layout, swapping slots — live in
+`lib/ui/layoutStore.js` so they're testable without compiling runes.
+
+The two pages gate it differently. `/dashboard` drags freely on desktop and
+behind an Edit toggle once responsive; `/training` is always behind its
+Rearrange toggle, because those panels are full of links and scrollable lists
+and a stray drag would cost you a text selection or a tap.
 
 ### Netlify function re-export pattern
 
@@ -157,8 +174,8 @@ A handful of [Playwright](https://playwright.dev) smoke tests in `e2e/`
 (`*.e2e.js`) guard the lowest-risk/highest-value flows — the homepage boots,
 `/dashboard` mounts its widget grid, `/gallery` renders and its photo fetch
 settles, and `/training` renders its sections — labelled axes, plan-matched run
-log, working "i" disclosures — without any of them growing wider than a phone
-screen. They run against `vite preview` (the static build, no
+log, working "i" disclosures, panels that rearrange and stay rearranged —
+without any of them growing wider than a phone screen. They run against `vite preview` (the static build, no
 Functions), so they assert routes render rather than live data; `/training`
 needs a payload before it draws anything wide, so it gets one from the real
 metrics engine (`e2e/fixtures/trainingPayload.js`) via a route stub. Install the browser once with
