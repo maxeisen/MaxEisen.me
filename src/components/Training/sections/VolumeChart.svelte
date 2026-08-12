@@ -15,7 +15,7 @@
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { axisTicks, bars, CHART_WEEKS, niceScale } from "../lib/chart.js";
-    import { axisDate } from "../lib/format.js";
+    import { axisDate, weekRange } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { weeks = [], today = null } = $props();
@@ -93,7 +93,7 @@
                         height={bar.height}
                         rx="2"
                     >
-                        <title>{axisDate(week.start)} — {bar.value.toFixed(1)} km{week.targetKm ? ` of ${week.targetKm} km planned` : ""}</title>
+                        <title>{weekRange(week.start)} — {bar.value.toFixed(1)} km{week.targetKm ? ` of ${week.targetKm} km planned` : ""}</title>
                     </rect>
                     {#if targets[i]}
                         <line

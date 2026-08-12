@@ -7,7 +7,7 @@
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
-    import { pct, shortDate, weekday } from "../lib/format.js";
+    import { pct, weekday, weekRange } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { currentWeek = null, week = null, upcoming = [] } = $props();
@@ -39,6 +39,12 @@
 </script>
 
 <Card title="This week" info={GLOSSARY.week}>
+    {#snippet aside()}
+        {#if currentWeek?.start}
+            <span class="range">{weekRange(currentWeek.start)}</span>
+        {/if}
+    {/snippet}
+
     {#if !currentWeek}
         <p class="empty">No runs logged this week yet.</p>
     {:else}
@@ -76,7 +82,7 @@
             <ol class="days">
                 {#each days as day (day.date)}
                     <li class="day {day.status}" class:today={day.isToday}>
-                        <span class="day-name">{weekday(day.date)}</span>
+                        <span class="day-name">{weekday(day.date)} {Number(day.date.slice(8, 10))}</span>
                         <span class="day-plan">
                             {#if day.planned.length}
                                 {#each day.planned as session}
@@ -127,7 +133,7 @@
             <ul>
                 {#each upcoming as week (week.start)}
                     <li>
-                        <span class="week-date">{shortDate(week.start)}</span>
+                        <span class="week-date">{weekRange(week.start)}</span>
                         <span class="week-km">{week.targetKm ? `${week.targetKm} km` : "—"}</span>
                         <span class="week-long">{week.longRunKm ? `${week.longRunKm} km long` : ""}</span>
                     </li>
@@ -138,6 +144,13 @@
 </Card>
 
 <style>
+    .range {
+        font-size: var(--font-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--paragraph-colour);
+        opacity: 0.6;
+    }
     .metric { margin-bottom: var(--space-4); }
     .metric-head {
         display: flex;
@@ -195,7 +208,7 @@
     }
     .day {
         display: grid;
-        grid-template-columns: 34px 1fr auto;
+        grid-template-columns: 46px 1fr auto;
         align-items: baseline;
         gap: var(--space-3);
         padding: var(--space-2) var(--space-2);
@@ -215,9 +228,10 @@
     .day-name {
         font-size: var(--font-2xs);
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
         color: var(--main-green);
         font-weight: 600;
+        white-space: nowrap;
     }
     .day-plan {
         display: flex;
