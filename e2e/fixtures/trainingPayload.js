@@ -11,6 +11,10 @@ import { shapeActivities } from "../../netlify/functions/_shared/training/shape.
 import { buildDashboard } from "../../netlify/functions/_shared/training/metrics.js";
 import { loadPlan } from "../../netlify/functions/_shared/training/planFile.js";
 
+// Strava's field names are quoted throughout: they're the API's spelling rather
+// than identifiers this repo chose, and quoting says so — to a reader and to
+// the analyser, which otherwise reads every one of them as a naming mistake.
+
 // A deterministic generator, so a layout assertion can never fail on a Tuesday
 // only because that week's random distances happened to be long.
 function sequence(seed = 42) {
@@ -48,7 +52,7 @@ function streamsFor({ distance, movingTime, averageHr, next }) {
 		heartrate.push(averageHr - 6 + (12 * i) / steps + (next() - 0.5) * 6);
 		grade.push((next() - 0.5) * 3);
 	}
-	return { time, distance: distanceStream, heartrate, grade_smooth: grade };
+	return { time, distance: distanceStream, heartrate, "grade_smooth": grade };
 }
 
 /**
@@ -80,33 +84,33 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 			// rather than widening the log.
 			name: isLong ? "Long Run Along the Lakeshore Trail" : NAMES[Math.floor(next() * NAMES.length)],
 			type: "Run",
-			sport_type: "Run",
+			"sport_type": "Run",
 			private: false,
-			start_date_local: `${date}T07:12:00Z`,
+			"start_date_local": `${date}T07:12:00Z`,
 			distance,
-			moving_time: movingTime,
-			elapsed_time: movingTime + 90,
-			total_elevation_gain: Math.round(next() * 120),
-			average_heartrate: averageHr,
-			max_heartrate: 172 + next() * 15,
-			average_cadence: 84 + next() * 6,
-			workout_type: isLong ? 2 : dow === 5 ? 3 : 0,
+			"moving_time": movingTime,
+			"elapsed_time": movingTime + 90,
+			"total_elevation_gain": Math.round(next() * 120),
+			"average_heartrate": averageHr,
+			"max_heartrate": 172 + next() * 15,
+			"average_cadence": 84 + next() * 6,
+			"workout_type": isLong ? 2 : dow === 5 ? 3 : 0,
 			// Whole kilometres, then the fragment Strava sends for however far
 			// past the last one you actually got. Real runs almost never end on
 			// a round number, and that stub's pace is where the panel's chart
 			// went wrong the first time.
-			splits_metric: Array.from({ length: Math.ceil(distance / 1000) }, (_, i) => {
+			"splits_metric": Array.from({ length: Math.ceil(distance / 1000) }, (_, i) => {
 				const splitM = Math.min(1000, distance - i * 1000);
 				return {
 					distance: splitM,
-					moving_time: Math.round((paceSecPerKm + (next() - 0.5) * 20) * (splitM / 1000)),
-					elevation_difference: Math.round((next() - 0.5) * 12),
-					average_heartrate: 140 + next() * 20,
+					"moving_time": Math.round((paceSecPerKm + (next() - 0.5) * 20) * (splitM / 1000)),
+					"elevation_difference": Math.round((next() - 0.5) * 12),
+					"average_heartrate": 140 + next() * 20,
 				};
 			}),
-			best_efforts: [
-				{ name: "5k", distance: 5000, elapsed_time: Math.round(paceSecPerKm * 5 * 0.92) },
-				{ name: "10k", distance: 10000, elapsed_time: Math.round(paceSecPerKm * 10 * 0.95) },
+			"best_efforts": [
+				{ name: "5k", distance: 5000, "elapsed_time": Math.round(paceSecPerKm * 5 * 0.92) },
+				{ name: "10k", distance: 10000, "elapsed_time": Math.round(paceSecPerKm * 10 * 0.95) },
 			],
 			streams: streamsFor({ distance, movingTime, averageHr, next }),
 		});

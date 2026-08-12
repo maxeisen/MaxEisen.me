@@ -27,13 +27,24 @@ const MIN_SPLITS_FOR_HALVES = 4;
 const HARD_SHARE_PCT = 20;
 const MODERATE_SHARE_PCT = 35;
 
-const sum = (values) => values.reduce((total, v) => total + (Number(v) || 0), 0);
+const number = (value) => Number(value) || 0;
+const finite = (value) => (Number.isFinite(value) ? value : null);
+const sum = (values) => values.reduce((total, v) => total + number(v), 0);
 
 function median(values) {
-	if (values.length === 0) return null;
+	if (values.length === 0) {
+		return null;
+	}
 	const sorted = [...values].sort((a, b) => a - b);
 	const mid = Math.floor(sorted.length / 2);
-	return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+	const lower = sorted.at(mid - 1);
+	const upper = sorted.at(mid);
+	return sorted.length % 2 ? upper : (lower + upper) / 2;
+}
+
+/** Fitness minus fatigue, as of the end of a day in the series. */
+function formOf(day) {
+	return day.ctl - day.atl;
 }
 
 /**
@@ -52,12 +63,12 @@ function median(values) {
  */
 function formImpact(series, date) {
 	const idx = (series || []).findIndex((d) => d.date === date);
-	if (idx < 1) return null;
+	if (idx < 1) {
+		return null;
+	}
 
-	const before = series[idx - 1];
-	const after = series[idx];
-	const formBefore = before.ctl - before.atl;
-	const formAfter = after.ctl - after.atl;
+	const before = series.at(idx - 1);
+	const after = series.at(idx);
 
 	return {
 		dayLoad: after.load,
@@ -65,8 +76,8 @@ function formImpact(series, date) {
 		ctlDelta: after.ctl - before.ctl,
 		atl: after.atl,
 		atlDelta: after.atl - before.atl,
-		tsb: formAfter,
-		tsbDelta: formAfter - formBefore,
+		tsb: formOf(after),
+		tsbDelta: formOf(after) - formOf(before),
 	};
 }
 
@@ -87,25 +98,24 @@ function recentBefore(runs, date) {
  *   when nothing in the block matches it.
  */
 function daysSinceAsHard(previous, load, date) {
-	if (!(load > 0)) return null;
-	for (let i = previous.length - 1; i >= 0; i--) {
-		if ((Number(previous[i].load) || 0) >= load) {
-			return daysBetween(toDayKey(previous[i].startDateLocal), date);
-		}
+	const match = load > 0 ? previous.findLast((run) => number(run.load) >= load) : null;
+	if (!match) {
+		return null;
 	}
-	return null;
+	return daysBetween(toDayKey(match.startDateLocal), date);
 }
 
 function loadImpact(run, previous, date) {
-	const load = Number.isFinite(run.load) ? run.load : null;
-	const typical = median(previous.map((r) => Number(r.load) || 0).filter((v) => v > 0));
+	const load = finite(run.load);
+	const typical = median(previous.map((r) => number(r.load)).filter((v) => v > 0));
+	const comparable = load > 0 && typical > 0;
 
 	return {
 		load,
 		typicalLoad: typical,
 		// Above 100% is a harder run than your median; the ratio travels
 		// better between athletes than either number does.
-		vsTypicalPct: load > 0 && typical > 0 ? (load / typical) * 100 : null,
+		vsTypicalPct: comparable ? (load / typical) * 100 : null,
 		daysSinceAsHard: daysSinceAsHard(previous, load, date),
 		runsCompared: previous.length,
 	};
@@ -114,14 +124,16 @@ function loadImpact(run, previous, date) {
 /** The week the run landed in, and how much of it this one run was. */
 function weekImpact(weeks, run, date) {
 	const week = (weeks || []).find((w) => w.start <= date && date <= addDays(w.start, 6));
-	if (!week) return null;
+	if (!week) {
+		return null;
+	}
 
-	const distanceKm = (Number(run.distanceM) || 0) / 1000;
-	const targetKm = Number.isFinite(week.targetKm) ? week.targetKm : null;
+	const distanceKm = number(run.distanceM) / 1000;
+	const targetKm = finite(week.targetKm);
 
 	return {
 		start: week.start,
-		actualKm: Number.isFinite(week.actualKm) ? week.actualKm : null,
+		actualKm: finite(week.actualKm),
 		targetKm,
 		// Against the target where there is one: "a third of the week" is a
 		// statement about the plan, not about how much else got run.
@@ -132,7 +144,28 @@ function weekImpact(weeks, run, date) {
 function paceOver(splits) {
 	const distanceM = sum(splits.map((s) => s.distanceM));
 	const timeSec = sum(splits.map((s) => s.timeSec));
-	return distanceM > 0 && timeSec > 0 ? timeSec / (distanceM / 1000) : null;
+	return distanceM > 0 ? timeSec / (distanceM / 1000) : null;
+}
+
+function fadeBetween(first, second) {
+	if (!(first > 0) || !(second > 0)) {
+		return null;
+	}
+	// Positive is a fade, negative a negative split — the way round every
+	// coach says it, so the sign doesn't need explaining.
+	return ((second - first) / first) * 100;
+}
+
+/** The fastest and slowest kilometre, of the ones that were a kilometre. */
+function edges(list) {
+	// The closing fragment stays in the halves, where it's weighted by its own
+	// short distance, but it can't win fastest or slowest on a partial lap.
+	const ranked = list
+		.filter((s) => s.distanceM >= WHOLE_SPLIT_M)
+		.sort((a, b) => a.paceSecPerKm - b.paceSecPerKm)
+		.map((s) => ({ km: s.km, paceSecPerKm: s.paceSecPerKm }));
+
+	return { fastest: ranked.at(0) ?? null, slowest: ranked.at(-1) ?? null };
 }
 
 /**
@@ -147,40 +180,40 @@ function paceOver(splits) {
  */
 function pacing(splits) {
 	const list = (splits || []).filter((s) => s.distanceM > 0 && s.timeSec > 0);
-	if (list.length < MIN_SPLITS_FOR_HALVES) return null;
+	if (list.length < MIN_SPLITS_FOR_HALVES) {
+		return null;
+	}
 
 	const half = Math.floor(list.length / 2);
 	const firstHalfPaceSecPerKm = paceOver(list.slice(0, half));
 	const secondHalfPaceSecPerKm = paceOver(list.slice(half));
-	// The closing fragment stays in the halves, where it's weighted by its own
-	// short distance, but it can't win fastest or slowest on a partial lap.
-	const ranked = list
-		.filter((s) => s.distanceM >= WHOLE_SPLIT_M)
-		.sort((a, b) => a.paceSecPerKm - b.paceSecPerKm);
 
 	return {
 		firstHalfPaceSecPerKm,
 		secondHalfPaceSecPerKm,
-		// Positive is a fade, negative a negative split — the way round every
-		// coach says it, so the sign doesn't need explaining.
-		fadePct:
-			firstHalfPaceSecPerKm > 0 && secondHalfPaceSecPerKm > 0
-				? ((secondHalfPaceSecPerKm - firstHalfPaceSecPerKm) / firstHalfPaceSecPerKm) * 100
-				: null,
-		fastest: ranked[0] ? { km: ranked[0].km, paceSecPerKm: ranked[0].paceSecPerKm } : null,
-		slowest: ranked.at(-1) ? { km: ranked.at(-1).km, paceSecPerKm: ranked.at(-1).paceSecPerKm } : null,
+		fadePct: fadeBetween(firstHalfPaceSecPerKm, secondHalfPaceSecPerKm),
+		...edges(list),
 	};
+}
+
+/** Seconds spent in the given zones, counting from zone 1. */
+function secondsIn(zoneSeconds, ...zones) {
+	return sum(zones.map((zone) => zoneSeconds.at(zone - 1)));
 }
 
 /** Time in zones 1–5 rolled up the way the intensity panel says it. */
 function zoneMix(zoneSeconds) {
-	if (!Array.isArray(zoneSeconds)) return null;
+	if (!Array.isArray(zoneSeconds)) {
+		return null;
+	}
 	const totalSec = sum(zoneSeconds);
-	if (!(totalSec > 0)) return null;
+	if (!(totalSec > 0)) {
+		return null;
+	}
 
-	const easySec = (zoneSeconds[0] || 0) + (zoneSeconds[1] || 0);
-	const moderateSec = zoneSeconds[2] || 0;
-	const hardSec = (zoneSeconds[3] || 0) + (zoneSeconds[4] || 0);
+	const easySec = secondsIn(zoneSeconds, 1, 2);
+	const moderateSec = secondsIn(zoneSeconds, 3);
+	const hardSec = secondsIn(zoneSeconds, 4, 5);
 
 	return {
 		easySec,
@@ -198,10 +231,13 @@ function zoneMix(zoneSeconds) {
  * to grade-adjusted pace for a run recorded without a strap.
  */
 function effortOf(mix, run, thresholds) {
-	if (!mix) return classifyByPace(run.gapPaceSecPerKm, thresholds);
-	if (mix.hardPct >= HARD_SHARE_PCT) return "hard";
-	if (mix.moderatePct >= MODERATE_SHARE_PCT) return "moderate";
-	return "easy";
+	if (!mix) {
+		return classifyByPace(run.gapPaceSecPerKm, thresholds);
+	}
+	if (mix.hardPct >= HARD_SHARE_PCT) {
+		return "hard";
+	}
+	return mix.moderatePct >= MODERATE_SHARE_PCT ? "moderate" : "easy";
 }
 
 /**
@@ -218,10 +254,11 @@ function effortOf(mix, run, thresholds) {
  */
 export function lastRunDetail({ runs = [], series = [], weeks = [], planMatch = null, thresholds = {}, today }) {
 	const run = runs.at(-1);
-	if (!run) return null;
+	if (!run) {
+		return null;
+	}
 
 	const date = toDayKey(run.startDateLocal);
-	const previous = recentBefore(runs, date);
 	const mix = zoneMix(run.zoneSeconds);
 
 	return {
@@ -239,7 +276,7 @@ export function lastRunDetail({ runs = [], series = [], weeks = [], planMatch = 
 		pacing: pacing(run.splits),
 		impact: {
 			form: formImpact(series, date),
-			load: loadImpact(run, previous, date),
+			load: loadImpact(run, recentBefore(runs, date), date),
 			week: weekImpact(weeks, run, date),
 		},
 	};

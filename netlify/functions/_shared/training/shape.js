@@ -198,6 +198,22 @@ export function publicRun(activity) {
 	};
 }
 
+function publicZoneSeconds(zoneSeconds) {
+	return Array.isArray(zoneSeconds) ? [...zoneSeconds] : null;
+}
+
+// Pace, grade adjustment and heart rate, for the kilometres that were one.
+function publicSplits(splits) {
+	return (splits || [])
+		.filter((s) => s.distanceM >= WHOLE_SPLIT_M)
+		.map((s) => ({
+			km: s.km,
+			paceSecPerKm: s.paceSecPerKm,
+			gapPaceSecPerKm: s.gapPaceSecPerKm,
+			averageHr: s.averageHr,
+		}));
+}
+
 /**
  * The same, for the one run the dashboard looks at in detail.
  *
@@ -218,22 +234,19 @@ export function publicRun(activity) {
  * @returns {object|null} safe to serve.
  */
 export function publicLastRun(activity) {
-	if (!activity) return null;
+	if (!activity) {
+		return null;
+	}
 	return {
 		...publicRun(activity),
-		elapsedTimeSec: activity.elapsedTimeSec ?? null,
-		maxHr: activity.maxHr ?? null,
-		averageCadence: activity.averageCadence ?? null,
-		load: Number.isFinite(activity.load) ? activity.load : null,
-		loadMethod: activity.loadMethod ?? null,
-		decouplingPct: activity.decouplingPct ?? null,
-		zoneSeconds: Array.isArray(activity.zoneSeconds) ? [...activity.zoneSeconds] : null,
-		splits: (activity.splits || []).filter((s) => s.distanceM >= WHOLE_SPLIT_M).map((s) => ({
-			km: s.km,
-			paceSecPerKm: s.paceSecPerKm ?? null,
-			gapPaceSecPerKm: s.gapPaceSecPerKm ?? null,
-			averageHr: s.averageHr ?? null,
-		})),
+		elapsedTimeSec: activity.elapsedTimeSec,
+		maxHr: activity.maxHr,
+		averageCadence: activity.averageCadence,
+		load: activity.load,
+		loadMethod: activity.loadMethod,
+		decouplingPct: activity.decouplingPct,
+		zoneSeconds: publicZoneSeconds(activity.zoneSeconds),
+		splits: publicSplits(activity.splits),
 	};
 }
 

@@ -139,6 +139,22 @@ export function weekRange(weekStart) {
 	return start ? span(start, sixDaysOn(start)) : "";
 }
 
+// The days that have a name rather than a count. A Map rather than an object
+// so looking one up by a number isn't an indexing expression.
+const NAMED_DAYS = new Map([
+	[0, "Today"],
+	[1, "Yesterday"],
+]);
+
+// Number.isFinite, not `>= 0`: null compares as zero, and "null days ago" is
+// how that gets found out.
+const isDayCount = (days) => Number.isFinite(days) && days >= 0;
+
+function weeksAgo(days) {
+	const weeks = Math.round(days / 7);
+	return weeks === 1 ? "Last week" : `${weeks} weeks ago`;
+}
+
 /**
  * How long ago a day was, in the words you'd use out loud.
  *
@@ -146,12 +162,16 @@ export function weekRange(weekStart) {
  * @returns {string}
  */
 export function daysAgo(days) {
-	if (!Number.isFinite(days) || days < 0) return "";
-	if (days === 0) return "Today";
-	if (days === 1) return "Yesterday";
-	if (days < 7) return `${days} days ago`;
-	const weeks = Math.round(days / 7);
-	return weeks === 1 ? "Last week" : `${weeks} weeks ago`;
+	if (!isDayCount(days)) {
+		return "";
+	}
+	if (NAMED_DAYS.has(days)) {
+		return NAMED_DAYS.get(days);
+	}
+	if (days < 7) {
+		return `${days} days ago`;
+	}
+	return weeksAgo(days);
 }
 
 /**
@@ -163,10 +183,17 @@ export function daysAgo(days) {
  * @returns {string}
  */
 export function signed(value, digits = 1) {
-	if (!Number.isFinite(value)) return "—";
-	const rounded = value.toFixed(digits);
-	// Rounding can land on a signed zero, and "-0.0" reads as a decrease.
-	return Number(rounded) > 0 ? `+${rounded}` : rounded.replace(/^-0(\.0+)?$/, "0$1");
+	if (!Number.isFinite(value)) {
+		return "—";
+	}
+	// Round first, then read the sign off the result: -0.04 to one decimal is
+	// zero, and "-0.0" reads as a decrease that didn't happen.
+	const rounded = Number(value.toFixed(digits));
+	const magnitude = Math.abs(rounded).toFixed(digits);
+	if (rounded > 0) {
+		return `+${magnitude}`;
+	}
+	return rounded < 0 ? `-${magnitude}` : magnitude;
 }
 
 /**

@@ -143,14 +143,26 @@
         return weeks === 1 ? "the hardest in a week" : `the hardest in ${weeks} weeks`;
     });
 
+    // A workout is meant to have uneven halves — intervals, then a jog home —
+    // and the same is true of the drift between them. Both read as a verdict on
+    // a steady run and as a description of a hard one.
+    const steady = $derived(run?.effort !== "hard");
+
     const fade = $derived(run?.pacing?.fadePct ?? null);
-    const pacingNote = $derived.by(() => {
-        if (fade === null) return null;
-        if (fade <= -2) return "negative split — the second half was quicker";
-        if (fade < 2) return "even pace, start to finish";
-        if (fade < 5) return `faded ${fade.toFixed(1)}% over the second half`;
-        return `faded ${fade.toFixed(1)}% — the second half cost you`;
-    });
+    const pacingNote = $derived(fade === null ? null : (steady ? heldOrFaded(fade) : halves(fade)));
+
+    function heldOrFaded(pct) {
+        if (pct <= -2) return "negative split — the second half was quicker";
+        if (pct < 2) return "even pace, start to finish";
+        if (pct < 5) return `faded ${pct.toFixed(1)}% over the second half`;
+        return `faded ${pct.toFixed(1)}% — the second half cost you`;
+    }
+
+    function halves(pct) {
+        if (Math.abs(pct) < 2) return "even halves";
+        const direction = pct > 0 ? "slower" : "quicker";
+        return `second half ${Math.abs(pct).toFixed(1)}% ${direction}`;
+    }
 
     // Only what this run actually recorded: a facts grid with "—" in half of
     // its cells says less than a shorter grid.
@@ -177,7 +189,11 @@
         if (run?.averageCadence > 0) {
             list.push({ term: "Cadence", value: `${Math.round(run.averageCadence * STEPS_PER_CYCLE)} spm` });
         }
-        if (Number.isFinite(run?.decouplingPct)) {
+        // Drift measures how far pace-per-heartbeat slipped between the halves
+        // of a run held at one effort. On an interval session it measures the
+        // intervals, and 34% doesn't mean what it means on a long run — so it
+        // sits out the ones it can't describe, as the efficiency trend does.
+        if (steady && Number.isFinite(run?.decouplingPct)) {
             list.push({
                 term: "Drift",
                 value: `${run.decouplingPct.toFixed(1)}%`,
