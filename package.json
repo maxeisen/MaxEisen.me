@@ -8,6 +8,7 @@
     "seed:bach-packs": "node scripts/seed-bach-party-packs.mjs",
     "preview": "vite preview",
     "start": "vite preview --port 6808",
+    "lint": "eslint . --ext .js,.mjs,.svelte",
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
@@ -17,6 +18,8 @@
   "devDependencies": {
     "@playwright/test": "^1.61.0",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-svelte": "^2.46.1",
     "netlify-cli": "27.0.1",
     "svelte": "^5.56.5",
     "vite": "^8.1.4",

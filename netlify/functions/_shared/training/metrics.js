@@ -226,7 +226,6 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 					weekComplete,
 				}
 			: null,
-		previousWeek: previous,
 		// Ramp and long-run share are shape-of-the-week measures, so they're
 		// judged on the last whole week. Carrying the volumes alongside them
 		// keeps the advice text describing the same week as its metric.

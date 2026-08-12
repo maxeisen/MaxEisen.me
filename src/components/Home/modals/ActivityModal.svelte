@@ -9,7 +9,6 @@
     export let strava = null; // 'run' | 'ride' — when set, renders YTD + gear + recent activities
 
     let profile = null; // null = loading, {} = loaded
-    let profileError = false;
 
     onMount(async () => {
         if (!strava) return;
@@ -18,7 +17,7 @@
             if (!res.ok) throw new Error(`status ${res.status}`);
             profile = await res.json();
         } catch {
-            profileError = true;
+            // Leave profile null: the Strava section just doesn't render.
         }
     });
 

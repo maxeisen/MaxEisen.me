@@ -14,7 +14,7 @@
       onselect(pin) — called when a marker is clicked
 -->
 <script>
-    import { onMount, onDestroy } from "svelte";
+    import { onMount } from "svelte";
 
     let { maplibre, pins = [], routes = [], onselect } = $props();
 

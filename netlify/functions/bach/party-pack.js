@@ -195,11 +195,9 @@ export default async function handler(req) {
 			}
 
 			let packId = requestedId;
-			let source = "library";
 			if (!packId) {
 				const active = await resolveActivePackId(store, libraryOnly);
 				packId = active.packId;
-				source = active.source || "library";
 			}
 
 			if (packId) {

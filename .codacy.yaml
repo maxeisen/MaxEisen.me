@@ -1,0 +1,35 @@
+---
+# PMD's JavaScript support is built on a parser from the ES5 era, and it can't
+# read this codebase. Every one of the 68 issues it currently reports is an
+# artefact of that rather than anything wrong with the code:
+#
+#   * 59 x UnnecessaryBlock, from losing its place partway through a module and
+#     misreading everything after an `export` keyword.
+#   * 9 x InnaccurateNumericLiteral, mostly "the numeric literal '86_400_000'
+#     will have a different value at runtime" — numeric separators, which the
+#     parser doesn't know about. It is exactly 86400000. The rest are integers
+#     well inside the range a double represents exactly.
+#
+# ESLint covers the same ground on a parser that understands the language, so
+# PMD is left to the languages it reads properly.
+engines:
+  pmd:
+    exclude_paths:
+      - "**/*.js"
+      - "**/*.mjs"
+  pmd-7:
+    exclude_paths:
+      - "**/*.js"
+      - "**/*.mjs"
+
+# Generated and local-only paths. These are all in .gitignore too, but a Codacy
+# configuration file replaces whatever is set in the UI, so they're repeated
+# here rather than assumed.
+exclude_paths:
+  - "dist/**"
+  - "public/build/**"
+  - "netlify/functions/_generated/**"
+  - "test-results/**"
+  - "playwright-report/**"
+  - "blob-report/**"
+  - "private/**"

@@ -11,14 +11,15 @@ function steady({ count, speedMps, hr, gradePct = 0, startTime = 0, startDistanc
 	const time = [];
 	const distance = [];
 	const heartrate = [];
-	const grade_smooth = [];
+	const gradeSmooth = [];
 	for (let i = 0; i <= count; i++) {
 		time.push(startTime + i);
 		distance.push(startDistance + i * speedMps);
 		heartrate.push(hr);
-		grade_smooth.push(gradePct);
+		gradeSmooth.push(gradePct);
 	}
-	return { time, distance, heartrate, grade_smooth };
+	// Quoted because it's Strava's key, not one of ours.
+	return { time, distance, heartrate, "grade_smooth": gradeSmooth };
 }
 
 // Two steady blocks back to back, for decoupling.
@@ -33,7 +34,7 @@ function twoHalves(a, b) {
 		time: [...first.time, ...second.time.slice(1)],
 		distance: [...first.distance, ...second.distance.slice(1)],
 		heartrate: [...first.heartrate, ...second.heartrate.slice(1)],
-		grade_smooth: [...first.grade_smooth, ...second.grade_smooth.slice(1)],
+		"grade_smooth": [...first.grade_smooth, ...second.grade_smooth.slice(1)],
 	};
 }
 

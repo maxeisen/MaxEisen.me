@@ -110,14 +110,14 @@ function withSignedUrls(entry) {
 	// transformed delivery would strip all metadata; q_auto is incompatible
 	// with keep_iptc (Cloudinary rejects it), so quality is fixed. fl_attachment
 	// forces the download and carries a readable filename (URL-safe-sanitized).
-	const { public_id, display_name } = entry;
-	const safeName = display_name ? String(display_name).replace(/[^a-zA-Z0-9_-]+/g, "_") : "";
+	const { public_id: publicId, display_name: displayName } = entry;
+	const safeName = displayName ? String(displayName).replace(/[^a-zA-Z0-9_-]+/g, "_") : "";
 	const attach = safeName ? `attachment:${safeName}` : "attachment";
 	return {
 		...entry,
-		thumb: cloudinary.url(public_id, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 800, crop: "limit" }] }),
-		full: cloudinary.url(public_id, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 2400, crop: "limit" }] }),
-		download: cloudinary.url(public_id, { ...SIGNED, transformation: [{ width: 2400, crop: "limit", quality: 85, fetch_format: "jpg", flags: ["keep_iptc", attach] }] }),
+		thumb: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 800, crop: "limit" }] }),
+		full: cloudinary.url(publicId, { ...SIGNED, transformation: [{ fetch_format: "auto", quality: "auto", width: 2400, crop: "limit" }] }),
+		download: cloudinary.url(publicId, { ...SIGNED, transformation: [{ width: 2400, crop: "limit", quality: 85, fetch_format: "jpg", flags: ["keep_iptc", attach] }] }),
 	};
 }
 
