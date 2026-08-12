@@ -249,7 +249,15 @@
     }
     .col-full { grid-column: 1 / -1; }
 
-    .slot { min-width: 0; }
+    /* The drop outline fades in rather than snapping on, as it does on the
+       dashboard: it's declared transparent here and coloured in below. */
+    .slot {
+        min-width: 0;
+        outline: 2px dashed transparent;
+        outline-offset: 3px;
+        border-radius: var(--radius-xl);
+        transition: outline 0.15s ease;
+    }
     /* Same affordances as a dashboard widget: the whole panel is the handle,
        and a press that turns into a drag mustn't start selecting text on the
        way. Both are lifted once the layout collapses, where dragging waits
@@ -274,11 +282,7 @@
     }
     .grid.is-dragging,
     .grid.is-dragging :global(*) { cursor: grabbing !important; }
-    .slot.drop-target {
-        outline: 2px dashed var(--main-green);
-        outline-offset: 3px;
-        border-radius: var(--radius-xl);
-    }
+    .slot.drop-target { outline-color: var(--main-green); }
 
     /* Jiggle keyframes are in global.css, shared with /dashboard; the columns
        alternate so the page doesn't rock in lockstep. */
