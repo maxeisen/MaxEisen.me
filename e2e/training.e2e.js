@@ -53,7 +53,7 @@ test("the run log says which runs were the plan", async ({ page }) => {
 	// The fixture runs the real plan file, which has day-level sessions, so
 	// both kinds have to appear: matched sessions and unplanned extras.
 	await expect(log.locator(".tag.plan").first()).toBeVisible();
-	await expect(log.locator(".tag.extra-tag").first()).toBeVisible();
+	await expect(log.locator(".tag.extra").first()).toBeVisible();
 });
 
 test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
