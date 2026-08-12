@@ -113,11 +113,23 @@ export function weekday(dayKey) {
  * @returns {string}
  */
 export function weekRange(weekStart) {
-	if (!weekStart) return "";
-	const start = new Date(`${String(weekStart).slice(0, 10)}T12:00:00Z`);
-	if (Number.isNaN(start.getTime())) return "";
-	const end = new Date(start.getTime() + 6 * 86_400_000);
+	const start = utcNoon(weekStart);
+	return start ? span(start, sixDaysOn(start)) : "";
+}
 
+/** The day key as a UTC-noon Date, or null if there isn't a usable one. */
+function utcNoon(dayKey) {
+	const date = new Date(`${String(dayKey ?? "").slice(0, 10)}T12:00:00Z`);
+	return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function sixDaysOn(start) {
+	const end = new Date(start);
+	end.setUTCDate(end.getUTCDate() + 6);
+	return end;
+}
+
+function span(start, end) {
 	const day = (d) => d.toLocaleDateString("en-GB", { day: "numeric", timeZone: "UTC" });
 	const dayMonth = (d) =>
 		d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
