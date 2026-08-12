@@ -18,8 +18,8 @@ function steady({ count, speedMps, hr, gradePct = 0, startTime = 0, startDistanc
 		heartrate.push(hr);
 		gradeSmooth.push(gradePct);
 	}
-	// Keyed the way Strava streams arrive.
-	return { time, distance, heartrate, grade_smooth: gradeSmooth };
+	// Quoted because it's Strava's key, not one of ours.
+	return { time, distance, heartrate, "grade_smooth": gradeSmooth };
 }
 
 // Two steady blocks back to back, for decoupling.
@@ -34,7 +34,7 @@ function twoHalves(a, b) {
 		time: [...first.time, ...second.time.slice(1)],
 		distance: [...first.distance, ...second.distance.slice(1)],
 		heartrate: [...first.heartrate, ...second.heartrate.slice(1)],
-		grade_smooth: [...first.grade_smooth, ...second.grade_smooth.slice(1)],
+		"grade_smooth": [...first.grade_smooth, ...second.grade_smooth.slice(1)],
 	};
 }
 
