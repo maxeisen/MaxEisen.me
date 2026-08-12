@@ -28,16 +28,16 @@ import { toDayKey } from "./dates.js";
 // (VirtualRun) — the training stress is real even if the GPS isn't.
 const RUN_TYPES = new Set(["Run", "TrailRun", "VirtualRun"]);
 
-// Rides are tracked for one reason: they cost recovery. They build no
-// running-specific durability, so they're kept well away from weekly volume,
-// long-run share and the acute:chronic ratio (see metrics.js) — they only ever
-// reach fatigue.
+// Rides are tracked so the log can show what else was in the week, and for
+// nothing else. They reach no metric on the page — not volume, not fitness,
+// not fatigue, not the acute:chronic ratio (see metrics.js, which explains why
+// the tempting middle option of counting them as fatigue alone is worse than
+// either end).
 const RIDE_TYPES = new Set(["Ride", "GravelRide", "MountainBikeRide", "VirtualRide"]);
 
 // Below this a ride is transport, not training. A few kilometres to the office
-// costs nothing worth modelling, and letting commutes through would put a small
-// bump of fatigue on most weekdays — enough to drag form down and make the
-// model answer for rides that were never training in the first place.
+// isn't context worth showing, and letting commutes through would bury the
+// week's actual running under a row for every trip to the shops.
 export const RIDE_MIN_M = 20000;
 
 // Stamped onto every stored record. Several fields here are derived at sync
@@ -205,7 +205,11 @@ export function shapeActivity(raw, options = {}) {
 			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
 	};
 
-	const load = activityLoad(shaped, thresholds);
+	// A ride is stored to be listed and counted nowhere, so it's left unscored
+	// rather than carrying a load that sits in the record waiting to be summed
+	// by mistake. Nothing downstream reads it, and this is what makes that
+	// true by construction rather than by everyone remembering.
+	const load = isRide ? null : activityLoad(shaped, thresholds);
 	shaped.load = load?.load ?? 0;
 	shaped.loadMethod = load?.method ?? null;
 	return shaped;
@@ -243,9 +247,6 @@ export function publicRun(activity) {
 		workoutType: activity?.workoutType,
 		paceSecPerKm: activity?.paceSecPerKm,
 		gapPaceSecPerKm: activity?.gapPaceSecPerKm,
-		// What the session cost. It's the only thing a ride has to say for
-		// itself in the log, and it describes an effort rather than a place.
-		load: activity?.load,
 	};
 }
 

@@ -102,10 +102,16 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
 	);
 
-	// Everything on this page is a running measure unless it says otherwise.
-	// Rides are held apart from the first line so that volume, long-run share,
-	// intensity, efficiency, race prediction and the acute:chronic ratio all
-	// keep meaning exactly what they meant before rides existed.
+	// This is a running dashboard, and rides are separated here so that every
+	// number below it is a running number. A ride reaches the log and nothing
+	// else: not volume, not fitness, not fatigue, not the acute:chronic ratio.
+	//
+	// Feeding fatigue alone was tried and reverted. It looks conservative and
+	// isn't: form is fitness minus fatigue, so raising one without the other
+	// pushes form permanently negative by roughly the daily ride load, forever,
+	// regardless of how recovered you are (see fitnessSeries). The alternative,
+	// letting rides earn fitness too, keeps form honest but then reads cycling
+	// as marathon fitness — which is the one thing this page must not do.
 	const runs = sorted.filter((a) => a?.sport !== "ride");
 	const rides = sorted.filter((a) => a?.sport === "ride");
 
@@ -114,15 +120,7 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 	const range = blockRange(plan, runs, day);
 
 	const loads = dailyLoads(runs);
-	// The one place a ride is allowed to count. It reaches fatigue, because a
-	// long ride genuinely leaves you less ready for tomorrow's session, and
-	// stops there — it earns no fitness and, deliberately, no place in ACWR,
-	// whose injury-risk evidence is about the tissue loading of the sport being
-	// ramped. Cycling load in that ratio would dilute the best warning here.
-	const fatigueLoads = rides.length > 0 ? dailyLoads(sorted) : null;
-	const series = range
-		? fitnessSeries(loads, { ...range, fatigueLoadsByDay: fatigueLoads })
-		: [];
+	const series = range ? fitnessSeries(loads, range) : [];
 	// Report against today, not the end of the block — the series runs forward
 	// to race day, where CTL has decayed to nothing because no runs exist yet.
 	const latest = series.find((d) => d.date === day) || series.at(-1) || null;
@@ -306,8 +304,9 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 				.slice(from)
 				.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }));
 			// Rides join the log across the span it already covers rather than
-			// competing for its thirty places. This stays a log of runs that
-			// admits what else was tiring you out, not a feed of everything.
+			// competing for its thirty places, and they arrive here having
+			// touched no metric on the page. Purely context: what else was in
+			// the week, for a reader wondering why a Sunday was quiet.
 			const earliest = toDayKey(logged[0]?.startDateLocal);
 			const alongside = earliest
 				? rides.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)

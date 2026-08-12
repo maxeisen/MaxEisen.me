@@ -22,6 +22,19 @@ export function pace(secPerKm) {
 }
 
 /**
+ * Average speed as km/h — how a ride is read, where a runner's min/km would be
+ * a number nobody has an instinct for.
+ *
+ * @param {number} distanceM
+ * @param {number} movingTimeSec
+ * @returns {string}
+ */
+export function speed(distanceM, movingTimeSec) {
+	if (!(distanceM > 0) || !(movingTimeSec > 0)) return "—";
+	return `${(distanceM / 1000 / (movingTimeSec / 3600)).toFixed(1)} km/h`;
+}
+
+/**
  * A race time as h:mm:ss.
  *
  * @param {number} sec

@@ -423,22 +423,32 @@ describe("buildDashboard privacy, end to end", () => {
 	});
 });
 
-// A ride is allowed to make you tired and nothing else. These are the lines it
-// must not cross: every running measure on the page has to read the same with
-// a ride in the block as without one.
+// A ride reaches the log and nothing else. The whole block below is one claim
+// checked from several directions: the dashboard reads identically with a ride
+// in it and without, apart from the row that shows it.
+//
+// Feeding fatigue alone was tried and reverted, and "costs fatigue, and so
+// costs form" used to be a test here. It passed, which was the problem — form
+// is fitness minus fatigue, so raising one and never the other doesn't make a
+// ride cost you a few days of freshness, it moves form permanently down by
+// roughly the daily ride load and never lets it back.
 describe("buildDashboard with rides", () => {
 	const RIDE = {
 		id: 9001,
 		name: "Long ride",
 		sport: "ride",
 		type: "Ride",
-		// Yesterday, so its fatigue has actually landed by today. Form is read
-		// from the state you woke up with, so a ride logged this morning
-		// rightly hasn't reached today's number yet.
+		// Yesterday rather than today: form is read from the state you woke up
+		// with, so a ride logged this morning couldn't move today's number
+		// even if rides counted. Dated to where it would show if it could.
 		startDateLocal: "2026-08-10T07:00:00",
 		distanceM: 60000,
 		movingTimeSec: 7200,
 		averageHr: 140,
+		// Deliberately carrying a load. Rides are shaped unscored now, but
+		// records written when they weren't are still in Blobs and served
+		// until the sync re-shapes them. Counting for nothing is a property of
+		// this module, not of the number happening to be zero.
 		load: 90,
 	};
 
@@ -474,19 +484,16 @@ describe("buildDashboard with rides", () => {
 		expect(after.summary.totals).toEqual(before.summary.totals);
 		expect(after.summary.intensity).toEqual(before.summary.intensity);
 		expect(after.summary.prediction).toEqual(before.summary.prediction);
+		// And so the advice, which is a reading of all of the above, says the
+		// same thing rather than telling you to back off because you cycled.
+		expect(after.recommendations).toEqual(before.recommendations);
 	});
 
-	it("builds no fitness", () => {
-		expect(withRide().summary.latest.ctl).toBeCloseTo(runsOnly().summary.latest.ctl, 10);
-	});
-
-	it("costs fatigue, and so costs form", () => {
-		const before = runsOnly();
-		const after = withRide();
-		expect(after.summary.latest.atl).toBeGreaterThan(before.summary.latest.atl);
-		// Form is fitness minus fatigue, so a ride you haven't recovered from
-		// should leave you reading as less ready, not more.
-		expect(after.summary.latest.tsb).toBeLessThan(before.summary.latest.tsb);
+	it("touches neither fitness, fatigue nor form, on any day", () => {
+		// The whole series, not just today: an offset that only shows up three
+		// weeks later is exactly the failure this is here to catch.
+		expect(withRide().series).toEqual(runsOnly().series);
+		expect(withRide().summary.latest).toEqual(runsOnly().summary.latest);
 	});
 
 	it("shows the ride in the log, in date order, marked as a ride", () => {
@@ -494,7 +501,11 @@ describe("buildDashboard with rides", () => {
 		const ride = log.find((a) => a.id === RIDE.id);
 		expect(ride).toBeTruthy();
 		expect(ride.sport).toBe("ride");
-		expect(ride.load).toBe(90);
+		// Distance and time are what the row draws its speed from; a load it
+		// doesn't count has no business being served.
+		expect(ride.distanceM).toBe(60000);
+		expect(ride.movingTimeSec).toBe(7200);
+		expect(ride.load).toBeUndefined();
 		expect(log.filter((a) => a.sport === "run")).toHaveLength(10);
 		const dates = log.map((a) => a.startDateLocal);
 		expect([...dates].sort().reverse()).toEqual(dates);

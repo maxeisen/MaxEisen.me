@@ -131,14 +131,16 @@ export const GLOSSARY = {
 	},
 
 	runs: {
-		title: "Runs this block",
+		title: "Recent activity",
 		body: [
 			"Every run since the block started, newest first, matched against the plan for the day it fell on. Runs on a day with a planned session are tagged with that session; anything else is an extra.",
 			"Pace and grade-adjusted pace sit side by side, because on a hilly run they diverge a lot and that difference is the point — GAP is what the same effort would have been on the flat.",
+			"Longer rides are listed alongside them for context, and count towards nothing on this page. Cycling builds none of the running-specific durability the rest of these numbers are tracking, so it stays out of all of them rather than flattering the fitness or dragging down the form.",
 		],
 		terms: [
 			{ term: "GAP", definition: "Grade-adjusted pace: your pace corrected for the gradient you ran it on, so hilly and flat runs can be compared." },
 			{ term: "Extra", definition: "A run with no planned session on that day. Not a bad thing — just not part of the plan." },
+			{ term: "Ride", definition: "A ride over 20 km, shown so the week reads honestly. Nothing on this page counts it." },
 		],
 	},
 };

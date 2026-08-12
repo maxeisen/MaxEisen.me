@@ -273,16 +273,13 @@ describe("shapeActivity for rides", () => {
 		expect(ride.bestEfforts).toEqual([]);
 	});
 
-	it("scores it from heart rate, on the same scale as a run", () => {
+	it("is left unscored, having nothing to be scored for", () => {
+		// A ride is stored to be listed, and counted by nothing on the page.
+		// Scoring it anyway would leave a plausible number in the record for
+		// some later sum to pick up by accident. Heart rate is present here,
+		// so this fails if the load line ever stops asking whether it's a ride.
 		const ride = shaped();
-		expect(ride.load).toBeGreaterThan(0);
-		expect(ride.loadMethod).toBe("hr");
-	});
-
-	it("leaves a ride with no heart rate unscored rather than guessing", () => {
-		// The pace fallback reads a threshold *running* pace. Pointing it at a
-		// bike would mint load out of the fact that bikes are faster.
-		const ride = shapeActivity(rawRide({ average_heartrate: null }), { thresholds: THRESHOLDS });
+		expect(ride.averageHr).toBe(138);
 		expect(ride.load).toBe(0);
 		expect(ride.loadMethod).toBeNull();
 	});

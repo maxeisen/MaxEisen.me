@@ -1,5 +1,18 @@
 import { describe, it, expect } from "vitest";
-import { weekRange, pace, clock, km, pct, shortDate, daysAgo, signed } from "./format.js";
+import { weekRange, pace, clock, km, pct, shortDate, daysAgo, signed, speed } from "./format.js";
+
+describe("speed", () => {
+	it("reads a ride in km/h", () => {
+		expect(speed(30000, 3600)).toBe("30.0 km/h");
+		expect(speed(45500, 5400)).toBe("30.3 km/h");
+	});
+
+	it("has nothing to say without both halves of it", () => {
+		expect(speed(30000, 0)).toBe("—");
+		expect(speed(0, 3600)).toBe("—");
+		expect(speed(null, null)).toBe("—");
+	});
+});
 
 describe("weekRange", () => {
 	it("covers the seven days from the Monday", () => {
