@@ -70,6 +70,48 @@ describe("shapeNight", () => {
 		expect(night.restingHr).toBe(47);
 	});
 
+	it("treats a few minutes on the nightstand as no night at all", () => {
+		// Taken from the first real response this ever saw: four minutes at
+		// 24% efficiency with no heart rate, filed as a main sleep period.
+		// Counted as a night it took an hour off the weekly average and
+		// raised a short-sleep warning against a week of normal sleep.
+		expect(
+			shapeNight({
+				day: "2026-08-12",
+				periods: [
+					period({
+						"total_sleep_duration": 240,
+						efficiency: 24,
+						"lowest_heart_rate": null,
+						"average_hrv": null,
+					}),
+				],
+				dailySleep: { day: "2026-08-12", score: 76 },
+			}),
+		).toBeNull();
+	});
+
+	it("keeps a genuinely bad night, which is signal rather than noise", () => {
+		// The floor exists to drop artefacts, not to hide the worst nights.
+		const night = shapeNight({
+			day: "2026-08-11",
+			periods: [period({ "total_sleep_duration": hours(2.5) })],
+		});
+		expect(night.sleepSec).toBe(hours(2.5));
+	});
+
+	it("applies the floor to the night rather than to either half of it", () => {
+		// Two broken stretches of forty minutes is a real night, badly slept.
+		const night = shapeNight({
+			day: "2026-08-11",
+			periods: [
+				period({ "total_sleep_duration": 2400 }),
+				period({ "total_sleep_duration": 2400, "lowest_heart_rate": 52 }),
+			],
+		});
+		expect(night.sleepSec).toBe(4800);
+	});
+
 	it("has nothing to say about a day with no main sleep", () => {
 		expect(shapeNight({ day: "2026-08-11", periods: [] })).toBeNull();
 		expect(shapeNight({ day: "2026-08-11", periods: [period({ type: "late_nap" })] })).toBeNull();

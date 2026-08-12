@@ -12,6 +12,7 @@
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
+    import { formatDuration } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { recommendations = [] } = $props();
@@ -35,12 +36,22 @@
         return { acted, total: items.length };
     });
 
+    // Most rules measure a ratio, a percentage or a count of beats, where the
+    // number is the number. A few are held in seconds — a goal time, a night's
+    // sleep — and "13500 vs 13200" is unreadable next to a rule whose own
+    // sentence says "3h 45m against your 3h 40m target".
+    const format = (value, unit) =>
+        unit === "duration"
+            ? formatDuration(value)
+            : Math.abs(value) < 10
+                ? value.toFixed(2)
+                : String(Math.round(value));
+
     function readout(rec) {
         if (!Number.isFinite(rec.metric)) return null;
-        const value = Math.abs(rec.metric) < 10 ? rec.metric.toFixed(2) : Math.round(rec.metric);
-        if (!Number.isFinite(rec.threshold)) return `${value}`;
-        const limit = Math.abs(rec.threshold) < 10 ? rec.threshold.toFixed(2) : Math.round(rec.threshold);
-        return `${value} vs ${limit}`;
+        const value = format(rec.metric, rec.unit);
+        if (!Number.isFinite(rec.threshold)) return value;
+        return `${value} vs ${format(rec.threshold, rec.unit)}`;
     }
 </script>
 

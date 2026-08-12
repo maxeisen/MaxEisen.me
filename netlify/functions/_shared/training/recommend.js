@@ -42,8 +42,18 @@ function duration(sec) {
 	return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-function rule(id, severity, title, detail, metric, threshold) {
-	return { id, severity, title, detail, metric, threshold };
+/**
+ * @param {string} [unit] how the panel should read `metric` and `threshold`.
+ *   Most rules are ratios, percentages or beats, which are the number itself.
+ *   "duration" marks the ones held in seconds — a goal time or a night's
+ *   sleep — where the raw figure ("13200 vs 13500") is unreadable and the
+ *   rule's own prose already says "3h 40m".
+ */
+function rule(id, severity, title, detail, metric, threshold, unit = null) {
+	// Absent rather than null on the rules that don't need it: the payload is
+	// served to every visitor, and a key carrying nothing on nine rules out
+	// of twelve is weight for no meaning.
+	return { id, severity, title, detail, metric, threshold, ...(unit ? { unit } : {}) };
 }
 
 /**
@@ -190,6 +200,7 @@ export function recommendations(metrics) {
 				`${duration(sleep.recent)} a night on average over the last week, against ${why}. Short sleep is one of the better-evidenced injury risk factors in athletes, and it compounds a ramp rather than sitting alongside it — the same week of running is a different proposition on eight hours than on ${duration(sleep.recent)}. Hold the volume where it is until sleep comes back up.`,
 				sleep.recent,
 				SLEEP_TARGET_SEC,
+				"duration",
 			),
 		);
 	} else if (shortSleep) {
@@ -201,6 +212,7 @@ export function recommendations(metrics) {
 				`${duration(sleep.recent)} a night over the last week, against a ${duration(SLEEP_TARGET_SEC)} floor${Number.isFinite(sleep.baseline) ? ` and your own ${duration(sleep.baseline)} average` : ""}. Sleep is where the adaptation actually happens, so this quietly costs you more of the training than a missed easy run would.`,
 				sleep.recent,
 				SLEEP_TARGET_SEC,
+				"duration",
 			),
 		);
 	}
@@ -245,6 +257,7 @@ export function recommendations(metrics) {
 				`${duration(sleep.recent)} a night over the last week${Number.isFinite(restingHr.recent) ? `, with overnight heart rate at ${restingHr.recent.toFixed(0)} bpm` : ""}. Nothing here says the training isn't being absorbed.`,
 				sleep.recent,
 				SLEEP_TARGET_SEC,
+				"duration",
 			),
 		);
 	}
@@ -335,6 +348,7 @@ export function recommendations(metrics) {
 					`Current form projects ${duration(prediction.predictedSec)} against your ${duration(goal.goalTimeSec)} target — which needs ${pace(goal.goalPaceSecPerKm)}. The projection is based on your best recent effort and assumes the endurance work continues, so treat it as a floor rather than a verdict.`,
 					prediction.predictedSec,
 					goal.goalTimeSec,
+					"duration",
 				),
 			);
 		} else {
@@ -346,6 +360,7 @@ export function recommendations(metrics) {
 					`Current form projects ${duration(prediction.predictedSec)}, inside your goal. Goal pace is ${pace(goal.goalPaceSecPerKm)} — worth rehearsing in your remaining long runs.`,
 					prediction.predictedSec,
 					goal.goalTimeSec,
+					"duration",
 				),
 			);
 		}
