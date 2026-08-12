@@ -82,6 +82,26 @@ test("the last run is reported with what it did to the training", async ({ page 
 	await expect(changes.first().locator("strong")).toHaveText(/^[+-]?\d/);
 });
 
+test("the week's long run is a day rather than a bar that fills up all week", async ({ page }) => {
+	await page.goto("/training");
+	// By its heading, not its text: "Load and risk" says "this week's ramp".
+	const week = page
+		.locator("section.card")
+		.filter({ has: page.getByRole("heading", { name: "This week" }) });
+
+	// One bar, and it's the volume one. The long run had a second, which every
+	// easy run filled in on its way past — the same kilometres, counted twice.
+	await expect(week.locator(".track")).toHaveCount(1);
+
+	// The fixture stands on a Tuesday, so Sunday's long run is still ahead: it
+	// reads as the day it falls on rather than as a number partly reached.
+	const longRun = week.locator(".long-run");
+	await expect(longRun).toHaveClass(/ahead/);
+	await expect(longRun).toContainText("Long run");
+	await expect(longRun).toContainText("Sun");
+	await expect(longRun).toContainText("20 km");
+});
+
 test("the charts are labelled with the values they plot", async ({ page }) => {
 	await page.goto("/training");
 	const volume = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();

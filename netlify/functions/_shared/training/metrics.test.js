@@ -104,6 +104,36 @@ describe("buildDashboard", () => {
 		expect(days[3].planned).toEqual([]);
 	});
 
+	it("reports the long run as Sunday's session, not as Tuesday's progress", () => {
+		// The week's only run so far is Tuesday's 8 km. None of it is part of
+		// Sunday's 24, though reading the week's longest run as the long run
+		// used to say it was a third done.
+		const planned = {
+			...PLAN,
+			weeks: [
+				{
+					start: "2026-08-10",
+					sessions: [
+						{ day: "Tuesday", type: "easy run", distanceKm: 8 },
+						{ day: "Sunday", type: "long run", distanceKm: 24, detail: "24km Long Run" },
+					],
+				},
+			],
+		};
+		const out = buildDashboard({
+			activities: block("2026-08-11", 1, { distanceM: 8000 }),
+			plan: planned,
+			today: "2026-08-11",
+		});
+
+		expect(out.week.longRun).toEqual({
+			date: "2026-08-16",
+			targetKm: 24,
+			actualKm: 0,
+			status: "ahead",
+		});
+	});
+
 	it("tells the run log which runs were the plan and which were extra", () => {
 		// Monday and Tuesday planned; the runs land on Tuesday and Wednesday.
 		const planned = {
@@ -330,27 +360,27 @@ describe("buildDashboard privacy, end to end", () => {
 		{
 			id: 1,
 			name: "Private Long Run",
-			sport_type: "Run",
+			"sport_type": "Run",
 			private: true,
-			start_date_local: "2026-08-09T07:00:00",
+			"start_date_local": "2026-08-09T07:00:00",
 			distance: 32000,
-			moving_time: 10000,
-			average_heartrate: 145,
-			map: { summary_polyline: "SECRETPOLYLINE" },
-			start_latlng: [43.6532, -79.3832],
+			"moving_time": 10000,
+			"average_heartrate": 145,
+			map: { "summary_polyline": "SECRETPOLYLINE" },
+			"start_latlng": [43.6532, -79.3832],
 		},
 		{
 			id: 2,
 			name: "Public Easy Run",
-			sport_type: "Run",
+			"sport_type": "Run",
 			private: false,
-			start_date_local: "2026-08-11T07:00:00",
+			"start_date_local": "2026-08-11T07:00:00",
 			distance: 10000,
-			moving_time: 3300,
-			average_heartrate: 140,
-			map: { summary_polyline: "PUBLICPOLYLINE" },
-			start_latlng: [43.6532, -79.3832],
-			splits_metric: [{ distance: 1000, moving_time: 330, elevation_difference: 5 }],
+			"moving_time": 3300,
+			"average_heartrate": 140,
+			map: { "summary_polyline": "PUBLICPOLYLINE" },
+			"start_latlng": [43.6532, -79.3832],
+			"splits_metric": [{ distance: 1000, "moving_time": 330, "elevation_difference": 5 }],
 		},
 	];
 

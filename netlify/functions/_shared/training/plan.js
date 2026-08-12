@@ -104,6 +104,59 @@ export function plannedLongRunKm(week) {
 }
 
 /**
+ * The week's long run, as the session it is rather than a running total.
+ *
+ * The long run happens on one day. Measuring it the way volume is measured —
+ * kilometres so far against the target — gives "9.3 of 24" on a Tuesday, which
+ * isn't a partly-finished long run but the longest easy run of the week so far,
+ * counted a second time. The same kilometres fill both bars, and by Saturday
+ * the long run looks two thirds done without having been started.
+ *
+ * So it's answered as a question about a day: is it still ahead of you, did you
+ * do it, or did the day go by. Day-anchored like the rest of the plan matching,
+ * which means a long run moved to Saturday reads as a missed Sunday and an
+ * extra Saturday — the same story the day list tells directly below it.
+ *
+ * @param {object} week a week from comparePlan(), carrying its sessions.
+ * @param {object[]} runs shaped activities.
+ * @param {string} today day key.
+ * @returns {{date: string, targetKm: number|null, actualKm: number,
+ *   status: "done"|"missed"|"ahead"}|null} null for a week with no long run
+ *   planned, which is a normal week rather than a failed one.
+ */
+export function weekLongRun(week, runs, today) {
+	const session = (week?.sessions || []).find((s) => LONG_RUN_TYPES.has(typeOf(s)));
+	if (!session?.date) {
+		return null;
+	}
+
+	// The longest run of that day, not the day's total: a shakeout after the
+	// long run is a double, not twenty-nine kilometres of long run.
+	const onTheDay = (runs || [])
+		.filter((run) => toDayKey(run?.startDateLocal) === session.date)
+		.map((run) => (Number(run.distanceM) || 0) / 1000);
+	const actualKm = onTheDay.length > 0 ? Math.max(...onTheDay) : 0;
+	const targetKm = Number(session.distanceKm) || null;
+
+	return {
+		date: session.date,
+		targetKm,
+		actualKm,
+		status: longRunStatus(actualKm, session.date, today),
+	};
+}
+
+function longRunStatus(actualKm, date, today) {
+	if (actualKm > 0) {
+		return "done";
+	}
+	// A day is only missed once it's over: at 8am on Sunday the long run is
+	// still ahead of you, and calling it missed would be both wrong and
+	// demoralising.
+	return date < toDayKey(today) ? "missed" : "ahead";
+}
+
+/**
  * The planned week whose Monday matches a given week start.
  *
  * @param {object} plan the parsed plan file.
@@ -159,18 +212,15 @@ export function comparePlan(weeks, plan) {
 		const targetKm = plannedKm(planned);
 		const actualKm = week.distanceM / 1000;
 		const longRunKm = plannedLongRunKm(planned);
-		const actualLongRunKm = week.longestRunM / 1000;
 
 		return {
 			...week,
 			actualKm,
-			actualLongRunKm,
 			// null rather than 0 so "no plan entered" is distinguishable from
 			// "planned zero", which the UI and the rules both care about.
 			targetKm: targetKm > 0 ? targetKm : null,
 			longRunTargetKm: longRunKm > 0 ? longRunKm : null,
 			volumePct: targetKm > 0 ? (actualKm / targetKm) * 100 : null,
-			longRunPct: longRunKm > 0 ? (actualLongRunKm / longRunKm) * 100 : null,
 			keySessions: Array.isArray(planned?.key) ? planned.key : [],
 			sessions: weekSessions(planned),
 			// A planned week with no running is a scheduled down week, which

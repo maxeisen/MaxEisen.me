@@ -20,6 +20,7 @@ import {
 	matchRunsToPlan,
 	upcomingWeeks,
 	weekDays,
+	weekLongRun,
 	weeksToRace,
 } from "./plan.js";
 import { recommendations } from "./recommend.js";
@@ -259,7 +260,15 @@ export function buildDashboard({ activities = [], plan = {}, today }) {
 		series: series.filter((d) => d.date <= day),
 		efficiency: { points: efficiency.points, trend: efficiency.trend },
 		weeks,
-		week: current ? { start: current.start, days: planDays(current, runs, day) } : null,
+		week: current
+			? {
+					start: current.start,
+					days: planDays(current, runs, day),
+					// The week's anchor session, reported as a day rather than
+					// as a total that fills up alongside the volume bar.
+					longRun: weekLongRun(current, runs, day),
+				}
+			: null,
 		upcoming: upcomingWeeks(plan, day),
 		recommendations: advice,
 		// The freshest run, read against the athlete's own recent history —

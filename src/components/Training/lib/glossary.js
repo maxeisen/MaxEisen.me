@@ -126,6 +126,7 @@ export const GLOSSARY = {
 		terms: [
 			{ term: "Missed", definition: "A past day that had a run planned and none recorded." },
 			{ term: "Extra", definition: "A day you ran that had no run planned." },
+			{ term: "Long run", definition: "The week's long run is a single session on a single day, so it's reported as one: still ahead of you, done, or gone by. It deliberately doesn't have a progress bar — kilometres from the rest of the week aren't part of it." },
 		],
 	},
 
