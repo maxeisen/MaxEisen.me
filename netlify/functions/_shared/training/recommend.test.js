@@ -115,6 +115,32 @@ describe("recommendations", () => {
 		expect(find(out, "goal-ahead").severity).toBe("good");
 	});
 
+	it("marks the rules whose numbers are seconds", () => {
+		// The panel prints metric and threshold beside each other. Without
+		// this the goal rules read "13800 vs 13200" next to their own prose
+		// saying "3h 50m against your 3h 40m target".
+		const out = recommendations({
+			prediction: { predictedSec: 13800 },
+			goal: { goalTimeSec: 13200, goalPaceSecPerKm: 312.8 },
+			recovery: { sleep: { recent: 21600, baseline: 28800 } },
+		});
+		expect(find(out, "goal-behind").unit).toBe("duration");
+		expect(find(out, "sleep-short").unit).toBe("duration");
+	});
+
+	it("leaves the unit off rules that are already plain numbers", () => {
+		// A ratio, a percentage and a count of beats are the number itself,
+		// and a key carrying nothing on most of the list is payload weight.
+		const out = recommendations({
+			acwr: { ratio: 1.9 },
+			intensity: { easyPct: 70 },
+			recovery: { restingHr: { recent: 54, baseline: 47, delta: 7 } },
+		});
+		for (const id of ["acwr-high", "easy-share-low", "rhr-elevated"]) {
+			expect(find(out, id)).not.toHaveProperty("unit");
+		}
+	});
+
 	it("orders injury risk ahead of everything else", () => {
 		const out = recommendations({
 			acwr: { ratio: 1.9 },

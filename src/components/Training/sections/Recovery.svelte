@@ -14,6 +14,7 @@
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
+    import ChartFrame from "../charts/ChartFrame.svelte";
     import { bars } from "../lib/chart.js";
     import { formatDuration, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
@@ -28,8 +29,22 @@
     const RHR_RISE_BPM = 5;
 
     const CHART_W = 300;
-    const CHART_H = 56;
+    const CHART_H = 100;
     const NIGHTS = 14;
+
+    // A fixed ceiling rather than the best night on record, so the seven-hour
+    // line sits in the same place from week to week and a good run of sleep
+    // doesn't flatten the chart. Nine hours because almost nothing clears it.
+    const CEILING_SEC = 9 * 3600;
+
+    // Hand-built rather than niceScale, which reasons in the units it's given
+    // and would put gridlines at round numbers of seconds. Hours are the only
+    // divisions of a night anyone reads.
+    const Y_TICKS = [0, 3, 6, 9].map((h) => ({
+        value: h * 3600,
+        label: h === 0 ? "0" : `${h}h`,
+        pct: ((h * 3600) / CEILING_SEC) * 100,
+    }));
 
     const sleep = $derived(recovery?.sleep || {});
     const restingHr = $derived(recovery?.restingHr || {});
@@ -48,19 +63,17 @@
     });
 
     // The last fortnight, which is enough to see a pattern without the bars
-    // becoming hairlines. Drawn against a ceiling of nine hours rather than
-    // the best night on record, so the target line sits in the same place
-    // from week to week and a good run of sleep doesn't flatten the chart.
+    // becoming hairlines.
     const nights = $derived((recovery?.series || []).slice(-NIGHTS));
     const columns = $derived(
         bars(nights.map((n) => n.sleepSec || 0), {
             width: CHART_W,
             height: CHART_H,
-            max: 9 * 3600,
+            max: CEILING_SEC,
             gap: 0.3,
         }),
     );
-    const targetY = $derived(CHART_H - (SLEEP_TARGET_SEC / (9 * 3600)) * CHART_H);
+    const targetY = $derived(CHART_H - (SLEEP_TARGET_SEC / CEILING_SEC) * CHART_H);
 
     // Signed, in the units of whatever it's describing.
     const delta = (value, unit) => {
@@ -84,28 +97,33 @@
         </div>
 
         {#if columns.length}
-            <svg
-                viewBox="0 0 {CHART_W} {CHART_H}"
-                class="chart"
-                role="img"
-                aria-label="Sleep each night over the last fortnight"
+            <div class="chart">
+            <ChartFrame
+                height={CHART_H}
+                yTicks={Y_TICKS}
+                label="Sleep each night over the last fortnight"
             >
-                <!-- The seven-hour floor, so a short night is visible as
-                     falling under a line rather than as a slightly shorter
-                     bar than the one beside it. -->
-                <line class="target" x1="0" x2={CHART_W} y1={targetY} y2={targetY} />
-                {#each columns as bar, i (nights[i].day)}
-                    <rect
-                        class="bar"
-                        class:under={bar.value > 0 && bar.value < SLEEP_TARGET_SEC}
-                        x={bar.x}
-                        y={bar.y}
-                        width={bar.width}
-                        height={bar.height}
-                        rx="2"
-                    />
-                {/each}
-            </svg>
+                <svg viewBox="0 0 {CHART_W} {CHART_H}" preserveAspectRatio="none">
+                    <!-- The seven-hour floor, drawn over the gridlines rather
+                         than as one of them: it's a threshold the bars are
+                         read against, not a division of the axis. -->
+                    <line class="target" x1="0" x2={CHART_W} y1={targetY} y2={targetY} />
+                    {#each columns as bar, i (nights[i].day)}
+                        <rect
+                            class="bar"
+                            class:under={bar.value > 0 && bar.value < SLEEP_TARGET_SEC}
+                            x={bar.x}
+                            y={bar.y}
+                            width={bar.width}
+                            height={bar.height}
+                            rx="2"
+                        >
+                            <title>{shortDate(nights[i].day)} — {formatDuration(bar.value)}</title>
+                        </rect>
+                    {/each}
+                </svg>
+            </ChartFrame>
+            </div>
             <p class="chart-unit">nightly sleep · line at {formatDuration(SLEEP_TARGET_SEC)}</p>
         {/if}
 
@@ -194,21 +212,19 @@
     .status.tone-bad { color: var(--tone-bad); background: var(--tone-bad-bg); }
     .status.tone-warn { color: var(--tone-warn); background: var(--tone-warn-bg); }
 
-    .chart {
-        width: 100%;
-        height: 56px;
-        display: block;
-        margin-top: var(--space-4);
-        overflow: visible;
-    }
+    /* ChartFrame owns the plot box; what's left here is the ink inside it. */
+    .chart { margin-top: var(--space-4); }
     .bar { fill: var(--main-green); opacity: 0.75; }
     /* A night under the floor is the thing the chart is for. */
     .bar.under { fill: var(--tone-warn); opacity: 0.9; }
+    /* The plot stretches to its container, so a plain stroke would be drawn
+       thicker horizontally than vertically and the dashes would smear. */
     .target {
         stroke: var(--paragraph-colour);
         stroke-width: 1;
         stroke-dasharray: 3 3;
-        opacity: 0.45;
+        opacity: 0.55;
+        vector-effect: non-scaling-stroke;
     }
 
     .detail {

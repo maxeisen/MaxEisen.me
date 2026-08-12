@@ -22,6 +22,7 @@
     import Spinner from "../../lib/ui/Spinner.svelte";
     import { fetchJsonSwr } from "../../lib/data/swrCache.js";
     import { createPoller } from "../../lib/data/poller.js";
+    import { bestSplit, worthMoving } from "./lib/balance.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
     import LastRun from "./sections/LastRun.svelte";
@@ -42,31 +43,41 @@
     // /dashboard's Strava widget used to point here; it now points at this page.
     const STRAVA_PROFILE = "https://www.strava.com/athletes/92118908";
 
-    // Slots 0–4 are the wide column, 5–8 the narrow one, 9 the full-width
-    // row underneath. A panel can sit in any of them; the charts and the run
-    // log all reflow to their container, so a "narrow" chart is a narrower
-    // chart rather than a broken one.
+    // The panels in order, filling the wide column and then the narrow one,
+    // with the last taking the full-width row underneath. A panel can sit
+    // anywhere; the charts and the run log all reflow to their container, so a
+    // "narrow" chart is a narrower chart rather than a broken one.
     //
-    // The split is by height as much as by subject, because the columns are
-    // independent and a heavy one just runs on past the other: with the last
-    // run and the recommendations — the two tallest panels — both on the left,
-    // it ended a thousand pixels below the right. Left is how the training is
-    // going, right is what to do and what's on. Worth re-measuring whenever a
-    // panel is added, since nothing here keeps the two columns level on its
-    // own.
+    // The order carries the argument and is authored: what just happened, what
+    // to do about it, then how the training is trending, then the reference
+    // material. Where the two columns divide is not authored — that's measured
+    // at runtime, because the columns are independent and a heavy one simply
+    // runs on past the other. It used to be a constant, which was right until
+    // a panel was added or resized, and both kept happening. See lib/balance.js.
+    //
+    // Recommendations sits second rather than at the top of the right column.
+    // It's the tallest panel on the page by some margin — a thousand pixels of
+    // prose — and with it leading the narrow column no split of the remaining
+    // order could bring the two within 500px of each other. It also reads
+    // better here: the advice is the point of the page, and the wide column is
+    // where long text belongs.
     const DEFAULT_ORDER = [
-        "lastRun", "volume", "fitness", "efficiency", "prediction",
-        "recommendations", "week", "load", "recovery", "intensity",
+        "lastRun", "recommendations", "volume", "fitness",
+        "efficiency", "prediction", "week", "load", "recovery", "intensity",
         "runs",
     ];
-    const WIDE_SLOTS = 5;
-    const NARROW_SLOTS = 5;
+    // Where the split starts before anything has been measured, and what it
+    // falls back to if measuring isn't possible.
+    const INITIAL_SPLIT = 4;
     // Versioned: a layout saved against the old order would keep the imbalance
     // this fixes, and the arrangement is a convenience rather than anything
     // worth carrying forward at the cost of the fix.
     // 3: recovery joins the narrow column. A saved layout of ten panels can't
     //    place an eleventh, so the stored order would silently drop it.
-    const LAYOUT_KEY = "training-layout-3";
+    // 4: recommendations moves up the order. A layout saved against the old
+    //    one would pin the imbalance this fixes, and the split is computed
+    //    from the order it's given rather than able to rescue any order.
+    const LAYOUT_KEY = "training-layout-4";
 
     let data = $state(null);
     let error = $state("");
@@ -84,9 +95,53 @@
         onReorder: () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize"))),
     });
 
-    const wideIds = $derived(reorder.layout.slice(0, WIDE_SLOTS));
-    const narrowIds = $derived(reorder.layout.slice(WIDE_SLOTS, WIDE_SLOTS + NARROW_SLOTS));
-    const fullId = $derived(reorder.layout[WIDE_SLOTS + NARROW_SLOTS]);
+    // The last panel spans both columns, so only the ones above it are split.
+    let splitAt = $state(INITIAL_SPLIT);
+
+    const columnIds = $derived(reorder.layout.slice(0, -1));
+    const wideIds = $derived(columnIds.slice(0, splitAt));
+    const narrowIds = $derived(columnIds.slice(splitAt));
+    const fullId = $derived(reorder.layout[reorder.layout.length - 1]);
+
+    // Measuring changes heights — a panel rewraps when it changes column — so
+    // one pass can reveal a better split than it started from. Three is enough
+    // for that to settle in every arrangement here, and a hard stop means a
+    // pathological one costs a few frames rather than the tab.
+    const MAX_PASSES = 3;
+
+    function rebalance(passesLeft = MAX_PASSES) {
+        // One column below 860px: there's nothing to balance, and measuring
+        // there would record heights that don't apply to the two-column case.
+        if (edit.isResponsive) return;
+        const grid = document.getElementById("training-grid");
+        if (!grid) return;
+
+        const measured = new Map();
+        for (const panel of grid.querySelectorAll("[data-panel]")) {
+            measured.set(panel.dataset.panel, panel.offsetHeight);
+        }
+        const heights = columnIds.map((id) => measured.get(id) ?? NaN);
+
+        const column = grid.querySelector(".col");
+        const gap = column ? parseFloat(getComputedStyle(column).rowGap) || 0 : 0;
+
+        const next = bestSplit(heights, { gap });
+        if (!worthMoving(heights, splitAt, next, { gap })) return;
+        splitAt = next;
+        // Re-measure once the new arrangement has been laid out, since the
+        // heights that chose it were taken from the old one.
+        if (passesLeft > 1) requestAnimationFrame(() => rebalance(passesLeft - 1));
+    }
+
+    // Deliberately not reading splitAt in a tracked context: rebalance writes
+    // it, and an effect that read it would re-run itself for ever. The frame
+    // callback runs outside the effect, so nothing it touches is a dependency.
+    $effect(() => {
+        void data;
+        void reorder.layout;
+        void edit.isResponsive;
+        requestAnimationFrame(() => rebalance());
+    });
 
     const currentWeek = $derived(
         data?.weeks?.find((w) => w.start === weekStartOf(data.today)) || null,
@@ -117,9 +172,19 @@
         }
     }
 
+    // A narrower window is a taller panel, so the split that was right at
+    // 1400px often isn't at 900. Trailing-edge only: mid-drag of a window
+    // border there's nothing worth measuring.
+    let resizeTimer;
+    function onResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => rebalance(), 150);
+    }
+
     onMount(() => {
         reorder.restore();
         edit.listen();
+        window.addEventListener("resize", onResize);
         load();
 
         // The upstream sync runs hourly, so there's nothing to gain from
@@ -131,6 +196,8 @@
     onDestroy(() => {
         stopPoll?.();
         edit.stop();
+        clearTimeout(resizeTimer);
+        window.removeEventListener("resize", onResize);
     });
 </script>
 
@@ -214,11 +281,11 @@
             </div>
 
             <div class="col">
-                {#each narrowIds as id, i (id)}{@render panelSlot(id, i + WIDE_SLOTS)}{/each}
+                {#each narrowIds as id, i (id)}{@render panelSlot(id, i + splitAt)}{/each}
             </div>
 
             <div class="col col-full">
-                {@render panelSlot(fullId, WIDE_SLOTS + NARROW_SLOTS)}
+                {@render panelSlot(fullId, columnIds.length)}
             </div>
         </div>
 
