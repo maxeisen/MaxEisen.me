@@ -15,7 +15,13 @@ import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
 import { buildDashboard } from "./_shared/training/metrics.js";
 import { loadPlan } from "./_shared/training/planFile.js";
-import { CURSOR_KEY, INDEX_KEY, getTrainingStore, readJson } from "./_shared/training/store.js";
+import {
+	CURSOR_KEY,
+	INDEX_KEY,
+	RECOVERY_KEY,
+	getTrainingStore,
+	readJson,
+} from "./_shared/training/store.js";
 import { toDayKey } from "./_shared/training/dates.js";
 
 // The underlying data only changes when the hourly sync runs, so a 10-minute
@@ -48,15 +54,17 @@ function syncState(cursor) {
 
 async function build(today) {
 	const store = getTrainingStore();
-	const [activities, cursor] = await Promise.all([
+	const [activities, cursor, recovery] = await Promise.all([
 		readJson(store, INDEX_KEY, []),
 		readJson(store, CURSOR_KEY, null),
+		readJson(store, RECOVERY_KEY, []),
 	]);
 	return {
 		...buildDashboard({
 			activities: Array.isArray(activities) ? activities : [],
 			plan: loadPlan(),
 			today,
+			recovery: Array.isArray(recovery) ? recovery : [],
 		}),
 		sync: syncState(cursor),
 	};

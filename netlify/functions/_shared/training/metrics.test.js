@@ -527,3 +527,91 @@ describe("buildDashboard with rides", () => {
 		expect(out.runs.every((a) => a.sport === "run")).toBe(true);
 	});
 });
+
+// Recovery is the second input this page takes that isn't training load, and
+// the rides taught the expensive version of this lesson: the fitness model is
+// a closed system, and a second source reaching part of it breaks the
+// equilibrium that makes form mean anything. So the same assertion as the
+// rides get — every training number identical — except here it holds for the
+// whole payload rather than only the model, because recovery earns its place
+// in the recommendations instead.
+describe("buildDashboard with recovery", () => {
+	const HOURS = (h) => Math.round(h * 3600);
+
+	// Four weeks of nights ending today, so the baselines have something to
+	// be a baseline of.
+	const nights = (patch = {}) =>
+		Array.from({ length: 28 }, (_, i) => {
+			const date = new Date(Date.UTC(2026, 6, 16 + i));
+			return {
+				day: date.toISOString().slice(0, 10),
+				sleepSec: HOURS(8),
+				restingHr: 47,
+				averageHrv: 65,
+				...patch,
+			};
+		});
+
+	const withoutRing = () =>
+		buildDashboard({ activities: block("2026-08-11", 10), plan: PLAN, today: "2026-08-11" });
+	const withRing = (patch) =>
+		buildDashboard({
+			activities: block("2026-08-11", 10),
+			plan: PLAN,
+			today: "2026-08-11",
+			recovery: nights(patch),
+		});
+
+	it("moves no training number at all", () => {
+		const before = withoutRing();
+		const after = withRing({ sleepSec: HOURS(4), restingHr: 62 });
+		expect(after.series).toEqual(before.series);
+		expect(after.summary.latest).toEqual(before.summary.latest);
+		expect(after.summary.acwr).toEqual(before.summary.acwr);
+		expect(after.summary.totals).toEqual(before.summary.totals);
+		expect(after.weeks).toEqual(before.weeks);
+	});
+
+	it("carries the ring's own numbers into the payload", () => {
+		const out = withRing();
+		expect(out.recovery.sleep.recent).toBe(HOURS(8));
+		expect(out.recovery.restingHr.recent).toBe(47);
+		expect(out.recovery.latest.day).toBe("2026-08-11");
+		expect(out.recovery.series.length).toBeGreaterThan(0);
+	});
+
+	it("is absent rather than empty when there's no ring", () => {
+		// The panel should not exist at all, rather than drawing dashes.
+		expect(withoutRing().recovery).toBeNull();
+	});
+
+	it("reaches the advice, which is the whole point of collecting it", () => {
+		const ids = (out) => out.recommendations.map((r) => r.id);
+		expect(ids(withRing())).toContain("recovery-ok");
+		expect(ids(withoutRing())).not.toContain("recovery-ok");
+	});
+
+	it("reads sleep against the training rather than on its own", () => {
+		// This block is itself a ramp — ten runs in ten days against nothing
+		// before them — so five hours a night doesn't produce a note about
+		// sleep beside a note about load. It produces the one about both,
+		// which is the entire reason for collecting any of this.
+		const out = withRing({ sleepSec: HOURS(5) });
+		const ids = out.recommendations.map((r) => r.id);
+		expect(ids).toContain("sleep-and-ramp");
+		expect(ids).not.toContain("sleep-short");
+		expect(out.recommendations[0].severity).toBe("critical");
+	});
+});
+
+describe("legacy records", () => {
+	it("treats a record with no sport as a run, as every stored one is", () => {
+		// Everything already in Blobs was written before rides were tracked,
+		// and is served for as long as it takes the sync to re-shape it.
+		const legacy = block("2026-08-11", 3);
+		expect(legacy.every((a) => a.sport === undefined)).toBe(true);
+		const out = buildDashboard({ activities: legacy, plan: PLAN, today: "2026-08-11" });
+		expect(out.summary.totals.runs).toBe(3);
+		expect(out.runs.every((a) => a.sport === "run")).toBe(true);
+	});
+});

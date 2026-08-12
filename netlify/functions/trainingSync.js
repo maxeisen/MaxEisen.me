@@ -24,17 +24,21 @@
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { STRAVA_API_BASE, callsRemaining, getAccessToken, readQuota } from "./_shared/strava.js";
+import { getOuraAccessToken, ouraCollection } from "./_shared/oura.js";
 import {
 	SHAPE_VERSION,
 	isTrackableActivity,
 	isTrackableRide,
 	shapeActivity,
 } from "./_shared/training/shape.js";
+import { shapeRecovery } from "./_shared/training/recovery.js";
 import { loadPlan } from "./_shared/training/planFile.js";
+import { addDays, toDayKey } from "./_shared/training/dates.js";
 import {
 	ATHLETE_KEY,
 	CURSOR_KEY,
 	INDEX_KEY,
+	RECOVERY_KEY,
 	getTrainingStore,
 	mergeActivities,
 	readJson,
@@ -82,6 +86,12 @@ function historyStartEpoch(plan) {
 	return Math.floor((anchor.getTime() - HISTORY_LEAD_DAYS * 86_400_000) / 1000);
 }
 
+// The athlete's today, matching trainingData. A night is filed under the day
+// you woke up in, which is a local idea rather than a UTC one.
+function todayKey() {
+	return toDayKey(new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" }));
+}
+
 // Run an async mapper over a list a few at a time. Sequential fetches would
 // spend the whole timeout waiting on round trips; unbounded parallelism would
 // burst the rate limit on a cold-start backfill.
@@ -102,6 +112,55 @@ async function mapWithConcurrency(items, limit, mapper) {
 // absent — see _shared/training/shape.js for why the payload carries no
 // coordinates, and gap.js for why GAP doesn't need them.
 const STREAM_KEYS = "time,distance,heartrate,velocity_smooth,altitude,grade_smooth";
+
+// How much sleep history to hold. Baselines are 28-day averages and the panel
+// draws a month, so this is comfortably more than either needs. The whole
+// window is refetched and rewritten every sync rather than merged: Oura's
+// limit is 5000 requests per 5 minutes against the three this spends, and
+// Oura revises a night's figures for a while after it, so the newer answer
+// should win outright rather than being merged around.
+const RECOVERY_DAYS = 45;
+
+/**
+ * Pull the recent nights from Oura into Blobs.
+ *
+ * Isolated from the Strava sync in both directions. Oura being unconfigured is
+ * the normal state of a fresh checkout and mustn't read as a failure; Oura
+ * being broken mustn't stop the runs syncing, which are what the page is
+ * actually for. Nothing here shares a rate limit, a token or a store key with
+ * the code above, so it runs alongside it rather than after it.
+ *
+ * @param {object} store
+ * @param {string} today day key.
+ * @returns {Promise<object>} a status for the response body, never a throw.
+ */
+async function syncRecovery(store, today) {
+	let token;
+	try {
+		token = await getOuraAccessToken(store);
+	} catch (err) {
+		if (err.code === "not_configured") return { configured: false };
+		console.error("Oura auth failed", err);
+		return { configured: true, ok: false, reason: "auth" };
+	}
+
+	const start = addDays(today, -(RECOVERY_DAYS - 1));
+	try {
+		const [sleep, dailySleep, readiness] = await Promise.all([
+			ouraCollection("/v2/usercollection/sleep", token, { start, end: today }),
+			ouraCollection("/v2/usercollection/daily_sleep", token, { start, end: today }),
+			ouraCollection("/v2/usercollection/daily_readiness", token, { start, end: today }),
+		]);
+		const nights = shapeRecovery({ sleep, dailySleep, readiness });
+		await writeJson(store, RECOVERY_KEY, nights);
+		return { configured: true, ok: true, nights: nights.length };
+	} catch (err) {
+		// 403 is the membership having lapsed rather than anything being
+		// wrong here, and it's worth being able to tell them apart in a log.
+		console.error("Oura sync failed", err);
+		return { configured: true, ok: false, reason: err.status === 403 ? "membership" : "fetch" };
+	}
+}
 
 // Last quota Strava reported, updated on every response (including errors —
 // a 429 carries the headers that say how long we've overshot by).
@@ -190,6 +249,11 @@ export default async function handler(req) {
 
 	const plan = loadPlan();
 	const blockStart = historyStartEpoch(plan);
+
+	// Started rather than awaited. It shares no state, token or rate limit
+	// with the Strava work below, which is allowed to spend twenty seconds,
+	// and there's no reason three quick requests should queue behind it.
+	const recoveryWork = syncRecovery(store, todayKey());
 
 	// Re-list the whole block whenever anything might need rebuilding, so
 	// stale records are actually visible to the pass below. ?full=1 forces it;
@@ -326,6 +390,7 @@ export default async function handler(req) {
 		rateLimited,
 		quotaPaused,
 		timedOut,
+		recovery: await recoveryWork,
 	});
 }
 

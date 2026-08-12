@@ -13,6 +13,7 @@
 
 import { ACWR_CEILING, ACWR_FLOOR, SAFE_RAMP_PCT } from "./fitness.js";
 import { EASY_SHARE_TARGET } from "./zones.js";
+import { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC } from "./recovery.js";
 
 // Ordering for display: the things that get you injured come before the things
 // that make you slower.
@@ -63,6 +64,7 @@ export function recommendations(metrics) {
 		goal = {},
 		daysToRace = null,
 		longRunDecouplingPct = null,
+		recovery = null,
 	} = metrics || {};
 
 	// --- Injury risk -------------------------------------------------------
@@ -152,6 +154,97 @@ export function recommendations(metrics) {
 				`The long run was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${LONG_RUN_SHARE_CEILING}% guideline. Add an easy midweek run rather than shortening the long one — the aerobic work is worth keeping.`,
 				share,
 				LONG_RUN_SHARE_CEILING,
+			),
+		);
+	}
+
+	// --- Recovery ----------------------------------------------------------
+	//
+	// The only rules here that read something other than training load. They
+	// exist because load is blind to the thing that decides whether a week of
+	// running is absorbed or merely survived, and the combination is what's
+	// worth saying: a 12% ramp on eight hours a night and the same ramp on six
+	// are different propositions, and neither number says so alone.
+	//
+	// Nothing in this section changes a metric. It reads them, and says what
+	// the pair implies.
+
+	const sleep = recovery?.sleep || {};
+	const restingHr = recovery?.restingHr || {};
+	const hrv = recovery?.hrv || {};
+
+	const shortSleep = Number.isFinite(sleep.recent) && sleep.recent < SLEEP_TARGET_SEC;
+	const ramping =
+		(Number.isFinite(acwr.ratio) && acwr.ratio > ACWR_CEILING) ||
+		(Number.isFinite(basis.rampPct) && basis.rampPct > SAFE_RAMP_PCT);
+
+	if (shortSleep && ramping) {
+		const why = Number.isFinite(acwr.ratio) && acwr.ratio > ACWR_CEILING
+			? `an acute:chronic ratio of ${acwr.ratio.toFixed(2)}`
+			: `a ${basis.rampPct.toFixed(0)}% jump in volume`;
+		out.push(
+			rule(
+				"sleep-and-ramp",
+				"critical",
+				"You're adding load faster than you're recovering from it",
+				`${duration(sleep.recent)} a night on average over the last week, against ${why}. Short sleep is one of the better-evidenced injury risk factors in athletes, and it compounds a ramp rather than sitting alongside it — the same week of running is a different proposition on eight hours than on ${duration(sleep.recent)}. Hold the volume where it is until sleep comes back up.`,
+				sleep.recent,
+				SLEEP_TARGET_SEC,
+			),
+		);
+	} else if (shortSleep) {
+		out.push(
+			rule(
+				"sleep-short",
+				"warning",
+				"You're running short on sleep",
+				`${duration(sleep.recent)} a night over the last week, against a ${duration(SLEEP_TARGET_SEC)} floor${Number.isFinite(sleep.baseline) ? ` and your own ${duration(sleep.baseline)} average` : ""}. Sleep is where the adaptation actually happens, so this quietly costs you more of the training than a missed easy run would.`,
+				sleep.recent,
+				SLEEP_TARGET_SEC,
+			),
+		);
+	}
+
+	if (Number.isFinite(restingHr.delta) && restingHr.delta >= RHR_RISE_BPM) {
+		out.push(
+			rule(
+				"rhr-elevated",
+				"warning",
+				"Your overnight heart rate is up",
+				`Averaging ${restingHr.recent.toFixed(0)} bpm over the last week against a ${restingHr.baseline.toFixed(0)} bpm baseline, up ${restingHr.delta.toFixed(0)}. A rise of ${RHR_RISE_BPM} or more usually means something the training log can't see: illness coming on, or work you haven't absorbed yet. Worth an easy few days before a key session rather than after one.`,
+				restingHr.delta,
+				RHR_RISE_BPM,
+			),
+		);
+	}
+
+	if (Number.isFinite(hrv.deltaPct) && hrv.deltaPct <= -HRV_DROP_PCT) {
+		out.push(
+			rule(
+				"hrv-suppressed",
+				"info",
+				"Heart-rate variability is below your baseline",
+				`${hrv.recent.toFixed(0)} ms over the last week against a ${hrv.baseline.toFixed(0)} ms baseline, down ${Math.abs(hrv.deltaPct).toFixed(0)}%. HRV is noisy night to night and this is a week against a month, so it's worth noting rather than acting on alone — but read it alongside the resting heart rate above.`,
+				hrv.deltaPct,
+				-HRV_DROP_PCT,
+			),
+		);
+	}
+
+	// Only worth saying when there was enough data to have said otherwise.
+	if (
+		Number.isFinite(sleep.recent) &&
+		!shortSleep &&
+		!(Number.isFinite(restingHr.delta) && restingHr.delta >= RHR_RISE_BPM)
+	) {
+		out.push(
+			rule(
+				"recovery-ok",
+				"good",
+				"You're recovering as fast as you're training",
+				`${duration(sleep.recent)} a night over the last week${Number.isFinite(restingHr.recent) ? `, with overnight heart rate at ${restingHr.recent.toFixed(0)} bpm` : ""}. Nothing here says the training isn't being absorbed.`,
+				sleep.recent,
+				SLEEP_TARGET_SEC,
 			),
 		);
 	}
