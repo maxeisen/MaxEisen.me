@@ -278,6 +278,13 @@ video::-webkit-media-controls-overlay-play-button {
     letter-spacing: -0.02em;
 }
 
+/* `.grid-container h1` centres every h1 in the layout and outranks the rule
+   above on specificity, so the left alignment it asks for never landed. Only
+   section titles are named here — the profile name stays centred. */
+.grid-container h1.section-title {
+    text-align: left;
+}
+
 .blog-subsection {
     display: grid;
     grid-template-columns: 1fr;
