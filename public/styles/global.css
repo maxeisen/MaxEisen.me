@@ -214,6 +214,7 @@
     50%  { transform: rotate(0.5deg)  translate(0, -1px); }
     100% { transform: rotate(-0.5deg) translate(0, 0); }
 }
+
 @keyframes edit-jiggle-b {
     0%   { transform: rotate(0.55deg)  translate(0, -1px); }
     50%  { transform: rotate(-0.55deg) translate(0, 0); }

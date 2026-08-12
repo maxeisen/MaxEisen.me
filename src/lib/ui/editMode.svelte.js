@@ -10,6 +10,9 @@
 // behaviour. It's here so there's one of it: the same rule for when dragging
 // is allowed, and the same rule for which clicks are drag residue.
 
+/* global $state -- a compiler intrinsic, not an import, and the analyser on
+   pull requests reads this file without knowing that. */
+
 import { createReorder } from "./reorder.svelte.js";
 
 /**
@@ -45,7 +48,9 @@ export function createRearrangeable({
 			isResponsive = event.matches;
 			// Widening the window puts dragging back within reach anyway, and
 			// leaves no button to turn edit mode off with.
-			if (!event.matches) isEditing = false;
+			if (!event.matches) {
+				isEditing = false;
+			}
 		};
 		query.addEventListener("change", onQueryChange);
 
@@ -54,7 +59,9 @@ export function createRearrangeable({
 		// editing — matching iOS jiggle mode, where tapping an icon doesn't
 		// open it.
 		onClickCapture = (event) => {
-			if (!event.target.closest(`#${gridId}`)) return;
+			if (!event.target.closest(`#${gridId}`)) {
+				return;
+			}
 			if (reorder.suppressesClick() || isEditing) {
 				event.preventDefault();
 				event.stopPropagation();
