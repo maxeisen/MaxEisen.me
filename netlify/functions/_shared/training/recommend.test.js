@@ -130,8 +130,8 @@ describe("recommendations", () => {
 	// whether a week was absorbed or merely survived, and sleep alone doesn't
 	// know whether you were also ramping.
 	describe("recovery", () => {
-		const HOURS = (h) => Math.round(h * 3600);
-		const slept = (h) => ({ recovery: { sleep: { recent: HOURS(h), baseline: HOURS(8) } } });
+		const hours = (h) => Math.round(h * 3600);
+		const slept = (h) => ({ recovery: { sleep: { recent: hours(h), baseline: hours(8) } } });
 
 		it("says nothing at all without a ring", () => {
 			const out = recommendations({ acwr: { ratio: 1.9 } });
@@ -200,7 +200,7 @@ describe("recommendations", () => {
 
 		it("confirms recovery is keeping up rather than only ever warning", () => {
 			const out = recommendations({
-				recovery: { sleep: { recent: HOURS(8) }, restingHr: { recent: 47, baseline: 47, delta: 0 } },
+				recovery: { sleep: { recent: hours(8) }, restingHr: { recent: 47, baseline: 47, delta: 0 } },
 			});
 			expect(find(out, "recovery-ok").severity).toBe("good");
 		});
@@ -208,7 +208,7 @@ describe("recommendations", () => {
 		it("won't call it fine while the heart rate is up", () => {
 			const out = recommendations({
 				recovery: {
-					sleep: { recent: HOURS(8) },
+					sleep: { recent: hours(8) },
 					restingHr: { recent: 55, baseline: 47, delta: 8 },
 				},
 			});

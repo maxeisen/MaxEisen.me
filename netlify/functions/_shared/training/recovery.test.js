@@ -10,18 +10,18 @@ import {
 } from "./recovery.js";
 import { addDays } from "./dates.js";
 
-const HOURS = (h) => Math.round(h * 3600);
+const hours = (h) => Math.round(h * 3600);
 
 function period(overrides = {}) {
 	return {
 		day: "2026-08-11",
 		type: "long_sleep",
-		"total_sleep_duration": HOURS(7.5),
-		"time_in_bed": HOURS(8),
+		"total_sleep_duration": hours(7.5),
+		"time_in_bed": hours(8),
 		efficiency: 91,
 		latency: 600,
-		"rem_sleep_duration": HOURS(1.6),
-		"deep_sleep_duration": HOURS(1.2),
+		"rem_sleep_duration": hours(1.6),
+		"deep_sleep_duration": hours(1.2),
 		"lowest_heart_rate": 47,
 		"average_hrv": 62,
 		...overrides,
@@ -37,7 +37,7 @@ describe("shapeNight", () => {
 			readiness: { day: "2026-08-11", score: 79, "temperature_deviation": 0.2 },
 		});
 
-		expect(night.sleepSec).toBe(HOURS(7.5));
+		expect(night.sleepSec).toBe(hours(7.5));
 		expect(night.restingHr).toBe(47);
 		expect(night.averageHrv).toBe(62);
 		expect(night.sleepScore).toBe(84);
@@ -51,9 +51,9 @@ describe("shapeNight", () => {
 		// slept twice.
 		const night = shapeNight({
 			day: "2026-08-11",
-			periods: [period(), period({ type: "late_nap", "total_sleep_duration": HOURS(1), "lowest_heart_rate": 58 })],
+			periods: [period(), period({ type: "late_nap", "total_sleep_duration": hours(1), "lowest_heart_rate": 58 })],
 		});
-		expect(night.sleepSec).toBe(HOURS(7.5));
+		expect(night.sleepSec).toBe(hours(7.5));
 		expect(night.restingHr).toBe(47);
 	});
 
@@ -61,11 +61,11 @@ describe("shapeNight", () => {
 		const night = shapeNight({
 			day: "2026-08-11",
 			periods: [
-				period({ "total_sleep_duration": HOURS(5) }),
-				period({ "total_sleep_duration": HOURS(2), "lowest_heart_rate": 52 }),
+				period({ "total_sleep_duration": hours(5) }),
+				period({ "total_sleep_duration": hours(2), "lowest_heart_rate": 52 }),
 			],
 		});
-		expect(night.sleepSec).toBe(HOURS(7));
+		expect(night.sleepSec).toBe(hours(7));
 		// The longer half carries the heart-rate figures.
 		expect(night.restingHr).toBe(47);
 	});
@@ -96,13 +96,13 @@ describe("shapeRecovery", () => {
 
 describe("windowMean", () => {
 	const nights = [
-		{ day: "2026-08-09", sleepSec: HOURS(6) },
-		{ day: "2026-08-10", sleepSec: HOURS(8) },
-		{ day: "2026-08-11", sleepSec: HOURS(7) },
+		{ day: "2026-08-09", sleepSec: hours(6) },
+		{ day: "2026-08-10", sleepSec: hours(8) },
+		{ day: "2026-08-11", sleepSec: hours(7) },
 	];
 
 	it("averages the window", () => {
-		expect(windowMean(nights, "sleepSec", { to: "2026-08-11", days: 3 }).mean).toBe(HOURS(7));
+		expect(windowMean(nights, "sleepSec", { to: "2026-08-11", days: 3 }).mean).toBe(hours(7));
 	});
 
 	it("skips missing nights rather than counting them as no sleep", () => {
@@ -111,17 +111,17 @@ describe("windowMean", () => {
 		// with no record is a ring left on a bedside table. Averaging it in as
 		// zero would manufacture the exact alarm this is meant to raise.
 		const withGap = [
-			{ day: "2026-08-05", sleepSec: HOURS(8) },
-			{ day: "2026-08-10", sleepSec: HOURS(8) },
-			{ day: "2026-08-11", sleepSec: HOURS(8) },
+			{ day: "2026-08-05", sleepSec: hours(8) },
+			{ day: "2026-08-10", sleepSec: hours(8) },
+			{ day: "2026-08-11", sleepSec: hours(8) },
 		];
 		const out = windowMean(withGap, "sleepSec", { to: "2026-08-11", days: 7 });
-		expect(out.mean).toBe(HOURS(8));
+		expect(out.mean).toBe(hours(8));
 		expect(out.nights).toBe(3);
 	});
 
 	it("says nothing rather than averaging one or two nights", () => {
-		const sparse = [{ day: "2026-08-11", sleepSec: HOURS(4) }];
+		const sparse = [{ day: "2026-08-11", sleepSec: hours(4) }];
 		expect(windowMean(sparse, "sleepSec", { to: "2026-08-11", days: 7 }).mean).toBeNull();
 	});
 
@@ -139,7 +139,7 @@ describe("windowMean", () => {
 
 // A month of identical nights, so a test only has to say how the recent ones
 // differed from the established normal.
-function block(today, { sleepSec = HOURS(8), restingHr = 48, averageHrv = 65, days = 28 } = {}) {
+function block(today, { sleepSec = hours(8), restingHr = 48, averageHrv = 65, days = 28 } = {}) {
 	return Array.from({ length: days }, (_, i) => ({
 		day: addDays(today, -(days - 1 - i)),
 		sleepSec,
@@ -162,18 +162,18 @@ describe("recoverySummary", () => {
 
 	it("reads level when nothing has changed", () => {
 		const out = recoverySummary(block(TODAY), { today: TODAY });
-		expect(out.sleep.recent).toBe(HOURS(8));
-		expect(out.sleep.baseline).toBe(HOURS(8));
+		expect(out.sleep.recent).toBe(hours(8));
+		expect(out.sleep.baseline).toBe(hours(8));
 		expect(out.sleep.delta).toBe(0);
 		expect(out.restingHr.delta).toBe(0);
 	});
 
 	it("measures the last week against the month behind it", () => {
-		const out = recoverySummary(recent(block(TODAY), { sleepSec: HOURS(6) }), { today: TODAY });
-		expect(out.sleep.recent).toBe(HOURS(6));
+		const out = recoverySummary(recent(block(TODAY), { sleepSec: hours(6) }), { today: TODAY });
+		expect(out.sleep.recent).toBe(hours(6));
 		// The baseline is the whole 28 days, recent week included, which is
 		// the same acute-against-chronic shape ACWR uses.
-		expect(out.sleep.baseline).toBeLessThan(HOURS(8));
+		expect(out.sleep.baseline).toBeLessThan(hours(8));
 		expect(out.sleep.delta).toBeLessThan(0);
 		expect(out.sleep.recent).toBeLessThan(SLEEP_TARGET_SEC);
 	});
@@ -189,7 +189,7 @@ describe("recoverySummary", () => {
 	});
 
 	it("ignores anything logged after today", () => {
-		const nights = [...block(TODAY), { day: "2026-08-20", sleepSec: HOURS(1), restingHr: 90 }];
+		const nights = [...block(TODAY), { day: "2026-08-20", sleepSec: hours(1), restingHr: 90 }];
 		const out = recoverySummary(nights, { today: TODAY });
 		expect(out.latest.day).toBe(TODAY);
 		expect(out.series.every((n) => n.day <= TODAY)).toBe(true);

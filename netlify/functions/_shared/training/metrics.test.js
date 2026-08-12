@@ -536,7 +536,7 @@ describe("buildDashboard with rides", () => {
 // whole payload rather than only the model, because recovery earns its place
 // in the recommendations instead.
 describe("buildDashboard with recovery", () => {
-	const HOURS = (h) => Math.round(h * 3600);
+	const hours = (h) => Math.round(h * 3600);
 
 	// Four weeks of nights ending today, so the baselines have something to
 	// be a baseline of.
@@ -545,7 +545,7 @@ describe("buildDashboard with recovery", () => {
 			const date = new Date(Date.UTC(2026, 6, 16 + i));
 			return {
 				day: date.toISOString().slice(0, 10),
-				sleepSec: HOURS(8),
+				sleepSec: hours(8),
 				restingHr: 47,
 				averageHrv: 65,
 				...patch,
@@ -564,7 +564,7 @@ describe("buildDashboard with recovery", () => {
 
 	it("moves no training number at all", () => {
 		const before = withoutRing();
-		const after = withRing({ sleepSec: HOURS(4), restingHr: 62 });
+		const after = withRing({ sleepSec: hours(4), restingHr: 62 });
 		expect(after.series).toEqual(before.series);
 		expect(after.summary.latest).toEqual(before.summary.latest);
 		expect(after.summary.acwr).toEqual(before.summary.acwr);
@@ -574,7 +574,7 @@ describe("buildDashboard with recovery", () => {
 
 	it("carries the ring's own numbers into the payload", () => {
 		const out = withRing();
-		expect(out.recovery.sleep.recent).toBe(HOURS(8));
+		expect(out.recovery.sleep.recent).toBe(hours(8));
 		expect(out.recovery.restingHr.recent).toBe(47);
 		expect(out.recovery.latest.day).toBe("2026-08-11");
 		expect(out.recovery.series.length).toBeGreaterThan(0);
@@ -596,7 +596,7 @@ describe("buildDashboard with recovery", () => {
 		// before them — so five hours a night doesn't produce a note about
 		// sleep beside a note about load. It produces the one about both,
 		// which is the entire reason for collecting any of this.
-		const out = withRing({ sleepSec: HOURS(5) });
+		const out = withRing({ sleepSec: hours(5) });
 		const ids = out.recommendations.map((r) => r.id);
 		expect(ids).toContain("sleep-and-ramp");
 		expect(ids).not.toContain("sleep-short");
