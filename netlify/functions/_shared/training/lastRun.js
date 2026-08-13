@@ -42,19 +42,12 @@ function median(values) {
 	return sorted.length % 2 ? upper : (lower + upper) / 2;
 }
 
-/** Fitness minus fatigue, as of the end of a day in the series. */
-function formOf(day) {
-	return day.ctl - day.atl;
-}
-
 /**
  * What the day's running did to fitness, fatigue and form.
  *
- * fitnessSeries reports a day's ctl/atl *after* that day's load, but its tsb as
- * the form you woke up with, before it (see fitness.js). Taking ctl and atl
- * from the day before and the day itself therefore brackets the run cleanly,
- * and form is recomputed from those rather than read off, so all three deltas
- * describe the same moment.
+ * Each record in the series is the state at the end of its day, so the day
+ * before and the day itself bracket the run and all three deltas describe the
+ * same pair of moments.
  *
  * @param {object[]} series from fitnessSeries().
  * @param {string} date day key of the run.
@@ -76,8 +69,8 @@ function formImpact(series, date) {
 		ctlDelta: after.ctl - before.ctl,
 		atl: after.atl,
 		atlDelta: after.atl - before.atl,
-		tsb: formOf(after),
-		tsbDelta: formOf(after) - formOf(before),
+		tsb: after.tsb,
+		tsbDelta: after.tsb - before.tsb,
 	};
 }
 

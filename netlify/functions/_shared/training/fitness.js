@@ -7,11 +7,17 @@
 //
 //   CTL (fitness) — 42-day exponentially weighted average of daily load
 //   ATL (fatigue) —  7-day exponentially weighted average of daily load
-//   TSB (form)    — yesterday's CTL minus yesterday's ATL
+//   TSB (form)    — CTL minus ATL
 //
-// TSB deliberately lags by a day: today's session shouldn't make you look less
-// ready before you've done it, and a morning check-in would otherwise flip
-// negative the moment a run uploads.
+// All three describe the same instant, the end of the day they're filed under,
+// and that consistency is load-bearing rather than tidiness. Form used to lag a
+// day on the reasoning that today's session shouldn't make you look less ready
+// before you'd done it — but the record then mixed two moments, reporting
+// fitness and fatigue after the run and form from before it. Every reader had
+// to know which, and they disagreed: the chart's own header read "Fitness 19,
+// Fatigue 25, Form −1" when 19 − 25 is −6, and the day of the hardest run in a
+// week drew form going *up*. If a "form you woke up with" is ever wanted, it's
+// yesterday's record, and asking for it that way is honest about what it is.
 //
 // Separately, ACWR (acute:chronic workload ratio) compares the last 7 days of
 // load against the last 28. It's the standard early warning for ramping too
@@ -67,12 +73,12 @@ export function fitnessSeries(loadsByDay, { from, to }) {
 	let ctl = 0;
 	let atl = 0;
 	return days.map((date) => {
-		// Form reflects the state you woke up with, before today's session.
-		const tsb = ctl - atl;
 		const load = Number(lookup.get(date)) || 0;
 		ctl += (load - ctl) * ctlAlpha;
 		atl += (load - atl) * atlAlpha;
-		return { date, load, ctl, atl, tsb };
+		// Read off the same two numbers the record reports, so that nothing
+		// downstream can disagree with it by doing the subtraction itself.
+		return { date, load, ctl, atl, tsb: ctl - atl };
 	});
 }
 
