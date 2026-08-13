@@ -131,7 +131,7 @@
     }
     .github-main :global(*) { text-decoration: none; }
     .github-repo {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: clamp(1rem, 1.25vw, 1.4rem);
         color: var(--header-colour);
@@ -218,7 +218,7 @@
         flex-shrink: 0;
     }
     .github-graph-total {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         color: var(--header-colour);
         font-size: clamp(0.95rem, 1.15vw, 1.25rem);

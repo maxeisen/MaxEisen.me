@@ -184,7 +184,7 @@
     }
     .strava-row-main { flex: 1; min-width: 0; }
     .strava-row-name {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: 1rem;
         color: var(--header-colour);
@@ -205,7 +205,7 @@
         text-align: right;
     }
     .strava-row-stats strong {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         color: var(--header-colour);
         display: block;
@@ -257,7 +257,7 @@
     }
     .strava-ytd-icon { font-size: 0.9rem; }
     .strava-ytd-item strong {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         color: var(--header-colour);
     }

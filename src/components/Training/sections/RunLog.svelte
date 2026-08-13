@@ -163,7 +163,7 @@
     .row-main { flex: 1; min-width: 0; }
     .row-name {
         display: block;
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-sm);
         font-weight: 600;
         color: var(--header-colour);
@@ -201,7 +201,7 @@
         text-align: right;
     }
     .row-stat strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-sm);
         font-weight: 600;
         color: var(--header-colour);

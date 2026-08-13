@@ -71,7 +71,7 @@
     }
     strong {
         display: block;
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-sm);
         font-weight: 600;
         color: var(--header-colour);

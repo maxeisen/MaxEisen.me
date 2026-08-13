@@ -274,7 +274,7 @@
         50% { opacity: 1; transform: scale(1.1); }
     }
     .spotify-track {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: clamp(1.1rem, 1.7vw, 1.7rem);
         line-height: 1.15;

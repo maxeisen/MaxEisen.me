@@ -75,7 +75,7 @@
 		gap: 0.8rem;
 	}
 	.gate-title {
-		font-family: var(--font-serif);
+		font-family: var(--font-sans);
 		font-weight: 700;
 		font-size: 1.7rem;
 		letter-spacing: -0.02em;

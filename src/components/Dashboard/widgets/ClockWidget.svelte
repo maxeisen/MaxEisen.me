@@ -100,7 +100,7 @@
 
 <style>
     .clock-time {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-feature-settings: "tnum";
         font-size: min(clamp(3rem, 12vw, 11rem), 36cqh);
@@ -109,7 +109,7 @@
         color: var(--header-colour);
     }
     .clock-meridiem {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 500;
         font-size: clamp(0.9rem, 1.4vw, 1.4rem);
         margin-left: 0.4em;
@@ -125,7 +125,7 @@
         margin-top: 0.25rem;
     }
     .clock-greeting {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: clamp(1.1rem, 1.9vw, 1.9rem);
         letter-spacing: -0.02em;
@@ -166,7 +166,7 @@
         color: var(--main-green);
     }
     .clock-progress-pct {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: 1rem;
         letter-spacing: -0.02em;

@@ -238,14 +238,14 @@
     }
 
     .rec-metric {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-xs);
         color: var(--paragraph-colour);
         opacity: 0.7;
         white-space: nowrap;
     }
     h3 {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 600;
         color: var(--header-colour);

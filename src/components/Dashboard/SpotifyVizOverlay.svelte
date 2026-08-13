@@ -212,7 +212,7 @@
         50% { opacity: 1; transform: scale(1.1); }
     }
     .viz-overlay-track {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: clamp(1.3rem, 2.2vw, 2rem);
         line-height: 1.1;

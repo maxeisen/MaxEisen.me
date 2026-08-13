@@ -168,7 +168,7 @@
         max-width: calc(100vw - 7rem);
     }
     .toronto-header h1 {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         letter-spacing: -0.02em;
         font-size: 1.1rem;

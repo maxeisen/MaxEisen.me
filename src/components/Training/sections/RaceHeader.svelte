@@ -120,7 +120,7 @@
         margin: 0 0 var(--space-2) 0;
     }
     h1 {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: clamp(2rem, 6vw, 3.2rem);
         font-weight: 700;
         letter-spacing: -0.03em;
@@ -147,7 +147,7 @@
         line-height: 1;
     }
     .countdown-value {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: clamp(2.5rem, 8vw, 4rem);
         font-weight: 700;
         letter-spacing: -0.04em;
@@ -196,7 +196,7 @@
         color: var(--main-green);
     }
     .stat-value {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-xl);
         font-weight: 600;
         color: var(--header-colour);

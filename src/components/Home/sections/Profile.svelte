@@ -34,9 +34,8 @@
 
 <style>
     .profile-name {
-        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
-        font-optical-sizing: auto;
         letter-spacing: -0.025em;
     }
 
