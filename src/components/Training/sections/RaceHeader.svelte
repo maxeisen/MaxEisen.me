@@ -3,7 +3,7 @@
     training is in, and whether current fitness projects to the goal.
 -->
 <script>
-    import { clock, km, pace, signedClock } from "../lib/format.js";
+    import { clock, km, pace, signed, signedClock } from "../lib/format.js";
 
     let { summary } = $props();
 
@@ -17,6 +17,23 @@
         if (days < 0) return { value: "Done", label: "race day has passed" };
         if (days === 0) return { value: "Today", label: "race day" };
         return { value: String(days), label: days === 1 ? "day to go" : "days to go" };
+    });
+
+    // Fitness was the one headline number with nothing beside it, and it's the
+    // one that needs the context most: 62 is a figure on an arbitrary scale,
+    // and whether the block is still building is the part worth reading. A
+    // gain of under a point over four weeks is flat — CTL moves in decimals
+    // day to day, and "+0" dressed up as a rise would be noise.
+    const trend = $derived.by(() => {
+        const gain = latest?.ctlGain;
+        if (!Number.isFinite(gain)) return null;
+        if (Math.abs(gain) < 1) {
+            return { value: "level", tone: "flat", note: "holding over 4 weeks" };
+        }
+        const rounded = Math.round(Math.abs(gain));
+        return gain > 0
+            ? { value: `+${rounded}`, tone: "up", note: `up ${rounded} in 4 weeks` }
+            : { value: `−${rounded}`, tone: "down", note: `down ${rounded} in 4 weeks` };
     });
 
     const raceDate = $derived.by(() => {
@@ -62,9 +79,18 @@
 
     <div class="stat">
         <span class="stat-label">Fitness</span>
-        <strong class="stat-value">{latest ? Math.round(latest.ctl) : "—"}</strong>
+        <strong class="stat-value">
+            {latest ? Math.round(latest.ctl) : "—"}
+            {#if trend}
+                <span class="trend {trend.tone}">{trend.value}</span>
+            {/if}
+        </strong>
         <span class="stat-note">
-            {latest ? `form ${latest.tsb > 0 ? "+" : ""}${Math.round(latest.tsb)}` : "no data yet"}
+            {#if latest}
+                form {signed(latest.tsb, 0)}{trend ? ` · ${trend.note}` : ""}
+            {:else}
+                no data yet
+            {/if}
         </span>
     </div>
 
@@ -178,6 +204,20 @@
     }
     .stat-value.ahead { color: var(--tone-good); }
     .stat-value.behind { color: var(--tone-bad); }
+
+    /* Sized and set apart from the figure it qualifies, so the eye still
+       lands on the fitness number first. */
+    .trend {
+        font-family: var(--font-sans);
+        font-size: var(--font-xs);
+        font-weight: 600;
+        letter-spacing: 0;
+        vertical-align: 0.35em;
+        margin-left: 2px;
+    }
+    .trend.up { color: var(--tone-good); }
+    .trend.down { color: var(--tone-bad); }
+    .trend.flat { color: var(--paragraph-colour); opacity: 0.6; }
     .stat-note {
         font-size: var(--font-xs);
         color: var(--paragraph-colour);

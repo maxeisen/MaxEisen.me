@@ -13,8 +13,8 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow } from "../lib/chart.js";
-    import { axisDate } from "../lib/format.js";
+    import { axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow, xPct, yPct } from "../lib/chart.js";
+    import { axisDate, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { efficiency = null, summary = null, today = null } = $props();
@@ -57,6 +57,32 @@
     });
 
     const change = $derived(Number.isFinite(stats?.changePct) ? stats.changePct : null);
+
+    // Every dot is one run, and the trend is a rolling mean of the same list,
+    // so the two share an index and a cursor can honestly show both: what that
+    // run measured, and where the block stood by then. Three decimals because
+    // EF moves in the third one — 1.32 to 1.34 is a block's worth of progress.
+    const scrub = $derived(
+        points.map((point, i) => ({
+            key: `${point.date}-${i}`,
+            pct: xPct(dots[i].x, WIDTH),
+            label: shortDate(point.date),
+            readouts: [
+                {
+                    label: "This run",
+                    value: point.ef.toFixed(3),
+                    colour: "var(--paragraph-colour)",
+                    yPct: yPct(dots[i].y, HEIGHT),
+                },
+                {
+                    label: "Trend",
+                    value: trend[i].ef.toFixed(3),
+                    colour: "var(--main-green)",
+                    yPct: yPct(line[i].y, HEIGHT),
+                },
+            ],
+        })),
+    );
 </script>
 
 <Card title="Aerobic efficiency" info={GLOSSARY.efficiency}>
@@ -71,7 +97,7 @@
     {#if points.length < 2}
         <p class="card-empty">Not enough aerobic runs with heart rate in the last {CHART_WEEKS} weeks to plot yet.</p>
     {:else}
-        <ChartFrame height={160} {yTicks} {xTicks} label="Efficiency factor per aerobic run over the last {CHART_WEEKS} weeks">
+        <ChartFrame height={160} {yTicks} {xTicks} {scrub} label="Efficiency factor per aerobic run over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 {#each dots as dot}
                     <circle class="dot" cx={dot.x} cy={dot.y} r="3" />

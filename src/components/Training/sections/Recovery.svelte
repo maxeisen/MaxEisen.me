@@ -15,7 +15,7 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { bars } from "../lib/chart.js";
+    import { bars, xPct, yPct } from "../lib/chart.js";
     import { formatDuration, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -75,6 +75,32 @@
     );
     const targetY = $derived(CHART_H - (SLEEP_TARGET_SEC / CEILING_SEC) * CHART_H);
 
+    // The panel's three measures are summarised as a week against a month, so
+    // the cursor is where a single night's numbers are readable at all — and
+    // the night you slept badly and the night your heart rate sat high are
+    // usually the same one, which the averages can't show you.
+    const scrub = $derived(
+        nights.map((night, i) => ({
+            key: night.day,
+            pct: xPct(columns[i].x + columns[i].width / 2, CHART_W),
+            label: shortDate(night.day),
+            readouts: [
+                {
+                    label: "Sleep",
+                    value: formatDuration(night.sleepSec || 0),
+                    colour: night.sleepSec < SLEEP_TARGET_SEC ? "var(--tone-warn)" : "var(--main-green)",
+                    yPct: yPct(columns[i].y, CHART_H),
+                },
+                ...(Number.isFinite(night.restingHr)
+                    ? [{ label: "Resting HR", value: `${Math.round(night.restingHr)} bpm` }]
+                    : []),
+                ...(Number.isFinite(night.averageHrv)
+                    ? [{ label: "HRV", value: `${Math.round(night.averageHrv)} ms` }]
+                    : []),
+            ],
+        })),
+    );
+
     // Signed, in the units of whatever it's describing.
     const delta = (value, unit) => {
         if (!Number.isFinite(value)) return "—";
@@ -101,6 +127,7 @@
             <ChartFrame
                 height={CHART_H}
                 yTicks={Y_TICKS}
+                {scrub}
                 label="Sleep each night over the last fortnight"
             >
                 <svg viewBox="0 0 {CHART_W} {CHART_H}" preserveAspectRatio="none">
@@ -117,9 +144,7 @@
                             width={bar.width}
                             height={bar.height}
                             rx="2"
-                        >
-                            <title>{shortDate(nights[i].day)} — {formatDuration(bar.value)}</title>
-                        </rect>
+                        ></rect>
                     {/each}
                 </svg>
             </ChartFrame>

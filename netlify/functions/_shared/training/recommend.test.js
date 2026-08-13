@@ -128,17 +128,35 @@ describe("recommendations", () => {
 		expect(find(out, "sleep-short").unit).toBe("duration");
 	});
 
-	it("leaves the unit off rules that are already plain numbers", () => {
-		// A ratio, a percentage and a count of beats are the number itself,
-		// and a key carrying nothing on most of the list is payload weight.
+	it("says which kind of number every measured rule reports", () => {
+		// The panel prints metric and threshold side by side. A bare "1.9 vs
+		// 1.5" sitting above a bare "70 vs 80" leaves the reader to work out
+		// from the prose that one is a multiple and the other a percentage.
 		const out = recommendations({
 			acwr: { ratio: 1.9 },
 			intensity: { easyPct: 70 },
+			longRunDecouplingPct: 6.2,
+			daysToRace: 12,
 			recovery: { restingHr: { recent: 54, baseline: 47, delta: 7 } },
 		});
-		for (const id of ["acwr-high", "easy-share-low", "rhr-elevated"]) {
-			expect(find(out, id)).not.toHaveProperty("unit");
+		const units = {
+			"acwr-high": "ratio",
+			"easy-share-low": "percent",
+			"decoupling-high": "percent",
+			"rhr-elevated": "bpm",
+			taper: "days",
+		};
+		for (const [id, unit] of Object.entries(units)) {
+			expect(find(out, id).unit).toBe(unit);
 		}
+	});
+
+	it("leaves form unitless, because it hasn't got one", () => {
+		// Training-stress balance is the difference between two loads on an
+		// arbitrary scale. Calling it "points" would imply a precision it
+		// doesn't have, so it's the one rule that reports a bare number.
+		const out = recommendations({ latest: { tsb: -40 } });
+		expect(find(out, "tsb-fatigued")).not.toHaveProperty("unit");
 	});
 
 	it("orders injury risk ahead of everything else", () => {

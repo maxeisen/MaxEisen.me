@@ -151,6 +151,101 @@ test("neither column runs on far past the other", async ({ page }) => {
 	await expect.poll(ratio).toBeGreaterThan(0.9);
 });
 
+test("a recommendation leads with its evidence and folds the reasoning away", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "What to do about it" }).first();
+	const rule = card.locator(".rec").filter({ has: page.locator("details") }).first();
+
+	// The measurement is on screen; the reasoning behind it is a click away.
+	// Twelve of these unfolded was a panel people scrolled past.
+	const detail = rule.locator("details");
+	await expect(detail).not.toHaveAttribute("open", /.*/);
+	await expect(rule.locator("p.rest")).toBeHidden();
+
+	await detail.locator("summary").click();
+	await expect(rule.locator("p.rest")).toBeVisible();
+});
+
+test("a measured recommendation says what kind of number it is", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "What to do about it" }).first();
+	const readouts = await card.locator(".rec-metric").allTextContents();
+	expect(readouts.length).toBeGreaterThan(0);
+
+	// Percentages, ratios, heart rates and times all landed here as bare
+	// numbers, which left "1.17 vs 1.50" sitting above "72 vs 80".
+	for (const text of readouts) {
+		expect(text).toMatch(/%|×|bpm|days|h \d+m/);
+	}
+});
+
+test("scrubbing a chart reads out the values under the cursor", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Fitness and fatigue" }).first();
+	const plot = card.locator(".plot");
+
+	await expect(card.locator(".tip")).toHaveCount(0);
+
+	await plot.scrollIntoViewIfNeeded();
+	const box = await plot.boundingBox();
+	await page.mouse.move(box.x + box.width * 0.6, box.y + box.height / 2);
+
+	// All three series at one instant, which is the point: form is the gap
+	// between the other two and can't be read from any of them alone.
+	const tip = card.locator(".tip");
+	await expect(tip).toBeVisible();
+	for (const label of ["Fitness", "Fatigue", "Form"]) {
+		await expect(tip.getByText(label, { exact: true })).toBeVisible();
+	}
+
+	// And it lets go rather than following the pointer off the chart.
+	await page.mouse.move(box.x + box.width / 2, box.y - 60);
+	await expect(card.locator(".tip")).toHaveCount(0);
+});
+
+test("the chart cursor can be driven from the keyboard", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
+	const plot = card.locator(".plot");
+
+	await plot.focus();
+	// Focus lands on the most recent week: every chart here runs into today.
+	const tip = card.locator(".tip");
+	await expect(tip).toBeVisible();
+	const last = await tip.locator(".tip-label").textContent();
+
+	await page.keyboard.press("ArrowLeft");
+	await expect(tip.locator(".tip-label")).not.toHaveText(last);
+
+	await page.keyboard.press("Home");
+	const first = await tip.locator(".tip-label").textContent();
+	// Home is the far end of the series, not one step further left.
+	await page.keyboard.press("ArrowLeft");
+	await expect(tip.locator(".tip-label")).toHaveText(first);
+
+	await page.keyboard.press("Escape");
+	await expect(card.locator(".tip")).toHaveCount(0);
+});
+
+test("a chart readout at the edge of a phone doesn't widen the page", async ({ page }) => {
+	// The readout is absolutely positioned over the plot, so at the last week
+	// of a chart on a 360px screen it is exactly the sort of thing that hangs
+	// off the right-hand side and takes the viewport with it.
+	await page.setViewportSize(NARROW_PHONE);
+	await page.goto("/training");
+
+	const plot = page.locator("section.card").filter({ hasText: "Weekly volume" }).first().locator(".plot");
+	await plot.scrollIntoViewIfNeeded();
+	const box = await plot.boundingBox();
+	await page.mouse.move(box.x + box.width - 2, box.y + box.height / 2);
+	await expect(page.locator(".tip").first()).toBeVisible();
+
+	const overflow = await page.evaluate(
+		() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+	);
+	expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test("the charts are labelled with the values they plot", async ({ page }) => {
 	await page.goto("/training");
 	const volume = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();

@@ -9,10 +9,16 @@
     a 3px rule — which is what this was — is not a signal; "act now" and "on
     track" have to differ in hue, in weight and in the words themselves, and the
     icon carries it for anyone who doesn't see the hue at all.
+
+    Each card leads with its opening sentence and folds the rest away. The rules
+    are written to put the measurement first and the reasoning after it, so the
+    visible line is always the evidence — and a dozen cards of full reasoning
+    was a panel you scrolled past rather than read. The short ones, which are a
+    single sentence, get no expander at all.
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
-    import { formatDuration } from "../lib/format.js";
+    import { readout, splitLead } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { recommendations = [] } = $props();
@@ -28,6 +34,8 @@
         (recommendations || []).map((rec) => ({
             ...rec,
             meta: SEVERITY[rec.severity] || { label: rec.severity, tone: "info", icon: "i" },
+            ...splitLead(rec.detail),
+            readout: readout(rec.metric, rec.threshold, rec.unit),
         })),
     );
 
@@ -36,23 +44,6 @@
         return { acted, total: items.length };
     });
 
-    // Most rules measure a ratio, a percentage or a count of beats, where the
-    // number is the number. A few are held in seconds — a goal time, a night's
-    // sleep — and "13500 vs 13200" is unreadable next to a rule whose own
-    // sentence says "3h 45m against your 3h 40m target".
-    const format = (value, unit) =>
-        unit === "duration"
-            ? formatDuration(value)
-            : Math.abs(value) < 10
-                ? value.toFixed(2)
-                : String(Math.round(value));
-
-    function readout(rec) {
-        if (!Number.isFinite(rec.metric)) return null;
-        const value = format(rec.metric, rec.unit);
-        if (!Number.isFinite(rec.threshold)) return value;
-        return `${value} vs ${format(rec.threshold, rec.unit)}`;
-    }
 </script>
 
 <!--
@@ -108,12 +99,18 @@
                             {@render glyph(rec.meta.icon)}
                             {rec.meta.label}
                         </span>
-                        {#if readout(rec)}
-                            <span class="rec-metric" title="Measured value against its threshold">{readout(rec)}</span>
+                        {#if rec.readout}
+                            <span class="rec-metric" title="Measured value against its threshold">{rec.readout}</span>
                         {/if}
                     </div>
                     <h3>{rec.title}</h3>
-                    <p>{rec.detail}</p>
+                    <p>{rec.lead}</p>
+                    {#if rec.rest}
+                        <details>
+                            <summary>Why this matters</summary>
+                            <p class="rest">{rec.rest}</p>
+                        </details>
+                    {/if}
                 </li>
             {/each}
         </ul>
@@ -189,6 +186,55 @@
     .rec-icon .dot {
         fill: currentColor;
         stroke: none;
+    }
+
+    /* A native disclosure rather than a state flag and a click handler: it
+       comes with the button semantics, the keyboard behaviour and the
+       expanded/collapsed announcement already correct, and find-in-page can
+       still reach the text inside it. Only the marker is replaced, because
+       the default triangle is a different shape in every browser. */
+    details {
+        margin-top: var(--space-3);
+    }
+    summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        cursor: pointer;
+        font-size: var(--font-2xs);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--tone);
+        opacity: 0.8;
+        list-style: none;
+        border-radius: var(--radius-sm);
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary:hover { opacity: 1; }
+    summary:focus-visible {
+        outline: 2px solid var(--tone);
+        outline-offset: 3px;
+    }
+    /* Half a square rotated into a chevron, so it points from the same box
+       whichever way it's turned — a glyph would shift on its baseline. */
+    summary::after {
+        content: "";
+        width: 0.4em;
+        height: 0.4em;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: translateY(-0.12em) rotate(45deg);
+        transition: transform 0.15s ease;
+    }
+    details[open] summary::after {
+        transform: translateY(0.08em) rotate(-135deg);
+    }
+    .rest { margin-top: var(--space-2); }
+
+    @media (prefers-reduced-motion: reduce) {
+        summary::after { transition: none; }
     }
 
     .rec-metric {

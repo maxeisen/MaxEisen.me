@@ -3,7 +3,11 @@
 // Distances and durations reuse the shared Strava helpers; what's added here is
 // the pace/time vocabulary specific to marathon training.
 
-export { formatDistance, formatDuration } from "../../../lib/strava.js";
+// Imported rather than re-exported straight through, because the unit
+// formatting below needs formatDuration as a local binding.
+import { formatDistance, formatDuration } from "../../../lib/strava.js";
+
+export { formatDistance, formatDuration };
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -207,6 +211,78 @@ export function signed(value, digits = 1) {
 		return `+${magnitude}`;
 	}
 	return rounded < 0 ? `-${magnitude}` : magnitude;
+}
+
+// A measured number to one decimal, with the decimal dropped when it's a
+// whole number anyway. Rounding harder than this makes a rule contradict
+// itself: a long run at 35.4% of the week, flagged for exceeding a 35%
+// guideline, prints as "35% vs 35%" and reads as a rule that fired over
+// nothing. The thresholds are all whole numbers, so only the measurement ever
+// carries the decimal and the pair stays easy to compare.
+function quantity(value) {
+	return String(Number(value.toFixed(1)));
+}
+
+// How each unit is said. Symbols bind to their number, so both halves of a
+// comparison carry them; words are said once at the end, because "7 bpm vs
+// 3 bpm" is how a form prints and not how anyone speaks.
+const UNITS = {
+	duration: { each: (v) => formatDuration(v) },
+	percent: { each: (v) => `${quantity(v)}%` },
+	ratio: { each: (v) => `${v.toFixed(2)}×` },
+	bpm: { each: quantity, trailing: " bpm" },
+	days: { each: (v) => String(Math.round(v)), trailing: " days" },
+	// Form is the one genuinely unitless measure on the page: a difference
+	// between two loads on an arbitrary scale.
+	none: { each: quantity },
+};
+
+/**
+ * A measured value against the threshold it crossed, as the recommendation
+ * panel prints it: "5.4% vs 5%", "3h 50m vs 3h 40m", "7 vs 3 bpm".
+ *
+ * Without the unit these read as bare numbers in a list where the row above
+ * is a ratio and the row below is a count of heartbeats — the reader is left
+ * to infer which from the prose, which is exactly the work the readout is
+ * supposed to save them.
+ *
+ * @param {number} metric
+ * @param {number} [threshold] omitted for rules that report a value rather
+ *   than a crossing.
+ * @param {string} [unit] one of duration, percent, ratio, bpm, days.
+ * @returns {string|null} null when there's no number to show.
+ */
+export function readout(metric, threshold, unit) {
+	if (!Number.isFinite(metric)) return null;
+	const { each, trailing = "" } = UNITS[unit] || UNITS.none;
+	const value = each(metric);
+	return Number.isFinite(threshold)
+		? `${value} vs ${each(threshold)}${trailing}`
+		: `${value}${trailing}`;
+}
+
+// A sentence ends at punctuation followed by a space and the start of the
+// next one. Deliberately not a lookbehind: Safari only learned those in 16.4,
+// and an unsupported one is a parse error that takes the whole bundle with it
+// rather than a formatting bug on one panel.
+const SENTENCE_BREAK = /[.!?]\s+[A-Z0-9]/;
+
+/**
+ * Split prose into its opening sentence and everything after it.
+ *
+ * The recommendations lead with the measurement and follow with why it
+ * matters and what to do — so the first sentence is the part that earns its
+ * place on screen, and the rest is what a reader asks for.
+ *
+ * @param {string} text
+ * @returns {{lead: string, rest: string}} rest is "" for a single sentence,
+ *   which is the signal not to offer an expander at all.
+ */
+export function splitLead(text) {
+	const trimmed = String(text ?? "").trim();
+	const at = trimmed.search(SENTENCE_BREAK);
+	if (at < 0) return { lead: trimmed, rest: "" };
+	return { lead: trimmed.slice(0, at + 1), rest: trimmed.slice(at + 1).trim() };
 }
 
 /**

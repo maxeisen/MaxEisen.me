@@ -126,6 +126,34 @@ export function seriesPoints(values, { width, height, domain }) {
 	return list.map((value, i) => ({ x: i * step, y: y(value), value }));
 }
 
+// ChartFrame places its cursor, dots and axis labels in percentages of the
+// plot box, because they're HTML sitting over an SVG that stretches. These
+// convert once from a chart's own viewBox so that arithmetic doesn't get
+// repeated, slightly differently, in every chart that wants a cursor.
+
+/**
+ * Horizontal position as a percentage from the left of the plot.
+ *
+ * @param {number} x in viewBox units.
+ * @param {number} width of the viewBox.
+ * @returns {number}
+ */
+export function xPct(x, width) {
+	return width > 0 ? (x / width) * 100 : 0;
+}
+
+/**
+ * Vertical position as a percentage from the *bottom* of the plot, which is
+ * where CSS wants it and the opposite of where SVG counts from.
+ *
+ * @param {number} y in viewBox units, measured from the top.
+ * @param {number} height of the viewBox.
+ * @returns {number}
+ */
+export function yPct(y, height) {
+	return height > 0 ? (1 - y / height) * 100 : 0;
+}
+
 /**
  * Position for a marker on a horizontal gauge, clamped to the track.
  *

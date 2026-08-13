@@ -109,6 +109,35 @@ export function acwr(loadsByDay, date) {
 }
 
 /**
+ * Change in fitness across a trailing window.
+ *
+ * CTL on its own is a number on an arbitrary scale: 62 is neither good nor
+ * bad, and nobody has an instinct for it the way they do for a weekly mileage.
+ * What it's for is direction — whether the block is still building — and that
+ * only exists as a difference between two days.
+ *
+ * Four weeks because CTL has a 42-day time constant: a week's change is mostly
+ * the smoothing catching up with itself, and a whole block is too coarse to
+ * tell you anything about the training you're doing now.
+ *
+ * @param {{date: string, ctl: number}[]} series ascending by date.
+ * @param {string} to day key to measure back from.
+ * @param {number} [days]
+ * @returns {number|null} null when the series doesn't reach back far enough,
+ *   rather than a gain measured from a start that was never trained.
+ */
+export function fitnessGain(series, to, days = CHRONIC_DAYS) {
+	const from = addDays(toDayKey(to), -days);
+	if (!from) return null;
+
+	const byDay = new Map((series || []).map((point) => [point.date, point]));
+	const now = byDay.get(toDayKey(to));
+	const then = byDay.get(from);
+	if (!Number.isFinite(now?.ctl) || !Number.isFinite(then?.ctl)) return null;
+	return now.ctl - then.ctl;
+}
+
+/**
  * Group activities into Monday-anchored training weeks.
  *
  * @param {object[]} activities shaped activities.
