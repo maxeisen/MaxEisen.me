@@ -9,6 +9,7 @@
 
 import { shapeActivities } from "../../netlify/functions/_shared/training/shape.js";
 import { buildDashboard } from "../../netlify/functions/_shared/training/metrics.js";
+import { dailyLoads } from "../../netlify/functions/_shared/training/load.js";
 import { loadPlan } from "../../netlify/functions/_shared/training/planFile.js";
 
 // Strava's field names are quoted throughout: they're the API's spelling rather
@@ -70,25 +71,38 @@ function streamsFor({ distance, movingTime, averageHr, next }) {
 	return { time, distance: distanceStream, heartrate, "grade_smooth": grade };
 }
 
-// A month of nights, already shaped the way the sync stores them. Enough for
+// Six weeks of nights, already shaped the way the sync stores them. Enough for
 // the baselines to exist, and varied enough that the panel's chart has
 // something to draw and at least one night falls under the seven-hour line —
 // a fixture of identical perfect nights would pass a rendering test while
 // hiding whether the "short night" case draws at all.
-function nightsUpTo(today, next) {
+//
+// Each night answers to the day before it, because the panel now measures
+// exactly that: what a hard day costs overnight, read off this athlete rather
+// than assumed (see _shared/training/response.js). Nights generated
+// independently of the running would draw a dose-response curve of pure noise
+// and prove nothing about whether the alignment works.
+function nightsUpTo(today, next, loads) {
 	const end = new Date(`${today}T00:00:00Z`);
-	return Array.from({ length: 28 }, (_, i) => {
+	return Array.from({ length: 42 }, (_, i) => {
 		const day = new Date(end);
-		day.setUTCDate(day.getUTCDate() - (27 - i));
-		const sleepSec = Math.round((6.2 + next() * 2.2) * 3600);
+		day.setUTCDate(day.getUTCDate() - (41 - i));
+		const before = new Date(day);
+		before.setUTCDate(before.getUTCDate() - 1);
+		// Nothing subtle: a long run costs the better part of an hour of sleep
+		// and puts four beats on the overnight heart rate, tailing off over
+		// the day after.
+		const strain = Math.min(1, (loads.get(before.toISOString().slice(0, 10)) || 0) / 110);
+
 		return {
 			day: day.toISOString().slice(0, 10),
-			sleepSec,
+			sleepSec: Math.round((7.6 - 1.1 * strain + next() * 0.6) * 3600),
 			efficiencyPct: Math.round(86 + next() * 8),
-			restingHr: Math.round(45 + next() * 5),
-			averageHrv: Math.round(55 + next() * 20),
+			restingHr: Math.round(45 + 4 * strain + next() * 2),
+			averageHrv: Math.round(68 - 12 * strain + next() * 6),
 			sleepScore: Math.round(70 + next() * 22),
 			readinessScore: Math.round(70 + next() * 22),
+			temperatureDeviationC: Number(((next() - 0.5) * 0.6).toFixed(1)),
 		};
 	});
 }
@@ -177,17 +191,22 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 		});
 	}
 
+	// Streams are per-activity here, where the real sync fetches them one run
+	// at a time; shapeActivities takes one set for the batch, so shape each run
+	// with its own.
+	const activities = raw
+		.map(({ streams, ...activity }) =>
+			shapeActivities([activity], { streams, thresholds: plan.thresholds })[0])
+		.filter(Boolean);
+
 	return {
 		...buildDashboard({
-			// Streams are per-activity here, where the real sync fetches them
-			// one run at a time; shapeActivities takes one set for the batch,
-			// so shape each run with its own.
-			activities: raw
-				.map(({ streams, ...activity }) =>
-					shapeActivities([activity], { streams, thresholds: plan.thresholds })[0])
-				.filter(Boolean),
+			activities,
 			plan,
-			recovery: nightsUpTo(today, next),
+			// Rides are excluded from the load the nights answer to for the
+			// same reason they're excluded everywhere else: this page is about
+			// running, and a Saturday on the bike costs the page nothing.
+			recovery: nightsUpTo(today, next, dailyLoads(activities.filter((a) => a.sport !== "ride"))),
 			today,
 		}),
 		sync: { lastRunAt: `${today}T12:00:00.000Z`, hasSynced: true, outstanding: 0, backfilling: false },

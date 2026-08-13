@@ -82,10 +82,59 @@ test("recovery is reported beside the training, not inside it", async ({ page })
 	await expect(panel.getByText("average night, last 7")).toBeVisible();
 
 	// The measures that carry the argument: an overnight resting rate and a
-	// variability figure, each against the athlete's own baseline.
-	await expect(panel.getByText("Resting HR")).toBeVisible();
-	await expect(panel.getByText("HRV")).toBeVisible();
+	// variability figure, each against the athlete's own baseline. Scoped to
+	// the summary list, since the panel now reports the same two measures
+	// again as what a hard day does to them.
+	const detail = panel.locator(".detail");
+	await expect(detail.getByText("Resting HR")).toBeVisible();
+	await expect(detail.getByText("HRV")).toBeVisible();
 	await expect(panel.locator(".bar").first()).toBeVisible();
+});
+
+// Beside the training is not the same as unrelated to it. The one thing the
+// ring can do that the training log can't is answer what a hard day actually
+// costs this athlete, and that only exists once nights are lined up with the
+// days before them.
+test("recovery says what a hard day costs, in the athlete's own numbers", async ({ page }) => {
+	await page.goto("/training");
+	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
+	const cost = panel.locator(".cost");
+
+	await expect(cost.getByRole("heading", { name: "What a hard day costs you" })).toBeVisible();
+	// Signed deltas against the nights after everything else, not absolutes.
+	await expect(cost.locator("dd").first()).toHaveText(/^[+-]\d+ min$/);
+	await expect(cost.getByText(/[+-]\d+ bpm/)).toBeVisible();
+	// How long it takes to come back, which is the number you'd plan around.
+	await expect(cost.getByText(/back down by the (next|second) night/)).toBeVisible();
+});
+
+test("the last run carries the night either side of it", async ({ page }) => {
+	await page.goto("/training");
+	const panel = page.locator("section.card").filter({ hasText: "Last run" }).first();
+	const night = panel.locator(".night");
+
+	// The fixture's last run is this morning's, so the night after it hasn't
+	// happened and the panel reports the one it started from instead.
+	await expect(night).toContainText("Went into it on");
+	await expect(night).toContainText(/\d+h \d+m/);
+	await expect(night).toContainText(/\d+ bpm resting/);
+	await expect(night).toContainText("against your own month");
+});
+
+test("form is read against the body, not only against the training log", async ({ page }) => {
+	// Form is derived from load alone, so a fixture that trains normally never
+	// reaches the states worth printing. The classification itself is covered
+	// in the engine's unit tests; this is about the sentence appearing.
+	const payload = buildTrainingFixture();
+	payload.recovery.response.strain = { state: "absorbing", tsb: -31, restingHrUp: false, hrvDown: false };
+	await page.route("**/.netlify/functions/trainingData*", (route) =>
+		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
+	);
+
+	await page.goto("/training");
+	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
+	await expect(panel.locator(".verdict")).toContainText("absorbing a heavy block");
+	await expect(panel.locator(".verdict")).toContainText("-31");
 });
 
 test("the last run is reported with what it did to the training", async ({ page }) => {

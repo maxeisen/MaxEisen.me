@@ -604,6 +604,111 @@ describe("buildDashboard with recovery", () => {
 	});
 });
 
+// The one place the two sources are read against each other. Everything above
+// still holds — no training number moves — but a training day and the night
+// that followed it are finally lined up, which is the only way to answer what
+// a hard day costs this athlete or whether the body agrees with the log.
+describe("where the ring meets the training", () => {
+	const hours = (h) => Math.round(h * 3600);
+	const today = "2026-08-11";
+	const isHard = (back) => back % 3 === 1;
+
+	const SESSION = { name: "Session", distanceM: 20000, movingTimeSec: 6600, elapsedTimeSec: 6700, averageHr: 162, load: 130 };
+	const EASY = { name: "Easy run", distanceM: 10000, movingTimeSec: 3300, elapsedTimeSec: 3400, averageHr: 136, load: 45 };
+
+	// A month of running to yesterday, every third day a session.
+	const runs = Array.from({ length: 30 }, (_, i) => {
+		const back = 30 - i;
+		return {
+			id: 3000 + i,
+			type: "Run",
+			startDateLocal: `${addDays(today, -back)}T07:00:00`,
+			elevationGainM: 30,
+			paceSecPerKm: 330,
+			gapPaceSecPerKm: 330,
+			splits: [],
+			bestEfforts: [],
+			...(isHard(back) ? SESSION : EASY),
+		};
+	});
+
+	// Nights to match: the one after a session is short with the heart rate up.
+	const nights = (patch = () => ({})) =>
+		Array.from({ length: 40 }, (_, i) => {
+			const back = 39 - i;
+			const afterHard = isHard(back + 1);
+			return {
+				day: addDays(today, -back),
+				sleepSec: afterHard ? hours(6.5) : hours(7.5),
+				restingHr: afterHard ? 51 : 46,
+				averageHrv: afterHard ? 55 : 64,
+				...patch(back),
+			};
+		});
+
+	const dashboard = (patch) =>
+		buildDashboard({ activities: runs, plan: PLAN, today, recovery: nights(patch) });
+
+	it("attaches the night after the last run to the run itself", () => {
+		const night = dashboard().lastRun.night;
+		expect(night.day).toBe(today);
+		expect(night.sleep.value).toBe(hours(6.5));
+		// Against the athlete's own month, which is what makes it readable.
+		expect(night.restingHr.delta).toBeGreaterThan(2);
+	});
+
+	it("falls back to the night the run started from", () => {
+		// On the morning of a run there is no night after it yet, and the one
+		// it started from is the half of the question that does exist.
+		const out = buildDashboard({
+			activities: runs,
+			plan: PLAN,
+			today,
+			recovery: nights().filter((n) => n.day !== today),
+		});
+		expect(out.lastRun.night).toBeNull();
+		expect(out.lastRun.nightBefore.day).toBe(addDays(today, -1));
+	});
+
+	it("says what a hard day costs, measured rather than assumed", () => {
+		const hard = dashboard().recovery.response.hardDays;
+		expect(hard.afterHard.nights).toBe(10);
+		expect(hard.sleepDeltaSec).toBe(-hours(1));
+		expect(hard.restingHrDelta).toBe(5);
+		expect(hard.hrvDelta).toBe(-9);
+		expect(hard.nightsToBaseline).toBe(2);
+	});
+
+	it("reads form against the body's own markers", () => {
+		const out = dashboard((back) => (back < 7 ? { restingHr: 56 } : {}));
+		const strain = out.recovery.response.strain;
+		expect(strain.restingHrUp).toBe(true);
+		// The same form the rest of the page reports, not a second opinion
+		// about the training.
+		expect(strain.tsb).toBe(out.summary.latest.tsb);
+	});
+
+	it("carries that attribution into the advice", () => {
+		const out = dashboard((back) => (back < 7 ? { restingHr: 56 } : {}));
+		const rhr = out.recommendations.find((r) => r.id === "rhr-elevated");
+		expect(rhr.detail).toMatch(/doesn't explain it|consistent with the block/);
+	});
+
+	it("still moves no training number", () => {
+		const withRing = dashboard();
+		const without = buildDashboard({ activities: runs, plan: PLAN, today });
+		expect(withRing.series).toEqual(without.series);
+		expect(withRing.summary).toEqual(without.summary);
+		expect(withRing.lastRun.impact).toEqual(without.lastRun.impact);
+	});
+
+	it("leaves the run itself alone when there's no ring at all", () => {
+		const out = buildDashboard({ activities: runs, plan: PLAN, today });
+		expect(out.lastRun.night).toBeNull();
+		expect(out.recovery).toBeNull();
+	});
+});
+
 describe("legacy records", () => {
 	it("treats a record with no sport as a run, as every stored one is", () => {
 		// Everything already in Blobs was written before rides were tracked,

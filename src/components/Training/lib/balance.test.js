@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { bestSplit, columnHeight, imbalanceAt, worthMoving } from "./balance.js";
+import { bestSplit, columnHeight, worthMoving } from "./balance.js";
 
 describe("columnHeight", () => {
 	it("counts the gaps between panels, not around them", () => {

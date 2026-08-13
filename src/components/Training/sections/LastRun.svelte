@@ -29,7 +29,7 @@
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { areaPath, linePath, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
-    import { daysAgo, formatDistance, pace, pct, signed, timeTaken } from "../lib/format.js";
+    import { daysAgo, formatDistance, formatDuration, pace, pct, signed, timeTaken } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag as tagFor } from "../lib/runTags.js";
 
@@ -44,6 +44,16 @@
 
     // Below this the two pace lines are the same line with a wobble.
     const GAP_DIVERGENCE_SEC = 4;
+
+    // Matching the server's thresholds (_shared/training/recovery.js), for the
+    // same reason Recovery.svelte duplicates them: they're constants of the
+    // model rather than of the data, and a panel disagreeing with the advice
+    // about the same night is worse than either being wrong. Sleep gets its
+    // own, because half an hour either way is a normal night and this is
+    // asking whether the run cost you one.
+    const RHR_RISE_BPM = 5;
+    const HRV_DROP_PCT = 15;
+    const SHORT_NIGHT_SEC = 30 * 60;
 
     const stravaTag = $derived(tagFor(run));
 
@@ -254,6 +264,63 @@
                 ]
             : [],
     );
+
+    // What the night afterwards looked like, when the ring has recorded one.
+    // Fitness, fatigue and form above are all computed from the run itself, so
+    // between them they can only say what the training log already knew. This
+    // is the one line on the panel measured on the athlete rather than derived
+    // from the session, and it's usually absent on the day of a run: the night
+    // after this morning hasn't happened yet.
+    // On the morning of a run the night after it hasn't happened, so the panel
+    // falls back to the one you took into it: not what the run cost, but what
+    // you had to spend on it.
+    const night = $derived(run?.night || run?.nightBefore || null);
+    const nightLabel = $derived(run?.night ? "The night after" : "Went into it on");
+
+    const nightNotes = $derived.by(() => {
+        if (!night) return [];
+        const notes = [];
+        if (Number.isFinite(night.sleep?.value)) {
+            notes.push({
+                key: "sleep",
+                label: formatDuration(night.sleep.value),
+                delta: minutes(night.sleep.delta),
+                // Short is the direction worth colouring; a long night after a
+                // hard run is the system working.
+                bad: night.sleep.delta <= -SHORT_NIGHT_SEC,
+            });
+        }
+        if (Number.isFinite(night.restingHr?.value)) {
+            notes.push({
+                key: "hr",
+                label: `${Math.round(night.restingHr.value)} bpm resting`,
+                delta: bpmDelta(night.restingHr.delta),
+                bad: night.restingHr.delta >= RHR_RISE_BPM,
+            });
+        }
+        if (Number.isFinite(night.hrv?.value)) {
+            notes.push({
+                key: "hrv",
+                label: `${Math.round(night.hrv.value)} ms HRV`,
+                delta: percent(night.hrv.deltaPct),
+                bad: night.hrv.deltaPct <= -HRV_DROP_PCT,
+            });
+        }
+        return notes;
+    });
+
+    // All three read "against your own normal", so the baseline is said once
+    // in the label rather than three times in the numbers.
+    function minutes(sec) {
+        if (!Number.isFinite(sec) || Math.abs(sec) < 60) return null;
+        return `${signed(sec / 60, 0)} min`;
+    }
+    function bpmDelta(bpm) {
+        return Number.isFinite(bpm) && Math.abs(bpm) >= 1 ? signed(bpm, 0) : null;
+    }
+    function percent(value) {
+        return Number.isFinite(value) && Math.abs(value) >= 5 ? `${signed(value, 0)}%` : null;
+    }
 
     /** How this run's load sat against the athlete's own recent median. */
     const relativeSize = $derived.by(() => {
@@ -471,6 +538,19 @@
                         {relativeSize}{standout ? `, and ${standout}` : ""}.
                     {/if}
                 </p>
+
+                {#if nightNotes.length}
+                    <p class="night">
+                        <span class="night-label">{nightLabel}</span>
+                        {#each nightNotes as note, i (note.key)}
+                            <span class="night-note" class:bad={note.bad}>
+                                {i > 0 ? "· " : ""}{note.label}
+                                {#if note.delta}<span class="night-delta">{note.delta}</span>{/if}
+                            </span>
+                        {/each}
+                        <span class="night-basis">against your own month</span>
+                    </p>
+                {/if}
             </div>
         {/if}
 
@@ -681,6 +761,31 @@
         line-height: 1.5;
         color: var(--paragraph-colour);
     }
+
+    /* The one line here measured on the body rather than derived from the run,
+       so it's set apart from the deltas above it without becoming a fourth
+       tile competing with fitness, fatigue and form. */
+    .night {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        margin: var(--space-3) 0 0;
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--main-green-translucent);
+        font-size: var(--font-xs);
+        color: var(--paragraph-colour);
+    }
+    .night-label {
+        font-size: var(--font-2xs);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--main-green);
+    }
+    .night-note { color: var(--header-colour); }
+    .night-note.bad { color: var(--tone-warn); }
+    .night-delta { opacity: 0.65; }
+    .night-basis { opacity: 0.6; }
 
     .facts {
         display: grid;

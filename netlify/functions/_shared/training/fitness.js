@@ -38,6 +38,11 @@ export const ACWR_CEILING = 1.5;
 // The conventional cap on week-over-week volume growth.
 export const SAFE_RAMP_PCT = 10;
 
+// Form below this is accumulated fatigue rather than productive training. It
+// lives here rather than with the advice that acts on it because it's a
+// property of the form scale itself, and two modules now read form against it.
+export const TSB_FATIGUE = -25;
+
 const asMap = (loads) => (loads instanceof Map ? loads : new Map(Object.entries(loads || {})));
 
 /**

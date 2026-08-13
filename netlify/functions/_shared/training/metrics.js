@@ -25,6 +25,7 @@ import {
 } from "./plan.js";
 import { recommendations } from "./recommend.js";
 import { recoverySummary } from "./recovery.js";
+import { nightAfterDay, nightBeforeDay, overnightCost, strainSignal } from "./response.js";
 import { toDayKey } from "./dates.js";
 
 // How far back the intensity distribution looks. A whole block averages away
@@ -162,9 +163,21 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 
 	// Deliberately computed after everything above it and read by none of it.
 	// Recovery is the one input here that isn't training load, and the fitness
-	// model stays a closed system fed only by load — see recovery.js. It
-	// reaches the payload and the recommendations, and nothing else.
+	// model stays a closed system fed only by load — see recovery.js.
 	const recovered = recoverySummary(recovery, { today: day });
+
+	// The two sources meet here and nowhere else, which is the whole point of
+	// this file. Reading them against each other costs the separation nothing:
+	// every number above is already final, and what response.js adds is the
+	// alignment between a training day and the night that followed it — what a
+	// hard day actually costs this athlete, and whether the body agrees with
+	// the training log about how tired it is.
+	const response = recovered
+		? {
+				hardDays: overnightCost({ records: recovery, series, today: day }),
+				strain: strainSignal({ tsb: latest?.tsb ?? null, recovery: recovered }),
+			}
+		: null;
 
 	const prediction = predictRace(collectBestEfforts(runs), race.distanceM || 42195);
 	const goalPace = goalPaceSecPerKm(race.goalTimeSec, race.distanceM || 42195);
@@ -178,6 +191,15 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	// falls outside the log would otherwise let its second run claim the
 	// session the first one already did.
 	const planMatches = matchRunsToPlan(runs, plan);
+
+	const lastRun = lastRunDetail({
+		runs,
+		series,
+		weeks,
+		planMatch: planMatches.at(-1) ?? null,
+		thresholds,
+		today: day,
+	});
 
 	const remainingDays = daysToRace(plan, day);
 	const totals = runs.reduce(
@@ -279,6 +301,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		daysToRace: remainingDays,
 		longRunDecouplingPct: lastLongRun?.decouplingPct ?? null,
 		recovery: recovered,
+		// Form on its own can only repeat what the training log told it. This
+		// is whether the body's own markers agree, which is the difference
+		// between "you're absorbing a big block" and "stop".
+		strain: response?.strain ?? null,
 	});
 
 	return {
@@ -295,7 +321,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		efficiency: { points: efficiency.points, trend: efficiency.trend },
 		// Null rather than an empty shell when the ring has nothing to say, so
 		// the panel can be absent instead of drawing a row of dashes.
-		recovery: recovered,
+		recovery: recovered ? { ...recovered, response } : null,
 		weeks,
 		week: current
 			? {
@@ -310,14 +336,18 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		recommendations: advice,
 		// The freshest run, read against the athlete's own recent history —
 		// the one panel that's about a single session rather than a trend.
-		lastRun: lastRunDetail({
-			runs,
-			series,
-			weeks,
-			planMatch: planMatches.at(-1) ?? null,
-			thresholds,
-			today: day,
-		}),
+		// The nights either side of it are attached here rather than inside
+		// lastRun.js, which keeps that module about the running: this file is
+		// where the two sources are allowed to meet. The night after is what
+		// the run cost and the night before is what you took into it — and on
+		// the morning of a run only the second one exists yet.
+		lastRun: lastRun
+			? {
+					...lastRun,
+					night: nightAfterDay(recovery, lastRun.date),
+					nightBefore: nightBeforeDay(recovery, lastRun.date),
+				}
+			: null,
 		// The log carries its plan match so the page can say which runs were
 		// the plan and which were extra. The match comes from the plan file
 		// rather than from Strava, so it adds nothing to what publicRun()
