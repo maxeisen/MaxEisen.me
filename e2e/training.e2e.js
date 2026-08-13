@@ -93,8 +93,9 @@ test("the last run is reported with what it did to the training", async ({ page 
 		/strava\.com\/activities\/\d+/,
 	);
 
-	// How it went: a pace per kilometre, on an axis labelled in paces.
-	const paces = await panel.locator(".y-axis span").allTextContents();
+	// How it went: a pace per kilometre, on an axis labelled in paces. The
+	// left axis specifically — the right one is heart rate, in bpm.
+	const paces = await panel.locator(".y-axis:not(.right) span").allTextContents();
 	expect(paces.length).toBeGreaterThan(2);
 	expect(paces.every((label) => /^\d+:\d{2}$/.test(label))).toBe(true);
 
@@ -241,6 +242,35 @@ test("the last run scrubs a kilometre at a time", async ({ page }) => {
 	await expect(tip.getByText("Pace", { exact: true })).toBeVisible();
 	await expect(tip).toContainText(/\d+:\d\d\/km/);
 	await expect(tip).toContainText(/\d+ bpm/);
+});
+
+test("the last run plots heart rate on its own scale", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
+
+	// Two units on one plot only works if the second one is labelled. Without
+	// the right-hand axis the beats are a shape with no magnitude, and the
+	// height it shares with the pace line is a coincidence of scaling.
+	const beats = card.locator(".y-axis.right span");
+	const labels = (await beats.allTextContents()).map(Number);
+	expect(labels.length).toBeGreaterThan(2);
+	for (const bpm of labels) {
+		expect(bpm).toBeGreaterThan(60);
+		expect(bpm).toBeLessThan(230);
+	}
+	// And it runs the other way up from the pace axis beside it. Pace is
+	// flipped so faster is higher; heart rate isn't, because more beats is
+	// more effort. Compare where they actually sit, since the two scales
+	// agreeing on direction is exactly the mistake this would be.
+	const placed = await beats.evaluateAll((nodes) =>
+		nodes.map((node) => ({
+			bpm: Number(node.textContent),
+			bottom: node.getBoundingClientRect().bottom,
+		})),
+	);
+	const highest = placed.reduce((a, b) => (a.bpm > b.bpm ? a : b));
+	const lowest = placed.reduce((a, b) => (a.bpm < b.bpm ? a : b));
+	expect(highest.bottom).toBeLessThan(lowest.bottom);
 });
 
 test("the chart cursor can be driven from the keyboard", async ({ page }) => {

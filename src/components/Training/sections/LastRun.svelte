@@ -14,7 +14,13 @@
     The pace chart is drawn with a flipped y-axis so faster is higher, which is
     the only orientation people read without translating; the axis is labelled
     in pace so there's nothing to translate anyway. It scrubs like the rest of
-    the page's charts, which is where a single kilometre is legible at all. Grade-adjusted pace goes
+    the page's charts, which is where a single kilometre is legible at all.
+
+    Heart rate goes under it on a second scale down the right-hand edge. Two
+    units on one plot is a thing to do carefully, and it earns its place here
+    because the divergence is the point: pace holding while the beats climb is
+    drift, which the facts grid already reports as one number, and this is
+    where in the run it happened. Grade-adjusted pace goes
     over it as a second line whenever the two actually diverge — on a hilly run
     that gap is the explanation for a slow kilometre, and on a flat one drawing
     it twice would just be noise.
@@ -22,7 +28,7 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { linePath, niceScale, scaleLinear, xPct, yPct } from "../lib/chart.js";
+    import { areaPath, linePath, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
     import { daysAgo, formatDistance, formatDuration, pace, pct, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag as tagFor } from "../lib/runTags.js";
@@ -78,6 +84,43 @@
 
     const averageY = $derived(run?.paceSecPerKm > 0 ? y(run.paceSecPerKm) : null);
 
+    // Heart rate over the same kilometres, on its own scale down the right.
+    //
+    // Two units on one plot is a thing to do carefully, and there are two
+    // reasons it earns its place here. The chart already reads faster-is-higher,
+    // so effort and pace rise together and the pair moves the way a runner
+    // expects. And the divergence is the interesting part: pace flat while the
+    // line beneath it climbs is drift, which the panel already reports as a
+    // single number under "Drift" — this is where it happened.
+    //
+    // All or nothing rather than skipping gaps. A line that vanishes for two
+    // kilometres invites reading the join as a measurement.
+    const hasHr = $derived(splits.length > 1 && splits.every((s) => s.averageHr > 0));
+
+    const hrScale = $derived.by(() => {
+        if (!hasHr) return null;
+        const beats = splits.map((s) => s.averageHr);
+        // Four, not three. Three asks for a step so coarse it rounds a run
+        // that lived between 130 and 175 out to an axis of 100 to 200, and
+        // half the plot's height goes to heart rates nobody had.
+        return niceScale([Math.min(...beats) - 4, Math.max(...beats) + 4], 4);
+    });
+
+    // Not flipped, unlike pace: more beats is more effort, and up is more.
+    const hrY = $derived(hrScale ? scaleLinear([hrScale.min, hrScale.max], [HEIGHT, 0]) : null);
+    const hrPoints = $derived(
+        hrScale ? splits.map((s, i) => ({ x: i * step, y: hrY(s.averageHr) })) : [],
+    );
+    const hrTicks = $derived(
+        hrScale
+            ? hrScale.ticks.map((value) => ({
+                    value,
+                    label: String(Math.round(value)),
+                    pct: ((value - hrScale.min) / (hrScale.max - hrScale.min)) * 100,
+                }))
+            : [],
+    );
+
     // A number under every kilometre is unreadable on a phone, so thin them to
     // about half a dozen: both ends, then an even step in between, dropping
     // any that would crowd the last one.
@@ -125,7 +168,16 @@
                         ]
                     : []),
                 ...(split.averageHr > 0
-                    ? [{ label: "Heart rate", value: `${Math.round(split.averageHr)} bpm` }]
+                    ? [
+                            {
+                                label: "Heart rate",
+                                value: `${Math.round(split.averageHr)} bpm`,
+                                colour: "var(--tone-bad)",
+                                // Only where it's drawn; on a run without a
+                                // full set of splits it's a number, not a point.
+                                yPct: hasHr ? yPct(hrPoints[i].y, HEIGHT) : undefined,
+                            },
+                        ]
                     : []),
             ],
         })),
@@ -290,8 +342,24 @@
 
         {#if splits.length > 1}
             <div class="chart">
-                <ChartFrame height={HEIGHT} {yTicks} {xTicks} {scrub} label="Pace for each kilometre of the run">
+                <ChartFrame
+                    height={HEIGHT}
+                    {yTicks}
+                    {xTicks}
+                    {scrub}
+                    rightTicks={hrTicks}
+                    label="Pace{hasHr ? ' and heart rate' : ''} for each kilometre of the run"
+                >
                     <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
+                        <!-- Filled and underneath, so that where it crosses the
+                             pace line reads as one sitting above the other
+                             rather than as the two being equal — which, on two
+                             different scales, is a coincidence of axis choice
+                             and means nothing at all. -->
+                        {#if hasHr}
+                            <path class="hr-fill" d={areaPath(hrPoints, HEIGHT, { smooth: true })} />
+                            <path class="hr" d={smoothPath(hrPoints)} />
+                        {/if}
                         {#if averageY !== null}
                             <line class="average" x1="0" x2={WIDTH} y1={averageY} y2={averageY} />
                         {/if}
@@ -309,6 +377,7 @@
                     <!-- Swatch and label in one span: wrapped apart, a dash
                          sitting alone at the end of a line is just a dash. -->
                     {#if showGap}<span class="key"><span class="swatch"></span> grade adjusted</span>{/if}
+                    {#if hasHr}<span class="key"><span class="swatch beats"></span> bpm, right</span>{/if}
                     {#if pacingNote}<span class="pacing">{pacingNote}</span>{/if}
                 </p>
             </div>
@@ -436,6 +505,17 @@
         opacity: 0.55;
         vector-effect: non-scaling-stroke;
     }
+    .hr {
+        fill: none;
+        stroke: var(--tone-bad);
+        stroke-width: 1.5;
+        opacity: 0.65;
+        vector-effect: non-scaling-stroke;
+    }
+    .hr-fill {
+        fill: var(--tone-bad);
+        opacity: 0.1;
+    }
     .average {
         stroke: var(--header-colour);
         stroke-width: 1;
@@ -466,6 +546,11 @@
         width: 14px;
         height: 0;
         border-top: 1.5px dashed var(--paragraph-colour);
+    }
+    .swatch.beats {
+        border-top-style: solid;
+        border-top-color: var(--tone-bad);
+        opacity: 0.65;
     }
     .pacing {
         padding-left: var(--space-2);
