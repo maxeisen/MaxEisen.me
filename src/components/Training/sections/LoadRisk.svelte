@@ -98,7 +98,7 @@
         line-height: 1.1;
     }
     .gauge-value strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-2xl);
         font-weight: 700;
         letter-spacing: -0.03em;
@@ -170,7 +170,7 @@
     }
     dd {
         margin: 0;
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 600;
         color: var(--header-colour);

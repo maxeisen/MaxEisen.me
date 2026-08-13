@@ -76,7 +76,7 @@
         line-height: 1.05;
     }
     .projected strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: clamp(2rem, 6vw, 2.8rem);
         font-weight: 700;
         letter-spacing: -0.03em;
@@ -117,7 +117,7 @@
         color: var(--main-green);
     }
     .model strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 600;
         color: var(--header-colour);

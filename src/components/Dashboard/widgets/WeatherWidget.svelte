@@ -232,7 +232,7 @@
         display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;
     }
     .weather-temp {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: clamp(2rem, 4vw, 3.5rem);
         line-height: 1;
@@ -292,7 +292,7 @@
     .moon-emoji { font-size: 1.6rem; line-height: 1; }
     .moon-text { display: flex; flex-direction: column; min-width: 0; }
     .moon-name {
-        font-family: 'Fraunces', serif; font-weight: 600;
+        font-family: var(--font-sans); font-weight: 600;
         font-size: 0.95rem;
         color: var(--header-colour);
         letter-spacing: -0.01em;

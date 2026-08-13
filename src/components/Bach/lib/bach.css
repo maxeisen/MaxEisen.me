@@ -11,7 +11,7 @@
 }
 
 .host .display {
-	font-family: 'Fraunces', serif;
+	font-family: var(--font-sans);
 	font-weight: 700;
 	letter-spacing: -0.03em;
 	color: var(--header-colour);
@@ -160,7 +160,7 @@
 	opacity: 0.8;
 }
 .host .bar-code-value {
-	font-family: 'Fraunces', serif;
+	font-family: var(--font-sans);
 	font-weight: 700;
 	font-size: 1.6rem;
 	letter-spacing: 0.1em;
@@ -179,7 +179,7 @@
 }
 .host .lobby-join { text-align: center; }
 .host .section-title {
-	font-family: 'Fraunces', serif;
+	font-family: var(--font-sans);
 	font-weight: 600;
 	font-size: 1.4rem;
 	color: var(--header-colour);
@@ -187,7 +187,7 @@
 }
 .host .join-hint { opacity: 0.8; font-size: 0.95rem; margin: 1rem 0 0.5rem; }
 .host .bigcode {
-	font-family: 'Fraunces', serif;
+	font-family: var(--font-sans);
 	font-weight: 700;
 	font-size: clamp(3rem, 9vw, 5.5rem);
 	letter-spacing: 0.18em;
@@ -224,7 +224,7 @@
 	opacity: 0.85;
 }
 .host .join-pw {
-	font-family: 'Fraunces', serif;
+	font-family: var(--font-sans);
 	font-weight: 600;
 	font-size: 1.35rem;
 	color: var(--header-colour);
@@ -285,7 +285,7 @@
 /* --- Centered phases --- */
 .host .centered { text-align: center; max-width: 760px; margin: 4vh auto 0; }
 .host .progress-big {
-	font-family: 'Fraunces', serif; font-weight: 700;
+	font-family: var(--font-sans); font-weight: 700;
 	font-size: clamp(2rem, 6vw, 3.5rem); color: var(--main-green);
 	margin: 0.5rem 0 1.5rem;
 }
@@ -339,7 +339,7 @@
 .host .story-hidden-hint { max-width: 28rem; margin: 0 auto 0.75rem; }
 .host .story-reveal-btn { margin: 0 auto; }
 .host .story-title {
-	font-family: 'Fraunces', serif; font-weight: 700;
+	font-family: var(--font-sans); font-weight: 700;
 	font-size: clamp(2rem, 5vw, 3.2rem); color: var(--header-colour);
 	letter-spacing: -0.02em; margin: 0 0 1.5rem; text-align: center;
 }
@@ -396,7 +396,7 @@
 /* --- Results --- */
 .host .trophy { font-size: clamp(3rem, 10vw, 6rem); line-height: 1; }
 .host .mvp-quote {
-	font-family: 'Fraunces', serif; font-style: italic;
+	font-family: var(--font-sans); font-style: italic;
 	font-size: clamp(1.4rem, 4vw, 2.4rem); color: var(--header-colour); margin: 0.5rem 0;
 	overflow-wrap: anywhere;
 }
@@ -482,7 +482,7 @@
 }
 .player .player-leave:hover { opacity: 1; }
 .player .title {
-	font-family: 'Fraunces', serif;
+	font-family: var(--font-sans);
 	font-weight: 700;
 	font-size: clamp(1.6rem, 7vw, 2.2rem);
 	letter-spacing: -0.02em;

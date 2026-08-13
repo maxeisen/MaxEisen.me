@@ -171,7 +171,7 @@
         color: var(--main-green);
     }
     .metric-head strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 600;
         color: var(--header-colour);
@@ -220,7 +220,7 @@
         color: var(--main-green);
     }
     .long-run strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-weight: 600;
         color: var(--header-colour);
     }
@@ -284,7 +284,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .day-km { font-family: var(--font-serif); text-align: right; white-space: nowrap; }
+    .day-km { font-family: var(--font-sans); text-align: right; white-space: nowrap; }
     .day-km strong { color: var(--main-green); font-weight: 600; }
     .day.done .day-km strong { color: var(--tone-good); }
     .day.extra .day-km strong { color: var(--header-colour); }
@@ -337,7 +337,7 @@
     }
     dd {
         margin: 0;
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-weight: 600;
         color: var(--header-colour);
     }
@@ -372,7 +372,7 @@
     }
     .week-date { flex: 1; opacity: 0.75; }
     .week-km {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-weight: 600;
         color: var(--header-colour);
     }

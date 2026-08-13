@@ -499,7 +499,7 @@
 
     .title {
         display: block;
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-lg);
         font-weight: 600;
         color: var(--header-colour);
@@ -537,7 +537,7 @@
     }
     .stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .stat strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 700;
         color: var(--header-colour);
@@ -663,7 +663,7 @@
         opacity: 0.7;
     }
     .change strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 700;
         color: var(--header-colour);
@@ -697,7 +697,7 @@
     }
     dd {
         margin: 0;
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: var(--font-md);
         font-weight: 600;
         color: var(--header-colour);

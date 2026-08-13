@@ -122,7 +122,7 @@
     .dot-hard { background: var(--tone-bad); }
     .legend-label { opacity: 0.75; }
     .legend strong {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         color: var(--header-colour);
     }
     .legend-time { opacity: 0.55; }

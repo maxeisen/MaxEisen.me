@@ -196,7 +196,7 @@
     }
 
     .strava-row-stats strong {
-        font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: 1rem;
         letter-spacing: -0.01em;

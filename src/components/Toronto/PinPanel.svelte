@@ -59,7 +59,7 @@
     }
 
     .pin-panel-name {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: 1.55rem;
         line-height: 1.2;

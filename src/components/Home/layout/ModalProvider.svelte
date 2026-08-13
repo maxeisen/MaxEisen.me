@@ -134,9 +134,8 @@
 	   under different class names — these consolidate the duplicates.
 	   =================================================================== */
 	:global(.modal-title) {
-		font-family: 'Fraunces', 'Iowan Old Style', 'Times New Roman', serif;
+		font-family: var(--font-sans);
 		font-weight: 600;
-		font-optical-sizing: auto;
 		letter-spacing: -0.02em;
 		font-size: 35px;
 		margin: 15px 15px 10px 15px;

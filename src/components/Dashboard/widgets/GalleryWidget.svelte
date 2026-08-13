@@ -90,7 +90,7 @@
         text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
     }
     .gallery-cta {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: 1rem;
         color: #fff;

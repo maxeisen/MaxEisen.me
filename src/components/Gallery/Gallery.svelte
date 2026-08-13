@@ -442,9 +442,8 @@
     }
 
     h1 {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
-        font-optical-sizing: auto;
         font-size: clamp(2rem, 4vw, 3.5rem);
         letter-spacing: -0.03em;
         margin: 0;

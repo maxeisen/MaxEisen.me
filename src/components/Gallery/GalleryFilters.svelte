@@ -171,7 +171,7 @@
     }
     .group-title {
         margin: 0;
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-sans);
         font-weight: 600;
         font-size: 1rem;
         letter-spacing: -0.01em;
