@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
 	ACWR_CEILING,
 	ACWR_FLOOR,
+	fitnessGain,
 	fitnessSeries,
 	rollingMean,
 	acwr,
@@ -67,6 +68,30 @@ describe("fitnessSeries", () => {
 
 	it("returns nothing for an inverted range", () => {
 		expect(fitnessSeries(new Map(), { from: "2026-08-12", to: "2026-08-10" })).toEqual([]);
+	});
+});
+
+describe("fitnessGain", () => {
+	const series = eachDay("2026-06-01", "2026-08-12").map((date, i) => ({ date, ctl: 20 + i }));
+
+	it("measures the climb across the window, not the whole series", () => {
+		// One a day for 28 days, from a series that starts 72 days earlier.
+		expect(fitnessGain(series, "2026-08-12")).toBe(28);
+	});
+
+	it("reports a decline as a decline", () => {
+		const falling = series.map((point, i) => ({ ...point, ctl: 100 - i }));
+		expect(fitnessGain(falling, "2026-08-12")).toBe(-28);
+	});
+
+	it("says nothing rather than measuring from a day that wasn't trained", () => {
+		// A block whose history starts inside the window has no earlier CTL to
+		// subtract, and treating the missing day as zero would report the
+		// whole of someone's fitness as four weeks' worth of gain.
+		const short = eachDay("2026-08-01", "2026-08-12").map((date) => ({ date, ctl: 50 }));
+		expect(fitnessGain(short, "2026-08-12")).toBeNull();
+		expect(fitnessGain([], "2026-08-12")).toBeNull();
+		expect(fitnessGain(series, null)).toBeNull();
 	});
 });
 

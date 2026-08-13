@@ -44,15 +44,23 @@ function duration(sec) {
 
 /**
  * @param {string} [unit] how the panel should read `metric` and `threshold`.
- *   Most rules are ratios, percentages or beats, which are the number itself.
- *   "duration" marks the ones held in seconds — a goal time or a night's
- *   sleep — where the raw figure ("13200 vs 13500") is unreadable and the
- *   rule's own prose already says "3h 40m".
+ *   The pair is printed beside the rule as "12% vs 10%", and a bare number
+ *   there is ambiguous in a list where the one above it is a ratio and the
+ *   one below is a count of beats. Every rule that isn't a plain quantity
+ *   says which it is:
+ *
+ *   - "duration" for the ones held in seconds — a goal time, a night's sleep
+ *   - "percent" for shares, ramps and drifts
+ *   - "ratio"   for acute:chronic, which reads as a multiple
+ *   - "bpm"     for heart rate
+ *   - "days"    for the countdown to the race
+ *
+ *   Only form is left bare, because training-stress balance genuinely has no
+ *   unit: it's the difference between two loads on an arbitrary scale, and
+ *   inventing "points" for it would imply a precision it doesn't have.
  */
 function rule(id, severity, title, detail, metric, threshold, unit = null) {
-	// Absent rather than null on the rules that don't need it: the payload is
-	// served to every visitor, and a key carrying nothing on nine rules out
-	// of twelve is weight for no meaning.
+	// Absent rather than null on the one rule that doesn't need it.
 	return { id, severity, title, detail, metric, threshold, ...(unit ? { unit } : {}) };
 }
 
@@ -89,6 +97,7 @@ export function recommendations(metrics) {
 					`Your last 7 days carry ${acwr.ratio.toFixed(2)}× the load of your 28-day average. Above ${ACWR_CEILING} is where injury rates climb sharply. Hold the next few days easy and let the chronic average catch up rather than pushing on.`,
 					acwr.ratio,
 					ACWR_CEILING,
+					"ratio",
 				),
 			);
 		} else if (acwr.ratio < ACWR_FLOOR) {
@@ -100,6 +109,7 @@ export function recommendations(metrics) {
 					`Your last 7 days are only ${acwr.ratio.toFixed(2)}× your 28-day average. Below ${ACWR_FLOOR} you start losing fitness. If this wasn't a planned down week, add volume back gradually — not all at once.`,
 					acwr.ratio,
 					ACWR_FLOOR,
+					"ratio",
 				),
 			);
 		} else {
@@ -111,6 +121,7 @@ export function recommendations(metrics) {
 					`Acute-to-chronic ratio is ${acwr.ratio.toFixed(2)}, inside the ${ACWR_FLOOR}–${ACWR_CEILING} corridor.`,
 					acwr.ratio,
 					null,
+					"ratio",
 				),
 			);
 		}
@@ -150,6 +161,7 @@ export function recommendations(metrics) {
 				`You were up ${ramp.toFixed(0)}% ${thisOrLast} on ${priorWeek} (${from.toFixed(0)} to ${to.toFixed(0)} km). The conventional ceiling is ${SAFE_RAMP_PCT}%. Hold the coming week near ${(to * 1.1).toFixed(0)} km rather than stacking another jump on top.`,
 				ramp,
 				SAFE_RAMP_PCT,
+				"percent",
 			),
 		);
 	}
@@ -164,6 +176,7 @@ export function recommendations(metrics) {
 				`The long run was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${LONG_RUN_SHARE_CEILING}% guideline. Add an easy midweek run rather than shortening the long one — the aerobic work is worth keeping.`,
 				share,
 				LONG_RUN_SHARE_CEILING,
+				"percent",
 			),
 		);
 	}
@@ -226,6 +239,7 @@ export function recommendations(metrics) {
 				`Averaging ${restingHr.recent.toFixed(0)} bpm over the last week against a ${restingHr.baseline.toFixed(0)} bpm baseline, up ${restingHr.delta.toFixed(0)}. A rise of ${RHR_RISE_BPM} or more usually means something the training log can't see: illness coming on, or work you haven't absorbed yet. Worth an easy few days before a key session rather than after one.`,
 				restingHr.delta,
 				RHR_RISE_BPM,
+				"bpm",
 			),
 		);
 	}
@@ -239,6 +253,7 @@ export function recommendations(metrics) {
 				`${hrv.recent.toFixed(0)} ms over the last week against a ${hrv.baseline.toFixed(0)} ms baseline, down ${Math.abs(hrv.deltaPct).toFixed(0)}%. HRV is noisy night to night and this is a week against a month, so it's worth noting rather than acting on alone — but read it alongside the resting heart rate above.`,
 				hrv.deltaPct,
 				-HRV_DROP_PCT,
+				"percent",
 			),
 		);
 	}
@@ -274,6 +289,7 @@ export function recommendations(metrics) {
 					`Only ${intensity.easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${EASY_SHARE_TARGET}%. Running easy days moderately hard is the most common way to arrive at a marathon tired rather than fit. Slow the easy days down.`,
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
+					"percent",
 				),
 			);
 		} else {
@@ -285,6 +301,7 @@ export function recommendations(metrics) {
 					`${intensity.easyPct.toFixed(0)}% of your running is easy, close to the ${EASY_SHARE_TARGET}% target.`,
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
+					"percent",
 				),
 			);
 		}
@@ -299,6 +316,7 @@ export function recommendations(metrics) {
 				`Aerobic decoupling was ${longRunDecouplingPct.toFixed(1)}%, above the ${DECOUPLING_CEILING}% marker. Your pace faded relative to heart rate in the second half, which usually means the aerobic base still needs work. Keep long runs easy rather than pushing the finish.`,
 				longRunDecouplingPct,
 				DECOUPLING_CEILING,
+				"percent",
 			),
 		);
 	}
@@ -315,6 +333,7 @@ export function recommendations(metrics) {
 					`${currentWeek.actualKm.toFixed(0)} km against a target of ${currentWeek.targetKm} km (${currentWeek.volumePct.toFixed(0)}%). One week matters little; two in a row is worth adjusting the plan for rather than trying to make up.`,
 					currentWeek.volumePct,
 					VOLUME_SHORTFALL_PCT,
+					"percent",
 				),
 			);
 		}
@@ -331,6 +350,7 @@ export function recommendations(metrics) {
 				"Fitness is already banked; the work now is arriving fresh. Keep some intensity to stay sharp but cut volume substantially, and resist the urge to test yourself.",
 				daysToRace,
 				21,
+				"days",
 			),
 		);
 	}

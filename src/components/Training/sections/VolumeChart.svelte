@@ -3,7 +3,9 @@
 
     Bars are what was actually run; the tick above each is the planned target,
     where one has been entered. Weeks with no plan entry simply have no tick,
-    rather than reading as a target of zero.
+    rather than reading as a target of zero. Both numbers are in the cursor's
+    readout, which replaces the per-bar <title> — a native tooltip and a drawn
+    one appearing over each other is worse than either alone.
 
     The window stops at the current week rather than running on to race day.
     Charting the weeks still to come stretched the axis across four months and
@@ -14,7 +16,7 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { axisTicks, bars, CHART_WEEKS, niceScale } from "../lib/chart.js";
+    import { axisTicks, bars, CHART_WEEKS, niceScale, xPct, yPct } from "../lib/chart.js";
     import { axisDate, weekRange } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -46,6 +48,35 @@
             if (!slot || !(week.targetKm > 0)) return null;
             return { ...slot, y: HEIGHT - (week.targetKm / scale.max) * HEIGHT };
         }),
+    );
+
+    // Run against planned, week by week. The bar and its tick are the two
+    // numbers the chart is a comparison of, so both belong in the readout —
+    // and a taper week says so, since a short bar there is the plan working.
+    const scrub = $derived(
+        shown.map((week, i) => ({
+            key: week.start,
+            pct: xPct(layout[i].x + layout[i].width / 2, WIDTH),
+            label: weekRange(week.start),
+            readouts: [
+                {
+                    label: week.isTaper ? "Run (taper)" : "Run",
+                    value: `${(week.actualKm || 0).toFixed(1)} km`,
+                    colour: week.isTaper ? "var(--background-accent)" : "var(--main-green)",
+                    yPct: yPct(layout[i].y, HEIGHT),
+                },
+                ...(week.targetKm > 0
+                    ? [
+                            {
+                                label: "Planned",
+                                value: `${week.targetKm} km`,
+                                colour: "var(--paragraph-colour)",
+                                yPct: yPct(targets[i].y, HEIGHT),
+                            },
+                        ]
+                    : []),
+            ],
+        })),
     );
 
     // A date under every bar doesn't fit on a phone, so label every third week
@@ -80,7 +111,7 @@
     {#if shown.length === 0}
         <p class="card-empty">No weeks recorded yet.</p>
     {:else}
-        <ChartFrame height={190} {yTicks} {xTicks} label="Weekly running volume in kilometres against plan">
+        <ChartFrame height={190} {yTicks} {xTicks} {scrub} label="Weekly running volume in kilometres against plan">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 {#each layout as bar, i}
                     {@const week = shown[i]}
@@ -92,9 +123,7 @@
                         width={bar.width}
                         height={bar.height}
                         rx="2"
-                    >
-                        <title>{weekRange(week.start)} — {bar.value.toFixed(1)} km{week.targetKm ? ` of ${week.targetKm} km planned` : ""}</title>
-                    </rect>
+                    ></rect>
                     {#if targets[i]}
                         <line
                             class="target"

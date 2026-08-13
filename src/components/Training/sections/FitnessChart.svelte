@@ -13,8 +13,8 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { areaPath, axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow } from "../lib/chart.js";
-    import { axisDate } from "../lib/format.js";
+    import { areaPath, axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow, xPct, yPct } from "../lib/chart.js";
+    import { axisDate, shortDate, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { series = [], today = null } = $props();
@@ -64,6 +64,37 @@
     });
 
     const latest = $derived(series.at(-1) || null);
+
+    // Form is the gap between the other two, so all three want reading at the
+    // same instant — which is the whole reason this chart is worth scrubbing
+    // rather than just labelling its ends.
+    const scrub = $derived(
+        sampled.map((day, i) => ({
+            key: day.date,
+            pct: xPct(ctlPoints[i].x, WIDTH),
+            label: shortDate(day.date),
+            readouts: [
+                {
+                    label: "Fitness",
+                    value: String(Math.round(day.ctl)),
+                    colour: "var(--main-green)",
+                    yPct: yPct(ctlPoints[i].y, HEIGHT),
+                },
+                {
+                    label: "Fatigue",
+                    value: String(Math.round(day.atl)),
+                    colour: "var(--tone-bad)",
+                    yPct: yPct(atlPoints[i].y, HEIGHT),
+                },
+                {
+                    label: "Form",
+                    value: signed(day.tsb, 0),
+                    colour: "var(--paragraph-colour)",
+                    yPct: yPct(tsbPoints[i].y, HEIGHT),
+                },
+            ],
+        })),
+    );
 </script>
 
 <Card title="Fitness and fatigue" info={GLOSSARY.fitness}>
@@ -80,7 +111,7 @@
     {#if sampled.length < 2}
         <p class="card-empty">Not enough history to plot yet.</p>
     {:else}
-        <ChartFrame height={210} {yTicks} {xTicks} label="Fitness, fatigue and form over the last {CHART_WEEKS} weeks">
+        <ChartFrame height={210} {yTicks} {xTicks} {scrub} label="Fitness, fatigue and form over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 <path class="area" d={areaPath(ctlPoints, zeroY)} />
                 <path class="line form" d={linePath(tsbPoints)} />

@@ -5,7 +5,7 @@
 // without Strava, Blobs, or a clock.
 
 import { dailyLoads } from "./load.js";
-import { acwr, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
+import { acwr, fitnessGain, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
 import { hrZoneFloors, intensitySplit } from "./zones.js";
 import { efficiencyTrend } from "./efficiency.js";
 import { collectBestEfforts, publicRun } from "./shape.js";
@@ -202,7 +202,14 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		weeksToRace: weeksToRace(plan, day),
 		totals,
 		latest: latest
-			? { date: latest.date, ctl: latest.ctl, atl: latest.atl, tsb: latest.tsb }
+			? {
+					date: latest.date,
+					ctl: latest.ctl,
+					atl: latest.atl,
+					tsb: latest.tsb,
+					// What the fitness number is actually for. See fitnessGain.
+					ctlGain: fitnessGain(series, day),
+				}
 			: null,
 		acwr: ratio,
 		intensity,
