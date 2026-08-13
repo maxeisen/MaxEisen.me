@@ -187,10 +187,12 @@
         window.addEventListener("resize", onResize);
         load();
 
-        // The upstream sync runs hourly, so there's nothing to gain from
-        // polling hard — this is really just to catch a sync landing while
-        // the tab is left open.
-        stopPoll = createPoller(load, 1000 * 60 * 10, { jitterMs: 30_000 });
+        // Matched to the upstream sync, so a tab left open is never more than
+        // one cycle behind a tab reopened. Polling faster than the thing that
+        // produces the data only re-fetches an answer that hasn't changed;
+        // fetchJsonSwr's 60s window and the 60s edge cache both sit under this,
+        // so each tick genuinely revalidates.
+        stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 30_000 });
     });
 
     onDestroy(() => {
