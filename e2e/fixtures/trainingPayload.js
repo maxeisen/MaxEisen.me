@@ -38,10 +38,14 @@ const NAMES = [
 // Without one, those are null and the last-run panel renders its "no heart
 // rate" path — real for a manual entry, but not what the page normally shows.
 //
-// Every ten seconds rather than every minute: the trace resamples in slices of
-// a hundred and fifty metres, and a sample a minute apart is a sample every
-// quarter kilometre, which would leave most of those slices unmeasured and the
-// chart a dotted line through a run that never paused.
+// Every five seconds rather than every minute, for two reasons. The trace
+// resamples in slices of a hundred and fifty metres, and a sample a minute
+// apart is a sample every quarter kilometre, which would leave most of those
+// slices unmeasured and the chart a dotted line through a run that never
+// paused. And anything sparser than ten seconds is a hole in the recording as
+// far as streams.js is concerned, so a run sampled by the minute would arrive
+// with no time in any zone at all.
+//
 // It draws from a generator of its own, seeded from the shared one. Drawing
 // directly would tie the sequence every other activity is built from to how
 // many samples this run happens to take, so changing the sample rate would
@@ -49,7 +53,7 @@ const NAMES = [
 // run, and a handful of unrelated assertions to re-baseline.
 function streamsFor({ distance, movingTime, averageHr, next }) {
 	const noise = sequence(Math.floor(next() * 2147483648));
-	const steps = Math.max(20, Math.round(movingTime / 10));
+	const steps = Math.max(20, Math.round(movingTime / 5));
 	const time = [];
 	const distanceStream = [];
 	const heartrate = [];

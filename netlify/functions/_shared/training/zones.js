@@ -12,6 +12,7 @@
 // forgotten strap doesn't quietly drop a session out of the distribution.
 
 import { reading } from "./num.js";
+import { isRecordingGap } from "./streams.js";
 
 // Zone boundaries as fractions, for zones 2 through 5. Applied to heart-rate
 // reserve when a resting HR is known (the Karvonen method), and to raw max HR
@@ -98,7 +99,11 @@ export function zoneSecondsFromStreams(streams, floors) {
 	let counted = false;
 	for (let i = 1; i < hr.length && i < time.length; i++) {
 		const dt = time[i] - time[i - 1];
-		if (!(dt > 0)) continue;
+		// A paused watch writes no samples, so the stop arrives as one long
+		// interval and this loop would file all of it under the heart rate it
+		// resumed at — which is a low one, standing still. Time in zone is
+		// time that was recorded.
+		if (!(dt > 0) || isRecordingGap(dt)) continue;
 		const zone = zoneOfHr(hr[i], floors);
 		if (!zone) continue;
 		seconds[zone - 1] += dt;
