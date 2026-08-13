@@ -235,6 +235,24 @@ describe("niceScale", () => {
 		expect(Number.isFinite(scale.min)).toBe(true);
 		expect(Number.isFinite(scale.max)).toBe(true);
 	});
+
+	// Base ten isn't round for an axis in seconds. An interval session spanning
+	// 3:10 to 8:30 lands on a 100-second step left to itself, which is
+	// gridlines at 1:40 and 3:20 and an axis reaching 10:00 for a run that
+	// never went slower than 8:30.
+	it("takes a ladder of steps for an axis that isn't decimal", () => {
+		const seconds = [15, 30, 60, 120, 300];
+		const scale = niceScale([190, 510], 4, { steps: seconds });
+		expect(seconds).toContain(scale.step);
+		expect(scale.min).toBe(180);
+		expect(scale.max).toBe(540);
+
+		// Tighter data gets a tighter step off the same ladder.
+		const steady = niceScale([292, 316], 4, { steps: seconds });
+		expect(steady.step).toBe(15);
+		expect(steady.min).toBe(285);
+		expect(steady.max).toBe(330);
+	});
 });
 
 describe("axisTicks", () => {

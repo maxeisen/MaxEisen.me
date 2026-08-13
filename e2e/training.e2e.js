@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { buildTrainingFixture } from "./fixtures/trainingPayload.js";
+import {
+	MIN_GAIN_PX,
+	bestSplit,
+	columnHeight,
+	imbalanceAt,
+} from "../src/components/Training/lib/balance.js";
 
 // /training is the one page on the site built out of charts and dense tables,
 // which makes it the one page that can quietly get wider than a phone. That
@@ -93,8 +99,9 @@ test("the last run is reported with what it did to the training", async ({ page 
 		/strava\.com\/activities\/\d+/,
 	);
 
-	// How it went: a pace per kilometre, on an axis labelled in paces.
-	const paces = await panel.locator(".y-axis span").allTextContents();
+	// How it went: a pace per kilometre, on an axis labelled in paces. The
+	// left axis specifically — the right one is heart rate, in bpm.
+	const paces = await panel.locator(".y-axis:not(.right) span").allTextContents();
 	expect(paces.length).toBeGreaterThan(2);
 	expect(paces.every((label) => /^\d+:\d{2}$/.test(label))).toBe(true);
 
@@ -133,22 +140,52 @@ test("neither column runs on far past the other", async ({ page }) => {
 	// page: with the two tallest panels both on the left it finished a
 	// thousand pixels below the right. The split used to be hand-balanced and
 	// went stale every time a panel was added; it's now measured at runtime
-	// (src/components/Training/lib/balance.js), so this can hold it to a much
-	// tighter bound than a hand-tuned constant ever earned.
+	// (src/components/Training/lib/balance.js).
+	//
+	// Asserted against the best split available rather than a ratio, because a
+	// ratio measures the panels and not the balancing. Only ten panels go into
+	// two columns and three of them are seven hundred pixels tall, so the
+	// achievable splits are coarse — the best one here leaves the columns 11%
+	// apart, and the next best leaves them 22% apart. A threshold between
+	// those two numbers passes and fails on how long a panel's prose happens
+	// to be this week.
 	await page.setViewportSize({ width: 1280, height: 900 });
 	await page.goto("/training");
 
-	const columns = page.locator("#training-grid .col:not(.col-full)");
-	const ratio = async () => {
-		const [left, right] = await columns.evaluateAll((cols) =>
-			cols.map((col) => col.getBoundingClientRect().height),
-		);
-		return Math.min(left, right) / Math.max(left, right);
-	};
+	const measure = () =>
+		page.evaluate(() => {
+			const columns = [...document.querySelectorAll("#training-grid .col:not(.col-full)")];
+			const style = getComputedStyle(columns[0]);
+			return {
+				gap: Number.parseFloat(style.rowGap) || 0,
+				split: columns[0].querySelectorAll("[data-panel]").length,
+				// In layout order, which is what a split is an index into.
+				heights: columns.flatMap((col) =>
+					[...col.querySelectorAll("[data-panel]")].map(
+						(panel) => panel.getBoundingClientRect().height,
+					),
+				),
+			};
+		});
 
 	// Balancing runs a frame after the payload renders, so the first paint is
 	// the unbalanced one by design.
-	await expect.poll(ratio).toBeGreaterThan(0.9);
+	await expect
+		.poll(async () => {
+			const { gap, split, heights } = await measure();
+			const ideal = bestSplit(heights, { gap });
+			// Within the bar a move has to clear, since the layout stops as
+			// soon as no remaining move clears it.
+			return imbalanceAt(heights, split, gap) - imbalanceAt(heights, ideal, gap);
+		})
+		.toBeLessThanOrEqual(MIN_GAIN_PX);
+
+	// And a floor under it all, in case a future panel makes every split a bad
+	// one and the assertion above cheerfully certifies the least bad.
+	const { gap, split, heights } = await measure();
+	const left = columnHeight(heights.slice(0, split), gap);
+	const right = columnHeight(heights.slice(split), gap);
+	expect(Math.min(left, right) / Math.max(left, right)).toBeGreaterThan(0.8);
 });
 
 test("a recommendation leads with its evidence and folds the reasoning away", async ({ page }) => {
@@ -224,7 +261,7 @@ test("the footer dates the sync, not the visit", async ({ page }) => {
 	expect(shown).toBe(`Last synced ${expected}`);
 });
 
-test("the last run scrubs a kilometre at a time", async ({ page }) => {
+test("the last run scrubs to a point along it, not a kilometre of it", async ({ page }) => {
 	await page.goto("/training");
 	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
 	const plot = card.locator(".plot");
@@ -235,12 +272,61 @@ test("the last run scrubs a kilometre at a time", async ({ page }) => {
 
 	const tip = card.locator(".tip");
 	await expect(tip).toBeVisible();
-	// The split, not the run: a kilometre's own pace and what the heart was
-	// doing for it, which is the question the whole panel is a preamble to.
-	await expect(tip.locator(".tip-label")).toHaveText(/Kilometre \d+/);
+	// A distance with metres in it. The panel used to read a kilometre at a
+	// time, which is a resolution that averages an interval session flat: the
+	// reps and the recoveries between them happen inside one split.
+	await expect(tip.locator(".tip-label")).toHaveText(/^\d+\.\d\d km$/);
 	await expect(tip.getByText("Pace", { exact: true })).toBeVisible();
 	await expect(tip).toContainText(/\d+:\d\d\/km/);
 	await expect(tip).toContainText(/\d+ bpm/);
+});
+
+test("the last run is drawn at a finer grain than its splits", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
+
+	const { points, km } = await page.evaluate(async () => {
+		const { lastRun } = await (await fetch("/.netlify/functions/trainingData")).json();
+		return { points: lastRun.trace.m.length, km: lastRun.distanceM / 1000 };
+	});
+	// Several readings to the kilometre, which is the whole point of carrying
+	// a trace at all rather than plotting the splits that were already there.
+	expect(points / km).toBeGreaterThan(3);
+
+	// And they're offered to the keyboard one at a time, so the fine grain is
+	// reachable without a pointer.
+	await card.locator(".plot").focus();
+	await card.page().keyboard.press("ArrowRight");
+	await expect(card.locator(".tip")).toBeVisible();
+});
+
+test("the last run plots heart rate on its own scale", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
+
+	// Two units on one plot only works if the second one is labelled. Without
+	// the right-hand axis the beats are a shape with no magnitude, and the
+	// height it shares with the pace line is a coincidence of scaling.
+	const beats = card.locator(".y-axis.right span");
+	const labels = (await beats.allTextContents()).map(Number);
+	expect(labels.length).toBeGreaterThan(2);
+	for (const bpm of labels) {
+		expect(bpm).toBeGreaterThan(60);
+		expect(bpm).toBeLessThan(230);
+	}
+	// And it runs the other way up from the pace axis beside it. Pace is
+	// flipped so faster is higher; heart rate isn't, because more beats is
+	// more effort. Compare where they actually sit, since the two scales
+	// agreeing on direction is exactly the mistake this would be.
+	const placed = await beats.evaluateAll((nodes) =>
+		nodes.map((node) => ({
+			bpm: Number(node.textContent),
+			bottom: node.getBoundingClientRect().bottom,
+		})),
+	);
+	const highest = placed.reduce((a, b) => (a.bpm > b.bpm ? a : b));
+	const lowest = placed.reduce((a, b) => (a.bpm < b.bpm ? a : b));
+	expect(highest.bottom).toBeLessThan(lowest.bottom);
 });
 
 test("the chart cursor can be driven from the keyboard", async ({ page }) => {

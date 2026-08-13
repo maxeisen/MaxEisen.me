@@ -16,6 +16,11 @@
 // because a declared weight is a guess that goes stale the moment a panel says
 // something longer than it used to.
 
+// How much better a split has to be before it's worth taking. See worthMoving
+// for why there has to be a bar at all; the settled layout can therefore sit
+// this far off the best split available, by design.
+export const MIN_GAIN_PX = 64;
+
 /**
  * Total height of a column, including the gaps between its panels.
  *
@@ -95,7 +100,7 @@ export function bestSplit(heights, { gap = 0, min = 2 } = {}) {
  * @param {number} [options.minGain] pixels of improvement to justify a move.
  * @returns {boolean}
  */
-export function worthMoving(heights, from, to, { gap = 0, minGain = 64 } = {}) {
+export function worthMoving(heights, from, to, { gap = 0, minGain = MIN_GAIN_PX } = {}) {
 	if (!Number.isFinite(to) || to === from) return false;
 	return imbalanceAt(heights, from, gap) - imbalanceAt(heights, to, gap) > minGain;
 }

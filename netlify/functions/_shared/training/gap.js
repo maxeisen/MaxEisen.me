@@ -35,8 +35,8 @@ export const GRADE_CLAMP = 0.45;
 //
 // 0.5 m/s is far slower than walking, and 8 m/s is faster than this athlete
 // will ever sustain, so neither bound can discard real running.
-const MIN_SEGMENT_SPEED = 0.5;
-const MAX_SEGMENT_SPEED = 8;
+export const MIN_SEGMENT_SPEED = 0.5;
+export const MAX_SEGMENT_SPEED = 8;
 
 /**
  * Metabolic cost of running at a gradient, in J/kg/m.

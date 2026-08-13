@@ -27,6 +27,15 @@
 		height = 180,
 		/** From axisTicks(): [{ value, label, pct }], pct measured from the bottom. */
 		yTicks = [],
+		/**
+		 * A second scale down the right-hand edge, for a chart plotting two
+		 * units at once. Labels only, deliberately: gridlines belong to one
+		 * scale, and a second set at different fractions turns the plot into
+		 * a lattice where neither series can be read off either.
+		 *
+		 * Same shape as yTicks.
+		 */
+		rightTicks = [],
 		/** [{ key, label, pct, anchor: "start" | "middle" | "end" }] */
 		xTicks = [],
 		/**
@@ -139,6 +148,7 @@
 
 <figure
 	class="frame"
+	class:dual={rightTicks.length > 0}
 	style="--plot-height: {height}px"
 	role={scrubbable ? undefined : "img"}
 	aria-label={scrubbable ? undefined : label}
@@ -206,6 +216,14 @@
 		{/if}
 	</div>
 
+	{#if rightTicks.length}
+		<div class="y-axis right" aria-hidden="true">
+			{#each rightTicks as tick (tick.value)}
+				<span style="bottom: {tick.pct}%">{tick.label}</span>
+			{/each}
+		</div>
+	{/if}
+
 	{#if xTicks.length}
 		<div class="x-axis" aria-hidden="true">
 			{#each xTicks as tick (tick.key)}
@@ -229,6 +247,9 @@
 		column-gap: var(--space-2);
 		margin: 0;
 	}
+	/* Only when there's a second scale: an empty third column would still
+	   cost a column-gap of dead space on every other chart. */
+	.frame.dual { grid-template-columns: auto minmax(0, 1fr) auto; }
 
 	.y-axis {
 		grid-column: 1;
@@ -239,6 +260,10 @@
 		   0.7rem digits, which covers "1.30" and "-20". */
 		min-width: 2.1rem;
 	}
+	.y-axis.right {
+		grid-column: 3;
+		min-width: 1.9rem;
+	}
 	.y-axis span {
 		position: absolute;
 		right: 0;
@@ -248,6 +273,10 @@
 		color: var(--paragraph-colour);
 		opacity: 0.55;
 		white-space: nowrap;
+	}
+	.y-axis.right span {
+		right: auto;
+		left: 0;
 	}
 
 	.plot {
@@ -301,8 +330,6 @@
 		margin: 0 0 -4.5px -4.5px;
 		border-radius: 50%;
 		background: var(--dot);
-		/* Ringed in the card's own background so a dot stays legible where it
-		   sits on top of the line it belongs to. */
 		/* Ringed in an opaque surface so a dot stays legible where it sits on
 		   top of the line it belongs to. */
 		box-shadow: 0 0 0 2px var(--background-one);

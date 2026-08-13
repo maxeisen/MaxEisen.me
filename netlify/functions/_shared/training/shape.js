@@ -21,6 +21,7 @@ import { activityGap } from "./gap.js";
 import { activityLoad } from "./load.js";
 import { aerobicDecoupling } from "./efficiency.js";
 import { hrZoneFloors, zoneSecondsFromStreams } from "./zones.js";
+import { shapeTrace } from "./trace.js";
 import { reading } from "./num.js";
 import { toDayKey } from "./dates.js";
 
@@ -50,7 +51,9 @@ export const RIDE_MIN_M = 20000;
 // 2: HR zone floors moved to heart-rate reserve; GAP anchored to moving time
 //    and no longer thrown off by stopped time or GPS jumps.
 // 3: records carry `sport`, and rides over RIDE_MIN_M are tracked.
-export const SHAPE_VERSION = 3;
+// 4: runs carry a resampled pace/heart-rate trace (see trace.js), which only
+//    exists while the streams are in hand.
+export const SHAPE_VERSION = 4;
 
 /**
  * Is this a public run we should track?
@@ -200,6 +203,10 @@ export function shapeActivity(raw, options = {}) {
 		zoneSeconds,
 		decouplingPct: decoupling?.decouplingPct ?? null,
 		splits,
+		// Kept on the record because it can only be built while the streams
+		// are in hand, and they aren't stored. A ride has no pace worth
+		// plotting, for the same reason it has no splits.
+		trace: isRide ? null : shapeTrace(streams, { distanceM }),
 		bestEfforts: isRide
 			? []
 			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
@@ -266,6 +273,13 @@ function publicSplits(splits) {
 		}));
 }
 
+// Copied field by field like everything else here, so a future addition to the
+// stored trace has to be named before it can be served.
+function publicTrace(trace) {
+	if (!Array.isArray(trace?.m)) return null;
+	return { m: [...trace.m], pace: [...trace.pace], hr: [...trace.hr] };
+}
+
 /**
  * The same, for the one run the dashboard looks at in detail.
  *
@@ -281,6 +295,11 @@ function publicSplits(splits) {
  * per-kilometre elevation isn't carried: a hill profile is the one part of a
  * split list that starts to describe a route rather than a run. The total climb
  * is enough to read the pace by, and is already public on the log.
+ *
+ * The trace holds that line at a finer grain, which is why it carries pace and
+ * heart rate and no grade at all — see trace.js. It's also the one field here
+ * the log deliberately doesn't get: a hundred and twenty points is nothing
+ * once, and thirty times over it is most of the payload.
  *
  * @param {object} activity a stored, shaped activity.
  * @returns {object|null} safe to serve.
@@ -299,6 +318,7 @@ export function publicLastRun(activity) {
 		decouplingPct: activity.decouplingPct,
 		zoneSeconds: publicZoneSeconds(activity.zoneSeconds),
 		splits: publicSplits(activity.splits),
+		trace: publicTrace(activity.trace),
 	};
 }
 
