@@ -406,12 +406,30 @@ export default async function handler(req) {
 	});
 }
 
-// Every 20 minutes. Once caught up an invocation is two upstream calls (a
-// token refresh and one activity listing), so the steady-state cost of this
-// cadence is negligible; what it buys is the cold start. A schedule is also
-// the ONLY thing that ever writes this store — a scheduled function can't be
-// invoked over HTTP — so the gap between deploying and the first tick is
-// exactly how long the dashboard has no runs on it at all.
+// Every 5 minutes, which is what a run showing up on the page shortly after it
+// uploads costs. Paired with a 60s edge cache on trainingData, so the cadence
+// is the whole delay rather than half of it.
+//
+// Once caught up an invocation is two upstream calls: a token refresh and one
+// activity listing. Strava meters those in two buckets and the tighter one is
+// reads — 100 per 15 minutes and 1,000 per day at the standard tier — but only
+// the listing is a read, since the refresh is a POST to /oauth/token. So this
+// cadence spends about 288 reads a day of 1,000, and three of the 100 in any
+// quarter hour. The same app credentials serve the /dashboard widgets in a
+// visitor's request path, which is the reason for the headroom and for
+// QUOTA_SHARE above.
+//
+// Backfill is the expensive case, at up to DETAIL_BUDGET × 2 reads an
+// invocation — more than a quarter hour's whole share in one go. That is fine,
+// and it's why the quota guard exists: it reads Strava's own headers and
+// stands the job down at 60% of either bucket, so a cold start moves at
+// whatever the window allows and defers the rest. Shortening the interval
+// therefore doesn't buy a faster backfill and can't buy a 429 either; both are
+// the guard's business. What it buys is the steady state.
+//
+// A schedule is also the ONLY thing that ever writes this store — a scheduled
+// function can't be invoked over HTTP — so the gap between deploying and the
+// first tick is exactly how long the dashboard has no runs on it at all.
 export const config = {
-	schedule: "*/20 * * * *",
+	schedule: "*/5 * * * *",
 };

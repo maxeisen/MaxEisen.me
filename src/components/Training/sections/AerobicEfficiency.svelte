@@ -13,7 +13,7 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow, xPct, yPct } from "../lib/chart.js";
+    import { axisTicks, CHART_WEEKS, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -102,7 +102,7 @@
                 {#each dots as dot}
                     <circle class="dot" cx={dot.x} cy={dot.y} r="3" />
                 {/each}
-                <path class="line" d={linePath(line)} />
+                <path class="line" d={smoothPath(line)} />
             </svg>
         </ChartFrame>
         <p class="chart-unit">speed per heartbeat · {points.length} aerobic runs in the last {CHART_WEEKS} weeks</p>

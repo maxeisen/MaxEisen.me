@@ -187,10 +187,12 @@
         window.addEventListener("resize", onResize);
         load();
 
-        // The upstream sync runs hourly, so there's nothing to gain from
-        // polling hard — this is really just to catch a sync landing while
-        // the tab is left open.
-        stopPoll = createPoller(load, 1000 * 60 * 10, { jitterMs: 30_000 });
+        // Matched to the upstream sync, so a tab left open is never more than
+        // one cycle behind a tab reopened. Polling faster than the thing that
+        // produces the data only re-fetches an answer that hasn't changed;
+        // fetchJsonSwr's 60s window and the 60s edge cache both sit under this,
+        // so each tick genuinely revalidates.
+        stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 30_000 });
     });
 
     onDestroy(() => {
@@ -298,8 +300,12 @@
             <p class="links">
                 <a href={STRAVA_PROFILE} target="_blank" rel="noreferrer">Strava profile ↗</a>
             </p>
-            {#if data.generatedAt}
-                <p class="stamp">Updated {new Date(data.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>
+            <!-- When Strava was last read, not when this page was built. The
+                 latter is a fact about the reader's own visit — it ticks
+                 forward on a refresh that changed nothing, and dates a payload
+                 the CDN may have been serving for ten minutes. -->
+            {#if data.sync?.lastRunAt}
+                <p class="stamp">Last synced {new Date(data.sync.lastRunAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>
             {/if}
         </footer>
     {/if}

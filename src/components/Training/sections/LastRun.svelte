@@ -13,7 +13,8 @@
 
     The pace chart is drawn with a flipped y-axis so faster is higher, which is
     the only orientation people read without translating; the axis is labelled
-    in pace so there's nothing to translate anyway. Grade-adjusted pace goes
+    in pace so there's nothing to translate anyway. It scrubs like the rest of
+    the page's charts, which is where a single kilometre is legible at all. Grade-adjusted pace goes
     over it as a second line whenever the two actually diverge — on a hilly run
     that gap is the explanation for a slow kilometre, and on a flat one drawing
     it twice would just be noise.
@@ -21,7 +22,7 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { linePath, niceScale, scaleLinear } from "../lib/chart.js";
+    import { linePath, niceScale, scaleLinear, xPct, yPct } from "../lib/chart.js";
     import { daysAgo, formatDistance, formatDuration, pace, pct, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag as tagFor } from "../lib/runTags.js";
@@ -95,6 +96,39 @@
                 pct: (i / Math.max(1, splits.length - 1)) * 100,
                 anchor: i === 0 ? "start" : i === splits.length - 1 ? "end" : "middle",
             })),
+    );
+
+    // A kilometre at a time. The dots carried a title attribute, which put the
+    // pace behind a hover delay and a browser tooltip; this is the same three
+    // numbers you'd actually compare across a run — what it cost in pace, what
+    // the hills made of it, and what your heart was doing for it.
+    const scrub = $derived(
+        splits.map((split, i) => ({
+            key: split.km,
+            pct: xPct(pacePoints[i].x, WIDTH),
+            label: `Kilometre ${split.km}`,
+            readouts: [
+                {
+                    label: "Pace",
+                    value: pace(split.paceSecPerKm),
+                    colour: "var(--main-green)",
+                    yPct: yPct(pacePoints[i].y, HEIGHT),
+                },
+                ...(showGap && split.gapPaceSecPerKm > 0
+                    ? [
+                            {
+                                label: "Grade adjusted",
+                                value: pace(split.gapPaceSecPerKm),
+                                colour: "var(--paragraph-colour)",
+                                yPct: yPct(gapPoints[i].y, HEIGHT),
+                            },
+                        ]
+                    : []),
+                ...(split.averageHr > 0
+                    ? [{ label: "Heart rate", value: `${Math.round(split.averageHr)} bpm` }]
+                    : []),
+            ],
+        })),
     );
 
     const form = $derived(run?.impact?.form || null);
@@ -256,7 +290,7 @@
 
         {#if splits.length > 1}
             <div class="chart">
-                <ChartFrame height={HEIGHT} {yTicks} {xTicks} label="Pace for each kilometre of the run">
+                <ChartFrame height={HEIGHT} {yTicks} {xTicks} {scrub} label="Pace for each kilometre of the run">
                     <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                         {#if averageY !== null}
                             <line class="average" x1="0" x2={WIDTH} y1={averageY} y2={averageY} />
@@ -265,10 +299,8 @@
                             <path class="gap" d={linePath(gapPoints)} />
                         {/if}
                         <path class="line" d={linePath(pacePoints)} />
-                        {#each pacePoints as point, i}
-                            <circle class="dot" cx={point.x} cy={point.y} r="4">
-                                <title>km {splits[i].km} — {pace(splits[i].paceSecPerKm)}{splits[i].averageHr ? ` at ${Math.round(splits[i].averageHr)} bpm` : ""}</title>
-                            </circle>
+                        {#each pacePoints as point (point.x)}
+                            <circle class="dot" cx={point.x} cy={point.y} r="4" />
                         {/each}
                     </svg>
                 </ChartFrame>

@@ -56,13 +56,29 @@ describe("fitnessSeries", () => {
 		expect(raceDay.tsb).toBeGreaterThan(0);
 	});
 
-	it("reports form from before the day's own session", () => {
-		// A single big day shouldn't drag its own form reading negative.
-		const series = fitnessSeries(new Map([["2026-08-11", 200]]), {
+	it("reports fitness, fatigue and form as of the same moment", () => {
+		// The one that got away: ctl and atl were reported after the day's
+		// load and tsb from before it, so a record contradicted itself and
+		// every reader that did the subtraction disagreed with every reader
+		// that trusted the field. On the page that looked like the last run
+		// costing 4.7 of form while the chart drew form rising by 3.
+		const loads = steady("2026-06-01", "2026-08-12", 60);
+		loads.set("2026-08-12", 200);
+		const series = fitnessSeries(loads, { from: "2026-06-01", to: "2026-08-12" });
+
+		for (const day of series) {
+			expect(day.tsb).toBeCloseTo(day.ctl - day.atl, 10);
+		}
+	});
+
+	it("counts the day's own session against its form", () => {
+		const series = fitnessSeries(new Map([["2026-08-12", 200]]), {
 			from: "2026-08-11",
 			to: "2026-08-12",
 		});
 		expect(series[0].tsb).toBe(0);
+		// A hard run leaves you less fresh on the day you do it, which is the
+		// reading the "what it did" panel has always given.
 		expect(series[1].tsb).toBeLessThan(0);
 	});
 

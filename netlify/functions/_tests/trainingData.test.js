@@ -151,13 +151,21 @@ describe("trainingData privacy", () => {
 });
 
 describe("trainingData behaviour", () => {
-	it("is publicly cacheable, since there is nothing to gate", async () => {
+	it("is cached at the edge, and revalidated by the browser", async () => {
 		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }));
 		const { res } = await payload();
+
+		// The edge absorbs a burst, so a public page costs one invocation a
+		// minute rather than one a visitor.
+		expect(res.headers.get("netlify-cdn-cache-control")).toContain("public");
+		expect(res.headers.get("netlify-cdn-cache-control")).toContain("max-age=60");
+
+		// But the browser asks every time. A shared max-age would let a reload
+		// answer itself from a copy older than the sync that has since run,
+		// which is the one case this page is refreshed for.
 		const cache = res.headers.get("cache-control");
-		expect(cache).toContain("public");
-		expect(cache).toContain("max-age=600");
-		expect(cache).toContain("stale-while-revalidate=1800");
+		expect(cache).toContain("must-revalidate");
+		expect(cache).not.toContain("stale-while-revalidate");
 	});
 
 	it("serves an empty dashboard before the first sync has run", async () => {

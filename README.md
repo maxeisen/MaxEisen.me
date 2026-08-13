@@ -171,6 +171,14 @@ Polling cadences:
 - **Dashboard widgets** poll on a fixed `setInterval` (5 min for GitHub/Strava/
   HN, 10 s for Spotify) and read through the SWR cache. The Gallery widget loads
   the photo list once and only re-picks a random image on its timer.
+- **`/training`** is a chain of four cadences that only works if they line up,
+  since the slowest one is the delay: `trainingSync` reads Strava every 5 min,
+  `trainingData` is held at the edge for 60 s (and revalidated by the browser
+  every time, so a reload after an upload can't answer itself from a stale
+  copy), the page polls every 5 min, and `fetchJsonSwr`'s window is 60 s. A run
+  is on the page within roughly 5 minutes of uploading. Change one and check
+  the rest — a poll slower than the sync makes an open tab lag a reopened one,
+  and an SWR window above the poll interval quietly skips ticks.
 - **Bach** (`src/components/Bach/Bach.svelte`) uses a single self-scheduling
   loop: each `poll()` queues the next tick at a phase-appropriate interval
   (`src/components/Bach/lib/poll.js`) — fast during active phases, backed off in
