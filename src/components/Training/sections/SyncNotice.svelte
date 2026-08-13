@@ -17,7 +17,7 @@
             return {
                 title: "Waiting for the first sync",
                 detail:
-                    "Strava history is imported on a schedule rather than on page load, so nothing has landed here yet. This page fills in within about 20 minutes of going live.",
+                    "Strava history is imported on a schedule rather than on page load, so nothing has landed here yet. This page fills in within about 10 minutes of going live.",
             };
         }
         if (sync.backfilling) {

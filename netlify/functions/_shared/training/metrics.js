@@ -282,6 +282,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	});
 
 	return {
+		// When this payload was computed, which is not when Strava was last
+		// read — that's sync.lastRunAt, and it's the one worth showing anyone.
+		// This one exists to tell a stale CDN copy from a fresh one, and it
+		// ticks forward on a rebuild that changed nothing.
 		generatedAt: new Date().toISOString(),
 		today: day,
 		summary,

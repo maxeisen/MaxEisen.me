@@ -203,6 +203,27 @@ test("scrubbing a chart reads out the values under the cursor", async ({ page })
 	await expect(card.locator(".tip")).toHaveCount(0);
 });
 
+test("the footer dates the sync, not the visit", async ({ page }) => {
+	await page.goto("/training");
+	const stamp = page.locator(".foot .stamp");
+
+	// The page-build time ticks forward on a refresh that changed nothing, and
+	// dates a payload the CDN may have been holding for ten minutes, so it
+	// answers a question nobody asked.
+	await expect(stamp).toHaveText(/^Last synced /);
+
+	const shown = await stamp.textContent();
+	const syncedAt = await page.evaluate(async () => {
+		const res = await fetch("/.netlify/functions/trainingData");
+		return (await res.json()).sync.lastRunAt;
+	});
+	const expected = new Date(syncedAt).toLocaleString("en-GB", {
+		dateStyle: "medium",
+		timeStyle: "short",
+	});
+	expect(shown).toBe(`Last synced ${expected}`);
+});
+
 test("the last run scrubs a kilometre at a time", async ({ page }) => {
 	await page.goto("/training");
 	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();

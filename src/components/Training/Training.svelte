@@ -298,8 +298,12 @@
             <p class="links">
                 <a href={STRAVA_PROFILE} target="_blank" rel="noreferrer">Strava profile ↗</a>
             </p>
-            {#if data.generatedAt}
-                <p class="stamp">Updated {new Date(data.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>
+            <!-- When Strava was last read, not when this page was built. The
+                 latter is a fact about the reader's own visit — it ticks
+                 forward on a refresh that changed nothing, and dates a payload
+                 the CDN may have been serving for ten minutes. -->
+            {#if data.sync?.lastRunAt}
+                <p class="stamp">Last synced {new Date(data.sync.lastRunAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>
             {/if}
         </footer>
     {/if}

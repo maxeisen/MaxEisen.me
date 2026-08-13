@@ -406,12 +406,27 @@ export default async function handler(req) {
 	});
 }
 
-// Every 20 minutes. Once caught up an invocation is two upstream calls (a
-// token refresh and one activity listing), so the steady-state cost of this
-// cadence is negligible; what it buys is the cold start. A schedule is also
-// the ONLY thing that ever writes this store — a scheduled function can't be
-// invoked over HTTP — so the gap between deploying and the first tick is
-// exactly how long the dashboard has no runs on it at all.
+// Every 10 minutes, which is what a run showing up on the page shortly after
+// it uploads costs.
+//
+// Once caught up an invocation is two upstream calls: a token refresh and one
+// activity listing. Strava meters those in two buckets and the tighter one is
+// reads — 100 per 15 minutes and 1,000 per day at the standard tier — but only
+// the listing is a read, since the refresh is a POST to /oauth/token. So this
+// cadence spends about 144 reads a day of 1,000, and at most two of the 100 in
+// any quarter hour. The same app credentials serve the /dashboard widgets in a
+// visitor's request path, which is the reason for the headroom and for
+// QUOTA_SHARE above.
+//
+// A backfill is the expensive case, at up to DETAIL_BUDGET × 2 reads an
+// invocation, and halving the interval doubles the rate it can burn quota. It
+// converges in two or three invocations, and past that the quota guard reads
+// Strava's own headers and stands down, so the cost is bounded by the guard
+// rather than by this number.
+//
+// A schedule is also the ONLY thing that ever writes this store — a scheduled
+// function can't be invoked over HTTP — so the gap between deploying and the
+// first tick is exactly how long the dashboard has no runs on it at all.
 export const config = {
-	schedule: "*/20 * * * *",
+	schedule: "*/10 * * * *",
 };
