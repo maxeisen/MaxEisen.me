@@ -145,11 +145,23 @@ async function syncRecovery(store, today) {
 	}
 
 	const start = addDays(today, -(RECOVERY_DAYS - 1));
+	// Tomorrow, not today. Oura's date range excludes its end: asking for
+	// start=end=a single day returns nothing at all, and asking through today
+	// returns every night except the one people actually want to see. The
+	// symptom is subtle enough to look like a working integration — the panel
+	// fills in, the chart draws, and "last night" is quietly the night before.
+	//
+	// A plain date rather than today at 23:59:59, which also works: the
+	// parameters are documented as dates, and a day past the end costs one
+	// request's worth of nothing. Anything dated after today is dropped by
+	// recoverySummary anyway, so a nap recorded after midnight can't turn up
+	// as last night's sleep.
+	const end = addDays(today, 1);
 	try {
 		const [sleep, dailySleep, readiness] = await Promise.all([
-			ouraCollection("/v2/usercollection/sleep", token, { start, end: today }),
-			ouraCollection("/v2/usercollection/daily_sleep", token, { start, end: today }),
-			ouraCollection("/v2/usercollection/daily_readiness", token, { start, end: today }),
+			ouraCollection("/v2/usercollection/sleep", token, { start, end }),
+			ouraCollection("/v2/usercollection/daily_sleep", token, { start, end }),
+			ouraCollection("/v2/usercollection/daily_readiness", token, { start, end }),
 		]);
 		const nights = shapeRecovery({ sleep, dailySleep, readiness });
 		await writeJson(store, RECOVERY_KEY, nights);

@@ -19,6 +19,7 @@ const store = {
 vi.mock("@netlify/blobs", () => ({ getStore: () => store }));
 
 import { SHAPE_VERSION } from "../_shared/training/shape.js";
+import { addDays } from "../_shared/training/dates.js";
 
 // A day per activity walking back from the most recent, so "newest first" is
 // unambiguous in the assertions below.
@@ -260,5 +261,104 @@ describe("trainingSync", () => {
 		expect(res.status).toBe(502);
 		expect(body.error).toBe("strava_failed");
 		expect(index()).toEqual(before);
+	});
+
+	describe("the Oura window", () => {
+		// Oura's date range excludes its end. Asking through today therefore
+		// returns every night except last night, and the failure is quiet:
+		// the panel fills in, the chart draws, and the most recent night on
+		// record is silently the one before. This is the boundary that got it
+		// wrong in production, so it's asserted rather than commented.
+		// The sync anchors its days to the athlete's timezone, not UTC, and
+		// for a few hours each evening those are different dates — which is
+		// exactly the window this bug lived in, so the test has to agree with
+		// the code about what "today" is rather than assume UTC.
+		const today = () =>
+			new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" });
+		const tomorrow = () => addDays(today(), 1);
+
+		function mockOura({ nights = [] } = {}) {
+			const asked = [];
+			globalThis.fetch = vi.fn(async (url, init) => {
+				const target = String(url);
+				if (target.includes("cloud.ouraring.com") || target.includes("/oauth/token")) {
+					// Oura's token endpoint posts a form; Strava's doesn't.
+					if (init?.body instanceof URLSearchParams) {
+						return new Response(
+							JSON.stringify({
+								access_token: "oura",
+								refresh_token: "next",
+								expires_in: 86400,
+							}),
+							{ status: 200 },
+						);
+					}
+					return new Response(
+						JSON.stringify({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 }),
+						{ status: 200 },
+					);
+				}
+				if (target.includes("/v2/usercollection/")) {
+					asked.push(new URL(target));
+					const data = target.includes("/sleep") && !target.includes("daily_sleep")
+						? nights
+						: [];
+					return new Response(JSON.stringify({ data, next_token: null }), { status: 200 });
+				}
+				if (target.includes("/athlete/activities")) {
+					return new Response(JSON.stringify([]), { status: 200 });
+				}
+				if (target.includes("/athlete/zones")) {
+					return new Response(JSON.stringify({ heart_rate: { zones: [] } }), { status: 200 });
+				}
+				throw new Error(`unexpected fetch ${target}`);
+			});
+			return asked;
+		}
+
+		beforeEach(() => {
+			process.env.OURA_CLIENT_ID = "id";
+			process.env.OURA_CLIENT_SECRET = "secret";
+			process.env.OURA_REFRESH_TOKEN = "refresh";
+		});
+
+		it("asks for a day past today, because the end is exclusive", async () => {
+			const asked = mockOura();
+			await sync();
+
+			expect(asked.length).toBeGreaterThan(0);
+			for (const url of asked) {
+				expect(url.searchParams.get("end_date")).toBe(tomorrow());
+			}
+		});
+
+		it("stores last night rather than dropping it at the boundary", async () => {
+			const asked = mockOura({
+				nights: [
+					{
+						day: today(),
+						type: "long_sleep",
+						"total_sleep_duration": 20880,
+						"lowest_heart_rate": 46,
+						"average_hrv": 82,
+					},
+				],
+			});
+			await sync();
+
+			expect(asked.length).toBeGreaterThan(0);
+			expect(blobs.get("recovery.json")).toEqual([
+				expect.objectContaining({ day: today(), sleepSec: 20880 }),
+			]);
+		});
+
+		it("reports the ring being unconfigured as normal rather than broken", async () => {
+			delete process.env.OURA_CLIENT_ID;
+			mockOura();
+			const { res, body } = await sync();
+
+			expect(res.status).toBe(200);
+			expect(body.recovery).toEqual({ configured: false });
+		});
 	});
 });
