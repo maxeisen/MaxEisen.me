@@ -140,6 +140,32 @@ describe("shapeActivity", () => {
 		expect(shaped.zoneSeconds.reduce((a, b) => a + b, 0)).toBe(180);
 	});
 
+	it("keeps a pace and heart-rate trace while the streams are in hand", () => {
+		// The only chance to build it: streams aren't stored, so a record
+		// shaped without one can never grow a trace without a re-fetch.
+		const seconds = 3000;
+		const streams = {
+			time: Array.from({ length: seconds }, (_, i) => i),
+			distance: Array.from({ length: seconds }, (_, i) => i * (10000 / seconds)),
+			heartrate: Array.from({ length: seconds }, () => 150),
+			grade_smooth: Array.from({ length: seconds }, () => 4),
+		};
+		const shaped = shapeActivity(rawRun(), { thresholds: THRESHOLDS, streams });
+
+		expect(shaped.trace.m.length).toBeGreaterThan(shaped.splits.length);
+		expect(shaped.trace.pace.every((p) => Math.abs(p - 300) < 5)).toBe(true);
+
+		// Pace and heart rate only. A grade per slice, in distance order, is an
+		// elevation profile, and this payload is published — see trace.js.
+		expect(Object.keys(shaped.trace).sort()).toEqual(["hr", "m", "pace"]);
+	});
+
+	it("gives a ride no trace, for the same reason it gets no splits", () => {
+		const streams = { time: [0, 60], distance: [0, 400], heartrate: [130, 132] };
+		const shaped = shapeActivity(rawRide(), { thresholds: THRESHOLDS, streams });
+		expect(shaped.trace).toBeNull();
+	});
+
 	it("scores load by heart rate when present", () => {
 		const shaped = shapeActivity(rawRun(), { thresholds: THRESHOLDS });
 		expect(shaped.loadMethod).toBe("hr");

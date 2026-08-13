@@ -29,7 +29,7 @@
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { areaPath, linePath, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
-    import { daysAgo, formatDistance, formatDuration, pace, pct, signed } from "../lib/format.js";
+    import { daysAgo, formatDistance, pace, pct, signed, timeTaken } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag as tagFor } from "../lib/runTags.js";
 
@@ -47,16 +47,48 @@
 
     const stravaTag = $derived(tagFor(run));
 
+    const beatsShown = $derived.by(() => {
+        if (!(run?.averageHr > 0)) return "—";
+        const avg = Math.round(run.averageHr);
+        return run.maxHr > 0 ? `${avg}/${Math.round(run.maxHr)}` : String(avg);
+    });
+
     const splits = $derived((run?.splits || []).filter((s) => s.paceSecPerKm > 0));
 
+    // Where along the run each reading was taken, and what it read.
+    //
+    // The stored trace when there is one — a hundred and twenty slices, fine
+    // enough that an interval session looks like one. Splits when there isn't,
+    // which is a manual entry or a run whose streams didn't come back: a
+    // kilometre at a time, plotted at each kilometre's midpoint, because that
+    // is the distance its average actually describes.
+    const traced = $derived(Array.isArray(run?.trace?.m) && run.trace.m.length > 1);
+    const samples = $derived.by(() => {
+        if (traced) {
+            const { m, pace: paces, hr } = run.trace;
+            return m.map((metres, i) => ({
+                m: metres,
+                paceSecPerKm: paces[i] > 0 ? paces[i] : null,
+                hr: hr[i] > 0 ? hr[i] : null,
+            }));
+        }
+        return splits.map((s) => ({
+            m: (s.km - 0.5) * 1000,
+            paceSecPerKm: s.paceSecPerKm,
+            hr: s.averageHr > 0 ? s.averageHr : null,
+        }));
+    });
+
+    const span = $derived(Math.max(run?.distanceM || 0, samples.at(-1)?.m || 0));
+    const atX = $derived((metres) => (span > 0 ? (metres / span) * WIDTH : 0));
+
+    // Gridlines a runner reads without converting: quarters of a minute up to
+    // a minute, then whole and half minutes.
+    const PACE_STEPS = [15, 30, 60, 120, 300];
+
+    const paces = $derived(samples.map((s) => s.paceSecPerKm).filter((p) => p > 0));
     const scale = $derived(
-        niceScale(
-            [
-                Math.min(...splits.map((s) => s.paceSecPerKm)) - 8,
-                Math.max(...splits.map((s) => s.paceSecPerKm)) + 8,
-            ],
-            4,
-        ),
+        niceScale([Math.min(...paces) - 8, Math.max(...paces) + 8], 4, { steps: PACE_STEPS }),
     );
 
     // Pace runs the other way to every other axis on the page: the smallest
@@ -70,11 +102,34 @@
         })),
     );
 
-    const step = $derived(splits.length > 1 ? WIDTH / (splits.length - 1) : 0);
-    const pacePoints = $derived(splits.map((s, i) => ({ x: i * step, y: y(s.paceSecPerKm) })));
+    // Contiguous stretches of measured points. A slice the watch couldn't pace
+    // — standing at a crossing, a moment of lost signal — leaves a hole in the
+    // line, rather than a straight segment drawn across it that would read as
+    // running the whole way.
+    function stretches(points) {
+        const out = [];
+        let current = [];
+        for (const point of points) {
+            if (point) current.push(point);
+            else if (current.length > 1) { out.push(current); current = []; }
+            else current = [];
+        }
+        if (current.length > 1) out.push(current);
+        return out;
+    }
+
+    const paceLines = $derived(
+        stretches(samples.map((s) => (s.paceSecPerKm > 0 ? { x: atX(s.m), y: y(s.paceSecPerKm) } : null))),
+    );
+
+    // The grade-adjusted line is a kilometre-resolution measure, so it's drawn
+    // only on the kilometre-resolution chart. Over a trace it would invite
+    // comparing a slice against the whole kilometre containing it, which is
+    // the one comparison it can't support — and the run's grade adjustment is
+    // in the facts below either way.
     const gapPoints = $derived(
-        splits.every((s) => s.gapPaceSecPerKm > 0)
-            ? splits.map((s, i) => ({ x: i * step, y: y(s.gapPaceSecPerKm) }))
+        !traced && splits.length > 1 && splits.every((s) => s.gapPaceSecPerKm > 0)
+            ? splits.map((s) => ({ x: atX((s.km - 0.5) * 1000), y: y(s.gapPaceSecPerKm) }))
             : [],
     );
     const showGap = $derived(
@@ -84,7 +139,7 @@
 
     const averageY = $derived(run?.paceSecPerKm > 0 ? y(run.paceSecPerKm) : null);
 
-    // Heart rate over the same kilometres, on its own scale down the right.
+    // Heart rate along the same distance, on its own scale down the right.
     //
     // Two units on one plot is a thing to do carefully, and there are two
     // reasons it earns its place here. The chart already reads faster-is-higher,
@@ -92,24 +147,23 @@
     // expects. And the divergence is the interesting part: pace flat while the
     // line beneath it climbs is drift, which the panel already reports as a
     // single number under "Drift" — this is where it happened.
-    //
-    // All or nothing rather than skipping gaps. A line that vanishes for two
-    // kilometres invites reading the join as a measurement.
-    const hasHr = $derived(splits.length > 1 && splits.every((s) => s.averageHr > 0));
+    const beats = $derived(samples.map((s) => s.hr).filter((b) => b > 0));
+    const hasHr = $derived(beats.length > 1);
 
     const hrScale = $derived.by(() => {
         if (!hasHr) return null;
-        const beats = splits.map((s) => s.averageHr);
-        // Four, not three. Three asks for a step so coarse it rounds a run
-        // that lived between 130 and 175 out to an axis of 100 to 200, and
+        // Four ticks, not three. Three asks for a step so coarse it rounds a
+        // run that lived between 130 and 175 out to an axis of 100 to 200, and
         // half the plot's height goes to heart rates nobody had.
         return niceScale([Math.min(...beats) - 4, Math.max(...beats) + 4], 4);
     });
 
     // Not flipped, unlike pace: more beats is more effort, and up is more.
     const hrY = $derived(hrScale ? scaleLinear([hrScale.min, hrScale.max], [HEIGHT, 0]) : null);
-    const hrPoints = $derived(
-        hrScale ? splits.map((s, i) => ({ x: i * step, y: hrY(s.averageHr) })) : [],
+    const hrLines = $derived(
+        hrScale
+            ? stretches(samples.map((s) => (s.hr > 0 ? { x: atX(s.m), y: hrY(s.hr) } : null)))
+            : [],
     );
     const hrTicks = $derived(
         hrScale
@@ -121,66 +175,67 @@
             : [],
     );
 
-    // A number under every kilometre is unreadable on a phone, so thin them to
-    // about half a dozen: both ends, then an even step in between, dropping
-    // any that would crowd the last one.
-    const tickStep = $derived(Math.max(1, Math.ceil(splits.length / 6)));
-    const xTicks = $derived(
-        splits
-            .map((s, i) => ({ s, i }))
-            .filter(({ i }) => {
-                const last = splits.length - 1;
-                if (i === 0 || i === last) return true;
-                return i % tickStep === 0 && last - i >= tickStep;
-            })
-            .map(({ s, i }) => ({
-                key: s.km,
-                label: `${s.km}`,
-                pct: (i / Math.max(1, splits.length - 1)) * 100,
-                anchor: i === 0 ? "start" : i === splits.length - 1 ? "end" : "middle",
-            })),
-    );
+    // Kilometre marks, thinned to about half a dozen: a label per kilometre is
+    // unreadable on a phone by about 8km.
+    const tickStepKm = $derived(Math.max(1, Math.ceil(span / 1000 / 6)));
+    const xTicks = $derived.by(() => {
+        const out = [];
+        for (let km = 0; km * 1000 <= span; km += tickStepKm) {
+            out.push({
+                key: km,
+                label: String(km),
+                pct: span > 0 ? ((km * 1000) / span) * 100 : 0,
+                anchor: km === 0 ? "start" : "middle",
+            });
+        }
+        return out;
+    });
 
-    // A kilometre at a time. The dots carried a title attribute, which put the
-    // pace behind a hover delay and a browser tooltip; this is the same three
-    // numbers you'd actually compare across a run — what it cost in pace, what
-    // the hills made of it, and what your heart was doing for it.
+    // What the run was doing at a given point along it. The dots used to carry
+    // a title attribute, which put the pace behind a hover delay and a browser
+    // tooltip; this is the pair you'd actually compare — what it cost in pace,
+    // and what your heart was doing for it.
     const scrub = $derived(
-        splits.map((split, i) => ({
-            key: split.km,
-            pct: xPct(pacePoints[i].x, WIDTH),
-            label: `Kilometre ${split.km}`,
-            readouts: [
-                {
-                    label: "Pace",
-                    value: pace(split.paceSecPerKm),
-                    colour: "var(--main-green)",
-                    yPct: yPct(pacePoints[i].y, HEIGHT),
-                },
-                ...(showGap && split.gapPaceSecPerKm > 0
-                    ? [
-                            {
-                                label: "Grade adjusted",
-                                value: pace(split.gapPaceSecPerKm),
-                                colour: "var(--paragraph-colour)",
-                                yPct: yPct(gapPoints[i].y, HEIGHT),
-                            },
-                        ]
-                    : []),
-                ...(split.averageHr > 0
-                    ? [
-                            {
-                                label: "Heart rate",
-                                value: `${Math.round(split.averageHr)} bpm`,
-                                colour: "var(--tone-bad)",
-                                // Only where it's drawn; on a run without a
-                                // full set of splits it's a number, not a point.
-                                yPct: hasHr ? yPct(hrPoints[i].y, HEIGHT) : undefined,
-                            },
-                        ]
-                    : []),
-            ],
-        })),
+        samples
+            .map((sample, i) => ({ sample, i }))
+            .filter(({ sample }) => sample.paceSecPerKm > 0 || sample.hr > 0)
+            .map(({ sample, i }) => ({
+                key: sample.m,
+                pct: xPct(atX(sample.m), WIDTH),
+                label: traced ? `${(sample.m / 1000).toFixed(2)} km` : `Kilometre ${splits[i].km}`,
+                readouts: [
+                    ...(sample.paceSecPerKm > 0
+                        ? [
+                                {
+                                    label: "Pace",
+                                    value: pace(sample.paceSecPerKm),
+                                    colour: "var(--main-green)",
+                                    yPct: yPct(y(sample.paceSecPerKm), HEIGHT),
+                                },
+                            ]
+                        : []),
+                    ...(showGap && splits[i]?.gapPaceSecPerKm > 0
+                        ? [
+                                {
+                                    label: "Grade adjusted",
+                                    value: pace(splits[i].gapPaceSecPerKm),
+                                    colour: "var(--paragraph-colour)",
+                                    yPct: yPct(y(splits[i].gapPaceSecPerKm), HEIGHT),
+                                },
+                            ]
+                        : []),
+                    ...(sample.hr > 0
+                        ? [
+                                {
+                                    label: "Heart rate",
+                                    value: `${Math.round(sample.hr)} bpm`,
+                                    colour: "var(--tone-bad)",
+                                    yPct: hrY ? yPct(hrY(sample.hr), HEIGHT) : undefined,
+                                },
+                            ]
+                        : []),
+                ],
+            })),
     );
 
     const form = $derived(run?.impact?.form || null);
@@ -327,20 +382,25 @@
                 <span>distance</span>
             </div>
             <div class="stat">
-                <strong>{formatDuration(run.movingTimeSec)}</strong>
+                <strong>{timeTaken(run.movingTimeSec)}</strong>
                 <span>moving</span>
             </div>
             <div class="stat">
                 <strong>{pace(run.paceSecPerKm)}</strong>
                 <span>average pace</span>
             </div>
+            <!-- "159 / bpm · 189 max" left the headline number unlabelled
+                 beside three that say what they are, so the one figure on this
+                 row that has a matching maximum was the one you had to infer
+                 was a mean. The pair now reads off the caption in the order
+                 it's written, and the caption fits on one line. -->
             <div class="stat">
-                <strong>{run.averageHr ? `${Math.round(run.averageHr)}` : "—"}</strong>
-                <span>{run.maxHr ? `bpm · ${Math.round(run.maxHr)} max` : "bpm average"}</span>
+                <strong>{beatsShown}</strong>
+                <span>{run.maxHr && run.averageHr ? "average/max hr" : "average hr"}</span>
             </div>
         </div>
 
-        {#if splits.length > 1}
+        {#if paceLines.length || hrLines.length}
             <div class="chart">
                 <ChartFrame
                     height={HEIGHT}
@@ -348,7 +408,7 @@
                     {xTicks}
                     {scrub}
                     rightTicks={hrTicks}
-                    label="Pace{hasHr ? ' and heart rate' : ''} for each kilometre of the run"
+                    label="Pace{hasHr ? ' and heart rate' : ''} across the run"
                 >
                     <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                         <!-- Filled and underneath, so that where it crosses the
@@ -356,20 +416,27 @@
                              rather than as the two being equal — which, on two
                              different scales, is a coincidence of axis choice
                              and means nothing at all. -->
-                        {#if hasHr}
-                            <path class="hr-fill" d={areaPath(hrPoints, HEIGHT, { smooth: true })} />
-                            <path class="hr" d={smoothPath(hrPoints)} />
-                        {/if}
+                        {#each hrLines as line, i (i)}
+                            <path class="hr-fill" d={areaPath(line, HEIGHT, { smooth: true })} />
+                            <path class="hr" d={smoothPath(line)} />
+                        {/each}
                         {#if averageY !== null}
                             <line class="average" x1="0" x2={WIDTH} y1={averageY} y2={averageY} />
                         {/if}
                         {#if showGap}
                             <path class="gap" d={linePath(gapPoints)} />
                         {/if}
-                        <path class="line" d={linePath(pacePoints)} />
-                        {#each pacePoints as point (point.x)}
-                            <circle class="dot" cx={point.x} cy={point.y} r="4" />
+                        {#each paceLines as line, i (i)}
+                            <path class="line" d={smoothPath(line)} />
                         {/each}
+                        <!-- Only where a point is a measurement in its own
+                             right. On a trace they'd be a hundred and twenty
+                             beads on a string. -->
+                        {#if !traced}
+                            {#each paceLines.flat() as point (point.x)}
+                                <circle class="dot" cx={point.x} cy={point.y} r="4" />
+                            {/each}
+                        {/if}
                     </svg>
                 </ChartFrame>
                 <p class="legend">
@@ -505,16 +572,20 @@
         opacity: 0.55;
         vector-effect: non-scaling-stroke;
     }
+    /* Deliberately the quieter of the two. The pair cross each other many
+       times over an interval session, and two lines of equal weight crossing
+       repeatedly is a thicket; heart rate reads as the band underneath and
+       pace as the line on top of it. */
     .hr {
         fill: none;
         stroke: var(--tone-bad);
-        stroke-width: 1.5;
-        opacity: 0.65;
+        stroke-width: 1.25;
+        opacity: 0.5;
         vector-effect: non-scaling-stroke;
     }
     .hr-fill {
         fill: var(--tone-bad);
-        opacity: 0.1;
+        opacity: 0.12;
     }
     .average {
         stroke: var(--header-colour);

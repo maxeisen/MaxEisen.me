@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { weekRange, pace, clock, km, pct, shortDate, daysAgo, signed, speed, readout, splitLead } from "./format.js";
+import { weekRange, pace, clock, km, pct, shortDate, daysAgo, signed, speed, readout, splitLead, timeTaken } from "./format.js";
 
 describe("readout", () => {
 	it("binds symbols to both numbers and says words once", () => {
@@ -151,6 +151,18 @@ describe("training formatters", () => {
 	it("prints a race time with hours only when there are any", () => {
 		expect(clock(13200)).toBe("3:40:00");
 		expect(clock(1800)).toBe("30:00");
+	});
+
+	it("spells a headline duration so it can't be read as metres", () => {
+		// "48m" beside "9.30 km" is forty-eight metres at a glance.
+		expect(timeTaken(2880)).toBe("48min");
+		expect(timeTaken(4500)).toBe("1h15m");
+		// The "h" already says these are times, so the "m" is safe again.
+		expect(timeTaken(13_200)).toBe("3h40m");
+		expect(timeTaken(3900)).toBe("1h05m");
+		// And the rounding rolls the hour instead of reaching sixty minutes.
+		expect(timeTaken(3599)).toBe("1h00m");
+		expect(timeTaken(null)).toBe("—");
 	});
 
 	it("drops noise decimals on big distances", () => {

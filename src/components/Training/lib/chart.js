@@ -288,16 +288,28 @@ function niceNum(range, round) {
  *
  * @param {[number, number]} extent data min and max.
  * @param {number} [count] rough number of intervals wanted.
+ * @param {object} [options]
+ * @param {number[]} [options.steps] ascending step sizes to choose from,
+ *   instead of the decimal 1/2/5 ladder. Round numbers are base ten only
+ *   because we count in it: an axis in seconds wants halves and quarters of a
+ *   minute, and left to itself this lands on a 100-second step, which puts
+ *   gridlines at 1:40 and 3:20 and rounds a run's range out to nearly twice
+ *   its size to reach them.
  * @returns {{min: number, max: number, step: number, ticks: number[]}}
  */
-export function niceScale([min, max], count = 4) {
+export function niceScale([min, max], count = 4, { steps = null } = {}) {
 	let lo = Number.isFinite(min) ? min : 0;
 	let hi = Number.isFinite(max) ? max : 1;
 	if (hi < lo) [lo, hi] = [hi, lo];
 	// A flat series still needs an axis with two ends to it.
 	if (hi === lo) hi = lo === 0 ? 1 : lo + Math.abs(lo) * 0.1;
 
-	const step = niceNum(niceNum(hi - lo, false) / Math.max(1, count), true);
+	// The smallest offered step that doesn't overrun the axis with labels,
+	// since a tighter step is also a tighter fit around the data.
+	const spans = (s) => Math.round((Math.ceil(hi / s) * s - Math.floor(lo / s) * s) / s);
+	const step = steps
+		? (steps.find((s) => s > 0 && spans(s) <= count + 2) ?? steps.at(-1))
+		: niceNum(niceNum(hi - lo, false) / Math.max(1, count), true);
 	const niceMin = Math.floor(lo / step) * step;
 	const niceMax = Math.ceil(hi / step) * step;
 

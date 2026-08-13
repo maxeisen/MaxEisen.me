@@ -33,12 +33,23 @@ const NAMES = [
 	"Recovery Shakeout",
 ];
 
-// A minute-by-minute recording of one run, which is what the sync derives time
-// in zones and aerobic drift from (see shape.js). Without one, those are null
-// and the last-run panel renders its "no heart rate" path — real for a manual
-// entry, but not what the page normally shows.
+// A second-by-second recording of one run, which is what the sync derives time
+// in zones, aerobic drift and the pace/heart-rate trace from (see shape.js).
+// Without one, those are null and the last-run panel renders its "no heart
+// rate" path — real for a manual entry, but not what the page normally shows.
+//
+// Every ten seconds rather than every minute: the trace resamples in slices of
+// a hundred and fifty metres, and a sample a minute apart is a sample every
+// quarter kilometre, which would leave most of those slices unmeasured and the
+// chart a dotted line through a run that never paused.
+// It draws from a generator of its own, seeded from the shared one. Drawing
+// directly would tie the sequence every other activity is built from to how
+// many samples this run happens to take, so changing the sample rate would
+// silently rewrite the whole block — different distances, a different last
+// run, and a handful of unrelated assertions to re-baseline.
 function streamsFor({ distance, movingTime, averageHr, next }) {
-	const steps = Math.max(20, Math.round(movingTime / 60));
+	const noise = sequence(Math.floor(next() * 2147483648));
+	const steps = Math.max(20, Math.round(movingTime / 10));
 	const time = [];
 	const distanceStream = [];
 	const heartrate = [];
@@ -49,8 +60,8 @@ function streamsFor({ distance, movingTime, averageHr, next }) {
 		distanceStream.push((distance / steps) * i);
 		// Drifting up through the run, the way heart rate does at a fixed
 		// effort, plus enough noise to land either side of a zone floor.
-		heartrate.push(averageHr - 6 + (12 * i) / steps + (next() - 0.5) * 6);
-		grade.push((next() - 0.5) * 3);
+		heartrate.push(averageHr - 6 + (12 * i) / steps + (noise() - 0.5) * 6);
+		grade.push((noise() - 0.5) * 3);
 	}
 	return { time, distance: distanceStream, heartrate, "grade_smooth": grade };
 }

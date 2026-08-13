@@ -39,6 +39,26 @@ export function speed(distanceM, movingTimeSec) {
 }
 
 /**
+ * How long something took, spelled so it can't be read as a distance.
+ *
+ * formatDuration's "48m" is fine in a sentence and fine beside an "h", but a
+ * headline stat sits next to "9.30 km" in a row of large numbers, and there
+ * "48m" is forty-eight metres to anyone reading quickly. Under the hour it
+ * says "min"; over it, the "h" does that work already and "1h15m" reads as one
+ * time rather than two units.
+ *
+ * @param {number} sec
+ * @returns {string}
+ */
+export function timeTaken(sec) {
+	if (!(sec > 0)) return "—";
+	// Minutes first, so 59m30s rolls the hour instead of printing "60min".
+	const total = Math.round(sec / 60);
+	const h = Math.floor(total / 60);
+	return h > 0 ? `${h}h${pad(total % 60)}m` : `${total}min`;
+}
+
+/**
  * A race time as h:mm:ss.
  *
  * @param {number} sec
