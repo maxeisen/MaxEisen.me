@@ -63,6 +63,78 @@ export function linePath(points) {
 		.join(" ");
 }
 
+const coord = (n) => n.toFixed(2);
+
+/**
+ * A smooth path through points, by monotone cubic interpolation.
+ *
+ * The straight segments between daily samples are already an interpolation —
+ * nothing was measured between Tuesday and Wednesday — so a curve is no less
+ * truthful than a polyline, and considerably easier to read on a series that
+ * genuinely sawtooths. Fatigue is a 7-day average of an athlete who runs every
+ * second day, so it swings ~40% around its own mean by construction, and drawn
+ * with hard corners that arithmetic reads as instrument noise.
+ *
+ * Monotone rather than a plain spline, and that distinction is the whole point.
+ * Catmull-Rom or a naive Bézier overshoots at a reversal: it invents a peak
+ * higher than any day recorded, which on a chart of someone's training is a
+ * fitness they never had. Fritsch-Carlson flattens the tangent at every local
+ * extreme, so the curve is guaranteed to stay within the values it connects.
+ *
+ * @param {{x: number, y: number}[]} points already in pixel space, ascending
+ *   in x.
+ * @returns {string}
+ */
+export function smoothPath(points) {
+	const list = points || [];
+	// Two points are a straight line; there's no interior tangent to fit.
+	if (list.length < 3) return linePath(list);
+
+	const n = list.length;
+
+	const secants = [];
+	for (let i = 0; i < n - 1; i++) {
+		const dx = list[i + 1].x - list[i].x;
+		secants.push(dx === 0 ? 0 : (list[i + 1].y - list[i].y) / dx);
+	}
+
+	// Zero at a turning point — where the neighbouring secants disagree in
+	// sign — and the average of them elsewhere.
+	const tangents = new Array(n);
+	tangents[0] = secants[0];
+	tangents[n - 1] = secants[n - 2];
+	for (let i = 1; i < n - 1; i++) {
+		tangents[i] = secants[i - 1] * secants[i] <= 0 ? 0 : (secants[i - 1] + secants[i]) / 2;
+	}
+
+	// Fritsch-Carlson: pull any tangent pair back inside a circle of radius 3,
+	// which is the condition for the segment to stay monotone.
+	for (let i = 0; i < n - 1; i++) {
+		if (secants[i] === 0) {
+			tangents[i] = 0;
+			tangents[i + 1] = 0;
+			continue;
+		}
+		const a = tangents[i] / secants[i];
+		const b = tangents[i + 1] / secants[i];
+		const radius = a * a + b * b;
+		if (radius > 9) {
+			const scale = 3 / Math.sqrt(radius);
+			tangents[i] = scale * a * secants[i];
+			tangents[i + 1] = scale * b * secants[i];
+		}
+	}
+
+	let d = `M${coord(list[0].x)} ${coord(list[0].y)}`;
+	for (let i = 0; i < n - 1; i++) {
+		const third = (list[i + 1].x - list[i].x) / 3;
+		const c1 = { x: list[i].x + third, y: list[i].y + tangents[i] * third };
+		const c2 = { x: list[i + 1].x - third, y: list[i + 1].y - tangents[i + 1] * third };
+		d += ` C${coord(c1.x)} ${coord(c1.y)} ${coord(c2.x)} ${coord(c2.y)} ${coord(list[i + 1].x)} ${coord(list[i + 1].y)}`;
+	}
+	return d;
+}
+
 /**
  * A closed area path from a line down to a baseline.
  *
@@ -70,11 +142,12 @@ export function linePath(points) {
  * @param {number} baselineY
  * @returns {string}
  */
-export function areaPath(points, baselineY) {
+export function areaPath(points, baselineY, { smooth = false } = {}) {
 	if (!points || points.length === 0) return "";
 	const first = points[0];
 	const last = points[points.length - 1];
-	return `${linePath(points)} L${last.x.toFixed(2)} ${baselineY.toFixed(2)} L${first.x.toFixed(2)} ${baselineY.toFixed(2)} Z`;
+	const edge = smooth ? smoothPath(points) : linePath(points);
+	return `${edge} L${coord(last.x)} ${coord(baselineY)} L${coord(first.x)} ${coord(baselineY)} Z`;
 }
 
 /**

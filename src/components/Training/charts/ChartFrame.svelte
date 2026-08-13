@@ -303,7 +303,9 @@
 		background: var(--dot);
 		/* Ringed in the card's own background so a dot stays legible where it
 		   sits on top of the line it belongs to. */
-		box-shadow: 0 0 0 2px var(--card-background, var(--inner-background));
+		/* Ringed in an opaque surface so a dot stays legible where it sits on
+		   top of the line it belongs to. */
+		box-shadow: 0 0 0 2px var(--background-one);
 		pointer-events: none;
 	}
 
@@ -314,7 +316,13 @@
 		min-width: max-content;
 		padding: var(--space-2) var(--space-3);
 		border-radius: var(--radius-sm);
-		background: var(--inner-background);
+		/* The card surface tint composited over an opaque base, rather than
+		   used alone: --inner-background is 28% alpha on the dark theme, which
+		   is fine for a panel sitting on the page background and unreadable
+		   for a label sitting on top of the chart it's describing. */
+		background:
+			linear-gradient(var(--inner-background), var(--inner-background)),
+			var(--background-one);
 		border: 1px solid var(--main-green-translucent);
 		box-shadow: var(--box-shadow, 0 4px 16px rgb(0 0 0 / 18%));
 		pointer-events: none;

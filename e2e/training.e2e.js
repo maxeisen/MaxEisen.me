@@ -203,6 +203,25 @@ test("scrubbing a chart reads out the values under the cursor", async ({ page })
 	await expect(card.locator(".tip")).toHaveCount(0);
 });
 
+test("the last run scrubs a kilometre at a time", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
+	const plot = card.locator(".plot");
+
+	await plot.scrollIntoViewIfNeeded();
+	const box = await plot.boundingBox();
+	await page.mouse.move(box.x + box.width * 0.5, box.y + box.height / 2);
+
+	const tip = card.locator(".tip");
+	await expect(tip).toBeVisible();
+	// The split, not the run: a kilometre's own pace and what the heart was
+	// doing for it, which is the question the whole panel is a preamble to.
+	await expect(tip.locator(".tip-label")).toHaveText(/Kilometre \d+/);
+	await expect(tip.getByText("Pace", { exact: true })).toBeVisible();
+	await expect(tip).toContainText(/\d+:\d\d\/km/);
+	await expect(tip).toContainText(/\d+ bpm/);
+});
+
 test("the chart cursor can be driven from the keyboard", async ({ page }) => {
 	await page.goto("/training");
 	const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();

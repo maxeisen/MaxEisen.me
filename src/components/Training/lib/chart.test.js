@@ -10,8 +10,67 @@ import {
 	niceScale,
 	axisTicks,
 	withinWindow,
+	smoothPath,
 	CHART_DAYS,
 } from "./chart.js";
+
+describe("smoothPath", () => {
+	// Every "C x1 y1 x2 y2 x y" triple, as numbers.
+	function curves(d) {
+		return [...d.matchAll(/C([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)/g)].map(
+			(m) => ({
+				c1: { x: Number(m[1]), y: Number(m[2]) },
+				c2: { x: Number(m[3]), y: Number(m[4]) },
+				end: { x: Number(m[5]), y: Number(m[6]) },
+			}),
+		);
+	}
+
+	it("is a straight line when there's no interior tangent to fit", () => {
+		expect(smoothPath([{ x: 0, y: 0 }, { x: 10, y: 5 }])).toBe(linePath([{ x: 0, y: 0 }, { x: 10, y: 5 }]));
+		expect(smoothPath([])).toBe("");
+	});
+
+	it("passes through every measured point", () => {
+		// A curve that misses its own data would be a drawing of numbers
+		// nobody recorded.
+		const points = [
+			{ x: 0, y: 10 }, { x: 10, y: 40 }, { x: 20, y: 15 }, { x: 30, y: 35 }, { x: 40, y: 20 },
+		];
+		const path = smoothPath(points);
+		expect(path.startsWith("M0.00 10.00")).toBe(true);
+		const ends = curves(path).map((c) => c.end);
+		expect(ends).toEqual(points.slice(1).map((p) => ({ x: p.x, y: p.y })));
+	});
+
+	it("never overshoots the values it connects", () => {
+		// The reason for monotone interpolation rather than a plain spline:
+		// on a sawtooth, a naive curve bulges past every peak and draws a
+		// fitness that was never trained for.
+		const zigzag = Array.from({ length: 24 }, (_, i) => ({
+			x: i * 10,
+			y: i % 2 === 0 ? 20 : 60,
+		}));
+		const path = smoothPath(zigzag);
+
+		for (const [i, curve] of curves(path).entries()) {
+			const low = Math.min(zigzag[i].y, zigzag[i + 1].y);
+			const high = Math.max(zigzag[i].y, zigzag[i + 1].y);
+			for (const control of [curve.c1, curve.c2]) {
+				expect(control.y).toBeGreaterThanOrEqual(low);
+				expect(control.y).toBeLessThanOrEqual(high);
+			}
+		}
+	});
+
+	it("keeps a monotone run monotone", () => {
+		const climbing = Array.from({ length: 10 }, (_, i) => ({ x: i * 10, y: i * i }));
+		for (const [i, curve] of curves(smoothPath(climbing)).entries()) {
+			expect(curve.c1.y).toBeGreaterThanOrEqual(climbing[i].y);
+			expect(curve.c2.y).toBeLessThanOrEqual(climbing[i + 1].y);
+		}
+	});
+});
 
 describe("scaleLinear", () => {
 	it("maps the domain onto the range", () => {

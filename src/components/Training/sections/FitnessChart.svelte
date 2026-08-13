@@ -13,7 +13,7 @@
 <script>
     import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { areaPath, axisTicks, CHART_WEEKS, linePath, niceScale, seriesPoints, withinWindow, xPct, yPct } from "../lib/chart.js";
+    import { areaPath, axisTicks, CHART_WEEKS, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -113,10 +113,11 @@
     {:else}
         <ChartFrame height={210} {yTicks} {xTicks} {scrub} label="Fitness, fatigue and form over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
-                <path class="area" d={areaPath(ctlPoints, zeroY)} />
-                <path class="line form" d={linePath(tsbPoints)} />
-                <path class="line fatigue" d={linePath(atlPoints)} />
-                <path class="line fitness" d={linePath(ctlPoints)} />
+                <path class="fatigue-fill" d={areaPath(atlPoints, zeroY, { smooth: true })} />
+                <path class="fitness-fill" d={areaPath(ctlPoints, zeroY, { smooth: true })} />
+                <path class="line form" d={smoothPath(tsbPoints)} />
+                <path class="line fatigue" d={smoothPath(atlPoints)} />
+                <path class="line fitness" d={smoothPath(ctlPoints)} />
             </svg>
         </ChartFrame>
         <p class="chart-unit">training load · last {CHART_WEEKS} weeks</p>
@@ -137,9 +138,20 @@
     .key.fitness { color: var(--main-green); opacity: 1; }
     .key.fatigue { color: var(--tone-bad); }
 
-    .area {
+    .fitness-fill {
         fill: var(--main-green);
         opacity: 0.12;
+    }
+    /* Fatigue filled rather than left as a bare line. A 7-day average of an
+       athlete who runs every second day genuinely sawtooths, and there is no
+       honest way to remove that; what can be removed is its loudness. Given a
+       body, the same wobble reads as a range of hills instead of a bright red
+       zigzag, and the sentence this chart exists to show — fatigue standing
+       above fitness means you're in the work — becomes a thing you can see
+       rather than a comparison you have to make. */
+    .fatigue-fill {
+        fill: var(--tone-bad);
+        opacity: 0.14;
     }
     .line {
         fill: none;
@@ -148,11 +160,23 @@
         stroke-linecap: round;
         vector-effect: non-scaling-stroke;
     }
-    .line.fitness { stroke: var(--main-green); }
-    .line.fatigue { stroke: var(--tone-bad); opacity: 0.9; }
+    /* A hierarchy rather than three equal lines. Fitness is the one the chart
+       is about and the only one that moves slowly enough to have a shape, so
+       it's drawn heaviest; fatigue and form both oscillate with every session
+       and, at matching weight, the eye reads the noise instead of the trend. */
+    .line.fitness {
+        stroke: var(--main-green);
+        stroke-width: 2.25;
+    }
+    .line.fatigue {
+        stroke: var(--tone-bad);
+        stroke-width: 1.25;
+        opacity: 0.55;
+    }
     .line.form {
         stroke: var(--paragraph-colour);
-        opacity: 0.45;
+        stroke-width: 1.25;
+        opacity: 0.35;
         stroke-dasharray: 3 3;
     }
 
