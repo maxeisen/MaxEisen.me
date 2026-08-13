@@ -17,6 +17,7 @@
 
 import { gradeFactor } from "./gap.js";
 import { reading } from "./num.js";
+import { isRecordingGap } from "./streams.js";
 
 // Below this there isn't enough signal for the halves to mean anything.
 const MIN_SAMPLES = 20;
@@ -65,7 +66,12 @@ function samplesFromStreams(streams) {
 		const timeSec = time[i] - time[i - 1];
 		const distanceM = distance[i] - distance[i - 1];
 		const beats = reading(hr[i]);
-		if (!(timeSec > 0) || !(distanceM > 0) || !(beats > 0)) continue;
+		// A pause clears the "moved at all" test on a metre of GPS drift and
+		// then arrives here as one sample worth ten minutes — enough to drag
+		// the efficiency of whichever half holds it toward zero, and to move
+		// the halfway line by a sixth of the run.
+		if (!(timeSec > 0) || isRecordingGap(timeSec)) continue;
+		if (!(distanceM > 0) || !(beats > 0)) continue;
 		samples.push({
 			timeSec,
 			distanceM,

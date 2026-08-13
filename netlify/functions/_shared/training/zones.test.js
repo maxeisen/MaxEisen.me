@@ -87,14 +87,47 @@ describe("zoneOfHr", () => {
 describe("zoneSecondsFromStreams", () => {
 	const floors = [0, 117, 136.5, 156, 175.5];
 
+	// A watch recording once a second, which is what one does.
+	function recorded(spells) {
+		const time = [0];
+		const heartrate = [spells[0].hr];
+		for (const { hr, sec } of spells) {
+			for (let i = 0; i < sec; i++) {
+				time.push(time.at(-1) + 1);
+				heartrate.push(hr);
+			}
+		}
+		return { time, heartrate };
+	}
+
 	it("accumulates time per zone from stream deltas", () => {
 		const out = zoneSecondsFromStreams(
-			{ time: [0, 60, 120, 180], heartrate: [100, 100, 150, 180] },
+			recorded([
+				{ hr: 100, sec: 60 },
+				{ hr: 150, sec: 60 },
+				{ hr: 180, sec: 60 },
+			]),
 			floors,
 		);
 		expect(out[0]).toBe(60); // zone 1
 		expect(out[2]).toBe(60); // zone 3
 		expect(out[4]).toBe(60); // zone 5
+	});
+
+	it("doesn't book a paused watch as time in a zone", () => {
+		// A second of hard running, ten minutes standing while the watch wrote
+		// nothing at all, then a second more. The stop arrives as a single
+		// interval, and counting it would file all ten minutes under the low
+		// heart rate recording resumed at — which is how an interval session
+		// with standing rests reported itself as half easy running.
+		const out = zoneSecondsFromStreams(
+			{ time: [0, 1, 601, 602], heartrate: [180, 180, 120, 120] },
+			floors,
+		);
+		expect(out[4]).toBe(1);
+		expect(out[1]).toBe(1);
+		// And the ten minutes are nowhere: not easy, not hard, not anywhere.
+		expect(out.reduce((a, b) => a + b, 0)).toBe(2);
 	});
 
 	it("returns null when there's no heart-rate stream", () => {

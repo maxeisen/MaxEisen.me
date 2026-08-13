@@ -128,12 +128,17 @@ describe("shapeActivity", () => {
 	});
 
 	it("prefers streams for GAP and computes time in zone from them", () => {
-		const streams = {
-			time: [0, 60, 120, 180],
-			distance: [0, 200, 400, 600],
-			heartrate: [140, 140, 160, 180],
-			grade_smooth: [0, 0, 0, 0],
-		};
+		// Recorded once a second, as a watch does. Sampled any coarser and
+		// this is a paused watch rather than a run — see streams.js.
+		const streams = { time: [0], distance: [0], heartrate: [140], grade_smooth: [0] };
+		for (const beats of [140, 160, 180]) {
+			for (let i = 0; i < 60; i++) {
+				streams.time.push(streams.time.at(-1) + 1);
+				streams.distance.push(streams.distance.at(-1) + 10 / 3);
+				streams.heartrate.push(beats);
+				streams.grade_smooth.push(0);
+			}
+		}
 		const shaped = shapeActivity(rawRun(), { thresholds: THRESHOLDS, streams });
 		expect(shaped.gapSource).toBe("streams");
 		expect(shaped.zoneSeconds).toHaveLength(5);

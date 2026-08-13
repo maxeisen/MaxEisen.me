@@ -99,6 +99,22 @@ describe("aerobicDecoupling", () => {
 		expect(uphill.decouplingPct).toBeLessThan(flat.decouplingPct + 5);
 	});
 
+	it("ignores a stop the watch didn't record through", () => {
+		// The same run twice, once with ten minutes of standing dropped into
+		// the middle of it. A pause writes no samples, so it arrives as one
+		// sample covering six hundred seconds at walking-pace-on-GPS-drift —
+		// left in, it drags the efficiency of whichever half holds it toward
+		// zero and shifts the halfway line by a sixth of the run.
+		const clean = steady({ count: 400, speedMps: 3, hr: 150 });
+		const paused = steady({ count: 400, speedMps: 3, hr: 150 });
+		for (let i = 200; i < paused.time.length; i++) paused.time[i] += 600;
+
+		expect(aerobicDecoupling(paused).decouplingPct).toBeCloseTo(
+			aerobicDecoupling(clean).decouplingPct,
+			6,
+		);
+	});
+
 	it("returns null for a run too short to halve", () => {
 		expect(aerobicDecoupling(steady({ count: 5, speedMps: 3, hr: 150 }))).toBeNull();
 	});

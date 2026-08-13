@@ -53,7 +53,10 @@ export const RIDE_MIN_M = 20000;
 // 3: records carry `sport`, and rides over RIDE_MIN_M are tracked.
 // 4: runs carry a resampled pace/heart-rate trace (see trace.js), which only
 //    exists while the streams are in hand.
-export const SHAPE_VERSION = 4;
+// 5: time in zone and decoupling skip the holes a paused watch leaves in the
+//    recording, instead of filing a ten-minute stop under the heart rate it
+//    resumed at (see streams.js).
+export const SHAPE_VERSION = 5;
 
 /**
  * Is this a public run we should track?
