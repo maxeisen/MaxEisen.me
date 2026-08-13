@@ -228,6 +228,42 @@ change. Two consequences:
 - If the sync logs `Oura auth failed`, re-run the script rather than debugging
   the code. That is the designed recovery path.
 
+### Recovery and the fitness model
+
+Sleep and overnight heart rate stay **out** of CTL, ATL and form, permanently.
+Both traces are exponential averages of the same daily load, which is the only
+reason form settles around zero and "+5 is fresh, −20 is buried" means
+anything; feeding a second source into part of that system pushes form
+permanently negative by roughly the daily load of whatever the extra source was
+(this was tried with rides, and reverted — see `_shared/training/fitness.js`).
+
+What the two sources are allowed to do is meet in time, in
+`_shared/training/response.js`, which is read by `metrics.js` and by nothing
+else:
+
+- **The night after a run** (`nightAfterDay`) — sleep, resting heart rate and
+  HRV from the morning after, each against that athlete's own 28-day baseline,
+  attached to the Last run panel. Every other number on that panel is computed
+  from the run itself, so between them they can only repeat what the training
+  log already knew. On the morning of a run there is no night after it yet, so
+  the panel falls back to `nightBeforeDay`: not what the run cost, but what you
+  took into it.
+- **What a hard day costs** (`overnightCost`) — the nights after the hardest
+  third of the block's running days against the nights after everything else,
+  compared on medians, plus how many nights the heart rate takes to come back
+  down. A dose-response curve measured on one athlete rather than assumed.
+- **Form against the markers** (`strainSignal`) — form comes from load alone,
+  so on its own it can only report back what you told it. The overnight numbers
+  are an independent answer to the same question, and the two disagreements are
+  what's worth printing: deep form with markers at baseline is a body absorbing
+  the block, and raised markers with no load behind them are usually illness,
+  travel or short nights. It reaches the Recovery panel and the wording of
+  three recommendation rules; it moves no metric.
+
+The separation is asserted, not just documented: `metrics.test.js` builds the
+same block with and without a ring and requires every training number to be
+identical.
+
 ### Design tokens & theming
 
 `public/styles/global.css` is the single source of truth for design tokens —

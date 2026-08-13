@@ -261,6 +261,83 @@ describe("recommendations", () => {
 		});
 	});
 
+	// Form is computed from the training log alone, so on its own it can only
+	// repeat what you already told it. These read it against a measurement it
+	// has no access to, and the disagreements are the point.
+	describe("form against the body's own markers", () => {
+		const up = { recovery: { restingHr: { recent: 54, baseline: 47, delta: 7 } } };
+
+		it("tells deep form that the body is absorbing it", () => {
+			const rec = find(
+				recommendations({
+					latest: { tsb: -30 },
+					strain: { state: "absorbing", tsb: -30 },
+				}),
+				"tsb-fatigued",
+			);
+			expect(rec.detail).toContain("absorbing");
+			// Still a warning: the markers are context, not permission.
+			expect(rec.severity).toBe("warning");
+		});
+
+		it("tells deep form that the body agrees, and says how", () => {
+			const rec = find(
+				recommendations({
+					latest: { tsb: -30 },
+					strain: { state: "buried", tsb: -30, restingHrUp: true, hrvDown: true },
+				}),
+				"tsb-fatigued",
+			);
+			expect(rec.detail).toContain("overnight heart rate is up");
+			expect(rec.detail).toContain("HRV is below it");
+		});
+
+		it("says when the training doesn't explain a raised heart rate", () => {
+			const rec = find(
+				recommendations({ ...up, strain: { state: "unexplained", tsb: 3, restingHrUp: true } }),
+				"rhr-elevated",
+			);
+			expect(rec.detail).toContain("doesn't explain it");
+			expect(rec.detail).toContain("form is 3");
+		});
+
+		it("brings in the skin temperature only as corroboration", () => {
+			const rec = find(
+				recommendations({
+					...up,
+					strain: {
+						state: "unexplained",
+						tsb: 3,
+						restingHrUp: true,
+						temperatureUp: true,
+						temperatureDeviationC: 0.7,
+					},
+				}),
+				"rhr-elevated",
+			);
+			expect(rec.detail).toContain("0.7 °C");
+		});
+
+		it("doesn't say the same thing twice when both markers are up", () => {
+			const out = recommendations({
+				recovery: {
+					restingHr: { recent: 54, baseline: 47, delta: 7 },
+					hrv: { recent: 48, baseline: 65, deltaPct: -26 },
+				},
+				strain: { state: "unexplained", tsb: 3, restingHrUp: true, hrvDown: true },
+			});
+			expect(find(out, "rhr-elevated").detail).toContain("doesn't explain it");
+			expect(find(out, "hrv-suppressed").detail).not.toContain("doesn't explain it");
+		});
+
+		it("reads exactly as it did before when there's no ring", () => {
+			const rec = find(recommendations({ latest: { tsb: -30 } }), "tsb-fatigued");
+			expect(rec.detail).toBe(
+				"Form is -30, below -25. That's normal in a heavy block but not somewhere to live. If it doesn't lift within a week, take two genuinely easy days.",
+			);
+		});
+	});
+
 	it("carries the triggering metric and threshold on every rule", () => {
 		const out = recommendations({
 			acwr: { ratio: 1.9 },

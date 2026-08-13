@@ -11,7 +11,7 @@
 // modes that ruin a marathon build are ramping too fast, running easy days too
 // hard, and skipping the taper; none of those are fixed by working harder.
 
-import { ACWR_CEILING, ACWR_FLOOR, SAFE_RAMP_PCT } from "./fitness.js";
+import { ACWR_CEILING, ACWR_FLOOR, SAFE_RAMP_PCT, TSB_FATIGUE } from "./fitness.js";
 import { EASY_SHARE_TARGET } from "./zones.js";
 import { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC } from "./recovery.js";
 
@@ -19,8 +19,6 @@ import { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC } from "./recovery.js";
 // that make you slower.
 const SEVERITY_RANK = { critical: 0, warning: 1, info: 2, good: 3 };
 
-// Form below this suggests accumulated fatigue rather than productive training.
-const TSB_FATIGUE = -25;
 // A long run beyond this share of weekly volume is a week built around one run.
 const LONG_RUN_SHARE_CEILING = 35;
 // Aerobic decoupling above this on a long run points to endurance not yet built.
@@ -64,6 +62,59 @@ function rule(id, severity, title, detail, metric, threshold, unit = null) {
 	return { id, severity, title, detail, metric, threshold, ...(unit ? { unit } : {}) };
 }
 
+/** Whichever overnight markers are currently raising a hand. */
+function markersOf(strain) {
+	const said = [];
+	if (strain?.restingHrUp) {
+		said.push("your overnight heart rate is up on baseline");
+	}
+	if (strain?.hrvDown) {
+		said.push("HRV is below it");
+	}
+	return said.join(" and ");
+}
+
+/**
+ * What the ring has to say about a form number.
+ *
+ * Form is computed from the training log and nothing else, so it can only ever
+ * report back what you already told it: run a lot and it goes negative,
+ * whether or not you're coping. An overnight heart rate is an independent
+ * measurement of the same question, and it's the disagreements that are worth
+ * printing — the same −28 means "this is landing" or "stop" depending on it.
+ */
+function secondOpinion(strain) {
+	if (strain?.state === "absorbing") {
+		return " Your overnight heart rate and HRV are both at baseline, though, which is your body saying it's absorbing this. Form is derived from the training log alone — it can only tell you what you already told it.";
+	}
+	if (strain?.state === "buried") {
+		return ` Your body agrees: ${markersOf(strain)}. That's the version of this worth acting on rather than training through.`;
+	}
+	return "";
+}
+
+/** The temperature clause, on the rules where it's corroborating something. */
+function temperatureNote(strain) {
+	if (!strain?.temperatureUp) {
+		return "";
+	}
+	return ` Your skin temperature is ${strain.temperatureDeviationC.toFixed(1)} °C above your own normal, which points the same way.`;
+}
+
+/**
+ * Whether the training explains a raised marker — the question the training
+ * log can't answer about itself.
+ */
+function explainedBy(strain) {
+	if (strain?.state === "unexplained") {
+		return ` Your form is ${strain.tsb.toFixed(0)}, so the training doesn't explain it: a rise with no load behind it is more often illness, travel, or a run of short nights than it is the running.${temperatureNote(strain)}`;
+	}
+	if (strain?.state === "buried") {
+		return ` Form is ${strain.tsb.toFixed(0)} as well, so this is consistent with the block you're in — the thing to watch is whether it lifts when you ease off.${temperatureNote(strain)}`;
+	}
+	return "";
+}
+
 /**
  * Build the ranked recommendation list.
  *
@@ -83,6 +134,7 @@ export function recommendations(metrics) {
 		daysToRace = null,
 		longRunDecouplingPct = null,
 		recovery = null,
+		strain = null,
 	} = metrics || {};
 
 	// --- Injury risk -------------------------------------------------------
@@ -133,7 +185,7 @@ export function recommendations(metrics) {
 				"tsb-fatigued",
 				"warning",
 				"You're carrying deep fatigue",
-				`Form is ${latest.tsb.toFixed(0)}, below ${TSB_FATIGUE}. That's normal in a heavy block but not somewhere to live. If it doesn't lift within a week, take two genuinely easy days.`,
+				`Form is ${latest.tsb.toFixed(0)}, below ${TSB_FATIGUE}. That's normal in a heavy block but not somewhere to live. If it doesn't lift within a week, take two genuinely easy days.${secondOpinion(strain)}`,
 				latest.tsb,
 				TSB_FATIGUE,
 			),
@@ -236,7 +288,7 @@ export function recommendations(metrics) {
 				"rhr-elevated",
 				"warning",
 				"Your overnight heart rate is up",
-				`Averaging ${restingHr.recent.toFixed(0)} bpm over the last week against a ${restingHr.baseline.toFixed(0)} bpm baseline, up ${restingHr.delta.toFixed(0)}. A rise of ${RHR_RISE_BPM} or more usually means something the training log can't see: illness coming on, or work you haven't absorbed yet. Worth an easy few days before a key session rather than after one.`,
+				`Averaging ${restingHr.recent.toFixed(0)} bpm over the last week against a ${restingHr.baseline.toFixed(0)} bpm baseline, up ${restingHr.delta.toFixed(0)}. A rise of ${RHR_RISE_BPM} or more usually means something the training log can't see: illness coming on, or work you haven't absorbed yet.${explainedBy(strain)} Worth an easy few days before a key session rather than after one.`,
 				restingHr.delta,
 				RHR_RISE_BPM,
 				"bpm",
@@ -250,7 +302,10 @@ export function recommendations(metrics) {
 				"hrv-suppressed",
 				"info",
 				"Heart-rate variability is below your baseline",
-				`${hrv.recent.toFixed(0)} ms over the last week against a ${hrv.baseline.toFixed(0)} ms baseline, down ${Math.abs(hrv.deltaPct).toFixed(0)}%. HRV is noisy night to night and this is a week against a month, so it's worth noting rather than acting on alone — but read it alongside the resting heart rate above.`,
+				// The attribution is only added when HRV is the one marker
+				// raising a hand; otherwise the heart-rate rule above has
+				// already said it, in the same words.
+				`${hrv.recent.toFixed(0)} ms over the last week against a ${hrv.baseline.toFixed(0)} ms baseline, down ${Math.abs(hrv.deltaPct).toFixed(0)}%. HRV is noisy night to night and this is a week against a month, so it's worth noting rather than acting on alone — but read it alongside the resting heart rate above.${strain?.restingHrUp ? "" : explainedBy(strain)}`,
 				hrv.deltaPct,
 				-HRV_DROP_PCT,
 				"percent",

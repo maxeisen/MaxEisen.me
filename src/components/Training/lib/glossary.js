@@ -24,6 +24,7 @@ export const GLOSSARY = {
 			{ term: "Fitness, fatigue and form", definition: "What the day's running moved. Fitness is the 42-day average of load, fatigue the 7-day one, form the difference. A hard run always adds more fatigue than fitness — that's the trade you're making." },
 			{ term: "Fade", definition: "How much slower the second half of the run was than the first. Under about 2% is even pacing; a negative number means you finished quicker than you started. On a workout the halves are just describing the session — intervals, then a jog home." },
 			{ term: "Drift", definition: "Aerobic decoupling: how far pace-per-heartbeat slipped between the halves of the run. Under 5% means the distance is within your aerobic base. Only shown for runs held at one effort, since on an interval session it measures the intervals rather than your base." },
+			{ term: "The night after", definition: "Sleep, overnight heart rate and HRV from the night that followed the run, each against your own 28-day normal. Everything else on this panel is computed from the run itself and can only report back what the training log already knew; this is the one line measured on you. On the morning of a run that night hasn't happened yet, so the panel shows the one you started from instead." },
 		],
 	},
 
@@ -136,11 +137,14 @@ export const GLOSSARY = {
 			"Sleep and overnight heart rate from an Oura ring, read the same way as the load panel: the last 7 days against the last 28, so every number here is recent measured against your own established normal rather than against anybody else's.",
 			"None of this feeds fitness, fatigue or form. Those are a closed system fed by training load alone, and that's what makes them readable — mixing a second source into part of it is how form ends up permanently negative. Recovery sits alongside instead, and shows up in the recommendations where the combination says more than either half: a 12% jump in volume means something different on eight hours a night than on six.",
 			"Nights with no record are skipped rather than counted as zero. A missing night is a ring left on the bedside table, not a night without sleep, and averaging it in would manufacture exactly the alarm this is meant to raise honestly.",
+			"Where the two sources do meet is in time. Lining each night up with the day before it is what turns sleep from a second dashboard into something about the running: what a hard day costs you, and whether your body agrees with the training log about how tired you are.",
 		],
 		terms: [
 			{ term: "Resting HR", definition: "Your lowest heart rate overnight. Measured asleep, so it's a truer resting rate than any daytime reading, and a rise of about 5 bpm over baseline is a long-standing marker of illness or work you haven't absorbed." },
 			{ term: "HRV", definition: "Heart-rate variability, the beat-to-beat variation while you sleep. Higher generally means better recovered, but it's noisy night to night, which is why it's read as a week against a month." },
 			{ term: "Baseline", definition: "Your own 28-day average for the same measure. Everything here is a deviation from it rather than an absolute judgement." },
+			{ term: "What a hard day costs", definition: "The nights after the hardest third of your training days, against the nights after everything else, over the last six weeks. It's a description rather than a proof — nothing separates the long run from the Saturday around it — but it's measured on you rather than assumed, which is more than any published figure can say." },
+			{ term: "Form against the markers", definition: "Form comes from training load alone, so on its own it can only repeat what you already told it: run a lot and it goes negative whether or not you're coping. Your overnight numbers are an independent answer to the same question. Deep form with markers at baseline is a body absorbing the block; markers up with no load behind them is usually illness, travel or a run of short nights." },
 		],
 	},
 

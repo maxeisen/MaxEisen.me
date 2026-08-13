@@ -14,6 +14,7 @@
 
 import { addDays, daysBetween, toDayKey } from "./dates.js";
 import { publicLastRun, WHOLE_SPLIT_M } from "./shape.js";
+import { median } from "./stats.js";
 import { classifyByPace } from "./zones.js";
 
 // How far back "a typical run for you" reaches. Six weeks holds a few long runs
@@ -30,17 +31,6 @@ const MODERATE_SHARE_PCT = 35;
 const number = (value) => Number(value) || 0;
 const finite = (value) => (Number.isFinite(value) ? value : null);
 const sum = (values) => values.reduce((total, v) => total + number(v), 0);
-
-function median(values) {
-	if (values.length === 0) {
-		return null;
-	}
-	const sorted = [...values].sort((a, b) => a - b);
-	const mid = Math.floor(sorted.length / 2);
-	const lower = sorted.at(mid - 1);
-	const upper = sorted.at(mid);
-	return sorted.length % 2 ? upper : (lower + upper) / 2;
-}
 
 /**
  * What the day's running did to fitness, fatigue and form.
