@@ -61,7 +61,15 @@ const MAX_PAGES = 4;
 // The most of each Strava rate-limit window this job will spend. The same app
 // credentials serve the /dashboard widgets, which are in a visitor's request
 // path, so a backfill must not be able to starve them into 429s.
-const QUOTA_SHARE = { shortShare: 0.6, dailyShare: 0.6 };
+//
+// The daily share is the one that binds. Steady state is one listing per
+// invocation, which at a five-minute cadence is 288 reads a day of the 1,000
+// allowed — and a SHAPE_VERSION bump adds two more per stored activity, about
+// 240 for a block. At 60% those two together didn't fit, so a re-shape stalled
+// halfway and waited for midnight. Three quarters fits both with room to
+// spare, and still holds back 250 reads a day for widgets that are edge-cached
+// for five minutes and only called on an actual visit.
+const QUOTA_SHARE = { shortShare: 0.6, dailyShare: 0.75 };
 
 // Stop enriching with time to spare and write what we have. Overrunning the
 // 30s limit doesn't just truncate the work — the invocation is killed before
@@ -315,14 +323,25 @@ export default async function handler(req) {
 	// and there's no reason three quick requests should queue behind it.
 	const recoveryWork = syncRecovery(store, todayKey());
 
-	// Re-list the whole block whenever anything might need rebuilding, so
-	// stale records are actually visible to the pass below. ?full=1 forces it;
-	// otherwise a stale record left over from a previous invocation does. The
-	// listing never reaches back past the block's run-up either way.
+	// The listing's job is finding activities we have never seen. That's all,
+	// and it matters that it's all: paging back through the block costs three
+	// reads against a limit of a thousand a day, and at a five-minute cadence
+	// that's 864 a day spent before a single activity is fetched.
+	//
+	// A re-shape used to force exactly that, on the reasoning that stale
+	// records have to be visible to the pass below. They already are — they're
+	// in the stored index, with their ids — so the listing was being walked to
+	// rediscover what was on disk, and a SHAPE_VERSION bump then had no quota
+	// left to act on what it found. Stale records are queued from the index
+	// instead, and the listing stays incremental.
+	//
+	// So only ?full=1 pages back, plus a cold start, which falls out of the
+	// cursor being empty. The gap this leaves is an activity uploaded with a
+	// date behind the cursor — a backdated manual entry — which no amount of
+	// listing forward will find; ?full=1 is the answer to that too.
 	const url = new URL(req.url);
 	const full = url.searchParams.get("full") === "1";
-	const hasStale = (existing || []).some((a) => a?.v !== SHAPE_VERSION);
-	const rescan = full || hasStale;
+	const rescan = full;
 	const after = rescan ? blockStart : Math.max(cursor?.lastActivityEpoch || 0, blockStart || 0) || null;
 
 	let summaries;
@@ -350,27 +369,51 @@ export default async function handler(req) {
 		return !stored || stored.v !== SHAPE_VERSION;
 	};
 
-	// Newest first, so a cold start fills in the most recent (most relevant)
-	// weeks before working backwards through the block.
-	const pending = candidates
-		.filter((a) => (full ? true : isStale(String(a.id))))
-		.sort((a, b) => String(b.start_date_local).localeCompare(String(a.start_date_local)));
-	const needsDetail = pending.slice(0, DETAIL_BUDGET);
+	// Two sources, one queue. The listing contributes activities that aren't
+	// stored; the index contributes records shaped by an older version, which
+	// need no listing at all. Newest first, so a cold start fills in the most
+	// recent (most relevant) weeks before working backwards through the block.
+	const queued = new Set();
+	const work = [];
+	const enqueue = (item) => {
+		if (queued.has(String(item.id))) return;
+		queued.add(String(item.id));
+		work.push(item);
+	};
+	for (const summary of candidates) {
+		if (!full && !isStale(String(summary.id))) continue;
+		enqueue({
+			id: summary.id,
+			summary,
+			isRide: isTrackableRide(summary),
+			date: summary.start_date_local,
+		});
+	}
+	for (const record of existing || []) {
+		if (!full && record?.v === SHAPE_VERSION) continue;
+		enqueue({
+			id: record?.id,
+			summary: null,
+			isRide: record?.sport === "ride",
+			date: record?.startDateLocal,
+		});
+	}
+	work.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+	const needsDetail = work.slice(0, DETAIL_BUDGET);
 
-	// Zones only move when the athlete edits them, and every avoidable call is
-	// quota the dashboard widgets can have instead. Refresh them when there's
-	// enrichment to spend them on, or when we've never managed to store any.
+	// Fetched once and then kept. Zones only move when the athlete edits them,
+	// and since they're now the third choice behind a measured threshold (see
+	// zones.js) they usually aren't read at all — so re-reading them on every
+	// invocation of a backfill was a call a minute spent on a value that
+	// mostly doesn't apply. ?full=1 picks up an edit.
 	const storedZones = await readJson(store, ATHLETE_KEY, null);
-	const zones =
-		needsDetail.length > 0 || !storedZones
-			? (await fetchAthleteZones(token)) || storedZones
-			: storedZones;
+	const zones = (storedZones && !full ? null : await fetchAthleteZones(token)) || storedZones;
 
 	const deadline = Date.now() + WORK_DEADLINE_MS;
 	let rateLimited = false;
 	let timedOut = false;
 	let quotaPaused = false;
-	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (summary) => {
+	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (item) => {
 		if (rateLimited) return null;
 
 		// A ride is complete as it stands. Everything the detailed activity
@@ -378,8 +421,8 @@ export default async function handler(req) {
 		// pace, decoupling — is a running measure a ride doesn't carry, so it
 		// shapes straight from the summary for no API calls at all. Tracking
 		// rides therefore takes nothing from the budget the runs need.
-		if (isTrackableRide(summary)) {
-			return shapeActivity(summary, { thresholds, athleteZones: zones });
+		if (item.isRide && item.summary) {
+			return shapeActivity(item.summary, { thresholds, athleteZones: zones });
 		}
 
 		if (Date.now() > deadline) {
@@ -394,8 +437,11 @@ export default async function handler(req) {
 		}
 		try {
 			const [detail, streams] = await Promise.all([
-				stravaGet(`/activities/${summary.id}?include_all_efforts=true`, token),
-				fetchStreams(summary.id, token),
+				stravaGet(`/activities/${item.id}?include_all_efforts=true`, token),
+				// A ride queued off the index has no summary to shape from, so
+				// it costs the detail — but still not the streams, which it
+				// would carry no number derived from.
+				item.isRide ? null : fetchStreams(item.id, token),
 			]);
 			return shapeActivity(detail, { streams, thresholds, athleteZones: zones });
 		} catch (err) {
@@ -406,7 +452,7 @@ export default async function handler(req) {
 				console.warn("Strava rate limit hit; deferring the rest to the next run");
 				return null;
 			}
-			console.error(`Failed to sync activity ${summary.id}`, err);
+			console.error(`Failed to sync activity ${item.id}`, err);
 			return null;
 		}
 	});
@@ -420,17 +466,25 @@ export default async function handler(req) {
 	// there's backfill outstanding, which is when the calls are worth more
 	// spent on runs that have no numbers at all yet.
 	const lastNoteScan = Date.parse(cursor?.notesScannedAt || "") || 0;
-	const scanNotes = !rateLimited && pending.length === 0 && Date.now() - lastNoteScan >= NOTE_RESCAN_MS;
+	const scanNotes = !rateLimited && work.length === 0 && Date.now() - lastNoteScan >= NOTE_RESCAN_MS;
 	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, todayKey(), deadline) : 0;
 
-	// Only advance the cursor once every candidate has an up-to-date stored
-	// record — otherwise a budget-limited run would skip past the ones it
-	// didn't get to and they'd never be fetched again.
+	// What the sync still owes: records stored at an older version, plus
+	// anything the listing found that isn't stored at all.
 	const stored = new Map(merged.map((a) => [String(a.id), a]));
-	const outstanding = candidates.filter((a) => {
-		const record = stored.get(String(a.id));
-		return !record || record.v !== SHAPE_VERSION;
-	});
+	const owed = new Set();
+	for (const record of merged) {
+		if (record?.v !== SHAPE_VERSION) owed.add(String(record.id));
+	}
+	for (const summary of candidates) {
+		if (!stored.has(String(summary.id))) owed.add(String(summary.id));
+	}
+
+	// The cursor guards the listing and nothing else, so it may advance as
+	// soon as every activity the listing found is stored. A record still
+	// waiting to be re-shaped no longer holds it back: that one is queued from
+	// the index now, and listing it again wouldn't help.
+	const allListedStored = candidates.every((a) => stored.has(String(a.id)));
 	const latestEpoch = merged.length
 		? Math.floor(new Date(merged.at(-1).startDateLocal).getTime() / 1000)
 		: cursor?.lastActivityEpoch || null;
@@ -443,8 +497,8 @@ export default async function handler(req) {
 			// Stamped on the attempt rather than on a success, so a sweep that
 			// finds nothing to do doesn't retry every five minutes.
 			notesScannedAt: scanNotes ? new Date().toISOString() : cursor?.notesScannedAt || null,
-			lastActivityEpoch: outstanding.length === 0 ? latestEpoch : cursor?.lastActivityEpoch || null,
-			outstanding: outstanding.length,
+			lastActivityEpoch: allListedStored ? latestEpoch : cursor?.lastActivityEpoch || null,
+			outstanding: owed.size,
 			// What the page needs to describe a partial history honestly.
 			stored: merged.length,
 		}),
@@ -457,7 +511,7 @@ export default async function handler(req) {
 		synced: shaped.length,
 		notesRefreshed,
 		stored: merged.length,
-		outstanding: outstanding.length,
+		outstanding: owed.size,
 		shapeVersion: SHAPE_VERSION,
 		rescan,
 		rateLimited,
@@ -483,10 +537,17 @@ export default async function handler(req) {
 // Backfill is the expensive case, at up to DETAIL_BUDGET × 2 reads an
 // invocation — more than a quarter hour's whole share in one go. That is fine,
 // and it's why the quota guard exists: it reads Strava's own headers and
-// stands the job down at 60% of either bucket, so a cold start moves at
+// stands the job down at its share of either bucket, so a cold start moves at
 // whatever the window allows and defers the rest. Shortening the interval
 // therefore doesn't buy a faster backfill and can't buy a 429 either; both are
 // the guard's business. What it buys is the steady state.
+//
+// The thing that has to stay true for any of that to hold is that a backfill
+// costs the same *per activity* however often this runs. It didn't, once: a
+// re-shape re-listed the whole block every invocation, so shortening the
+// interval multiplied a fixed 3-read overhead by 288 a day and left nothing to
+// enrich with. See the listing comment in the handler. Per-invocation overhead
+// is the number to watch here, not per-activity cost.
 //
 // A schedule is also the ONLY thing that ever writes this store — a scheduled
 // function can't be invoked over HTTP — so the gap between deploying and the
