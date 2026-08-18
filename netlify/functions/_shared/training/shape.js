@@ -61,7 +61,10 @@ export const RIDE_MIN_M = 20000;
 //    which stops per-second grade noise reading as a run's worth of descent
 //    (see gap.js); records carry the tagged lines of the Strava description
 //    (see notes.js).
-export const SHAPE_VERSION = 6;
+// 7: heart-rate zones are anchored on lactate threshold rather than derived
+//    from the ends of the range, which stops steady aerobic running being
+//    reported as tempo (see zones.js).
+export const SHAPE_VERSION = 7;
 
 /**
  * Is this a public run we should track?

@@ -109,11 +109,12 @@ export const GLOSSARY = {
 		body: [
 			"Where your running time went over the last four weeks, split by effort. The target is roughly 80% easy — that's the ratio nearly all successful endurance programmes converge on.",
 			"The band to watch is the moderate middle. Time there is the classic way to accumulate fatigue without the adaptation that either genuinely easy or genuinely hard running gives.",
+			"The zones are anchored on lactate threshold heart rate, which is measured, rather than derived from a maximum and a resting rate, which for a trained runner puts every boundary about fifteen beats too low and reports steady aerobic running as tempo. These bands won't match Strava's: Strava gives everyone a set derived from percentages of max heart rate, and its zone 2 is thirty beats wide.",
 		],
 		terms: [
-			{ term: "Easy", definition: "Heart rate zones 1–2. Conversational. Should be the overwhelming majority of your running." },
-			{ term: "Moderate", definition: "Zone 3. Feels productive, costs like hard running, and buys less than either neighbour." },
-			{ term: "Hard", definition: "Zones 4–5. Threshold work and intervals — valuable in small, deliberate doses." },
+			{ term: "Easy", definition: "Heart rate zones 1–2, below 90% of threshold heart rate. Conversational. Should be the overwhelming majority of your running." },
+			{ term: "Moderate", definition: "Zone 3, from 90% of threshold to 95%. Feels productive, costs like hard running, and buys less than either neighbour." },
+			{ term: "Hard", definition: "Zones 4–5, from 95% of threshold upwards. Threshold work and intervals — valuable in small, deliberate doses." },
 		],
 	},
 

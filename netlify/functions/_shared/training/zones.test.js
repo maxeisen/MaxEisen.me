@@ -13,6 +13,29 @@ const THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288, mara
 const RESERVE_FLOORS = [0, 135.8, 150.6, 165.4, 180.2];
 
 describe("hrZoneFloors", () => {
+	it("anchors on lactate threshold when the plan file knows one", () => {
+		const floors = hrZoneFloors({ ...THRESHOLDS, lactateThresholdHr: 175 });
+		expect(floors).toEqual([0, 150.5, 157.5, 166.25, 175]);
+	});
+
+	it("prefers a measured threshold to zones nobody chose", () => {
+		// Strava hands out a full set of zones to an athlete who has never
+		// opened that screen, so "configured" doesn't mean decided. A
+		// threshold in the plan file was measured and written down.
+		const configured = [{ min: 0 }, { min: 128 }, { min: 159 }, { min: 175 }, { min: 190 }];
+		const floors = hrZoneFloors({ ...THRESHOLDS, lactateThresholdHr: 175 }, configured);
+		expect(floors[2]).toBe(157.5);
+	});
+
+	it("puts the easy ceiling below threshold rather than above it", () => {
+		// The bug this replaced: derived from the ends of the range, zone 3
+		// began at 151 for an athlete whose threshold is 175, so steady
+		// aerobic running was reported as tempo.
+		const [, , moderate] = hrZoneFloors({ ...THRESHOLDS, lactateThresholdHr: 175 });
+		expect(moderate).toBeGreaterThan(RESERVE_FLOORS[2]);
+		expect(moderate).toBeLessThan(175);
+	});
+
 	it("derives floors from heart-rate reserve when resting HR is known", () => {
 		const floors = hrZoneFloors(THRESHOLDS);
 		expect(floors).toHaveLength(5);
