@@ -188,17 +188,32 @@ describe("trainingData behaviour", () => {
 	it("reports that the history is still being imported", async () => {
 		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }), {
 			lastRunAt: "2026-08-09T12:00:00.000Z",
-			outstanding: 42,
+			missing: 42,
 			stored: 15,
 		});
 		const { body } = await payload();
 		expect(body.sync).toMatchObject({ hasSynced: true, outstanding: 42, backfilling: true });
 	});
 
+	// A run waiting to be re-shaped after a SHAPE_VERSION bump is stored, and
+	// the history it belongs to is whole. Counting it as missing put a "still
+	// importing" banner on a complete page for the length of every re-shape,
+	// and the last records to be re-shaped are run-up seeds from months before
+	// anything the page draws.
+	it("says nothing about runs it means to re-shape", async () => {
+		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }), {
+			lastRunAt: "2026-08-09T12:00:00.000Z",
+			missing: 0,
+			stale: 7,
+		});
+		const { body } = await payload();
+		expect(body.sync).toMatchObject({ backfilling: false, outstanding: 0 });
+	});
+
 	it("distinguishes a complete history from one that has never synced", async () => {
 		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }), {
 			lastRunAt: "2026-08-09T12:00:00.000Z",
-			outstanding: 0,
+			missing: 0,
 		});
 		expect((await payload()).body.sync).toMatchObject({ hasSynced: true, backfilling: false });
 

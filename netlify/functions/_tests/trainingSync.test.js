@@ -151,12 +151,12 @@ describe("trainingSync", () => {
 		const first = await sync();
 
 		expect(first.body.synced).toBe(30);
-		expect(first.body.outstanding).toBe(10);
+		expect(first.body.missing).toBe(10);
 		expect(cursor().lastActivityEpoch).toBeNull();
 
 		const second = await sync();
 		expect(second.body.synced).toBe(10);
-		expect(second.body.outstanding).toBe(0);
+		expect(second.body.missing).toBe(0);
 		expect(index()).toHaveLength(40);
 		expect(cursor().lastActivityEpoch).toBeGreaterThan(0);
 	});
@@ -184,7 +184,7 @@ describe("trainingSync", () => {
 
 		expect(body.quotaPaused).toBe(true);
 		expect(body.synced).toBeLessThan(30);
-		expect(body.outstanding).toBeGreaterThan(0);
+		expect(body.missing).toBeGreaterThan(0);
 		expect(calls.filter((c) => /\/activities\/\d+\?/.test(c)).length).toBeLessThan(30);
 	});
 
@@ -192,7 +192,7 @@ describe("trainingSync", () => {
 		mockStrava({ activities: summaries(40) });
 		await sync();
 
-		expect(cursor()).toMatchObject({ outstanding: 10, stored: 30 });
+		expect(cursor()).toMatchObject({ missing: 10, stored: 30 });
 		expect(cursor().lastRunAt).toEqual(expect.any(String));
 	});
 
@@ -229,7 +229,8 @@ describe("trainingSync", () => {
 		mockStrava({ activities: summaries(2), listing: [] });
 		const { body } = await sync();
 		expect(body.synced).toBe(2);
-		expect(body.outstanding).toBe(0);
+		expect(body.missing).toBe(0);
+		expect(body.stale).toBe(0);
 		expect(index().every((a) => a.v === SHAPE_VERSION)).toBe(true);
 	});
 
@@ -255,6 +256,32 @@ describe("trainingSync", () => {
 		const listings = calls.filter((c) => c.includes("/athlete/activities"));
 		expect(listings).toHaveLength(1);
 		expect(Number(new URL(listings[0]).searchParams.get("after"))).toBe(caughtUp);
+	});
+
+	// The distinction the page hangs on. A re-shape that can't finish leaves a
+	// complete history whose numbers are slightly old — which is nothing like
+	// a history with runs absent from it, and only the second is worth telling
+	// a reader about. See syncState in trainingData.
+	it("counts a run it can't re-shape as stale, never as missing", async () => {
+		mockStrava({ activities: summaries(2) });
+		await sync();
+		blobs.set(
+			"index.json",
+			index().map((a) => ({ ...a, v: SHAPE_VERSION - 1 })),
+		);
+
+		mockStrava({
+			activities: summaries(2),
+			listing: [],
+			quota: { limit: "100,1000", usage: "99,999" },
+		});
+		const { body } = await sync();
+
+		expect(body.quotaPaused).toBe(true);
+		expect(body.synced).toBe(0);
+		expect(body.missing).toBe(0);
+		expect(body.stale).toBe(2);
+		expect(cursor()).toMatchObject({ missing: 0, stale: 2 });
 	});
 
 	it("still pages the whole block back when asked outright", async () => {

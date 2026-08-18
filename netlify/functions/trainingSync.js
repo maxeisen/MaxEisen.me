@@ -469,16 +469,26 @@ export default async function handler(req) {
 	const scanNotes = !rateLimited && work.length === 0 && Date.now() - lastNoteScan >= NOTE_RESCAN_MS;
 	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, todayKey(), deadline) : 0;
 
-	// What the sync still owes: records stored at an older version, plus
-	// anything the listing found that isn't stored at all.
+	// Two kinds of incomplete, and only one of them is worth interrupting a
+	// reader over.
+	//
+	// Missing is an activity the listing found and there's no record of at
+	// all. Every metric on the page reads the whole block — fitness is a
+	// 42-day average, the projection reads the block's best efforts — so a
+	// short history doesn't render slightly-off numbers, it renders numbers
+	// for a block the athlete didn't do. That has to be said out loud.
+	//
+	// Stale is an activity that's stored and complete and merely shaped by an
+	// older version of the code. Re-shaping moves some of its numbers and
+	// changes nothing else about it. Counted together with missing, as they
+	// were, every SHAPE_VERSION bump hung a "still importing" banner on a page
+	// that was already whole — and since the queue runs newest-first, the
+	// stragglers are the oldest run-up records, which exist only to seed a CTL
+	// four months before anything on the page and are the least visible
+	// records in the store.
 	const stored = new Map(merged.map((a) => [String(a.id), a]));
-	const owed = new Set();
-	for (const record of merged) {
-		if (record?.v !== SHAPE_VERSION) owed.add(String(record.id));
-	}
-	for (const summary of candidates) {
-		if (!stored.has(String(summary.id))) owed.add(String(summary.id));
-	}
+	const missing = candidates.filter((a) => !stored.has(String(a.id))).length;
+	const stale = merged.filter((a) => a?.v !== SHAPE_VERSION).length;
 
 	// The cursor guards the listing and nothing else, so it may advance as
 	// soon as every activity the listing found is stored. A record still
@@ -498,8 +508,11 @@ export default async function handler(req) {
 			// finds nothing to do doesn't retry every five minutes.
 			notesScannedAt: scanNotes ? new Date().toISOString() : cursor?.notesScannedAt || null,
 			lastActivityEpoch: allListedStored ? latestEpoch : cursor?.lastActivityEpoch || null,
-			outstanding: owed.size,
-			// What the page needs to describe a partial history honestly.
+			// What the page needs to describe a partial history honestly. Only
+			// `missing` reaches a reader; `stale` is here to be read in a log
+			// when a re-shape looks like it has stopped.
+			missing,
+			stale,
 			stored: merged.length,
 		}),
 	]);
@@ -511,7 +524,8 @@ export default async function handler(req) {
 		synced: shaped.length,
 		notesRefreshed,
 		stored: merged.length,
-		outstanding: owed.size,
+		missing,
+		stale,
 		shapeVersion: SHAPE_VERSION,
 		rescan,
 		rateLimited,

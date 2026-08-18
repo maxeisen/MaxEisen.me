@@ -7,6 +7,10 @@
     metric zero) and during a backfill (a truncated history, which reads as a
     much lower CTL than the athlete has). Both used to look exactly like a
     finished page reporting bad training.
+
+    A run the sync means to re-shape is deliberately not one of them, and the
+    payload doesn't count it — the history is whole and a few of its numbers
+    are about to move. See syncState in trainingData.
 -->
 <script>
     let { sync = null, runCount = 0 } = $props();

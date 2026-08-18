@@ -49,9 +49,14 @@ const memo = createMemo(60_000);
 // half-filled index doesn't produce slightly-off numbers, it produces numbers
 // for a training block the athlete didn't do. Until the backfill lands, that
 // has to be said out loud rather than left to look like a bad month.
+//
+// Only activities that are genuinely absent count. The sync also tracks runs
+// it means to re-shape after a SHAPE_VERSION bump, and those are none of a
+// reader's business: the run is stored, the history is whole, and some of its
+// numbers are about to move slightly. See the accounting in trainingSync.
 function syncState(cursor) {
-	const outstanding = Number(cursor?.outstanding);
-	const pending = Number.isFinite(outstanding) ? Math.max(0, outstanding) : 0;
+	const missing = Number(cursor?.missing);
+	const pending = Number.isFinite(missing) ? Math.max(0, missing) : 0;
 	return {
 		lastRunAt: cursor?.lastRunAt || null,
 		// No cursor at all means the scheduled sync has never completed —
