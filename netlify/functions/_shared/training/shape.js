@@ -21,6 +21,7 @@ import { activityGap } from "./gap.js";
 import { activityLoad } from "./load.js";
 import { aerobicDecoupling } from "./efficiency.js";
 import { hrZoneFloors, zoneSecondsFromStreams } from "./zones.js";
+import { shapeNotes } from "./notes.js";
 import { shapeTrace } from "./trace.js";
 import { reading } from "./num.js";
 import { toDayKey } from "./dates.js";
@@ -56,7 +57,11 @@ export const RIDE_MIN_M = 20000;
 // 5: time in zone and decoupling skip the holes a paused watch leaves in the
 //    recording, instead of filing a ten-minute stop under the heart rate it
 //    resumed at (see streams.js).
-export const SHAPE_VERSION = 5;
+// 6: GAP aggregates flat-equivalent distance rather than flat-equivalent time,
+//    which stops per-second grade noise reading as a run's worth of descent
+//    (see gap.js); records carry the tagged lines of the Strava description
+//    (see notes.js).
+export const SHAPE_VERSION = 6;
 
 /**
  * Is this a public run we should track?
@@ -210,6 +215,11 @@ export function shapeActivity(raw, options = {}) {
 		// are in hand, and they aren't stored. A ride has no pace worth
 		// plotting, for the same reason it has no splits.
 		trace: isRide ? null : shapeTrace(streams, { distanceM }),
+		// Only ever present on a detailed activity — the summary Strava
+		// returns from a listing carries no description at all — so a record
+		// shaped without one keeps whatever notes it already had rather than
+		// silently losing them. See trainingSync's note refresh.
+		notes: shapeNotes(raw.description),
 		bestEfforts: isRide
 			? []
 			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
@@ -257,6 +267,10 @@ export function publicRun(activity) {
 		workoutType: activity?.workoutType,
 		paceSecPerKm: activity?.paceSecPerKm,
 		gapPaceSecPerKm: activity?.gapPaceSecPerKm,
+		// Already an allowlist of lines the athlete tagged for publication —
+		// see notes.js, which is where the privacy decision is made rather
+		// than here.
+		notes: Array.isArray(activity?.notes) ? activity.notes : [],
 	};
 }
 

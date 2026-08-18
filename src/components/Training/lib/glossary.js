@@ -24,7 +24,6 @@ export const GLOSSARY = {
 			{ term: "Fitness, fatigue and form", definition: "What the day's running moved. Fitness is the 42-day average of load, fatigue the 7-day one, form the difference. A hard run always adds more fatigue than fitness — that's the trade you're making." },
 			{ term: "Fade", definition: "How much slower the second half of the run was than the first. Under about 2% is even pacing; a negative number means you finished quicker than you started. On a workout the halves are just describing the session — intervals, then a jog home." },
 			{ term: "Drift", definition: "Aerobic decoupling: how far pace-per-heartbeat slipped between the halves of the run. Under 5% means the distance is within your aerobic base. Only shown for runs held at one effort, since on an interval session it measures the intervals rather than your base." },
-			{ term: "The night after", definition: "Sleep, overnight heart rate and HRV from the night that followed the run, each against your own 28-day normal. Everything else on this panel is computed from the run itself and can only report back what the training log already knew; this is the one line measured on you. On the morning of a run that night hasn't happened yet, so the panel shows the one you started from instead." },
 		],
 	},
 
@@ -137,13 +136,12 @@ export const GLOSSARY = {
 			"Sleep and overnight heart rate from an Oura ring, read the same way as the load panel: the last 7 days against the last 28, so every number here is recent measured against your own established normal rather than against anybody else's.",
 			"None of this feeds fitness, fatigue or form. Those are a closed system fed by training load alone, and that's what makes them readable — mixing a second source into part of it is how form ends up permanently negative. Recovery sits alongside instead, and shows up in the recommendations where the combination says more than either half: a 12% jump in volume means something different on eight hours a night than on six.",
 			"Nights with no record are skipped rather than counted as zero. A missing night is a ring left on the bedside table, not a night without sleep, and averaging it in would manufacture exactly the alarm this is meant to raise honestly.",
-			"Where the two sources do meet is in time. Lining each night up with the day before it is what turns sleep from a second dashboard into something about the running: what a hard day costs you, and whether your body agrees with the training log about how tired you are.",
+			"The two sources meet in exactly one place, and it isn't attribution. A night has a run in it and also a late dinner, a hot bedroom and whatever tomorrow is bringing, so nothing here can tell you what a given run cost you overnight. What it can do is check the two measurements against each other: form is derived from training load alone, and whether your body agrees is a separate question with a separate answer.",
 		],
 		terms: [
 			{ term: "Resting HR", definition: "Your lowest heart rate overnight. Measured asleep, so it's a truer resting rate than any daytime reading, and a rise of about 5 bpm over baseline is a long-standing marker of illness or work you haven't absorbed." },
 			{ term: "HRV", definition: "Heart-rate variability, the beat-to-beat variation while you sleep. Higher generally means better recovered, but it's noisy night to night, which is why it's read as a week against a month." },
 			{ term: "Baseline", definition: "Your own 28-day average for the same measure. Everything here is a deviation from it rather than an absolute judgement." },
-			{ term: "What a hard day costs", definition: "The nights after the hardest third of your training days, against the nights after everything else, over the last six weeks. It's a description rather than a proof — nothing separates the long run from the Saturday around it — but it's measured on you rather than assumed, which is more than any published figure can say." },
 			{ term: "Form against the markers", definition: "Form comes from training load alone, so on its own it can only repeat what you already told it: run a lot and it goes negative whether or not you're coping. Your overnight numbers are an independent answer to the same question. Deep form with markers at baseline is a body absorbing the block; markers up with no load behind them is usually illness, travel or a run of short nights." },
 		],
 	},
@@ -154,11 +152,13 @@ export const GLOSSARY = {
 			"Every run since the block started, newest first, matched against the plan for the day it fell on. Runs on a day with a planned session are tagged with that session; anything else is an extra.",
 			"Pace and grade-adjusted pace sit side by side, because on a hilly run they diverge a lot and that difference is the point — GAP is what the same effort would have been on the flat.",
 			"Longer rides are listed alongside them for context, and count towards nothing on this page. Cycling builds none of the running-specific durability the rest of these numbers are tracking, so it stays out of all of them rather than flattering the fitness or dragging down the form.",
+			"A run can also carry a line the athlete wrote about it, which is the only thing here that isn't measured. A twenty-kilometre long run done as ten is a red mark on every chart on this page, and sometimes the explanation is a wedding rather than a problem — so there's a way to say so.",
 		],
 		terms: [
 			{ term: "GAP", definition: "Grade-adjusted pace: your pace corrected for the gradient you ran it on, so hilly and flat runs can be compared." },
 			{ term: "Extra", definition: "A run with no planned session on that day. Not a bad thing — just not part of the plan." },
 			{ term: "Ride", definition: "A ride over 20 km, shown so the week reads honestly. Nothing on this page counts it." },
+			{ term: "Why / note", definition: "Written into the Strava description as a tagged line — \"excuse: wedding in the evening\" or \"note: new shoes\" — and picked up on the next sync. Only tagged lines are published: the rest of a description was written for a different audience and never leaves the server." },
 		],
 	},
 };

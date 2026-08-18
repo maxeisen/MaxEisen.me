@@ -90,6 +90,12 @@
                                 {#if run.averageHr}· {Math.round(run.averageHr)} bpm{/if}
                                 {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
                             </span>
+                            {#each run.notes || [] as note, i (i)}
+                                <span class="row-note">
+                                    <span class="note-label">{note.kind === "excuse" ? "why" : "note"}</span>
+                                    {note.text}
+                                </span>
+                            {/each}
                         </div>
 
                         <div class="row-stat">
@@ -179,6 +185,24 @@
         opacity: 0.7;
         margin-top: 3px;
     }
+    /* The athlete's own words, and the only line on the page that isn't
+       measured — so it reads as speech rather than as another figure. */
+    .row-note {
+        display: block;
+        margin-top: 4px;
+        font-size: var(--font-2xs);
+        line-height: 1.6;
+        font-style: italic;
+        color: var(--paragraph-colour);
+    }
+    .note-label {
+        font-style: normal;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--main-green);
+        margin-right: var(--space-2);
+    }
+
     /* The pill itself is a card convention; a row just needs it to breathe. */
     .tag { margin: 0 2px; }
     /* Its own tag rather than borrowing "extra", which already means a run the

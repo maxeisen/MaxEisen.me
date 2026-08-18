@@ -31,6 +31,7 @@ import {
 	isTrackableRide,
 	shapeActivity,
 } from "./_shared/training/shape.js";
+import { shapeNotes } from "./_shared/training/notes.js";
 import { shapeRecovery } from "./_shared/training/recovery.js";
 import { loadPlan } from "./_shared/training/planFile.js";
 import { addDays, toDayKey } from "./_shared/training/dates.js";
@@ -67,6 +68,20 @@ const QUOTA_SHARE = { shortShare: 0.6, dailyShare: 0.6 };
 // the Blobs write, so an unbounded run makes no progress at all and the next
 // one starts from exactly the same place.
 const WORK_DEADLINE_MS = 20_000;
+
+// A finished run never changes, which is the assumption the whole sync rests
+// on — but its description does. The note explaining why a long run was cut
+// short is usually written hours later, with the evening's hindsight, long
+// after the record was shaped and settled.
+//
+// Rather than making a settled record pending again (which would re-fetch the
+// streams to recompute numbers that cannot have moved), the last few days are
+// swept on the hour for the description alone: one call each, and only the
+// notes are patched across. Three days because a note that hasn't been written
+// by then isn't coming, and hourly because the wait to see it is the cost.
+const NOTE_WINDOW_DAYS = 3;
+const NOTE_RESCAN_MS = 60 * 60 * 1000;
+const NOTE_BUDGET = 5;
 
 // Chronic training load is a 42-day average, so the block needs a run-up of
 // history behind it to mean anything from day one. Four months is comfortably
@@ -238,6 +253,39 @@ async function fetchStreams(id, token) {
 	}
 }
 
+/**
+ * Bring the notes on the last few days' runs up to date, in place.
+ *
+ * Only the description is read, and only the `notes` field is written, so a
+ * failure here costs the note and nothing else.
+ *
+ * @param {object[]} records the merged index, mutated.
+ * @param {string} token
+ * @param {string} today day key.
+ * @param {number} deadline epoch ms to stop by.
+ * @returns {Promise<number>} how many were refreshed.
+ */
+async function refreshNotes(records, token, today, deadline) {
+	const from = addDays(today, -NOTE_WINDOW_DAYS);
+	const recent = records
+		.filter((a) => a?.sport !== "ride" && toDayKey(a?.startDateLocal) >= from)
+		.slice(-NOTE_BUDGET);
+
+	let refreshed = 0;
+	for (const record of recent) {
+		if (Date.now() > deadline || !hasQuotaForOneMore()) break;
+		try {
+			const detail = await stravaGet(`/activities/${record.id}`, token);
+			record.notes = shapeNotes(detail?.description);
+			refreshed += 1;
+		} catch (err) {
+			console.error(`Failed to refresh notes on ${record.id}`, err);
+			if (err.status === 429) break;
+		}
+	}
+	return refreshed;
+}
+
 export default async function handler(req) {
 	// Netlify reuses warm instances, and a quota reading from a previous
 	// invocation describes a window that has almost certainly rolled over
@@ -366,6 +414,15 @@ export default async function handler(req) {
 
 	const merged = mergeActivities(existing, shaped);
 
+	// Deliberately last, and deliberately not part of the staleness pass
+	// above: nothing here can make a record pending, so a sweep that runs out
+	// of budget just leaves a note until the next hour. Skipped entirely while
+	// there's backfill outstanding, which is when the calls are worth more
+	// spent on runs that have no numbers at all yet.
+	const lastNoteScan = Date.parse(cursor?.notesScannedAt || "") || 0;
+	const scanNotes = !rateLimited && pending.length === 0 && Date.now() - lastNoteScan >= NOTE_RESCAN_MS;
+	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, todayKey(), deadline) : 0;
+
 	// Only advance the cursor once every candidate has an up-to-date stored
 	// record — otherwise a budget-limited run would skip past the ones it
 	// didn't get to and they'd never be fetched again.
@@ -383,6 +440,9 @@ export default async function handler(req) {
 		zones ? writeJson(store, ATHLETE_KEY, zones) : Promise.resolve(),
 		writeJson(store, CURSOR_KEY, {
 			lastRunAt: new Date().toISOString(),
+			// Stamped on the attempt rather than on a success, so a sweep that
+			// finds nothing to do doesn't retry every five minutes.
+			notesScannedAt: scanNotes ? new Date().toISOString() : cursor?.notesScannedAt || null,
 			lastActivityEpoch: outstanding.length === 0 ? latestEpoch : cursor?.lastActivityEpoch || null,
 			outstanding: outstanding.length,
 			// What the page needs to describe a partial history honestly.
@@ -395,6 +455,7 @@ export default async function handler(req) {
 		scanned: summaries.length,
 		runs: candidates.length,
 		synced: shaped.length,
+		notesRefreshed,
 		stored: merged.length,
 		outstanding: outstanding.length,
 		shapeVersion: SHAPE_VERSION,

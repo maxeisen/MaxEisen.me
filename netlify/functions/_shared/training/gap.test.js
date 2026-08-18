@@ -92,6 +92,22 @@ describe("gapFromSegments", () => {
 		expect(out.gapPaceSecPerKm).toBeLessThan(330);
 	});
 
+	it("does not book a net-flat rolling route as slower than it was run", () => {
+		// Climbs and descents of the same size in equal measure, which is what
+		// a per-second grade stream looks like on undulating ground and on
+		// altimeter noise alike. Rolling terrain costs something, so GAP has
+		// to land on the fast side of raw pace. Aggregating the reciprocal
+		// instead put it 12s/km on the slow side of a real 10km.
+		const segments = [];
+		for (let i = 0; i < 20; i++) {
+			segments.push({ distanceM: 100, timeSec: 33, gradient: 0.12 });
+			segments.push({ distanceM: 100, timeSec: 27, gradient: -0.12 });
+		}
+		const out = gapFromSegments(segments);
+		expect(out.paceSecPerKm).toBeCloseTo(300, 6);
+		expect(out.gapPaceSecPerKm).toBeLessThan(out.paceSecPerKm);
+	});
+
 	it("skips zero-distance and zero-time segments", () => {
 		const out = gapFromSegments([
 			{ distanceM: 1000, timeSec: 300, gradient: 0 },

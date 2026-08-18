@@ -25,7 +25,7 @@ import {
 } from "./plan.js";
 import { recommendations } from "./recommend.js";
 import { recoverySummary } from "./recovery.js";
-import { nightAfterDay, nightBeforeDay, overnightCost, strainSignal } from "./response.js";
+import { strainSignal } from "./response.js";
 import { toDayKey } from "./dates.js";
 
 // How far back the intensity distribution looks. A whole block averages away
@@ -168,15 +168,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 
 	// The two sources meet here and nowhere else, which is the whole point of
 	// this file. Reading them against each other costs the separation nothing:
-	// every number above is already final, and what response.js adds is the
-	// alignment between a training day and the night that followed it — what a
-	// hard day actually costs this athlete, and whether the body agrees with
-	// the training log about how tired it is.
+	// every number above is already final, and what response.js adds is whether
+	// the body agrees with the training log about how tired it is.
 	const response = recovered
-		? {
-				hardDays: overnightCost({ records: recovery, series, today: day }),
-				strain: strainSignal({ tsb: latest?.tsb ?? null, recovery: recovered }),
-			}
+		? { strain: strainSignal({ tsb: latest?.tsb ?? null, recovery: recovered }) }
 		: null;
 
 	const prediction = predictRace(collectBestEfforts(runs), race.distanceM || 42195);
@@ -336,18 +331,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		recommendations: advice,
 		// The freshest run, read against the athlete's own recent history —
 		// the one panel that's about a single session rather than a trend.
-		// The nights either side of it are attached here rather than inside
-		// lastRun.js, which keeps that module about the running: this file is
-		// where the two sources are allowed to meet. The night after is what
-		// the run cost and the night before is what you took into it — and on
-		// the morning of a run only the second one exists yet.
-		lastRun: lastRun
-			? {
-					...lastRun,
-					night: nightAfterDay(recovery, lastRun.date),
-					nightBefore: nightBeforeDay(recovery, lastRun.date),
-				}
-			: null,
+		lastRun,
 		// The log carries its plan match so the page can say which runs were
 		// the plan and which were extra. The match comes from the plan file
 		// rather than from Strava, so it adds nothing to what publicRun()

@@ -78,24 +78,35 @@ export function gradeAdjustedSpeed(speedMps, gradient) {
 /**
  * Collapse timed, graded segments into one grade-adjusted pace.
  *
- * Covering a segment on the flat at equal effort would take
- * `timeSec / gradeFactor`, so summing that across segments gives the flat time
- * the whole run is worth, and dividing distance by it gives GAP.
+ * A metre of climbing costs what `gradeFactor` metres of flat ground cost, so
+ * the run is worth `distanceM * gradeFactor` of flat running, and GAP is the
+ * real time spread over that flat-equivalent distance.
  *
- * `adjustment` is that flat time as a fraction of the real time: 0.95 means the
- * terrain cost 5%. It's the part worth carrying forward, because it depends
- * only on the shape of the route and not on how completely the segments cover
- * the run — see activityGap.
+ * The tempting alternative is to flatten each segment's *time* — `timeSec /
+ * gradeFactor` — and divide the real distance by the total. It reads as the
+ * same statement and is not, because pace is a reciprocal: that sum is
+ * dominated by whichever segments have the smallest factor, which is the
+ * steepest descents. Strava's per-second `grade_smooth` ranges over ±25% on a
+ * road run whose net elevation change is zero, so those segments are mostly
+ * altimeter noise, and there are enough of them to swing the answer. On a
+ * 10km with 219m of climb and no net gain it returned a GAP 12 seconds per
+ * kilometre *slower* than the run was actually run. Weighting the factor
+ * itself has no such bias: noise either side of a grade cancels.
+ *
+ * `adjustment` is real distance as a fraction of flat-equivalent distance:
+ * 0.95 means the terrain cost 5%. It's the part worth carrying forward,
+ * because it depends only on the shape of the route and not on how completely
+ * the segments cover the run — see activityGap.
  *
  * @param {{distanceM: number, timeSec: number, gradient: number}[]} segments
  * @returns {{gapPaceSecPerKm: number, paceSecPerKm: number, distanceM: number,
- *   flatTimeSec: number, timeSec: number, adjustment: number} | null} null when
- *   there's nothing usable to measure.
+ *   flatDistanceM: number, timeSec: number, adjustment: number} | null} null
+ *   when there's nothing usable to measure.
  */
 export function gapFromSegments(segments) {
 	let distanceM = 0;
 	let timeSec = 0;
-	let flatTimeSec = 0;
+	let flatDistanceM = 0;
 
 	for (const seg of segments || []) {
 		const d = Number(seg?.distanceM);
@@ -109,18 +120,17 @@ export function gapFromSegments(segments) {
 		if (speed < MIN_SEGMENT_SPEED || speed > MAX_SEGMENT_SPEED) continue;
 		distanceM += d;
 		timeSec += t;
-		flatTimeSec += t / gradeFactor(Number(seg.gradient) || 0);
+		flatDistanceM += d * gradeFactor(Number(seg.gradient) || 0);
 	}
 
-	if (distanceM <= 0 || flatTimeSec <= 0 || timeSec <= 0) return null;
-	const km = distanceM / 1000;
+	if (distanceM <= 0 || flatDistanceM <= 0 || timeSec <= 0) return null;
 	return {
-		gapPaceSecPerKm: flatTimeSec / km,
-		paceSecPerKm: timeSec / km,
+		gapPaceSecPerKm: timeSec / (flatDistanceM / 1000),
+		paceSecPerKm: timeSec / (distanceM / 1000),
 		distanceM,
-		flatTimeSec,
+		flatDistanceM,
 		timeSec,
-		adjustment: flatTimeSec / timeSec,
+		adjustment: distanceM / flatDistanceM,
 	};
 }
 

@@ -649,34 +649,15 @@ describe("where the ring meets the training", () => {
 	const dashboard = (patch) =>
 		buildDashboard({ activities: runs, plan: PLAN, today, recovery: nights(patch) });
 
-	it("attaches the night after the last run to the run itself", () => {
-		const night = dashboard().lastRun.night;
-		expect(night.day).toBe(today);
-		expect(night.sleep.value).toBe(hours(6.5));
-		// Against the athlete's own month, which is what makes it readable.
-		expect(night.restingHr.delta).toBeGreaterThan(2);
-	});
-
-	it("falls back to the night the run started from", () => {
-		// On the morning of a run there is no night after it yet, and the one
-		// it started from is the half of the question that does exist.
-		const out = buildDashboard({
-			activities: runs,
-			plan: PLAN,
-			today,
-			recovery: nights().filter((n) => n.day !== today),
-		});
-		expect(out.lastRun.night).toBeNull();
-		expect(out.lastRun.nightBefore.day).toBe(addDays(today, -1));
-	});
-
-	it("says what a hard day costs, measured rather than assumed", () => {
-		const hard = dashboard().recovery.response.hardDays;
-		expect(hard.afterHard.nights).toBe(10);
-		expect(hard.sleepDeltaSec).toBe(-hours(1));
-		expect(hard.restingHrDelta).toBe(5);
-		expect(hard.hrvDelta).toBe(-9);
-		expect(hard.nightsToBaseline).toBe(2);
+	it("hangs no night on the run, however well they line up", () => {
+		// The nights in this fixture are built to follow the sessions, so a
+		// panel that wanted to claim the run explained them would have every
+		// encouragement here. It can't be said from a night and a run alone —
+		// see response.js — so the run panel stays about the running.
+		const out = dashboard();
+		expect(out.lastRun.night).toBeUndefined();
+		expect(out.lastRun.nightBefore).toBeUndefined();
+		expect(out.recovery.response.hardDays).toBeUndefined();
 	});
 
 	it("reads form against the body's own markers", () => {
@@ -704,7 +685,6 @@ describe("where the ring meets the training", () => {
 
 	it("leaves the run itself alone when there's no ring at all", () => {
 		const out = buildDashboard({ activities: runs, plan: PLAN, today });
-		expect(out.lastRun.night).toBeNull();
 		expect(out.recovery).toBeNull();
 	});
 });
