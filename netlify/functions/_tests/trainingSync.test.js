@@ -56,7 +56,10 @@ function detailFor(summary) {
 
 // Stand in for Strava. `quota` is echoed back as rate-limit headers so the
 // budget logic can be driven from a test.
-function mockStrava({ activities = [], quota = null, failStreams = false } = {}) {
+// `listing` overrides what /athlete/activities returns without changing what
+// the detail endpoint will serve, which is how a re-shape looks from here: the
+// runs are all stored, nothing is new, and the listing has nothing to say.
+function mockStrava({ activities = [], listing = null, quota = null, failStreams = false } = {}) {
 	const calls = [];
 	globalThis.fetch = vi.fn(async (url) => {
 		const target = String(url);
@@ -72,7 +75,7 @@ function mockStrava({ activities = [], quota = null, failStreams = false } = {})
 		}
 		if (target.includes("/athlete/activities")) {
 			const page = Number(new URL(target).searchParams.get("page"));
-			return reply(page === 1 ? activities : []);
+			return reply(page === 1 ? (listing ?? activities) : []);
 		}
 		if (target.includes("/athlete/zones")) {
 			return reply({ heart_rate: { zones: [{ min: 0, max: 130 }] } });
@@ -211,6 +214,10 @@ describe("trainingSync", () => {
 
 	// Bumping SHAPE_VERSION is the only way stored records get corrected, since
 	// the derived fields come from streams that aren't kept.
+	//
+	// The listing here has nothing to offer — every run is already stored and
+	// none are new — so a re-shape that waited to be told what to fetch would
+	// do nothing at all. The stale records are queued from the index.
 	it("re-enriches records left behind by an older shape version", async () => {
 		mockStrava({ activities: summaries(2) });
 		await sync();
@@ -219,10 +226,48 @@ describe("trainingSync", () => {
 			index().map((a) => ({ ...a, v: SHAPE_VERSION - 1 })),
 		);
 
+		mockStrava({ activities: summaries(2), listing: [] });
 		const { body } = await sync();
+		expect(body.synced).toBe(2);
+		expect(body.outstanding).toBe(0);
+		expect(index().every((a) => a.v === SHAPE_VERSION)).toBe(true);
+	});
+
+	// The bug that made a version bump take days instead of an hour. Paging
+	// back through the block costs three reads, and at a five-minute cadence
+	// that's 864 a day against a limit of a thousand — so the sync spent its
+	// entire quota being told ids it had on disk, and had nothing left to
+	// fetch them with. One run trickled in every five minutes.
+	it("re-shapes without paging back through the block", async () => {
+		mockStrava({ activities: summaries(2) });
+		await sync();
+		const caughtUp = cursor().lastActivityEpoch;
+		expect(caughtUp).toBeGreaterThan(0);
+		blobs.set(
+			"index.json",
+			index().map((a) => ({ ...a, v: SHAPE_VERSION - 1 })),
+		);
+
+		const calls = mockStrava({ activities: summaries(2), listing: [] });
+		const { body } = await sync();
+
+		expect(body.rescan).toBe(false);
+		const listings = calls.filter((c) => c.includes("/athlete/activities"));
+		expect(listings).toHaveLength(1);
+		expect(Number(new URL(listings[0]).searchParams.get("after"))).toBe(caughtUp);
+	});
+
+	it("still pages the whole block back when asked outright", async () => {
+		mockStrava({ activities: summaries(2) });
+		await sync();
+
+		const calls = mockStrava({ activities: summaries(2) });
+		const { body } = await sync("?full=1");
+
 		expect(body.rescan).toBe(true);
 		expect(body.synced).toBe(2);
-		expect(index().every((a) => a.v === SHAPE_VERSION)).toBe(true);
+		const listing = calls.find((c) => c.includes("/athlete/activities"));
+		expect(Number(new URL(listing).searchParams.get("after"))).toBeLessThan(cursor().lastActivityEpoch);
 	});
 
 	it("stores a manual entry that has no streams rather than dropping it", async () => {
