@@ -237,21 +237,10 @@ anything; feeding a second source into part of that system pushes form
 permanently negative by roughly the daily load of whatever the extra source was
 (this was tried with rides, and reverted — see `_shared/training/fitness.js`).
 
-What the two sources are allowed to do is meet in time, in
+What the two sources are allowed to do is meet in one place, in
 `_shared/training/response.js`, which is read by `metrics.js` and by nothing
 else:
 
-- **The night after a run** (`nightAfterDay`) — sleep, resting heart rate and
-  HRV from the morning after, each against that athlete's own 28-day baseline,
-  attached to the Last run panel. Every other number on that panel is computed
-  from the run itself, so between them they can only repeat what the training
-  log already knew. On the morning of a run there is no night after it yet, so
-  the panel falls back to `nightBeforeDay`: not what the run cost, but what you
-  took into it.
-- **What a hard day costs** (`overnightCost`) — the nights after the hardest
-  third of the block's running days against the nights after everything else,
-  compared on medians, plus how many nights the heart rate takes to come back
-  down. A dose-response curve measured on one athlete rather than assumed.
 - **Form against the markers** (`strainSignal`) — form comes from load alone,
   so on its own it can only report back what you told it. The overnight numbers
   are an independent answer to the same question, and the two disagreements are
@@ -260,9 +249,18 @@ else:
   travel or short nights. It reaches the Recovery panel and the wording of
   three recommendation rules; it moves no metric.
 
+Two more questions of that shape were built and then removed: what last night's
+sleep says about this morning's run, and what the block's hardest days cost in
+sleep and resting heart rate against its easier ones. Both read as attribution
+however carefully they were worded, and a night has a run in it and also a late
+dinner, a hotel bed and a glass of wine. `strainSignal` survives because it
+needs no attribution — it asks whether two independent measurements agree,
+which is answerable without knowing why.
+
 The separation is asserted, not just documented: `metrics.test.js` builds the
 same block with and without a ring and requires every training number to be
-identical.
+identical, and a second test requires the Last run panel to carry no night at
+all against a fixture built to tempt it.
 
 ### Design tokens & theming
 

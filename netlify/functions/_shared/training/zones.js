@@ -6,24 +6,37 @@
 // uncomfortable running that accumulates fatigue without much adaptation. To
 // see that happening you need time-in-zone, not run counts.
 //
-// Zones come from the athlete's own Strava configuration when we have it, and
-// fall back to conventional percentages of max heart rate otherwise. Runs with
+// Zones are anchored on lactate threshold heart rate where the plan file knows
+// one, and fall back to heart-rate reserve and then percent of max. Runs with
 // no heart rate at all are classified from grade-adjusted pace instead, so a
 // forgotten strap doesn't quietly drop a session out of the distribution.
 
 import { reading } from "./num.js";
 import { isRecordingGap } from "./streams.js";
 
-// Zone boundaries as fractions, for zones 2 through 5. Applied to heart-rate
+// Zone boundaries as fractions of lactate threshold heart rate, for zones 2
+// through 5 — Friel's running zones.
+//
+// Threshold is the anchor to prefer whenever there is one, because it's the
+// only one of the three that's measured on the athlete rather than assumed
+// about them. Both fallbacks below derive the ladder from the ends of the
+// range and hope the interesting boundary lands somewhere sensible in the
+// middle; for a trained runner it doesn't. With a max of 195 and a resting
+// rate of 47, reserve puts zone 3 at 151 — while this athlete's measured
+// threshold is 175, which is 86% of reserve, in the middle of zone 4. The
+// whole ladder is scaled some fifteen beats low, and the symptom is a page
+// that books steady aerobic running as tempo: a rock-steady 7km at a median
+// of 151bpm came out 41% easy and 59% moderate, against Strava's 97% zone 2,
+// and four weeks of running read 28% easy when the honest figure is 57%.
+const LTHR_FRACTIONS = [0.86, 0.9, 0.95, 1];
+
+// Zone boundaries as fractions for the fallbacks, applied to heart-rate
 // reserve when a resting HR is known (the Karvonen method), and to raw max HR
 // otherwise.
 //
-// Reserve is strongly preferred. Percent-of-max ignores resting heart rate
-// entirely, so for an athlete with a low resting HR it puts the boundaries far
-// too low and books ordinary easy running as tempo — which then reports a
-// wildly pessimistic easy share and a permanent "your easy runs aren't easy
-// enough" warning. It also keeps this module consistent with load.js, which
-// already scores every run on heart-rate reserve.
+// Reserve is the better of the two. Percent-of-max ignores resting heart rate
+// entirely, so for an athlete with a low resting HR it puts the boundaries
+// lower still.
 const ZONE_FRACTIONS = [0.6, 0.7, 0.8, 0.9];
 
 // Zones 1-2 are easy, 3 is the middle ground, 4-5 are hard.
@@ -36,14 +49,25 @@ export const EASY_SHARE_TARGET = 80;
 /**
  * Lower bounds (in bpm) for zones 1 through 5.
  *
- * Prefers the athlete's own Strava zone configuration, then heart-rate
- * reserve, then percent of max HR.
+ * Prefers a measured lactate threshold, then the athlete's own Strava zone
+ * configuration, then heart-rate reserve, then percent of max HR.
  *
- * @param {{maxHr?: number, restingHr?: number}} thresholds
+ * Threshold outranks the Strava configuration because Strava's zones are
+ * usually nobody's decision at all — an athlete who has never opened that
+ * screen still has a full set, derived from percentages of max HR, and those
+ * are what the comparison above is against. The plan file's threshold is a
+ * number somebody measured and wrote down.
+ *
+ * @param {{maxHr?: number, restingHr?: number, lactateThresholdHr?: number}} thresholds
  * @param {{min: number, max: number}[]} [athleteZones] Strava's configured zones.
  * @returns {number[]|null} five ascending bpm floors.
  */
 export function hrZoneFloors(thresholds = {}, athleteZones = null) {
+	const lactateThreshold = reading(thresholds.lactateThresholdHr);
+	if (Number.isFinite(lactateThreshold) && lactateThreshold > 0) {
+		return [0, ...LTHR_FRACTIONS.map((f) => f * lactateThreshold)];
+	}
+
 	if (Array.isArray(athleteZones) && athleteZones.length >= 5) {
 		const floors = athleteZones.slice(0, 5).map((z) => reading(z?.min));
 		// Must be complete AND ascending: zoneOfHr walks the ladder downward

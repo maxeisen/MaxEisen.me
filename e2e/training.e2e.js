@@ -82,43 +82,32 @@ test("recovery is reported beside the training, not inside it", async ({ page })
 	await expect(panel.getByText("average night, last 7")).toBeVisible();
 
 	// The measures that carry the argument: an overnight resting rate and a
-	// variability figure, each against the athlete's own baseline. Scoped to
-	// the summary list, since the panel now reports the same two measures
-	// again as what a hard day does to them.
+	// variability figure, each against the athlete's own baseline.
 	const detail = panel.locator(".detail");
 	await expect(detail.getByText("Resting HR")).toBeVisible();
 	await expect(detail.getByText("HRV")).toBeVisible();
 	await expect(panel.locator(".bar").first()).toBeVisible();
 });
 
-// Beside the training is not the same as unrelated to it. The one thing the
-// ring can do that the training log can't is answer what a hard day actually
-// costs this athlete, and that only exists once nights are lined up with the
-// days before them.
-test("recovery says what a hard day costs, in the athlete's own numbers", async ({ page }) => {
+test("a run carries what the athlete wrote about it, and nothing else", async ({ page }) => {
 	await page.goto("/training");
-	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
-	const cost = panel.locator(".cost");
+	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
 
-	await expect(cost.getByRole("heading", { name: "What a hard day costs you" })).toBeVisible();
-	// Signed deltas against the nights after everything else, not absolutes.
-	await expect(cost.locator("dd").first()).toHaveText(/^[+-]\d+ min$/);
-	await expect(cost.getByText(/[+-]\d+ bpm/)).toBeVisible();
-	// How long it takes to come back, which is the number you'd plan around.
-	await expect(cost.getByText(/back down by the (next|second) night/)).toBeVisible();
+	const note = log.locator(".row-note").first();
+	await expect(note).toContainText("wedding in the evening");
+	await expect(note).toContainText("why");
+	// The untagged half of the same description. It was written for Strava's
+	// audience rather than this one, and it must not be on a public page.
+	await expect(page.getByText(/Out and back along the water/)).toHaveCount(0);
 });
 
-test("the last run carries the night either side of it", async ({ page }) => {
+// The fixture's nights are generated to follow the day before them, so a page
+// willing to blame a run for a night would have every opportunity here.
+test("no panel blames a run for the night around it", async ({ page }) => {
 	await page.goto("/training");
+	await expect(page.getByText(/hard day costs/i)).toHaveCount(0);
 	const panel = page.locator("section.card").filter({ hasText: "Last run" }).first();
-	const night = panel.locator(".night");
-
-	// The fixture's last run is this morning's, so the night after it hasn't
-	// happened and the panel reports the one it started from instead.
-	await expect(night).toContainText("Went into it on");
-	await expect(night).toContainText(/\d+h \d+m/);
-	await expect(night).toContainText(/\d+ bpm resting/);
-	await expect(night).toContainText("against your own month");
+	await expect(panel.getByText(/night|slept/i)).toHaveCount(0);
 });
 
 test("form is read against the body, not only against the training log", async ({ page }) => {

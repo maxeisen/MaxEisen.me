@@ -21,24 +21,12 @@
 
     let { recovery = null } = $props();
 
-    // How long a "back to baseline" answer is worth spelling out in words.
-    const NIGHT_WORDS = new Map([
-        [1, "usually back down by the next night"],
-        [2, "usually back down by the second night"],
-        [3, "usually three nights before it's back down"],
-        [4, "usually four nights before it's back down"],
-    ]);
-
     // Matching the server's thresholds (recovery.js). Duplicated rather than
     // shipped in the payload because they're constants of the model, not of
     // the data — if they diverge, the panel and the advice would disagree
     // about the same night, which is worse than either being wrong.
     const SLEEP_TARGET_SEC = 7 * 3600;
     const RHR_RISE_BPM = 5;
-
-    // Half an hour either way is a normal night; this is asking whether the
-    // hard days are costing you one.
-    const SHORT_NIGHT_SEC = 30 * 60;
 
     const CHART_W = 300;
     const CHART_H = 100;
@@ -124,39 +112,6 @@
     const signed = (value, unit) =>
         Number.isFinite(value) ? `${value > 0 ? "+" : ""}${Math.round(value)}${unit}` : "—";
 
-    // What a hard day costs this athlete, measured rather than assumed: the
-    // nights after the hardest third of the block's running days against the
-    // nights after everything else. The panel is otherwise all trend, and a
-    // trend can't answer "what does a session actually do to me".
-    const cost = $derived(recovery?.response?.hardDays || null);
-
-    const costs = $derived(
-        cost
-            ? [
-                    {
-                        key: "sleep",
-                        label: "Sleep",
-                        value: Number.isFinite(cost.sleepDeltaSec) ? `${signed(cost.sleepDeltaSec / 60, "")} min` : "—",
-                        bad: cost.sleepDeltaSec <= -SHORT_NIGHT_SEC,
-                    },
-                    {
-                        key: "hr",
-                        label: "Resting HR",
-                        value: signed(cost.restingHrDelta, " bpm"),
-                        bad: cost.restingHrDelta >= RHR_RISE_BPM,
-                    },
-                    { key: "hrv", label: "HRV", value: signed(cost.hrvDelta, " ms"), bad: false },
-                ]
-            : [],
-    );
-
-    const backDown = $derived(
-        cost && Number.isFinite(cost.nightsToBaseline)
-            ? NIGHT_WORDS.get(Math.round(cost.nightsToBaseline)) ||
-                  `still up ${cost.cappedAt} nights later`
-            : null,
-    );
-
     // Form is computed from the training log and nothing else, so on its own
     // it can only tell you what you already told it. This is whether the body
     // agrees — and the two cases worth a sentence are the ones where it
@@ -233,24 +188,6 @@
             </ChartFrame>
             </div>
             <p class="chart-unit">nightly sleep · line at {formatDuration(SLEEP_TARGET_SEC)}</p>
-        {/if}
-
-        {#if cost}
-            <div class="cost">
-                <h3>What a hard day costs you</h3>
-                <dl class="cost-grid">
-                    {#each costs as item (item.key)}
-                        <div>
-                            <dt>{item.label}</dt>
-                            <dd class:over={item.bad}>{item.value}</dd>
-                        </div>
-                    {/each}
-                </dl>
-                <p class="cost-note">
-                    The {cost.afterHard.nights} nights after your hardest training days, against the
-                    {cost.afterEasy.nights} after everything else{backDown ? ` — ${backDown}` : ""}.
-                </p>
-            </div>
         {/if}
 
         <dl class="detail">
@@ -367,37 +304,6 @@
     .verdict.tone-good { border-left-color: var(--tone-good); }
     .verdict.tone-warn { border-left-color: var(--tone-warn); }
     .verdict.tone-bad { border-left-color: var(--tone-bad); }
-
-    .cost { margin-top: var(--space-4); }
-    .cost h3 {
-        margin: 0 0 var(--space-2);
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-        font-weight: 600;
-    }
-    .cost-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: var(--space-2);
-        margin: 0;
-    }
-    .cost-grid div {
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-        padding: var(--space-3);
-        background: var(--item-background);
-        border-radius: var(--radius-sm);
-    }
-    .cost-note {
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        line-height: 1.5;
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-    }
 
     .detail {
         display: grid;

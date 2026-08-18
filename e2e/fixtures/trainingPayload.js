@@ -77,11 +77,10 @@ function streamsFor({ distance, movingTime, averageHr, next }) {
 // a fixture of identical perfect nights would pass a rendering test while
 // hiding whether the "short night" case draws at all.
 //
-// Each night answers to the day before it, because the panel now measures
-// exactly that: what a hard day costs overnight, read off this athlete rather
-// than assumed (see _shared/training/response.js). Nights generated
-// independently of the running would draw a dose-response curve of pure noise
-// and prove nothing about whether the alignment works.
+// Each night answers to the day before it, which is now a temptation rather
+// than a feature. No panel attributes a night to a run any more — a night has
+// too much else in it, see _shared/training/response.js — and nights that
+// visibly track the training are what makes that assertion worth making.
 function nightsUpTo(today, next, loads) {
 	const end = new Date(`${today}T00:00:00Z`);
 	return Array.from({ length: 42 }, (_, i) => {
@@ -170,6 +169,12 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 			"max_heartrate": 172 + next() * 15,
 			"average_cadence": 84 + next() * 6,
 			"workout_type": isLong ? 2 : dow === 5 ? 3 : 0,
+			// A tagged line and an untagged one, because publishing the first
+			// and keeping the second is the whole of notes.js and it's worth
+			// one assertion against a real payload.
+			description: isLong
+				? "Out and back along the water with Sam.\nexcuse: wedding in the evening, cut it to 10k"
+				: undefined,
 			// Whole kilometres, then the fragment Strava sends for however far
 			// past the last one you actually got. Real runs almost never end on
 			// a round number, and that stub's pace is where the panel's chart
