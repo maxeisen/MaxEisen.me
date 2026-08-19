@@ -46,10 +46,6 @@
             Number.isFinite(readings?.sleepSec) && Number.isFinite(readings?.sleepBaselineSec)
                 ? (readings.sleepSec - readings.sleepBaselineSec) / 3600
                 : null;
-        const rhrDelta =
-            Number.isFinite(readings?.restingHr) && Number.isFinite(readings?.rhrBaseline)
-                ? readings.restingHr - readings.rhrBaseline
-                : null;
         return [
             { key: "form", label: "Form", value: Number.isFinite(scores.form) ? signed(scores.form) : null },
             { key: "sleep", label: "Sleep", value: Number.isFinite(sleepHours) ? `${signed(sleepHours)}h` : null },
@@ -58,7 +54,7 @@
                 label: "HRV",
                 value: Number.isFinite(readings?.averageHrv) ? String(Math.round(readings.averageHrv)) : null,
             },
-            { key: "rhr", label: "RHR", value: Number.isFinite(rhrDelta) ? signed(rhrDelta, 0) : null },
+            { key: "rhr", label: "RHR", value: Number.isFinite(readings?.restingHr) ? String(Math.round(readings.restingHr)) : null },
         ].filter((term) => term.value !== null);
     });
 

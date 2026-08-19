@@ -21,7 +21,7 @@ export const GLOSSARY = {
 		],
 		terms: [
 			{ term: "Training", definition: "Today's fitness, fatigue and form against yesterday's close. A rest day still moves them — fatigue decays faster than fitness, so form usually lifts. A run is already in these numbers once it has synced." },
-			{ term: "Readiness", definition: "A signed number like form, not a 0–100 score. The ingredients under it are last night in their own units — hours of sleep, HRV in milliseconds, resting heart rate in bpm — so a low overnight heart rate reads as a drop, not a positive score. Last night doesn't change until tomorrow; today's run moves readiness only through form." },
+			{ term: "Readiness", definition: "A signed number like form, not a 0–100 score. The row under it is last night in its own units — extra hours of sleep, HRV in milliseconds, resting heart rate in bpm — not the points that went into the mean. A lower overnight heart rate raises readiness; a rise is what counts against you. Last night doesn't change until tomorrow; today's run moves readiness only through form." },
 			{ term: "Session", definition: "What the plan asked for today, and whether it's still ahead, done, extra, or a rest day. An 8am blank is ahead, not missed." },
 			{ term: "Projected", definition: "What today's session did to the projected finish, not the finish itself. No run yet is no change. A run that doesn't beat the current 5k+ basis is no change either; the new time only appears here when this session moved it." },
 		],
