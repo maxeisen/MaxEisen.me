@@ -25,6 +25,7 @@
     import { bestSplit, worthMoving } from "./lib/balance.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
+    import Today from "./sections/Today.svelte";
     import LastRun from "./sections/LastRun.svelte";
     import Recommendations from "./sections/Recommendations.svelte";
     import VolumeChart from "./sections/VolumeChart.svelte";
@@ -143,8 +144,9 @@
         requestAnimationFrame(() => rebalance());
     });
 
+    const todayKey = $derived(data?.today?.date || null);
     const currentWeek = $derived(
-        data?.weeks?.find((w) => w.start === weekStartOf(data.today)) || null,
+        data?.weeks?.find((w) => w.start === weekStartOf(todayKey)) || null,
     );
 
     // Monday of a given day key, mirroring the server's week anchoring.
@@ -230,11 +232,11 @@
     {#if id === "lastRun"}
         <LastRun run={data.lastRun} />
     {:else if id === "volume"}
-        <VolumeChart weeks={data.weeks} today={data.today} />
+        <VolumeChart weeks={data.weeks} today={todayKey} />
     {:else if id === "fitness"}
-        <FitnessChart series={data.series} today={data.today} />
+        <FitnessChart series={data.series} today={todayKey} />
     {:else if id === "efficiency"}
-        <AerobicEfficiency efficiency={data.efficiency} summary={data.summary} today={data.today} />
+        <AerobicEfficiency efficiency={data.efficiency} summary={data.summary} today={todayKey} />
     {:else if id === "recommendations"}
         <Recommendations recommendations={data.recommendations} />
     {:else if id === "prediction"}
@@ -271,6 +273,10 @@
         <RaceHeader summary={data.summary} />
 
         <SyncNotice sync={data.sync} runCount={data.runs?.length ?? 0} />
+
+        <div class="today-strip">
+            <Today today={data.today} />
+        </div>
 
         <div
             class="grid drag-grid"
@@ -331,6 +337,10 @@
         color: var(--paragraph-colour);
     }
 
+    .today-strip {
+        margin-bottom: var(--space-4);
+        min-width: 0;
+    }
     .grid {
         display: grid;
         grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);

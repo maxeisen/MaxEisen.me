@@ -10,6 +10,7 @@ import { hrZoneFloors, intensitySplit } from "./zones.js";
 import { efficiencyTrend } from "./efficiency.js";
 import { collectBestEfforts, publicRun } from "./shape.js";
 import { lastRunDetail } from "./lastRun.js";
+import { todayBriefing } from "./today.js";
 import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
 import {
 	blockRange,
@@ -174,8 +175,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		? { strain: strainSignal({ tsb: latest?.tsb ?? null, recovery: recovered }) }
 		: null;
 
-	const prediction = predictRace(collectBestEfforts(runs), race.distanceM || 42195);
-	const goalPace = goalPaceSecPerKm(race.goalTimeSec, race.distanceM || 42195);
+	const raceDistanceM = race.distanceM || 42195;
+	const efforts = collectBestEfforts(runs);
+	const prediction = predictRace(efforts, raceDistanceM);
+	const goalPace = goalPaceSecPerKm(race.goalTimeSec, raceDistanceM);
 	const delta = prediction ? goalDelta(prediction.predictedSec, race.goalTimeSec) : null;
 
 	const lastLongRun = [...runs]
@@ -195,6 +198,15 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		thresholds,
 		today: day,
 	});
+
+	const days = current ? planDays(current, runs, day) : [];
+	const actualToday = runs.filter((r) => toDayKey(r.startDateLocal) === day);
+	const todayRow = days.find((d) => d.date === day) || {
+		date: day,
+		planned: [],
+		actualKm: actualToday.reduce((sum, r) => sum + (Number(r.distanceM) || 0), 0) / 1000,
+		runs: actualToday.length,
+	};
 
 	const remainingDays = daysToRace(plan, day);
 	const totals = runs.reduce(
@@ -302,13 +314,25 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		strain: response?.strain ?? null,
 	});
 
+	const briefing = todayBriefing({
+		date: day,
+		series,
+		day: todayRow,
+		recovery: recovered,
+		efforts,
+		targetDistanceM: raceDistanceM,
+	});
+
 	return {
 		// When this payload was computed, which is not when Strava was last
 		// read — that's sync.lastRunAt, and it's the one worth showing anyone.
 		// This one exists to tell a stale CDN copy from a fresh one, and it
 		// ticks forward on a rebuild that changed nothing.
 		generatedAt: new Date().toISOString(),
-		today: day,
+		// The day key used to live here as a string. The briefing needs that
+		// date too, and the strip is what the page actually asks for, so the
+		// key moved inside: `today.date`.
+		today: briefing,
 		summary,
 		// Only the portion of the series that has happened; the tail to race
 		// day is empty by construction and would draw a slide to zero.
@@ -321,7 +345,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		week: current
 			? {
 					start: current.start,
-					days: planDays(current, runs, day),
+					days,
 					// The week's anchor session, reported as a day rather than
 					// as a total that fills up alongside the volume bar.
 					longRun: weekLongRun(current, runs, day),

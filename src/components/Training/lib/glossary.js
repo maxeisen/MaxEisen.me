@@ -13,6 +13,20 @@
 // into saying different things.
 
 export const GLOSSARY = {
+	today: {
+		title: "Today",
+		body: [
+			"Where today stands right now — not what the last run was, which may have been Tuesday. Fitness, fatigue and form still come from training load alone. Readiness sits beside them and never feeds them.",
+			"Readiness is the mean of four terms on the same scale as form: today's form, last night's sleep vs your 28-day baseline, last night's HRV vs that baseline, and overnight resting heart rate inverted so a rise counts against you. A notable overnight move is an hour of sleep, 15% HRV, or 5 bpm of resting heart rate; a spectacular night is capped so it cannot drown form. The row under the headline is physiology, not those scores. The projection cell is what today's session did to the finish, not a second copy of it — no session yet is no change, and an easy run that doesn't beat the current basis is no change either.",
+		],
+		terms: [
+			{ term: "Training", definition: "Today's fitness, fatigue and form against yesterday's close. A rest day still moves them — fatigue decays faster than fitness, so form usually lifts. A run is already in these numbers once it has synced." },
+			{ term: "Readiness", definition: "A signed number like form, not a 0–100 score. The row under it is last night in its own units — extra hours of sleep, HRV in milliseconds, resting heart rate in bpm — not the points that went into the mean. A lower overnight heart rate raises readiness; a rise is what counts against you. Last night doesn't change until tomorrow; today's run moves readiness only through form." },
+			{ term: "Session", definition: "What the plan asked for today, and whether it's still ahead, done, extra, or a rest day. An 8am blank is ahead, not missed." },
+			{ term: "Projected", definition: "What today's session did to the projected finish, not the finish itself. No run yet is no change. A run that doesn't beat the current 5k+ basis is no change either; the new time only appears here when this session moved it." },
+		],
+	},
+
 	lastRun: {
 		title: "Last run",
 		body: [

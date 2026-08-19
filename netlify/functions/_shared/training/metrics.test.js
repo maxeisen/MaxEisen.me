@@ -570,6 +570,9 @@ describe("buildDashboard with recovery", () => {
 		expect(after.summary.acwr).toEqual(before.summary.acwr);
 		expect(after.summary.totals).toEqual(before.summary.totals);
 		expect(after.weeks).toEqual(before.weeks);
+		expect(after.today.training).toEqual(before.today.training);
+		expect(after.today.session).toEqual(before.today.session);
+		expect(after.today.prediction).toEqual(before.today.prediction);
 	});
 
 	it("carries the ring's own numbers into the payload", () => {
@@ -681,11 +684,58 @@ describe("where the ring meets the training", () => {
 		expect(withRing.series).toEqual(without.series);
 		expect(withRing.summary).toEqual(without.summary);
 		expect(withRing.lastRun.impact).toEqual(without.lastRun.impact);
+		expect(withRing.today.training).toEqual(without.today.training);
+		expect(without.today.readiness).toBeNull();
+		expect(withRing.today.readiness.value).toEqual(expect.any(Number));
 	});
 
 	it("leaves the run itself alone when there's no ring at all", () => {
 		const out = buildDashboard({ activities: runs, plan: PLAN, today });
 		expect(out.recovery).toBeNull();
+	});
+});
+
+describe("the today briefing", () => {
+	it("is an object about today, not the day key the engine was called with", () => {
+		const out = buildDashboard({
+			activities: block("2026-08-11", 10),
+			plan: PLAN,
+			today: "2026-08-11",
+		});
+		expect(out.today.date).toBe("2026-08-11");
+		expect(out.today.training.tsb).toEqual(expect.any(Number));
+		expect(out.today.readiness).toBeNull();
+	});
+
+	it("calls the session done when today's run has landed, ahead when it hasn't", () => {
+		const planned = {
+			...PLAN,
+			weeks: [
+				{
+					start: "2026-08-10",
+					sessions: [
+						{ day: "Tuesday", type: "easy run", distanceKm: 8, detail: "8km Easy Run" },
+						{ day: "Wednesday", type: "easy run", distanceKm: 8, detail: "8km Easy Run" },
+					],
+				},
+			],
+		};
+		const tuesday = buildDashboard({
+			activities: block("2026-08-11", 1, { distanceM: 8000 }),
+			plan: planned,
+			today: "2026-08-11",
+		});
+		expect(tuesday.today.session.status).toBe("done");
+		expect(tuesday.lastRun.date).toBe("2026-08-11");
+
+		const wednesday = buildDashboard({
+			activities: block("2026-08-11", 1, { distanceM: 8000 }),
+			plan: planned,
+			today: "2026-08-12",
+		});
+		expect(wednesday.lastRun.date).toBe("2026-08-11");
+		expect(wednesday.today.session.status).toBe("ahead");
+		expect(wednesday.today.training.load).toBe(0);
 	});
 });
 
