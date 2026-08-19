@@ -20,13 +20,13 @@
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "eslint": "^8.57.1",
     "eslint-plugin-svelte": "^2.46.1",
-    "netlify-cli": "27.0.1",
+    "netlify-cli": "27.1.2",
     "svelte": "^5.56.5",
     "vite": "^8.1.4",
     "vitest": "^4.1.9"
   },
   "dependencies": {
-    "@netlify/blobs": "^10.7.9",
+    "@netlify/blobs": "^10.7.13",
     "cloudinary": "^2.10.0",
     "jszip": "^3.10.1",
     "maplibre-gl": "^5.24.0",
