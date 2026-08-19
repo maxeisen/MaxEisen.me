@@ -84,11 +84,32 @@ const WORK_DEADLINE_MS = 20_000;
 //
 // Rather than making a settled record pending again (which would re-fetch the
 // streams to recompute numbers that cannot have moved), the last few days are
-// swept on the hour for the description alone: one call each, and only the
-// notes are patched across. Three days because a note that hasn't been written
-// by then isn't coming, and hourly because the wait to see it is the cost.
+// swept for the description alone: one call each, and only the notes are
+// patched across. Three days because a note that hasn't been written by then
+// isn't coming.
+//
+// How long the sweep waits between passes is the whole delay on seeing a note,
+// and the odds of there being one to see are not flat over those three days.
+// They spike right after a run lands: the note is usually typed in the same
+// sitting as the upload, or in the hour or two after it while the run is still
+// the thing being looked at. So for the first few hours after an activity
+// first appears the sweep runs on every invocation — the same five minutes the
+// activity itself took to show up, so a note written beside it isn't waiting
+// an hour behind a run the page already has. After that the odds flatten out
+// and it falls back to hourly, which is what a note remembered the next
+// morning is worth.
+//
+// The fast pass is bounded by an activity arriving rather than by a clock, so
+// the steady state is still the hourly one: a week with no runs in it costs
+// exactly what it did before. A day with a run in it costs the three hours
+// after it — 36 invocations of at most NOTE_BUDGET reads each, against a daily
+// share of 750 that the listing spends 288 of. The quota guard is what makes
+// that a ceiling rather than a promise: the sweep stands down at its share
+// like everything else here, so a busy day trims the fast pass rather than
+// taking the window the /dashboard widgets need.
 const NOTE_WINDOW_DAYS = 3;
 const NOTE_RESCAN_MS = 60 * 60 * 1000;
+const NOTE_FRESH_WINDOW_MS = 3 * 60 * 60 * 1000;
 const NOTE_BUDGET = 5;
 
 // Chronic training load is a 42-day average, so the block needs a run-up of
@@ -261,6 +282,14 @@ async function fetchStreams(id, token) {
 	}
 }
 
+// A record a note sweep would look at at all: recent enough that a note could
+// still be written on it, and a run rather than a ride, since a ride's
+// description is never read for notes.
+function inNoteWindow(record, today) {
+	if (record?.sport === "ride") return false;
+	return toDayKey(record?.startDateLocal) >= addDays(today, -NOTE_WINDOW_DAYS);
+}
+
 /**
  * Bring the notes on the last few days' runs up to date, in place.
  *
@@ -274,10 +303,7 @@ async function fetchStreams(id, token) {
  * @returns {Promise<number>} how many were refreshed.
  */
 async function refreshNotes(records, token, today, deadline) {
-	const from = addDays(today, -NOTE_WINDOW_DAYS);
-	const recent = records
-		.filter((a) => a?.sport !== "ride" && toDayKey(a?.startDateLocal) >= from)
-		.slice(-NOTE_BUDGET);
+	const recent = records.filter((a) => inNoteWindow(a, today)).slice(-NOTE_BUDGET);
 
 	let refreshed = 0;
 	for (const record of recent) {
@@ -462,12 +488,29 @@ export default async function handler(req) {
 
 	// Deliberately last, and deliberately not part of the staleness pass
 	// above: nothing here can make a record pending, so a sweep that runs out
-	// of budget just leaves a note until the next hour. Skipped entirely while
+	// of budget just leaves a note until the next pass. Skipped entirely while
 	// there's backfill outstanding, which is when the calls are worth more
 	// spent on runs that have no numbers at all yet.
+	const today = todayKey();
+
+	// When a run last turned up that a note could be written on. Wall-clock
+	// arrival rather than the run's own start time, because what starts the
+	// clock is the activity reaching the page — an upload hours after a race,
+	// or a watch that only syncs when it finds wifi, is still a run the
+	// athlete is looking at now.
+	//
+	// Gated on the record being one the sweep would read anyway, which is what
+	// keeps a cold start from spending three hours sweeping every five minutes
+	// on the strength of a four-month backfill of run-up history.
+	const arrived = shaped.some((a) => !current.has(String(a.id)) && inNoteWindow(a, today));
+	const arrivedAt = arrived ? new Date().toISOString() : cursor?.activityArrivedAt || null;
+	const fresh = Date.now() - (Date.parse(arrivedAt || "") || 0) < NOTE_FRESH_WINDOW_MS;
+
 	const lastNoteScan = Date.parse(cursor?.notesScannedAt || "") || 0;
-	const scanNotes = !rateLimited && work.length === 0 && Date.now() - lastNoteScan >= NOTE_RESCAN_MS;
-	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, todayKey(), deadline) : 0;
+	// Zero is every invocation, which is the schedule's five minutes.
+	const noteInterval = fresh ? 0 : NOTE_RESCAN_MS;
+	const scanNotes = !rateLimited && work.length === 0 && Date.now() - lastNoteScan >= noteInterval;
+	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, today, deadline) : 0;
 
 	// Two kinds of incomplete, and only one of them is worth interrupting a
 	// reader over.
@@ -505,8 +548,14 @@ export default async function handler(req) {
 		writeJson(store, CURSOR_KEY, {
 			lastRunAt: new Date().toISOString(),
 			// Stamped on the attempt rather than on a success, so a sweep that
-			// finds nothing to do doesn't retry every five minutes.
+			// finds nothing to do waits out its interval instead of being
+			// retried on the next invocation — which, outside the fast window,
+			// is the difference between hourly and every five minutes.
 			notesScannedAt: scanNotes ? new Date().toISOString() : cursor?.notesScannedAt || null,
+			// What the fast window is measured from, and why it survives the
+			// invocation that opened it: the run that starts the clock arrives
+			// on a pass that has backfill outstanding and so doesn't sweep.
+			activityArrivedAt: arrivedAt,
 			lastActivityEpoch: allListedStored ? latestEpoch : cursor?.lastActivityEpoch || null,
 			// What the page needs to describe a partial history honestly. Only
 			// `missing` reaches a reader; `stale` is here to be read in a log
@@ -523,6 +572,9 @@ export default async function handler(req) {
 		runs: candidates.length,
 		synced: shaped.length,
 		notesRefreshed,
+		// Whether the sweep is on the five-minute cadence or the hourly one,
+		// which is otherwise only visible as a read count in Strava's quota.
+		notesFresh: fresh,
 		stored: merged.length,
 		missing,
 		stale,
@@ -540,7 +592,8 @@ export default async function handler(req) {
 // is the whole delay rather than half of it.
 //
 // Once caught up an invocation is two upstream calls: a token refresh and one
-// activity listing. Strava meters those in two buckets and the tighter one is
+// activity listing — plus, on the pass that sweeps notes, a call per run in
+// that sweep. Strava meters those in two buckets and the tighter one is
 // reads — 100 per 15 minutes and 1,000 per day at the standard tier — but only
 // the listing is a read, since the refresh is a POST to /oauth/token. So this
 // cadence spends about 288 reads a day of 1,000, and three of the 100 in any

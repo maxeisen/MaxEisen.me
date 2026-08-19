@@ -335,6 +335,108 @@ describe("trainingSync", () => {
 		expect(index()).toEqual(before);
 	});
 
+	// A note is written after the run it explains, so the sweep is the only
+	// thing that ever picks one up — and how long it waits between passes is
+	// the whole delay on seeing it. The property worth asserting is that the
+	// wait is short exactly when a note is likely (just after a run landed)
+	// and long the rest of the time, since the calls come out of the same
+	// quota the /dashboard widgets are drawing on.
+	describe("the note sweep", () => {
+		// The sweep only reads the last few days, and the sync's days are the
+		// athlete's rather than UTC.
+		const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" });
+
+		function justRun(description) {
+			return [
+				{
+					id: 9001,
+					name: "Long run",
+					type: "Run",
+					sport_type: "Run",
+					private: false,
+					start_date_local: `${today()}T07:00:00Z`,
+					distance: 22000,
+					moving_time: 6600,
+					...(description === undefined ? {} : { description }),
+				},
+			];
+		}
+
+		const notes = () => index()[0].notes;
+
+		it("picks up a note written minutes after the run, not an hour after it", async () => {
+			mockStrava({ activities: justRun() });
+			await sync();
+			expect(notes()).toEqual([]);
+
+			// The sweep the run's arrival opened. Under an hourly cadence this
+			// one would land too, since nothing has been swept yet.
+			mockStrava({ activities: justRun("excuse: knee, cut it to 10k") });
+			const first = await sync();
+			expect(first.body.notesFresh).toBe(true);
+			expect(first.body.notesRefreshed).toBe(1);
+			expect(notes()).toEqual([{ kind: "excuse", text: "knee, cut it to 10k" }]);
+
+			// This is the one the hourly cadence would have made the athlete
+			// wait for: an edit five minutes later, on the same run.
+			mockStrava({ activities: justRun("note: new shoes") });
+			const second = await sync();
+			expect(second.body.notesRefreshed).toBe(1);
+			expect(notes()).toEqual([{ kind: "note", text: "new shoes" }]);
+		});
+
+		// Five minutes is worth its calls while the run is the thing being
+		// looked at. A day later it's spending a quota shared with the
+		// dashboard on a description nobody is editing.
+		it("drops back to hourly once the run is a few hours old", async () => {
+			mockStrava({ activities: justRun() });
+			await sync();
+
+			const hoursAgo = (h) => new Date(Date.now() - h * 3600_000).toISOString();
+			blobs.set("cursor.json", {
+				...cursor(),
+				activityArrivedAt: hoursAgo(4),
+				notesScannedAt: hoursAgo(0.25),
+			});
+
+			mockStrava({ activities: justRun("note: written much later") });
+			const soon = await sync();
+			expect(soon.body.notesFresh).toBe(false);
+			expect(soon.body.notesRefreshed).toBe(0);
+			expect(notes()).toEqual([]);
+
+			blobs.set("cursor.json", { ...cursor(), notesScannedAt: hoursAgo(2) });
+			const later = await sync();
+			expect(later.body.notesRefreshed).toBe(1);
+			expect(notes()).toEqual([{ kind: "note", text: "written much later" }]);
+		});
+
+		// The window is opened by a run the sweep would actually read. A cold
+		// start stores four months of run-up history in one go, and none of
+		// it is a run somebody is about to write a note on.
+		it("isn't opened by a backfill of history nobody is looking at", async () => {
+			mockStrava({ activities: summaries(3) });
+			const { body } = await sync();
+
+			expect(body.synced).toBe(3);
+			expect(body.notesFresh).toBe(false);
+			expect(cursor().activityArrivedAt).toBeNull();
+		});
+
+		// Notes are the cheapest thing here and the least urgent. A run with
+		// no numbers on it at all is worth more than a description.
+		it("waits for the backfill before spending anything on descriptions", async () => {
+			const calls = mockStrava({ activities: [...justRun("note: hello"), ...summaries(40)] });
+			const { body } = await sync();
+
+			expect(body.missing).toBeGreaterThan(0);
+			expect(body.notesRefreshed).toBe(0);
+			// Every detail call this made was an enrichment, which carries its
+			// query string; a note refresh asks for the activity bare.
+			expect(calls.filter((c) => /\/activities\/\d+$/.test(c))).toHaveLength(0);
+		});
+	});
+
 	describe("the Oura window", () => {
 		// Oura's date range excludes its end. Asking through today therefore
 		// returns every night except last night, and the failure is quiet:
