@@ -37,5 +37,11 @@
     "sharp": "^0.35.0",
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.4"
+  },
+  "overrides": {
+    "ipx": {
+      "sharp": "$sharp"
+    },
+    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5"
   }
 }
