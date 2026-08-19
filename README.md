@@ -336,6 +336,37 @@ on making that agree with the above:
   modules and numeric separators, so it misreads the source rather than finding
   anything in it; the file explains the specific failures.
 
+### Dependency overrides
+
+Most Dependabot alerts here are answered by taking the upgrade. The two in
+`overrides` are the ones where the vulnerable package sits several levels down
+inside `netlify-cli` and no release of its parent moves off it, so the only way
+to resolve them is to reach into the tree. Both are dev-only — `netlify-cli` is
+what `npm run dev` runs — and both should be deleted once the parent packages
+catch up, because an override that outlives its reason silently pins a
+dependency nobody is watching.
+
+- **`ipx` → `sharp`.** `ipx` still asks for `sharp@^0.34`, which carries the
+  libvips CVEs fixed in 0.35.0, and its 3.x line has no release that widens the
+  range. The override is written as `"sharp": "$sharp"` so `ipx` resolves to
+  whatever `dependencies.sharp` already says rather than a second version that
+  has to be bumped separately; the effect is that the local image server dedupes
+  onto the same `sharp` as the rest of the project. `ipx` calls the constructor,
+  the resize/rotate/blur handlers, `toFormat` and `toBuffer`, none of which 0.35
+  changed — including the positional `sharpen(sigma, flat, jagged)` form, which
+  0.35 kept while dropping the deprecated *properties* around it.
+- **`extract-zip` → `@electron-internal/extract-zip`.** CVE-2026-56876 (symlink
+  path traversal) has no patched version: 2.0.1 is both the latest release and
+  the last one, and upstream has been dormant since 2021. `netlify-cli` removed
+  its own usage, but `@netlify/functions-dev` still imports it, so the alert
+  arrives through that. The replacement is a hardened drop-in with no runtime
+  dependencies that rejects symlinks escaping the destination. Its README warns
+  it is maintained for Electron's own tooling, which is a real risk to accept
+  and the reason to drop the override rather than keep it; what makes it
+  tolerable meanwhile is how little of it is used. The single call site is
+  `unzipFunction`, which only runs for pre-zipped Functions, and every Function
+  in `netlify/functions/` is plain source.
+
 ## Website Quality
 MaxEisen.me has been developed and tested for optimal performance, accessibility, best practices, and SEO using Google's Lighthouse evaluation tool. It's also a <a href="https://web.dev/progressive-web-apps/" rel="noreferrer" target="_blank">PWA</a>!
 
