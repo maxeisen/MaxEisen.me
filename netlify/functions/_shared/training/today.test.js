@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { fitnessSeries } from "./fitness.js";
+import { predictRace } from "./predict.js";
 import { sessionOf, todayBriefing } from "./today.js";
 
 describe("sessionOf", () => {
@@ -54,7 +55,8 @@ describe("todayBriefing", () => {
 			series,
 			day: extra.day ?? { date: today, planned: [], actualKm: 0, runs: 0 },
 			recovery: extra.recovery ?? null,
-			prediction: extra.prediction ?? null,
+			efforts: extra.efforts,
+			targetDistanceM: extra.targetDistanceM,
 		});
 	}
 
@@ -99,22 +101,52 @@ describe("todayBriefing", () => {
 		expect(ran.training.atlDelta).toBeGreaterThan(rest.training.atlDelta);
 	});
 
-	it("marks the projection as moved only when today's effort is the basis", () => {
-		const prediction = {
-			predictedSec: 13200,
-			deltaSec: -300,
-			onTrack: true,
-			basis: { date: yesterday, distanceM: 5000, timeSec: 1200 },
-		};
-		const held = briefing({ [today]: 0 }, { prediction });
-		expect(held.prediction.movedToday).toBe(false);
-		expect(held.prediction.predictedSec).toBe(13200);
-
-		const moved = briefing(
+	it("reports no projection change when today has not been run", () => {
+		const out = briefing(
 			{ [today]: 0 },
-			{ prediction: { ...prediction, basis: { ...prediction.basis, date: today } } },
+			{
+				efforts: [{ date: yesterday, distanceM: 10000, timeSec: 2580, name: "10K" }],
+				targetDistanceM: 42195,
+			},
 		);
-		expect(moved.prediction.movedToday).toBe(true);
+		expect(out.prediction.ranToday).toBe(false);
+		expect(out.prediction.sessionDeltaSec).toBeNull();
+		expect(out.prediction.predictedSec).toBeGreaterThan(0);
+	});
+
+	it("reports zero projection delta when today's run does not beat the basis", () => {
+		const out = briefing(
+			{ [today]: 80 },
+			{
+				day: { date: today, planned: [], actualKm: 6, runs: 1 },
+				efforts: [
+					{ date: yesterday, distanceM: 10000, timeSec: 2580, name: "10K" },
+					{ date: today, distanceM: 6000, timeSec: 1800, name: "6k" },
+				],
+				targetDistanceM: 42195,
+			},
+		);
+		expect(out.prediction.ranToday).toBe(true);
+		expect(out.prediction.sessionDeltaSec).toBe(0);
+	});
+
+	it("reports the time today's effort moved the projection", () => {
+		const prior = [{ date: yesterday, distanceM: 10000, timeSec: 2580, name: "10K" }];
+		const faster = { date: today, distanceM: 5000, timeSec: 1080, name: "5k" };
+		const out = briefing(
+			{ [today]: 80 },
+			{
+				day: { date: today, planned: [], actualKm: 5, runs: 1 },
+				efforts: [...prior, faster],
+				targetDistanceM: 42195,
+			},
+		);
+		const after = predictRace([...prior, faster], 42195);
+		const before = predictRace(prior, 42195);
+		expect(out.prediction.ranToday).toBe(true);
+		expect(out.prediction.sessionDeltaSec).toBe(Math.round(after.predictedSec - before.predictedSec));
+		expect(out.prediction.sessionDeltaSec).toBeLessThan(0);
+		expect(out.prediction.predictedSec).toBe(after.predictedSec);
 	});
 
 	it("leaves training null on the first day of the series rather than inventing a yesterday", () => {

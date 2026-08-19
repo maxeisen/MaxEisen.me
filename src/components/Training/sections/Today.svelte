@@ -5,15 +5,15 @@
     The fitness series already files today even when you don't run. This strip
     is the briefing that joins those: the FFF change from yesterday's close,
     a readiness number that sits beside form without feeding it, today's
-    session if it's still ahead, and a projection that only claims to have
-    moved when a hard effort actually landed.
+    session if it's still ahead, and what today's session did to the
+    projected finish — not a second copy of the header time.
 
     Pinned under the headlines, outside the rearrangeable grid, because a
     briefing you can bury under Intensity Mix isn't a briefing.
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
-    import { clock, signed, signedClock, shortDate } from "../lib/format.js";
+    import { clock, signed, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { today = null } = $props();
@@ -39,16 +39,49 @@
             : [],
     );
 
-    const terms = $derived(
-        readiness
-            ? [
-                    { key: "form", label: "Form", value: readiness.terms.form },
-                    { key: "sleep", label: "Sleep", value: readiness.terms.sleep },
-                    { key: "hrv", label: "HRV", value: readiness.terms.hrv },
-                    { key: "rhr", label: "RHR", value: readiness.terms.rhr },
-                ]
-            : [],
-    );
+    const terms = $derived.by(() => {
+        if (!readiness) return [];
+        const { terms: scores, readings } = readiness;
+        const sleepHours =
+            Number.isFinite(readings?.sleepSec) && Number.isFinite(readings?.sleepBaselineSec)
+                ? (readings.sleepSec - readings.sleepBaselineSec) / 3600
+                : null;
+        const rhrDelta =
+            Number.isFinite(readings?.restingHr) && Number.isFinite(readings?.rhrBaseline)
+                ? readings.restingHr - readings.rhrBaseline
+                : null;
+        return [
+            { key: "form", label: "Form", value: Number.isFinite(scores.form) ? signed(scores.form) : null },
+            { key: "sleep", label: "Sleep", value: Number.isFinite(sleepHours) ? `${signed(sleepHours)}h` : null },
+            {
+                key: "hrv",
+                label: "HRV",
+                value: Number.isFinite(readings?.averageHrv) ? String(Math.round(readings.averageHrv)) : null,
+            },
+            { key: "rhr", label: "RHR", value: Number.isFinite(rhrDelta) ? signed(rhrDelta, 0) : null },
+        ].filter((term) => term.value !== null);
+    });
+
+    const projectionCopy = $derived.by(() => {
+        if (!prediction) return null;
+        const { sessionDeltaSec, predictedSec } = prediction;
+        if (sessionDeltaSec === null) {
+            return { title: "No change", note: "no session yet", tone: null };
+        }
+        if (sessionDeltaSec === 0) {
+            return {
+                title: "No change",
+                note: Number.isFinite(predictedSec) ? `still ${clock(predictedSec)}` : "today's run didn't move it",
+                tone: null,
+            };
+        }
+        const faster = sessionDeltaSec < 0;
+        return {
+            title: `${clock(Math.abs(sessionDeltaSec))} ${faster ? "faster" : "slower"}`,
+            note: Number.isFinite(predictedSec) ? `now ${clock(predictedSec)}` : "",
+            tone: faster ? "ahead" : "behind",
+        };
+    });
 
     const plannedRun = $derived((session?.planned || []).find((s) => s.isRun) || null);
 
@@ -119,7 +152,7 @@
                     {#each terms as term (term.key)}
                         <span>
                             {term.label}
-                            <em>{signed(term.value)}</em>
+                            <em>{term.value}</em>
                         </span>
                     {/each}
                 </div>
@@ -143,18 +176,13 @@
 
         <div class="cell">
             <span class="cell-label">Projected</span>
-            {#if prediction}
-                <strong class="headline" class:ahead={prediction.onTrack} class:behind={prediction && !prediction.onTrack}>
-                    {clock(prediction.predictedSec)}
+            {#if projectionCopy}
+                <strong class="headline" class:ahead={projectionCopy.tone === "ahead"} class:behind={projectionCopy.tone === "behind"}>
+                    {projectionCopy.title}
                 </strong>
-                <p class="caption">
-                    {signedClock(prediction.deltaSec)}
-                    {#if prediction.movedToday}
-                        · moved on today's effort
-                    {:else}
-                        · holds until a hard 5k+
-                    {/if}
-                </p>
+                {#if projectionCopy.note}
+                    <p class="caption">{projectionCopy.note}</p>
+                {/if}
             {:else}
                 <p class="empty">
                     No hard effort of 5&nbsp;km or longer yet to project from.

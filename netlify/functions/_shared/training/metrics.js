@@ -175,8 +175,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		? { strain: strainSignal({ tsb: latest?.tsb ?? null, recovery: recovered }) }
 		: null;
 
-	const prediction = predictRace(collectBestEfforts(runs), race.distanceM || 42195);
-	const goalPace = goalPaceSecPerKm(race.goalTimeSec, race.distanceM || 42195);
+	const raceDistanceM = race.distanceM || 42195;
+	const efforts = collectBestEfforts(runs);
+	const prediction = predictRace(efforts, raceDistanceM);
+	const goalPace = goalPaceSecPerKm(race.goalTimeSec, raceDistanceM);
 	const delta = prediction ? goalDelta(prediction.predictedSec, race.goalTimeSec) : null;
 
 	const lastLongRun = [...runs]
@@ -317,7 +319,8 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		series,
 		day: todayRow,
 		recovery: recovered,
-		prediction: summary.prediction,
+		efforts,
+		targetDistanceM: raceDistanceM,
 	});
 
 	return {

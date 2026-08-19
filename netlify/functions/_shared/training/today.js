@@ -5,12 +5,13 @@
 // rest-day tick on the chart. This module is the one object that answers
 // "where does today stand right now": the FFF change from yesterday's close,
 // readiness (see readiness.js), the planned session if it's still ahead, and
-// whether the projection actually moved this morning.
+// what today's session did to the projected finish — not a second copy of it.
 //
 // Nothing here is fetched. The series, the day's plan row, last night, and the
-// race prediction are handed in already final. Readiness sits beside form and
+// race efforts are handed in already final. Readiness sits beside form and
 // still does not feed it.
 
+import { predictRace } from "./predict.js";
 import { readiness } from "./readiness.js";
 
 /**
@@ -60,14 +61,26 @@ function sessionFrom(day) {
 	};
 }
 
-function predictionOf(prediction, date) {
-	if (!prediction) return null;
-	const basisDate = prediction.basis?.date || null;
+function predictionOf({ efforts, targetDistanceM, date, ranToday }) {
+	const after = predictRace(efforts, targetDistanceM);
+	if (!after) return null;
+	// Re-predict without today's efforts rather than trusting basis.date:
+	// an easy 6k still has a 5k split, and that split is "today" even when
+	// it did not beat the existing basis. The number this cell exists to
+	// show is the time today's session moved, which is zero in that case.
+	const prior = predictRace(
+		(efforts || []).filter((effort) => effort?.date !== date),
+		targetDistanceM,
+	);
+	const predictedSec = after.predictedSec;
+	let sessionDeltaSec = null;
+	if (ranToday) {
+		sessionDeltaSec = prior ? Math.round(predictedSec - prior.predictedSec) : 0;
+	}
 	return {
-		predictedSec: prediction.predictedSec,
-		deltaSec: prediction.deltaSec,
-		onTrack: prediction.onTrack,
-		movedToday: Boolean(basisDate && basisDate === date),
+		predictedSec,
+		ranToday: Boolean(ranToday),
+		sessionDeltaSec,
 	};
 }
 
@@ -79,7 +92,8 @@ function predictionOf(prediction, date) {
  * @param {object[]} [input.series] from fitnessSeries().
  * @param {object|null} [input.day] today's row from planDays().
  * @param {object|null} [input.recovery] from recoverySummary().
- * @param {object|null} [input.prediction] the dashboard prediction object.
+ * @param {object[]} [input.efforts] from collectBestEfforts().
+ * @param {number} [input.targetDistanceM]
  * @returns {object}
  */
 export function todayBriefing({
@@ -87,14 +101,21 @@ export function todayBriefing({
 	series = [],
 	day = null,
 	recovery = null,
-	prediction = null,
+	efforts = [],
+	targetDistanceM = 42195,
 } = {}) {
 	const training = trainingOf(series, date);
+	const session = sessionFrom(day);
 	return {
 		date,
 		training,
 		readiness: readiness({ tsb: training?.tsb ?? null, recovery }),
-		session: sessionFrom(day),
-		prediction: predictionOf(prediction, date),
+		session,
+		prediction: predictionOf({
+			efforts,
+			targetDistanceM,
+			date,
+			ranToday: session.actualKm > 0,
+		}),
 	};
 }

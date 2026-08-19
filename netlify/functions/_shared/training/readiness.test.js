@@ -38,23 +38,32 @@ describe("readiness", () => {
 		expect(readiness({ tsb: -18, recovery: empty })).toBeNull();
 	});
 
-	it("scores the worked example from the spec", () => {
-		// Form −18, sleep an hour short (−10), HRV −8%, RHR +3 bpm (−6) → −10.5.
+	it("does not let a bounce-back HRV night print as sixty form-points", () => {
+		// Production 2026-08-19: 8.2h, HRV 120, RHR 44, against a month that
+		// includes crash nights of HRV 22. Percent-for-point called that
+		// +68 and averaged it with form of 0 into readiness +23 — a great
+		// night, not a different sport. 15% HRV is the notable drop we
+		// already use; that scores 10, and a term cannot outrun ±15.
 		const out = readiness({
-			tsb: -18,
+			tsb: 0.13,
 			recovery: recovery({
-				sleepSec: 6 * 3600,
-				averageHrv: 73.6,
-				restingHr: 51,
+				sleepSec: 29580,
+				averageHrv: 120,
+				restingHr: 44,
+				baselineSleepSec: 24633,
+				baselineHrv: 71.57,
+				baselineRhr: 49.29,
 			}),
 		});
-		expect(out.value).toBeCloseTo(-10.5, 6);
-		expect(out.terms).toEqual({
-			form: -18,
-			sleep: -10,
-			hrv: expect.closeTo(-8, 6),
-			rhr: -6,
-		});
+		expect(out.terms.hrv).toBeLessThanOrEqual(15);
+		expect(out.terms.hrv).toBeGreaterThan(0);
+		expect(out.terms.rhr).toBeGreaterThan(0);
+		expect(out.terms.sleep).toBeGreaterThan(0);
+		expect(out.value).toBeGreaterThan(0);
+		expect(out.value).toBeLessThan(15);
+		expect(out.readings.averageHrv).toBe(120);
+		expect(out.readings.restingHr).toBe(44);
+		expect(out.readings.restingHr).toBeLessThan(out.readings.rhrBaseline);
 	});
 
 	it("inverts a raised resting heart rate: above baseline is a negative term", () => {
@@ -94,7 +103,7 @@ describe("readiness", () => {
 		expect(after.terms.sleep).toBe(before.terms.sleep);
 		expect(after.terms.hrv).toBe(before.terms.hrv);
 		expect(after.terms.rhr).toBe(before.terms.rhr);
-		expect(after.value).toBeCloseTo(-11.75, 6);
+		expect(after.value).toBeCloseTo(before.value + (-23 - -18) / 4, 6);
 	});
 
 	it("dates the night it used, so the page can say when it isn't last night", () => {

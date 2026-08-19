@@ -248,7 +248,11 @@ read both books and write to neither:
 - **Readiness** (`readiness.js`) — a signed number on the same scale as form,
   the mean of today's form, last night's sleep vs your 28-day baseline, last
   night's HRV vs that baseline, and overnight resting heart rate inverted so a
-  rise counts against you. It is the headline of the Today strip. A missing
+  rise counts against you. A notable overnight move is one hour of sleep, 15%
+  HRV, or 5 bpm of resting heart rate (the same thresholds `strainSignal`
+  already uses); each overnight term is capped at ±15 so a bounce-back night
+  cannot drown form. The Today strip prints the physiology under the headline
+  (hours, milliseconds, bpm) rather than those weighted scores. A missing
   reading drops out of the mean; no ring at all leaves the cell empty rather
   than echoing form. Today's run moves it only through form. Last night does
   not change until tomorrow.

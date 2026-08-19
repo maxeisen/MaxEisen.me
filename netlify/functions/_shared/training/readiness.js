@@ -13,29 +13,46 @@
 // next to the headline is what keeps it interrogable.
 
 import { reading } from "./num.js";
+import { HRV_DROP_PCT, RHR_RISE_BPM } from "./recovery.js";
 import { strainSignal } from "./response.js";
 
 const finite = (value) => (Number.isFinite(reading(value)) ? reading(value) : null);
+
+// A notable overnight move scores 10, matching an hour of sleep vs baseline.
+// That's 15% HRV and 5 bpm RHR — the same thresholds strainSignal already
+// treats as a raised hand. Last night's HRV on this athlete ranged 22–120 in
+// a week; percent-for-point called a bounce-back +68 and drowned form.
+const NOTABLE_POINTS = 10;
+
+// Overnight terms cannot outrun this. Form is typically −25 to +10; a single
+// spectacular night must not print as a different sport.
+export const OVERNIGHT_TERM_CAP = 15;
+
+function clampOvernight(value) {
+	if (value === null) return null;
+	return Math.max(-OVERNIGHT_TERM_CAP, Math.min(OVERNIGHT_TERM_CAP, value));
+}
 
 function sleepTerm(night, sleep) {
 	const hours = finite(night?.sleepSec);
 	const baseline = finite(sleep?.baseline);
 	if (hours === null || baseline === null || baseline === 0) return null;
-	return ((hours - baseline) / 3600) * 10;
+	return clampOvernight(((hours - baseline) / 3600) * NOTABLE_POINTS);
 }
 
 function hrvTerm(night, hrv) {
 	const last = finite(night?.averageHrv);
 	const baseline = finite(hrv?.baseline);
 	if (last === null || baseline === null || baseline === 0) return null;
-	return ((last - baseline) / baseline) * 100;
+	const deltaPct = ((last - baseline) / baseline) * 100;
+	return clampOvernight((deltaPct / HRV_DROP_PCT) * NOTABLE_POINTS);
 }
 
 function rhrTerm(night, restingHr) {
 	const last = finite(night?.restingHr);
 	const baseline = finite(restingHr?.baseline);
 	if (last === null || baseline === null) return null;
-	return -(last - baseline) * 2;
+	return clampOvernight(-((last - baseline) / RHR_RISE_BPM) * NOTABLE_POINTS);
 }
 
 function meanOf(values) {
@@ -75,6 +92,16 @@ export function readiness({ tsb = null, recovery = null } = {}) {
 	return {
 		value: meanOf([terms.form, terms.sleep, terms.hrv, terms.rhr]),
 		terms,
+		// Native units, so the row under the headline can say "RHR 44" after
+		// a low night rather than "RHR +10", which reads as the opposite.
+		readings: {
+			sleepSec: finite(night?.sleepSec),
+			sleepBaselineSec: finite(recovery.sleep?.baseline),
+			averageHrv: finite(night?.averageHrv),
+			hrvBaseline: finite(recovery.hrv?.baseline),
+			restingHr: finite(night?.restingHr),
+			rhrBaseline: finite(recovery.restingHr?.baseline),
+		},
 		night: night?.day || null,
 		strain: strain?.state ?? null,
 	};

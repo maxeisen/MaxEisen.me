@@ -113,6 +113,22 @@ test("no panel blames a run for the night around it", async ({ page }) => {
 	await expect(briefing.getByText(/because of (that|the) run/i)).toHaveCount(0);
 });
 
+test("today's projection reports the session's effect, not another copy of the finish", async ({ page }) => {
+	const payload = buildTrainingFixture();
+	payload.today.prediction = {
+		predictedSec: 13200,
+		ranToday: false,
+		sessionDeltaSec: null,
+	};
+	await page.route("**/.netlify/functions/trainingData*", (route) =>
+		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
+	);
+	await page.goto("/training");
+	const briefing = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Today" }) });
+	await expect(briefing.getByText("No change")).toBeVisible();
+	await expect(briefing.getByText("no session yet")).toBeVisible();
+});
+
 test("form is read against the body, not only against the training log", async ({ page }) => {
 	// Form is derived from load alone, so a fixture that trains normally never
 	// reaches the states worth printing. The classification itself is covered
