@@ -34,6 +34,7 @@ test("training route renders its sections", async ({ page }) => {
 	await page.goto("/training");
 	await expect(page).toHaveTitle(/Road to Chicago/i);
 	await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Weekly volume" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Recent activity" })).toBeVisible();
 });
@@ -106,8 +107,10 @@ test("a run carries what the athlete wrote about it, and nothing else", async ({
 test("no panel blames a run for the night around it", async ({ page }) => {
 	await page.goto("/training");
 	await expect(page.getByText(/hard day costs/i)).toHaveCount(0);
-	const panel = page.locator("section.card").filter({ hasText: "Last run" }).first();
-	await expect(panel.getByText(/night|slept/i)).toHaveCount(0);
+	const last = page.locator("section.card").filter({ hasText: "Last run" }).first();
+	await expect(last.getByText(/night|slept/i)).toHaveCount(0);
+	const briefing = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Today" }) });
+	await expect(briefing.getByText(/because of (that|the) run/i)).toHaveCount(0);
 });
 
 test("form is read against the body, not only against the training log", async ({ page }) => {

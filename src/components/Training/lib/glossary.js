@@ -13,6 +13,20 @@
 // into saying different things.
 
 export const GLOSSARY = {
+	today: {
+		title: "Today",
+		body: [
+			"Where today stands right now — not what the last run was, which may have been Tuesday. Fitness, fatigue and form still come from training load alone. Readiness sits beside them and never feeds them.",
+			"Readiness is the mean of four terms on the same scale as form: today's form, last night's sleep vs your 28-day baseline, last night's HRV vs that baseline, and overnight resting heart rate inverted so a rise counts against you. A missing reading drops out of the mean rather than counting as zero. The projection only claims to have moved when a hard effort of 5 km or longer landed today.",
+		],
+		terms: [
+			{ term: "Training", definition: "Today's fitness, fatigue and form against yesterday's close. A rest day still moves them — fatigue decays faster than fitness, so form usually lifts. A run is already in these numbers once it has synced." },
+			{ term: "Readiness", definition: "A signed number like form, not a 0–100 score. The four ingredients are printed next to it. Last night's sleep and heart-rate figures don't change until tomorrow; today's run moves readiness only through form." },
+			{ term: "Session", definition: "What the plan asked for today, and whether it's still ahead, done, extra, or a rest day. An 8am blank is ahead, not missed." },
+			{ term: "Projected", definition: "The same finish as the header. It holds until a hard 5k+ lands — an easy Tuesday or a rest day does not update it." },
+		],
+	},
+
 	lastRun: {
 		title: "Last run",
 		body: [

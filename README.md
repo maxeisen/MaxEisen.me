@@ -237,30 +237,34 @@ anything; feeding a second source into part of that system pushes form
 permanently negative by roughly the daily load of whatever the extra source was
 (this was tried with rides, and reverted — see `_shared/training/fitness.js`).
 
-What the two sources are allowed to do is meet in one place, in
-`_shared/training/response.js`, which is read by `metrics.js` and by nothing
-else:
+What the two sources are allowed to do is meet in two places, both of which
+read both books and write to neither:
 
-- **Form against the markers** (`strainSignal`) — form comes from load alone,
-  so on its own it can only report back what you told it. The overnight numbers
-  are an independent answer to the same question, and the two disagreements are
-  what's worth printing: deep form with markers at baseline is a body absorbing
-  the block, and raised markers with no load behind them are usually illness,
-  travel or short nights. It reaches the Recovery panel and the wording of
-  three recommendation rules; it moves no metric.
+- **Form against the markers** (`strainSignal` in `_shared/training/response.js`)
+  — form comes from load alone, so on its own it can only report back what you
+  told it. The overnight numbers are an independent answer to the same
+  question. It reaches the Recovery panel and the wording of three
+  recommendation rules; it moves no metric.
+- **Readiness** (`readiness.js`) — a signed number on the same scale as form,
+  the mean of today's form, last night's sleep vs your 28-day baseline, last
+  night's HRV vs that baseline, and overnight resting heart rate inverted so a
+  rise counts against you. It is the headline of the Today strip. A missing
+  reading drops out of the mean; no ring at all leaves the cell empty rather
+  than echoing form. Today's run moves it only through form. Last night does
+  not change until tomorrow.
 
 Two more questions of that shape were built and then removed: what last night's
 sleep says about this morning's run, and what the block's hardest days cost in
 sleep and resting heart rate against its easier ones. Both read as attribution
 however carefully they were worded, and a night has a run in it and also a late
-dinner, a hotel bed and a glass of wine. `strainSignal` survives because it
-needs no attribution — it asks whether two independent measurements agree,
-which is answerable without knowing why.
+dinner, a hotel bed and a glass of wine. `strainSignal` and readiness survive
+because they need no attribution — they ask whether two independent
+measurements agree, which is answerable without knowing why.
 
 The separation is asserted, not just documented: `metrics.test.js` builds the
-same block with and without a ring and requires every training number to be
-identical, and a second test requires the Last run panel to carry no night at
-all against a fixture built to tempt it.
+same block with and without a ring and requires every training number — including
+the Today strip's FFF deltas — to be identical, and a second test requires the
+Last run panel to carry no night at all against a fixture built to tempt it.
 
 ### Design tokens & theming
 
