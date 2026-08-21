@@ -32,8 +32,10 @@ const REDIRECT_URI = "http://127.0.0.1:8889/exchange_token";
 //   runs marked private. Those are filtered out again in shapeActivity() before
 //   anything reaches the public /training payload; see netlify/functions/
 //   _shared/training/shape.js.
+// activity:write — after a new run is shaped, the sync appends a fenced
+//   caption (FFF, load, projected finish) to that activity's description.
 // profile:read_all — /athlete/zones, for the athlete's configured HR zones.
-const SCOPES = "read,activity:read_all,profile:read_all";
+const SCOPES = "read,activity:read_all,activity:write,profile:read_all";
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
 	console.error("Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET in the env before running.");

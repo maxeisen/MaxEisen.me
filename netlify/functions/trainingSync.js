@@ -1,7 +1,9 @@
 // Scheduled incremental sync of Strava runs into the training Blobs store.
 //
 // The /training page reads only from Blobs, so nothing here is in a user's
-// request path and it can afford to be slow and careful.
+// request path and it can afford to be slow and careful. The one exception is
+// a caption written back onto a new run's Strava description after the run
+// has been shaped — see caption.js.
 //
 // Why a sync at all, rather than fetching on demand: the dashboard needs the
 // whole training block with per-activity detail and streams, which is hundreds
@@ -27,13 +29,18 @@ import { STRAVA_API_BASE, callsRemaining, getAccessToken, readQuota } from "./_s
 import { getOuraAccessToken, ouraCollection } from "./_shared/oura.js";
 import {
 	SHAPE_VERSION,
+	collectBestEfforts,
 	isTrackableActivity,
 	isTrackableRide,
 	shapeActivity,
 } from "./_shared/training/shape.js";
 import { shapeNotes } from "./_shared/training/notes.js";
 import { shapeRecovery } from "./_shared/training/recovery.js";
+import { captionRecentRuns } from "./_shared/training/caption.js";
+import { dailyLoads } from "./_shared/training/load.js";
+import { fitnessSeries } from "./_shared/training/fitness.js";
 import { loadPlan } from "./_shared/training/planFile.js";
+import { blockRange } from "./_shared/training/plan.js";
 import { addDays, toDayKey } from "./_shared/training/dates.js";
 import {
 	ATHLETE_KEY,
@@ -230,6 +237,26 @@ async function stravaGet(path, token) {
 	if (!res.ok) {
 		const err = new Error(`Strava ${path} failed: ${res.status}`);
 		err.status = res.status;
+		throw err;
+	}
+	return res.json();
+}
+
+async function stravaPut(path, token, body) {
+	const res = await fetch(`${STRAVA_API_BASE}${path}`, {
+		method: "PUT",
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(body),
+	});
+	quota = readQuota(res.headers) ?? quota;
+	if (!res.ok) {
+		const text = await res.text();
+		const err = new Error(`Strava PUT ${path} failed: ${res.status} ${text}`);
+		err.status = res.status;
+		err.body = text;
 		throw err;
 	}
 	return res.json();
@@ -512,6 +539,40 @@ export default async function handler(req) {
 	const scanNotes = !rateLimited && work.length === 0 && Date.now() - lastNoteScan >= noteInterval;
 	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, today, deadline) : 0;
 
+	// The one write. A new run that has numbers gets a fenced block on its
+	// Strava description; a later pass sees the stamp (or the fence) and
+	// leaves it. Skipped when the read path already stood down, so a caption
+	// never spends the window the widgets need.
+	let captioned = 0;
+	let captionUrlRejected = false;
+	if (!rateLimited && !quotaPaused && work.length === 0) {
+		const runs = merged.filter((a) => a?.sport !== "ride");
+		const range = blockRange(plan, runs, today);
+		const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
+		const result = await captionRecentRuns({
+			records: merged,
+			today,
+			series,
+			efforts: collectBestEfforts(runs),
+			raceDistanceM: plan.race?.distanceM || 42195,
+			deadline,
+			getDescription: async (id) => {
+				if (!hasQuotaForOneMore()) {
+					const err = new Error("quota");
+					err.status = 429;
+					throw err;
+				}
+				const detail = await stravaGet(`/activities/${id}`, token);
+				return detail?.description ?? "";
+			},
+			putDescription: async (id, description) => {
+				await stravaPut(`/activities/${id}`, token, { description });
+			},
+		});
+		captioned = result.captioned;
+		captionUrlRejected = result.urlRejected;
+	}
+
 	// Two kinds of incomplete, and only one of them is worth interrupting a
 	// reader over.
 	//
@@ -575,6 +636,8 @@ export default async function handler(req) {
 		// Whether the sweep is on the five-minute cadence or the hourly one,
 		// which is otherwise only visible as a read count in Strava's quota.
 		notesFresh: fresh,
+		captioned,
+		captionUrlRejected,
 		stored: merged.length,
 		missing,
 		stale,

@@ -63,7 +63,14 @@ export function mergeActivities(existing, incoming) {
 		if (a?.id != null) byId.set(String(a.id), a);
 	}
 	for (const a of incoming || []) {
-		if (a?.id != null) byId.set(String(a.id), a);
+		if (a?.id == null) continue;
+		const prev = byId.get(String(a.id));
+		// A re-shape replaces the record. Caption metadata is owned by the
+		// sync, not the shaper, so it has to survive that or every SHAPE_VERSION
+		// bump would rewrite Strava.
+		const next =
+			prev?.captionedAt && !a.captionedAt ? { ...a, captionedAt: prev.captionedAt } : a;
+		byId.set(String(a.id), next);
 	}
 	return [...byId.values()].sort((a, b) =>
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
