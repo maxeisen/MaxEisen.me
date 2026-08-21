@@ -164,7 +164,7 @@
 
         <div class="cell">
             <span class="cell-label">Session</span>
-            <strong class="headline session-title">{sessionCopy.title}</strong>
+            <strong class="headline" class:session-title={session?.status === "ahead"}>{sessionCopy.title}</strong>
             {#if sessionCopy.note}
                 <p class="caption">{sessionCopy.note}</p>
             {/if}
@@ -227,6 +227,7 @@
     }
     .headline.ahead { color: var(--tone-good); }
     .headline.behind { color: var(--tone-bad); }
+    /* Session types ("easy run"), not distances — capitalize would print "8.0 Km". */
     .session-title { text-transform: capitalize; }
     .caption {
         margin: 0;

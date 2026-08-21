@@ -194,7 +194,10 @@ state, not an error.
 **Strava** (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REFRESH_TOKEN`)
 uses a long-lived refresh token: authorize once with
 `node scripts/get_strava_refresh_token.js`, paste the result into Netlify, and
-it keeps working.
+it keeps working. The token is mostly read-only (`activity:read_all`);
+`activity:write` is there so a new run can get a fenced caption on its Strava
+description (fitness / fatigue / form, load, projected finish) once the
+dashboard has numbers for it. Re-run the script after changing `SCOPES`.
 
 **Oura** (`OURA_CLIENT_ID`, `OURA_CLIENT_SECRET`, `OURA_REFRESH_TOKEN`) does
 not, and the difference matters. Personal access tokens were withdrawn at the
