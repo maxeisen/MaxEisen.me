@@ -1,3 +1,6 @@
+import { daysBetween, toDayKey } from "./dates.js";
+import { MARATHON_PROJECTION } from "./marathonConfig.js";
+
 // Race-time prediction.
 //
 // Two independent models, deliberately kept separate rather than blended into
@@ -164,6 +167,89 @@ export function predictRace(efforts, targetDistanceM) {
 
 	const prediction = predictFromEffort(best.effort, targetDistanceM);
 	return prediction ? { ...prediction, basis: best.effort } : null;
+}
+
+function distanceWeight(distanceM) {
+	for (const band of MARATHON_PROJECTION.baseline.distanceWeight) {
+		if (distanceM >= band.minM) return band.weight;
+	}
+	return 0;
+}
+
+function effortRecencyWeight(date, today) {
+	const day = toDayKey(date);
+	const age = day && today ? daysBetween(day, today) : null;
+	if (!Number.isFinite(age) || age < 0) return 0.6;
+	return Math.pow(0.5, age / MARATHON_PROJECTION.windows.effortRecencyHalfLifeDays);
+}
+
+/**
+ * Ensemble aerobic potential from recent best efforts.
+ *
+ * Longer races count more, recent races count more, and a fast short effort
+ * that disagrees with a slower longer race is down-weighted rather than
+ * allowed to set the marathon time on its own.
+ *
+ * @param {{timeSec: number, distanceM: number, name?: string, date?: string}[]} efforts
+ * @param {number} targetDistanceM
+ * @param {string} [today]
+ * @returns {object|null}
+ */
+export function aerobicPotential(efforts, targetDistanceM, today) {
+	const cfg = MARATHON_PROJECTION.baseline;
+	const candidates = [];
+	for (const effort of efforts || []) {
+		if (!(Number(effort?.distanceM) >= cfg.minDistanceM)) continue;
+		const projection = predictFromEffort(effort, targetDistanceM);
+		if (!projection) continue;
+		candidates.push({
+			effort,
+			projection,
+			distanceW: distanceWeight(effort.distanceM),
+			recencyW: effortRecencyWeight(effort.date, today),
+		});
+	}
+	if (candidates.length === 0) return null;
+
+	const longer = candidates.filter((c) => c.effort.distanceM >= 10000);
+	const longerMean =
+		longer.length > 0
+			? longer.reduce((sum, c) => sum + c.projection.predictedSec, 0) / longer.length
+			: null;
+
+	let weightSum = 0;
+	let predicted = 0;
+	let riegel = 0;
+	let vdotSec = 0;
+	let vdotSum = 0;
+	let best = null;
+	for (const c of candidates) {
+		let weight = c.distanceW * c.recencyW;
+		if (
+			longerMean > 0 &&
+			c.effort.distanceM < 15000 &&
+			c.projection.predictedSec < longerMean * (1 - cfg.disagreementPct)
+		) {
+			const gap = (longerMean - c.projection.predictedSec) / longerMean;
+			weight *= Math.max(0.15, 1 - gap / cfg.disagreementPct);
+		}
+		if (!(weight > 0)) continue;
+		weightSum += weight;
+		predicted += c.projection.predictedSec * weight;
+		if (Number.isFinite(c.projection.riegelSec)) riegel += c.projection.riegelSec * weight;
+		if (Number.isFinite(c.projection.vdotSec)) vdotSec += c.projection.vdotSec * weight;
+		if (Number.isFinite(c.projection.vdot)) vdotSum += c.projection.vdot * weight;
+		if (!best || weight > best.weight) best = { ...c, weight };
+	}
+	if (!(weightSum > 0) || !best) return null;
+
+	return {
+		predictedSec: predicted / weightSum,
+		riegelSec: riegel / weightSum,
+		vdotSec: vdotSec / weightSum,
+		vdot: vdotSum / weightSum,
+		basis: best.effort,
+	};
 }
 
 /**

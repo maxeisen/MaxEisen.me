@@ -8,6 +8,7 @@
 
 import {
 	clock,
+	clockMinutes,
 	daysAgo,
 	formatDistance,
 	formatDuration,
@@ -167,7 +168,7 @@ function renderHeader(summary) {
 <p>${[raceDate, countdown].filter(Boolean).map(t).join(" ")}</p>
 ${pairs([
 	["Goal", `${clock(race.goalTimeSec)} (${pace(race.goalPaceSecPerKm)})`],
-	["Projected", prediction ? `${clock(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}` : "needs a hard effort to project from"],
+	["Projected", prediction ? `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}` : "needs a hard effort to project from"],
 	["Fitness", latest ? `${Math.round(latest.ctl)}; ${trendNote}` : trendNote],
 	["Block total", `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`],
 ])}`;
@@ -345,12 +346,27 @@ function renderPrediction(summary) {
 	const basisLine = basis
 		? `<p>Projected from ${t(kmLabel(basis.distanceM))} in ${t(clock(basis.timeSec))}${basis.date ? ` on ${t(shortDate(basis.date))}` : ""}.</p>`
 		: "";
+	const range = prediction.projectionRange;
+	const rangeLine = range
+		? ["Likely range", `${clockMinutes(range.fastSec)}–${clockMinutes(range.slowSec)}`]
+		: null;
+	const ready = Number.isFinite(prediction.marathonReadiness)
+		? ["Marathon readiness", `${Math.round(prediction.marathonReadiness * 100)}%${prediction.confidenceLabel ? `; ${prediction.confidenceLabel} confidence` : ""}`]
+		: null;
+	const aerobic = Number.isFinite(prediction.aerobicPotentialSeconds)
+		? ["Aerobic potential", `${clockMinutes(prediction.aerobicPotentialSeconds)}; VDOT ${clockMinutes(prediction.vdotSec)} · Riegel ${clockMinutes(prediction.riegelSec)}`]
+		: ["VDOT", `${clock(prediction.vdotSec)}${Number.isFinite(prediction.vdot) ? ` (${prediction.vdot.toFixed(1)})` : ""}`];
+	const factors = (prediction.explanations || [])
+		.map((item) => `<li>${t(item.direction === "limiting" ? "Limiting" : "Positive")}: ${t(item.text)}</li>`)
+		.join("");
 	return section("Projected finish", `${pairs([
-		["Projected", `${clock(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}`],
-		["Riegel", clock(prediction.riegelSec)],
-		["VDOT", `${clock(prediction.vdotSec)}${Number.isFinite(prediction.vdot) ? ` (${prediction.vdot.toFixed(1)})` : ""}`],
+		["Projected", `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}`],
+		rangeLine,
+		aerobic,
+		ready,
 		["Goal pace", pace(race.goalPaceSecPerKm)],
-	])}
+	].filter(Boolean))}
+${factors ? `<ul>${factors}</ul>` : ""}
 ${basisLine}`);
 }
 

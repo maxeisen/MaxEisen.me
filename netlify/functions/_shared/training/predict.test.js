@@ -6,6 +6,7 @@ import {
 	vdotProjection,
 	predictFromEffort,
 	predictRace,
+	aerobicPotential,
 	goalDelta,
 	goalPaceSecPerKm,
 } from "./predict.js";
@@ -110,6 +111,25 @@ describe("predictRace", () => {
 	it("returns null when every effort is too short", () => {
 		expect(predictRace([{ distanceM: 1500, timeSec: 300 }], MARATHON_M)).toBeNull();
 		expect(predictRace([], MARATHON_M)).toBeNull();
+	});
+});
+
+describe("aerobicPotential", () => {
+	it("matches a single-effort projection", () => {
+		const effort = { distanceM: 10000, timeSec: 2400, date: "2026-08-01" };
+		const single = predictFromEffort(effort, MARATHON_M);
+		const out = aerobicPotential([effort], MARATHON_M, "2026-08-24");
+		expect(out.predictedSec).toBeCloseTo(single.predictedSec, 0);
+		expect(out.basis.distanceM).toBe(10000);
+	});
+
+	it("leans on the half when a 5k disagrees substantially", () => {
+		const half = { distanceM: 21097.5, timeSec: 6300, date: "2026-08-10" };
+		const five = { distanceM: 5000, timeSec: 1080, date: "2026-08-17" };
+		const out = aerobicPotential([half, five], MARATHON_M, "2026-08-24");
+		const halfSec = predictFromEffort(half, MARATHON_M).predictedSec;
+		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
+		expect(Math.abs(out.predictedSec - halfSec)).toBeLessThan(Math.abs(out.predictedSec - fiveSec));
 	});
 });
 

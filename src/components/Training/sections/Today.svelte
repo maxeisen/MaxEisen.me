@@ -13,7 +13,7 @@
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
-    import { clock, signed, shortDate } from "../lib/format.js";
+    import { clock, clockMinutes, signed, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { today = null } = $props();
@@ -67,14 +67,14 @@
         if (sessionDeltaSec === 0) {
             return {
                 title: "No change",
-                note: Number.isFinite(predictedSec) ? `still ${clock(predictedSec)}` : "today's run didn't move it",
+                note: Number.isFinite(predictedSec) ? `still ${clockMinutes(predictedSec)}` : "today's run didn't move it",
                 tone: null,
             };
         }
         const faster = sessionDeltaSec < 0;
         return {
             title: `${clock(Math.abs(sessionDeltaSec))} ${faster ? "faster" : "slower"}`,
-            note: Number.isFinite(predictedSec) ? `now ${clock(predictedSec)}` : "",
+            note: Number.isFinite(predictedSec) ? `now ${clockMinutes(predictedSec)}` : "",
             tone: faster ? "ahead" : "behind",
         };
     });

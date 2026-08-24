@@ -39,6 +39,16 @@ test("training route renders its sections", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: "Recent activity" })).toBeVisible();
 });
 
+test("projected finish shows readiness and a likely range, not a time to the second", async ({ page }) => {
+	await page.goto("/training");
+	const card = page.locator("section.card").filter({ hasText: "Projected finish" }).first();
+	await expect(card.getByText("Likely range", { exact: false })).toBeVisible();
+	await expect(card.locator(".model-label", { hasText: "Aerobic potential" })).toBeVisible();
+	await expect(card.locator(".model-label", { hasText: "Marathon readiness" })).toBeVisible();
+	await expect(card.getByText(/Moderate confidence|High confidence|Low confidence/)).toBeVisible();
+	await expect(card.locator(".projected strong")).toHaveText(/^\d:\d\d$/);
+});
+
 test("every card explains its own metrics on demand", async ({ page }) => {
 	await page.goto("/training");
 	const card = page.locator("section.card").filter({ hasText: "Load and risk" }).first();
