@@ -84,6 +84,18 @@ describe("scoreVolume", () => {
 		);
 	});
 
+	it("does not treat ~30 km weeks as zero volume when that is the plan", () => {
+		const planned = weeksFrom(
+			Array.from({ length: 32 }, (_, i) =>
+				run({ date: addDays(TODAY, -(i * 2 + 1)), distanceKm: 10 }),
+			),
+		).map((week) => ({ ...week, targetKm: 35, volumePct: (week.distanceM / 1000 / 35) * 100 }));
+		const out = scoreVolume({ weeks: planned, today: TODAY });
+		expect(out.score).toBeGreaterThan(0.25);
+		expect(out.metrics.ewma8).toBeGreaterThan(20);
+		expect(out.metrics.ewma8).toBeLessThan(45);
+	});
+
 	it("does not count cycling kilometres as running volume", () => {
 		const runs = Array.from({ length: 20 }, (_, i) =>
 			run({ date: addDays(TODAY, -(i * 2 + 1)), distanceKm: 10 }),
@@ -222,6 +234,22 @@ describe("scoreConsistency", () => {
 		expect(scoreConsistency({ weeks: gapped, today: TODAY }).score).toBeLessThan(
 			scoreConsistency({ weeks: weeksFrom(steadyRuns), today: TODAY }).score,
 		);
+	});
+
+	it("does not treat a zero week two months ago as a recent interruption", () => {
+		const steadyRuns = Array.from({ length: 40 }, (_, i) =>
+			run({ date: addDays(TODAY, -(i + 3)), distanceKm: 10 }),
+		);
+		const oldGap = weeksFrom(steadyRuns).map((week) => {
+			if (week.start === mondayOf(addDays(TODAY, -56))) {
+				return { ...week, distanceM: 0, actualKm: 0, runs: 0, volumePct: 0, longestRunM: 0 };
+			}
+			return week;
+		});
+		const steady = scoreConsistency({ weeks: weeksFrom(steadyRuns), today: TODAY }).score;
+		const gapped = scoreConsistency({ weeks: oldGap, today: TODAY }).score;
+		expect(gapped).toBeGreaterThan(steady - 0.12);
+		expect(gapped).toBeGreaterThan(0.5);
 	});
 
 	it("ignores intentional taper reductions", () => {

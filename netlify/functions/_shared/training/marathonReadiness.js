@@ -58,8 +58,10 @@ function completeWeeks(weeks, today) {
 
 function volumeWindow(weeks, today) {
 	const complete = completeWeeks(weeks, today);
-	const withoutTaper = complete.filter((week) => week.isTaper !== true);
-	const pick = withoutTaper.length >= 3 ? withoutTaper : complete;
+	const startAt = complete.findIndex((week) => week.runs > 0 || weeklyKm(week) >= 1);
+	const fromStart = startAt >= 0 ? complete.slice(startAt) : complete;
+	const withoutTaper = fromStart.filter((week) => week.isTaper !== true);
+	const pick = withoutTaper.length >= 3 ? withoutTaper : fromStart;
 	return pick.slice(-Math.max(CFG.windows.volumeSlowWeeks, CFG.windows.peakWeeks));
 }
 
@@ -85,6 +87,13 @@ function meanTop(weeks, count) {
 	return top.reduce((sum, n) => sum + n, 0) / top.length;
 }
 
+function medianPositive(values) {
+	const sorted = (values || []).filter((n) => n > 0).sort((a, b) => a - b);
+	if (sorted.length === 0) return null;
+	const mid = Math.floor(sorted.length / 2);
+	return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
 /**
  * @param {{weeks: object[], today: string}} input
  * @returns {{score: number, metrics: object}}
@@ -94,12 +103,19 @@ export function scoreVolume({ weeks, today }) {
 	const ewma8 = ewmaWeekly(window, CFG.windows.volumeSlowWeeks);
 	const ewma4 = ewmaWeekly(window, CFG.windows.volumeFastWeeks);
 	const peak = meanTop(window, CFG.windows.peakCount);
-	const score = clamp01(
+	const absolute = clamp01(
 		0.5 * lerpScore(ewma8, CFG.volume.ewma8FloorKm, CFG.volume.ewma8FullKm) +
 			0.3 * lerpScore(ewma4, CFG.volume.ewma4FloorKm, CFG.volume.ewma4FullKm) +
 			0.2 * lerpScore(peak, CFG.volume.peakFloorKm, CFG.volume.peakFullKm),
 	);
-	return { score, metrics: { ewma8, ewma4, peak } };
+	const typicalPlan = medianPositive(window.map((week) => Number(week.targetKm) || 0));
+	const vsPlan = typicalPlan > 0 ? ewma8 / typicalPlan : null;
+	const planScore =
+		vsPlan === null ? null : lerpScore(vsPlan, CFG.volume.planFloor, CFG.volume.planFull);
+	const absW = CFG.volume.absoluteWeight;
+	const score =
+		planScore === null ? absolute : clamp01(absW * absolute + (1 - absW) * planScore);
+	return { score, metrics: { ewma8, ewma4, peak, vsPlan, typicalPlan } };
 }
 
 function longRunCandidates(runs, today) {
@@ -234,19 +250,26 @@ export function scoreConsistency({ weeks, today }) {
 		.slice(-CFG.windows.consistencyWeeks);
 	const startAt = complete.findIndex((week) => week.runs > 0 || weeklyKm(week) >= 1);
 	const window = startAt >= 0 ? complete.slice(startAt) : [];
-	if (window.length === 0) return { score: 0.4, metrics: { plannedPct: null, zeroWeeks: 0, cv: null } };
+	const cvWindow = window.slice(-CFG.consistency.cvWeeks);
+	const recent = window.slice(-CFG.consistency.recentWeeks);
+	if (cvWindow.length === 0) return { score: 0.4, metrics: { plannedPct: null, zeroWeeks: 0, cv: null } };
 
-	const planned = window.filter((week) => Number.isFinite(week.volumePct) && week.isPlanned);
+	const planned = cvWindow.filter(
+		(week) => Number.isFinite(week.volumePct) && week.isPlanned && week.isTaper !== true,
+	);
 	const plannedPct =
 		planned.length > 0
 			? planned.reduce((sum, week) => sum + Math.min(120, week.volumePct), 0) / planned.length
 			: null;
-	const kms = window.map(weeklyKm);
+	const kms = (cvWindow.some((week) => week.isTaper !== true)
+		? cvWindow.filter((week) => week.isTaper !== true)
+		: cvWindow
+	).map(weeklyKm);
 	const mean = kms.reduce((sum, n) => sum + n, 0) / kms.length;
 	const variance = kms.reduce((sum, n) => sum + (n - mean) ** 2, 0) / kms.length;
 	const cv = mean > 0 ? Math.sqrt(variance) / mean : 1;
-	const zeroWeeks = window.filter((week) => week.runs === 0 || weeklyKm(week) < 1).length;
-	const lowWeeks = window.filter((week) => {
+	const zeroWeeks = recent.filter((week) => week.runs === 0 || weeklyKm(week) < 1).length;
+	const lowWeeks = recent.filter((week) => {
 		if (week.isTaper) return false;
 		if (Number.isFinite(week.volumePct)) return week.volumePct < CFG.consistency.lowVolumePct;
 		return mean > 0 && weeklyKm(week) < mean * (CFG.consistency.lowVolumePct / 100);

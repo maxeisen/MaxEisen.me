@@ -5,6 +5,7 @@ import { dailyLoads } from "./load.js";
 import { predictFromEffort } from "./predict.js";
 import { projectMarathon, readinessPenalty } from "./marathonProjection.js";
 import { MARATHON_M } from "./marathonConfig.js";
+import { collectBestEfforts } from "./shape.js";
 
 const TODAY = "2026-08-24";
 const RACE = {
@@ -178,6 +179,31 @@ describe("projectMarathon", () => {
 		const towardHalf = Math.abs(out.aerobicPotentialSeconds - halfOnly);
 		const towardFive = Math.abs(out.aerobicPotentialSeconds - fiveOnly);
 		expect(towardHalf).toBeLessThan(towardFive);
+	});
+
+	it("does not let a long-run half split set aerobic potential", () => {
+		const runs = block();
+		for (const activity of runs) activity.bestEfforts = [];
+		const long = runs.reduce((best, activity) =>
+			activity.distanceM > best.distanceM ? activity : best,
+		);
+		long.distanceM = 23000;
+		long.workoutType = 2;
+		long.bestEfforts = [
+			{ name: "Half-Marathon", distanceM: 21097, timeSec: 6563, date: addDays(TODAY, -1) },
+		];
+		const workout = run({ date: addDays(TODAY, -20), distanceKm: 8, movingMin: 40 });
+		workout.workoutType = 3;
+		workout.bestEfforts = [{ name: "5k", distanceM: 5000, timeSec: 1240, date: addDays(TODAY, -20) }];
+		const all = [...runs, workout];
+		const out = project(all, { efforts: collectBestEfforts(all) });
+		const fiveOnly = predictFromEffort(workout.bestEfforts[0], MARATHON_M).predictedSec;
+		const halfOnly = predictFromEffort(long.bestEfforts[0], MARATHON_M).predictedSec;
+		expect(out.aerobicPotentialSeconds).toBeCloseTo(fiveOnly, 0);
+		expect(Math.abs(out.aerobicPotentialSeconds - fiveOnly)).toBeLessThan(
+			Math.abs(out.aerobicPotentialSeconds - halfOnly),
+		);
+		expect(out.basis.distanceM).toBe(5000);
 	});
 
 	it("does not claim high confidence from a 10k and short long runs alone", () => {

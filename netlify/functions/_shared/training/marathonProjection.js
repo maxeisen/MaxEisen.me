@@ -87,8 +87,8 @@ function explanations(parts, potential) {
 	const volume = parts.volume?.metrics || {};
 	if (volume.ewma8 >= 70) {
 		push("positive", "volume", 0.35 + (volume.ewma8 - 70) / 80, `Sustained ${Math.round(volume.ewma8)} km weeks`);
-	} else if (volume.ewma8 > 0 && volume.ewma8 < 55) {
-		push("limiting", "volume", 0.45 + (55 - volume.ewma8) / 80, `Relatively low sustained 8-week mileage (${Math.round(volume.ewma8)} km/wk)`);
+	} else if (volume.ewma8 > 0 && volume.ewma8 < 40 && (volume.vsPlan == null || volume.vsPlan < 0.75)) {
+		push("limiting", "volume", 0.45 + (40 - volume.ewma8) / 80, `Relatively low sustained 8-week mileage (${Math.round(volume.ewma8)} km/wk)`);
 	}
 
 	const longs = parts.longRuns?.metrics || {};

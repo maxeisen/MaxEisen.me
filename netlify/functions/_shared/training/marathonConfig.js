@@ -52,15 +52,23 @@ export const MARATHON_PROJECTION = {
 		// If a short effort projects more than this fraction faster than the
 		// longer-distance ensemble, its weight is scaled down.
 		disagreementPct: 0.08,
+		// A best-effort on a much longer easy or long run is a split, not a
+		// race. Races and workouts (Strava workout_type 1 and 3) are kept
+		// even when the session is longer than the effort (warmup/cooldown).
+		splitRatio: 1.08,
+		splitExtraM: 1500,
 	},
 
 	volume: {
-		ewma8FloorKm: 40,
-		ewma8FullKm: 85,
-		ewma4FloorKm: 40,
-		ewma4FullKm: 90,
-		peakFloorKm: 50,
-		peakFullKm: 95,
+		ewma8FloorKm: 20,
+		ewma8FullKm: 70,
+		ewma4FloorKm: 20,
+		ewma4FullKm: 75,
+		peakFloorKm: 25,
+		peakFullKm: 80,
+		planFloor: 0.45,
+		planFull: 1,
+		absoluteWeight: 0.55,
 	},
 
 	longRuns: {
@@ -92,6 +100,8 @@ export const MARATHON_PROJECTION = {
 		lowVolumePct: 50,
 		cvFull: 0.12,
 		cvFloor: 0.55,
+		recentWeeks: 5,
+		cvWeeks: 6,
 	},
 
 	frequency: {

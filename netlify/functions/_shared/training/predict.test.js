@@ -131,6 +131,37 @@ describe("aerobicPotential", () => {
 		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
 		expect(Math.abs(out.predictedSec - halfSec)).toBeLessThan(Math.abs(out.predictedSec - fiveSec));
 	});
+
+	it("ignores easy-run splits that are far slower than a genuine best effort", () => {
+		const race5k = { name: "5k", distanceM: 5000, timeSec: 1110, date: "2026-08-05", activityDistanceM: 5200, workoutType: 3 };
+		const easyHalf = { name: "Half-Marathon", distanceM: 21097, timeSec: 6563, date: "2026-08-23", activityDistanceM: 23000, workoutType: 2 };
+		const easy10ks = [
+			{ name: "10k", distanceM: 10000, timeSec: 3200, date: "2026-08-14", activityDistanceM: 12000 },
+			{ name: "10k", distanceM: 10000, timeSec: 3180, date: "2026-08-09", activityDistanceM: 11800 },
+			{ name: "10k", distanceM: 10000, timeSec: 3300, date: "2026-08-01", activityDistanceM: 12500 },
+		];
+		const out = aerobicPotential([race5k, easyHalf, ...easy10ks], MARATHON_M, "2026-08-24");
+		const raceSec = predictFromEffort(race5k, MARATHON_M).predictedSec;
+		const easySec = predictFromEffort(easyHalf, MARATHON_M).predictedSec;
+		expect(out.predictedSec).toBeCloseTo(raceSec, 0);
+		expect(Math.abs(out.predictedSec - raceSec)).toBeLessThan(Math.abs(out.predictedSec - easySec));
+		expect(out.basis.distanceM).toBe(5000);
+	});
+
+	it("still uses a workout 5k when the session includes warmup and cooldown", () => {
+		const workout = { name: "5k", distanceM: 5000, timeSec: 1110, date: "2026-08-05", activityDistanceM: 9000, workoutType: 3 };
+		const out = aerobicPotential([workout], MARATHON_M, "2026-08-24");
+		expect(out.basis.distanceM).toBe(5000);
+		expect(out.predictedSec).toBeCloseTo(predictFromEffort(workout, MARATHON_M).predictedSec, 0);
+	});
+
+	it("falls back to the fastest VDOT when every effort is a long-run split", () => {
+		const fast5k = { name: "5k", distanceM: 5000, timeSec: 1240, date: "2026-07-20", activityDistanceM: 8000 };
+		const easyHalf = { name: "Half-Marathon", distanceM: 21097, timeSec: 6563, date: "2026-08-23", activityDistanceM: 23000, workoutType: 2 };
+		const out = aerobicPotential([fast5k, easyHalf], MARATHON_M, "2026-08-24");
+		expect(out.predictedSec).toBeCloseTo(predictFromEffort(fast5k, MARATHON_M).predictedSec, 0);
+		expect(out.basis.distanceM).toBe(5000);
+	});
 });
 
 describe("goalDelta", () => {

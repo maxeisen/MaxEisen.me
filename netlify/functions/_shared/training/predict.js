@@ -184,13 +184,31 @@ function effortRecencyWeight(date, today) {
 }
 
 /**
+ * True when this best-effort is a split of a longer easy or long run, not a
+ * race or workout. A 23 km long run's "half marathon" is long-run pace.
+ *
+ * @param {{distanceM?: number, activityDistanceM?: number, workoutType?: number|null}} effort
+ */
+export function isContainedSplit(effort) {
+	const activityM = Number(effort?.activityDistanceM);
+	const effortM = Number(effort?.distanceM);
+	if (!(activityM > 0) || !(effortM > 0)) return false;
+	const type = effort.workoutType;
+	if (type === 1 || type === 3) return false;
+	const cfg = MARATHON_PROJECTION.baseline;
+	return activityM >= effortM * cfg.splitRatio && activityM - effortM >= cfg.splitExtraM;
+}
+
+/**
  * Ensemble aerobic potential from recent best efforts.
  *
- * Longer races count more, recent races count more, and a fast short effort
- * that disagrees with a slower longer race is down-weighted rather than
- * allowed to set the marathon time on its own.
+ * Easy-run and long-run *splits* are not races — averaging them in pulls a
+ * marathon projection toward long-run pace. Among the remaining efforts,
+ * longer races count more, recent races count more, and a fast short effort
+ * that disagrees with a slower longer race is down-weighted. If every effort
+ * is a split, fall back to the single best VDOT (the same pick as predictRace).
  *
- * @param {{timeSec: number, distanceM: number, name?: string, date?: string}[]} efforts
+ * @param {{timeSec: number, distanceM: number, name?: string, date?: string, activityDistanceM?: number, workoutType?: number|null}[]} efforts
  * @param {number} targetDistanceM
  * @param {string} [today]
  * @returns {object|null}
@@ -201,7 +219,7 @@ export function aerobicPotential(efforts, targetDistanceM, today) {
 	for (const effort of efforts || []) {
 		if (!(Number(effort?.distanceM) >= cfg.minDistanceM)) continue;
 		const projection = predictFromEffort(effort, targetDistanceM);
-		if (!projection) continue;
+		if (!projection || !(projection.vdot > 0)) continue;
 		candidates.push({
 			effort,
 			projection,
@@ -211,7 +229,18 @@ export function aerobicPotential(efforts, targetDistanceM, today) {
 	}
 	if (candidates.length === 0) return null;
 
-	const longer = candidates.filter((c) => c.effort.distanceM >= 10000);
+	const quality = candidates.filter((c) => !isContainedSplit(c.effort));
+	const poolSource = quality.length > 0 ? quality : [candidates.reduce((best, c) =>
+		c.projection.vdot > best.projection.vdot ? c : best,
+	)];
+	const pool = poolSource.reduce((bestByBand, c) => {
+		const prev = bestByBand.get(c.distanceW);
+		if (!prev || c.projection.vdot > prev.projection.vdot) bestByBand.set(c.distanceW, c);
+		return bestByBand;
+	}, new Map());
+	const selected = [...pool.values()];
+
+	const longer = selected.filter((c) => c.effort.distanceM >= 10000);
 	const longerMean =
 		longer.length > 0
 			? longer.reduce((sum, c) => sum + c.projection.predictedSec, 0) / longer.length
@@ -223,7 +252,7 @@ export function aerobicPotential(efforts, targetDistanceM, today) {
 	let vdotSec = 0;
 	let vdotSum = 0;
 	let best = null;
-	for (const c of candidates) {
+	for (const c of selected) {
 		let weight = c.distanceW * c.recencyW;
 		if (
 			longerMean > 0 &&
