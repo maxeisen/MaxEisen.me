@@ -42,3 +42,16 @@ export function createJsonResponder(defaultHeaders = {}) {
 		});
 	};
 }
+
+export function createHtmlResponder(defaultHeaders = {}) {
+	return function htmlResponse(body, status = 200, extraHeaders = {}) {
+		return new Response(body, {
+			status,
+			headers: {
+				"Content-Type": "text/html; charset=utf-8",
+				...defaultHeaders,
+				...extraHeaders,
+			},
+		});
+	};
+}

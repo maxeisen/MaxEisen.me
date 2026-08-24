@@ -2,7 +2,7 @@
   # Tests first: a failing test fails the build, so Netlify keeps the previous
   # deploy live and the regression never reaches production. (`&&` short-circuits
   # before the slower manifest generation.)
-  command = "npm run test:run && node scripts/build-gallery-manifest.mjs && node scripts/seed-bach-party-packs.mjs && npm run build"
+  command = "npm run test:run && node scripts/build-gallery-manifest.mjs && node scripts/seed-bach-party-packs.mjs && npm run build && node scripts/copy-spa-shell.mjs"
   publish = "dist"
   functions = "netlify/functions"
 
@@ -19,6 +19,7 @@
   included_files = [
     "netlify/functions/_generated/**",
     "public/content/marathon-plan.json",
+    "index.html",
   ]
 
 # /build/* is content-hashed (see vite.config.js) — every filename changes
@@ -101,10 +102,12 @@
   to = "/@fs/:splat"
   status = 200
 
-# SPA rewrites — only known App.svelte routes boot index.html. Keep this
-# list in sync with ROUTES in src/App.svelte (+ "/" for the homepage).
-# Static files (resume.html, 404.html, /build/*, /styles/*, …) are served
-# as-is before these rules run. Anything else falls through to 404.html.
+# SPA rewrites — known App.svelte routes boot index.html, except /training,
+# which is the trainingPage function so a no-JS browser still gets the
+# dashboard. Keep the rest in sync with ROUTES in src/App.svelte (+ "/" for
+# the homepage). Static files (resume.html, 404.html, /build/*, /styles/*, …)
+# are served as-is before these rules run. Anything else falls through to
+# 404.html.
 [[redirects]]
   from = "/"
   to = "/index.html"
@@ -129,9 +132,11 @@
   from = "/dashboard"
   to = "/index.html"
   status = 200
+# HTML from trainingPage: the SPA shell plus a noscript dashboard. JS visitors
+# still boot the app from that document; browsers without JS read the fallback.
 [[redirects]]
   from = "/training"
-  to = "/index.html"
+  to = "/.netlify/functions/trainingPage"
   status = 200
 [[redirects]]
   from = "/toronto"
