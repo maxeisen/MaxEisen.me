@@ -1,0 +1,352 @@
+/* No-JS /training layout. Tokens come from global.css on the SPA shell.
+   Scoped under .training-fallback so it cannot restyle the mounted app. */
+
+.training-fallback {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: var(--space-7) var(--space-5) var(--space-8);
+	color: var(--paragraph-colour);
+	font-family: var(--font-sans);
+	font-weight: 400;
+	line-height: 1.45;
+}
+
+.training-fallback a {
+	color: var(--main-green);
+	text-decoration: none;
+}
+.training-fallback a:hover,
+.training-fallback a:focus-visible {
+	text-decoration: underline;
+}
+
+.tf-back {
+	display: inline-block;
+	margin-bottom: var(--space-5);
+	font-size: var(--font-xs);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.tf-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--space-3) var(--space-5);
+	flex-wrap: wrap;
+	margin-bottom: var(--space-6);
+}
+.tf-eyebrow {
+	font-size: var(--font-2xs);
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--main-green);
+	margin: 0 0 var(--space-2) 0;
+}
+.training-fallback h1 {
+	font-size: clamp(2rem, 6vw, 3.2rem);
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	line-height: 1;
+	color: var(--header-colour);
+	margin: 0;
+}
+.tf-race-date {
+	font-size: var(--font-sm);
+	opacity: 0.75;
+	margin: var(--space-2) 0 0 0;
+}
+.tf-countdown {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	line-height: 1;
+}
+.tf-countdown-value {
+	font-size: clamp(2.5rem, 8vw, 4rem);
+	font-weight: 700;
+	letter-spacing: -0.04em;
+	color: var(--main-green);
+}
+.tf-countdown span:last-child {
+	font-size: var(--font-2xs);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	opacity: 0.7;
+	margin-top: var(--space-2);
+}
+
+.tf-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: var(--space-3);
+	margin-bottom: var(--space-6);
+}
+.tf-stats-tight {
+	margin: var(--space-4) 0 0;
+}
+.tf-stat {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	padding: var(--space-4);
+	border-radius: var(--radius-md);
+	background: var(--inner-background);
+	border: 1px solid var(--main-green-translucent);
+}
+.tf-stat strong {
+	font-size: var(--font-xl);
+	font-weight: 600;
+	color: var(--header-colour);
+	letter-spacing: -0.02em;
+}
+.tf-stat strong.ahead { color: var(--tone-good); }
+.tf-stat strong.behind { color: var(--tone-bad); }
+.tf-label {
+	font-size: var(--font-2xs);
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--main-green);
+}
+.tf-note {
+	font-size: var(--font-xs);
+	opacity: 0.7;
+	margin: var(--space-1) 0 0;
+}
+
+.tf-notice {
+	padding: var(--space-4);
+	margin-bottom: var(--space-5);
+	border-radius: var(--radius-md);
+	background: var(--inner-background);
+	border: 1px solid var(--main-green-translucent);
+}
+.tf-notice strong {
+	display: block;
+	font-size: var(--font-sm);
+	color: var(--header-colour);
+}
+.tf-notice p {
+	margin: var(--space-2) 0 0;
+	font-size: var(--font-xs);
+	opacity: 0.75;
+}
+
+.tf-grid {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+.tf-card {
+	background: var(--inner-background);
+	border: 1px solid var(--main-green-translucent);
+	border-radius: var(--radius-xl);
+	padding: var(--space-5);
+	box-shadow: var(--inner-box-shadow);
+	min-width: 0;
+}
+.tf-card-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--space-3);
+	flex-wrap: wrap;
+	margin-bottom: var(--space-4);
+}
+.tf-card-head h2,
+.training-fallback h2 {
+	font-size: var(--font-lg);
+	font-weight: 600;
+	color: var(--header-colour);
+	margin: 0;
+}
+.tf-card-head span {
+	font-size: var(--font-2xs);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	opacity: 0.7;
+}
+.tf-empty {
+	font-size: var(--font-sm);
+	opacity: 0.7;
+	margin: 0;
+}
+.tf-run-title {
+	display: block;
+	font-size: var(--font-lg);
+	font-weight: 600;
+	color: var(--header-colour);
+	line-height: 1.2;
+}
+
+.tf-today,
+.tf-changes {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: var(--space-3);
+}
+.tf-today > div,
+.tf-changes > div {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: var(--space-4);
+	background: var(--item-background);
+	border-radius: var(--radius-md);
+	min-width: 0;
+}
+.tf-today strong,
+.tf-changes strong {
+	font-size: var(--font-md);
+	font-weight: 700;
+	color: var(--header-colour);
+}
+
+.tf-recs {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+.tf-rec {
+	padding: var(--space-4);
+	padding-left: var(--space-5);
+	border-radius: var(--radius-md);
+	background: var(--item-background);
+	border: 1px solid var(--main-green-translucent);
+	border-left: 4px solid var(--main-green);
+}
+.tf-rec-critical { border-left-color: var(--tone-bad); }
+.tf-rec-warning { border-left-color: var(--tone-warn); }
+.tf-rec-good { border-left-color: var(--tone-good); }
+.tf-rec h3 {
+	font-size: var(--font-md);
+	font-weight: 600;
+	color: var(--header-colour);
+	margin: var(--space-2) 0;
+}
+.tf-rec p { margin: 0; font-size: var(--font-sm); line-height: 1.55; }
+.tf-rec-meta {
+	font-size: var(--font-2xs);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	opacity: 0.7;
+}
+.tf-rec details {
+	margin-top: var(--space-2);
+	font-size: var(--font-sm);
+}
+.tf-rec summary {
+	cursor: pointer;
+	color: var(--main-green);
+	font-size: var(--font-xs);
+}
+
+.tf-track {
+	height: 6px;
+	border-radius: var(--radius-pill);
+	background: var(--item-background);
+	overflow: hidden;
+	margin-top: var(--space-2);
+}
+.tf-fill {
+	height: 100%;
+	background: var(--main-green);
+	border-radius: var(--radius-pill);
+}
+
+.training-fallback table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--font-xs);
+}
+.training-fallback th,
+.training-fallback td {
+	text-align: left;
+	padding: var(--space-2);
+	border-bottom: 1px solid var(--main-green-translucent);
+	vertical-align: baseline;
+}
+.training-fallback th {
+	font-size: var(--font-2xs);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--main-green);
+	font-weight: 600;
+}
+.training-fallback tr.today {
+	background: var(--main-green-translucent);
+}
+.tf-days th:first-child { white-space: nowrap; }
+.tf-upcoming {
+	list-style: none;
+	margin: var(--space-3) 0 0;
+	padding: 0;
+	font-size: var(--font-xs);
+}
+.tf-upcoming li { margin-bottom: var(--space-2); }
+.training-fallback h3 {
+	font-size: var(--font-2xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: var(--main-green);
+	margin: var(--space-5) 0 var(--space-3);
+}
+
+.tf-dl {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+	gap: var(--space-3);
+	margin: var(--space-4) 0 0;
+}
+.tf-dl div { display: flex; flex-direction: column; gap: 2px; }
+.tf-dl dt {
+	font-size: var(--font-2xs);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--main-green);
+}
+.tf-dl dd {
+	margin: 0;
+	font-size: var(--font-md);
+	font-weight: 600;
+	color: var(--header-colour);
+}
+
+.tf-foot {
+	margin-top: var(--space-6);
+	padding-top: var(--space-4);
+	border-top: 1px solid var(--main-green-translucent);
+}
+.tf-foot p {
+	font-size: var(--font-xs);
+	line-height: 1.6;
+	opacity: 0.6;
+	margin: 0;
+	max-width: 70ch;
+}
+.tf-foot p + p { margin-top: var(--space-3); }
+.tf-foot a { opacity: 0.85; }
+.tf-stamp { opacity: 0.45 !important; margin-top: var(--space-2) !important; }
+
+@media (max-width: 1100px) {
+	.training-fallback { padding-top: 3.5rem; }
+}
+@media (max-width: 860px) {
+	.training-fallback { padding: 3.5rem var(--space-4) var(--space-7); }
+}
+@media (max-width: 620px) {
+	.tf-countdown {
+		flex-direction: row;
+		align-items: baseline;
+		gap: var(--space-2);
+	}
+	.tf-countdown-value { font-size: 2.25rem; }
+	.tf-countdown span:last-child { margin-top: 0; }
+}

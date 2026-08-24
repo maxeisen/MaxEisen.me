@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createJsonResponder, cacheControl } from "./http.js";
+import { createJsonResponder, createHtmlResponder, cacheControl } from "./http.js";
 
 describe("cacheControl presets", () => {
 	it("none is no-store", () => {
@@ -57,5 +57,17 @@ describe("createJsonResponder", () => {
 		const res = json({ playing: false });
 		expect(res.headers.get("Cache-Control")).toBe("private, max-age=0, must-revalidate");
 		expect(res.headers.get("Netlify-CDN-Cache-Control")).toBe("public, max-age=5");
+	});
+});
+
+describe("createHtmlResponder", () => {
+	it("returns the body as HTML with the bound cache headers", async () => {
+		const html = createHtmlResponder(cacheControl.edgeBurst(60));
+		const res = html("<h1>Hi</h1>");
+		expect(res.status).toBe(200);
+		expect(res.headers.get("Content-Type")).toBe("text/html; charset=utf-8");
+		expect(res.headers.get("Cache-Control")).toBe("private, max-age=0, must-revalidate");
+		expect(res.headers.get("Netlify-CDN-Cache-Control")).toBe("public, max-age=60");
+		await expect(res.text()).resolves.toBe("<h1>Hi</h1>");
 	});
 });
