@@ -1,7 +1,6 @@
-// The no-JS /training page is HTML built from the same payload the SPA fetches.
-// These tests catch the failures that would make that page lie, execute markup,
-// or leave JS visitors without the app: unescaped names, a missing noscript
-// swap, or a shell whose module script got eaten.
+// The no-JS /training page is a plain HTML feed of the same payload the SPA
+// fetches. These tests catch the failures that would make that page lie,
+// execute markup, hide the JSON alternate, or leave JS visitors without the app.
 
 import { describe, it, expect } from "vitest";
 import { injectTrainingFallback, renderTrainingFallback } from "./fallback.js";
@@ -119,7 +118,8 @@ describe("injectTrainingFallback", () => {
 
 		expect(out).toContain('<div id="app"></div>');
 		expect(out).toContain('<script type="module" src="/src/main.js"></script>');
-		expect(out).toContain("/styles/training-fallback.css");
+		expect(out).toContain('rel="alternate" type="application/json" href="/.netlify/functions/trainingData"');
+		expect(out).not.toContain("training-fallback.css");
 		expect(out).toMatch(/<noscript>[\s\S]*Chicago Marathon[\s\S]*<\/noscript>/);
 		expect(out).not.toContain("/resume");
 	});
@@ -140,10 +140,13 @@ describe("renderTrainingFallback", () => {
 		expect(html).toContain("Easy days are actually easy");
 		expect(html).toContain("81% of the last four weeks was easy running");
 		expect(html).toContain("Morning Run");
-		expect(html).toContain("What to do about it");
+		expect(html).toContain("Recommendations");
 		expect(html).toContain("Recent activity");
 		expect(html).toContain("Today");
 		expect(html).toContain("strava.com/athletes/92118908");
+		expect(html).toContain("/.netlify/functions/trainingData");
+		expect(html).not.toContain("tf-card");
+		expect(html).not.toContain("training-fallback");
 	});
 
 	it("escapes names so a run titled with markup cannot inject tags", () => {

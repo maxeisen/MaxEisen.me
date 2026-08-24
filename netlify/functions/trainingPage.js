@@ -1,10 +1,11 @@
-// /training as HTML, for browsers that never run the SPA.
+// /training as HTML, for clients that never run the SPA.
 //
 // The rewrite in netlify.toml sends this path here instead of index.html. The
-// response is still that shell — hashed scripts, theme, the empty #app — with
-// the dashboard rendered into <noscript> from the same payload trainingData
+// response is still that shell — hashed scripts, the empty #app — with a
+// plain-text feed in <noscript> built from the same payload trainingData
 // serves as JSON. JS visitors boot the app and never see the fallback; a
-// payload failure fails open so they still get the shell.
+// payload failure fails open so they still get the shell. Bots get headings,
+// tables, and an alternate link to the JSON.
 
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";

@@ -51,7 +51,8 @@ describe("serveTrainingPage", () => {
 		expect(html).toContain('<div id="app"></div>');
 		expect(html).toContain('<script type="module" src="/src/main.js"></script>');
 		expect(html).toContain("Chicago Marathon");
-		expect(html).toContain("training-fallback.css");
+		expect(html).toContain('rel="alternate" type="application/json" href="/.netlify/functions/trainingData"');
+		expect(html).not.toContain("training-fallback.css");
 		expect(html).not.toContain("/resume");
 	});
 
