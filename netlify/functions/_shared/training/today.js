@@ -61,9 +61,9 @@ function sessionFrom(day) {
 	};
 }
 
-function predictionOf({ efforts, targetDistanceM, date, ranToday }) {
+function predictionOf({ efforts, targetDistanceM, date, ranToday, projectedSec }) {
 	const after = predictRace(efforts, targetDistanceM);
-	if (!after) return null;
+	if (!after && !Number.isFinite(projectedSec)) return null;
 	// Re-predict without today's efforts rather than trusting basis.date:
 	// an easy 6k still has a 5k split, and that split is "today" even when
 	// it did not beat the existing basis. The number this cell exists to
@@ -72,10 +72,10 @@ function predictionOf({ efforts, targetDistanceM, date, ranToday }) {
 		(efforts || []).filter((effort) => effort?.date !== date),
 		targetDistanceM,
 	);
-	const predictedSec = after.predictedSec;
+	const predictedSec = Number.isFinite(projectedSec) ? projectedSec : after.predictedSec;
 	let sessionDeltaSec = null;
 	if (ranToday) {
-		sessionDeltaSec = prior ? Math.round(predictedSec - prior.predictedSec) : 0;
+		sessionDeltaSec = prior ? Math.round((after?.predictedSec ?? predictedSec) - prior.predictedSec) : 0;
 	}
 	return {
 		predictedSec,
@@ -103,6 +103,7 @@ export function todayBriefing({
 	recovery = null,
 	efforts = [],
 	targetDistanceM = 42195,
+	projectedSec = null,
 } = {}) {
 	const training = trainingOf(series, date);
 	const session = sessionFrom(day);
@@ -116,6 +117,7 @@ export function todayBriefing({
 			targetDistanceM,
 			date,
 			ranToday: session.actualKm > 0,
+			projectedSec,
 		}),
 	};
 }

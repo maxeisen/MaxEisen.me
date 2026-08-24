@@ -202,11 +202,12 @@ export function isContainedSplit(effort) {
 /**
  * Ensemble aerobic potential from recent best efforts.
  *
- * Easy-run and long-run *splits* are not races — averaging them in pulls a
- * marathon projection toward long-run pace. Among the remaining efforts,
- * longer races count more, recent races count more, and a fast short effort
- * that disagrees with a slower longer race is down-weighted. If every effort
- * is a split, fall back to the single best VDOT (the same pick as predictRace).
+ * Easy-run splits and untagged training runs at long-run pace are not races.
+ * Keep efforts near the athlete's peak VDOT (the same fitness Garmin uses)
+ * plus tagged races, even if a race is slower than a 5k. Among those, longer
+ * races count more, recent races count more, and a fast short effort that
+ * disagrees with a slower *race* is down-weighted. If nothing quality remains,
+ * fall back to the single best VDOT.
  *
  * @param {{timeSec: number, distanceM: number, name?: string, date?: string, activityDistanceM?: number, workoutType?: number|null}[]} efforts
  * @param {number} targetDistanceM
@@ -229,7 +230,12 @@ export function aerobicPotential(efforts, targetDistanceM, today) {
 	}
 	if (candidates.length === 0) return null;
 
-	const quality = candidates.filter((c) => !isContainedSplit(c.effort));
+	const peakVdot = Math.max(...candidates.map((c) => c.projection.vdot));
+	const quality = candidates.filter((c) => {
+		if (isContainedSplit(c.effort)) return false;
+		if (c.projection.vdot >= peakVdot * cfg.qualityVdotFloor) return true;
+		return c.effort.workoutType === 1;
+	});
 	const poolSource = quality.length > 0 ? quality : [candidates.reduce((best, c) =>
 		c.projection.vdot > best.projection.vdot ? c : best,
 	)];
@@ -240,10 +246,12 @@ export function aerobicPotential(efforts, targetDistanceM, today) {
 	}, new Map());
 	const selected = [...pool.values()];
 
-	const longer = selected.filter((c) => c.effort.distanceM >= 10000);
+	const longerRaces = selected.filter(
+		(c) => c.effort.distanceM >= 10000 && c.effort.workoutType === 1,
+	);
 	const longerMean =
-		longer.length > 0
-			? longer.reduce((sum, c) => sum + c.projection.predictedSec, 0) / longer.length
+		longerRaces.length > 0
+			? longerRaces.reduce((sum, c) => sum + c.projection.predictedSec, 0) / longerRaces.length
 			: null;
 
 	let weightSum = 0;

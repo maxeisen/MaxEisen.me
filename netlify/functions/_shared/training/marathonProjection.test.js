@@ -124,6 +124,12 @@ describe("readinessPenalty", () => {
 		expect(readinessPenalty(0.3)).toBeGreaterThan(readinessPenalty(0.8));
 		expect(readinessPenalty(0)).toBeGreaterThan(readinessPenalty(0.3));
 	});
+
+	it("adds only a few percent at mid readiness, not a 4:07-scale tax", () => {
+		const penalty = readinessPenalty(0.54);
+		expect(penalty).toBeGreaterThan(1.02);
+		expect(penalty).toBeLessThan(1.045);
+	});
 });
 
 describe("projectMarathon", () => {
@@ -168,7 +174,7 @@ describe("projectMarathon", () => {
 	});
 
 	it("weights a recent half marathon above a faster 5k when they disagree", () => {
-		const half = { name: "Half", distanceM: 21097.5, timeSec: 6300, date: addDays(TODAY, -14) };
+		const half = { name: "Half", distanceM: 21097.5, timeSec: 6300, date: addDays(TODAY, -14), workoutType: 1 };
 		const fiveK = { name: "5k", distanceM: 5000, timeSec: 1080, date: addDays(TODAY, -7) };
 		const runs = block();
 		runs[0].bestEfforts = [half, fiveK];
@@ -204,6 +210,26 @@ describe("projectMarathon", () => {
 			Math.abs(out.aerobicPotentialSeconds - halfOnly),
 		);
 		expect(out.basis.distanceM).toBe(5000);
+	});
+
+	it("projects a 5k-shaped engine near Garmin, not a training 15k", () => {
+		const runs = block({ weeks: 8, kmPerWeek: 32, longKm: [23, 16, 15, 14] });
+		for (const activity of runs) activity.bestEfforts = [];
+		const workout = run({ date: addDays(TODAY, -20), distanceKm: 8, movingMin: 40 });
+		workout.workoutType = 3;
+		workout.bestEfforts = [{ name: "5k", distanceM: 5000, timeSec: 1240, date: addDays(TODAY, -20) }];
+		const easy15 = run({ date: addDays(TODAY, -29), distanceKm: 15.014, movingMin: 79.1 });
+		easy15.bestEfforts = [
+			{ name: "15K", distanceM: 15000, timeSec: 4747, date: addDays(TODAY, -29) },
+		];
+		const out = project([...runs, workout, easy15], {
+			efforts: collectBestEfforts([...runs, workout, easy15]),
+		});
+		const fiveOnly = predictFromEffort(workout.bestEfforts[0], MARATHON_M).predictedSec;
+		expect(out.aerobicPotentialSeconds).toBeCloseTo(fiveOnly, 0);
+		expect(out.predictedSec).toBeGreaterThan(fiveOnly);
+		expect(out.predictedSec).toBeGreaterThan(12000);
+		expect(out.predictedSec).toBeLessThan(12780);
 	});
 
 	it("does not claim high confidence from a 10k and short long runs alone", () => {

@@ -345,6 +345,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		recovery: recovered,
 		efforts,
 		targetDistanceM: raceDistanceM,
+		projectedSec: prediction?.predictedSec,
 	});
 
 	return {

@@ -124,7 +124,7 @@ describe("aerobicPotential", () => {
 	});
 
 	it("leans on the half when a 5k disagrees substantially", () => {
-		const half = { distanceM: 21097.5, timeSec: 6300, date: "2026-08-10" };
+		const half = { distanceM: 21097.5, timeSec: 6300, date: "2026-08-10", workoutType: 1 };
 		const five = { distanceM: 5000, timeSec: 1080, date: "2026-08-17" };
 		const out = aerobicPotential([half, five], MARATHON_M, "2026-08-24");
 		const halfSec = predictFromEffort(half, MARATHON_M).predictedSec;
@@ -161,6 +161,41 @@ describe("aerobicPotential", () => {
 		const out = aerobicPotential([fast5k, easyHalf], MARATHON_M, "2026-08-24");
 		expect(out.predictedSec).toBeCloseTo(predictFromEffort(fast5k, MARATHON_M).predictedSec, 0);
 		expect(out.basis.distanceM).toBe(5000);
+	});
+
+	it("does not let an untagged 15k at long-run pace set aerobic potential", () => {
+		const five = {
+			name: "5k",
+			distanceM: 5000,
+			timeSec: 1240,
+			date: "2026-07-20",
+			activityDistanceM: 8000,
+			workoutType: 3,
+		};
+		const easy15 = {
+			name: "15K",
+			distanceM: 15000,
+			timeSec: 4747,
+			date: "2026-07-26",
+			activityDistanceM: 15014,
+			workoutType: null,
+		};
+		const out = aerobicPotential([five, easy15], MARATHON_M, "2026-08-24");
+		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
+		const easySec = predictFromEffort(easy15, MARATHON_M).predictedSec;
+		expect(out.predictedSec).toBeCloseTo(fiveSec, 0);
+		expect(Math.abs(out.predictedSec - fiveSec)).toBeLessThan(Math.abs(out.predictedSec - easySec));
+		expect(out.basis.distanceM).toBe(5000);
+	});
+
+	it("does not let a tempo 10k a bit off peak VDOT drag a 5k toward long-run pace", () => {
+		const five = { name: "5k", distanceM: 5000, timeSec: 1240, date: "2026-07-20", workoutType: 3 };
+		const tempo10 = { name: "10k", distanceM: 10000, timeSec: 2850, date: "2026-07-29", workoutType: 3 };
+		const out = aerobicPotential([five, tempo10], MARATHON_M, "2026-08-24");
+		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
+		const tempoSec = predictFromEffort(tempo10, MARATHON_M).predictedSec;
+		expect(out.predictedSec).toBeCloseTo(fiveSec, 0);
+		expect(Math.abs(out.predictedSec - fiveSec)).toBeLessThan(Math.abs(out.predictedSec - tempoSec));
 	});
 });
 

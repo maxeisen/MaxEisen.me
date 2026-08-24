@@ -22,7 +22,7 @@ export const MARATHON_PROJECTION = {
 	// k and exponent are conservative: excellent prep barely moves the
 	// aerobic baseline; missing marathon-specific work opens a wider gap.
 	penalty: {
-		k: 0.22,
+		k: 0.12,
 		exponent: 1.7,
 	},
 
@@ -57,6 +57,11 @@ export const MARATHON_PROJECTION = {
 		// even when the session is longer than the effort (warmup/cooldown).
 		splitRatio: 1.08,
 		splitExtraM: 1500,
+		// Untagged training runs at long-run pace are not races. Keep an
+		// effort only if it is near the athlete's peak VDOT (Garmin-like
+		// VO2max) or is tagged as a race. A slower race still informs the
+		// ensemble; an easy 15k does not.
+		qualityVdotFloor: 0.9,
 	},
 
 	volume: {
