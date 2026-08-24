@@ -1,9 +1,10 @@
 // Plain HTML for /training when JavaScript is off.
 //
 // This is a data feed that happens to be readable, not a second copy of the
-// dashboard. Bots (and a human with JS off) get headings, definition lists and
-// tables built from the same payload trainingData serves as JSON. The SPA
-// still boots from the shell around this noscript block.
+// dashboard. Bots (and a human with JS off) get headings and tables built from
+// the same payload trainingData serves as JSON. A little table CSS lives in
+// the noscript block so it never loads for the SPA. The app still boots from
+// the shell around it.
 
 import {
 	clock,
@@ -25,6 +26,16 @@ import { stravaTag } from "../../../../src/components/Training/lib/runTags.js";
 
 const STRAVA_PROFILE = "https://www.strava.com/athletes/92118908";
 const JSON_FEED = "/.netlify/functions/trainingData";
+
+// Lives inside <noscript>, so JS visitors never apply it. Tokens come from
+// global.css on the shell; the fallbacks are for a client that skipped CSS.
+const FEED_STYLE = `<style>
+body { color: var(--paragraph-colour, inherit); max-width: 48rem; margin: 1.25em auto; padding: 0 1em; }
+table { border-collapse: collapse; width: 100%; margin: 0.5em 0 1.1em; }
+th, td { border: 1px solid var(--main-green-translucent, #ccc); padding: 0.28em 0.6em; text-align: left; vertical-align: top; }
+th { color: var(--main-green, inherit); font-weight: 600; }
+section { margin: 1.1em 0; }
+</style>`;
 
 const SEVERITY = {
 	critical: "Act now",
@@ -81,6 +92,7 @@ export function injectTrainingFallback(html, innerHtml) {
  */
 export function renderTrainingFallback(data = {}) {
 	return [
+		FEED_STYLE,
 		`<p><a href="/">Home</a> · <a href="${JSON_FEED}">JSON</a> · <a href="${STRAVA_PROFILE}" rel="noreferrer">Strava</a></p>`,
 		renderHeader(data.summary),
 		renderSync(data.sync, data.runs?.length ?? 0),
@@ -104,10 +116,11 @@ function section(title, body) {
 }
 
 function pairs(rows) {
-	return `<dl>\n${rows
+	const body = rows
 		.filter((row) => row)
-		.map(([dt, dd]) => `<dt>${t(dt)}</dt><dd>${t(dd)}</dd>`)
-		.join("\n")}\n</dl>`;
+		.map(([th, td]) => `<tr><th scope="row">${t(th)}</th><td>${t(td)}</td></tr>`)
+		.join("\n");
+	return body ? `<table>\n${body}\n</table>` : "";
 }
 
 function kmLabel(metres) {
@@ -233,13 +246,9 @@ function renderRecommendations(list) {
 	const rows = items.map((rec) => {
 		const metric = readout(rec.metric, rec.threshold, rec.unit);
 		const label = SEVERITY[rec.severity] || rec.severity || "";
-		return `<article>
-<h3>${t(rec.title)}</h3>
-<p>${t(label)}${metric ? ` · ${t(metric)}` : ""}</p>
-<p>${t(rec.detail)}</p>
-</article>`;
+		return `<tr><th scope="row">${t(rec.title)}</th><td>${t(label)}</td><td>${t(metric || "—")}</td><td>${t(rec.detail)}</td></tr>`;
 	}).join("\n");
-	return section("Recommendations", rows);
+	return section("Recommendations", `<table><thead><tr><th>Advice</th><th>Status</th><th>Metric</th><th>Detail</th></tr></thead><tbody>\n${rows}\n</tbody></table>`);
 }
 
 function dayStatus(day) {
@@ -275,12 +284,12 @@ function renderWeek(week, weeks, upcoming, todayKey) {
 	}).join("");
 
 	const coming = (upcoming || []).slice(0, 4).map((w) =>
-		`<li>${t(weekRange(w.start))}: ${w.targetKm ? `${w.targetKm} km` : "—"}${w.longRunKm ? `; ${w.longRunKm} km long` : ""}</li>`,
+		`<tr><th>${t(weekRange(w.start))}</th><td>${w.targetKm ? `${w.targetKm} km` : "—"}</td><td>${w.longRunKm ? `${w.longRunKm} km` : "—"}</td></tr>`,
 	).join("");
 
 	return section("This week", `${volume}
 ${days ? `<table><thead><tr><th>Day</th><th>Plan</th><th>km</th></tr></thead><tbody>${days}</tbody></table>` : ""}
-${coming ? `<h3>Coming up</h3><ul>${coming}</ul>` : ""}`);
+${coming ? `<h3>Coming up</h3><table><thead><tr><th>Week</th><th>Target</th><th>Long run</th></tr></thead><tbody>${coming}</tbody></table>` : ""}`);
 }
 
 function addSix(weekStart) {
@@ -373,7 +382,10 @@ function renderEfficiency(summary) {
 		return section("Aerobic efficiency", "<p>Not enough aerobic runs to show a trend yet.</p>");
 	}
 	const changeText = change === null ? "—" : `${change > 0 ? "+" : ""}${change.toFixed(1)}%`;
-	return section("Aerobic efficiency", `<p>${t(changeText)} over the block${longRun?.decouplingPct != null ? `. Last long run decoupling ${Number(longRun.decouplingPct).toFixed(1)}%.` : "."}</p>`);
+	return section("Aerobic efficiency", pairs([
+		["Change over the block", changeText],
+		longRun?.decouplingPct != null ? ["Last long run decoupling", `${Number(longRun.decouplingPct).toFixed(1)}%`] : null,
+	]));
 }
 
 function renderVolume(weeks, todayKey) {
