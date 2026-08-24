@@ -420,7 +420,7 @@ export function recommendations(metrics) {
 					"goal-behind",
 					"info",
 					`Projecting about ${duration(Math.abs(delta))} short of goal`,
-					`Current form projects ${duration(prediction.predictedSec)} against your ${duration(goal.goalTimeSec)} target — which needs ${pace(goal.goalPaceSecPerKm)}. The projection is based on your best recent effort and assumes the endurance work continues, so treat it as a floor rather than a verdict.`,
+					`Current form projects ${duration(prediction.predictedSec)} against your ${duration(goal.goalTimeSec)} target — which needs ${pace(goal.goalPaceSecPerKm)}. The projection starts from recent race performances and then discounts for how marathon-ready the current training actually is.`,
 					prediction.predictedSec,
 					goal.goalTimeSec,
 					"duration",
