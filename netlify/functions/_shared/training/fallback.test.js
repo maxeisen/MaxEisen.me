@@ -149,6 +149,16 @@ describe("renderTrainingFallback", () => {
 		expect(html).not.toContain("training-fallback");
 	});
 
+	it("puts the numbers in tables and only styles those tables, not a second dashboard", () => {
+		const html = renderTrainingFallback(payload());
+
+		expect(html).toMatch(/<tr>\s*<th[^>]*>Goal<\/th>\s*<td>3:40:00/);
+		expect(html).toMatch(/<tr>\s*<th[^>]*>Distance<\/th>/);
+		expect(html).toMatch(/<table>[\s\S]*<th>Date<\/th>[\s\S]*Morning Run/);
+		expect(html).toContain("border-collapse");
+		expect(html).not.toContain("training-fallback.css");
+	});
+
 	it("escapes names so a run titled with markup cannot inject tags", () => {
 		const html = renderTrainingFallback(
 			payload({
