@@ -6,7 +6,6 @@ import {
 	vdotProjection,
 	predictFromEffort,
 	predictRace,
-	aerobicPotential,
 	goalDelta,
 	goalPaceSecPerKm,
 } from "./predict.js";
@@ -111,91 +110,6 @@ describe("predictRace", () => {
 	it("returns null when every effort is too short", () => {
 		expect(predictRace([{ distanceM: 1500, timeSec: 300 }], MARATHON_M)).toBeNull();
 		expect(predictRace([], MARATHON_M)).toBeNull();
-	});
-});
-
-describe("aerobicPotential", () => {
-	it("matches a single-effort projection", () => {
-		const effort = { distanceM: 10000, timeSec: 2400, date: "2026-08-01" };
-		const single = predictFromEffort(effort, MARATHON_M);
-		const out = aerobicPotential([effort], MARATHON_M, "2026-08-24");
-		expect(out.predictedSec).toBeCloseTo(single.predictedSec, 0);
-		expect(out.basis.distanceM).toBe(10000);
-	});
-
-	it("leans on the half when a 5k disagrees substantially", () => {
-		const half = { distanceM: 21097.5, timeSec: 6300, date: "2026-08-10", workoutType: 1 };
-		const five = { distanceM: 5000, timeSec: 1080, date: "2026-08-17" };
-		const out = aerobicPotential([half, five], MARATHON_M, "2026-08-24");
-		const halfSec = predictFromEffort(half, MARATHON_M).predictedSec;
-		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
-		expect(Math.abs(out.predictedSec - halfSec)).toBeLessThan(Math.abs(out.predictedSec - fiveSec));
-	});
-
-	it("ignores easy-run splits that are far slower than a genuine best effort", () => {
-		const race5k = { name: "5k", distanceM: 5000, timeSec: 1110, date: "2026-08-05", activityDistanceM: 5200, workoutType: 3 };
-		const easyHalf = { name: "Half-Marathon", distanceM: 21097, timeSec: 6563, date: "2026-08-23", activityDistanceM: 23000, workoutType: 2 };
-		const easy10ks = [
-			{ name: "10k", distanceM: 10000, timeSec: 3200, date: "2026-08-14", activityDistanceM: 12000 },
-			{ name: "10k", distanceM: 10000, timeSec: 3180, date: "2026-08-09", activityDistanceM: 11800 },
-			{ name: "10k", distanceM: 10000, timeSec: 3300, date: "2026-08-01", activityDistanceM: 12500 },
-		];
-		const out = aerobicPotential([race5k, easyHalf, ...easy10ks], MARATHON_M, "2026-08-24");
-		const raceSec = predictFromEffort(race5k, MARATHON_M).predictedSec;
-		const easySec = predictFromEffort(easyHalf, MARATHON_M).predictedSec;
-		expect(out.predictedSec).toBeCloseTo(raceSec, 0);
-		expect(Math.abs(out.predictedSec - raceSec)).toBeLessThan(Math.abs(out.predictedSec - easySec));
-		expect(out.basis.distanceM).toBe(5000);
-	});
-
-	it("still uses a workout 5k when the session includes warmup and cooldown", () => {
-		const workout = { name: "5k", distanceM: 5000, timeSec: 1110, date: "2026-08-05", activityDistanceM: 9000, workoutType: 3 };
-		const out = aerobicPotential([workout], MARATHON_M, "2026-08-24");
-		expect(out.basis.distanceM).toBe(5000);
-		expect(out.predictedSec).toBeCloseTo(predictFromEffort(workout, MARATHON_M).predictedSec, 0);
-	});
-
-	it("falls back to the fastest VDOT when every effort is a long-run split", () => {
-		const fast5k = { name: "5k", distanceM: 5000, timeSec: 1240, date: "2026-07-20", activityDistanceM: 8000 };
-		const easyHalf = { name: "Half-Marathon", distanceM: 21097, timeSec: 6563, date: "2026-08-23", activityDistanceM: 23000, workoutType: 2 };
-		const out = aerobicPotential([fast5k, easyHalf], MARATHON_M, "2026-08-24");
-		expect(out.predictedSec).toBeCloseTo(predictFromEffort(fast5k, MARATHON_M).predictedSec, 0);
-		expect(out.basis.distanceM).toBe(5000);
-	});
-
-	it("does not let an untagged 15k at long-run pace set aerobic potential", () => {
-		const five = {
-			name: "5k",
-			distanceM: 5000,
-			timeSec: 1240,
-			date: "2026-07-20",
-			activityDistanceM: 8000,
-			workoutType: 3,
-		};
-		const easy15 = {
-			name: "15K",
-			distanceM: 15000,
-			timeSec: 4747,
-			date: "2026-07-26",
-			activityDistanceM: 15014,
-			workoutType: null,
-		};
-		const out = aerobicPotential([five, easy15], MARATHON_M, "2026-08-24");
-		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
-		const easySec = predictFromEffort(easy15, MARATHON_M).predictedSec;
-		expect(out.predictedSec).toBeCloseTo(fiveSec, 0);
-		expect(Math.abs(out.predictedSec - fiveSec)).toBeLessThan(Math.abs(out.predictedSec - easySec));
-		expect(out.basis.distanceM).toBe(5000);
-	});
-
-	it("does not let a tempo 10k a bit off peak VDOT drag a 5k toward long-run pace", () => {
-		const five = { name: "5k", distanceM: 5000, timeSec: 1240, date: "2026-07-20", workoutType: 3 };
-		const tempo10 = { name: "10k", distanceM: 10000, timeSec: 2850, date: "2026-07-29", workoutType: 3 };
-		const out = aerobicPotential([five, tempo10], MARATHON_M, "2026-08-24");
-		const fiveSec = predictFromEffort(five, MARATHON_M).predictedSec;
-		const tempoSec = predictFromEffort(tempo10, MARATHON_M).predictedSec;
-		expect(out.predictedSec).toBeCloseTo(fiveSec, 0);
-		expect(Math.abs(out.predictedSec - fiveSec)).toBeLessThan(Math.abs(out.predictedSec - tempoSec));
 	});
 });
 

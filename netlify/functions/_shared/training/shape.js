@@ -364,13 +364,7 @@ export function shapeActivities(rawActivities, options = {}) {
 export function collectBestEfforts(activities) {
 	const efforts = [];
 	for (const a of activities || []) {
-		for (const e of a.bestEfforts || []) {
-			efforts.push({
-				...e,
-				activityDistanceM: Number(a.distanceM) || e.activityDistanceM,
-				workoutType: Number.isFinite(a.workoutType) ? a.workoutType : (e.workoutType ?? null),
-			});
-		}
+		for (const e of a.bestEfforts || []) efforts.push(e);
 	}
 	return efforts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }

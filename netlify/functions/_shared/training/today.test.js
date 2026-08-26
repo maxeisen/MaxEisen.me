@@ -57,7 +57,6 @@ describe("todayBriefing", () => {
 			recovery: extra.recovery ?? null,
 			efforts: extra.efforts,
 			targetDistanceM: extra.targetDistanceM,
-			projectedSec: extra.projectedSec,
 		});
 	}
 
@@ -148,19 +147,6 @@ describe("todayBriefing", () => {
 		expect(out.prediction.sessionDeltaSec).toBe(Math.round(after.predictedSec - before.predictedSec));
 		expect(out.prediction.sessionDeltaSec).toBeLessThan(0);
 		expect(out.prediction.predictedSec).toBe(after.predictedSec);
-	});
-
-	it("uses the dashboard projection when one is provided", () => {
-		const out = briefing(
-			{ [today]: 0 },
-			{
-				efforts: [{ date: yesterday, distanceM: 10000, timeSec: 2580, name: "10K" }],
-				targetDistanceM: 42195,
-				projectedSec: 12300,
-			},
-		);
-		expect(out.prediction.predictedSec).toBe(12300);
-		expect(out.prediction.sessionDeltaSec).toBeNull();
 	});
 
 	it("leaves training null on the first day of the series rather than inventing a yesterday", () => {

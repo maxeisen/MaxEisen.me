@@ -12,7 +12,6 @@ import { collectBestEfforts, publicRun } from "./shape.js";
 import { lastRunDetail } from "./lastRun.js";
 import { todayBriefing } from "./today.js";
 import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
-import { projectMarathon } from "./marathonProjection.js";
 import {
 	blockRange,
 	comparePlan,
@@ -176,33 +175,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		? { strain: strainSignal({ tsb: latest?.tsb ?? null, recovery: recovered }) }
 		: null;
 
-	const days = current ? planDays(current, runs, day) : [];
-	const actualToday = runs.filter((r) => toDayKey(r.startDateLocal) === day);
-	const todayRow = days.find((d) => d.date === day) || {
-		date: day,
-		planned: [],
-		actualKm: actualToday.reduce((sum, r) => sum + (Number(r.distanceM) || 0), 0) / 1000,
-		runs: actualToday.length,
-	};
-
-	const remainingDays = daysToRace(plan, day);
 	const raceDistanceM = race.distanceM || 42195;
 	const efforts = collectBestEfforts(runs);
+	const prediction = predictRace(efforts, raceDistanceM);
 	const goalPace = goalPaceSecPerKm(race.goalTimeSec, raceDistanceM);
-	const projection = projectMarathon({
-		efforts,
-		runs,
-		weeks,
-		series,
-		acwr: ratio,
-		intensity,
-		recovery: recovered,
-		today: day,
-		race,
-		plan,
-		daysToRace: remainingDays,
-	});
-	const prediction = projection || predictRace(efforts, raceDistanceM);
 	const delta = prediction ? goalDelta(prediction.predictedSec, race.goalTimeSec) : null;
 
 	const lastLongRun = [...runs]
@@ -223,6 +199,16 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		today: day,
 	});
 
+	const days = current ? planDays(current, runs, day) : [];
+	const actualToday = runs.filter((r) => toDayKey(r.startDateLocal) === day);
+	const todayRow = days.find((d) => d.date === day) || {
+		date: day,
+		planned: [],
+		actualKm: actualToday.reduce((sum, r) => sum + (Number(r.distanceM) || 0), 0) / 1000,
+		runs: actualToday.length,
+	};
+
+	const remainingDays = daysToRace(plan, day);
 	const totals = runs.reduce(
 		(acc, a) => {
 			acc.distanceM += a.distanceM || 0;
@@ -273,18 +259,8 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 					vdotSec: prediction.vdotSec,
 					vdot: prediction.vdot,
 					basis: prediction.basis,
-					deltaSec: delta?.deltaSec ?? prediction.deltaSec ?? null,
-					onTrack: delta?.onTrack ?? prediction.onTrack ?? null,
-					aerobicPotentialSeconds: prediction.aerobicPotentialSeconds ?? prediction.predictedSec,
-					marathonReadiness: prediction.marathonReadiness ?? null,
-					readinessPenalty: prediction.readinessPenalty ?? null,
-					confidence: prediction.confidence ?? null,
-					confidenceLabel: prediction.confidenceLabel ?? null,
-					projectionRange: prediction.projectionRange ?? null,
-					factors: prediction.factors ?? null,
-					explanations: prediction.explanations ?? [],
-					raceDay: prediction.raceDay ?? null,
-					debug: prediction.debug ?? null,
+					deltaSec: delta?.deltaSec ?? null,
+					onTrack: delta?.onTrack ?? null,
 				}
 			: null,
 		longRun: lastLongRun
@@ -345,7 +321,6 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		recovery: recovered,
 		efforts,
 		targetDistanceM: raceDistanceM,
-		projectedSec: prediction?.predictedSec,
 	});
 
 	return {

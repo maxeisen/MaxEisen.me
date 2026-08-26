@@ -74,23 +74,6 @@ export function clock(sec) {
 }
 
 /**
- * A race time rounded to the minute, as h:mm.
- *
- * Marathon projections are not precise to the second. The headline and the
- * likely range use this so the page does not pretend they are.
- *
- * @param {number} sec
- * @returns {string}
- */
-export function clockMinutes(sec) {
-	if (!(sec > 0)) return "—";
-	const total = Math.round(sec / 60);
-	const h = Math.floor(total / 60);
-	const m = total % 60;
-	return h > 0 ? `${h}:${pad(m)}` : `${m} min`;
-}
-
-/**
  * A signed duration, for "4:32 ahead of goal" style deltas.
  *
  * @param {number} sec

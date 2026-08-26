@@ -94,15 +94,13 @@ export const GLOSSARY = {
 	prediction: {
 		title: "Projected finish",
 		body: [
-			"What the current training supports for the marathon, not a finish time to the second. Riegel and VDOT estimate aerobic potential from shorter races; marathon readiness then asks how much of that potential the long runs, volume, and consistency can actually hold.",
-			"The headline is the readiness-adjusted projection. The likely range is a spread from how much marathon-specific evidence there is — not a statistical confidence interval. Excellent marathon prep approaches the aerobic baseline; incomplete prep opens a wider gap.",
+			"What your recent hard efforts imply for the marathon, using two standard models. They disagree, and by how much is informative, so both are shown; the headline takes the slower of the two.",
+			"Both assume you keep doing the endurance work, so treat this as a floor for a well-executed race rather than a verdict on today.",
 		],
 		terms: [
-			{ term: "Aerobic potential", definition: "What Riegel and VDOT imply from recent shorter races. This is the optimistic ceiling, not a promise that the endurance work is already done." },
-			{ term: "Marathon readiness", definition: "How much of that aerobic potential the last 8–10 weeks of running actually support over 42.2 km. Training data can close the gap; it does not mint a faster marathon than the baseline." },
-			{ term: "Likely range", definition: "A projection spread from the amount and quality of marathon-specific evidence. Wider when the projection leans on a 5k, missing long runs, or broken training; tighter when long runs, volume, and decoupling agree." },
 			{ term: "Riegel", definition: "Scales a known race time up to the marathon distance using a fixed fatigue exponent. Simple, and optimistic for anyone under-trained for the distance." },
 			{ term: "VDOT", definition: "Daniels' method: turns an effort into an estimate of aerobic power, then reads the equivalent marathon time off that." },
+			{ term: "Goal pace", definition: "The average pace per kilometre your goal time requires, start to finish." },
 		],
 	},
 
