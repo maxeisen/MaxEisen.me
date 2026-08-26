@@ -350,21 +350,6 @@ describe("buildDashboard", () => {
 		expect(out.summary.prediction.predictedSec).toBeGreaterThan(0);
 		expect(out.summary.prediction.basis.distanceM).toBe(10000);
 		expect(typeof out.summary.prediction.onTrack).toBe("boolean");
-		expect(out.summary.prediction.aerobicPotentialSeconds).toBeGreaterThan(0);
-		expect(out.summary.prediction.predictedSec).toBeGreaterThanOrEqual(
-			out.summary.prediction.aerobicPotentialSeconds - 1,
-		);
-		expect(out.summary.prediction.marathonReadiness).toBeGreaterThanOrEqual(0);
-		expect(out.summary.prediction.marathonReadiness).toBeLessThanOrEqual(1);
-		expect(out.summary.prediction.projectionRange.slowSec).toBeGreaterThan(
-			out.summary.prediction.predictedSec,
-		);
-		expect(out.summary.prediction.debug.factors).toEqual(
-			expect.objectContaining({
-				volume: expect.any(Number),
-				longRuns: expect.any(Number),
-			}),
-		);
 	});
 });
 
@@ -697,10 +682,7 @@ describe("where the ring meets the training", () => {
 		const withRing = dashboard();
 		const without = buildDashboard({ activities: runs, plan: PLAN, today });
 		expect(withRing.series).toEqual(without.series);
-		expect(withRing.summary.latest).toEqual(without.summary.latest);
-		expect(withRing.summary.acwr).toEqual(without.summary.acwr);
-		expect(withRing.summary.totals).toEqual(without.summary.totals);
-		expect(withRing.weeks).toEqual(without.weeks);
+		expect(withRing.summary).toEqual(without.summary);
 		expect(withRing.lastRun.impact).toEqual(without.lastRun.impact);
 		expect(withRing.today.training).toEqual(without.today.training);
 		expect(without.today.readiness).toBeNull();

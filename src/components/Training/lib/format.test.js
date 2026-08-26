@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { weekRange, pace, clock, clockMinutes, km, pct, shortDate, daysAgo, signed, speed, readout, splitLead, timeTaken } from "./format.js";
+import { weekRange, pace, clock, km, pct, shortDate, daysAgo, signed, speed, readout, splitLead, timeTaken } from "./format.js";
 
 describe("readout", () => {
 	it("binds symbols to both numbers and says words once", () => {
@@ -151,12 +151,6 @@ describe("training formatters", () => {
 	it("prints a race time with hours only when there are any", () => {
 		expect(clock(13200)).toBe("3:40:00");
 		expect(clock(1800)).toBe("30:00");
-	});
-
-	it("rounds a projection to the minute rather than the second", () => {
-		expect(clockMinutes(12420)).toBe("3:27");
-		expect(clockMinutes(12450)).toBe("3:28");
-		expect(clockMinutes(null)).toBe("—");
 	});
 
 	it("spells a headline duration so it can't be read as metres", () => {

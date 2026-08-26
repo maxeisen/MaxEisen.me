@@ -3,7 +3,7 @@
     training is in, and whether current fitness projects to the goal.
 -->
 <script>
-    import { clock, clockMinutes, km, pace, signed, signedClock } from "../lib/format.js";
+    import { clock, km, pace, signed, signedClock } from "../lib/format.js";
 
     let { summary } = $props();
 
@@ -70,7 +70,7 @@
     <div class="stat">
         <span class="stat-label">Projected</span>
         <strong class="stat-value" class:ahead={prediction?.onTrack} class:behind={prediction && !prediction.onTrack}>
-            {prediction ? clockMinutes(prediction.predictedSec) : "—"}
+            {prediction ? clock(prediction.predictedSec) : "—"}
         </strong>
         <span class="stat-note">
             {prediction ? signedClock(prediction.deltaSec) : "needs a hard effort to project from"}
