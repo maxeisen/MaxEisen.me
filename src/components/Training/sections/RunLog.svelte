@@ -12,8 +12,9 @@
     a lot, and that difference is the point.
 
     Rides appear as context and nothing more: they're the reason a week was
-    quiet, not part of it. Every metric on the page ignores them (see
-    metrics.js), so their row shows what they were rather than what they did.
+    quiet, not part of it. Strength sessions from Strava are listed the same
+    way — on the plan, but they do not feed volume, fitness or the projection.
+    Every metric on the page ignores both (see metrics.js).
 
     No route maps here: the payload deliberately carries no coordinates (see
     netlify/functions/_shared/training/shape.js), so each row links out to the
@@ -21,22 +22,23 @@
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
-    import { formatDistance, formatDuration, pace, shortDate, speed } from "../lib/format.js";
+    import { formatDistance, formatDuration, pace, shortDate, speed, timeTaken } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag } from "../lib/runTags.js";
 
     let { runs = [], total = null } = $props();
 
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
-    const runCount = $derived(runs.filter((r) => r.sport !== "ride").length);
+    const runCount = $derived(runs.filter((r) => r.sport === "run" || !r.sport).length);
     const rideCount = $derived(runs.filter((r) => r.sport === "ride").length);
+    const strengthCount = $derived(runs.filter((r) => r.sport === "strength").length);
 
-    // Why a ride's numbers don't show up anywhere else on the page. Worth
-    // saying plainly on the row, because the alternative is a reader assuming
-    // the model quietly took the cycling into account somewhere.
     const RIDE_NOTE =
         "Shown for context only. Cycling builds no running-specific durability, so rides count"
         + " towards nothing here — not weekly volume, fitness, fatigue or injury risk.";
+    const STRENGTH_NOTE =
+        "Shown for context only. Strength is on the plan, but it does not count toward running volume, fitness or the race projection.";
+
 </script>
 
 <Card title="Recent activity" info={GLOSSARY.runs}>
@@ -50,6 +52,7 @@
                 {/if}
                 · {plannedCount} planned
                 {#if rideCount}· {rideCount} {rideCount === 1 ? "ride" : "rides"}{/if}
+                {#if strengthCount}· {strengthCount} strength{/if}
             </span>
         {/if}
     {/snippet}
@@ -60,6 +63,8 @@
         <ul class="log">
             {#each runs as run (run.id)}
                 {@const isRide = run.sport === "ride"}
+                {@const isStrength = run.sport === "strength"}
+                {@const isContext = isRide || isStrength}
                 {@const tag = stravaTag(run)}
                 {@const planned = run.plan?.planned === true}
                 {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
@@ -67,8 +72,9 @@
                 <li>
                     <a
                         class="row"
-                        class:extra={!planned && !isRide}
+                        class:extra={!planned && !isContext}
                         class:ride={isRide}
+                        class:strength={isStrength}
                         href="https://www.strava.com/activities/{run.id}"
                         target="_blank"
                         rel="noreferrer"
@@ -79,6 +85,8 @@
                                 {shortDate(run.startDateLocal)}
                                 {#if isRide}
                                     <span class="tag ride-tag" title={RIDE_NOTE}>ride</span>
+                                {:else if isStrength}
+                                    <span class="tag ride-tag" title={STRENGTH_NOTE}>strength</span>
                                 {:else if planned}
                                     <span class="tag plan" title={run.plan.detail || ""}>
                                         {run.plan.type || "planned"}
@@ -86,8 +94,8 @@
                                 {:else}
                                     <span class="tag extra">extra</span>
                                 {/if}
-                                {#if tag && !isRide}<span class="tag">{tag}</span>{/if}
-                                {#if run.averageHr}· {Math.round(run.averageHr)} bpm{/if}
+                                {#if tag && !isContext}<span class="tag">{tag}</span>{/if}
+                                {#if run.averageHr && !isStrength}· {Math.round(run.averageHr)} bpm{/if}
                                 {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
                             </span>
                             {#each run.notes || [] as note, i (i)}
@@ -99,8 +107,13 @@
                         </div>
 
                         <div class="row-stat">
-                            <strong>{formatDistance(run.distanceM)}</strong>
-                            <span>{formatDuration(run.movingTimeSec)}{#if planned && run.plan.distanceKm}&nbsp;· {run.plan.distanceKm} km planned{/if}</span>
+                            {#if isStrength}
+                                <strong>{timeTaken(run.movingTimeSec)}</strong>
+                                <span>moving</span>
+                            {:else}
+                                <strong>{formatDistance(run.distanceM)}</strong>
+                                <span>{formatDuration(run.movingTimeSec)}{#if planned && run.plan.distanceKm}&nbsp;· {run.plan.distanceKm} km planned{/if}</span>
+                            {/if}
                         </div>
 
                         <div class="row-stat">
@@ -111,6 +124,9 @@
                                      the speed a cyclist would actually quote. -->
                                 <strong>{speed(run.distanceM, run.movingTimeSec)}</strong>
                                 <span>avg speed</span>
+                            {:else if isStrength}
+                                <strong>{run.averageHr ? `${Math.round(run.averageHr)} bpm` : "—"}</strong>
+                                <span>avg HR</span>
                             {:else}
                                 <strong>{pace(run.paceSecPerKm)}</strong>
                                 <span class:adjusted={hilly}>
@@ -163,7 +179,8 @@
     .row.extra { border-left-color: transparent; }
     /* A ride is context rather than training, so it sits a step back from even
        an unplanned run: dashed edge, and the whole row a touch quieter. */
-    .row.ride { border-left-style: dashed; border-left-color: var(--paragraph-colour); opacity: 0.75; }
+    .row.ride,
+    .row.strength { border-left-style: dashed; border-left-color: var(--paragraph-colour); opacity: 0.75; }
     .row:hover { background: var(--main-green-translucent); }
 
     .row-main { flex: 1; min-width: 0; }

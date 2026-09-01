@@ -74,9 +74,20 @@ test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
 	await expect(ride).toContainText("avg speed");
 });
 
+test("a strength session is listed as context, by duration", async ({ page }) => {
+	await page.goto("/training");
+	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
+	const gym = log.locator(".row.strength").first();
+
+	await expect(gym.locator(".tag.ride-tag")).toHaveText("strength");
+	await expect(gym).toContainText("Full Body");
+	await expect(gym).toContainText("30min");
+	await expect(gym).toContainText("moving");
+});
+
 test("recovery is reported beside the training, not inside it", async ({ page }) => {
 	await page.goto("/training");
-	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
+	const panel = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Recovery" }) });
 
 	// An average night, in hours and minutes rather than a score out of 100.
 	await expect(panel.getByText(/^\d+h \d+m$/).first()).toBeVisible();
@@ -140,7 +151,7 @@ test("form is read against the body, not only against the training log", async (
 	);
 
 	await page.goto("/training");
-	const panel = page.locator("section.card").filter({ hasText: "Recovery" }).first();
+	const panel = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Recovery" }) });
 	await expect(panel.locator(".verdict")).toContainText("absorbing a heavy block");
 	await expect(panel.locator(".verdict")).toContainText("-31");
 });
@@ -208,6 +219,7 @@ test("neither column runs on far past the other", async ({ page }) => {
 	// to be this week.
 	await page.setViewportSize({ width: 1280, height: 900 });
 	await page.goto("/training");
+	await page.locator("#training-grid .col:not(.col-full)").first().waitFor();
 
 	const measure = () =>
 		page.evaluate(() => {
@@ -247,7 +259,7 @@ test("neither column runs on far past the other", async ({ page }) => {
 
 test("a recommendation leads with its evidence and folds the reasoning away", async ({ page }) => {
 	await page.goto("/training");
-	const card = page.locator("section.card").filter({ hasText: "What to do about it" }).first();
+	const card = page.locator("section.card").filter({ hasText: "Recommendations" }).first();
 	const rule = card.locator(".rec").filter({ has: page.locator("details") }).first();
 
 	// The measurement is on screen; the reasoning behind it is a click away.
@@ -262,7 +274,7 @@ test("a recommendation leads with its evidence and folds the reasoning away", as
 
 test("a measured recommendation says what kind of number it is", async ({ page }) => {
 	await page.goto("/training");
-	const card = page.locator("section.card").filter({ hasText: "What to do about it" }).first();
+	const card = page.locator("section.card").filter({ hasText: "Recommendations" }).first();
 	const readouts = await card.locator(".rec-metric").allTextContents();
 	expect(readouts.length).toBeGreaterThan(0);
 

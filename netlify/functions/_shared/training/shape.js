@@ -37,10 +37,17 @@ const RUN_TYPES = new Set(["Run", "TrailRun", "VirtualRun"]);
 // either end).
 const RIDE_TYPES = new Set(["Ride", "GravelRide", "MountainBikeRide", "VirtualRide"]);
 
+// Gym work the plan actually asks for. Generic Strava "Workout" is a grab-bag
+// (yoga, circuits, whatever) and is left out on purpose.
+const STRENGTH_TYPES = new Set(["WeightTraining"]);
+
 // Below this a ride is transport, not training. A few kilometres to the office
 // isn't context worth showing, and letting commutes through would bury the
 // week's actual running under a row for every trip to the shops.
 export const RIDE_MIN_M = 20000;
+
+// Below this a WeightTraining activity is a tap, not a session.
+export const STRENGTH_MIN_SEC = 10 * 60;
 
 // Stamped onto every stored record. Several fields here are derived at sync
 // time from streams we don't keep (zone seconds, decoupling, GAP), so changing
@@ -90,13 +97,38 @@ export function isTrackableRide(raw) {
 }
 
 /**
+ * Is this a public gym session long enough to be a session?
+ *
+ * @param {object} raw a Strava summary or detailed activity.
+ * @returns {boolean}
+ */
+export function isTrackableStrength(raw) {
+	if (!raw || raw.private === true) return false;
+	if (!STRENGTH_TYPES.has(raw.sport_type || raw.type)) return false;
+	return (reading(raw.moving_time) || 0) > STRENGTH_MIN_SEC;
+}
+
+/**
+ * Running, as opposed to a ride or gym session listed only as context.
+ * Records with no `sport` are runs: that is every Blobs row written before
+ * rides were tracked.
+ *
+ * @param {{sport?: string}|null|undefined} activity
+ * @returns {boolean}
+ */
+export function isRunActivity(activity) {
+	const sport = activity?.sport;
+	return sport !== "ride" && sport !== "strength";
+}
+
+/**
  * Is this anything the dashboard tracks at all?
  *
  * @param {object} raw a Strava summary or detailed activity.
  * @returns {boolean}
  */
 export function isTrackableActivity(raw) {
-	return isTrackableRun(raw) || isTrackableRide(raw);
+	return isTrackableRun(raw) || isTrackableRide(raw) || isTrackableStrength(raw);
 }
 
 // What counts as a kilometre when reading splits. A run almost never ends on a
@@ -161,20 +193,24 @@ function shapeBestEfforts(efforts, startDateLocal) {
  */
 export function shapeActivity(raw, options = {}) {
 	const isRide = isTrackableRide(raw);
-	if (!isRide && !isTrackableRun(raw)) return null;
+	const isStrength = isTrackableStrength(raw);
+	if (!isRide && !isStrength && !isTrackableRun(raw)) return null;
 
 	const { streams = null, thresholds = {}, athleteZones = null } = options;
 
 	const distanceM = reading(raw.distance) || 0;
 	const movingTimeSec = reading(raw.moving_time) || 0;
-	if (!(distanceM > 0) || !(movingTimeSec > 0)) return null;
+	if (!(movingTimeSec > 0)) return null;
+	if (!isStrength && !(distanceM > 0)) return null;
+
+	const isContext = isRide || isStrength;
 
 	// Pace, grade adjustment, per-kilometre splits and best efforts are all
 	// foot-running measures. A bike's versions would be arithmetically valid
 	// and thoroughly misleading sitting in a column beside a run's, so a ride
 	// carries none of them rather than carrying numbers nobody should read.
-	const splits = isRide ? [] : shapeSplits(raw.splits_metric);
-	const gap = isRide
+	const splits = isContext ? [] : shapeSplits(raw.splits_metric);
+	const gap = isContext
 		? null
 		: activityGap({
 				streams,
@@ -185,17 +221,18 @@ export function shapeActivity(raw, options = {}) {
 
 	const floors = hrZoneFloors(thresholds, athleteZones);
 	const zoneSeconds = floors ? zoneSecondsFromStreams(streams, floors) : null;
-	const decoupling = isRide ? null : aerobicDecoupling(streams);
+	const decoupling = isContext ? null : aerobicDecoupling(streams);
 
 	const averageHr = Number.isFinite(reading(raw.average_heartrate))
 		? reading(raw.average_heartrate)
 		: null;
 
+	const sport = isStrength ? "strength" : isRide ? "ride" : "run";
 	const shaped = {
 		id: raw.id,
 		v: SHAPE_VERSION,
-		name: String(raw.name || (isRide ? "Ride" : "Run")),
-		sport: isRide ? "ride" : "run",
+		name: String(raw.name || (isStrength ? "Strength" : isRide ? "Ride" : "Run")),
+		sport,
 		type: raw.sport_type || raw.type,
 		startDateLocal: raw.start_date_local || raw.start_date || null,
 		distanceM,
@@ -208,7 +245,7 @@ export function shapeActivity(raw, options = {}) {
 		sufferScore: Number.isFinite(reading(raw.suffer_score)) ? reading(raw.suffer_score) : null,
 		// 1 = race, 2 = long run, 3 = workout, 0/null = default.
 		workoutType: Number.isFinite(reading(raw.workout_type)) ? reading(raw.workout_type) : null,
-		paceSecPerKm: isRide ? null : movingTimeSec / (distanceM / 1000),
+		paceSecPerKm: isContext ? null : movingTimeSec / (distanceM / 1000),
 		gapPaceSecPerKm: gap?.gapPaceSecPerKm ?? null,
 		gapSource: gap?.source ?? null,
 		zoneSeconds,
@@ -217,22 +254,21 @@ export function shapeActivity(raw, options = {}) {
 		// Kept on the record because it can only be built while the streams
 		// are in hand, and they aren't stored. A ride has no pace worth
 		// plotting, for the same reason it has no splits.
-		trace: isRide ? null : shapeTrace(streams, { distanceM }),
+		trace: isContext ? null : shapeTrace(streams, { distanceM }),
 		// Only ever present on a detailed activity — the summary Strava
 		// returns from a listing carries no description at all — so a record
 		// shaped without one keeps whatever notes it already had rather than
 		// silently losing them. See trainingSync's note refresh.
 		notes: shapeNotes(raw.description),
-		bestEfforts: isRide
+		bestEfforts: isContext
 			? []
 			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
 	};
 
-	// A ride is stored to be listed and counted nowhere, so it's left unscored
-	// rather than carrying a load that sits in the record waiting to be summed
-	// by mistake. Nothing downstream reads it, and this is what makes that
-	// true by construction rather than by everyone remembering.
-	const load = isRide ? null : activityLoad(shaped, thresholds);
+	// A ride or gym session is stored to be listed and counted nowhere, so
+	// it's left unscored rather than carrying a load that sits in the record
+	// waiting to be summed by mistake.
+	const load = isContext ? null : activityLoad(shaped, thresholds);
 	shaped.load = load?.load ?? 0;
 	shaped.loadMethod = load?.method ?? null;
 	return shaped;
@@ -260,7 +296,7 @@ export function publicRun(activity) {
 		name: activity?.name,
 		// Records written before rides were tracked have no `sport`, and every
 		// one of them is a run.
-		sport: activity?.sport === "ride" ? "ride" : "run",
+		sport: activity?.sport === "ride" || activity?.sport === "strength" ? activity.sport : "run",
 		type: activity?.type,
 		startDateLocal: activity?.startDateLocal,
 		distanceM: activity?.distanceM,

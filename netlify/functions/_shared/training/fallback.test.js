@@ -218,4 +218,29 @@ describe("renderTrainingFallback", () => {
 		expect(html).not.toContain("-79.3832");
 		expect(html).not.toContain("should-not-appear-as-a-coordinate-dump");
 	});
+
+	it("lists a strength session as context, by duration, without counting it as a run", () => {
+		const html = renderTrainingFallback(
+			payload({
+				runs: [
+					...payload().runs,
+					{
+						id: 2,
+						name: "Full Body",
+						sport: "strength",
+						startDateLocal: "2026-08-24T18:00:00Z",
+						distanceM: 0,
+						movingTimeSec: 1800,
+						averageHr: 112,
+					},
+				],
+			}),
+		);
+		expect(html).toContain("Full Body");
+		expect(html).toContain(">strength<");
+		expect(html).toContain("30min");
+		expect(html).toContain("112 bpm");
+		expect(html).toContain("latest 1 of 42");
+		expect(html).toContain("1 strength");
+	});
 });
