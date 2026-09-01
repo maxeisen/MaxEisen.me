@@ -48,10 +48,36 @@ describe("mostRecentGearId", () => {
 });
 
 describe("shapeGear", () => {
-	it("keeps id, name, and distance", () => {
+	it("prefers brand and model over the athlete nickname", () => {
 		expect(
-			shapeGear({ id: "b1", name: "Tarmac", distance: 1234, primary: false }),
-		).toEqual({ id: "b1", name: "Tarmac", distance: 1234 });
+			shapeGear({
+				id: "b1",
+				name: "Tarmax (on Hunts)",
+				brand_name: "Specialized",
+				model_name: "Tarmac SL7",
+				distance: 1234,
+			}),
+		).toEqual({ id: "b1", name: "Specialized Tarmac SL7", distance: 1234 });
+	});
+
+	it("does not repeat the brand when the model already includes it", () => {
+		expect(
+			shapeGear({
+				id: "g1",
+				name: "ASICS Superblast 3 🍜",
+				brand_name: "ASICS",
+				model_name: "ASICS Superblast 3",
+				distance: 100,
+			}).name,
+		).toBe("ASICS Superblast 3");
+	});
+
+	it("falls back to the nickname when brand and model are missing", () => {
+		expect(shapeGear({ id: "b1", name: "City Bike", distance: 1 })).toEqual({
+			id: "b1",
+			name: "City Bike",
+			distance: 1,
+		});
 	});
 
 	it("is null for missing gear", () => {

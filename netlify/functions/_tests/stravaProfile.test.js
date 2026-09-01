@@ -4,8 +4,22 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const TARMAC = { id: "b-tarmac", name: "Tarmac", distance: 9_000_000, primary: false };
-const SUPERBLAST = { id: "g-superblast", name: "Superblasts", distance: 400_000, primary: false };
+const TARMAC = {
+	id: "b-tarmac",
+	name: "Tarmax (on Hunts)",
+	brand_name: "Specialized",
+	model_name: "Tarmac SL7",
+	distance: 9_000_000,
+	primary: false,
+};
+const SUPERBLAST = {
+	id: "g-superblast",
+	name: "ASICS Superblast 3 🍜",
+	brand_name: "ASICS",
+	model_name: "Superblast 3",
+	distance: 400_000,
+	primary: false,
+};
 const CITY = { id: "b-city", name: "City Bike", distance: 600_000, primary: false };
 
 function activities() {
@@ -68,10 +82,10 @@ describe("stravaProfile", () => {
 		const { res, body } = await payload();
 
 		expect(res.status).toBe(200);
-		expect(body.bike).toEqual({ id: TARMAC.id, name: "Tarmac", distance: TARMAC.distance });
+		expect(body.bike).toEqual({ id: TARMAC.id, name: "Specialized Tarmac SL7", distance: TARMAC.distance });
 		expect(body.shoes).toEqual({
 			id: SUPERBLAST.id,
-			name: "Superblasts",
+			name: "ASICS Superblast 3",
 			distance: SUPERBLAST.distance,
 		});
 		expect(body.ytd.run.count).toBe(10);
