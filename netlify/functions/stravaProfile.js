@@ -1,15 +1,21 @@
-// Returns the athlete's primary gear (bike + shoes) and year-to-date totals
-// for running and riding. Used by the intro modals on the homepage.
+// Returns the athlete's most recently used gear (bike + shoes) and
+// year-to-date totals for running and riding. Used by the intro modals
+// on the homepage.
 //
-// Two upstream calls in parallel:
-//   GET /athlete            -> bikes[], shoes[] (each has `primary` flag)
-//   GET /athletes/{id}/stats -> ytd_ride_totals, ytd_run_totals
+// Two upstream calls in parallel, then a name lookup per gear id:
+//   GET /athlete/activities     -> newest-first listing with gear_id
+//   GET /athletes/{id}/stats     -> ytd_ride_totals, ytd_run_totals
+//   GET /gear/{id}              -> name + distance (Strava's listing
+//                                   does not include the gear name)
 //
-// This data changes slowly, so a 5-minute browser cache is fine.
+// The old GET /athlete `primary` flag is the pre-"default gear by sport"
+// global default and is no longer a reliable match for the UI. This data
+// changes slowly, so a 5-minute browser cache is fine.
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
 import { STRAVA_API_BASE, getAccessToken } from "./_shared/strava.js";
+import { mostRecentGearId, shapeGear } from "./_shared/stravaGear.js";
 
 const ATHLETE_ID = 92118908;
 
@@ -17,16 +23,6 @@ const jsonResponse = createJsonResponder(cacheControl.swr(300, 600));
 
 // Profile + YTD totals change slowly; memoize to absorb bursts past the edge.
 const memo = createMemo(60_000);
-
-function pickPrimary(items) {
-	if (!Array.isArray(items) || items.length === 0) return null;
-	const primary = items.find((i) => i.primary) || items[0];
-	return {
-		id: primary.id,
-		name: primary.name || null,
-		distance: primary.distance || 0,
-	};
-}
 
 function shapeTotals(t) {
 	if (!t) return null;
@@ -38,26 +34,43 @@ function shapeTotals(t) {
 	};
 }
 
+async function fetchGear(token, id) {
+	if (!id) return null;
+	const res = await fetch(`${STRAVA_API_BASE}/gear/${id}`, {
+		headers: { Authorization: `Bearer ${token}` },
+	});
+	if (!res.ok) {
+		console.error("Strava gear failed:", id, res.status);
+		return null;
+	}
+	return shapeGear(await res.json());
+}
+
 async function fetchProfile(token) {
-	const headers = { "Authorization": `Bearer ${token}` };
-	const [athleteRes, statsRes] = await Promise.all([
-		fetch(`${STRAVA_API_BASE}/athlete`, { headers }),
+	const headers = { Authorization: `Bearer ${token}` };
+	const [activitiesRes, statsRes] = await Promise.all([
+		fetch(`${STRAVA_API_BASE}/athlete/activities?per_page=100`, { headers }),
 		fetch(`${STRAVA_API_BASE}/athletes/${ATHLETE_ID}/stats`, { headers }),
 	]);
 
-	if (!athleteRes.ok || !statsRes.ok) {
-		console.error("Strava profile failed:", athleteRes.status, statsRes.status);
+	if (!activitiesRes.ok || !statsRes.ok) {
+		console.error("Strava profile failed:", activitiesRes.status, statsRes.status);
 		const e = new Error("strava_failed");
 		e.code = "strava_failed";
 		throw e;
 	}
 
-	const athlete = await athleteRes.json();
+	const activities = await activitiesRes.json();
 	const stats = await statsRes.json();
 
+	const [bike, shoes] = await Promise.all([
+		fetchGear(token, mostRecentGearId(activities, "ride")),
+		fetchGear(token, mostRecentGearId(activities, "run")),
+	]);
+
 	return {
-		bike: pickPrimary(athlete.bikes),
-		shoes: pickPrimary(athlete.shoes),
+		bike,
+		shoes,
 		ytd: {
 			run: shapeTotals(stats.ytd_run_totals),
 			ride: shapeTotals(stats.ytd_ride_totals),

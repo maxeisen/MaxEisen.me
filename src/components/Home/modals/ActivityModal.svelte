@@ -34,7 +34,7 @@
 
     $: ytdTotals = profile && strava ? profile.ytd?.[strava] : null;
     $: gear = profile && strava === 'ride' ? profile.bike : profile && strava === 'run' ? profile.shoes : null;
-    $: gearLabel = strava === 'ride' ? 'Currently riding' : strava === 'run' ? 'Currently running in' : '';
+    $: gearLabel = strava === 'ride' ? 'Recently rode' : strava === 'run' ? 'Recently ran in' : '';
 </script>
 
 <div class="activity-modal">
