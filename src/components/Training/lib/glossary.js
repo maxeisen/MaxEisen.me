@@ -68,11 +68,11 @@ export const GLOSSARY = {
 	efficiency: {
 		title: "Aerobic efficiency",
 		body: [
-			"How much speed you get per heartbeat on easy runs. A line that climbs means the same effort is buying more pace, which is the clearest sign that base fitness is genuinely improving rather than that last week happened to be cool and flat.",
-			"Only aerobic runs are plotted — anything at or above threshold is left out, because efficiency rises with intensity by construction and including intervals would draw your workout schedule instead of a trend.",
+			"How much speed you get per heartbeat on aerobic runs. A line that climbs means the same effort is buying more pace, which is the clearest sign that base fitness is genuinely improving rather than that last week happened to be cool and flat. The percentage is the last twelve weeks — the same window as the chart — not the whole history back to January.",
+			"Only aerobic runs are plotted — anything at or above threshold is left out, because efficiency rises with intensity by construction and including intervals would draw your workout schedule instead of a trend. Tempo still counts: it is below lactate threshold, and the line is a 14-day average so a single workout does not decide the week.",
 		],
 		terms: [
-			{ term: "Efficiency factor", definition: "Grade-adjusted speed divided by heart rate. The absolute value doesn't mean much; the direction of travel over weeks does." },
+			{ term: "Efficiency factor", definition: "Grade-adjusted speed divided by heart rate, averaged over the last 14 days on the trend line. The absolute value doesn't mean much; the direction of travel over weeks does." },
 			{ term: "Decoupling", definition: "How much your pace-per-heartbeat drifts between the first and second half of a long run. Under 5% means you're aerobically ready for the distance; above it means the distance is still ahead of the base." },
 		],
 	},

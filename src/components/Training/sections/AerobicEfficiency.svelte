@@ -1,14 +1,16 @@
 <!--
-    Aerobic efficiency across the block.
+    Aerobic efficiency over the last twelve weeks.
 
     Efficiency factor is how much grade-adjusted pace you get per heartbeat, so
     a line that climbs means the same effort is buying more speed — the clearest
     read on whether base fitness is genuinely improving, rather than whether last
-    week happened to be cool and flat.
+    week happened to be cool and flat. The headline percentage uses that same
+    window, and the line is a 14-day average of the runs in it.
 
     Only aerobic runs are plotted (the engine drops anything at or above zone 4),
     because EF rises with intensity by construction and leaving intervals in
-    would draw the week's workout schedule instead of a trend.
+    would draw the week's workout schedule instead of a trend. Tempo still
+    counts: it is below lactate threshold.
 -->
 <script>
     import Card from "../../../lib/ui/Card.svelte";
@@ -58,10 +60,11 @@
 
     const change = $derived(Number.isFinite(stats?.changePct) ? stats.changePct : null);
 
-    // Every dot is one run, and the trend is a rolling mean of the same list,
+    // Every dot is one run, and the trend is a 14-day mean of the same list,
     // so the two share an index and a cursor can honestly show both: what that
-    // run measured, and where the block stood by then. Three decimals because
-    // EF moves in the third one — 1.32 to 1.34 is a block's worth of progress.
+    // run measured, and where the last two weeks stood by then. Three decimals
+    // because EF moves in the third one — 1.32 to 1.34 is a block's worth of
+    // progress.
     const scrub = $derived(
         points.map((point, i) => ({
             key: `${point.date}-${i}`,
@@ -89,7 +92,7 @@
     {#snippet aside()}
         {#if change !== null}
             <p class="readout" class:up={change > 0} class:down={change < 0}>
-                {change > 0 ? "+" : ""}{change.toFixed(1)}% over the block
+                {change > 0 ? "+" : ""}{change.toFixed(1)}% over {CHART_WEEKS} weeks
             </p>
         {/if}
     {/snippet}
