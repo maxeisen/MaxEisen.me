@@ -23,7 +23,21 @@ export function shapeGear(gear) {
 	if (!gear) return null;
 	return {
 		id: gear.id,
-		name: gear.name || null,
+		name: displayName(gear),
 		distance: gear.distance || 0,
 	};
+}
+
+// GET /gear returns the athlete's nickname as `name`. Brand + model are the
+// catalog fields (Specialized Tarmac SL7, ASICS Superblast 3). Prefer those
+// so the homepage doesn't show "Tarmax (on Hunts)". If the model already
+// starts with the brand, don't print it twice.
+function displayName(gear) {
+	const brand = String(gear.brand_name || "").trim();
+	const model = String(gear.model_name || "").trim();
+	if (brand && model) {
+		if (model.toLowerCase().startsWith(brand.toLowerCase())) return model;
+		return `${brand} ${model}`;
+	}
+	return brand || model || gear.name || null;
 }

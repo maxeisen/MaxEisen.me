@@ -5,8 +5,7 @@
 // Two upstream calls in parallel, then a name lookup per gear id:
 //   GET /athlete/activities     -> newest-first listing with gear_id
 //   GET /athletes/{id}/stats     -> ytd_ride_totals, ytd_run_totals
-//   GET /gear/{id}              -> name + distance (Strava's listing
-//                                   does not include the gear name)
+//   GET /gear/{id}              -> brand + model (nickname is a fallback)
 //
 // The old GET /athlete `primary` flag is the pre-"default gear by sport"
 // global default and is no longer a reliable match for the UI. This data
