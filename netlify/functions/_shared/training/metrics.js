@@ -8,7 +8,7 @@ import { dailyLoads } from "./load.js";
 import { acwr, fitnessGain, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
 import { hrZoneFloors, intensitySplit } from "./zones.js";
 import { efficiencyTrend } from "./efficiency.js";
-import { collectBestEfforts, publicRun } from "./shape.js";
+import { collectBestEfforts, isRunActivity, publicRun } from "./shape.js";
 import { lastRunDetail } from "./lastRun.js";
 import { todayBriefing } from "./today.js";
 import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
@@ -107,9 +107,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
 	);
 
-	// This is a running dashboard, and rides are separated here so that every
-	// number below it is a running number. A ride reaches the log and nothing
-	// else: not volume, not fitness, not fatigue, not the acute:chronic ratio.
+	// This is a running dashboard, and rides and gym sessions are separated
+	// here so that every number below it is a running number. They reach the
+	// log and nothing else: not volume, not fitness, not fatigue, not the
+	// acute:chronic ratio.
 	//
 	// Feeding fatigue alone was tried and reverted. It looks conservative and
 	// isn't: form is fitness minus fatigue, so raising one without the other
@@ -117,8 +118,8 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	// regardless of how recovered you are (see fitnessSeries). The alternative,
 	// letting rides earn fitness too, keeps form honest but then reads cycling
 	// as marathon fitness — which is the one thing this page must not do.
-	const runs = sorted.filter((a) => a?.sport !== "ride");
-	const rides = sorted.filter((a) => a?.sport === "ride");
+	const runs = sorted.filter(isRunActivity);
+	const context = sorted.filter((a) => !isRunActivity(a));
 
 	const thresholds = plan?.thresholds || {};
 	const race = plan?.race || {};
@@ -371,7 +372,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 			// the week, for a reader wondering why a Sunday was quiet.
 			const earliest = toDayKey(logged[0]?.startDateLocal);
 			const alongside = earliest
-				? rides.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)
+				? context.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)
 				: [];
 			return [...logged, ...alongside]
 				.sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)))

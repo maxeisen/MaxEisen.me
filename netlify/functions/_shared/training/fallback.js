@@ -400,23 +400,32 @@ function renderVolume(weeks, todayKey) {
 function renderRuns(runs, total) {
 	const list = Array.isArray(runs) ? runs : [];
 	if (list.length === 0) return section("Recent activity", "<p>Nothing synced yet.</p>");
-	const runCount = list.filter((r) => r.sport !== "ride").length;
-	const rideCount = list.length - runCount;
+	const runCount = list.filter((r) => r.sport !== "ride" && r.sport !== "strength").length;
+	const rideCount = list.filter((r) => r.sport === "ride").length;
+	const strengthCount = list.filter((r) => r.sport === "strength").length;
 	const plannedCount = list.filter((r) => r.plan?.planned).length;
-	const summary = `${Number.isFinite(total) && total > runCount ? `latest ${runCount} of ${total}` : `${runCount} runs`}; ${plannedCount} planned${rideCount ? `; ${rideCount} ${rideCount === 1 ? "ride" : "rides"}` : ""}`;
+	const extras = [
+		rideCount ? `${rideCount} ${rideCount === 1 ? "ride" : "rides"}` : null,
+		strengthCount ? `${strengthCount} strength` : null,
+	].filter(Boolean);
+	const summary = `${Number.isFinite(total) && total > runCount ? `latest ${runCount} of ${total}` : `${runCount} runs`}; ${plannedCount} planned${extras.length ? `; ${extras.join("; ")}` : ""}`;
 	const rows = list.map((run) => {
 		const isRide = run.sport === "ride";
+		const isStrength = run.sport === "strength";
 		const tag = stravaTag(run);
 		const planned = run.plan?.planned === true;
-		const kind = isRide ? "ride" : planned ? t(run.plan?.type || "planned") : "extra";
+		const kind = isRide ? "ride" : isStrength ? "strength" : planned ? t(run.plan?.type || "planned") : "extra";
 		const measure = isRide
 			? t(speed(run.distanceM, run.movingTimeSec))
-			: t(pace(run.paceSecPerKm));
+			: isStrength
+				? (run.averageHr ? `${Math.round(run.averageHr)} bpm` : "—")
+				: t(pace(run.paceSecPerKm));
 		const href = run.id ? `https://www.strava.com/activities/${encodeURIComponent(run.id)}` : "";
 		const name = href
-			? `<a href="${href}" rel="noreferrer">${t(run.name || (isRide ? "Ride" : "Run"))}</a>`
+			? `<a href="${href}" rel="noreferrer">${t(run.name || (isRide ? "Ride" : isStrength ? "Strength" : "Run"))}</a>`
 			: t(run.name || "");
-		return `<tr><td>${t(shortDate(run.startDateLocal))}</td><td>${name}</td><td>${kind}${tag ? `; ${t(tag)}` : ""}</td><td>${t(formatDistance(run.distanceM))}</td><td>${measure}</td></tr>`;
+		const distance = isStrength ? t(timeTaken(run.movingTimeSec)) : t(formatDistance(run.distanceM));
+		return `<tr><td>${t(shortDate(run.startDateLocal))}</td><td>${name}</td><td>${kind}${tag ? `; ${t(tag)}` : ""}</td><td>${distance}</td><td>${measure}</td></tr>`;
 	}).join("");
 	return section("Recent activity", `<p>${t(summary)}.</p>
 <table><thead><tr><th>Date</th><th>Name</th><th>Kind</th><th>Distance</th><th>Pace / speed</th></tr></thead><tbody>${rows}</tbody></table>`);

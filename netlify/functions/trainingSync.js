@@ -32,6 +32,8 @@ import {
 	collectBestEfforts,
 	isTrackableActivity,
 	isTrackableRide,
+	isTrackableStrength,
+	isRunActivity,
 	shapeActivity,
 } from "./_shared/training/shape.js";
 import { shapeNotes } from "./_shared/training/notes.js";
@@ -313,7 +315,7 @@ async function fetchStreams(id, token) {
 // still be written on it, and a run rather than a ride, since a ride's
 // description is never read for notes.
 function inNoteWindow(record, today) {
-	if (record?.sport === "ride") return false;
+	if (!isRunActivity(record)) return false;
 	return toDayKey(record?.startDateLocal) >= addDays(today, -NOTE_WINDOW_DAYS);
 }
 
@@ -438,7 +440,7 @@ export default async function handler(req) {
 		enqueue({
 			id: summary.id,
 			summary,
-			isRide: isTrackableRide(summary),
+			skipStreams: isTrackableRide(summary) || isTrackableStrength(summary),
 			date: summary.start_date_local,
 		});
 	}
@@ -447,7 +449,7 @@ export default async function handler(req) {
 		enqueue({
 			id: record?.id,
 			summary: null,
-			isRide: record?.sport === "ride",
+			skipStreams: !isRunActivity(record),
 			date: record?.startDateLocal,
 		});
 	}
@@ -474,7 +476,10 @@ export default async function handler(req) {
 		// pace, decoupling — is a running measure a ride doesn't carry, so it
 		// shapes straight from the summary for no API calls at all. Tracking
 		// rides therefore takes nothing from the budget the runs need.
-		if (item.isRide && item.summary) {
+		// A ride or gym session is complete as it stands. Everything the
+		// detailed activity and the streams would add is a running measure
+		// those sports don't carry, so they shape straight from the summary.
+		if (item.skipStreams && item.summary) {
 			return shapeActivity(item.summary, { thresholds, athleteZones: zones });
 		}
 
@@ -494,7 +499,7 @@ export default async function handler(req) {
 				// A ride queued off the index has no summary to shape from, so
 				// it costs the detail — but still not the streams, which it
 				// would carry no number derived from.
-				item.isRide ? null : fetchStreams(item.id, token),
+				item.skipStreams ? null : fetchStreams(item.id, token),
 			]);
 			return shapeActivity(detail, { streams, thresholds, athleteZones: zones });
 		} catch (err) {
@@ -546,7 +551,7 @@ export default async function handler(req) {
 	let captioned = 0;
 	let captionUrlRejected = false;
 	if (!rateLimited && !quotaPaused && work.length === 0) {
-		const runs = merged.filter((a) => a?.sport !== "ride");
+		const runs = merged.filter(isRunActivity);
 		const range = blockRange(plan, runs, today);
 		const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
 		const result = await captionRecentRuns({

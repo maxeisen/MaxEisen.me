@@ -528,6 +528,50 @@ describe("buildDashboard with rides", () => {
 	});
 });
 
+describe("buildDashboard with strength", () => {
+	const GYM = {
+		id: 9002,
+		name: "Full Body",
+		sport: "strength",
+		type: "WeightTraining",
+		startDateLocal: "2026-08-10T18:00:00",
+		distanceM: 0,
+		movingTimeSec: 1800,
+		averageHr: 118,
+		load: 40,
+	};
+
+	const runsOnly = () =>
+		buildDashboard({ activities: block("2026-08-11", 10), plan: PLAN, today: "2026-08-11" });
+	const withGym = () =>
+		buildDashboard({
+			activities: [...block("2026-08-11", 10), GYM],
+			plan: PLAN,
+			today: "2026-08-11",
+		});
+
+	it("leaves every training number untouched", () => {
+		const before = runsOnly();
+		const after = withGym();
+		expect(after.weeks.map((w) => w.distanceM)).toEqual(before.weeks.map((w) => w.distanceM));
+		expect(after.summary.totals).toEqual(before.summary.totals);
+		expect(after.summary.acwr).toEqual(before.summary.acwr);
+		expect(after.summary.prediction).toEqual(before.summary.prediction);
+		expect(after.series).toEqual(before.series);
+		expect(after.recommendations).toEqual(before.recommendations);
+	});
+
+	it("shows the session in the log as strength, not as a run", () => {
+		const log = withGym().runs;
+		const gym = log.find((a) => a.id === GYM.id);
+		expect(gym).toBeTruthy();
+		expect(gym.sport).toBe("strength");
+		expect(gym.movingTimeSec).toBe(1800);
+		expect(gym.load).toBeUndefined();
+		expect(log.filter((a) => a.sport === "run")).toHaveLength(10);
+	});
+});
+
 // Recovery is the second input this page takes that isn't training load, and
 // the rides taught the expensive version of this lesson: the fitness model is
 // a closed system, and a second source reaching part of it breaks the

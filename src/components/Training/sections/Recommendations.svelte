@@ -75,7 +75,7 @@
     </svg>
 {/snippet}
 
-<Card title="What to do about it" info={GLOSSARY.recommendations}>
+<Card title="Recommendations" info={GLOSSARY.recommendations}>
     {#snippet aside()}
         {#if counts.total > 0}
             <p class="tally">

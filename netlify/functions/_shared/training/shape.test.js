@@ -1,12 +1,16 @@
 import { describe, it, expect } from "vitest";
 import {
 	RIDE_MIN_M,
+	STRENGTH_MIN_SEC,
 	SHAPE_VERSION,
 	isTrackableRide,
 	isTrackableRun,
+	isTrackableStrength,
+	isRunActivity,
 	shapeActivity,
 	shapeActivities,
 	collectBestEfforts,
+	publicRun,
 } from "./shape.js";
 
 const THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288, marathonPaceSecPerKm: 313 };
@@ -55,6 +59,7 @@ describe("isTrackableRun", () => {
 
 	it("rejects other sports", () => {
 		expect(isTrackableRun({ sport_type: "Ride" })).toBe(false);
+		expect(isTrackableRun({ sport_type: "WeightTraining" })).toBe(false);
 		expect(isTrackableRun({ sport_type: "WeightTraining" })).toBe(false);
 	});
 
@@ -320,5 +325,92 @@ describe("shapeActivity for rides", () => {
 		expect(json).not.toContain("43.65");
 		expect(json).not.toContain("_p~iF");
 		expect(json).not.toContain("polyline");
+	});
+});
+
+function rawStrength(overrides = {}) {
+	return {
+		id: 777,
+		name: "Full Body",
+		type: "WeightTraining",
+		sport_type: "WeightTraining",
+		private: false,
+		start_date_local: "2026-08-11T18:00:00Z",
+		distance: 0,
+		moving_time: 1800,
+		elapsed_time: 1920,
+		total_elevation_gain: 0,
+		average_heartrate: 118,
+		start_latlng: [43.6532, -79.3832],
+		map: { summary_polyline: "_p~iF~ps|U_ulLnnqC" },
+		...overrides,
+	};
+}
+
+describe("isTrackableStrength", () => {
+	it("takes a public gym session with real duration", () => {
+		expect(isTrackableStrength(rawStrength())).toBe(true);
+	});
+
+	it("ignores a tap that is not a session", () => {
+		expect(isTrackableStrength(rawStrength({ moving_time: 30 }))).toBe(false);
+		expect(isTrackableStrength(rawStrength({ moving_time: STRENGTH_MIN_SEC }))).toBe(false);
+		expect(isTrackableStrength(rawStrength({ moving_time: STRENGTH_MIN_SEC + 1 }))).toBe(true);
+	});
+
+	it("does not treat a generic Workout as strength", () => {
+		expect(isTrackableStrength(rawStrength({ sport_type: "Workout", type: "Workout" }))).toBe(false);
+	});
+
+	it("keeps private sessions private", () => {
+		expect(isTrackableStrength(rawStrength({ private: true }))).toBe(false);
+	});
+});
+
+describe("isRunActivity", () => {
+	it("treats missing sport as a run, which is what every stored record was", () => {
+		expect(isRunActivity({})).toBe(true);
+		expect(isRunActivity({ sport: "run" })).toBe(true);
+		expect(isRunActivity({ sport: "ride" })).toBe(false);
+		expect(isRunActivity({ sport: "strength" })).toBe(false);
+	});
+});
+
+describe("shapeActivity for strength", () => {
+	const shaped = () => shapeActivity(rawStrength(), { thresholds: THRESHOLDS });
+
+	it("marks it as strength even when Strava recorded no distance", () => {
+		const gym = shaped();
+		expect(gym).not.toBeNull();
+		expect(gym.sport).toBe("strength");
+		expect(gym.distanceM).toBe(0);
+		expect(gym.movingTimeSec).toBe(1800);
+	});
+
+	it("carries no running measures and is left unscored", () => {
+		const gym = shaped();
+		expect(gym.paceSecPerKm).toBeNull();
+		expect(gym.gapPaceSecPerKm).toBeNull();
+		expect(gym.decouplingPct).toBeNull();
+		expect(gym.splits).toEqual([]);
+		expect(gym.bestEfforts).toEqual([]);
+		expect(gym.trace).toBeNull();
+		expect(gym.load).toBe(0);
+		expect(gym.loadMethod).toBeNull();
+	});
+
+	it("drops coordinates", () => {
+		const json = JSON.stringify(shaped());
+		expect(json).not.toContain("43.65");
+		expect(json).not.toContain("_p~iF");
+	});
+});
+
+describe("publicRun", () => {
+	it("keeps strength and rides from collapsing into a run", () => {
+		expect(publicRun({ sport: "strength", name: "Gym" }).sport).toBe("strength");
+		expect(publicRun({ sport: "ride", name: "Ride" }).sport).toBe("ride");
+		expect(publicRun({ sport: "run", name: "Run" }).sport).toBe("run");
+		expect(publicRun({ name: "Legacy" }).sport).toBe("run");
 	});
 });

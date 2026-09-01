@@ -121,8 +121,26 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 	const end = new Date(`${today}T00:00:00Z`);
 	for (const day = new Date(start); day <= end; day.setUTCDate(day.getUTCDate() + 1)) {
 		const dow = day.getUTCDay();
-		if (dow === 1) continue; // strength
 		const date = day.toISOString().slice(0, 10);
+
+		// Monday is a gym session. Same idea as Saturday's ride: it's in the
+		// log so the page can show the plan was followed, and it reaches no
+		// metric, so a fixture of nothing but runs would hide a regression.
+		if (dow === 1) {
+			raw.push({
+				id: id++,
+				name: "Full Body",
+				type: "WeightTraining",
+				"sport_type": "WeightTraining",
+				private: false,
+				"start_date_local": `${date}T18:00:00Z`,
+				distance: 0,
+				"moving_time": 1800,
+				"elapsed_time": 1920,
+				"average_heartrate": 112,
+			});
+			continue;
+		}
 
 		// Saturday is a ride. It's here so the log renders one: a ride reaches
 		// that list and no metric on the page, and a fixture of nothing but
@@ -211,7 +229,7 @@ export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
 			// Rides are excluded from the load the nights answer to for the
 			// same reason they're excluded everywhere else: this page is about
 			// running, and a Saturday on the bike costs the page nothing.
-			recovery: nightsUpTo(today, next, dailyLoads(activities.filter((a) => a.sport !== "ride"))),
+			recovery: nightsUpTo(today, next, dailyLoads(activities.filter((a) => a.sport !== "ride" && a.sport !== "strength"))),
 			today,
 		}),
 		sync: { lastRunAt: `${today}T12:00:00.000Z`, hasSynced: true, outstanding: 0, backfilling: false },
