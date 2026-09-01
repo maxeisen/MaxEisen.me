@@ -211,4 +211,43 @@ describe("efficiencyTrend", () => {
 		expect(out.points).toEqual([]);
 		expect(out.changePct).toBeNull();
 	});
+
+	it("smooths each point over the last 14 calendar days, not the last N runs", () => {
+		const clustered = [
+			...Array.from({ length: 5 }, (_, i) => ({
+				startDateLocal: `2026-06-0${i + 1}T07:00:00`,
+				averageHr: 150,
+				gapPaceSecPerKm: 400,
+			})),
+			{ startDateLocal: "2026-06-20T07:00:00", averageHr: 150, gapPaceSecPerKm: 250 },
+		];
+		const out = efficiencyTrend(clustered);
+		// 14 days before 20 Jun is 7 Jun, so the 1–5 Jun cluster is out.
+		expect(out.trend.at(-1).ef).toBeCloseTo(out.points.at(-1).ef, 6);
+	});
+
+	it("still averages runs that fall inside those two weeks", () => {
+		const pair = [
+			{ startDateLocal: "2026-06-10T07:00:00", averageHr: 150, gapPaceSecPerKm: 300 },
+			{ startDateLocal: "2026-06-20T07:00:00", averageHr: 150, gapPaceSecPerKm: 360 },
+		];
+		const out = efficiencyTrend(pair);
+		expect(out.trend[1].ef).toBeCloseTo((out.points[0].ef + out.points[1].ef) / 2, 6);
+	});
+
+	it("does not let winter runs decide whether the current twelve weeks are improving", () => {
+		const winter = Array.from({ length: 15 }, (_, i) => ({
+			startDateLocal: `2026-01-${String(i + 5).padStart(2, "0")}T07:00:00`,
+			averageHr: 140,
+			gapPaceSecPerKm: 280,
+		}));
+		const summer = Array.from({ length: 12 }, (_, i) => ({
+			startDateLocal: `2026-07-${String(i + 1).padStart(2, "0")}T07:00:00`,
+			averageHr: 150,
+			gapPaceSecPerKm: 360 - i * 4,
+		}));
+		const out = efficiencyTrend([...winter, ...summer], { today: "2026-07-12" });
+		expect(out.changePct).toBeGreaterThan(0);
+		expect(out.latest).toBeGreaterThan(out.first);
+	});
 });

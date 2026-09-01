@@ -161,7 +161,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	// Zone 4 is where an effort stops being aerobic, which is the line the
 	// efficiency trend needs in order to compare like with like.
 	const zoneFloors = hrZoneFloors(thresholds);
-	const efficiency = efficiencyTrend(runs, { aerobicCeilingHr: zoneFloors?.[3] ?? null });
+	const efficiency = efficiencyTrend(runs, {
+		aerobicCeilingHr: zoneFloors?.[3] ?? null,
+		today: day,
+	});
 
 	// Deliberately computed after everything above it and read by none of it.
 	// Recovery is the one input here that isn't training load, and the fitness

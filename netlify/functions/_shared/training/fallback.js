@@ -383,7 +383,7 @@ function renderEfficiency(summary) {
 	}
 	const changeText = change === null ? "—" : `${change > 0 ? "+" : ""}${change.toFixed(1)}%`;
 	return section("Aerobic efficiency", pairs([
-		["Change over the block", changeText],
+		["Change over 12 weeks", changeText],
 		longRun?.decouplingPct != null ? ["Last long run decoupling", `${Number(longRun.decouplingPct).toFixed(1)}%`] : null,
 	]));
 }

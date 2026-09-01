@@ -15,6 +15,7 @@
 // Both use grade-adjusted speed, so a hilly second half doesn't masquerade as
 // fatigue.
 
+import { addDays, toDayKey } from "./dates.js";
 import { gradeFactor } from "./gap.js";
 import { reading } from "./num.js";
 import { isRecordingGap } from "./streams.js";
@@ -129,8 +130,16 @@ export function activityEfficiency(activity) {
 	return efficiencyFactor(1000 / gap, activity?.averageHr);
 }
 
-// Runs either side of this many points are averaged into the trend line.
-const TREND_WINDOW = 5;
+// Calendar days averaged into each trend point. Aerobic adaptation is a
+// weeks-scale signal; a 7-day window would track which sessions landed this
+// week. Fourteen days is roughly the old 5-run smoother at this athlete's
+// frequency, without a double or a rest week retuning the window.
+export const TREND_DAYS = 14;
+
+// Must match CHART_DAYS in src/components/Training/lib/chart.js. The headline
+// percentage describes the same twelve weeks the chart draws, not January
+// jogging versus an August peak.
+export const CHANGE_WINDOW_DAYS = 84;
 
 // Enough runs on each side for "improving" to mean something rather than
 // describing which day happened to be cool.
@@ -143,14 +152,17 @@ const MIN_TREND_RUNS = 6;
  * mixing interval sessions into the series produces a sawtooth that moves with
  * the week's workout schedule rather than with fitness — the opposite of what
  * the chart is for. `aerobicCeilingHr` is the zone 4 floor, so tempo and easy
- * running both count and only genuinely hard efforts are excluded.
+ * running both count and only genuinely hard efforts are excluded. Zone 3 is
+ * still aerobic (below lactate threshold); cutting it would starve the series
+ * for a 7-bpm zone 2 and throw out the progressive long runs a marathon block
+ * is built on.
  *
  * @param {{startDateLocal?: string, averageHr?: number, gapPaceSecPerKm?: number}[]} activities
- * @param {{aerobicCeilingHr?: number}} [options]
+ * @param {{aerobicCeilingHr?: number, today?: string}} [options]
  * @returns {{points: {date: string, ef: number}[], trend: {date: string, ef: number}[],
  *   changePct: number|null, first: number|null, latest: number|null}}
  */
-export function efficiencyTrend(activities, { aerobicCeilingHr = null } = {}) {
+export function efficiencyTrend(activities, { aerobicCeilingHr = null, today = null } = {}) {
 	const ceiling = reading(aerobicCeilingHr);
 	const points = [];
 
@@ -167,20 +179,31 @@ export function efficiencyTrend(activities, { aerobicCeilingHr = null } = {}) {
 	points.sort((a, b) => a.date.localeCompare(b.date));
 
 	const trend = points.map((p, i) => {
-		const from = Math.max(0, i - (TREND_WINDOW - 1));
-		const window = points.slice(from, i + 1);
+		const from = addDays(p.date, -(TREND_DAYS - 1));
+		const window = points.filter((w, j) => {
+			if (j > i) return false;
+			if (from && w.date < from) return false;
+			return true;
+		});
 		return { date: p.date, ef: window.reduce((sum, w) => sum + w.ef, 0) / window.length };
 	});
 
-	// Compare the ends of the smoothed line rather than the raw first and last
-	// runs, which would let one outlier decide whether the block looks good.
+	// Compare the ends of the smoothed line over the same twelve weeks the
+	// chart shows, not the whole history. Winter easy running against a hot
+	// peak-mileage build is not an aerobic-base verdict.
+	const end = toDayKey(today) || points.at(-1)?.date || null;
+	const windowFrom = end ? addDays(end, -CHANGE_WINDOW_DAYS) : null;
+	const compared = windowFrom
+		? trend.filter((p) => p.date >= windowFrom && p.date <= end)
+		: trend;
+
 	let changePct = null;
 	let first = null;
 	let latest = null;
-	if (trend.length >= MIN_TREND_RUNS) {
-		const span = Math.floor(trend.length / 3);
-		const head = trend.slice(0, span);
-		const tail = trend.slice(-span);
+	if (compared.length >= MIN_TREND_RUNS) {
+		const span = Math.floor(compared.length / 3);
+		const head = compared.slice(0, span);
+		const tail = compared.slice(-span);
 		first = head.reduce((sum, p) => sum + p.ef, 0) / head.length;
 		latest = tail.reduce((sum, p) => sum + p.ef, 0) / tail.length;
 		if (first > 0) changePct = ((latest - first) / first) * 100;

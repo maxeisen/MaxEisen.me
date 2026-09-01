@@ -247,6 +247,8 @@ export function gaugePosition(value, domain, width) {
 // and short enough that a single week is still a distinguishable bar.
 export const CHART_WEEKS = 12;
 export const CHART_DAYS = CHART_WEEKS * 7;
+// efficiencyTrend.CHANGE_WINDOW_DAYS in the engine must stay equal to this,
+// so the aerobic-efficiency headline describes the same twelve weeks.
 
 /**
  * Trailing slice of a date-keyed series, ending at `today`.
