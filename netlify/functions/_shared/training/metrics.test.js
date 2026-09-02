@@ -4,8 +4,8 @@ import { shapeActivities } from "./shape.js";
 import { addDays } from "./dates.js";
 
 const PLAN = {
-	race: { name: "Chicago Marathon", date: "2026-10-11", goalTimeSec: 13200, distanceM: 42195 },
-	thresholds: { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288, marathonPaceSecPerKm: 313 },
+	race: { name: "Chicago Marathon", date: "2026-10-11", goalTimeSec: 12600, distanceM: 42195 },
+	thresholds: { maxHr: 191, restingHr: 47, lactateThresholdHr: 175, thresholdPaceSecPerKm: 243, marathonPaceSecPerKm: 299 },
 	weeks: [
 		{ start: "2026-08-10", targetKm: 65, longRunKm: 30, key: [{ type: "tempo", detail: "3x10min" }] },
 		{ start: "2026-08-17", targetKm: 70, longRunKm: 32, key: [] },
@@ -44,7 +44,7 @@ describe("buildDashboard", () => {
 		const out = buildDashboard({ activities: [], plan: PLAN, today: "2026-08-11" });
 		expect(out.summary.daysToRace).toBe(61);
 		expect(out.summary.race.name).toBe("Chicago Marathon");
-		expect(out.summary.race.goalPaceSecPerKm).toBeCloseTo(312.8, 1);
+		expect(out.summary.race.goalPaceSecPerKm).toBeCloseTo(298.6, 1);
 	});
 
 	it("totals distance and time across the block", () => {

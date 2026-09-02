@@ -47,7 +47,7 @@ function rawRun(overrides = {}) {
 	};
 }
 
-const PLAN_THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288 };
+const PLAN_THRESHOLDS = { maxHr: 191, restingHr: 47, thresholdPaceSecPerKm: 243 };
 
 function seed(records, cursor = null) {
 	store.get.mockImplementation(async (key) => {

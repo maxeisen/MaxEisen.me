@@ -13,7 +13,7 @@ import {
 	publicRun,
 } from "./shape.js";
 
-const THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288, marathonPaceSecPerKm: 313 };
+const THRESHOLDS = { maxHr: 191, restingHr: 47, thresholdPaceSecPerKm: 243, marathonPaceSecPerKm: 299 };
 
 // A raw activity seeded with coordinates everywhere Strava puts them, so the
 // privacy assertions below have something real to catch.

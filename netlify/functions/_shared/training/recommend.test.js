@@ -100,28 +100,28 @@ describe("recommendations", () => {
 	it("reports the gap to goal when projecting short", () => {
 		const out = recommendations({
 			prediction: { predictedSec: 13800 },
-			goal: { goalTimeSec: 13200, goalPaceSecPerKm: 312.8 },
+			goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
 		});
 		const rec = find(out, "goal-behind");
-		expect(rec.title).toContain("10m");
-		expect(rec.detail).toContain("5:13/km");
+		expect(rec.title).toContain("20m");
+		expect(rec.detail).toContain("4:59/km");
 	});
 
 	it("confirms being on track for the goal", () => {
 		const out = recommendations({
-			prediction: { predictedSec: 12900 },
-			goal: { goalTimeSec: 13200, goalPaceSecPerKm: 312.8 },
+			prediction: { predictedSec: 12300 },
+			goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
 		});
 		expect(find(out, "goal-ahead").severity).toBe("good");
 	});
 
 	it("marks the rules whose numbers are seconds", () => {
 		// The panel prints metric and threshold beside each other. Without
-		// this the goal rules read "13800 vs 13200" next to their own prose
-		// saying "3h 50m against your 3h 40m target".
+		// this the goal rules read "13800 vs 12600" next to their own prose
+		// saying "3h 50m against your 3h 30m target".
 		const out = recommendations({
 			prediction: { predictedSec: 13800 },
-			goal: { goalTimeSec: 13200, goalPaceSecPerKm: 312.8 },
+			goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
 			recovery: { sleep: { recent: 21600, baseline: 28800 } },
 		});
 		expect(find(out, "goal-behind").unit).toBe("duration");

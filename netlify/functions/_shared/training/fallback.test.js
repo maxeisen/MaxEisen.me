@@ -23,8 +23,8 @@ function payload(overrides = {}) {
 			race: {
 				name: "Chicago Marathon",
 				date: "2026-10-11",
-				goalTimeSec: 13200,
-				goalPaceSecPerKm: 313,
+				goalTimeSec: 12600,
+				goalPaceSecPerKm: 299,
 			},
 			daysToRace: 48,
 			totals: { distanceM: 420000, runs: 42 },
@@ -152,7 +152,7 @@ describe("renderTrainingFallback", () => {
 	it("puts the numbers in tables and only styles those tables, not a second dashboard", () => {
 		const html = renderTrainingFallback(payload());
 
-		expect(html).toMatch(/<tr>\s*<th[^>]*>Goal<\/th>\s*<td>3:40:00/);
+		expect(html).toMatch(/<tr>\s*<th[^>]*>Goal<\/th>\s*<td>3:30:00/);
 		expect(html).toMatch(/<tr>\s*<th[^>]*>Distance<\/th>/);
 		expect(html).toMatch(/<table>[\s\S]*<th>Date<\/th>[\s\S]*Morning Run/);
 		expect(html).toContain("border-collapse");
