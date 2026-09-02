@@ -4,10 +4,10 @@ import { fitnessSeries } from "./fitness.js";
 import { dailyLoads } from "./load.js";
 
 const THRESHOLDS = {
-	maxHr: 195,
+	maxHr: 191,
 	restingHr: 47,
-	lactateThresholdHr: 172,
-	thresholdPaceSecPerKm: 255,
+	lactateThresholdHr: 175,
+	thresholdPaceSecPerKm: 243,
 	marathonPaceSecPerKm: 285,
 };
 

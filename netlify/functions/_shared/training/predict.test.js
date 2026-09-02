@@ -11,7 +11,7 @@ import {
 } from "./predict.js";
 
 const MARATHON_M = 42195;
-const GOAL_SEC = 13200; // 3:40:00
+const GOAL_SEC = 12600; // 3:30:00
 
 describe("riegel", () => {
 	it("returns the same time for the same distance", () => {
@@ -115,13 +115,13 @@ describe("predictRace", () => {
 
 describe("goalDelta", () => {
 	it("reports a positive delta when predicted to miss the goal", () => {
-		const out = goalDelta(13800, GOAL_SEC);
+		const out = goalDelta(13200, GOAL_SEC);
 		expect(out.deltaSec).toBe(600);
 		expect(out.onTrack).toBe(false);
 	});
 
 	it("reports on track when predicted to beat the goal", () => {
-		const out = goalDelta(12900, GOAL_SEC);
+		const out = goalDelta(12300, GOAL_SEC);
 		expect(out.deltaSec).toBe(-300);
 		expect(out.onTrack).toBe(true);
 	});
@@ -132,7 +132,7 @@ describe("goalDelta", () => {
 });
 
 describe("goalPaceSecPerKm", () => {
-	it("computes 3:40 marathon pace as about 5:13/km", () => {
-		expect(goalPaceSecPerKm(GOAL_SEC, MARATHON_M)).toBeCloseTo(312.8, 1);
+	it("computes 3:30 marathon pace as about 4:59/km", () => {
+		expect(goalPaceSecPerKm(GOAL_SEC, MARATHON_M)).toBeCloseTo(298.6, 1);
 	});
 });

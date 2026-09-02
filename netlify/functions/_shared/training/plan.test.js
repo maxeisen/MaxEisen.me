@@ -22,7 +22,7 @@ import {
 } from "./plan.js";
 
 const PLAN = {
-	race: { name: "Chicago Marathon", date: "2026-10-11", goalTimeSec: 13200, distanceM: 42195 },
+	race: { name: "Chicago Marathon", date: "2026-10-11", goalTimeSec: 12600, distanceM: 42195 },
 	weeks: [
 		{ start: "2026-08-10", targetKm: 65, longRunKm: 30, key: [{ type: "tempo", detail: "3x10min" }] },
 		{ start: "2026-08-17", targetKm: 70, longRunKm: 32 },

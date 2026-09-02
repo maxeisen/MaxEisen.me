@@ -21,9 +21,9 @@ import { isRecordingGap } from "./streams.js";
 // only one of the three that's measured on the athlete rather than assumed
 // about them. Both fallbacks below derive the ladder from the ends of the
 // range and hope the interesting boundary lands somewhere sensible in the
-// middle; for a trained runner it doesn't. With a max of 195 and a resting
-// rate of 47, reserve puts zone 3 at 151 — while this athlete's measured
-// threshold is 175, which is 86% of reserve, in the middle of zone 4. The
+// middle; for a trained runner it doesn't. With a max of 191 and a resting
+// rate of 47, reserve puts zone 3 at 148 — while this athlete's measured
+// threshold is 175, which is 89% of reserve, in the middle of zone 4. The
 // whole ladder is scaled some fifteen beats low, and the symptom is a page
 // that books steady aerobic running as tempo: a rock-steady 7km at a median
 // of 151bpm came out 41% easy and 59% moderate, against Strava's 97% zone 2,

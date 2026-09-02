@@ -15,7 +15,7 @@ const SHELL = `<!DOCTYPE html>
 
 const payload = {
 	summary: {
-		race: { name: "Chicago Marathon", date: "2026-10-11", goalTimeSec: 13200, goalPaceSecPerKm: 313 },
+		race: { name: "Chicago Marathon", date: "2026-10-11", goalTimeSec: 12600, goalPaceSecPerKm: 299 },
 		daysToRace: 48,
 		totals: { distanceM: 10000, runs: 1 },
 		latest: null,

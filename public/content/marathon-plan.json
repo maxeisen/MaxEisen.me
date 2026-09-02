@@ -2,15 +2,15 @@
   "race": {
     "name": "Bank of America Chicago Marathon",
     "date": "2026-10-11",
-    "goalTimeSec": 13200,
+    "goalTimeSec": 12600,
     "distanceM": 42195
   },
   "thresholds": {
-    "maxHr": 195,
+    "maxHr": 191,
     "restingHr": 47,
     "lactateThresholdHr": 175,
-    "thresholdPaceSecPerKm": 255,
-    "marathonPaceSecPerKm": 313
+    "thresholdPaceSecPerKm": 243,
+    "marathonPaceSecPerKm": 299
   },
   "weeks": [
     {

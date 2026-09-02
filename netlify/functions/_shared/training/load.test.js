@@ -9,16 +9,16 @@ import {
 	dailyLoads,
 } from "./load.js";
 
-const THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288 };
+const THRESHOLDS = { maxHr: 191, restingHr: 47, thresholdPaceSecPerKm: 243 };
 
 describe("heartRateReserve", () => {
 	it("is 0 at resting and 1 at max", () => {
 		expect(heartRateReserve(47, THRESHOLDS)).toBe(0);
-		expect(heartRateReserve(195, THRESHOLDS)).toBe(1);
+		expect(heartRateReserve(191, THRESHOLDS)).toBe(1);
 	});
 
 	it("computes the fraction of the usable range", () => {
-		expect(heartRateReserve(121, THRESHOLDS)).toBeCloseTo(0.5, 10);
+		expect(heartRateReserve(119, THRESHOLDS)).toBeCloseTo(0.5, 10);
 	});
 
 	it("clamps readings outside the athlete's range", () => {
@@ -64,28 +64,28 @@ describe("banisterTrimp", () => {
 
 describe("normalizeTrimp", () => {
 	it("puts an hour at threshold heart rate at ~100", () => {
-		// HRr 0.85 of a 148-beat reserve is 173 bpm for these thresholds.
-		const trimp = banisterTrimp(3600, 47 + 0.85 * 148, THRESHOLDS);
+		// HRr 0.85 of a 144-beat reserve is 169.4 bpm for these thresholds.
+		const trimp = banisterTrimp(3600, 47 + 0.85 * 144, THRESHOLDS);
 		expect(normalizeTrimp(trimp)).toBeCloseTo(LOAD_AT_THRESHOLD_HOUR, 6);
 	});
 });
 
 describe("paceLoad", () => {
 	it("puts an hour at threshold pace at 100", () => {
-		expect(paceLoad(3600, 288, 288)).toBeCloseTo(100, 10);
+		expect(paceLoad(3600, 243, 243)).toBeCloseTo(100, 10);
 	});
 
 	it("scores running faster than threshold above 100", () => {
-		expect(paceLoad(3600, 260, 288)).toBeGreaterThan(100);
+		expect(paceLoad(3600, 220, 243)).toBeGreaterThan(100);
 	});
 
 	it("scores easy running well below 100", () => {
-		expect(paceLoad(3600, 360, 288)).toBeLessThan(70);
+		expect(paceLoad(3600, 360, 243)).toBeLessThan(70);
 	});
 
 	it("returns null without usable inputs", () => {
-		expect(paceLoad(3600, 0, 288)).toBeNull();
-		expect(paceLoad(0, 300, 288)).toBeNull();
+		expect(paceLoad(3600, 0, 243)).toBeNull();
+		expect(paceLoad(0, 300, 243)).toBeNull();
 		expect(paceLoad(3600, 300, 0)).toBeNull();
 	});
 });
@@ -100,14 +100,14 @@ describe("activityLoad", () => {
 	});
 
 	it("falls back to pace when heart rate is missing", () => {
-		const out = activityLoad({ movingTimeSec: 3600, gapPaceSecPerKm: 288 }, THRESHOLDS);
+		const out = activityLoad({ movingTimeSec: 3600, gapPaceSecPerKm: 243 }, THRESHOLDS);
 		expect(out.method).toBe("pace");
 		expect(out.load).toBeCloseTo(100, 6);
 	});
 
 	it("falls back to pace rather than scoring a null-HR run as zero load", () => {
 		const out = activityLoad(
-			{ movingTimeSec: 3600, averageHr: null, gapPaceSecPerKm: 288 },
+			{ movingTimeSec: 3600, averageHr: null, gapPaceSecPerKm: 243 },
 			THRESHOLDS,
 		);
 		expect(out.method).toBe("pace");
@@ -118,7 +118,7 @@ describe("activityLoad", () => {
 		const out = activityLoad(
 			{
 				movingTimeSec: 3600,
-				splits: [{ distance: 1000, moving_time: 288, elevation_difference: 0 }],
+				splits: [{ distance: 1000, moving_time: 243, elevation_difference: 0 }],
 			},
 			THRESHOLDS,
 		);
@@ -130,8 +130,8 @@ describe("activityLoad", () => {
 		// The whole point of normalising TRIMP: an hour at threshold should
 		// score about the same whether HR was recorded or not, so a week
 		// mixing the two doesn't show a phantom spike.
-		const byHr = activityLoad({ movingTimeSec: 3600, averageHr: 47 + 0.85 * 148 }, THRESHOLDS);
-		const byPace = activityLoad({ movingTimeSec: 3600, gapPaceSecPerKm: 288 }, THRESHOLDS);
+		const byHr = activityLoad({ movingTimeSec: 3600, averageHr: 47 + 0.85 * 144 }, THRESHOLDS);
+		const byPace = activityLoad({ movingTimeSec: 3600, gapPaceSecPerKm: 243 }, THRESHOLDS);
 		expect(byHr.load).toBeCloseTo(byPace.load, 6);
 	});
 

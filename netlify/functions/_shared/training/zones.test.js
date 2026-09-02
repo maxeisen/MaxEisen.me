@@ -7,10 +7,10 @@ import {
 	intensitySplit,
 } from "./zones.js";
 
-const THRESHOLDS = { maxHr: 195, restingHr: 47, thresholdPaceSecPerKm: 288, marathonPaceSecPerKm: 313 };
+const THRESHOLDS = { maxHr: 191, restingHr: 47, thresholdPaceSecPerKm: 243, marathonPaceSecPerKm: 299 };
 
-// Karvonen floors for max 195 / resting 47 (a reserve of 148).
-const RESERVE_FLOORS = [0, 135.8, 150.6, 165.4, 180.2];
+// Karvonen floors for max 191 / resting 47 (a reserve of 144).
+const RESERVE_FLOORS = [0, 133.4, 147.8, 162.2, 176.6];
 
 describe("hrZoneFloors", () => {
 	it("anchors on lactate threshold when the plan file knows one", () => {
@@ -29,7 +29,7 @@ describe("hrZoneFloors", () => {
 
 	it("puts the easy ceiling below threshold rather than above it", () => {
 		// The bug this replaced: derived from the ends of the range, zone 3
-		// began at 151 for an athlete whose threshold is 175, so steady
+		// began at 148 for an athlete whose threshold is 175, so steady
 		// aerobic running was reported as tempo.
 		const [, , moderate] = hrZoneFloors({ ...THRESHOLDS, lactateThresholdHr: 175 });
 		expect(moderate).toBeGreaterThan(RESERVE_FLOORS[2]);
@@ -47,7 +47,7 @@ describe("hrZoneFloors", () => {
 		// percent-of-max puts the boundaries far too low and books easy
 		// running as tempo.
 		const reserve = hrZoneFloors(THRESHOLDS);
-		const percentOfMax = hrZoneFloors({ maxHr: 195 });
+		const percentOfMax = hrZoneFloors({ maxHr: 191 });
 		for (let i = 1; i < 5; i++) {
 			expect(reserve[i]).toBeGreaterThan(percentOfMax[i]);
 		}
@@ -161,8 +161,8 @@ describe("zoneSecondsFromStreams", () => {
 
 describe("classifyByPace", () => {
 	it("calls threshold pace and faster hard", () => {
-		expect(classifyByPace(288, THRESHOLDS)).toBe("hard");
-		expect(classifyByPace(260, THRESHOLDS)).toBe("hard");
+		expect(classifyByPace(243, THRESHOLDS)).toBe("hard");
+		expect(classifyByPace(220, THRESHOLDS)).toBe("hard");
 	});
 
 	it("calls comfortably slower than marathon pace easy", () => {
@@ -170,7 +170,7 @@ describe("classifyByPace", () => {
 	});
 
 	it("calls the band just off marathon pace moderate", () => {
-		expect(classifyByPace(320, THRESHOLDS)).toBe("moderate");
+		expect(classifyByPace(310, THRESHOLDS)).toBe("moderate");
 	});
 
 	it("returns null without a threshold to compare against", () => {
@@ -203,7 +203,7 @@ describe("intensitySplit", () => {
 		const out = intensitySplit(
 			[
 				{ zoneSeconds: [0, 3600, 0, 0, 0] },
-				{ movingTimeSec: 1800, gapPaceSecPerKm: 270 },
+				{ movingTimeSec: 1800, gapPaceSecPerKm: 230 },
 			],
 			THRESHOLDS,
 		);
