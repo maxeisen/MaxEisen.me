@@ -7,7 +7,7 @@
 // invocation loses track of what it didn't get to, and a repeated run finishes
 // the job rather than picking the same newest activities forever.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const blobs = new Map();
 const store = {
@@ -84,7 +84,7 @@ function mockStrava({
 		const reply = (body, status = 200) =>
 			new Response(JSON.stringify(body), { status, headers });
 
-		if (target.includes("/oauth/token")) {
+		if (target.includes("strava.com") && target.includes("/oauth/token")) {
 			return reply({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 });
 		}
 		if (target.includes("/athlete/activities")) {
@@ -137,6 +137,13 @@ const index = () => blobs.get("index.json") || [];
 const cursor = () => blobs.get("cursor.json") || {};
 const publicSnap = () => blobs.get("public.json") || null;
 
+// Netlify injects real Oura credentials into the build environment. Oura still
+// runs while Strava is stood down, so those vars would make every sync hit
+// api.ouraring.com/oauth/token and trip assertions that meant Strava. Keep
+// this file's default hermetic; the Oura window tests opt back in.
+const OURA_ENV = ["OURA_CLIENT_ID", "OURA_CLIENT_SECRET", "OURA_REFRESH_TOKEN"];
+let savedOura = {};
+
 beforeEach(() => {
 	vi.resetModules();
 	blobs.clear();
@@ -145,6 +152,15 @@ beforeEach(() => {
 	process.env.STRAVA_CLIENT_ID = "id";
 	process.env.STRAVA_CLIENT_SECRET = "secret";
 	process.env.STRAVA_REFRESH_TOKEN = "refresh";
+	savedOura = Object.fromEntries(OURA_ENV.map((k) => [k, process.env[k]]));
+	for (const k of OURA_ENV) delete process.env[k];
+});
+
+afterEach(() => {
+	for (const k of OURA_ENV) {
+		if (savedOura[k] === undefined) delete process.env[k];
+		else process.env[k] = savedOura[k];
+	}
 });
 
 describe("trainingSync", () => {
@@ -366,7 +382,9 @@ describe("trainingSync", () => {
 
 		expect(second.body.rateLimited).toBe(true);
 		expect(calls.some((c) => c.includes("/athlete/activities"))).toBe(false);
-		expect(calls.some((c) => c.includes("/oauth/token"))).toBe(false);
+		expect(calls.some((c) => c.includes("strava.com") && c.includes("/oauth/token"))).toBe(
+			false,
+		);
 	});
 
 	it("lists again once the cached 429 cooldown has passed", async () => {
