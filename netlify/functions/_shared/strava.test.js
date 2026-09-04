@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { callsRemaining, readQuota } from "./strava.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { callsRemaining, cooldownUntil, readQuota } from "./strava.js";
 
 function headers(map) {
 	return new Headers(map);
@@ -55,5 +55,73 @@ describe("callsRemaining", () => {
 	it("never goes negative once a share is already overspent", () => {
 		const quota = { shortUsage: 180, shortLimit: 200, dailyUsage: 0, dailyLimit: 2000 };
 		expect(callsRemaining(quota, { shortShare: 0.5 })).toBe(0);
+	});
+});
+
+// Strava's 15-minute windows land on the clock (:00/:15/:30/:45) and the daily
+// window on midnight UTC. A 429 has to wait for the window that actually
+// tripped, not a guessed 15 minutes from now — retries before that reset are
+// what turn a short overage into a blown daily quota.
+describe("cooldownUntil", () => {
+	const now = Date.parse("2020-10-10T20:11:05Z");
+
+	it("waits until midnight UTC when the daily bucket is spent", () => {
+		expect(
+			cooldownUntil(
+				{ shortUsage: 10, shortLimit: 100, dailyUsage: 1000, dailyLimit: 1000 },
+				{ now },
+			),
+		).toBe(Date.parse("2020-10-11T00:00:00Z"));
+	});
+
+	it("waits until the next quarter hour when only the short window is spent", () => {
+		expect(
+			cooldownUntil(
+				{ shortUsage: 100, shortLimit: 100, dailyUsage: 200, dailyLimit: 1000 },
+				{ now },
+			),
+		).toBe(Date.parse("2020-10-10T20:15:00Z"));
+	});
+
+	it("defaults to the next quarter hour when a 429 carried no quota headers", () => {
+		expect(cooldownUntil(null, { now })).toBe(Date.parse("2020-10-10T20:15:00Z"));
+	});
+
+	it("honors Retry-After when it is later than the computed window", () => {
+		expect(
+			cooldownUntil(
+				{ shortUsage: 100, shortLimit: 100, dailyUsage: 200, dailyLimit: 1000 },
+				{ now, retryAfterSec: 20 * 60 },
+			),
+		).toBe(now + 20 * 60 * 1000);
+	});
+});
+
+describe("the in-memory 429 cache", () => {
+	beforeEach(() => {
+		vi.resetModules();
+		vi.useFakeTimers();
+		vi.setSystemTime(Date.parse("2020-10-10T20:11:05Z"));
+	});
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("blocks further calls until the window the 429 headers describe", async () => {
+		const { noteRateLimit, isCoolingDown, rateLimitCacheHeaders } = await import("./strava.js");
+		noteRateLimit(
+			headers({
+				"x-ratelimit-limit": "100,1000",
+				"x-ratelimit-usage": "1000,1000",
+			}),
+		);
+		expect(isCoolingDown()).toBe(true);
+		expect(rateLimitCacheHeaders()).toEqual({
+			"Cache-Control": "public, max-age=13735",
+			"Retry-After": "13735",
+		});
+
+		vi.setSystemTime(Date.parse("2020-10-11T00:00:00Z"));
+		expect(isCoolingDown()).toBe(false);
 	});
 });

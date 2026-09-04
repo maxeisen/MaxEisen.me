@@ -25,7 +25,15 @@
 // provisional numbers pass for final ones.
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
-import { STRAVA_API_BASE, callsRemaining, getAccessToken, readQuota } from "./_shared/strava.js";
+import {
+	STRAVA_API_BASE,
+	callsRemaining,
+	cooldownExpiresAt,
+	getAccessToken,
+	isCoolingDown,
+	noteRateLimit,
+	readQuota,
+} from "./_shared/strava.js";
 import { getOuraAccessToken, ouraCollection } from "./_shared/oura.js";
 import {
 	SHAPE_VERSION,
@@ -48,12 +56,15 @@ import {
 	ATHLETE_KEY,
 	CURSOR_KEY,
 	INDEX_KEY,
+	PUBLIC_KEY,
 	RECOVERY_KEY,
 	getTrainingStore,
 	mergeActivities,
 	readJson,
 	writeJson,
 } from "./_shared/training/store.js";
+import { mergeFeed, passesFeedFilter, shapeFeedItem, shapeYtdTotals, STRAVA_ATHLETE_ID } from "./_shared/stravaPublic.js";
+import { mostRecentGearId, shapeGear } from "./_shared/stravaGear.js";
 
 const jsonResponse = createJsonResponder(cacheControl.none);
 
@@ -237,6 +248,7 @@ async function stravaGet(path, token) {
 	});
 	quota = readQuota(res.headers) ?? quota;
 	if (!res.ok) {
+		if (res.status === 429) noteRateLimit(res.headers);
 		const err = new Error(`Strava ${path} failed: ${res.status}`);
 		err.status = res.status;
 		throw err;
@@ -255,6 +267,7 @@ async function stravaPut(path, token, body) {
 	});
 	quota = readQuota(res.headers) ?? quota;
 	if (!res.ok) {
+		if (res.status === 429) noteRateLimit(res.headers);
 		const text = await res.text();
 		const err = new Error(`Strava PUT ${path} failed: ${res.status} ${text}`);
 		err.status = res.status;
@@ -305,8 +318,10 @@ async function fetchStreams(id, token) {
 			if (Array.isArray(value?.data)) streams[key] = value.data;
 		}
 		return Object.keys(streams).length > 0 ? streams : null;
-	} catch {
-		// A run can legitimately have no streams (manual entry). Not fatal.
+	} catch (err) {
+		// A run can legitimately have no streams (manual entry). A 429 is not
+		// that — swallowing it would keep the rest of the batch asking.
+		if (err.status === 429) throw err;
 		return null;
 	}
 }
@@ -349,25 +364,98 @@ async function refreshNotes(records, token, today, deadline) {
 	return refreshed;
 }
 
+function persistCooldown() {
+	const until = cooldownExpiresAt();
+	return until > Date.now() ? new Date(until).toISOString() : null;
+}
+
+async function fetchPublicGear(token, id) {
+	if (!id) return null;
+	try {
+		return shapeGear(await stravaGet(`/gear/${id}`, token));
+	} catch (err) {
+		if (err.status === 429) throw err;
+		console.error("Strava gear failed:", id, err);
+		return null;
+	}
+}
+
+/**
+ * Homepage / dashboard / toronto snapshot. Built from the listing this tick
+ * already made, plus one extra latest-page fetch when the blob is empty and
+ * the incremental listing had nothing to offer (a caught-up cursor on first
+ * deploy of this snapshot). Stats and gear only move when a new activity
+ * (or a new gear id) shows up.
+ */
+async function updatePublicSnapshot(store, token, snapshot, summaries) {
+	const existingActs = snapshot?.activities || [];
+	let incoming = (summaries || []).filter(passesFeedFilter).map(shapeFeedItem).filter(Boolean);
+	const rawForGear = [...(summaries || [])];
+
+	if (existingActs.length === 0 && incoming.length === 0) {
+		try {
+			const latest = await stravaGet(`/athlete/activities?per_page=${PER_PAGE}&page=1`, token);
+			if (Array.isArray(latest)) {
+				rawForGear.push(...latest);
+				incoming = latest.filter(passesFeedFilter).map(shapeFeedItem).filter(Boolean);
+			}
+		} catch (err) {
+			if (err.status === 429) throw err;
+			console.error("public snapshot seed failed", err);
+		}
+	}
+
+	const existingIds = new Set(existingActs.map((a) => String(a.id)));
+	const hasNew = incoming.some((a) => !existingIds.has(String(a.id)));
+	const rideGear = mostRecentGearId(rawForGear, "ride");
+	const runGear = mostRecentGearId(rawForGear, "run");
+	const gearChanged =
+		(rideGear && rideGear !== snapshot?.bike?.id) || (runGear && runGear !== snapshot?.shoes?.id);
+	const needProfile = !snapshot?.ytd || hasNew || gearChanged;
+
+	if (incoming.length === 0 && !needProfile) return snapshot;
+
+	const activities = mergeFeed(existingActs, incoming);
+	let bike = snapshot?.bike ?? null;
+	let shoes = snapshot?.shoes ?? null;
+	let ytd = snapshot?.ytd ?? { run: null, ride: null };
+
+	if (needProfile) {
+		const stats = await stravaGet(`/athletes/${STRAVA_ATHLETE_ID}/stats`, token);
+		ytd = {
+			run: shapeYtdTotals(stats?.ytd_run_totals),
+			ride: shapeYtdTotals(stats?.ytd_ride_totals),
+		};
+		const bikeId = rideGear || snapshot?.bike?.id;
+		const shoesId = runGear || snapshot?.shoes?.id;
+		const [nextBike, nextShoes] = await Promise.all([
+			bikeId && bikeId !== snapshot?.bike?.id
+				? fetchPublicGear(token, bikeId)
+				: Promise.resolve(snapshot?.bike ?? null),
+			shoesId && shoesId !== snapshot?.shoes?.id
+				? fetchPublicGear(token, shoesId)
+				: Promise.resolve(snapshot?.shoes ?? null),
+		]);
+		bike = nextBike ?? snapshot?.bike ?? null;
+		shoes = nextShoes ?? snapshot?.shoes ?? null;
+	}
+
+	const next = { activities, bike, shoes, ytd, updatedAt: new Date().toISOString() };
+	await writeJson(store, PUBLIC_KEY, next);
+	return next;
+}
+
 export default async function handler(req) {
 	// Netlify reuses warm instances, and a quota reading from a previous
 	// invocation describes a window that has almost certainly rolled over
 	// since. Start blind and let this run's first response say where we are.
 	quota = null;
 
-	let token;
-	try {
-		token = await getAccessToken();
-	} catch (err) {
-		if (err.code === "not_configured") return jsonResponse({ error: "not_configured" }, 503);
-		console.error(err);
-		return jsonResponse({ error: "auth_failed" }, 502);
-	}
-
 	const store = getTrainingStore();
-	const [existing, cursor] = await Promise.all([
+	const [existing, cursor, snapshot] = await Promise.all([
 		readJson(store, INDEX_KEY, []),
 		readJson(store, CURSOR_KEY, {}),
+		readJson(store, PUBLIC_KEY, null),
 	]);
 
 	const plan = loadPlan();
@@ -377,6 +465,44 @@ export default async function handler(req) {
 	// with the Strava work below, which is allowed to spend twenty seconds,
 	// and there's no reason three quick requests should queue behind it.
 	const recoveryWork = syncRecovery(store, todayKey());
+
+	const stoodDown = async () =>
+		jsonResponse({
+			ok: true,
+			scanned: 0,
+			runs: 0,
+			synced: 0,
+			notesRefreshed: 0,
+			notesFresh: false,
+			captioned: 0,
+			captionUrlRejected: false,
+			stored: (existing || []).length,
+			missing: cursor?.missing ?? 0,
+			stale: cursor?.stale ?? 0,
+			shapeVersion: SHAPE_VERSION,
+			rescan: false,
+			rateLimited: true,
+			quotaPaused: false,
+			timedOut: false,
+			recovery: await recoveryWork,
+		});
+
+	// A 429 still counts against the daily quota, so retrying every five
+	// minutes after a blowout is what keeps every function 429ing until
+	// midnight UTC. The cursor timestamp survives a cold start; skip Strava
+	// entirely until it expires (Oura is a different API and still runs).
+	if (Date.parse(cursor?.rateLimitedUntil || "") > Date.now()) {
+		return stoodDown();
+	}
+
+	let token;
+	try {
+		token = await getAccessToken();
+	} catch (err) {
+		if (err.code === "not_configured") return jsonResponse({ error: "not_configured" }, 503);
+		console.error(err);
+		return jsonResponse({ error: "auth_failed" }, 502);
+	}
 
 	// The listing's job is finding activities we have never seen. That's all,
 	// and it matters that it's all: paging back through the block costs three
@@ -404,7 +530,25 @@ export default async function handler(req) {
 		summaries = await fetchActivitiesSince(token, after);
 	} catch (err) {
 		console.error("Strava activity list failed", err);
+		if (err.status === 429) {
+			await writeJson(store, CURSOR_KEY, {
+				...cursor,
+				lastRunAt: new Date().toISOString(),
+				rateLimitedUntil: persistCooldown(),
+			});
+			return stoodDown();
+		}
 		return jsonResponse({ error: "strava_failed" }, 502);
+	}
+
+	try {
+		await updatePublicSnapshot(store, token, snapshot, summaries);
+	} catch (err) {
+		if (err.status === 429) {
+			console.warn("Strava rate limit hit while updating the public snapshot");
+		} else {
+			console.error("public snapshot update failed", err);
+		}
 	}
 
 	const thresholds = plan.thresholds;
@@ -465,7 +609,7 @@ export default async function handler(req) {
 	const zones = (storedZones && !full ? null : await fetchAthleteZones(token)) || storedZones;
 
 	const deadline = Date.now() + WORK_DEADLINE_MS;
-	let rateLimited = false;
+	let rateLimited = isCoolingDown();
 	let timedOut = false;
 	let quotaPaused = false;
 	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (item) => {
@@ -629,6 +773,7 @@ export default async function handler(req) {
 			missing,
 			stale,
 			stored: merged.length,
+			rateLimitedUntil: persistCooldown(),
 		}),
 	]);
 
@@ -648,7 +793,7 @@ export default async function handler(req) {
 		stale,
 		shapeVersion: SHAPE_VERSION,
 		rescan,
-		rateLimited,
+		rateLimited: rateLimited || isCoolingDown(),
 		quotaPaused,
 		timedOut,
 		recovery: await recoveryWork,

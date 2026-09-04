@@ -7,7 +7,7 @@
 // invocation loses track of what it didn't get to, and a repeated run finishes
 // the job rather than picking the same newest activities forever.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const blobs = new Map();
 const store = {
@@ -59,7 +59,19 @@ function detailFor(summary) {
 // `listing` overrides what /athlete/activities returns without changing what
 // the detail endpoint will serve, which is how a re-shape looks from here: the
 // runs are all stored, nothing is new, and the listing has nothing to say.
-function mockStrava({ activities = [], listing = null, quota = null, failStreams = false } = {}) {
+function mockStrava({
+	activities = [],
+	listing = null,
+	latest = null,
+	listingStatus = 200,
+	quota = null,
+	failStreams = false,
+	stats = {
+		ytd_run_totals: { count: 10, distance: 100_000, moving_time: 30_000, elevation_gain: 200 },
+		ytd_ride_totals: { count: 8, distance: 200_000, moving_time: 20_000, elevation_gain: 400 },
+	},
+	gear = {},
+} = {}) {
 	const calls = [];
 	const puts = [];
 	globalThis.fetch = vi.fn(async (url, init = {}) => {
@@ -72,12 +84,25 @@ function mockStrava({ activities = [], listing = null, quota = null, failStreams
 		const reply = (body, status = 200) =>
 			new Response(JSON.stringify(body), { status, headers });
 
-		if (target.includes("/oauth/token")) {
+		if (target.includes("strava.com") && target.includes("/oauth/token")) {
 			return reply({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 });
 		}
 		if (target.includes("/athlete/activities")) {
-			const page = Number(new URL(target).searchParams.get("page"));
+			if (listingStatus === 429) return reply({ message: "rate limited" }, 429);
+			const page = Number(new URL(target).searchParams.get("page") || 1);
+			const after = new URL(target).searchParams.get("after");
+			if (latest && after == null) return reply(page === 1 ? latest : []);
 			return reply(page === 1 ? (listing ?? activities) : []);
+		}
+		if (target.includes("/athletes/") && target.includes("/stats")) {
+			return reply(stats);
+		}
+		const gearMatch = target.match(/\/gear\/([^/?]+)/);
+		if (gearMatch) {
+			const item = gear[gearMatch[1]];
+			return item
+				? reply(item)
+				: reply({ id: gearMatch[1], name: gearMatch[1], distance: 0 });
 		}
 		if (target.includes("/athlete/zones")) {
 			return reply({ heart_rate: { zones: [{ min: 0, max: 130 }] } });
@@ -110,6 +135,14 @@ async function sync(query = "") {
 
 const index = () => blobs.get("index.json") || [];
 const cursor = () => blobs.get("cursor.json") || {};
+const publicSnap = () => blobs.get("public.json") || null;
+
+// Netlify injects real Oura credentials into the build environment. Oura still
+// runs while Strava is stood down, so those vars would make every sync hit
+// api.ouraring.com/oauth/token and trip assertions that meant Strava. Keep
+// this file's default hermetic; the Oura window tests opt back in.
+const OURA_ENV = ["OURA_CLIENT_ID", "OURA_CLIENT_SECRET", "OURA_REFRESH_TOKEN"];
+let savedOura = {};
 
 beforeEach(() => {
 	vi.resetModules();
@@ -119,6 +152,15 @@ beforeEach(() => {
 	process.env.STRAVA_CLIENT_ID = "id";
 	process.env.STRAVA_CLIENT_SECRET = "secret";
 	process.env.STRAVA_REFRESH_TOKEN = "refresh";
+	savedOura = Object.fromEntries(OURA_ENV.map((k) => [k, process.env[k]]));
+	for (const k of OURA_ENV) delete process.env[k];
+});
+
+afterEach(() => {
+	for (const k of OURA_ENV) {
+		if (savedOura[k] === undefined) delete process.env[k];
+		else process.env[k] = savedOura[k];
+	}
 });
 
 describe("trainingSync", () => {
@@ -322,6 +364,108 @@ describe("trainingSync", () => {
 		expect(store.setJSON).not.toHaveBeenCalled();
 	});
 
+	it("caches a listing 429 and does not ask Strava again until it expires", async () => {
+		mockStrava({
+			activities: summaries(1),
+			listingStatus: 429,
+			quota: { limit: "100,1000", usage: "1000,1000" },
+		});
+		const first = await sync();
+
+		expect(first.body.rateLimited).toBe(true);
+		expect(first.body.ok).toBe(true);
+		expect(cursor().rateLimitedUntil).toEqual(expect.any(String));
+		expect(Date.parse(cursor().rateLimitedUntil)).toBeGreaterThan(Date.now());
+
+		const calls = mockStrava({ activities: summaries(1) });
+		const second = await sync();
+
+		expect(second.body.rateLimited).toBe(true);
+		expect(calls.some((c) => c.includes("/athlete/activities"))).toBe(false);
+		expect(calls.some((c) => c.includes("strava.com") && c.includes("/oauth/token"))).toBe(
+			false,
+		);
+	});
+
+	it("lists again once the cached 429 cooldown has passed", async () => {
+		blobs.set("cursor.json", {
+			rateLimitedUntil: new Date(Date.now() - 1000).toISOString(),
+		});
+
+		const calls = mockStrava({ activities: summaries(1) });
+		const { body } = await sync();
+
+		expect(body.rateLimited).toBeFalsy();
+		expect(body.ok).toBe(true);
+		expect(body.synced).toBe(1);
+		expect(calls.some((c) => c.includes("/athlete/activities"))).toBe(true);
+	});
+
+	describe("the public snapshot", () => {
+		function publicActivities(count) {
+			return summaries(count, (i) => ({
+				start_date: summaries(count)[i].start_date_local.replace("Z", "").replace("T07", "T11") + "Z",
+				map: { summary_polyline: `poly-${1000 + i}` },
+				gear_id: i === 0 ? "g-superblast" : undefined,
+				suffer_score: 50,
+			}));
+		}
+
+		it("stores qualifying activities with polylines for the public surfaces", async () => {
+			mockStrava({
+				activities: publicActivities(3),
+				gear: {
+					"g-superblast": {
+						id: "g-superblast",
+						brand_name: "ASICS",
+						model_name: "Superblast 3",
+						distance: 400_000,
+					},
+				},
+			});
+			await sync();
+
+			const snap = publicSnap();
+			expect(snap.activities).toHaveLength(3);
+			expect(snap.activities[0].polyline).toMatch(/^poly-/);
+			expect(snap.ytd.run.count).toBe(10);
+			expect(snap.shoes).toEqual({
+				id: "g-superblast",
+				name: "ASICS Superblast 3",
+				distance: 400_000,
+			});
+			expect(JSON.stringify(index())).not.toContain("polyline");
+			expect(JSON.stringify(index())).not.toContain("poly-");
+		});
+
+		it("does not refetch stats or gear on a quiet tick", async () => {
+			mockStrava({ activities: publicActivities(2) });
+			await sync();
+
+			const calls = mockStrava({ activities: publicActivities(2), listing: [] });
+			await sync();
+
+			expect(calls.some((c) => c.includes("/stats"))).toBe(false);
+			expect(calls.some((c) => c.includes("/gear/"))).toBe(false);
+		});
+
+		it("seeds from a latest listing when the snapshot is empty and the cursor is caught up", async () => {
+			mockStrava({ activities: publicActivities(2) });
+			await sync();
+			blobs.delete("public.json");
+
+			const latest = publicActivities(2);
+			const calls = mockStrava({ activities: publicActivities(2), listing: [], latest });
+			await sync();
+
+			expect(publicSnap().activities).toHaveLength(2);
+			const noAfter = calls.filter(
+				(c) => c.includes("/athlete/activities") && !c.includes("after="),
+			);
+			expect(noAfter.length).toBeGreaterThan(0);
+		});
+	});
+
 	it("leaves the stored history alone when Strava can't be listed", async () => {
 		mockStrava({ activities: summaries(2) });
 		await sync();
@@ -491,6 +635,15 @@ describe("trainingSync", () => {
 				}
 				if (target.includes("/athlete/zones")) {
 					return new Response(JSON.stringify({ heart_rate: { zones: [] } }), { status: 200 });
+				}
+				if (target.includes("/athletes/") && target.includes("/stats")) {
+					return new Response(
+						JSON.stringify({ ytd_run_totals: {}, ytd_ride_totals: {} }),
+						{ status: 200 },
+					);
+				}
+				if (target.includes("/gear/")) {
+					return new Response(JSON.stringify({ id: "g", name: "g", distance: 0 }), { status: 200 });
 				}
 				throw new Error(`unexpected fetch ${target}`);
 			});

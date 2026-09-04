@@ -110,3 +110,80 @@ export function callsRemaining(quota, { shortShare = 1, dailyShare = 1 } = {}) {
 		quota.dailyLimit > 0 ? Math.floor(quota.dailyLimit * dailyShare) - quota.dailyUsage : Infinity;
 	return Math.max(0, Math.min(short, daily));
 }
+
+// Strava's windows are clock-aligned, not sliding: 15-minute buckets reset at
+// :00/:15/:30/:45, and the daily bucket at midnight UTC. Waiting "15 minutes
+// from now" retries inside the same window; those 429s still count, which is
+// how a short overage becomes a blown day.
+function nextQuarterHour(now) {
+	const d = new Date(now);
+	const next = Math.floor(d.getUTCMinutes() / 15) * 15 + 15;
+	d.setUTCSeconds(0, 0);
+	d.setUTCMinutes(next);
+	return d.getTime();
+}
+
+function nextUtcMidnight(now) {
+	const d = new Date(now);
+	d.setUTCHours(24, 0, 0, 0);
+	return d.getTime();
+}
+
+/**
+ * When the next request at this quota is allowed, given a 429's headers.
+ *
+ * Daily exhaustion waits for midnight UTC; a short-window 429 (or a 429 with
+ * no headers at all) waits for the next quarter hour. Retry-After wins when
+ * it is later than that.
+ *
+ * @param {object|null} quota from readQuota()
+ * @param {{now?: number, retryAfterSec?: number|null}} [options]
+ * @returns {number} epoch ms
+ */
+export function cooldownUntil(quota, { now = Date.now(), retryAfterSec = null } = {}) {
+	const dailyBlown = quota?.dailyLimit > 0 && quota.dailyUsage >= quota.dailyLimit;
+	const computed = dailyBlown ? nextUtcMidnight(now) : nextQuarterHour(now);
+	const retry =
+		retryAfterSec != null && Number.isFinite(retryAfterSec) ? now + retryAfterSec * 1000 : 0;
+	return Math.max(computed, retry);
+}
+
+// Process-local stand-down. Each function bundle gets its own copy, which is
+// enough to absorb retries against a warm instance (the dashboard poll, a CDN
+// miss burst). trainingSync also persists the timestamp on its cursor so a
+// cold start five minutes later does not poke Strava again.
+let coolUntil = 0;
+
+export function isCoolingDown(now = Date.now()) {
+	return now < coolUntil;
+}
+
+export function cooldownExpiresAt() {
+	return coolUntil;
+}
+
+/**
+ * Record a 429. Subsequent isCoolingDown() calls stay true until the window
+ * the headers describe, so callers can fail without spending another request.
+ *
+ * @param {Headers} headers
+ * @param {number} [now]
+ * @returns {number} epoch ms the cooldown expires
+ */
+export function noteRateLimit(headers, now = Date.now()) {
+	const retryAfter = Number(headers?.get?.("retry-after"));
+	const until = cooldownUntil(readQuota(headers), {
+		now,
+		retryAfterSec: Number.isFinite(retryAfter) ? retryAfter : null,
+	});
+	if (until > coolUntil) coolUntil = until;
+	return coolUntil;
+}
+
+export function rateLimitCacheHeaders(now = Date.now()) {
+	const retryAfter = Math.max(1, Math.ceil((coolUntil - now) / 1000));
+	return {
+		"Cache-Control": `public, max-age=${retryAfter}`,
+		"Retry-After": String(retryAfter),
+	};
+}
