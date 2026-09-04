@@ -62,9 +62,15 @@ function detailFor(summary) {
 function mockStrava({
 	activities = [],
 	listing = null,
+	latest = null,
 	listingStatus = 200,
 	quota = null,
 	failStreams = false,
+	stats = {
+		ytd_run_totals: { count: 10, distance: 100_000, moving_time: 30_000, elevation_gain: 200 },
+		ytd_ride_totals: { count: 8, distance: 200_000, moving_time: 20_000, elevation_gain: 400 },
+	},
+	gear = {},
 } = {}) {
 	const calls = [];
 	const puts = [];
@@ -83,8 +89,20 @@ function mockStrava({
 		}
 		if (target.includes("/athlete/activities")) {
 			if (listingStatus === 429) return reply({ message: "rate limited" }, 429);
-			const page = Number(new URL(target).searchParams.get("page"));
+			const page = Number(new URL(target).searchParams.get("page") || 1);
+			const after = new URL(target).searchParams.get("after");
+			if (latest && after == null) return reply(page === 1 ? latest : []);
 			return reply(page === 1 ? (listing ?? activities) : []);
+		}
+		if (target.includes("/athletes/") && target.includes("/stats")) {
+			return reply(stats);
+		}
+		const gearMatch = target.match(/\/gear\/([^/?]+)/);
+		if (gearMatch) {
+			const item = gear[gearMatch[1]];
+			return item
+				? reply(item)
+				: reply({ id: gearMatch[1], name: gearMatch[1], distance: 0 });
 		}
 		if (target.includes("/athlete/zones")) {
 			return reply({ heart_rate: { zones: [{ min: 0, max: 130 }] } });
@@ -117,6 +135,7 @@ async function sync(query = "") {
 
 const index = () => blobs.get("index.json") || [];
 const cursor = () => blobs.get("cursor.json") || {};
+const publicSnap = () => blobs.get("public.json") || null;
 
 beforeEach(() => {
 	vi.resetModules();
@@ -364,6 +383,71 @@ describe("trainingSync", () => {
 		expect(calls.some((c) => c.includes("/athlete/activities"))).toBe(true);
 	});
 
+	describe("the public snapshot", () => {
+		function publicActivities(count) {
+			return summaries(count, (i) => ({
+				start_date: summaries(count)[i].start_date_local.replace("Z", "").replace("T07", "T11") + "Z",
+				map: { summary_polyline: `poly-${1000 + i}` },
+				gear_id: i === 0 ? "g-superblast" : undefined,
+				suffer_score: 50,
+			}));
+		}
+
+		it("stores qualifying activities with polylines for the public surfaces", async () => {
+			mockStrava({
+				activities: publicActivities(3),
+				gear: {
+					"g-superblast": {
+						id: "g-superblast",
+						brand_name: "ASICS",
+						model_name: "Superblast 3",
+						distance: 400_000,
+					},
+				},
+			});
+			await sync();
+
+			const snap = publicSnap();
+			expect(snap.activities).toHaveLength(3);
+			expect(snap.activities[0].polyline).toMatch(/^poly-/);
+			expect(snap.ytd.run.count).toBe(10);
+			expect(snap.shoes).toEqual({
+				id: "g-superblast",
+				name: "ASICS Superblast 3",
+				distance: 400_000,
+			});
+			expect(JSON.stringify(index())).not.toContain("polyline");
+			expect(JSON.stringify(index())).not.toContain("poly-");
+		});
+
+		it("does not refetch stats or gear on a quiet tick", async () => {
+			mockStrava({ activities: publicActivities(2) });
+			await sync();
+
+			const calls = mockStrava({ activities: publicActivities(2), listing: [] });
+			await sync();
+
+			expect(calls.some((c) => c.includes("/stats"))).toBe(false);
+			expect(calls.some((c) => c.includes("/gear/"))).toBe(false);
+		});
+
+		it("seeds from a latest listing when the snapshot is empty and the cursor is caught up", async () => {
+			mockStrava({ activities: publicActivities(2) });
+			await sync();
+			blobs.delete("public.json");
+
+			const latest = publicActivities(2);
+			const calls = mockStrava({ activities: publicActivities(2), listing: [], latest });
+			await sync();
+
+			expect(publicSnap().activities).toHaveLength(2);
+			const noAfter = calls.filter(
+				(c) => c.includes("/athlete/activities") && !c.includes("after="),
+			);
+			expect(noAfter.length).toBeGreaterThan(0);
+		});
+	});
+
 	it("leaves the stored history alone when Strava can't be listed", async () => {
 		mockStrava({ activities: summaries(2) });
 		await sync();
@@ -533,6 +617,15 @@ describe("trainingSync", () => {
 				}
 				if (target.includes("/athlete/zones")) {
 					return new Response(JSON.stringify({ heart_rate: { zones: [] } }), { status: 200 });
+				}
+				if (target.includes("/athletes/") && target.includes("/stats")) {
+					return new Response(
+						JSON.stringify({ ytd_run_totals: {}, ytd_ride_totals: {} }),
+						{ status: 200 },
+					);
+				}
+				if (target.includes("/gear/")) {
+					return new Response(JSON.stringify({ id: "g", name: "g", distance: 0 }), { status: 200 });
 				}
 				throw new Error(`unexpected fetch ${target}`);
 			});

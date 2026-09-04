@@ -1,67 +1,29 @@
 // Homepage intro modals: YTD totals plus the bike/shoes on the most recent
-// ride and run. The old GET /athlete `primary` flag is not the per-sport
-// default, so this asserts we walk activities and look up gear by id.
+// ride and run. Served from the snapshot trainingSync writes; this function
+// never calls Strava.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const TARMAC = {
-	id: "b-tarmac",
-	name: "Tarmax (on Hunts)",
-	brand_name: "Specialized",
-	model_name: "Tarmac SL7",
-	distance: 9_000_000,
-	primary: false,
+const blobs = new Map();
+const store = {
+	get: vi.fn(async (key) => blobs.get(key) ?? null),
+	setJSON: vi.fn(async (key, value) => {
+		blobs.set(key, value);
+	}),
 };
-const SUPERBLAST = {
-	id: "g-superblast",
-	name: "ASICS Superblast 3 🍜",
-	brand_name: "ASICS",
-	model_name: "Superblast 3",
-	distance: 400_000,
-	primary: false,
+vi.mock("@netlify/blobs", () => ({ getStore: () => store }));
+
+const TARMAC = { id: "b-tarmac", name: "Specialized Tarmac SL7", distance: 9_000_000 };
+const SUPERBLAST = { id: "g-superblast", name: "ASICS Superblast 3", distance: 400_000 };
+const SNAPSHOT = {
+	activities: [],
+	bike: TARMAC,
+	shoes: SUPERBLAST,
+	ytd: {
+		run: { count: 10, distance: 100_000, movingTime: 30_000, elevationGain: 200 },
+		ride: { count: 8, distance: 200_000, movingTime: 20_000, elevationGain: 400 },
+	},
 };
-const CITY = { id: "b-city", name: "City Bike", distance: 600_000, primary: false };
-
-function activities() {
-	return [
-		{ id: 1, sport_type: "Run", type: "Run", gear_id: SUPERBLAST.id },
-		{ id: 2, sport_type: "Ride", type: "Ride", gear_id: TARMAC.id },
-		{ id: 3, sport_type: "Ride", type: "Ride", gear_id: CITY.id },
-	];
-}
-
-function stats() {
-	return {
-		ytd_run_totals: { count: 10, distance: 100_000, moving_time: 30_000, elevation_gain: 200 },
-		ytd_ride_totals: { count: 8, distance: 200_000, moving_time: 20_000, elevation_gain: 400 },
-	};
-}
-
-function mockStrava({ listing = activities(), gear = { [TARMAC.id]: TARMAC, [SUPERBLAST.id]: SUPERBLAST } } = {}) {
-	const calls = [];
-	globalThis.fetch = vi.fn(async (url) => {
-		const target = String(url);
-		calls.push(target);
-		const reply = (body, status = 200) =>
-			new Response(JSON.stringify(body), { status });
-
-		if (target.includes("/oauth/token")) {
-			return reply({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 });
-		}
-		if (target.includes("/athlete/activities")) return reply(listing);
-		if (target.includes("/athletes/") && target.includes("/stats")) return reply(stats());
-		const gearMatch = target.match(/\/gear\/([^/?]+)/);
-		if (gearMatch) {
-			const item = gear[gearMatch[1]];
-			return item ? reply(item) : reply({ message: "not found" }, 404);
-		}
-		if (target.endsWith("/athlete")) {
-			throw new Error("GET /athlete should not be used for gear");
-		}
-		throw new Error(`unexpected fetch ${target}`);
-	});
-	return calls;
-}
 
 async function payload() {
 	const { default: handler } = await import("../stravaProfile.js");
@@ -71,64 +33,43 @@ async function payload() {
 
 beforeEach(() => {
 	vi.resetModules();
-	process.env.STRAVA_CLIENT_ID = "id";
-	process.env.STRAVA_CLIENT_SECRET = "secret";
-	process.env.STRAVA_REFRESH_TOKEN = "refresh";
+	blobs.clear();
+	globalThis.fetch = vi.fn(async (url) => {
+		throw new Error(`stravaProfile must not call Strava: ${url}`);
+	});
 });
 
 describe("stravaProfile", () => {
 	it("returns the bike and shoes from the most recent ride and run", async () => {
-		const calls = mockStrava();
+		blobs.set("public.json", SNAPSHOT);
 		const { res, body } = await payload();
 
 		expect(res.status).toBe(200);
-		expect(body.bike).toEqual({ id: TARMAC.id, name: "Specialized Tarmac SL7", distance: TARMAC.distance });
-		expect(body.shoes).toEqual({
-			id: SUPERBLAST.id,
-			name: "ASICS Superblast 3",
-			distance: SUPERBLAST.distance,
-		});
+		expect(body.bike).toEqual(TARMAC);
+		expect(body.shoes).toEqual(SUPERBLAST);
 		expect(body.ytd.run.count).toBe(10);
 		expect(body.ytd.ride.count).toBe(8);
-		expect(calls.some((u) => /\/gear\/b-tarmac/.test(u))).toBe(true);
-		expect(calls.some((u) => /\/gear\/g-superblast/.test(u))).toBe(true);
-		expect(calls.some((u) => u.endsWith("/athlete") && !u.includes("activities"))).toBe(false);
+		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 
 	it("omits gear when nothing recent has it attached", async () => {
-		mockStrava({ listing: [{ id: 1, sport_type: "Run", type: "Run" }] });
+		blobs.set("public.json", {
+			...SNAPSHOT,
+			bike: null,
+			shoes: null,
+		});
 		const { body } = await payload();
 		expect(body.bike).toBeNull();
 		expect(body.shoes).toBeNull();
 		expect(body.ytd.run.count).toBe(10);
 	});
 
-	it("caches a 429 so the next request does not hit Strava", async () => {
-		globalThis.fetch = vi.fn(async (url) => {
-			const target = String(url);
-			if (target.includes("/oauth/token")) {
-				return new Response(
-					JSON.stringify({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 }),
-					{ status: 200 },
-				);
-			}
-			return new Response("nope", {
-				status: 429,
-				headers: {
-					"x-ratelimit-limit": "100,1000",
-					"x-ratelimit-usage": "100,200",
-				},
-			});
-		});
-
-		const first = await payload();
-		expect(first.res.status).toBe(429);
-		expect(first.body.error).toBe("strava_failed");
-		expect(first.res.headers.get("Retry-After")).toEqual(expect.stringMatching(/^\d+$/));
-		const afterFirst = globalThis.fetch.mock.calls.length;
-
-		const second = await payload();
-		expect(second.res.status).toBe(429);
-		expect(globalThis.fetch.mock.calls.length).toBe(afterFirst);
+	it("returns empty profile fields before the first sync rather than live-fetching", async () => {
+		const { res, body } = await payload();
+		expect(res.status).toBe(200);
+		expect(body.bike).toBeNull();
+		expect(body.shoes).toBeNull();
+		expect(body.ytd).toEqual({ run: null, ride: null });
+		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 });
