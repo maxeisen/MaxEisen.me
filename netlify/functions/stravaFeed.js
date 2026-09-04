@@ -35,5 +35,9 @@ export default async function handler(req) {
 
 	const snapshot = await memo("public", loadSnapshot);
 	const activities = Array.isArray(snapshot?.activities) ? snapshot.activities : [];
-	return jsonResponse({ activities: activities.slice(0, limit) });
+	// An empty blob is "not seeded yet", not a stable empty feed. Caching it
+	// for five minutes makes the first successful sync invisible until the
+	// CDN/browser TTL expires.
+	const headers = activities.length ? {} : cacheControl.none;
+	return jsonResponse({ activities: activities.slice(0, limit) }, 200, headers);
 }

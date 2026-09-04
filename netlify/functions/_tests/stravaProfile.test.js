@@ -49,6 +49,7 @@ describe("stravaProfile", () => {
 		expect(body.shoes).toEqual(SUPERBLAST);
 		expect(body.ytd.run.count).toBe(10);
 		expect(body.ytd.ride.count).toBe(8);
+		expect(res.headers.get("cache-control")).toMatch(/max-age=300/);
 		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 
@@ -70,6 +71,7 @@ describe("stravaProfile", () => {
 		expect(body.bike).toBeNull();
 		expect(body.shoes).toBeNull();
 		expect(body.ytd).toEqual({ run: null, ride: null });
+		expect(res.headers.get("cache-control")).toBe("no-store");
 		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 });

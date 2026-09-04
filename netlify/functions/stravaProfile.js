@@ -19,9 +19,11 @@ async function loadSnapshot() {
 export default async function handler() {
 	const snapshot = await memo("public", loadSnapshot);
 	const empty = emptyPublicSnapshot();
-	return jsonResponse({
+	const body = {
 		bike: snapshot?.bike ?? empty.bike,
 		shoes: snapshot?.shoes ?? empty.shoes,
 		ytd: snapshot?.ytd ?? empty.ytd,
-	});
+	};
+	const seeded = body.bike || body.shoes || body.ytd?.run || body.ytd?.ride;
+	return jsonResponse(body, 200, seeded ? {} : cacheControl.none);
 }

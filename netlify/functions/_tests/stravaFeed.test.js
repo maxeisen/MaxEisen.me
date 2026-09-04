@@ -46,6 +46,7 @@ describe("stravaFeed", () => {
 		expect(res.status).toBe(200);
 		expect(body.activities).toHaveLength(2);
 		expect(body.activities[0]).toEqual(SAMPLE);
+		expect(res.headers.get("cache-control")).toMatch(/max-age=300/);
 		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 
@@ -61,6 +62,7 @@ describe("stravaFeed", () => {
 		const { res, body } = await payload();
 		expect(res.status).toBe(200);
 		expect(body.activities).toEqual([]);
+		expect(res.headers.get("cache-control")).toBe("no-store");
 		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
 });
