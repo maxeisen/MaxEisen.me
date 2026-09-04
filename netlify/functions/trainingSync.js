@@ -25,7 +25,15 @@
 // provisional numbers pass for final ones.
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
-import { STRAVA_API_BASE, callsRemaining, getAccessToken, readQuota } from "./_shared/strava.js";
+import {
+	STRAVA_API_BASE,
+	callsRemaining,
+	cooldownExpiresAt,
+	getAccessToken,
+	isCoolingDown,
+	noteRateLimit,
+	readQuota,
+} from "./_shared/strava.js";
 import { getOuraAccessToken, ouraCollection } from "./_shared/oura.js";
 import {
 	SHAPE_VERSION,
@@ -237,6 +245,7 @@ async function stravaGet(path, token) {
 	});
 	quota = readQuota(res.headers) ?? quota;
 	if (!res.ok) {
+		if (res.status === 429) noteRateLimit(res.headers);
 		const err = new Error(`Strava ${path} failed: ${res.status}`);
 		err.status = res.status;
 		throw err;
@@ -255,6 +264,7 @@ async function stravaPut(path, token, body) {
 	});
 	quota = readQuota(res.headers) ?? quota;
 	if (!res.ok) {
+		if (res.status === 429) noteRateLimit(res.headers);
 		const text = await res.text();
 		const err = new Error(`Strava PUT ${path} failed: ${res.status} ${text}`);
 		err.status = res.status;
@@ -305,8 +315,10 @@ async function fetchStreams(id, token) {
 			if (Array.isArray(value?.data)) streams[key] = value.data;
 		}
 		return Object.keys(streams).length > 0 ? streams : null;
-	} catch {
-		// A run can legitimately have no streams (manual entry). Not fatal.
+	} catch (err) {
+		// A run can legitimately have no streams (manual entry). A 429 is not
+		// that — swallowing it would keep the rest of the batch asking.
+		if (err.status === 429) throw err;
 		return null;
 	}
 }
@@ -349,20 +361,16 @@ async function refreshNotes(records, token, today, deadline) {
 	return refreshed;
 }
 
+function persistCooldown() {
+	const until = cooldownExpiresAt();
+	return until > Date.now() ? new Date(until).toISOString() : null;
+}
+
 export default async function handler(req) {
 	// Netlify reuses warm instances, and a quota reading from a previous
 	// invocation describes a window that has almost certainly rolled over
 	// since. Start blind and let this run's first response say where we are.
 	quota = null;
-
-	let token;
-	try {
-		token = await getAccessToken();
-	} catch (err) {
-		if (err.code === "not_configured") return jsonResponse({ error: "not_configured" }, 503);
-		console.error(err);
-		return jsonResponse({ error: "auth_failed" }, 502);
-	}
 
 	const store = getTrainingStore();
 	const [existing, cursor] = await Promise.all([
@@ -377,6 +385,44 @@ export default async function handler(req) {
 	// with the Strava work below, which is allowed to spend twenty seconds,
 	// and there's no reason three quick requests should queue behind it.
 	const recoveryWork = syncRecovery(store, todayKey());
+
+	const stoodDown = async () =>
+		jsonResponse({
+			ok: true,
+			scanned: 0,
+			runs: 0,
+			synced: 0,
+			notesRefreshed: 0,
+			notesFresh: false,
+			captioned: 0,
+			captionUrlRejected: false,
+			stored: (existing || []).length,
+			missing: cursor?.missing ?? 0,
+			stale: cursor?.stale ?? 0,
+			shapeVersion: SHAPE_VERSION,
+			rescan: false,
+			rateLimited: true,
+			quotaPaused: false,
+			timedOut: false,
+			recovery: await recoveryWork,
+		});
+
+	// A 429 still counts against the daily quota, so retrying every five
+	// minutes after a blowout is what keeps every function 429ing until
+	// midnight UTC. The cursor timestamp survives a cold start; skip Strava
+	// entirely until it expires (Oura is a different API and still runs).
+	if (Date.parse(cursor?.rateLimitedUntil || "") > Date.now()) {
+		return stoodDown();
+	}
+
+	let token;
+	try {
+		token = await getAccessToken();
+	} catch (err) {
+		if (err.code === "not_configured") return jsonResponse({ error: "not_configured" }, 503);
+		console.error(err);
+		return jsonResponse({ error: "auth_failed" }, 502);
+	}
 
 	// The listing's job is finding activities we have never seen. That's all,
 	// and it matters that it's all: paging back through the block costs three
@@ -404,6 +450,14 @@ export default async function handler(req) {
 		summaries = await fetchActivitiesSince(token, after);
 	} catch (err) {
 		console.error("Strava activity list failed", err);
+		if (err.status === 429) {
+			await writeJson(store, CURSOR_KEY, {
+				...cursor,
+				lastRunAt: new Date().toISOString(),
+				rateLimitedUntil: persistCooldown(),
+			});
+			return stoodDown();
+		}
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
 
@@ -465,7 +519,7 @@ export default async function handler(req) {
 	const zones = (storedZones && !full ? null : await fetchAthleteZones(token)) || storedZones;
 
 	const deadline = Date.now() + WORK_DEADLINE_MS;
-	let rateLimited = false;
+	let rateLimited = isCoolingDown();
 	let timedOut = false;
 	let quotaPaused = false;
 	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (item) => {
@@ -629,6 +683,7 @@ export default async function handler(req) {
 			missing,
 			stale,
 			stored: merged.length,
+			rateLimitedUntil: persistCooldown(),
 		}),
 	]);
 
@@ -648,7 +703,7 @@ export default async function handler(req) {
 		stale,
 		shapeVersion: SHAPE_VERSION,
 		rescan,
-		rateLimited,
+		rateLimited: rateLimited || isCoolingDown(),
 		quotaPaused,
 		timedOut,
 		recovery: await recoveryWork,

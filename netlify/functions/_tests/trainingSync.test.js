@@ -59,7 +59,13 @@ function detailFor(summary) {
 // `listing` overrides what /athlete/activities returns without changing what
 // the detail endpoint will serve, which is how a re-shape looks from here: the
 // runs are all stored, nothing is new, and the listing has nothing to say.
-function mockStrava({ activities = [], listing = null, quota = null, failStreams = false } = {}) {
+function mockStrava({
+	activities = [],
+	listing = null,
+	listingStatus = 200,
+	quota = null,
+	failStreams = false,
+} = {}) {
 	const calls = [];
 	const puts = [];
 	globalThis.fetch = vi.fn(async (url, init = {}) => {
@@ -76,6 +82,7 @@ function mockStrava({ activities = [], listing = null, quota = null, failStreams
 			return reply({ access_token: "tok", expires_at: Math.floor(Date.now() / 1000) + 3600 });
 		}
 		if (target.includes("/athlete/activities")) {
+			if (listingStatus === 429) return reply({ message: "rate limited" }, 429);
 			const page = Number(new URL(target).searchParams.get("page"));
 			return reply(page === 1 ? (listing ?? activities) : []);
 		}
@@ -320,6 +327,41 @@ describe("trainingSync", () => {
 		expect(res.status).toBe(503);
 		expect(body.error).toBe("not_configured");
 		expect(store.setJSON).not.toHaveBeenCalled();
+	});
+
+	it("caches a listing 429 and does not ask Strava again until it expires", async () => {
+		mockStrava({
+			activities: summaries(1),
+			listingStatus: 429,
+			quota: { limit: "100,1000", usage: "1000,1000" },
+		});
+		const first = await sync();
+
+		expect(first.body.rateLimited).toBe(true);
+		expect(first.body.ok).toBe(true);
+		expect(cursor().rateLimitedUntil).toEqual(expect.any(String));
+		expect(Date.parse(cursor().rateLimitedUntil)).toBeGreaterThan(Date.now());
+
+		const calls = mockStrava({ activities: summaries(1) });
+		const second = await sync();
+
+		expect(second.body.rateLimited).toBe(true);
+		expect(calls.some((c) => c.includes("/athlete/activities"))).toBe(false);
+		expect(calls.some((c) => c.includes("/oauth/token"))).toBe(false);
+	});
+
+	it("lists again once the cached 429 cooldown has passed", async () => {
+		blobs.set("cursor.json", {
+			rateLimitedUntil: new Date(Date.now() - 1000).toISOString(),
+		});
+
+		const calls = mockStrava({ activities: summaries(1) });
+		const { body } = await sync();
+
+		expect(body.rateLimited).toBeFalsy();
+		expect(body.ok).toBe(true);
+		expect(body.synced).toBe(1);
+		expect(calls.some((c) => c.includes("/athlete/activities"))).toBe(true);
 	});
 
 	it("leaves the stored history alone when Strava can't be listed", async () => {

@@ -13,7 +13,7 @@
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
-import { STRAVA_API_BASE, getAccessToken } from "./_shared/strava.js";
+import { STRAVA_API_BASE, getAccessToken, isCoolingDown, noteRateLimit, rateLimitCacheHeaders } from "./_shared/strava.js";
 import { mostRecentGearId, shapeGear } from "./_shared/stravaGear.js";
 
 const ATHLETE_ID = 92118908;
@@ -54,8 +54,12 @@ async function fetchProfile(token) {
 
 	if (!activitiesRes.ok || !statsRes.ok) {
 		console.error("Strava profile failed:", activitiesRes.status, statsRes.status);
+		for (const res of [activitiesRes, statsRes]) {
+			if (res.status === 429) noteRateLimit(res.headers);
+		}
 		const e = new Error("strava_failed");
 		e.code = "strava_failed";
+		e.status = activitiesRes.status === 429 || statsRes.status === 429 ? 429 : 502;
 		throw e;
 	}
 
@@ -78,6 +82,10 @@ async function fetchProfile(token) {
 }
 
 export default async function handler() {
+	if (isCoolingDown()) {
+		return jsonResponse({ error: "strava_failed" }, 429, rateLimitCacheHeaders());
+	}
+
 	let token;
 	try {
 		token = await getAccessToken();
@@ -90,7 +98,10 @@ export default async function handler() {
 	try {
 		const payload = await memo("profile", () => fetchProfile(token));
 		return jsonResponse(payload);
-	} catch {
+	} catch (err) {
+		if (err.status === 429 || isCoolingDown()) {
+			return jsonResponse({ error: "strava_failed" }, 429, rateLimitCacheHeaders());
+		}
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
 }

@@ -11,7 +11,7 @@
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
-import { STRAVA_API_BASE, getAccessToken } from "./_shared/strava.js";
+import { STRAVA_API_BASE, getAccessToken, isCoolingDown, noteRateLimit, rateLimitCacheHeaders } from "./_shared/strava.js";
 
 // All callers use the same URL (`?limit=30`), so there's only one cache key —
 // Netlify Edge's stale-while-revalidate can't collapse cross-query variants
@@ -47,8 +47,10 @@ async function fetchFeed(token) {
 	if (!res.ok) {
 		const text = await res.text();
 		console.error("Strava activities failed:", res.status, text);
+		if (res.status === 429) noteRateLimit(res.headers);
 		const e = new Error("strava_failed");
 		e.code = "strava_failed";
+		e.status = res.status;
 		throw e;
 	}
 
@@ -77,6 +79,10 @@ export default async function handler(req) {
 		HARD_MAX,
 	);
 
+	if (isCoolingDown()) {
+		return jsonResponse({ error: "strava_failed" }, 429, rateLimitCacheHeaders());
+	}
+
 	let token;
 	try {
 		token = await getAccessToken();
@@ -89,7 +95,10 @@ export default async function handler(req) {
 	let all;
 	try {
 		all = await memo("feed", () => fetchFeed(token));
-	} catch {
+	} catch (err) {
+		if (err.status === 429 || isCoolingDown()) {
+			return jsonResponse({ error: "strava_failed" }, 429, rateLimitCacheHeaders());
+		}
 		return jsonResponse({ error: "strava_failed" }, 502);
 	}
 	return jsonResponse({ activities: all.slice(0, limit) });
