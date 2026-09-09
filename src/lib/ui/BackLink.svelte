@@ -1,30 +1,29 @@
 <!--
-    Shared "back to homepage" link for SPA routes (/gallery, /toronto,
-    /dashboard). Desktop: a small uppercase "<- back" label pinned top-left.
+    Shared back control for SPA routes (/gallery, /toronto, /dashboard,
+    /training). Desktop: a small uppercase "<- back" label pinned top-left.
     Mobile (<=1100px): collapses to a frosted circular arrow button so it reads
     consistently with the gallery action buttons.
 
-    By default a click prefers history.back() when the visitor arrived from the
-    same origin (returning them where they came from), otherwise it follows
-    href. Pass historyBack={false} to always navigate to href.
+    Clicks history.back() when this tab has a previous entry — including
+    in-SPA pushState navigations, which never set document.referrer. Direct
+    landings (nothing to go back to) follow href. Pass historyBack={false}
+    to always navigate to href.
 -->
 <script>
+	import { shouldHistoryBack } from './back.js';
+
 	let { href = '/', label = 'back', historyBack = true } = $props();
 
 	function onClick(e) {
 		if (!historyBack) return;
-		try {
-			const fromSameOrigin = document.referrer &&
-				new URL(document.referrer).origin === window.location.origin;
-			if (fromSameOrigin && window.history.length > 1) {
-				e.preventDefault();
-				window.history.back();
-			}
-		} catch { /* fall through to href */ }
+		if (shouldHistoryBack({ historyLength: window.history.length })) {
+			e.preventDefault();
+			window.history.back();
+		}
 	}
 </script>
 
-<a class="home-link" {href} onclick={onClick} aria-label="Back to homepage">
+<a class="home-link" {href} onclick={onClick} aria-label="Go back">
 	<span class="home-link-text">&larr; {label}</span>
 	<svg class="home-link-arrow" viewBox="0 0 16 16" aria-hidden="true">
 		<path d="M12.5 8 H3.5 M6.5 5 L3.5 8 L6.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
