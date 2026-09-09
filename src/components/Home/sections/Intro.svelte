@@ -161,7 +161,7 @@
             icon: 'running',
             modal: {
                 image: 'run',
-                description: 'Running the 2025 <a href="https://www.torontowaterfrontmarathon.com/" rel="noreferrer" target="_blank">Toronto Waterfront Half Marathon</a><br><br>(Currently <a href="/training">training</a> for the 2026 Chicago Marathon).',
+                description: 'Running the 2025 <a href="https://www.torontowaterfrontmarathon.com/" rel="noreferrer" target="_blank">Toronto Waterfront Half Marathon</a><br>(Currently <a href="/training">training</a> for the 2026 Chicago Marathon).',
                 strava: 'run'
             }
         },
