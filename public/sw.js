@@ -1,6 +1,6 @@
 // MaxEisen.me service worker
 // Bump SHELL_VERSION to force clients to refresh the precache.
-const SHELL_VERSION = "v12";
+const SHELL_VERSION = "v13";
 const SHELL_CACHE = `maxeisen-shell-${SHELL_VERSION}`;
 const RUNTIME_CACHE = `maxeisen-runtime-${SHELL_VERSION}`;
 
@@ -80,6 +80,10 @@ self.addEventListener("fetch", (event) => {
 		return;
 	}
 
+	// Static CSS is already HTTP-cached. Intercepting it turned cancelled
+	// prefetches into a 503 "Offline" response in the Network tab.
+	if (url.pathname.startsWith("/styles/")) return;
+
 	// Don't intercept the Vite build output (/build/*.js|css) at all. The
 	// browser's HTTP cache already does the right thing: hashed chunks ship
 	// with immutable Cache-Control headers, and the stable-named bundle.js is
@@ -94,8 +98,8 @@ self.addEventListener("fetch", (event) => {
 	// caching them in the SW runtime store bloats storage with little benefit.
 	if (url.pathname.startsWith("/img/")) return;
 
-	// Everything else same-origin (HTML navigations, manifest, fonts, icons,
-	// static /styles) is network-first with a cache fallback for offline.
+	// Everything else same-origin (HTML navigations, manifest, fonts, icons)
+	// is network-first with a cache fallback for offline.
 	if (url.origin === self.location.origin) {
 		event.respondWith(networkFirst(req));
 	}
@@ -107,7 +111,8 @@ async function networkFirst(req) {
 		const fresh = await fetch(req);
 		if (fresh.ok) cache.put(req, fresh.clone());
 		return fresh;
-	} catch {
+	} catch (err) {
+		if (req.signal?.aborted) throw err;
 		const cached = (await cache.match(req)) || (await caches.match(req));
 		if (cached) return cached;
 		// As an offline fallback, return the cached homepage shell.
