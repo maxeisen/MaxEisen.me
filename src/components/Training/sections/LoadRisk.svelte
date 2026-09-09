@@ -1,12 +1,6 @@
-<!--
-    Injury-risk panel: acute-to-chronic workload ratio and this week's ramp.
-
-    The gauge marks the 0.8-1.5 corridor. Sitting inside it means load is
-    growing at a rate the body is keeping up with; drifting above is the
-    strongest early warning available from training data alone.
--->
+<!-- Acute-to-chronic workload ratio and this week's ramp. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { gaugePosition } from "../lib/chart.js";
     import { pct } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";

@@ -1,16 +1,5 @@
-// What every panel on /training actually means, in plain language.
-//
-// The dashboard is built out of sports-science vocabulary — CTL, ACWR, TRIMP,
-// decoupling, VDOT, GAP — and a number you can't interpret is worse than no
-// number, because it still looks like it's telling you something. Each entry
-// here backs the "i" button on one card: a couple of sentences on what the
-// panel is for, then definitions for the specific terms on it.
-//
-// Written for the athlete reading their own dashboard, not for a textbook:
-// what the number is, what a good value looks like, and what to do when it
-// isn't. Thresholds quoted here are the ones the engine actually uses (see
-// netlify/functions/_shared/training/), so this file and the maths can't drift
-// into saying different things.
+// Copy behind each panel's "i" button. Thresholds quoted here are the ones
+// the engine actually uses (netlify/functions/_shared/training/).
 
 export const GLOSSARY = {
 	today: {

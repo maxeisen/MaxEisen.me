@@ -1,7 +1,4 @@
-<!--
-    Race countdown and the headline numbers: how long is left, what shape the
-    training is in, and whether current fitness projects to the goal.
--->
+<!-- Race countdown and the headline numbers. -->
 <script>
     import { clock, km, pace, signed, signedClock } from "../lib/format.js";
 

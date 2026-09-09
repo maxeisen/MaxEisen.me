@@ -1,21 +1,8 @@
-// Minimal SVG chart primitives.
-//
-// The site has no charting library and builds its visuals by hand (the GitHub
-// contribution heatmap, the weather sun arc, Strava route previews), so these
-// follow suit rather than pulling in a dependency for four chart types. They
-// return path strings and scaled coordinates; the components own the markup and
-// the styling, which keeps everything themeable through the CSS custom
-// properties instead of a JS colour config.
-//
-// All charts draw into a fixed viewBox and scale with the container, so there
-// are no resize observers and nothing to recompute on layout change.
+// Minimal SVG chart primitives. Return path strings and scaled coordinates;
+// components own the markup so everything stays themeable through CSS.
 
 /**
  * Build a linear scale from a data domain to a pixel range.
- *
- * @param {[number, number]} domain
- * @param {[number, number]} range
- * @returns {(value: number) => number}
  */
 export function scaleLinear(domain, range) {
 	const [d0, d1] = domain;
@@ -28,17 +15,9 @@ export function scaleLinear(domain, range) {
 }
 
 /**
- * Extent for an axis, padded slightly.
- *
- * Anchored to zero by default, because for volume and load a bar's height
- * should be proportional to its value. Pass `includeZero: false` for series
- * that live in a narrow band well above zero — efficiency factor sits around
- * 1.3, so anchoring would compress a whole block's progress into a flat line
- * across the top of the chart.
- *
- * @param {number[]} values
- * @param {{includeZero?: boolean}} [options]
- * @returns {[number, number]}
+ * Extent for an axis, padded slightly. Anchored to zero by default so a
+ * bar's height is proportional to its value. Pass `includeZero: false` for
+ * series that live in a narrow band well above zero (efficiency factor).
  */
 export function extent(values, { includeZero = true } = {}) {
 	const usable = (values || []).filter((v) => Number.isFinite(v));
@@ -52,9 +31,6 @@ export function extent(values, { includeZero = true } = {}) {
 
 /**
  * A polyline path through scaled points.
- *
- * @param {{x: number, y: number}[]} points already in pixel space.
- * @returns {string}
  */
 export function linePath(points) {
 	if (!points || points.length === 0) return "";
@@ -63,27 +39,27 @@ export function linePath(points) {
 		.join(" ");
 }
 
+/** Split a series on nulls so a gap in the recording is a hole, not a line across it. */
+export function contiguous(points) {
+	const out = [];
+	let current = [];
+	for (const point of points || []) {
+		if (point) current.push(point);
+		else if (current.length > 1) { out.push(current); current = []; }
+		else current = [];
+	}
+	if (current.length > 1) out.push(current);
+	return out;
+}
+
 const coord = (n) => n.toFixed(2);
 
 /**
  * A smooth path through points, by monotone cubic interpolation.
  *
- * The straight segments between daily samples are already an interpolation —
- * nothing was measured between Tuesday and Wednesday — so a curve is no less
- * truthful than a polyline, and considerably easier to read on a series that
- * genuinely sawtooths. Fatigue is a 7-day average of an athlete who runs every
- * second day, so it swings ~40% around its own mean by construction, and drawn
- * with hard corners that arithmetic reads as instrument noise.
- *
- * Monotone rather than a plain spline, and that distinction is the whole point.
- * Catmull-Rom or a naive Bézier overshoots at a reversal: it invents a peak
- * higher than any day recorded, which on a chart of someone's training is a
- * fitness they never had. Fritsch-Carlson flattens the tangent at every local
- * extreme, so the curve is guaranteed to stay within the values it connects.
- *
- * @param {{x: number, y: number}[]} points already in pixel space, ascending
- *   in x.
- * @returns {string}
+ * Catmull-Rom overshoots at a reversal and would invent a peak higher than
+ * any day recorded. Fritsch-Carlson flattens the tangent at every local
+ * extreme so the curve stays within the values it connects.
  */
 export function smoothPath(points) {
 	const list = points || [];
@@ -137,10 +113,6 @@ export function smoothPath(points) {
 
 /**
  * A closed area path from a line down to a baseline.
- *
- * @param {{x: number, y: number}[]} points
- * @param {number} baselineY
- * @returns {string}
  */
 export function areaPath(points, baselineY, { smooth = false } = {}) {
 	if (!points || points.length === 0) return "";
@@ -152,14 +124,6 @@ export function areaPath(points, baselineY, { smooth = false } = {}) {
 
 /**
  * Lay out evenly spaced bars across a width.
- *
- * @param {number[]} values
- * @param {object} options
- * @param {number} options.width
- * @param {number} options.height
- * @param {number} [options.max] domain ceiling; defaults to the data max.
- * @param {number} [options.gap] fraction of each slot left as spacing.
- * @returns {{x: number, y: number, width: number, height: number, value: number}[]}
  */
 export function bars(values, { width, height, max, gap = 0.25 }) {
 	const list = values || [];
@@ -183,13 +147,6 @@ export function bars(values, { width, height, max, gap = 0.25 }) {
 
 /**
  * Map a series to pixel points across a chart box.
- *
- * @param {number[]} values
- * @param {object} options
- * @param {number} options.width
- * @param {number} options.height
- * @param {[number, number]} [options.domain]
- * @returns {{x: number, y: number, value: number}[]}
  */
 export function seriesPoints(values, { width, height, domain }) {
 	const list = (values || []).map((v) => (Number.isFinite(v) ? v : 0));
@@ -199,65 +156,33 @@ export function seriesPoints(values, { width, height, domain }) {
 	return list.map((value, i) => ({ x: i * step, y: y(value), value }));
 }
 
-// ChartFrame places its cursor, dots and axis labels in percentages of the
-// plot box, because they're HTML sitting over an SVG that stretches. These
-// convert once from a chart's own viewBox so that arithmetic doesn't get
-// repeated, slightly differently, in every chart that wants a cursor.
+// ChartFrame places cursor, dots and axis labels in percentages of the
+// plot box (HTML over an SVG that stretches). These convert once from a
+// chart's own viewBox.
 
-/**
- * Horizontal position as a percentage from the left of the plot.
- *
- * @param {number} x in viewBox units.
- * @param {number} width of the viewBox.
- * @returns {number}
- */
+/** Horizontal position as a percentage from the left of the plot. */
 export function xPct(x, width) {
 	return width > 0 ? (x / width) * 100 : 0;
 }
 
-/**
- * Vertical position as a percentage from the *bottom* of the plot, which is
- * where CSS wants it and the opposite of where SVG counts from.
- *
- * @param {number} y in viewBox units, measured from the top.
- * @param {number} height of the viewBox.
- * @returns {number}
- */
+/** Vertical position as a percentage from the bottom of the plot (CSS, not SVG). */
 export function yPct(y, height) {
 	return height > 0 ? (1 - y / height) * 100 : 0;
 }
 
-/**
- * Position for a marker on a horizontal gauge, clamped to the track.
- *
- * @param {number} value
- * @param {[number, number]} domain
- * @param {number} width
- * @returns {number}
- */
+/** Position for a marker on a horizontal gauge, clamped to the track. */
 export function gaugePosition(value, domain, width) {
 	const x = scaleLinear(domain, [0, width])(value);
 	return Math.max(0, Math.min(width, x));
 }
 
-// How much history every chart on the page shows. One window across all of
-// them is what makes them comparable: a volume chart running to race day
-// beside a fitness chart running to today invites you to read a shape into
-// two different x-axes. Twelve weeks is long enough to see a block develop
-// and short enough that a single week is still a distinguishable bar.
+// Shared x-window so every chart on the page is comparable.
 export const CHART_WEEKS = 12;
 export const CHART_DAYS = CHART_WEEKS * 7;
 // efficiencyTrend.CHANGE_WINDOW_DAYS in the engine must stay equal to this,
 // so the aerobic-efficiency headline describes the same twelve weeks.
 
-/**
- * Trailing slice of a date-keyed series, ending at `today`.
- *
- * @param {{date: string}[]} points ascending by date.
- * @param {string} today day key.
- * @param {number} [days]
- * @returns {object[]}
- */
+/** Trailing slice of a date-keyed series, ending at `today`. */
 export function withinWindow(points, today, days = CHART_DAYS) {
 	if (!today) return (points || []).slice(-days);
 	const cutoff = new Date(`${today}T00:00:00Z`).getTime() - days * 86_400_000;
@@ -286,18 +211,8 @@ function niceNum(range, round) {
 
 /**
  * An axis: the domain rounded outwards to round numbers, and the tick values
- * inside it.
- *
- * @param {[number, number]} extent data min and max.
- * @param {number} [count] rough number of intervals wanted.
- * @param {object} [options]
- * @param {number[]} [options.steps] ascending step sizes to choose from,
- *   instead of the decimal 1/2/5 ladder. Round numbers are base ten only
- *   because we count in it: an axis in seconds wants halves and quarters of a
- *   minute, and left to itself this lands on a 100-second step, which puts
- *   gridlines at 1:40 and 3:20 and rounds a run's range out to nearly twice
- *   its size to reach them.
- * @returns {{min: number, max: number, step: number, ticks: number[]}}
+ * inside it. Pass `steps` for a non-decimal ladder (pace in seconds wants
+ * halves of a minute, not a 100-second step).
  */
 export function niceScale([min, max], count = 4, { steps = null } = {}) {
 	let lo = Number.isFinite(min) ? min : 0;
@@ -326,14 +241,7 @@ export function niceScale([min, max], count = 4, { steps = null } = {}) {
 	return { min: niceMin, max: niceMax, step, ticks, decimals };
 }
 
-/**
- * Turn tick values into the positions and labels an axis renders.
- *
- * @param {{min: number, max: number, ticks: number[]}} scale
- * @param {(value: number) => string} [format]
- * @returns {{value: number, label: string, pct: number}[]} pct measured from
- *   the bottom of the plot.
- */
+/** Tick values as positions and labels. pct is from the bottom of the plot. */
 export function axisTicks(scale, format = (v) => String(v)) {
 	if (!scale || !(scale.max > scale.min)) return [];
 	return scale.ticks.map((value) => ({

@@ -1,19 +1,6 @@
-<!--
-    Aerobic efficiency over the last twelve weeks.
-
-    Efficiency factor is how much grade-adjusted pace you get per heartbeat, so
-    a line that climbs means the same effort is buying more speed — the clearest
-    read on whether base fitness is genuinely improving, rather than whether last
-    week happened to be cool and flat. The headline percentage uses that same
-    window, and the line is a 14-day average of the runs in it.
-
-    Only aerobic runs are plotted (the engine drops anything at or above zone 4),
-    because EF rises with intensity by construction and leaving intervals in
-    would draw the week's workout schedule instead of a trend. Tempo still
-    counts: it is below lactate threshold.
--->
+<!-- Aerobic efficiency over the last twelve weeks. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { axisTicks, CHART_WEEKS, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate } from "../lib/format.js";

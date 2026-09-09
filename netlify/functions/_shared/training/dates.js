@@ -1,12 +1,8 @@
 // Calendar helpers for the training engine.
 //
-// Everything works on plain `YYYY-MM-DD` strings parsed as UTC. Using real
-// local Date arithmetic would make day counts wrong twice a year: adding 24
-// hours across a DST boundary lands on the same calendar day or skips one, and
-// a training block spanning March or November would quietly gain or lose a day
-// in every rolling average. Since a run's calendar day is already decided by
-// the time we get here (Strava hands us a local start date), the arithmetic
-// only needs to be a stable day counter.
+// Everything works on plain `YYYY-MM-DD` strings parsed as UTC. Local Date
+// arithmetic is wrong twice a year: adding 24 hours across a DST boundary
+// lands on the same calendar day or skips one.
 
 const DAY_MS = 86_400_000;
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -58,11 +54,8 @@ export function daysBetween(a, b) {
 }
 
 /**
- * The Monday on or before a day. Training weeks run Monday to Sunday so a
- * Sunday long run closes the week it belongs to rather than opening the next.
- *
- * @param {string} dayKey
- * @returns {string|null}
+ * The Monday on or before a day. Weeks run Monday–Sunday so a Sunday long
+ * run closes the week it belongs to rather than opening the next.
  */
 export function mondayOf(dayKey) {
 	const ms = toUtcMs(dayKey);

@@ -1,27 +1,6 @@
-<!--
-    The block's activity, newest first, with every run matched against the plan.
-
-    "Recent runs" was the wrong name twice over: the list is scoped to the
-    training block, and it says nothing about whether a run was the session the
-    plan asked for. The match comes from the payload (see plan.js's
-    matchRunsToPlan), so a run on a day with a planned session shows that
-    session, and everything else is marked as an extra.
-
-    Raw pace and GAP sit side by side so the elevation adjustment is visible
-    rather than hidden inside one blended number — on a hilly run they diverge
-    a lot, and that difference is the point.
-
-    Rides appear as context and nothing more: they're the reason a week was
-    quiet, not part of it. Strength sessions from Strava are listed the same
-    way — on the plan, but they do not feed volume, fitness or the projection.
-    Every metric on the page ignores both (see metrics.js).
-
-    No route maps here: the payload deliberately carries no coordinates (see
-    netlify/functions/_shared/training/shape.js), so each row links out to the
-    activity on Strava for anyone who wants the map.
--->
+<!-- Recent activity, newest first, matched against the plan. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { formatDistance, formatDuration, pace, shortDate, speed, timeTaken } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag } from "../lib/runTags.js";

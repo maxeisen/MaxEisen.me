@@ -1,20 +1,14 @@
-<!--
-    This week against its plan, plus what's coming.
-
-    Progress is shown against the target without judgement mid-week — being at
-    40% on a Wednesday is on pace, not behind, so the bar is informational and
-    the recommendation engine is what decides whether a shortfall matters.
--->
+<!-- This week against its plan, plus what's coming. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { pct, weekday, weekRange } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
-    let { currentWeek = null, week = null, upcoming = [] } = $props();
+    let { week = null, upcoming = [] } = $props();
 
     const progress = $derived(
-        currentWeek?.targetKm > 0
-            ? Math.min(100, (currentWeek.actualKm / currentWeek.targetKm) * 100)
+        week?.targetKm > 0
+            ? Math.min(100, (week.actualKm / week.targetKm) * 100)
             : null,
     );
 
@@ -40,25 +34,25 @@
 
 <Card title="This week" info={GLOSSARY.week}>
     {#snippet aside()}
-        {#if currentWeek?.start}
-            <span class="range">{weekRange(currentWeek.start)}</span>
+        {#if week?.start}
+            <span class="range">{weekRange(week.start)}</span>
         {/if}
     {/snippet}
 
-    {#if !currentWeek}
+    {#if !week}
         <p class="card-empty">No runs logged this week yet.</p>
     {:else}
         <div class="metric">
             <div class="metric-head">
                 <span>Volume</span>
                 <strong>
-                    {currentWeek.actualKm.toFixed(1)} km
-                    {#if currentWeek.targetKm}<span class="target">of {currentWeek.targetKm}</span>{/if}
+                    {(week.actualKm || 0).toFixed(1)} km
+                    {#if week.targetKm}<span class="target">of {week.targetKm}</span>{/if}
                 </strong>
             </div>
             {#if progress !== null}
                 <div class="track"><div class="fill" style="width: {progress}%"></div></div>
-            {:else if currentWeek.isPlanned}
+            {:else if week.isPlanned}
                 <p class="no-plan">A scheduled down week — no running planned.</p>
             {:else}
                 <p class="no-plan">No target set for this week.</p>
@@ -115,9 +109,9 @@
                     </li>
                 {/each}
             </ol>
-        {:else if currentWeek.keySessions?.length}
+        {:else if week.keySessions?.length}
             <ul class="key">
-                {#each currentWeek.keySessions as session}
+                {#each week.keySessions as session}
                     <li>
                         <span class="key-type">{session.type || "key"}</span>
                         {session.detail || ""}
@@ -127,9 +121,9 @@
         {/if}
 
         <dl class="mini">
-            <div><dt>Runs</dt><dd>{currentWeek.runs}</dd></div>
-            <div><dt>Load</dt><dd>{Math.round(currentWeek.load)}</dd></div>
-            <div><dt>Of target</dt><dd>{pct(currentWeek.volumePct)}</dd></div>
+            <div><dt>Runs</dt><dd>{week.runs}</dd></div>
+            <div><dt>Load</dt><dd>{Math.round(week.load)}</dd></div>
+            <div><dt>Of target</dt><dd>{pct(week.volumePct)}</dd></div>
         </dl>
     {/if}
 
