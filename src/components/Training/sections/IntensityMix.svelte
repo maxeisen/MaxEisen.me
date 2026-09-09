@@ -1,12 +1,6 @@
-<!--
-    Easy / moderate / hard distribution over the last four weeks.
-
-    The target is roughly 80% easy. The band worth watching is the moderate
-    middle: time there is the classic way to accumulate fatigue without the
-    adaptation that either genuinely easy or genuinely hard running gives.
--->
+<!-- Easy / moderate / hard over the last four weeks. Target is ~80% easy. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { formatDuration, pct } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 

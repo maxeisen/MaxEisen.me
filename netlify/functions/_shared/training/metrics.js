@@ -48,19 +48,6 @@ function withinDays(activities, today, days) {
 	});
 }
 
-/**
- * The current week day by day, with each planned session alongside whatever was
- * actually run that day.
- *
- * This is the only place the plan and the log meet at day resolution, which is
- * what makes "did I do Wednesday's tempo?" answerable rather than leaving only
- * a weekly total that hides which session was skipped.
- *
- * @param {object} week a week from comparePlan().
- * @param {object[]} runs shaped activities.
- * @param {string} today day key.
- * @returns {object[]} seven days, Monday first.
- */
 function planDays(week, runs, today) {
 	if (!week?.start) return [];
 	const done = new Map();
@@ -90,6 +77,21 @@ function planDays(week, runs, today) {
 	});
 }
 
+/** Latest runs (plus rides/strength across the same span, as context only). */
+function recentLog(runs, context, planMatches) {
+	const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
+	const logged = runs
+		.slice(from)
+		.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }));
+	const earliest = toDayKey(logged[0]?.startDateLocal);
+	const alongside = earliest
+		? context.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)
+		: [];
+	return [...logged, ...alongside]
+		.sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)))
+		.reverse();
+}
+
 /**
  * Build the dashboard payload.
  *
@@ -107,17 +109,11 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
 	);
 
-	// This is a running dashboard, and rides and gym sessions are separated
-	// here so that every number below it is a running number. They reach the
-	// log and nothing else: not volume, not fitness, not fatigue, not the
-	// acute:chronic ratio.
-	//
-	// Feeding fatigue alone was tried and reverted. It looks conservative and
-	// isn't: form is fitness minus fatigue, so raising one without the other
-	// pushes form permanently negative by roughly the daily ride load, forever,
-	// regardless of how recovered you are (see fitnessSeries). The alternative,
-	// letting rides earn fitness too, keeps form honest but then reads cycling
-	// as marathon fitness — which is the one thing this page must not do.
+	// Rides and gym sessions reach the log and nothing else. Feeding them
+	// into fatigue alone was tried and reverted: form is fitness minus
+	// fatigue, so raising one without the other pushes form permanently
+	// negative. Letting them earn fitness too would read cycling as
+	// marathon fitness.
 	const runs = sorted.filter(isRunActivity);
 	const context = sorted.filter((a) => !isRunActivity(a));
 
@@ -328,59 +324,24 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	});
 
 	return {
-		// When this payload was computed, which is not when Strava was last
-		// read — that's sync.lastRunAt, and it's the one worth showing anyone.
-		// This one exists to tell a stale CDN copy from a fresh one, and it
-		// ticks forward on a rebuild that changed nothing.
 		generatedAt: new Date().toISOString(),
-		// The day key used to live here as a string. The briefing needs that
-		// date too, and the strip is what the page actually asks for, so the
-		// key moved inside: `today.date`.
 		today: briefing,
 		summary,
-		// Only the portion of the series that has happened; the tail to race
-		// day is empty by construction and would draw a slide to zero.
 		series: series.filter((d) => d.date <= day),
 		efficiency: { points: efficiency.points, trend: efficiency.trend },
-		// Null rather than an empty shell when the ring has nothing to say, so
-		// the panel can be absent instead of drawing a row of dashes.
 		recovery: recovered ? { ...recovered, response } : null,
 		weeks,
 		week: current
 			? {
-					start: current.start,
+					...current,
 					days,
-					// The week's anchor session, reported as a day rather than
-					// as a total that fills up alongside the volume bar.
 					longRun: weekLongRun(current, runs, day),
 				}
 			: null,
 		upcoming: upcomingWeeks(plan, day),
 		recommendations: advice,
-		// The freshest run, read against the athlete's own recent history —
-		// the one panel that's about a single session rather than a trend.
 		lastRun,
-		// The log carries its plan match so the page can say which runs were
-		// the plan and which were extra. The match comes from the plan file
-		// rather than from Strava, so it adds nothing to what publicRun()
-		// allows out.
-		runs: (() => {
-			const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
-			const logged = runs
-				.slice(from)
-				.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }));
-			// Rides join the log across the span it already covers rather than
-			// competing for its thirty places, and they arrive here having
-			// touched no metric on the page. Purely context: what else was in
-			// the week, for a reader wondering why a Sunday was quiet.
-			const earliest = toDayKey(logged[0]?.startDateLocal);
-			const alongside = earliest
-				? context.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)
-				: [];
-			return [...logged, ...alongside]
-				.sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)))
-				.reverse();
-		})(),
+		runs: recentLog(runs, context, planMatches),
 		thresholds,
 	};
 }

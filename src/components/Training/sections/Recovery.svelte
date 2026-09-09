@@ -1,19 +1,6 @@
-<!--
-    Sleep and overnight heart rate, from the Oura ring.
-
-    The one panel here fed by something other than training load, and it stays
-    beside the fitness model rather than inside it — nothing on this page moves
-    because of these numbers (see _shared/training/recovery.js for why that
-    separation is load-bearing). What it adds is the thing load genuinely can't
-    see: the same week of running is a different proposition on eight hours a
-    night than on six, and the recommendations read both together.
-
-    Every measure is a week against a month, the same acute-versus-chronic
-    shape the load panel uses, so "recent against established" means one thing
-    across the page.
--->
+<!-- Sleep and overnight heart rate from Oura. Sits beside the fitness model, never inside it. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { bars, xPct, yPct } from "../lib/chart.js";
     import { formatDuration, shortDate } from "../lib/format.js";

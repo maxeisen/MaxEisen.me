@@ -1,23 +1,9 @@
 <!--
-    Ranked training recommendations.
-
-    Every card shows the number that triggered it next to the threshold it
-    crossed. That's the point of the deterministic rule engine: advice you can
-    argue with, rather than advice you have to trust.
-
-    Severity has to survive a glance. Four levels separated only by the shade of
-    a 3px rule — which is what this was — is not a signal; "act now" and "on
-    track" have to differ in hue, in weight and in the words themselves, and the
-    icon carries it for anyone who doesn't see the hue at all.
-
-    Each card leads with its opening sentence and folds the rest away. The rules
-    are written to put the measurement first and the reasoning after it, so the
-    visible line is always the evidence — and a dozen cards of full reasoning
-    was a panel you scrolled past rather than read. The short ones, which are a
-    single sentence, get no expander at all.
+    Ranked training recommendations. Every card shows the number that
+    triggered it next to the threshold it crossed.
 -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { readout, splitLead } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -46,14 +32,7 @@
 
 </script>
 
-<!--
-    Outline marks on a 16-unit box rather than typographic glyphs: "✓", "!" and
-    "▲" are set on a text baseline at different heights and optical weights, so
-    no amount of line-height gets all four sitting square in the same badge.
-    Shape carries the severity as well as colour does — the triangle is the one
-    you look for — which is what makes the ranking readable without relying on
-    hue at all.
--->
+<!-- SVG marks rather than glyphs — "✓" / "!" sit on different baselines. -->
 {#snippet glyph(kind)}
     <svg class="rec-icon" viewBox="0 0 16 16" aria-hidden="true">
         {#if kind === "warn"}
@@ -188,11 +167,7 @@
         stroke: none;
     }
 
-    /* A native disclosure rather than a state flag and a click handler: it
-       comes with the button semantics, the keyboard behaviour and the
-       expanded/collapsed announcement already correct, and find-in-page can
-       still reach the text inside it. Only the marker is replaced, because
-       the default triangle is a different shape in every browser. */
+    /* Native <details>: keyboard, expanded/collapsed, and find-in-page. */
     details {
         margin-top: var(--space-3);
     }
@@ -217,8 +192,7 @@
         outline: 2px solid var(--tone);
         outline-offset: 3px;
     }
-    /* Half a square rotated into a chevron, so it points from the same box
-       whichever way it's turned — a glyph would shift on its baseline. */
+    /* Half a square rotated into a chevron. */
     summary::after {
         content: "";
         width: 0.4em;

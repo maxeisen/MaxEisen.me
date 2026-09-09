@@ -99,7 +99,7 @@ export function renderTrainingFallback(data = {}) {
 		renderToday(data.today),
 		renderLastRun(data.lastRun),
 		renderRecommendations(data.recommendations),
-		renderWeek(data.week, data.weeks, data.upcoming, data.today?.date),
+		renderWeek(data.week, data.upcoming),
 		renderLoad(data.summary),
 		renderIntensity(data.summary?.intensity),
 		renderPrediction(data.summary),
@@ -259,18 +259,13 @@ function dayStatus(day) {
 	return day.isPast ? "missed" : "ahead";
 }
 
-function renderWeek(week, weeks, upcoming, todayKey) {
-	const current = (weeks || []).find((w) => w.start === week?.start) || weeks?.find((w) => {
-		if (!todayKey || !w.start) return false;
-		return w.start <= todayKey && todayKey <= addSix(w.start);
-	}) || null;
-
-	if (!current && !week) {
+function renderWeek(week, upcoming) {
+	if (!week && !(upcoming || []).length) {
 		return section("This week", "<p>No runs logged this week yet.</p>");
 	}
 
-	const volume = current
-		? `<p>${Number(current.actualKm || 0).toFixed(1)} km${current.targetKm ? ` of ${current.targetKm}` : ""}${current.start ? `; ${t(weekRange(current.start))}` : ""}.</p>`
+	const volume = week
+		? `<p>${Number(week.actualKm || 0).toFixed(1)} km${week.targetKm ? ` of ${week.targetKm}` : ""}${week.start ? `; ${t(weekRange(week.start))}` : ""}.</p>`
 		: "";
 
 	const days = (week?.days || []).map((day) => {
@@ -290,12 +285,6 @@ function renderWeek(week, weeks, upcoming, todayKey) {
 	return section("This week", `${volume}
 ${days ? `<table><thead><tr><th>Day</th><th>Plan</th><th>km</th></tr></thead><tbody>${days}</tbody></table>` : ""}
 ${coming ? `<h3>Coming up</h3><table><thead><tr><th>Week</th><th>Target</th><th>Long run</th></tr></thead><tbody>${coming}</tbody></table>` : ""}`);
-}
-
-function addSix(weekStart) {
-	const start = new Date(`${weekStart}T12:00:00Z`);
-	start.setUTCDate(start.getUTCDate() + 6);
-	return start.toISOString().slice(0, 10);
 }
 
 function renderLoad(summary) {

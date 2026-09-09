@@ -1,17 +1,6 @@
-<!--
-    Fitness, fatigue and form over the block.
-
-    Fitness is the slow 42-day trace and fatigue the fast 7-day one; the gap
-    between them is form. Fatigue above fitness means you're in the work; the
-    lines crossing back the other way is what a taper is supposed to produce.
-
-    The series carries the whole run-up — months of it, deliberately, so the
-    42-day average is warm by the time the block starts — but only the same
-    trailing window as the other charts is drawn, so the three can be read
-    against each other.
--->
+<!-- Fitness, fatigue and form over the trailing window. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { areaPath, axisTicks, CHART_WEEKS, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate, signed } from "../lib/format.js";
@@ -142,13 +131,7 @@
         fill: var(--main-green);
         opacity: 0.12;
     }
-    /* Fatigue filled rather than left as a bare line. A 7-day average of an
-       athlete who runs every second day genuinely sawtooths, and there is no
-       honest way to remove that; what can be removed is its loudness. Given a
-       body, the same wobble reads as a range of hills instead of a bright red
-       zigzag, and the sentence this chart exists to show — fatigue standing
-       above fitness means you're in the work — becomes a thing you can see
-       rather than a comparison you have to make. */
+    /* Fill fatigue so the 7-day sawtooth reads as hills, not a zigzag. */
     .fatigue-fill {
         fill: var(--tone-bad);
         opacity: 0.14;
@@ -160,10 +143,7 @@
         stroke-linecap: round;
         vector-effect: non-scaling-stroke;
     }
-    /* A hierarchy rather than three equal lines. Fitness is the one the chart
-       is about and the only one that moves slowly enough to have a shape, so
-       it's drawn heaviest; fatigue and form both oscillate with every session
-       and, at matching weight, the eye reads the noise instead of the trend. */
+    /* Fitness is the slow line; fatigue and form oscillate with every session. */
     .line.fitness {
         stroke: var(--main-green);
         stroke-width: 2.25;

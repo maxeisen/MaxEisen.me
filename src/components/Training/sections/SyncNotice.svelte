@@ -1,17 +1,4 @@
-<!--
-    Says so when the numbers below aren't the whole story.
-
-    Only the scheduled sync writes the Strava history, and it fills the block in
-    batches, so there are two states where the dashboard renders perfectly well
-    while describing a block that didn't happen: before the first sync (every
-    metric zero) and during a backfill (a truncated history, which reads as a
-    much lower CTL than the athlete has). Both used to look exactly like a
-    finished page reporting bad training.
-
-    A run the sync means to re-shape is deliberately not one of them, and the
-    payload doesn't count it — the history is whole and a few of its numbers
-    are about to move. See syncState in trainingData.
--->
+<!-- Shown when the numbers below aren't the whole history yet. -->
 <script>
     let { sync = null, runCount = 0 } = $props();
 

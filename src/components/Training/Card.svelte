@@ -1,38 +1,17 @@
 <!--
-    The site's panel surface, as a component.
+    Training panel shell. Same surface recipe as a /dashboard `.widget`, plus
+    a title, optional aside, and an in-flow "i" disclosure (a popover on a
+    phone would have to be flipped and clamped; this cannot leave the card).
 
-    Same recipe as the /dashboard widget shell (`.widget` in Dashboard.svelte):
-    translucent inner background, hairline accent border, generous radius, and a
-    backdrop blur so the animated page gradient reads through it. That shell was
-    styling on a bare div, which is fine for a fixed grid of seven widgets but
-    not for a page whose sections each wanted a title, an aside and now an
-    explanation — /training had eight copies of the same header markup and CSS
-    before this existed.
-
-    Two surfaces, used consistently, are what make nesting legible: a Card is
-    --inner-background, and anything sitting INSIDE one (stat tiles, list rows,
-    recommendation cards) is --item-background. Reversing that, or using the
-    same token for both, is what makes a card inside a card disappear.
-
-    The `info` disclosure expands in flow rather than floating. A popover
-    anchored to a button two-thirds of the way across a phone screen has to be
-    flipped, clamped and re-measured to stay on screen; a panel that pushes the
-    card open cannot be off screen by construction, and reads the same on both.
+    Nested tiles use --item-background so they stay visible on the card's
+    --inner-background. Reversing those tokens makes a card-in-a-card vanish.
 -->
 <script>
 	let {
-		/** Section heading. Omit for a card that supplies its own header. */
 		title = null,
-		/** Heading level, so a card can sit under an <h1> or an <h2>. */
 		level = 2,
-		/**
-		 * Optional explanation, revealed by the "i" button beside the title:
-		 * `{ title, body: string[], terms?: [{ term, definition }] }`.
-		 */
 		info = null,
-		/** Extra class on the section, for per-card layout tweaks. */
 		className = "",
-		/** Right-hand side of the header — a legend, a count, a window label. */
 		aside = null,
 		children,
 	} = $props();
@@ -56,10 +35,8 @@
 						aria-label={open ? `Hide what ${title} means` : `What does ${title} mean?`}
 						onclick={() => (open = !open)}
 					>
-						<!-- Drawn rather than set: a lowercase "i" sits on its
-						     own baseline with a stem that doesn't fill the em
-						     box, so centring the glyph in a circle by line
-						     height always leaves it a pixel or two high. -->
+						<!-- SVG, not a glyph: a lowercase "i" never sits on
+						     the circle's true centre. -->
 						<svg viewBox="0 0 16 16" aria-hidden="true">
 							<circle cx="8" cy="4.6" r="1.15" />
 							<rect x="6.85" y="7.2" width="2.3" height="5.4" rx="1.15" />
@@ -129,13 +106,7 @@
 		min-width: 0;
 	}
 
-	/* Conventions for what sections put inside a card. Scoped to descendants
-	   rather than emitted globally, so they can't reach /dashboard's widgets,
-	   which are a different surface with their own empty state.
-
-	   `card-empty` was eight identical copies and `chart-unit` three before
-	   they lived here. A section that wants to differ styles its own class —
-	   these names are deliberately specific so nothing collides by accident. */
+	/* Shared inner-card conventions. Scoped so they cannot reach /dashboard. */
 	.card :global(.card-empty) {
 		font-size: var(--font-sm);
 		color: var(--paragraph-colour);
@@ -151,9 +122,7 @@
 		opacity: 0.5;
 	}
 
-	/* The pill that labels a run — the same one in the run log and on the
-	   last-run panel, which is why it isn't in either. Sizing is left to the
-	   caller: it inherits the font-size of the row it sits in. */
+	/* Run-log / last-run tag. Font-size is inherited from the row. */
 	.card :global(.tag) {
 		display: inline-block;
 		padding: 1px 6px;
@@ -163,7 +132,6 @@
 		font-weight: 600;
 		letter-spacing: 0.04em;
 	}
-	/* Ran what was asked for, versus ran something extra. */
 	.card :global(.tag.plan) {
 		background: var(--tone-good-bg);
 		color: var(--tone-good);

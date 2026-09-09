@@ -1,18 +1,6 @@
-<!--
-    Where today stands, right now.
-
-    Last run is about the most recent session, which may have been Tuesday.
-    The fitness series already files today even when you don't run. This strip
-    is the briefing that joins those: the FFF change from yesterday's close,
-    a readiness number that sits beside form without feeding it, today's
-    session if it's still ahead, and what today's session did to the
-    projected finish — not a second copy of the header time.
-
-    Pinned under the headlines, outside the rearrangeable grid, because a
-    briefing you can bury under Intensity Mix isn't a briefing.
--->
+<!-- Today's briefing: FFF change, readiness, session, projection delta. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { clock, signed, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 

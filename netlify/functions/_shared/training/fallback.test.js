@@ -76,6 +76,8 @@ function payload(overrides = {}) {
 		],
 		week: {
 			start: "2026-08-24",
+			actualKm: 8,
+			targetKm: 70,
 			days: [
 				{
 					date: "2026-08-24",

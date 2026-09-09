@@ -1,20 +1,6 @@
-<!--
-    Weekly volume against the plan.
-
-    Bars are what was actually run; the tick above each is the planned target,
-    where one has been entered. Weeks with no plan entry simply have no tick,
-    rather than reading as a target of zero. Both numbers are in the cursor's
-    readout, which replaces the per-bar <title> — a native tooltip and a drawn
-    one appearing over each other is worse than either alone.
-
-    The window stops at the current week rather than running on to race day.
-    Charting the weeks still to come stretched the axis across four months and
-    squeezed the training that has actually happened into the left half — and
-    what's planned ahead is already spelled out, week by week, further down the
-    page.
--->
+<!-- Weekly volume against the plan. Bars are what was run; ticks are targets. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { axisTicks, bars, CHART_WEEKS, niceScale, xPct, yPct } from "../lib/chart.js";
     import { axisDate, weekRange } from "../lib/format.js";

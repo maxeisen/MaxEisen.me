@@ -11,6 +11,7 @@ import {
 	axisTicks,
 	withinWindow,
 	smoothPath,
+	contiguous,
 	CHART_DAYS,
 } from "./chart.js";
 
@@ -69,6 +70,15 @@ describe("smoothPath", () => {
 			expect(curve.c1.y).toBeGreaterThanOrEqual(climbing[i].y);
 			expect(curve.c2.y).toBeLessThanOrEqual(climbing[i + 1].y);
 		}
+	});
+});
+
+describe("contiguous", () => {
+	it("splits a series on nulls so a gap is a hole, not a line across it", () => {
+		expect(contiguous([{ x: 0, y: 1 }, null, { x: 2, y: 3 }, { x: 3, y: 4 }])).toEqual([
+			[{ x: 2, y: 3 }, { x: 3, y: 4 }],
+		]);
+		expect(contiguous([])).toEqual([]);
 	});
 });
 

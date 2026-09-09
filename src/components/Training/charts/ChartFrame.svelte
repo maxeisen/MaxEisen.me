@@ -1,25 +1,9 @@
 <!--
     Axes, gridlines and a scrub cursor around a plot.
 
-    The charts here draw into a fixed viewBox and stretch to their container,
-    which is what keeps them free of resize observers — but it also means
-    anything drawn inside the SVG is scaled non-uniformly, so axis text can't
-    live there without being stretched. Both axes are therefore HTML, placed by
-    percentage: the y labels against the plot's height, the x labels against
-    its width, with the gridlines drawn in their own SVG layer at the same
-    fractions so the numbers and the lines can't disagree. The cursor and its
-    readout are HTML for the same reason.
-
-    The x labels are absolutely positioned inside a clipped track rather than
-    laid out in flow. In flow they can't shrink below their own text, and a row
-    of nowrap dates will happily make a card wider than a phone — which is
-    exactly what it did (see e2e/training.e2e.js).
-
-    Scrubbing is optional and lives here rather than in each chart, so that a
-    line chart, a bar chart and a scatter all answer a hover the same way. A
-    chart passes what its points mean — a label and some readouts, positioned
-    as percentages — and gets the cursor, the dots, the tooltip and the
-    keyboard handling for it.
+    Charts draw into a fixed viewBox and stretch, so axis text can't live in
+    the SVG without being stretched — both axes are HTML, placed by percentage.
+    X labels sit in a clipped track so a row of dates can't widen a phone card.
 -->
 <script>
 	let {

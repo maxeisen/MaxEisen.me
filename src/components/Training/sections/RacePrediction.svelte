@@ -1,13 +1,6 @@
-<!--
-    Projected finish against the goal.
-
-    Both models are shown rather than just the headline number: they disagree,
-    and by how much is informative. The headline takes the slower of the two,
-    since both assume the endurance work has been done and therefore flatter a
-    marathon projection made from a shorter effort.
--->
+<!-- Projected finish against the goal. Headline takes the slower of the two models. -->
 <script>
-    import Card from "../../../lib/ui/Card.svelte";
+    import Card from "../Card.svelte";
     import { clock, km, pace, shortDate, signedClock } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
