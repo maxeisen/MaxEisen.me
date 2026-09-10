@@ -34,7 +34,7 @@
     "openai": "^6.41.0",
     "qrcode": "^1.5.4",
     "query-string": "^9.5.0",
-    "sharp": "^0.35.0",
+    "sharp": "^0.35.4",
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.4"
   },
