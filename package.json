@@ -23,7 +23,7 @@
     "netlify-cli": "27.1.2",
     "svelte": "^5.56.5",
     "vite": "^8.1.4",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.13",
