@@ -71,11 +71,15 @@
     onMount(async () => {
         document.body.classList.add("toronto-page");
 
-        const [libMod, pinsRes] = await Promise.all([
-            import("maplibre-gl").then((m) => m.default),
+        // v6 is ESM-only with no default export. Vite also cannot resolve the
+        // map worker from import.meta.url, so we pass a bundled worker URL.
+        const [libMod, workerMod, pinsRes] = await Promise.all([
+            import("maplibre-gl"),
+            import("maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url"),
             fetch("/content/toronto.json"),
             loadRoutes(),
         ]);
+        libMod.setWorkerUrl(workerMod.default);
 
         try {
             const data = await pinsRes.json();

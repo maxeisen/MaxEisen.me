@@ -12,6 +12,9 @@ export default defineConfig({
 			'@content': path.resolve(__dirname, 'public/content')
 		}
 	},
+	optimizeDeps: {
+		exclude: ['maplibre-gl']
+	},
 	server: {
 		port: 6808,
 		open: false,
