@@ -7,7 +7,7 @@
     map honours the site's light/dark toggle without a reload.
 
     Props:
-      maplibre      — the MapLibre default export, loaded once by parent
+      maplibre      — the MapLibre module namespace, loaded once by parent
       pins          — visible pin records (after parent's filter)
       routes        — array of { id, name, polyline (Google-encoded) }
                       to overlay as line layer; empty hides the layer
