@@ -26,28 +26,6 @@ import {
 } from "./plan.js";
 import { recommendations } from "./recommend.js";
 import { recoverySummary } from "./recovery.js";
-import { dailyLoads } from "./load.js";
-import { acwr, fitnessGain, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
-import { hrZoneFloors, intensitySplit } from "./zones.js";
-import { efficiencyTrend } from "./efficiency.js";
-import { collectBestEfforts, isRunActivity, publicRun } from "./shape.js";
-import { lastRunDetail } from "./lastRun.js";
-import { todayBriefing } from "./today.js";
-import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
-import {
-	blockRange,
-	comparePlan,
-	currentWeek as findCurrentWeek,
-	dayOfWeek,
-	daysToRace,
-	matchRunsToPlan,
-	upcomingWeeks,
-	weekDays,
-	weekLongRun,
-	weeksToRace,
-} from "./plan.js";
-import { recommendations } from "./recommend.js";
-import { recoverySummary } from "./recovery.js";
 import { strainSignal } from "./response.js";
 import { addDays, toDayKey } from "./dates.js";
 
