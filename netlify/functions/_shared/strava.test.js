@@ -97,6 +97,35 @@ describe("cooldownUntil", () => {
 	});
 });
 
+describe("getAccessToken", () => {
+	const realFetch = globalThis.fetch;
+
+	afterEach(() => {
+		globalThis.fetch = realFetch;
+		delete process.env.STRAVA_CLIENT_ID;
+		delete process.env.STRAVA_CLIENT_SECRET;
+		delete process.env.STRAVA_REFRESH_TOKEN;
+	});
+
+	it("does not put the token endpoint body on a thrown error", async () => {
+		vi.resetModules();
+		process.env.STRAVA_CLIENT_ID = "id";
+		process.env.STRAVA_CLIENT_SECRET = "super-secret";
+		process.env.STRAVA_REFRESH_TOKEN = "refresh";
+		globalThis.fetch = vi.fn(
+			async () =>
+				new Response(JSON.stringify({ error: "invalid", client_secret: "super-secret" }), {
+					status: 400,
+				}),
+		);
+		const { getAccessToken } = await import("./strava.js");
+		const err = await getAccessToken().catch((e) => e);
+		expect(err.message).toBe("Strava token refresh failed: 400");
+		expect(err.message).not.toContain("super-secret");
+		expect(err.message).not.toContain("invalid");
+	});
+});
+
 describe("the in-memory 429 cache", () => {
 	beforeEach(() => {
 		vi.resetModules();

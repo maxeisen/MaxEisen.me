@@ -13,6 +13,7 @@ import {
 	smoothPath,
 	contiguous,
 	CHART_DAYS,
+	dateRangeTicks,
 } from "./chart.js";
 
 describe("smoothPath", () => {
@@ -299,5 +300,25 @@ describe("withinWindow", () => {
 		// A series that stops six months ago drops out entirely rather than
 		// drawing a stale trend as if it were current.
 		expect(withinWindow(series, "2026-06-01")).toEqual([]);
+	});
+});
+
+describe("dateRangeTicks", () => {
+	it("labels both ends and the middle of a series", () => {
+		expect(
+			dateRangeTicks(
+				[{ date: "2026-01-01" }, { date: "2026-01-15" }, { date: "2026-01-31" }],
+				(d) => d,
+			),
+		).toEqual([
+			{ key: "first", label: "2026-01-01", pct: 0, anchor: "start" },
+			{ key: "mid", label: "2026-01-15", pct: 50, anchor: "middle" },
+			{ key: "last", label: "2026-01-31", pct: 100, anchor: "end" },
+		]);
+	});
+
+	it("is empty when there is nothing to span", () => {
+		expect(dateRangeTicks([{ date: "2026-01-01" }], (d) => d)).toEqual([]);
+		expect(dateRangeTicks([], (d) => d)).toEqual([]);
 	});
 });

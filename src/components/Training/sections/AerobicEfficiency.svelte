@@ -2,7 +2,7 @@
 <script>
     import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { axisTicks, CHART_WEEKS, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
+    import { axisTicks, CHART_WEEKS, dateRangeTicks, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -35,15 +35,7 @@
     const dots = $derived(seriesPoints(points.map((p) => p.ef), { width: WIDTH, height: HEIGHT, domain }));
     const line = $derived(seriesPoints(trend.map((p) => p.ef), { width: WIDTH, height: HEIGHT, domain }));
 
-    const xTicks = $derived.by(() => {
-        if (points.length < 2) return [];
-        const middle = points[Math.floor(points.length / 2)];
-        return [
-            { key: "first", label: axisDate(points[0].date), pct: 0, anchor: "start" },
-            { key: "mid", label: axisDate(middle.date), pct: 50, anchor: "middle" },
-            { key: "last", label: axisDate(points.at(-1).date), pct: 100, anchor: "end" },
-        ];
-    });
+    const xTicks = $derived(dateRangeTicks(points, axisDate));
 
     const change = $derived(Number.isFinite(stats?.changePct) ? stats.changePct : null);
 

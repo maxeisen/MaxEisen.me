@@ -80,7 +80,7 @@ export async function serveTrainingPage({ loadShell = loadSpaShell, loadPayload 
 
 	try {
 		const payload = await loadPayload();
-		return htmlResponse(injectTrainingFallback(shell, renderTrainingFallback(payload)));
+		return htmlResponse(injectTrainingFallback(shell, renderTrainingFallback(payload), payload));
 	} catch (err) {
 		console.error("training page fallback failed", err);
 		return htmlResponse(shell);

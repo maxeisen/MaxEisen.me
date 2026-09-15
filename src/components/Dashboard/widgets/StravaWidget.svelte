@@ -14,6 +14,7 @@
     import WidgetHeader from "./WidgetHeader.svelte";
     import {
         STRAVA_ICONS,
+        STRAVA_FEED_URL,
         formatDistance,
         formatDuration,
         formatPace,
@@ -36,30 +37,16 @@
     const activitiesState = $derived(listLoadState(activities));
     const activitiesMessage = $derived(listStateMessage(activitiesState, "Loading…", "Strava unavailable"));
 
-    // Year-to-date run + ride totals from the profile endpoint. Strava's
-    // stats API only exposes run/ride/swim YTD (no walk total), so this is
-    // run + ride. Independent of the activity feed — if it fails, the
-    // footer just doesn't render; the activity list is unaffected.
-    function applyYtd(data) {
+    function applyFeed(data) {
+        activities = (data?.activities || []).slice(0, 5);
         ytd = data?.ytd || null;
         requestAnimationFrame(() => trimListToFit(listEl));
     }
-    const ytdFeed = createSWRWidgetFeed({
-        url: "/.netlify/functions/stravaProfile",
-        apply: applyYtd,
-        onError: () => {}, // keep footer hidden on failure
-    });
-
-    function applyFeed(data) {
-        activities = (data?.activities || []).slice(0, 5);
-        requestAnimationFrame(() => trimListToFit(listEl));
-    }
     // Fetch the wider feed (limit=30) so this URL is identical to the one the
-    // intro modals + Toronto map already use. SWR serves a re-mount instantly
-    // and dedupes; the 5-min poll still revalidates past the 60s window.
-    // Slice to 5 client-side for the dashboard's display.
+    // intro modals + Toronto map already use. Gear and YTD ride on the same
+    // snapshot, so a second stravaProfile call is not required.
     const feed = createSWRWidgetFeed({
-        url: "/.netlify/functions/stravaFeed?limit=30",
+        url: STRAVA_FEED_URL,
         apply: applyFeed,
         onError: (e) => {
             if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
@@ -69,10 +56,8 @@
 
     onMount(() => {
         feed.load();
-        ytdFeed.load();
-        // Poll the feed on the 5-min cadence; refresh YTD on resume too so a
-        // returning viewer sees current numbers. Both pause while hidden.
-        stopPoll = createPoller(() => { feed.load(); ytdFeed.load(); }, 1000 * 60 * 5, { jitterMs: 15_000 });
+        // Poll the feed on the 5-min cadence. Pause while hidden.
+        stopPoll = createPoller(() => { feed.load(); }, 1000 * 60 * 5, { jitterMs: 15_000 });
         stopResizeTrim = bindTrimOnResize(listEl);
     });
     onDestroy(() => {

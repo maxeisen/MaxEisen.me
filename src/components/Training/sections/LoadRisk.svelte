@@ -4,6 +4,7 @@
     import { gaugePosition } from "../lib/chart.js";
     import { pct } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
+    import { ACWR_CEILING, ACWR_FLOOR } from "../../../../netlify/functions/_shared/training/constants.js";
 
     // riskWeek is the last whole week, which mid-week is the previous one —
     // week-over-week ramp measured on a Tuesday would otherwise read as a
@@ -12,18 +13,16 @@
 
     const TRACK = 300;
     const DOMAIN = [0.4, 2.0];
-    const FLOOR = 0.8;
-    const CEILING = 1.5;
 
     const ratio = $derived(Number.isFinite(acwr?.ratio) ? acwr.ratio : null);
     const marker = $derived(ratio === null ? null : gaugePosition(ratio, DOMAIN, TRACK));
-    const safeStart = $derived(gaugePosition(FLOOR, DOMAIN, TRACK));
-    const safeEnd = $derived(gaugePosition(CEILING, DOMAIN, TRACK));
+    const safeStart = $derived(gaugePosition(ACWR_FLOOR, DOMAIN, TRACK));
+    const safeEnd = $derived(gaugePosition(ACWR_CEILING, DOMAIN, TRACK));
 
     const status = $derived.by(() => {
         if (ratio === null) return { label: "Not enough history", tone: "neutral" };
-        if (ratio > CEILING) return { label: "Ramping too fast", tone: "bad" };
-        if (ratio < FLOOR) return { label: "Detraining", tone: "warn" };
+        if (ratio > ACWR_CEILING) return { label: "Ramping too fast", tone: "bad" };
+        if (ratio < ACWR_FLOOR) return { label: "Detraining", tone: "warn" };
         return { label: "In the safe corridor", tone: "good" };
     });
 

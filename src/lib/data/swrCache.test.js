@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchJsonSwr, swrPeek, swrClear } from "./swrCache.js";
+import { fetchJsonSwr, swrPeek, swrClear, swrSeed } from "./swrCache.js";
 import { FetchError } from "./fetchJson.js";
 
 const realFetch = global.fetch;
@@ -94,5 +94,12 @@ describe("fetchJsonSwr", () => {
 		expect(swrPeek("/a")).toBeUndefined();
 		await fetchJsonSwr("/a");
 		expect(global.fetch).toHaveBeenCalledTimes(2); // refetched after clear
+	});
+
+	it("serves a seeded value without hitting the network", async () => {
+		global.fetch = countingFetch();
+		swrSeed("/a", { n: 0 });
+		await expect(fetchJsonSwr("/a", { maxAgeMs: 10_000 })).resolves.toEqual({ n: 0 });
+		expect(global.fetch).not.toHaveBeenCalled();
 	});
 });

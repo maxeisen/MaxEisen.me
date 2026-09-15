@@ -27,6 +27,18 @@ export function swrClear() {
 	inflight.clear();
 }
 
+/**
+ * Plant a value as if it had just been fetched. Used to hand the SPA a
+ * payload that the HTML document already computed, so the first paint does
+ * not repeat that work over the network.
+ *
+ * @param {string} url
+ * @param {any} value
+ */
+export function swrSeed(url, value) {
+	cache.set(url, { value, ts: Date.now() });
+}
+
 function revalidate(url, fetchOptions) {
 	// Share a single network request among concurrent callers for this url.
 	const pending = inflight.get(url);

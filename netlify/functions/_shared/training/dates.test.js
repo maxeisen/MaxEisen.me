@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { toDayKey, addDays, daysBetween, mondayOf, eachDay } from "./dates.js";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { toDayKey, addDays, daysBetween, mondayOf, eachDay, torontoToday } from "./dates.js";
 
 describe("toDayKey", () => {
 	it("takes the date portion of an ISO timestamp", () => {
@@ -82,5 +82,20 @@ describe("eachDay", () => {
 
 	it("returns nothing for an inverted range", () => {
 		expect(eachDay("2026-08-13", "2026-08-10")).toEqual([]);
+	});
+});
+
+describe("torontoToday", () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("is the athlete's calendar date in America/Toronto, not UTC's", () => {
+		vi.useFakeTimers();
+		// 03:30 UTC on the 15th is still the 14th in Toronto (UTC-4 in September).
+		vi.setSystemTime(new Date("2026-09-15T03:30:00Z"));
+		expect(torontoToday()).toBe("2026-09-14");
+		vi.setSystemTime(new Date("2026-09-15T08:00:00Z"));
+		expect(torontoToday()).toBe("2026-09-15");
 	});
 });

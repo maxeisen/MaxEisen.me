@@ -26,8 +26,30 @@ import {
 } from "./plan.js";
 import { recommendations } from "./recommend.js";
 import { recoverySummary } from "./recovery.js";
+import { dailyLoads } from "./load.js";
+import { acwr, fitnessGain, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
+import { hrZoneFloors, intensitySplit } from "./zones.js";
+import { efficiencyTrend } from "./efficiency.js";
+import { collectBestEfforts, isRunActivity, publicRun } from "./shape.js";
+import { lastRunDetail } from "./lastRun.js";
+import { todayBriefing } from "./today.js";
+import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
+import {
+	blockRange,
+	comparePlan,
+	currentWeek as findCurrentWeek,
+	dayOfWeek,
+	daysToRace,
+	matchRunsToPlan,
+	upcomingWeeks,
+	weekDays,
+	weekLongRun,
+	weeksToRace,
+} from "./plan.js";
+import { recommendations } from "./recommend.js";
+import { recoverySummary } from "./recovery.js";
 import { strainSignal } from "./response.js";
-import { toDayKey } from "./dates.js";
+import { addDays, toDayKey } from "./dates.js";
 
 // How far back the intensity distribution looks. A whole block averages away
 // the thing you'd act on; four weeks reflects current habits.
@@ -41,10 +63,11 @@ const LONG_RUN_MIN_M = 18000;
 const RUN_LOG_LIMIT = 30;
 
 function withinDays(activities, today, days) {
-	const cutoff = new Date(`${today}T00:00:00Z`).getTime() - days * 86_400_000;
+	const cutoff = addDays(toDayKey(today), -days);
+	if (!cutoff) return activities;
 	return activities.filter((a) => {
 		const day = toDayKey(a.startDateLocal);
-		return day && new Date(`${day}T00:00:00Z`).getTime() >= cutoff;
+		return day && day >= cutoff;
 	});
 }
 

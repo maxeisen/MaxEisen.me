@@ -16,6 +16,7 @@
 // losing it means re-authorising by hand — see _shared/oura.js.
 
 import { getStore } from "@netlify/blobs";
+import { emptyPublicSnapshot } from "../stravaPublic.js";
 
 export const STORE_NAME = "training";
 export const INDEX_KEY = "index.json";
@@ -27,6 +28,11 @@ export const PUBLIC_KEY = "public.json";
 
 export function getTrainingStore() {
 	return getStore({ name: STORE_NAME, consistency: "strong" });
+}
+
+/** Homepage / dashboard / toronto snapshot. Missing keys look like an empty feed. */
+export function loadPublicSnapshot() {
+	return readJson(getTrainingStore(), PUBLIC_KEY, emptyPublicSnapshot());
 }
 
 /**

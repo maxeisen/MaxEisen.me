@@ -16,6 +16,7 @@
 // fatigue.
 
 import { addDays, toDayKey } from "./dates.js";
+import { CHANGE_WINDOW_DAYS } from "./constants.js";
 import { gradeFactor } from "./gap.js";
 import { reading } from "./num.js";
 import { isRecordingGap } from "./streams.js";
@@ -136,10 +137,7 @@ export function activityEfficiency(activity) {
 // frequency, without a double or a rest week retuning the window.
 export const TREND_DAYS = 14;
 
-// Must match CHART_DAYS in src/components/Training/lib/chart.js. The headline
-// percentage describes the same twelve weeks the chart draws, not January
-// jogging versus an August peak.
-export const CHANGE_WINDOW_DAYS = 84;
+export { CHANGE_WINDOW_DAYS };
 
 // Enough runs on each side for "improving" to mean something rather than
 // describing which day happened to be cool.

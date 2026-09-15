@@ -5,10 +5,12 @@
 
 export const FEED_CAP = 100;
 export const STRAVA_ATHLETE_ID = 92118908;
+export const STRAVA_PROFILE_URL = `https://www.strava.com/athletes/${STRAVA_ATHLETE_ID}`;
 
 // Distance thresholds (in metres) for "qualifying" activities — these
 // keep the surfaces from listing 1-km warm-up jogs and the like.
 export function passesFeedFilter(activity) {
+	if (activity?.private === true) return false;
 	const type = activity?.sport_type || activity?.type || "";
 	const distance = activity?.distance || 0;
 	if (/Walk|Hike/i.test(type)) return distance >= 7000;
@@ -41,15 +43,21 @@ export function shapeFeedItem(activity) {
  * @param {object[]} existing
  * @param {object[]} incoming
  * @param {number} [cap]
+ * @param {{dropIds?: Array<string|number>}} [options]
+ *   Ids a later listing has marked private (or otherwise unfit). Removed
+ *   even when they are not in `incoming`, because shapeFeedItem does not
+ *   persist the private flag and the stored copy would otherwise linger.
  * @returns {object[]}
  */
-export function mergeFeed(existing, incoming, cap = FEED_CAP) {
+export function mergeFeed(existing, incoming, cap = FEED_CAP, { dropIds } = {}) {
+	const drop = new Set((dropIds || []).map((id) => String(id)));
 	const byId = new Map();
 	for (const a of existing || []) {
-		if (a?.id != null) byId.set(String(a.id), a);
+		if (a?.id == null || drop.has(String(a.id))) continue;
+		byId.set(String(a.id), a);
 	}
 	for (const a of incoming || []) {
-		if (a?.id == null) continue;
+		if (a?.id == null || drop.has(String(a.id))) continue;
 		byId.set(String(a.id), a);
 	}
 	return [...byId.values()]
@@ -74,4 +82,27 @@ export function emptyPublicSnapshot() {
 		shoes: null,
 		ytd: { run: null, ride: null },
 	};
+}
+
+/**
+ * Slice of the stored snapshot for a public endpoint.
+ *
+ * @param {object|null} snapshot
+ * @param {{activitiesLimit?: number|null}} [options]
+ *   When `activitiesLimit` is a number, `activities` is included (capped).
+ *   Omit it for the profile-only body.
+ * @returns {object}
+ */
+export function publicSnapshotBody(snapshot, { activitiesLimit = null } = {}) {
+	const empty = emptyPublicSnapshot();
+	const body = {
+		bike: snapshot?.bike ?? empty.bike,
+		shoes: snapshot?.shoes ?? empty.shoes,
+		ytd: snapshot?.ytd ?? empty.ytd,
+	};
+	if (activitiesLimit != null) {
+		const activities = Array.isArray(snapshot?.activities) ? snapshot.activities : [];
+		body.activities = activities.slice(0, activitiesLimit);
+	}
+	return body;
 }

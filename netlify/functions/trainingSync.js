@@ -51,7 +51,7 @@ import { dailyLoads } from "./_shared/training/load.js";
 import { fitnessSeries } from "./_shared/training/fitness.js";
 import { loadPlan } from "./_shared/training/planFile.js";
 import { blockRange } from "./_shared/training/plan.js";
-import { addDays, toDayKey } from "./_shared/training/dates.js";
+import { addDays, toDayKey, torontoToday } from "./_shared/training/dates.js";
 import {
 	ATHLETE_KEY,
 	CURSOR_KEY,
@@ -63,8 +63,9 @@ import {
 	readJson,
 	writeJson,
 } from "./_shared/training/store.js";
-import { mergeFeed, passesFeedFilter, shapeFeedItem, shapeYtdTotals, STRAVA_ATHLETE_ID } from "./_shared/stravaPublic.js";
+import { FEED_CAP, mergeFeed, passesFeedFilter, shapeFeedItem, shapeYtdTotals, STRAVA_ATHLETE_ID } from "./_shared/stravaPublic.js";
 import { mostRecentGearId, shapeGear } from "./_shared/stravaGear.js";
+import { mapWithConcurrency } from "../../src/lib/data/concurrent.js";
 
 const jsonResponse = createJsonResponder(cacheControl.none);
 
@@ -148,28 +149,6 @@ function historyStartEpoch(plan) {
 	const anchor = starts[0] ? new Date(`${starts[0]}T00:00:00Z`) : new Date();
 	if (Number.isNaN(anchor.getTime())) return null;
 	return Math.floor((anchor.getTime() - HISTORY_LEAD_DAYS * 86_400_000) / 1000);
-}
-
-// The athlete's today, matching trainingData. A night is filed under the day
-// you woke up in, which is a local idea rather than a UTC one.
-function todayKey() {
-	return toDayKey(new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" }));
-}
-
-// Run an async mapper over a list a few at a time. Sequential fetches would
-// spend the whole timeout waiting on round trips; unbounded parallelism would
-// burst the rate limit on a cold-start backfill.
-async function mapWithConcurrency(items, limit, mapper) {
-	const results = [];
-	let cursor = 0;
-	const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-		while (cursor < items.length) {
-			const index = cursor++;
-			results[index] = await mapper(items[index]);
-		}
-	});
-	await Promise.all(workers);
-	return results;
 }
 
 // Only the stream types the engine actually reads. `latlng` is deliberately
@@ -380,16 +359,26 @@ async function fetchPublicGear(token, id) {
 	}
 }
 
+function feedDropIds(list, existingActs) {
+	const stored = new Set((existingActs || []).map((a) => String(a.id)));
+	return (list || [])
+		.filter((a) => a?.id != null && stored.has(String(a.id)) && !passesFeedFilter(a))
+		.map((a) => a.id);
+}
+
 /**
  * Homepage / dashboard / toronto snapshot. Built from the listing this tick
  * already made, plus one extra latest-page fetch when the blob is empty and
  * the incremental listing had nothing to offer (a caught-up cursor on first
  * deploy of this snapshot). Stats and gear only move when a new activity
- * (or a new gear id) shows up.
+ * (or a new gear id) shows up. A listing that marks a stored activity private
+ * still writes, even on an otherwise quiet tick, so the polyline does not
+ * linger on the public surfaces.
  */
 async function updatePublicSnapshot(store, token, snapshot, summaries) {
 	const existingActs = snapshot?.activities || [];
 	let incoming = (summaries || []).filter(passesFeedFilter).map(shapeFeedItem).filter(Boolean);
+	let dropIds = feedDropIds(summaries, existingActs);
 	const rawForGear = [...(summaries || [])];
 
 	if (existingActs.length === 0 && incoming.length === 0) {
@@ -398,6 +387,7 @@ async function updatePublicSnapshot(store, token, snapshot, summaries) {
 			if (Array.isArray(latest)) {
 				rawForGear.push(...latest);
 				incoming = latest.filter(passesFeedFilter).map(shapeFeedItem).filter(Boolean);
+				dropIds = dropIds.concat(feedDropIds(latest, existingActs));
 			}
 		} catch (err) {
 			if (err.status === 429) throw err;
@@ -413,9 +403,9 @@ async function updatePublicSnapshot(store, token, snapshot, summaries) {
 		(rideGear && rideGear !== snapshot?.bike?.id) || (runGear && runGear !== snapshot?.shoes?.id);
 	const needProfile = !snapshot?.ytd || hasNew || gearChanged;
 
-	if (incoming.length === 0 && !needProfile) return snapshot;
+	if (incoming.length === 0 && !needProfile && dropIds.length === 0) return snapshot;
 
-	const activities = mergeFeed(existingActs, incoming);
+	const activities = mergeFeed(existingActs, incoming, FEED_CAP, { dropIds });
 	let bike = snapshot?.bike ?? null;
 	let shoes = snapshot?.shoes ?? null;
 	let ytd = snapshot?.ytd ?? { run: null, ride: null };
@@ -464,7 +454,7 @@ export default async function handler(req) {
 	// Started rather than awaited. It shares no state, token or rate limit
 	// with the Strava work below, which is allowed to spend twenty seconds,
 	// and there's no reason three quick requests should queue behind it.
-	const recoveryWork = syncRecovery(store, todayKey());
+	const recoveryWork = syncRecovery(store, torontoToday());
 
 	const stoodDown = async () =>
 		jsonResponse({
@@ -615,11 +605,6 @@ export default async function handler(req) {
 	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (item) => {
 		if (rateLimited) return null;
 
-		// A ride is complete as it stands. Everything the detailed activity
-		// and the streams would add — splits, best efforts, grade-adjusted
-		// pace, decoupling — is a running measure a ride doesn't carry, so it
-		// shapes straight from the summary for no API calls at all. Tracking
-		// rides therefore takes nothing from the budget the runs need.
 		// A ride or gym session is complete as it stands. Everything the
 		// detailed activity and the streams would add is a running measure
 		// those sports don't carry, so they shape straight from the summary.
@@ -667,7 +652,7 @@ export default async function handler(req) {
 	// of budget just leaves a note until the next pass. Skipped entirely while
 	// there's backfill outstanding, which is when the calls are worth more
 	// spent on runs that have no numbers at all yet.
-	const today = todayKey();
+	const today = torontoToday();
 
 	// When a run last turned up that a note could be written on. Wall-clock
 	// arrival rather than the run's own start time, because what starts the

@@ -438,6 +438,34 @@ describe("trainingSync", () => {
 			expect(JSON.stringify(index())).not.toContain("poly-");
 		});
 
+		it("never stores a private activity's polyline on the public snapshot", async () => {
+			const listed = publicActivities(2);
+			listed[1] = { ...listed[1], private: true, name: "Secret loop" };
+			mockStrava({ activities: listed });
+			await sync();
+
+			const snap = publicSnap();
+			expect(snap.activities.map((a) => a.id)).toEqual([listed[0].id]);
+			expect(JSON.stringify(snap)).not.toContain("Secret loop");
+			expect(JSON.stringify(snap)).not.toContain(`poly-${listed[1].id}`);
+		});
+
+		it("removes a previously stored activity once the listing says it is private", async () => {
+			const listed = publicActivities(2);
+			mockStrava({ activities: listed });
+			await sync();
+			const stored = publicSnap();
+			expect(stored.activities).toHaveLength(2);
+
+			const hiddenId = stored.activities[0].id;
+			const secret = listed.find((a) => a.id === hiddenId);
+			secret.private = true;
+			mockStrava({ activities: listed, listing: [secret] });
+			await sync();
+
+			expect(publicSnap().activities.map((a) => a.id)).not.toContain(hiddenId);
+		});
+
 		it("does not refetch stats or gear on a quiet tick", async () => {
 			mockStrava({ activities: publicActivities(2) });
 			await sync();

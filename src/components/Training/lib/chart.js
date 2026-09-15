@@ -1,6 +1,12 @@
 // Minimal SVG chart primitives. Return path strings and scaled coordinates;
 // components own the markup so everything stays themeable through CSS.
 
+import { addDays, toDayKey } from "../../../../netlify/functions/_shared/training/dates.js";
+import { CHANGE_WINDOW_DAYS, CHART_WEEKS } from "../../../../netlify/functions/_shared/training/constants.js";
+
+export { CHART_WEEKS };
+export const CHART_DAYS = CHANGE_WINDOW_DAYS;
+
 /**
  * Build a linear scale from a data domain to a pixel range.
  */
@@ -177,20 +183,34 @@ export function gaugePosition(value, domain, width) {
 }
 
 // Shared x-window so every chart on the page is comparable.
-export const CHART_WEEKS = 12;
-export const CHART_DAYS = CHART_WEEKS * 7;
-// efficiencyTrend.CHANGE_WINDOW_DAYS in the engine must stay equal to this,
-// so the aerobic-efficiency headline describes the same twelve weeks.
 
 /** Trailing slice of a date-keyed series, ending at `today`. */
 export function withinWindow(points, today, days = CHART_DAYS) {
 	if (!today) return (points || []).slice(-days);
-	const cutoff = new Date(`${today}T00:00:00Z`).getTime() - days * 86_400_000;
-	if (Number.isNaN(cutoff)) return points || [];
+	const cutoff = addDays(toDayKey(today), -days);
+	if (!cutoff) return points || [];
 	return (points || []).filter((p) => {
-		const at = new Date(`${String(p?.date).slice(0, 10)}T00:00:00Z`).getTime();
-		return !Number.isNaN(at) && at >= cutoff;
+		const at = toDayKey(p?.date);
+		return at && at >= cutoff;
 	});
+}
+
+/**
+ * First, middle, and last date labels for a series that runs left to right.
+ *
+ * @param {{date: string}[]} points
+ * @param {(date: string) => string} formatDate
+ * @returns {{key: string, label: string, pct: number, anchor: string}[]}
+ */
+export function dateRangeTicks(points, formatDate) {
+	const list = points || [];
+	if (list.length < 2) return [];
+	const middle = list[Math.floor(list.length / 2)];
+	return [
+		{ key: "first", label: formatDate(list[0].date), pct: 0, anchor: "start" },
+		{ key: "mid", label: formatDate(middle.date), pct: 50, anchor: "middle" },
+		{ key: "last", label: formatDate(list.at(-1).date), pct: 100, anchor: "end" },
+	];
 }
 
 // Round a range end to a "nice" number — 1, 2, 5 or 10 times a power of ten.

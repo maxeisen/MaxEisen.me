@@ -14,6 +14,8 @@
     import PinPanel from "./PinPanel.svelte";
     import FilterBar from "./FilterBar.svelte";
     import BackLink from "../../lib/ui/BackLink.svelte";
+    import { fetchJsonSwr } from "../../lib/data/swrCache.js";
+    import { STRAVA_FEED_URL } from "../../lib/strava.js";
 
     let maplibre = $state(null);
     let allPins = $state([]);
@@ -37,9 +39,7 @@
     // ones with a polyline that has at least one point within the box.
     async function loadRoutes() {
         try {
-            const res = await fetch("/.netlify/functions/stravaFeed?limit=30");
-            if (!res.ok) return;
-            const data = await res.json();
+            const data = await fetchJsonSwr(STRAVA_FEED_URL);
             const acts = data?.activities || [];
             routes = acts
                 .filter((a) => a.polyline && polylineTouchesGTA(a.polyline))

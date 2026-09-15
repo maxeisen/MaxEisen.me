@@ -16,9 +16,11 @@
     import EditToggle from "../../lib/ui/EditToggle.svelte";
     import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
     import Spinner from "../../lib/ui/Spinner.svelte";
-    import { fetchJsonSwr } from "../../lib/data/swrCache.js";
+    import { fetchJsonSwr, swrSeed } from "../../lib/data/swrCache.js";
     import { createPoller } from "../../lib/data/poller.js";
     import { bestSplit, worthMoving } from "./lib/balance.js";
+    import { readTrainingBootstrap } from "./lib/bootstrap.js";
+    import { STRAVA_PROFILE_URL } from "../../lib/strava.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
     import Today from "./sections/Today.svelte";
@@ -35,7 +37,6 @@
     import RunLog from "./sections/RunLog.svelte";
 
     const ENDPOINT = "/.netlify/functions/trainingData";
-    const STRAVA_PROFILE = "https://www.strava.com/athletes/92118908";
 
     // Authored reading order. The column split is measured at runtime
     // (lib/balance.js) so a panel added, resized, or dragged doesn't
@@ -156,6 +157,11 @@
         reorder.restore();
         edit.listen();
         window.addEventListener("resize", onResize);
+        const boot = readTrainingBootstrap();
+        if (boot) {
+            swrSeed(ENDPOINT, boot);
+            data = boot;
+        }
         load();
         // Match the upstream sync so an open tab is never more than one
         // cycle behind a reopen. SWR's 60s window and the edge cache sit
@@ -251,7 +257,7 @@
                 number that triggered it. No route maps here by design.
             </p>
             <p class="links">
-                <a href={STRAVA_PROFILE} target="_blank" rel="noreferrer">Strava profile ↗</a>
+                <a href={STRAVA_PROFILE_URL} target="_blank" rel="noreferrer">Strava profile ↗</a>
             </p>
             {#if data.sync?.lastRunAt}
                 <p class="stamp">Last synced {new Date(data.sync.lastRunAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>

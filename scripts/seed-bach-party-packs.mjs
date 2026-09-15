@@ -8,7 +8,7 @@
  *   npm run seed:bach-packs
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -46,15 +46,19 @@ function clonePrivateRepo() {
 	if (!repo.endsWith(".git")) repo = `${repo.replace(/\/$/, "")}.git`;
 	if (!repo.startsWith("http")) repo = `https://github.com/${repo}`;
 
-	const authed = repo.replace(
-		/^https:\/\/github\.com\//,
-		`https://x-access-token:${token}@github.com/`,
-	);
-
 	const tmp = mkdtempSync(join(tmpdir(), "bach-private-"));
 	try {
-		execSync(`git clone --depth 1 --branch ${branch} ${authed} ${tmp}`, {
+		// Header auth, not a token in the clone URL: argv and `ps` must not
+		// see PRIVATE_ACCESS_GITHUB_TOKEN, and git's own remote URL log
+		// must not either.
+		execFileSync("git", ["clone", "--depth", "1", "--branch", branch, repo, tmp], {
 			stdio: "inherit",
+			env: {
+				...process.env,
+				GIT_CONFIG_COUNT: "1",
+				GIT_CONFIG_KEY_0: "http.https://github.com/.extraHeader",
+				GIT_CONFIG_VALUE_0: `AUTHORIZATION: bearer ${token}`,
+			},
 		});
 		return join(tmp, PRIVATE_SUBDIR);
 	} catch (err) {
