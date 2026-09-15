@@ -13,6 +13,12 @@ export const STRAVA_ICONS = {
 	Kayaking: "🛶", Rowing: "🚣",
 };
 
+// Shared so the dashboard widget, homepage lists, and /toronto map all hit
+// one URL and share the SWR cache instead of each inventing a query string.
+export const STRAVA_FEED_URL = "/.netlify/functions/stravaFeed?limit=30";
+
+export { STRAVA_ATHLETE_ID, STRAVA_PROFILE_URL } from "../../netlify/functions/_shared/stravaPublic.js";
+
 export function formatDistance(m) {
 	if (m == null) return "—";
 	const km = m / 1000;

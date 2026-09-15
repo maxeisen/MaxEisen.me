@@ -23,8 +23,9 @@ import {
 	weekday,
 } from "../../../../src/components/Training/lib/format.js";
 import { stravaTag } from "../../../../src/components/Training/lib/runTags.js";
-
-const STRAVA_PROFILE = "https://www.strava.com/athletes/92118908";
+import { embedJson, TRAINING_BOOTSTRAP_ID } from "../../../../src/components/Training/lib/bootstrap.js";
+import { STRAVA_PROFILE_URL } from "../stravaPublic.js";
+import { ACWR_CEILING, ACWR_FLOOR } from "./constants.js";
 const JSON_FEED = "/.netlify/functions/trainingData";
 
 // Lives inside <noscript>, so JS visitors never apply it. Tokens come from
@@ -62,18 +63,36 @@ function finite(value) {
 }
 
 /**
- * Drop the text feed into the SPA shell's noscript and advertise the JSON
- * payload as an alternate. The #app mount and the module script stay put.
+ * Drop the text feed into the SPA shell's noscript, embed the JSON payload
+ * for the SPA, and advertise the JSON endpoint as an alternate. The #app
+ * mount and the module script stay put.
  *
  * @param {string} html the built index.html
  * @param {string} innerHtml renderTrainingFallback() output
+ * @param {object} [payload] the trainingData object, when available
  * @returns {string}
  */
-export function injectTrainingFallback(html, innerHtml) {
+export function injectTrainingFallback(html, innerHtml, payload) {
 	let out = String(html ?? "");
 	const alternate = `<link rel="alternate" type="application/json" href="${JSON_FEED}">`;
 	if (!out.includes(`href="${JSON_FEED}"`) && /<\/head>/i.test(out)) {
 		out = out.replace(/<\/head>/i, `    ${alternate}\n</head>`);
+	}
+
+	if (payload !== undefined) {
+		const tag = `<script type="application/json" id="${TRAINING_BOOTSTRAP_ID}">${embedJson(payload)}</script>`;
+		if (out.includes(`id="${TRAINING_BOOTSTRAP_ID}"`)) {
+			out = out.replace(
+				new RegExp(
+					`<script type="application/json" id="${TRAINING_BOOTSTRAP_ID}">[\\s\\S]*?</script>`,
+				),
+				tag,
+			);
+		} else if (/<\/body>/i.test(out)) {
+			out = out.replace(/<\/body>/i, `${tag}\n</body>`);
+		} else {
+			out = `${out}\n${tag}`;
+		}
 	}
 
 	const block = `<noscript>\n${innerHtml}\n</noscript>`;
@@ -93,7 +112,7 @@ export function injectTrainingFallback(html, innerHtml) {
 export function renderTrainingFallback(data = {}) {
 	return [
 		FEED_STYLE,
-		`<p><a href="/">Home</a> · <a href="${JSON_FEED}">JSON</a> · <a href="${STRAVA_PROFILE}" rel="noreferrer">Strava</a></p>`,
+		`<p><a href="/">Home</a> · <a href="${JSON_FEED}">JSON</a> · <a href="${STRAVA_PROFILE_URL}" rel="noreferrer">Strava</a></p>`,
 		renderHeader(data.summary),
 		renderSync(data.sync, data.runs?.length ?? 0),
 		renderToday(data.today),
@@ -292,8 +311,8 @@ function renderLoad(summary) {
 	const risk = summary?.riskWeek;
 	let status = "Not enough history";
 	if (ratio !== null) {
-		if (ratio > 1.5) status = "Ramping too fast";
-		else if (ratio < 0.8) status = "Detraining";
+		if (ratio > ACWR_CEILING) status = "Ramping too fast";
+		else if (ratio < ACWR_FLOOR) status = "Detraining";
 		else status = "In the safe corridor";
 	}
 	const weekLabel = risk?.isCurrentWeek ? "This week's ramp" : "Last week's ramp";

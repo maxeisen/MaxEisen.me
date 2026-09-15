@@ -132,6 +132,29 @@ describe("injectTrainingFallback", () => {
 		expect(out).toMatch(/<noscript>[\s\S]*Today[\s\S]*<\/noscript>/);
 		expect(out).toContain('<div id="app"></div>');
 	});
+
+	it("embeds the JSON payload so the SPA does not fetch it a second time", () => {
+		const data = { summary: { race: { name: "Chicago Marathon" } } };
+		const out = injectTrainingFallback(SHELL, "<h1>Chicago Marathon</h1>", data);
+		expect(out).toContain('id="training-bootstrap"');
+		expect(out).toContain('type="application/json"');
+		const match = out.match(
+			/<script type="application\/json" id="training-bootstrap">([\s\S]*?)<\/script>/,
+		);
+		expect(match).not.toBeNull();
+		expect(JSON.parse(match[1])).toEqual(data);
+	});
+
+	it("escapes a payload that would otherwise close the bootstrap script", () => {
+		const out = injectTrainingFallback(SHELL, "<p>x</p>", {
+			name: "</script><script>alert(1)",
+		});
+		expect(out).not.toContain("</script><script>alert(1)");
+		const match = out.match(
+			/<script type="application\/json" id="training-bootstrap">([\s\S]*?)<\/script>/,
+		);
+		expect(JSON.parse(match[1]).name).toBe("</script><script>alert(1)");
+	});
 });
 
 describe("renderTrainingFallback", () => {

@@ -24,6 +24,7 @@
 // fast — the injury-risk literature puts the safe corridor at roughly 0.8–1.5.
 
 import { addDays, daysBetween, eachDay, mondayOf, toDayKey } from "./dates.js";
+import { ACWR_CEILING, ACWR_FLOOR } from "./constants.js";
 
 export const CTL_DAYS = 42;
 export const ATL_DAYS = 7;
@@ -32,8 +33,7 @@ export const CHRONIC_DAYS = 28;
 
 // Injury-risk corridor for ACWR. Below the floor you're detraining; above the
 // ceiling you're adding load faster than your body is adapting to it.
-export const ACWR_FLOOR = 0.8;
-export const ACWR_CEILING = 1.5;
+export { ACWR_FLOOR, ACWR_CEILING };
 
 // The conventional cap on week-over-week volume growth.
 export const SAFE_RAMP_PCT = 10;

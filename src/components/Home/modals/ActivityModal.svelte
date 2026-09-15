@@ -1,5 +1,7 @@
 <script>
     import { onMount } from 'svelte';
+    import { fetchJsonSwr } from '../../../lib/data/swrCache.js';
+    import { STRAVA_FEED_URL } from '../../../lib/strava.js';
     import StravaActivityList from '../widgets/StravaActivityList.svelte';
 
     export let image;
@@ -13,9 +15,12 @@
     onMount(async () => {
         if (!strava) return;
         try {
-            const res = await fetch('/.netlify/functions/stravaProfile');
-            if (!res.ok) throw new Error(`status ${res.status}`);
-            profile = await res.json();
+            const data = await fetchJsonSwr(STRAVA_FEED_URL);
+            profile = {
+                bike: data?.bike ?? null,
+                shoes: data?.shoes ?? null,
+                ytd: data?.ytd ?? null,
+            };
         } catch {
             // Leave profile null: the Strava section just doesn't render.
         }

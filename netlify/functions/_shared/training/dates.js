@@ -79,3 +79,8 @@ export function eachDay(from, to) {
 	for (let i = 0; i <= span; i++) days.push(addDays(from, i));
 	return days;
 }
+
+/** Toronto local date as a day key — "today" is the athlete's today, not UTC's. */
+export function torontoToday() {
+	return toDayKey(new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" }));
+}

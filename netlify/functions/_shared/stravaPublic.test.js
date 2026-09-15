@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { mergeFeed, passesFeedFilter, shapeFeedItem } from "./stravaPublic.js";
+import {
+	STRAVA_ATHLETE_ID,
+	STRAVA_PROFILE_URL,
+	mergeFeed,
+	passesFeedFilter,
+	shapeFeedItem,
+} from "./stravaPublic.js";
 
 function raw(overrides = {}) {
 	return {
@@ -18,6 +24,12 @@ function raw(overrides = {}) {
 	};
 }
 
+describe("STRAVA_PROFILE_URL", () => {
+	it("is built from the one athlete id", () => {
+		expect(STRAVA_PROFILE_URL).toBe(`https://www.strava.com/athletes/${STRAVA_ATHLETE_ID}`);
+	});
+});
+
 describe("passesFeedFilter", () => {
 	it("keeps walks of 7km, runs of 5km, rides of 10km", () => {
 		expect(passesFeedFilter(raw({ sport_type: "Walk", distance: 7000 }))).toBe(true);
@@ -26,11 +38,12 @@ describe("passesFeedFilter", () => {
 		expect(passesFeedFilter(raw({ sport_type: "Ride", distance: 10000 }))).toBe(true);
 	});
 
-	it("drops shorter activities and other sports", () => {
+	it("drops shorter activities, other sports, and anything marked private", () => {
 		expect(passesFeedFilter(raw({ sport_type: "Walk", distance: 6999 }))).toBe(false);
 		expect(passesFeedFilter(raw({ sport_type: "Run", distance: 4999 }))).toBe(false);
 		expect(passesFeedFilter(raw({ sport_type: "Ride", distance: 9999 }))).toBe(false);
 		expect(passesFeedFilter(raw({ sport_type: "WeightTraining", moving_time: 3600 }))).toBe(false);
+		expect(passesFeedFilter(raw({ private: true, distance: 20000 }))).toBe(false);
 	});
 });
 
@@ -93,5 +106,14 @@ describe("mergeFeed", () => {
 			shapeFeedItem(raw({ id: 100 + i, start_date: `2026-07-${String((i % 28) + 1).padStart(2, "0")}T11:00:00Z` })),
 		);
 		expect(mergeFeed(existing, incoming)).toHaveLength(100);
+	});
+
+	it("can drop ids so a later listing that marks a run private removes it", () => {
+		const existing = [
+			shapeFeedItem(raw({ id: 1 })),
+			shapeFeedItem(raw({ id: 2, start_date: "2026-07-02T11:00:00Z" })),
+		];
+		const merged = mergeFeed(existing, [], 100, { dropIds: [1] });
+		expect(merged.map((a) => a.id)).toEqual([2]);
 	});
 });

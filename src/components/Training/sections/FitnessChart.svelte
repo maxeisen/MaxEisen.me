@@ -2,7 +2,7 @@
 <script>
     import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
-    import { areaPath, axisTicks, CHART_WEEKS, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
+    import { areaPath, axisTicks, CHART_WEEKS, dateRangeTicks, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate, signed } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -42,15 +42,7 @@
     const atlPoints = $derived(seriesPoints(sampled.map((d) => d.atl), { width: WIDTH, height: HEIGHT, domain }));
     const tsbPoints = $derived(seriesPoints(sampled.map((d) => d.tsb), { width: WIDTH, height: HEIGHT, domain }));
 
-    const xTicks = $derived.by(() => {
-        if (sampled.length < 2) return [];
-        const middle = sampled[Math.floor(sampled.length / 2)];
-        return [
-            { key: "first", label: axisDate(sampled[0].date), pct: 0, anchor: "start" },
-            { key: "mid", label: axisDate(middle.date), pct: 50, anchor: "middle" },
-            { key: "last", label: axisDate(sampled.at(-1).date), pct: 100, anchor: "end" },
-        ];
-    });
+    const xTicks = $derived(dateRangeTicks(sampled, axisDate));
 
     const latest = $derived(series.at(-1) || null);
 

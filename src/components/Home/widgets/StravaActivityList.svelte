@@ -1,8 +1,9 @@
 <script>
     import { onMount } from 'svelte';
-    import { fetchJson } from '../../../lib/data/fetchJson.js';
+    import { fetchJsonSwr } from '../../../lib/data/swrCache.js';
     import {
         STRAVA_ICONS,
+        STRAVA_FEED_URL,
         formatDistance,
         formatDuration,
         formatPace,
@@ -35,7 +36,7 @@
 
     onMount(async () => {
         try {
-            const data = await fetchJson(`/.netlify/functions/stravaFeed?limit=30`);
+            const data = await fetchJsonSwr(STRAVA_FEED_URL);
             const all = data?.activities || [];
             const re = TYPE_PATTERNS[type];
             const matched = re ? all.filter((a) => re.test(a.type || '')) : all;

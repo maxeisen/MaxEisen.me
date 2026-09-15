@@ -1,4 +1,5 @@
-// Shared Strava OAuth token refresh, used by stravaProfile and stravaFeed.
+// Shared Strava OAuth token refresh. trainingSync is the only live caller;
+// public endpoints read the snapshot it writes.
 import { getEnv } from "./env.js";
 
 // Strava announced a Jun 2027 migration to https://www.api-v3.strava.com, but
@@ -36,8 +37,7 @@ export async function getAccessToken() {
 		}),
 	});
 	if (!res.ok) {
-		const text = await res.text();
-		throw new Error(`Strava token refresh failed: ${res.status} ${text}`);
+		throw new Error(`Strava token refresh failed: ${res.status}`);
 	}
 	const data = await res.json();
 	cachedToken = { token: data.access_token, expiresAt: data.expires_at * 1000 };

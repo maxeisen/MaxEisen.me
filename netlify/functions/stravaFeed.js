@@ -2,8 +2,12 @@
 // Walks ≥7km, runs ≥5km, rides ≥10km — filtered when trainingSync writes
 // the blob, not here. Callers still decide how to split by type.
 //
+// Also carries bike, shoes, and YTD totals from the same blob so a page
+// that already asked for the feed does not need a second function for
+// the profile footer (dashboard widget, intro modals).
+//
 // Used by:
-//   - Dashboard StravaWidget       (asks for limit=5 — mixed list)
+//   - Dashboard StravaWidget       (asks for limit=30, slices to 5)
 //   - Intro Activity Modals        (asks for limit=30; client filters
 //                                   to run / ride and slices to display)
 //   - /toronto map route overlay   (asks for limit=30; keeps the ones
@@ -14,16 +18,12 @@
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { createMemo } from "./_shared/memo.js";
-import { emptyPublicSnapshot } from "./_shared/stravaPublic.js";
-import { PUBLIC_KEY, getTrainingStore, readJson } from "./_shared/training/store.js";
+import { publicSnapshotBody } from "./_shared/stravaPublic.js";
+import { loadPublicSnapshot } from "./_shared/training/store.js";
 
 const jsonResponse = createJsonResponder(cacheControl.swr(300, 600));
 const memo = createMemo(60_000);
 const HARD_MAX = 30;
-
-async function loadSnapshot() {
-	return readJson(getTrainingStore(), PUBLIC_KEY, emptyPublicSnapshot());
-}
 
 export default async function handler(req) {
 	const url = new URL(req.url);
@@ -33,11 +33,11 @@ export default async function handler(req) {
 		HARD_MAX,
 	);
 
-	const snapshot = await memo("public", loadSnapshot);
-	const activities = Array.isArray(snapshot?.activities) ? snapshot.activities : [];
+	const snapshot = await memo("public", loadPublicSnapshot);
+	const body = publicSnapshotBody(snapshot, { activitiesLimit: limit });
 	// An empty blob is "not seeded yet", not a stable empty feed. Caching it
 	// for five minutes makes the first successful sync invisible until the
 	// CDN/browser TTL expires.
-	const headers = activities.length ? {} : cacheControl.none;
-	return jsonResponse({ activities: activities.slice(0, limit) }, 200, headers);
+	const headers = body.activities.length ? {} : cacheControl.none;
+	return jsonResponse(body, 200, headers);
 }

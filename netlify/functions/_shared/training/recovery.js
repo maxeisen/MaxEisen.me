@@ -25,6 +25,9 @@
 import { ACUTE_DAYS, CHRONIC_DAYS } from "./fitness.js";
 import { reading } from "./num.js";
 import { addDays, eachDay, toDayKey } from "./dates.js";
+import { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC } from "./constants.js";
+
+export { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC };
 
 // The night, as opposed to an afternoon nap. Oura types a main sleep period as
 // `long_sleep` once it passes three hours; `sleep` covers shorter main periods.
@@ -32,21 +35,6 @@ import { addDays, eachDay, toDayKey } from "./dates.js";
 // not your overnight resting rate, and counting one towards the night's total
 // would say you slept well when you slept twice.
 const MAIN_SLEEP_TYPES = new Set(["long_sleep", "sleep"]);
-
-// Sleep below this, sustained, is where the injury-risk association starts to
-// show up. Held as a nightly average rather than a single bad night, because
-// one short night is life and nine of them is a pattern.
-export const SLEEP_TARGET_SEC = 7 * 3600;
-
-// Overnight resting heart rate this far above baseline suggests something the
-// training log can't see: illness coming on, or work not being absorbed. Oura's
-// overnight figure is stable enough that five beats is well clear of noise.
-export const RHR_RISE_BPM = 5;
-
-// A fall in heart-rate variability of this much against baseline points the
-// same way. HRV is noisy night to night, which is why this reads a seven-day
-// average against a month rather than yesterday against the day before.
-export const HRV_DROP_PCT = 15;
 
 // Below this many nights in a window, an average is describing the gaps as much
 // as the sleep, so nothing is reported rather than reporting a number built

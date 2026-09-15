@@ -95,6 +95,12 @@ describe("trainingData privacy", () => {
 		expect(text).not.toMatch(/latlng|polyline|location_city/i);
 	});
 
+	it("does not serve oauth tokens or client secrets", async () => {
+		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }));
+		const { text } = await payload();
+		expect(text).not.toMatch(/access_token|refresh_token|client_secret|api_secret/i);
+	});
+
 	it("never serves a private run", async () => {
 		seed(
 			shapeActivities(

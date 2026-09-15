@@ -65,4 +65,18 @@ describe("stravaFeed", () => {
 		expect(res.headers.get("cache-control")).toBe("no-store");
 		expect(globalThis.fetch).not.toHaveBeenCalled();
 	});
+
+	it("carries gear and YTD so callers do not need a second function", async () => {
+		blobs.set("public.json", {
+			activities: [SAMPLE],
+			bike: { id: "b1", name: "Tarmac" },
+			shoes: { id: "s1", name: "Superblast" },
+			ytd: { run: { count: 1, distance: 10_000 }, ride: null },
+		});
+		const { body } = await payload("?limit=30");
+		expect(body.bike).toEqual({ id: "b1", name: "Tarmac" });
+		expect(body.shoes).toEqual({ id: "s1", name: "Superblast" });
+		expect(body.ytd.run.count).toBe(1);
+		expect(body.ytd.ride).toBeNull();
+	});
 });

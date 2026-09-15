@@ -10,14 +10,9 @@ import {
 	getTrainingStore,
 	readJson,
 } from "./store.js";
-import { toDayKey } from "./dates.js";
+import { torontoToday } from "./dates.js";
 
-/** Toronto local date as a day key — "today" is the athlete's today, not UTC's. */
-export function torontoToday() {
-	return toDayKey(
-		new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" }),
-	);
-}
+export { torontoToday };
 
 /**
  * Where the sync has got to, in the terms the page needs.
