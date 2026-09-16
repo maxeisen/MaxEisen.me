@@ -350,6 +350,10 @@ describe("buildDashboard", () => {
 		expect(out.summary.prediction.predictedSec).toBeGreaterThan(0);
 		expect(out.summary.prediction.basis.distanceM).toBe(10000);
 		expect(typeof out.summary.prediction.onTrack).toBe("boolean");
+		expect(out.summary.prediction.range.slowSec).toBeGreaterThan(out.summary.prediction.range.fastSec);
+		expect(out.summary.prediction.history.length).toBeGreaterThan(0);
+		expect(out.summary.prediction.factors.some((f) => f.id === "volume")).toBe(true);
+		expect(out.today.prediction.predictedSec).toBe(out.summary.prediction.predictedSec);
 	});
 });
 

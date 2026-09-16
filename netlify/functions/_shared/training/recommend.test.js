@@ -107,6 +107,63 @@ describe("recommendations", () => {
 		expect(rec.detail).toContain("4:59/km");
 	});
 
+	it("tells you how to close a training-supported gap in the last build week", () => {
+		const rec = find(
+			recommendations({
+				prediction: {
+					predictedSec: 12780,
+					trainingSec: 12796,
+					aerobicPotentialSec: 11894,
+					basisStatus: "historic",
+					factors: [
+						{ id: "volume", tone: "limiting" },
+						{ id: "durability", tone: "limiting" },
+					],
+				},
+				goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
+				daysToRace: 25,
+				intensity: { easyPct: 48 },
+				longRunDecouplingPct: 7.4,
+				currentWeek: { sessions: [{ type: "long run", distanceKm: 34, isRun: true }] },
+			}),
+			"goal-behind",
+		);
+		expect(rec.detail).toMatch(/^This is the last week that can still move/);
+		expect(rec.detail).toMatch(/3h 33m/);
+		expect(rec.detail).toMatch(/34/);
+		expect(rec.detail).toMatch(/easy/i);
+		expect(rec.detail).toMatch(/not closed by adding kilometres/);
+	});
+
+	it("does not prescribe more kilometres once the taper has started", () => {
+		const rec = find(
+			recommendations({
+				prediction: { predictedSec: 12780, trainingSec: 12796, basisStatus: "historic" },
+				goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
+				daysToRace: 12,
+			}),
+			"goal-behind",
+		);
+		expect(rec.detail).toMatch(/taper/i);
+		expect(rec.detail).not.toMatch(/raise weekly volume/i);
+		expect(rec.detail.split(".")[0]).toMatch(/taper|fresh|kilometres/i);
+	});
+
+	it("prescribes volume when there is still time to raise the eight-week average", () => {
+		const rec = find(
+			recommendations({
+				prediction: {
+					predictedSec: 12780,
+					factors: [{ id: "volume", tone: "limiting" }],
+				},
+				goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
+				daysToRace: 40,
+			}),
+			"goal-behind",
+		);
+		expect(rec.detail).toMatch(/raise weekly volume/i);
+	});
+
 	it("confirms being on track for the goal", () => {
 		const out = recommendations({
 			prediction: { predictedSec: 12300 },

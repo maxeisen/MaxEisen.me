@@ -14,7 +14,7 @@
 // run uncaptioned.
 
 import { addDays, toDayKey } from "./dates.js";
-import { predictRace } from "./predict.js";
+import { projectMarathon, sessionProjectionDelta } from "./marathonProjection.js";
 import { median } from "./stats.js";
 import { isRunActivity } from "./shape.js";
 
@@ -88,23 +88,23 @@ function vsTypicalPct(run, records) {
 /**
  * Seconds today's (or this day's) efforts moved the headline prediction.
  *
- * Zero when they didn't beat the existing 5k+ basis. Null when there is
- * no prediction at all.
+ * Zero when the day's running did not change the shared estimate. Null when
+ * there is no prediction at all.
  *
  * @param {object[]} efforts from collectBestEfforts().
  * @param {string} date day key of the run being captioned.
  * @param {number} targetDistanceM
+ * @param {object[]} [runs] shaped runs, so training support can move.
  * @returns {number|null}
  */
-export function sessionDeltaSec(efforts, date, targetDistanceM) {
-	const after = predictRace(efforts, targetDistanceM);
-	if (!after) return null;
-	const prior = predictRace(
-		(efforts || []).filter((effort) => effort?.date !== date),
+export function sessionDeltaSec(efforts, date, targetDistanceM, runs = []) {
+	return sessionProjectionDelta({
+		runs,
+		efforts,
+		today: date,
+		date,
 		targetDistanceM,
-	);
-	if (!prior) return 0;
-	return Math.round(after.predictedSec - prior.predictedSec);
+	})?.sessionDeltaSec ?? null;
 }
 
 /**
@@ -188,6 +188,7 @@ export async function captionRecentRuns({
 	today,
 	series = [],
 	efforts = [],
+	runs = [],
 	raceDistanceM = 42195,
 	getDescription,
 	putDescription,
@@ -210,13 +211,24 @@ export async function captionRecentRuns({
 		if (Date.now() > deadline) break;
 		const date = toDayKey(record.startDateLocal);
 		const form = formAt(series, date);
-		const predicted = predictRace(efforts, raceDistanceM);
+		const predicted = projectMarathon({
+			runs: runs.length ? runs : records.filter(isRunActivity),
+			efforts,
+			today: date,
+			targetDistanceM: raceDistanceM,
+			tsb: form?.tsb ?? null,
+		});
 		const lines = formatCaptionLines({
 			...form,
 			load: record.load,
 			vsTypicalPct: vsTypicalPct(record, records),
 			predictedSec: predicted?.predictedSec ?? null,
-			sessionDeltaSec: sessionDeltaSec(efforts, date, raceDistanceM),
+			sessionDeltaSec: sessionDeltaSec(
+				efforts,
+				date,
+				raceDistanceM,
+				runs.length ? runs : records.filter(isRunActivity),
+			),
 		});
 		if (lines.length === 0) continue;
 

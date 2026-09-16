@@ -688,6 +688,7 @@ export default async function handler(req) {
 			today,
 			series,
 			efforts: collectBestEfforts(runs),
+			runs,
 			raceDistanceM: plan.race?.distanceM || 42195,
 			deadline,
 			getDescription: async (id) => {
