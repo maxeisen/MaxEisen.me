@@ -65,9 +65,13 @@ function formImpact(series, date) {
 }
 
 /** Runs of the six weeks before this one, oldest first. */
-function recentBefore(runs, date) {
+function recentBefore(runs, date, targetIdx) {
 	const from = addDays(date, -TYPICAL_WINDOW_DAYS);
-	return runs.slice(0, -1).filter((run) => {
+	// Everything strictly before the run being detailed. `slice(0, targetIdx)`
+	// rather than `slice(0, -1)` so a run opened from the log — which may sit
+	// anywhere in the block — is compared against what came before *it*, not
+	// against the block right up to today.
+	return runs.slice(0, targetIdx).filter((run) => {
 		const day = toDayKey(run.startDateLocal);
 		return day && day >= from && day <= date;
 	});
@@ -224,7 +228,12 @@ function effortOf(mix, run, thresholds) {
 }
 
 /**
- * The newest run in the block, with the context that makes it readable.
+ * One run in the block, with the context that makes it readable.
+ *
+ * Defaults to the newest run — the "Last run" widget — but takes an explicit
+ * `run` so the recent-activity log can open any run with the same detail. The
+ * series and weeks it reads are the dashboard's; see runDetailById in
+ * metrics.js for the on-demand caller that rebuilds them for a single run.
  *
  * @param {object} input
  * @param {object[]} input.runs shaped activities, oldest first.
@@ -233,14 +242,19 @@ function effortOf(mix, run, thresholds) {
  * @param {object} [input.planMatch] the plan match for this run, if any.
  * @param {object} [input.thresholds] from the plan file.
  * @param {string} input.today day key.
- * @returns {object|null} null when nothing has been run yet.
+ * @param {object} [input.run] the run to detail; defaults to the newest.
+ * @returns {object|null} null when there's no run to detail.
  */
-export function lastRunDetail({ runs = [], series = [], weeks = [], planMatch = null, thresholds = {}, today }) {
-	const run = runs.at(-1);
+export function runDetail({ runs = [], series = [], weeks = [], planMatch = null, thresholds = {}, today, run = runs.at(-1) }) {
 	if (!run) {
 		return null;
 	}
 
+	// Where the run sits in the block, so "typical for you" reaches back from
+	// it rather than from the end of the list. Falls back to the last run's
+	// position when the run isn't one of these (it always is in practice).
+	const found = runs.indexOf(run);
+	const targetIdx = found < 0 ? runs.length - 1 : found;
 	const date = toDayKey(run.startDateLocal);
 	const mix = zoneMix(run.zoneSeconds);
 
@@ -259,8 +273,19 @@ export function lastRunDetail({ runs = [], series = [], weeks = [], planMatch = 
 		pacing: pacing(run.splits),
 		impact: {
 			form: formImpact(series, date),
-			load: loadImpact(run, recentBefore(runs, date), date),
+			load: loadImpact(run, recentBefore(runs, date, targetIdx), date),
 			week: weekImpact(weeks, run, date),
 		},
 	};
+}
+
+/**
+ * The newest run in the block. Thin wrapper over runDetail, kept as the name
+ * the dashboard build reads.
+ *
+ * @param {object} input see runDetail (minus `run`).
+ * @returns {object|null} null when nothing has been run yet.
+ */
+export function lastRunDetail(input) {
+	return runDetail(input);
 }

@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const functions = [
 	"trainingData.js",
+	"trainingActivity.js",
 	"trainingPage.js",
 	"trainingSync.js",
 	"stravaFeed.js",
