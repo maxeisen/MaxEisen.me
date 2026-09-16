@@ -6,12 +6,13 @@
 // "where does today stand right now": the FFF change from yesterday's close,
 // readiness (see readiness.js), the planned session if it's still ahead, and
 // what today's session did to the projected finish — not a second copy of it.
+// The finish itself is always the shared engine in marathonProjection.js.
 //
 // Nothing here is fetched. The series, the day's plan row, last night, and the
 // race efforts are handed in already final. Readiness sits beside form and
 // still does not feed it.
 
-import { predictRace } from "./predict.js";
+import { projectMarathon, sessionProjectionDelta } from "./marathonProjection.js";
 import { readiness } from "./readiness.js";
 
 /**
@@ -61,26 +62,34 @@ function sessionFrom(day) {
 	};
 }
 
-function predictionOf({ efforts, targetDistanceM, date, ranToday }) {
-	const after = predictRace(efforts, targetDistanceM);
-	if (!after) return null;
-	// Re-predict without today's efforts rather than trusting basis.date:
-	// an easy 6k still has a 5k split, and that split is "today" even when
-	// it did not beat the existing basis. The number this cell exists to
-	// show is the time today's session moved, which is zero in that case.
-	const prior = predictRace(
-		(efforts || []).filter((effort) => effort?.date !== date),
+function predictionOf({ efforts, runs, targetDistanceM, goalTimeSec, date, ranToday, tsb }) {
+	const after = projectMarathon({
+		runs,
+		efforts,
+		today: date,
 		targetDistanceM,
-	);
-	const predictedSec = after.predictedSec;
+		goalTimeSec,
+		tsb,
+	});
+	if (!after) return null;
 	let sessionDeltaSec = null;
 	if (ranToday) {
-		sessionDeltaSec = prior ? Math.round(predictedSec - prior.predictedSec) : 0;
+		sessionDeltaSec =
+			sessionProjectionDelta({
+				runs,
+				efforts,
+				today: date,
+				date,
+				targetDistanceM,
+				goalTimeSec,
+				tsb,
+			})?.sessionDeltaSec ?? 0;
 	}
 	return {
-		predictedSec,
+		predictedSec: after.predictedSec,
 		ranToday: Boolean(ranToday),
 		sessionDeltaSec,
+		unchangedReason: after.unchangedReason,
 	};
 }
 
@@ -93,7 +102,10 @@ function predictionOf({ efforts, targetDistanceM, date, ranToday }) {
  * @param {object|null} [input.day] today's row from planDays().
  * @param {object|null} [input.recovery] from recoverySummary().
  * @param {object[]} [input.efforts] from collectBestEfforts().
+ * @param {object[]} [input.runs] shaped runs, so training support can move.
  * @param {number} [input.targetDistanceM]
+ * @param {number} [input.goalTimeSec]
+ * @param {number|null} [input.tsb]
  * @returns {object}
  */
 export function todayBriefing({
@@ -102,7 +114,10 @@ export function todayBriefing({
 	day = null,
 	recovery = null,
 	efforts = [],
+	runs = [],
 	targetDistanceM = 42195,
+	goalTimeSec = null,
+	tsb = null,
 } = {}) {
 	const training = trainingOf(series, date);
 	const session = sessionFrom(day);
@@ -113,9 +128,12 @@ export function todayBriefing({
 		session,
 		prediction: predictionOf({
 			efforts,
+			runs,
 			targetDistanceM,
+			goalTimeSec,
 			date,
 			ranToday: session.actualKm > 0,
+			tsb: tsb ?? training?.tsb ?? null,
 		}),
 	};
 }

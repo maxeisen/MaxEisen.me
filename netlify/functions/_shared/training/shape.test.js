@@ -242,6 +242,22 @@ describe("collectBestEfforts", () => {
 	it("handles activities with no efforts", () => {
 		expect(collectBestEfforts([{}, { bestEfforts: [] }])).toEqual([]);
 	});
+
+	it("carries the parent activity's distance and workout type onto each effort", () => {
+		const out = collectBestEfforts([
+			{
+				distanceM: 30000,
+				workoutType: 2,
+				bestEfforts: [{ name: "10k", distanceM: 10000, timeSec: 2700, date: "2026-09-13" }],
+			},
+		]);
+		expect(out[0]).toMatchObject({
+			name: "10k",
+			distanceM: 10000,
+			activityDistanceM: 30000,
+			workoutType: 2,
+		});
+	});
 });
 
 function rawRide(overrides = {}) {

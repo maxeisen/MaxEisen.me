@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { fitnessSeries } from "./fitness.js";
-import { predictRace } from "./predict.js";
+import { projectMarathon, sessionProjectionDelta } from "./marathonProjection.js";
 import { sessionOf, todayBriefing } from "./today.js";
 
 describe("sessionOf", () => {
@@ -141,10 +141,19 @@ describe("todayBriefing", () => {
 				targetDistanceM: 42195,
 			},
 		);
-		const after = predictRace([...prior, faster], 42195);
-		const before = predictRace(prior, 42195);
+		const after = projectMarathon({
+			efforts: [...prior, faster],
+			today,
+			targetDistanceM: 42195,
+		});
+		const delta = sessionProjectionDelta({
+			efforts: [...prior, faster],
+			today,
+			date: today,
+			targetDistanceM: 42195,
+		});
 		expect(out.prediction.ranToday).toBe(true);
-		expect(out.prediction.sessionDeltaSec).toBe(Math.round(after.predictedSec - before.predictedSec));
+		expect(out.prediction.sessionDeltaSec).toBe(delta.sessionDeltaSec);
 		expect(out.prediction.sessionDeltaSec).toBeLessThan(0);
 		expect(out.prediction.predictedSec).toBe(after.predictedSec);
 	});

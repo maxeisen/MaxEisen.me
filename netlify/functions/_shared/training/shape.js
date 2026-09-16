@@ -400,7 +400,15 @@ export function shapeActivities(rawActivities, options = {}) {
 export function collectBestEfforts(activities) {
 	const efforts = [];
 	for (const a of activities || []) {
-		for (const e of a.bestEfforts || []) efforts.push(e);
+		for (const e of a.bestEfforts || []) {
+			efforts.push({
+				...e,
+				activityDistanceM: Number(a.distanceM) > 0 ? Number(a.distanceM) : e.activityDistanceM,
+				workoutType: Number.isFinite(Number(a.workoutType))
+					? Number(a.workoutType)
+					: (e.workoutType ?? null),
+			});
+		}
 	}
 	return efforts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }

@@ -11,7 +11,8 @@ import { efficiencyTrend } from "./efficiency.js";
 import { collectBestEfforts, isRunActivity, publicRun } from "./shape.js";
 import { lastRunDetail, runDetail } from "./lastRun.js";
 import { todayBriefing } from "./today.js";
-import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
+import { goalPaceSecPerKm } from "./predict.js";
+import { projectMarathon, projectionSeries } from "./marathonProjection.js";
 import {
 	blockRange,
 	comparePlan,
@@ -178,9 +179,15 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 
 	const raceDistanceM = race.distanceM || 42195;
 	const efforts = collectBestEfforts(runs);
-	const prediction = predictRace(efforts, raceDistanceM);
+	const prediction = projectMarathon({
+		runs,
+		efforts,
+		today: day,
+		targetDistanceM: raceDistanceM,
+		goalTimeSec: race.goalTimeSec,
+		tsb: latest?.tsb ?? null,
+	});
 	const goalPace = goalPaceSecPerKm(race.goalTimeSec, raceDistanceM);
-	const delta = prediction ? goalDelta(prediction.predictedSec, race.goalTimeSec) : null;
 
 	const lastLongRun = [...runs]
 		.reverse()
@@ -256,12 +263,28 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		prediction: prediction
 			? {
 					predictedSec: prediction.predictedSec,
+					trainingSec: prediction.trainingSec,
+					aerobicPotentialSec: prediction.aerobicPotentialSec,
+					recentAerobicPotentialSec: prediction.recentAerobicPotentialSec,
 					riegelSec: prediction.riegelSec,
 					vdotSec: prediction.vdotSec,
 					vdot: prediction.vdot,
 					basis: prediction.basis,
-					deltaSec: delta?.deltaSec ?? null,
-					onTrack: delta?.onTrack ?? null,
+					basisAgeDays: prediction.basisAgeDays,
+					basisStatus: prediction.basisStatus,
+					factors: prediction.factors,
+					confidence: prediction.confidence,
+					range: prediction.range,
+					history: projectionSeries({
+						runs,
+						efforts,
+						today: day,
+						targetDistanceM: raceDistanceM,
+						goalTimeSec: race.goalTimeSec,
+					}),
+					unchangedReason: prediction.unchangedReason,
+					deltaSec: prediction.deltaSec,
+					onTrack: prediction.onTrack,
 				}
 			: null,
 		longRun: lastLongRun
@@ -321,7 +344,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		day: todayRow,
 		recovery: recovered,
 		efforts,
+		runs,
 		targetDistanceM: raceDistanceM,
+		goalTimeSec: race.goalTimeSec,
+		tsb: latest?.tsb ?? null,
 	});
 
 	return {

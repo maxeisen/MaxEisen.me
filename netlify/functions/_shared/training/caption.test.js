@@ -104,7 +104,7 @@ describe("formatCaptionLines", () => {
 
 describe("sessionDeltaSec", () => {
 	const marathon = 42195;
-	const prior = [{ date: "2026-05-10", distanceM: 10000, timeSec: 2580, name: "10K" }];
+	const prior = [{ date: "2026-07-01", distanceM: 10000, timeSec: 2580, name: "10K" }];
 
 	it("is zero when today's 8k does not beat the existing basis", () => {
 		const efforts = [...prior, { date: "2026-08-21", distanceM: 8000, timeSec: 2800, name: "8k" }];

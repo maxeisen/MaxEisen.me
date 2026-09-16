@@ -8,6 +8,7 @@
 
 import {
 	clock,
+	clockMinutes,
 	daysAgo,
 	formatDistance,
 	formatDuration,
@@ -186,7 +187,7 @@ function renderHeader(summary) {
 <p>${[raceDate, countdown].filter(Boolean).map(t).join(" ")}</p>
 ${pairs([
 	["Goal", `${clock(race.goalTimeSec)} (${pace(race.goalPaceSecPerKm)})`],
-	["Projected", prediction ? `${clock(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}` : "needs a hard effort to project from"],
+	["Projected", prediction ? `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}` : "needs a few weeks of running to project from"],
 	["Fitness", latest ? `${Math.round(latest.ctl)}; ${trendNote}` : trendNote],
 	["Block total", `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`],
 ])}`;
@@ -347,19 +348,26 @@ function renderPrediction(summary) {
 	const prediction = summary?.prediction;
 	const race = summary?.race || {};
 	if (!prediction) {
-		return section("Projected finish", "<p>No hard effort of 5 km or longer yet to project from.</p>");
+		return section("Projected finish", "<p>Not enough recent running to project from.</p>");
 	}
 	const basis = prediction.basis;
 	const basisLine = basis
-		? `<p>Projected from ${t(kmLabel(basis.distanceM))} in ${t(clock(basis.timeSec))}${basis.date ? ` on ${t(shortDate(basis.date))}` : ""}.</p>`
+		? `<p>${prediction.basisStatus === "historic" ? "Historic aerobic equivalent from" : "Projected from"} ${t(kmLabel(basis.distanceM))} in ${t(clock(basis.timeSec))}${basis.date ? ` on ${t(shortDate(basis.date))}` : ""}${Number.isFinite(prediction.basisAgeDays) ? ` (${prediction.basisAgeDays} days ago)` : ""}.</p>`
 		: "";
+	const reason = prediction.unchangedReason ? `<p>${t(prediction.unchangedReason)}</p>` : "";
+	const range = prediction.range
+		? ["Likely range", `${clockMinutes(prediction.range.fastSec)} – ${clockMinutes(prediction.range.slowSec)}${prediction.confidence?.label ? ` (${prediction.confidence.label} confidence)` : ""}`]
+		: null;
 	return section("Projected finish", `${pairs([
-		["Projected", `${clock(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}`],
+		["Projected", `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}`],
+		range,
+		["Training-supported", clockMinutes(prediction.trainingSec)],
+		["Aerobic equivalent", clockMinutes(prediction.aerobicPotentialSec)],
 		["Riegel", clock(prediction.riegelSec)],
 		["VDOT", `${clock(prediction.vdotSec)}${Number.isFinite(prediction.vdot) ? ` (${prediction.vdot.toFixed(1)})` : ""}`],
 		["Goal pace", pace(race.goalPaceSecPerKm)],
 	])}
-${basisLine}`);
+${basisLine}${reason}`);
 }
 
 function renderRecovery(recovery) {

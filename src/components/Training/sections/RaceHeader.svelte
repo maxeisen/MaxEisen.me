@@ -1,6 +1,6 @@
 <!-- Race countdown and the headline numbers. -->
 <script>
-    import { clock, km, pace, signed, signedClock } from "../lib/format.js";
+    import { clock, clockMinutes, km, pace, signed, signedClock } from "../lib/format.js";
 
     let { summary } = $props();
 
@@ -67,10 +67,17 @@
     <div class="stat">
         <span class="stat-label">Projected</span>
         <strong class="stat-value" class:ahead={prediction?.onTrack} class:behind={prediction && !prediction.onTrack}>
-            {prediction ? clock(prediction.predictedSec) : "—"}
+            {prediction ? clockMinutes(prediction.predictedSec) : "—"}
         </strong>
         <span class="stat-note">
-            {prediction ? signedClock(prediction.deltaSec) : "needs a hard effort to project from"}
+            {#if prediction?.range}
+                {clockMinutes(prediction.range.fastSec)}–{clockMinutes(prediction.range.slowSec)}
+                {prediction.deltaSec != null ? ` · ${signedClock(prediction.deltaSec)}` : ""}
+            {:else if prediction}
+                {signedClock(prediction.deltaSec)}
+            {:else}
+                needs a few weeks of running to project from
+            {/if}
         </span>
     </div>
 

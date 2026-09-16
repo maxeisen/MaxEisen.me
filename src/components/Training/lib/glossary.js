@@ -6,13 +6,13 @@ export const GLOSSARY = {
 		title: "Today",
 		body: [
 			"Where today stands right now — not what the last run was, which may have been Tuesday. Fitness, fatigue and form still come from training load alone. Readiness sits beside them and never feeds them.",
-			"Readiness is the mean of four terms on the same scale as form: today's form, last night's sleep vs your 28-day baseline, last night's HRV vs that baseline, and overnight resting heart rate inverted so a rise counts against you. A notable overnight move is an hour of sleep, 15% HRV, or 5 bpm of resting heart rate; a spectacular night is capped so it cannot drown form. The row under the headline is physiology, not those scores. The projection cell is what today's session did to the finish, not a second copy of it — no session yet is no change, and an easy run that doesn't beat the current basis is no change either.",
+			"Readiness is the mean of four terms on the same scale as form: today's form, last night's sleep vs your 28-day baseline, last night's HRV vs that baseline, and overnight resting heart rate inverted so a rise counts against you. A notable overnight move is an hour of sleep, 15% HRV, or 5 bpm of resting heart rate; a spectacular night is capped so it cannot drown form. The row under the headline is physiology, not those scores. The projection cell is what today's session did to the finish, not a second copy of it — no session yet is no change. A run moves the number when it changes training support or replaces the current race-quality basis.",
 		],
 		terms: [
 			{ term: "Training", definition: "Today's fitness, fatigue and form against yesterday's close. A rest day still moves them — fatigue decays faster than fitness, so form usually lifts. A run is already in these numbers once it has synced." },
 			{ term: "Readiness", definition: "A signed number like form, not a 0–100 score. The row under it is last night in its own units — extra hours of sleep, HRV in milliseconds, resting heart rate in bpm — not the points that went into the mean. A lower overnight heart rate raises readiness; a rise is what counts against you. Last night doesn't change until tomorrow; today's run moves readiness only through form." },
 			{ term: "Session", definition: "What the plan asked for today, and whether it's still ahead, done, extra, or a rest day. An 8am blank is ahead, not missed." },
-			{ term: "Projected", definition: "What today's session did to the projected finish, not the finish itself. No run yet is no change. A run that doesn't beat the current 5k+ basis is no change either; the new time only appears here when this session moved it." },
+			{ term: "Projected", definition: "What today's session did to the projected finish, not the finish itself. No run yet is no change. The same engine as the header runs with and without today's activities, so a long run that changes volume or durability counts even when it does not beat a 10k PR." },
 		],
 	},
 
@@ -83,12 +83,13 @@ export const GLOSSARY = {
 	prediction: {
 		title: "Projected finish",
 		body: [
-			"What your recent hard efforts imply for the marathon, using two standard models. They disagree, and by how much is informative, so both are shown; the headline takes the slower of the two.",
-			"Both assume you keep doing the endurance work, so treat this as a floor for a well-executed race rather than a verdict on today.",
+			"The headline is what the last eight weeks of running support, not a short-race equivalent treated as a marathon result. It takes the slower of two published models: Tanda's volume-and-pace estimate, and Riegel/VDOT race-equivalence from recent race-quality efforts. Older PRs stay visible as historic aerobic potential and do not freeze the number.",
+			"Easy and long-run splits are training evidence — volume, longest run, decoupling — not a new 10k. Recovery and form widen the likely range rather than inventing seconds of ability. Treat the range as the honest forecast; the single time is the centre of it.",
 		],
 		terms: [
-			{ term: "Riegel", definition: "Scales a known race time up to the marathon distance using a fixed fatigue exponent. Simple, and optimistic for anyone under-trained for the distance." },
-			{ term: "VDOT", definition: "Daniels' method: turns an effort into an estimate of aerobic power, then reads the equivalent marathon time off that." },
+			{ term: "Training-supported", definition: "Tanda's model: mean weekly distance and mean training pace over the trailing eight weeks, converted to a marathon. It moves when you add volume or change training pace, including long runs that would never beat a 10k PR." },
+			{ term: "Aerobic equivalent", definition: "Riegel and Daniels VDOT applied to recent race-quality efforts of 5 km or longer — tagged races, workouts, or whole-run time trials. The slower of the two models is kept. A 10k from months ago is historic potential, not current fitness." },
+			{ term: "Likely range", definition: "Uncertainty around the headline from model disagreement, missing marathon-specific evidence, and current form. A buried week widens the range; it does not slow the centre by a made-up number of seconds." },
 			{ term: "Goal pace", definition: "The average pace per kilometre your goal time requires, start to finish." },
 		],
 	},

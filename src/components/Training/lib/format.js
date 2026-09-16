@@ -47,6 +47,15 @@ export function clock(sec) {
 	return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
 
+/** A projected finish rounded to the minute — second precision overclaims. */
+export function clockMinutes(sec) {
+	if (!(sec > 0)) return "—";
+	const total = Math.round(sec / 60) * 60;
+	const h = Math.floor(total / 3600);
+	const m = Math.floor((total % 3600) / 60);
+	return h > 0 ? `${h}:${pad(m)}` : `${m}:00`;
+}
+
 /** Signed duration, for "4:32 under goal" style deltas. */
 export function signedClock(sec) {
 	if (!Number.isFinite(sec) || sec === 0) return "on goal";
