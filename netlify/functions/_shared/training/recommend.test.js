@@ -107,7 +107,7 @@ describe("recommendations", () => {
 		expect(rec.detail).toContain("4:59/km");
 	});
 
-	it("tells you how to close a training-supported gap in the last build week", () => {
+	it("interpolates the planned long run in the last full week before the taper", () => {
 		const rec = find(
 			recommendations({
 				prediction: {
@@ -122,17 +122,16 @@ describe("recommendations", () => {
 				},
 				goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
 				daysToRace: 25,
-				intensity: { easyPct: 48 },
 				longRunDecouplingPct: 7.4,
-				currentWeek: { sessions: [{ type: "long run", distanceKm: 34, isRun: true }] },
+				currentWeek: { sessions: [{ type: "long run", distanceKm: 24, isRun: true }] },
 			}),
 			"goal-behind",
 		);
-		expect(rec.detail).toMatch(/^This is the last week that can still move/);
-		expect(rec.detail).toMatch(/3h 33m/);
-		expect(rec.detail).toMatch(/34/);
+		expect(rec.detail).toMatch(/last full week before the taper/);
+		expect(rec.detail).toMatch(/24/);
 		expect(rec.detail).toMatch(/easy/i);
 		expect(rec.detail).toMatch(/not closed by adding kilometres/);
+		expect(rec.detail).not.toMatch(/34/);
 	});
 
 	it("does not prescribe more kilometres once the taper has started", () => {
@@ -158,10 +157,12 @@ describe("recommendations", () => {
 				},
 				goal: { goalTimeSec: 12600, goalPaceSecPerKm: 298.6 },
 				daysToRace: 40,
+				currentWeek: { longRunTargetKm: 18 },
 			}),
 			"goal-behind",
 		);
 		expect(rec.detail).toMatch(/raise weekly volume/i);
+		expect(rec.detail).toMatch(/18/);
 	});
 
 	it("confirms being on track for the goal", () => {
