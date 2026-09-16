@@ -12,6 +12,7 @@
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
+    import ModalProvider from "../../lib/ui/ModalProvider.svelte";
     import BackLink from "../../lib/ui/BackLink.svelte";
     import EditToggle from "../../lib/ui/EditToggle.svelte";
     import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
@@ -97,7 +98,7 @@
             case "intensity": return { intensity: data.summary?.intensity };
             case "week": return { week: data.week, upcoming: data.upcoming };
             case "recovery": return { recovery: data.recovery };
-            case "runs": return { runs: data.runs, total: data.summary?.totals?.runs };
+            case "runs": return { runs: data.runs, total: data.summary?.totals?.runs, lastRun: data.lastRun };
             default: return {};
         }
     }
@@ -207,6 +208,9 @@
     {/if}
 {/snippet}
 
+<!-- ModalProvider gives the run log a window to open a run in, the same one
+     the homepage uses for its activity/experience modals. -->
+<ModalProvider>
 <main class="training">
     <BackLink />
 
@@ -265,6 +269,7 @@
         </footer>
     {/if}
 </main>
+</ModalProvider>
 
 <style>
     /* BackLink is fixed top-left. Below 1100px it becomes a 40px circle

@@ -9,7 +9,7 @@
 <script>
     import CursorSpotlight from './layout/CursorSpotlight.svelte';
     import ThemeToggle from './layout/ThemeToggle.svelte';
-    import ModalProvider from './layout/ModalProvider.svelte';
+    import ModalProvider from '../../lib/ui/ModalProvider.svelte';
     import MenuBar from './layout/MenuBar.svelte';
 
     import Profile from './sections/Profile.svelte';

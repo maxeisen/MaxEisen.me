@@ -1,6 +1,9 @@
 <!--
-    Modal context provider. Sets `simple-modal` context so any homepage
-    section can call `open(Component, props, options)` to mount a modal.
+    Modal context provider. Sets `simple-modal` context so any section
+    can call `open(Component, props, options)` to mount a modal.
+
+    Shared: the homepage wraps its sections in this, and /training wraps its
+    dashboard in it too so the run log can open a run in the same window.
 
     Options:
       - wide:        widen the modal window to ~950px (used by long-form
@@ -17,7 +20,7 @@
 <script>
 	import { setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import CloseButton from '../../../lib/ui/CloseButton.svelte';
+	import CloseButton from './CloseButton.svelte';
 	let current = $state(null);
 	let previousHtmlOverflow = '';
 

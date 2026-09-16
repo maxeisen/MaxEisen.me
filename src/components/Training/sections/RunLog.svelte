@@ -1,11 +1,27 @@
 <!-- Recent activity, newest first, matched against the plan. -->
 <script>
+    import { getContext } from "svelte";
     import Card from "../Card.svelte";
+    import RunModal from "../RunModal.svelte";
     import { formatDistance, formatDuration, pace, shortDate, speed, timeTaken } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag } from "../lib/runTags.js";
 
-    let { runs = [], total = null } = $props();
+    // lastRun carries the full detail (load, zones, splits, trace, fitness
+    // impact) that the log's own rows don't, so opening the newest run shows
+    // everything the "Last run" widget does rather than a thinner copy.
+    let { runs = [], total = null, lastRun = null } = $props();
+
+    // Present when an ancestor mounts the shared ModalProvider (it does on
+    // /training). Absent otherwise, in which case a run just links to Strava
+    // like the rides and strength sessions do.
+    const modal = getContext("simple-modal");
+    const canOpen = typeof modal?.open === "function";
+
+    function openRun(run) {
+        const detail = lastRun && run.id === lastRun.id ? lastRun : run;
+        modal.open(RunModal, { run: detail });
+    }
 
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
     const runCount = $derived(runs.filter((r) => r.sport === "run" || !r.sport).length);
@@ -19,6 +35,65 @@
         "Shown for context only. Strength is on the plan, but it does not count toward running volume, fitness or the race projection.";
 
 </script>
+
+<!-- The row's contents, rendered inside either the run's <button> or the
+     context activity's <a>. -->
+{#snippet rowBody(run, isRide, isStrength, planned, tag, hilly)}
+    <div class="row-main">
+        <span class="row-name">{run.name}</span>
+        <span class="row-meta">
+            {shortDate(run.startDateLocal)}
+            {#if isRide}
+                <span class="tag ride-tag" title={RIDE_NOTE}>ride</span>
+            {:else if isStrength}
+                <span class="tag ride-tag" title={STRENGTH_NOTE}>strength</span>
+            {:else if planned}
+                <span class="tag plan" title={run.plan.detail || ""}>
+                    {run.plan.type || "planned"}
+                </span>
+            {:else}
+                <span class="tag extra">extra</span>
+            {/if}
+            {#if tag && !isRide && !isStrength}<span class="tag">{tag}</span>{/if}
+            {#if run.averageHr && !isStrength}· {Math.round(run.averageHr)} bpm{/if}
+            {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
+        </span>
+        {#each run.notes || [] as note, i (i)}
+            <span class="row-note">
+                <span class="note-label">{note.kind === "excuse" ? "why" : "note"}</span>
+                {note.text}
+            </span>
+        {/each}
+    </div>
+
+    <div class="row-stat">
+        {#if isStrength}
+            <strong>{timeTaken(run.movingTimeSec)}</strong>
+            <span>moving</span>
+        {:else}
+            <strong>{formatDistance(run.distanceM)}</strong>
+            <span>{formatDuration(run.movingTimeSec)}{#if planned && run.plan.distanceKm}&nbsp;· {run.plan.distanceKm} km planned{/if}</span>
+        {/if}
+    </div>
+
+    <div class="row-stat">
+        {#if isRide}
+            <!-- Minutes per kilometre is a runner's unit and reads as nonsense
+                 on a bike, so the column a run gives to pace and GAP gives the
+                 speed a cyclist would actually quote. -->
+            <strong>{speed(run.distanceM, run.movingTimeSec)}</strong>
+            <span>avg speed</span>
+        {:else if isStrength}
+            <strong>{run.averageHr ? `${Math.round(run.averageHr)} bpm` : "—"}</strong>
+            <span>avg HR</span>
+        {:else}
+            <strong>{pace(run.paceSecPerKm)}</strong>
+            <span class:adjusted={hilly}>
+                {Number.isFinite(run.gapPaceSecPerKm) ? `${pace(run.gapPaceSecPerKm)} GAP` : "—"}
+            </span>
+        {/if}
+    </div>
+{/snippet}
 
 <Card title="Recent activity" info={GLOSSARY.runs}>
     {#snippet aside()}
@@ -49,71 +124,31 @@
                 {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
                     && Math.abs(run.gapPaceSecPerKm - run.paceSecPerKm) > 5}
                 <li>
-                    <a
-                        class="row"
-                        class:extra={!planned && !isContext}
-                        class:ride={isRide}
-                        class:strength={isStrength}
-                        href="https://www.strava.com/activities/{run.id}"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
-                        <div class="row-main">
-                            <span class="row-name">{run.name}</span>
-                            <span class="row-meta">
-                                {shortDate(run.startDateLocal)}
-                                {#if isRide}
-                                    <span class="tag ride-tag" title={RIDE_NOTE}>ride</span>
-                                {:else if isStrength}
-                                    <span class="tag ride-tag" title={STRENGTH_NOTE}>strength</span>
-                                {:else if planned}
-                                    <span class="tag plan" title={run.plan.detail || ""}>
-                                        {run.plan.type || "planned"}
-                                    </span>
-                                {:else}
-                                    <span class="tag extra">extra</span>
-                                {/if}
-                                {#if tag && !isContext}<span class="tag">{tag}</span>{/if}
-                                {#if run.averageHr && !isStrength}· {Math.round(run.averageHr)} bpm{/if}
-                                {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
-                            </span>
-                            {#each run.notes || [] as note, i (i)}
-                                <span class="row-note">
-                                    <span class="note-label">{note.kind === "excuse" ? "why" : "note"}</span>
-                                    {note.text}
-                                </span>
-                            {/each}
-                        </div>
-
-                        <div class="row-stat">
-                            {#if isStrength}
-                                <strong>{timeTaken(run.movingTimeSec)}</strong>
-                                <span>moving</span>
-                            {:else}
-                                <strong>{formatDistance(run.distanceM)}</strong>
-                                <span>{formatDuration(run.movingTimeSec)}{#if planned && run.plan.distanceKm}&nbsp;· {run.plan.distanceKm} km planned{/if}</span>
-                            {/if}
-                        </div>
-
-                        <div class="row-stat">
-                            {#if isRide}
-                                <!-- Minutes per kilometre is a runner's unit
-                                     and reads as nonsense on a bike, so the
-                                     column a run gives to pace and GAP gives
-                                     the speed a cyclist would actually quote. -->
-                                <strong>{speed(run.distanceM, run.movingTimeSec)}</strong>
-                                <span>avg speed</span>
-                            {:else if isStrength}
-                                <strong>{run.averageHr ? `${Math.round(run.averageHr)} bpm` : "—"}</strong>
-                                <span>avg HR</span>
-                            {:else}
-                                <strong>{pace(run.paceSecPerKm)}</strong>
-                                <span class:adjusted={hilly}>
-                                    {Number.isFinite(run.gapPaceSecPerKm) ? `${pace(run.gapPaceSecPerKm)} GAP` : "—"}
-                                </span>
-                            {/if}
-                        </div>
-                    </a>
+                    <!-- A run opens its detail in the modal; a ride or strength
+                         session (context only) links out to Strava, as does any
+                         run when no modal provider is mounted above us. -->
+                    {#if isContext || !canOpen}
+                        <a
+                            class="row"
+                            class:extra={!planned && !isContext}
+                            class:ride={isRide}
+                            class:strength={isStrength}
+                            href="https://www.strava.com/activities/{run.id}"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            {@render rowBody(run, isRide, isStrength, planned, tag, hilly)}
+                        </a>
+                    {:else}
+                        <button
+                            type="button"
+                            class="row"
+                            class:extra={!planned}
+                            onclick={() => openRun(run)}
+                        >
+                            {@render rowBody(run, isRide, isStrength, planned, tag, hilly)}
+                        </button>
+                    {/if}
                 </li>
             {/each}
         </ul>
@@ -142,16 +177,32 @@
     /* A hairline between rows as well as the gap: a two-line row on a phone
        otherwise runs straight into the next one's title. */
     .log li + li { border-top: 1px solid var(--main-green-translucent); padding-top: var(--space-2); }
+    /* A row is an <a> for context activities and a <button> for openable runs.
+       The button resets (border, background, font, width, alignment) let the
+       two render identically; box-sizing is border-box globally, so the full
+       width plays nicely with the padding. */
     .row {
         display: flex;
         align-items: center;
         gap: var(--space-4);
+        width: 100%;
         padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
-        border-radius: var(--radius-sm);
-        text-decoration: none;
-        color: inherit;
+        border: 0;
         border-left: 2px solid var(--main-green);
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        text-decoration: none;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
         transition: background-color 0.15s ease;
+    }
+    .row:focus-visible {
+        outline: 2px solid var(--main-green);
+        outline-offset: 2px;
     }
     /* Runs the plan didn't ask for still belong here, but shouldn't read with
        the same weight as the sessions that were the point of the week. */
