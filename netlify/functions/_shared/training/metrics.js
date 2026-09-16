@@ -9,7 +9,7 @@ import { acwr, fitnessGain, fitnessSeries, longRunShare, rampRate, weeklySummari
 import { hrZoneFloors, intensitySplit } from "./zones.js";
 import { efficiencyTrend } from "./efficiency.js";
 import { collectBestEfforts, isRunActivity, publicRun } from "./shape.js";
-import { lastRunDetail } from "./lastRun.js";
+import { lastRunDetail, runDetail } from "./lastRun.js";
 import { todayBriefing } from "./today.js";
 import { goalDelta, goalPaceSecPerKm, predictRace } from "./predict.js";
 import {
@@ -345,4 +345,51 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		runs: recentLog(runs, context, planMatches),
 		thresholds,
 	};
+}
+
+/**
+ * Full detail for one run, by id — the on-demand counterpart to `lastRun`.
+ *
+ * The public run log serves the lean publicRun for every activity and keeps
+ * the trace, splits and zone data (most of the payload, most of it never
+ * opened) out of it. When a run is actually opened, trainingActivity asks for
+ * this instead. It rebuilds only the series and weeks the detail reads — the
+ * same pieces buildDashboard computes — for the one run requested. No Strava
+ * call: the streams were resolved at sync time and live in the index.
+ *
+ * @param {object} input
+ * @param {object[]} input.activities shaped activities, any order.
+ * @param {object} input.plan parsed marathon-plan.json.
+ * @param {string} input.today day key.
+ * @param {string|number} input.id the activity id to detail.
+ * @returns {object|null} the run detail, or null when the id isn't a stored run.
+ */
+export function runDetailById({ activities = [], plan = {}, today, id }) {
+	if (id == null) return null;
+
+	const day = toDayKey(today) || toDayKey(new Date());
+	const runs = [...activities]
+		.sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)))
+		.filter(isRunActivity);
+
+	const idx = runs.findIndex((r) => String(r.id) === String(id));
+	if (idx < 0) return null;
+
+	const range = blockRange(plan, runs, day);
+	const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
+	// The ramp / long-run-share mapping buildDashboard layers on top is for the
+	// load panel; the detail only reads a week's target and actual, so the bare
+	// comparison is enough here.
+	const weeks = comparePlan(weeklySummaries(runs, range || {}), plan);
+	const planMatches = matchRunsToPlan(runs, plan);
+
+	return runDetail({
+		runs,
+		series,
+		weeks,
+		planMatch: planMatches[idx] ?? null,
+		thresholds: plan?.thresholds || {},
+		today: day,
+		run: runs[idx],
+	});
 }

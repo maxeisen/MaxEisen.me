@@ -7,10 +7,7 @@
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag } from "../lib/runTags.js";
 
-    // lastRun carries the full detail (load, zones, splits, trace, fitness
-    // impact) that the log's own rows don't, so opening the newest run shows
-    // everything the "Last run" widget does rather than a thinner copy.
-    let { runs = [], total = null, lastRun = null } = $props();
+    let { runs = [], total = null } = $props();
 
     // Present when an ancestor mounts the shared ModalProvider (it does on
     // /training). Absent otherwise, in which case a run just links to Strava
@@ -18,9 +15,11 @@
     const modal = getContext("simple-modal");
     const canOpen = typeof modal?.open === "function";
 
+    // The row only holds the lean run; RunModal fetches the full detail (load,
+    // zones, splits, trace, fitness impact) by id when it opens, so every run
+    // shows everything the "Last run" widget does, not just the newest.
     function openRun(run) {
-        const detail = lastRun && run.id === lastRun.id ? lastRun : run;
-        modal.open(RunModal, { run: detail });
+        modal.open(RunModal, { run });
     }
 
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);

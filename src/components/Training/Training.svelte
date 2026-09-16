@@ -98,7 +98,7 @@
             case "intensity": return { intensity: data.summary?.intensity };
             case "week": return { week: data.week, upcoming: data.upcoming };
             case "recovery": return { recovery: data.recovery };
-            case "runs": return { runs: data.runs, total: data.summary?.totals?.runs, lastRun: data.lastRun };
+            case "runs": return { runs: data.runs, total: data.summary?.totals?.runs };
             default: return {};
         }
     }

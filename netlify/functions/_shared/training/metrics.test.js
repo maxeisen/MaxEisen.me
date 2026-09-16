@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildDashboard } from "./metrics.js";
+import { buildDashboard, runDetailById } from "./metrics.js";
 import { shapeActivities } from "./shape.js";
 import { addDays } from "./dates.js";
 
@@ -780,6 +780,50 @@ describe("the today briefing", () => {
 		expect(wednesday.lastRun.date).toBe("2026-08-11");
 		expect(wednesday.today.session.status).toBe("ahead");
 		expect(wednesday.today.training.load).toBe(0);
+	});
+});
+
+describe("runDetailById", () => {
+	// ids run 1000..1000+count-1 oldest→newest, one run every other day.
+	it("returns null when the id isn't a stored run", () => {
+		const activities = block("2026-08-11", 5);
+		expect(runDetailById({ activities, plan: PLAN, today: "2026-08-11", id: 999999 })).toBeNull();
+		expect(runDetailById({ activities, plan: PLAN, today: "2026-08-11", id: null })).toBeNull();
+	});
+
+	it("details any run in the block, not just the newest", () => {
+		const activities = block("2026-08-11", 5); // ids 1000..1004
+		const detail = runDetailById({ activities, plan: PLAN, today: "2026-08-11", id: 1002 });
+
+		expect(detail).not.toBeNull();
+		expect(detail.id).toBe(1002);
+		// The date/relative context a log row doesn't carry.
+		expect(detail.date).toBe("2026-08-07");
+		expect(detail.daysAgo).toBe(4);
+		// And the fitness impact, computed against the runs before this one.
+		expect(detail.impact).toBeTruthy();
+	});
+
+	it("matches what the dashboard reports for the newest run", () => {
+		const activities = block("2026-08-11", 6); // newest id 1005
+		const detail = runDetailById({ activities, plan: PLAN, today: "2026-08-11", id: 1005 });
+		const { lastRun } = buildDashboard({ activities, plan: PLAN, today: "2026-08-11" });
+
+		expect(detail.id).toBe(lastRun.id);
+		expect(detail.date).toBe(lastRun.date);
+		expect(detail.impact.form?.ctl).toBe(lastRun.impact.form?.ctl);
+	});
+
+	// The whole point of the on-demand endpoint: a run compares against what
+	// came before *it*, not against the block right up to today.
+	it("brackets an older run with the runs before it, not the whole block", () => {
+		const activities = block("2026-08-11", 6);
+		const older = runDetailById({ activities, plan: PLAN, today: "2026-08-11", id: 1002 });
+		expect(older.date).toBe("2026-08-05");
+		// Its form reading is dated to the run, so its fitness is lower than the
+		// newest run's (which has three more sessions banked on top).
+		const newest = runDetailById({ activities, plan: PLAN, today: "2026-08-11", id: 1005 });
+		expect(older.impact.form.ctl).toBeLessThan(newest.impact.form.ctl);
 	});
 });
 
