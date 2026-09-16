@@ -40,6 +40,69 @@ function duration(sec) {
 	return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
+function plannedLongRunKm(week) {
+	const fromTarget = Number(week?.longRunTargetKm);
+	if (fromTarget > 0) return Math.round(fromTarget);
+	const sessions = week?.sessions || [];
+	const long = sessions.find((s) => String(s.type || "").toLowerCase().includes("long"));
+	const km = Number(long?.distanceKm);
+	return km > 0 ? Math.round(km) : null;
+}
+
+function factorTone(prediction, id) {
+	return (prediction?.factors || []).find((f) => f.id === id)?.tone || null;
+}
+
+/**
+ * What to do about a goal gap, given how many days are left and what is
+ * actually limiting the projection. Crash volume cannot land in an eight-week
+ * average once the taper is this close.
+ */
+function goalAdvice({ prediction, goal, daysToRace, longRunDecouplingPct, currentWeek, behind }) {
+	const predicted = duration(prediction.predictedSec);
+	const target = duration(goal.goalTimeSec);
+	const goalPace = pace(goal.goalPaceSecPerKm);
+	const training = Number.isFinite(prediction.trainingSec) ? prediction.trainingSec : null;
+	const aerobic = Number.isFinite(prediction.aerobicPotentialSec) ? prediction.aerobicPotentialSec : null;
+	const historicSpeed =
+		prediction.basisStatus === "historic" && aerobic != null && training != null && training > aerobic;
+	const speedNote = historicSpeed
+		? " Historic speed is still there; the last eight weeks have not yet shown you can hold it for 42 km."
+		: "";
+	const durabilityLimiting =
+		factorTone(prediction, "durability") === "limiting" ||
+		(Number.isFinite(longRunDecouplingPct) && longRunDecouplingPct > DECOUPLING_CEILING);
+	const volumeLimiting = factorTone(prediction, "volume") === "limiting";
+	const longKm = plannedLongRunKm(currentWeek);
+	const days = Number.isFinite(daysToRace) ? daysToRace : null;
+
+	if (!behind) {
+		return `Current form projects ${predicted}, inside your goal. Goal pace is ${goalPace} — worth rehearsing in your remaining long runs. The headline is the slower of recent race-equivalence and eight-week training support.`;
+	}
+
+	const gap = `Current form projects ${predicted} against your ${target} target — which needs ${goalPace}.`;
+
+	if (days != null && days <= 21) {
+		return `These remaining days are a taper, not a chance to add kilometres. Rehearse ${goalPace} in short pieces and arrive fresh. ${gap}${speedNote}`;
+	}
+
+	if (days != null && days <= 28) {
+		const longBit = longKm
+			? `Complete this week's ${longKm} km long run`
+			: "Complete this week's long run";
+		const easyBit = durabilityLimiting
+			? " truly easy — drift on the long run is the limiter, not a missing interval"
+			: " as written, and keep midweek kilometres easy";
+		return `This is the last week that can still move the eight-week average. ${longBit}${easyBit}. ${gap} The gap is not closed by adding kilometres.${speedNote}`;
+	}
+
+	if (volumeLimiting) {
+		return `Raise weekly volume toward 40–42 km and keep long runs easy enough that drift stays under ${DECOUPLING_CEILING}%. ${gap}${speedNote}`;
+	}
+
+	return `Keep the remaining long runs easy enough to hold together, and treat easy days as easy. ${gap}${speedNote}`;
+}
+
 /**
  * @param {string} [unit] how the panel should read `metric` and `threshold`.
  *   The pair is printed beside the rule as "12% vs 10%", and a bare number
@@ -414,31 +477,27 @@ export function recommendations(metrics) {
 
 	if (prediction && Number.isFinite(prediction.predictedSec) && Number.isFinite(goal.goalTimeSec)) {
 		const delta = prediction.predictedSec - goal.goalTimeSec;
-		if (delta > 0) {
-			out.push(
-				rule(
-					"goal-behind",
-					"info",
-					`Projecting about ${duration(Math.abs(delta))} short of goal`,
-					`Current form projects ${duration(prediction.predictedSec)} against your ${duration(goal.goalTimeSec)} target — which needs ${pace(goal.goalPaceSecPerKm)}. The headline is the slower of recent race-equivalence and what the last eight weeks of training support, so treat it as a range rather than a verdict.`,
-					prediction.predictedSec,
-					goal.goalTimeSec,
-					"duration",
-				),
-			);
-		} else {
-			out.push(
-				rule(
-					"goal-ahead",
-					"good",
-					`On track for ${duration(goal.goalTimeSec)}`,
-					`Current form projects ${duration(prediction.predictedSec)}, inside your goal. Goal pace is ${pace(goal.goalPaceSecPerKm)} — worth rehearsing in your remaining long runs. The headline is the slower of recent race-equivalence and eight-week training support.`,
-					prediction.predictedSec,
-					goal.goalTimeSec,
-					"duration",
-				),
-			);
-		}
+		const behind = delta > 0;
+		out.push(
+			rule(
+				behind ? "goal-behind" : "goal-ahead",
+				behind ? "info" : "good",
+				behind
+					? `Projecting about ${duration(Math.abs(delta))} short of goal`
+					: `On track for ${duration(goal.goalTimeSec)}`,
+				goalAdvice({
+					prediction,
+					goal,
+					daysToRace,
+					longRunDecouplingPct,
+					currentWeek,
+					behind,
+				}),
+				prediction.predictedSec,
+				goal.goalTimeSec,
+				"duration",
+			),
+		);
 	}
 
 	return out.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]);
