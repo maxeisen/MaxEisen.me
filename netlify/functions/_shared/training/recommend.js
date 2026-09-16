@@ -14,6 +14,7 @@
 import { ACWR_CEILING, ACWR_FLOOR, SAFE_RAMP_PCT, TSB_FATIGUE } from "./fitness.js";
 import { EASY_SHARE_TARGET } from "./zones.js";
 import { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC } from "./recovery.js";
+import { copy, duration, pace } from "./recommendCopy.js";
 
 // Ordering for display: the things that get you injured come before the things
 // that make you slower.
@@ -25,20 +26,6 @@ const LONG_RUN_SHARE_CEILING = 35;
 const DECOUPLING_CEILING = 5;
 // Falling this far short of a week's planned volume is worth flagging.
 const VOLUME_SHORTFALL_PCT = 85;
-
-function pace(secPerKm) {
-	if (!(secPerKm > 0)) return "—";
-	const m = Math.floor(secPerKm / 60);
-	const s = Math.round(secPerKm % 60);
-	return `${m}:${String(s).padStart(2, "0")}/km`;
-}
-
-function duration(sec) {
-	if (!(sec > 0)) return "—";
-	const h = Math.floor(sec / 3600);
-	const m = Math.round((sec % 3600) / 60);
-	return h > 0 ? `${h}h ${m}m` : `${m}m`;
-}
 
 function plannedLongRunKm(week) {
 	const fromTarget = Number(week?.longRunTargetKm);
@@ -54,9 +41,8 @@ function factorTone(prediction, id) {
 }
 
 /**
- * What to do about a goal gap, given how many days are left and what is
- * actually limiting the projection. Crash volume cannot land in an eight-week
- * average once the taper is this close.
+ * What to do about a goal gap, given how many days are left and what the plan
+ * asks for this week. Distances come from the plan; the phase is the calendar.
  */
 function goalAdvice({ prediction, goal, daysToRace, longRunDecouplingPct, currentWeek, behind }) {
 	const predicted = duration(prediction.predictedSec);
@@ -66,9 +52,7 @@ function goalAdvice({ prediction, goal, daysToRace, longRunDecouplingPct, curren
 	const aerobic = Number.isFinite(prediction.aerobicPotentialSec) ? prediction.aerobicPotentialSec : null;
 	const historicSpeed =
 		prediction.basisStatus === "historic" && aerobic != null && training != null && training > aerobic;
-	const speedNote = historicSpeed
-		? " Historic speed is still there; the last eight weeks have not yet shown you can hold it for 42 km."
-		: "";
+	const speedNote = historicSpeed ? copy.historicSpeed : "";
 	const durabilityLimiting =
 		factorTone(prediction, "durability") === "limiting" ||
 		(Number.isFinite(longRunDecouplingPct) && longRunDecouplingPct > DECOUPLING_CEILING);
@@ -77,30 +61,26 @@ function goalAdvice({ prediction, goal, daysToRace, longRunDecouplingPct, curren
 	const days = Number.isFinite(daysToRace) ? daysToRace : null;
 
 	if (!behind) {
-		return `Current form projects ${predicted}, inside your goal. Goal pace is ${goalPace} — worth rehearsing in your remaining long runs. The headline is the slower of recent race-equivalence and eight-week training support.`;
+		return copy.goalAhead.detail({ predicted, goalPace });
 	}
 
-	const gap = `Current form projects ${predicted} against your ${target} target — which needs ${goalPace}.`;
+	const gap = copy.gap({ predicted, target, goalPace });
 
 	if (days != null && days <= 21) {
-		return `These remaining days are a taper, not a chance to add kilometres. Rehearse ${goalPace} in short pieces and arrive fresh. ${gap}${speedNote}`;
+		return copy.goalBehind.taper({ goalPace, gap, speedNote });
 	}
 
 	if (days != null && days <= 28) {
-		const longBit = longKm
-			? `Complete this week's ${longKm} km long run`
-			: "Complete this week's long run";
-		const easyBit = durabilityLimiting
-			? " truly easy — drift on the long run is the limiter, not a missing interval"
-			: " as written, and keep midweek kilometres easy";
-		return `This is the last week that can still move the eight-week average. ${longBit}${easyBit}. ${gap} The gap is not closed by adding kilometres.${speedNote}`;
+		return copy.goalBehind.lastFullWeek({ longKm, durabilityLimiting, gap, speedNote });
 	}
 
-	if (volumeLimiting) {
-		return `Raise weekly volume toward 40–42 km and keep long runs easy enough that drift stays under ${DECOUPLING_CEILING}%. ${gap}${speedNote}`;
-	}
-
-	return `Keep the remaining long runs easy enough to hold together, and treat easy days as easy. ${gap}${speedNote}`;
+	return copy.goalBehind.build({
+		longKm,
+		volumeLimiting,
+		decouplingCeiling: DECOUPLING_CEILING,
+		gap,
+		speedNote,
+	});
 }
 
 /**
@@ -129,10 +109,10 @@ function rule(id, severity, title, detail, metric, threshold, unit = null) {
 function markersOf(strain) {
 	const said = [];
 	if (strain?.restingHrUp) {
-		said.push("your overnight heart rate is up on baseline");
+		said.push(copy.markers.restingHr);
 	}
 	if (strain?.hrvDown) {
-		said.push("HRV is below it");
+		said.push(copy.markers.hrv);
 	}
 	return said.join(" and ");
 }
@@ -148,10 +128,10 @@ function markersOf(strain) {
  */
 function secondOpinion(strain) {
 	if (strain?.state === "absorbing") {
-		return " Your overnight heart rate and HRV are both at baseline, though, which is your body saying it's absorbing this. Form is derived from the training log alone — it can only tell you what you already told it.";
+		return copy.opinion.absorbing;
 	}
 	if (strain?.state === "buried") {
-		return ` Your body agrees: ${markersOf(strain)}. That's the version of this worth acting on rather than training through.`;
+		return copy.opinion.buried({ markers: markersOf(strain) });
 	}
 	return "";
 }
@@ -161,7 +141,7 @@ function temperatureNote(strain) {
 	if (!strain?.temperatureUp) {
 		return "";
 	}
-	return ` Your skin temperature is ${strain.temperatureDeviationC.toFixed(1)} °C above your own normal, which points the same way.`;
+	return copy.temperature({ deviationC: strain.temperatureDeviationC });
 }
 
 /**
@@ -170,10 +150,10 @@ function temperatureNote(strain) {
  */
 function explainedBy(strain) {
 	if (strain?.state === "unexplained") {
-		return ` Your form is ${strain.tsb.toFixed(0)}, so the training doesn't explain it: a rise with no load behind it is more often illness, travel, or a run of short nights than it is the running.${temperatureNote(strain)}`;
+		return copy.explained.unexplained({ tsb: strain.tsb, temperature: temperatureNote(strain) });
 	}
 	if (strain?.state === "buried") {
-		return ` Form is ${strain.tsb.toFixed(0)} as well, so this is consistent with the block you're in — the thing to watch is whether it lifts when you ease off.${temperatureNote(strain)}`;
+		return copy.explained.buried({ tsb: strain.tsb, temperature: temperatureNote(strain) });
 	}
 	return "";
 }
@@ -208,8 +188,8 @@ export function recommendations(metrics) {
 				rule(
 					"acwr-high",
 					"critical",
-					"You're ramping faster than you're adapting",
-					`Your last 7 days carry ${acwr.ratio.toFixed(2)}× the load of your 28-day average. Above ${ACWR_CEILING} is where injury rates climb sharply. Hold the next few days easy and let the chronic average catch up rather than pushing on.`,
+					copy.acwrHigh.title,
+					copy.acwrHigh.detail({ ratio: acwr.ratio, ceiling: ACWR_CEILING }),
 					acwr.ratio,
 					ACWR_CEILING,
 					"ratio",
@@ -220,8 +200,8 @@ export function recommendations(metrics) {
 				rule(
 					"acwr-low",
 					"warning",
-					"Training load has dropped off",
-					`Your last 7 days are only ${acwr.ratio.toFixed(2)}× your 28-day average. Below ${ACWR_FLOOR} you start losing fitness. If this wasn't a planned down week, add volume back gradually — not all at once.`,
+					copy.acwrLow.title,
+					copy.acwrLow.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR }),
 					acwr.ratio,
 					ACWR_FLOOR,
 					"ratio",
@@ -232,8 +212,8 @@ export function recommendations(metrics) {
 				rule(
 					"acwr-ok",
 					"good",
-					"Load progression is in the safe range",
-					`Acute-to-chronic ratio is ${acwr.ratio.toFixed(2)}, inside the ${ACWR_FLOOR}–${ACWR_CEILING} corridor.`,
+					copy.acwrOk.title,
+					copy.acwrOk.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR, ceiling: ACWR_CEILING }),
 					acwr.ratio,
 					null,
 					"ratio",
@@ -247,8 +227,8 @@ export function recommendations(metrics) {
 			rule(
 				"tsb-fatigued",
 				"warning",
-				"You're carrying deep fatigue",
-				`Form is ${latest.tsb.toFixed(0)}, below ${TSB_FATIGUE}. That's normal in a heavy block but not somewhere to live. If it doesn't lift within a week, take two genuinely easy days.${secondOpinion(strain)}`,
+				copy.tsbFatigued.title,
+				copy.tsbFatigued.detail({ tsb: latest.tsb, floor: TSB_FATIGUE, opinion: secondOpinion(strain) }),
 				latest.tsb,
 				TSB_FATIGUE,
 			),
@@ -272,8 +252,16 @@ export function recommendations(metrics) {
 			rule(
 				"ramp-fast",
 				"warning",
-				basis.isCurrentWeek ? "This week jumps too far in volume" : "Last week jumped too far in volume",
-				`You were up ${ramp.toFixed(0)}% ${thisOrLast} on ${priorWeek} (${from.toFixed(0)} to ${to.toFixed(0)} km). The conventional ceiling is ${SAFE_RAMP_PCT}%. Hold the coming week near ${(to * 1.1).toFixed(0)} km rather than stacking another jump on top.`,
+				copy.rampFast.title({ isCurrentWeek: basis.isCurrentWeek }),
+				copy.rampFast.detail({
+					ramp,
+					thisOrLast,
+					priorWeek,
+					from,
+					to,
+					ceiling: SAFE_RAMP_PCT,
+					cap: to * 1.1,
+				}),
 				ramp,
 				SAFE_RAMP_PCT,
 				"percent",
@@ -287,8 +275,8 @@ export function recommendations(metrics) {
 			rule(
 				"long-run-share",
 				"warning",
-				"Your week is too concentrated in one run",
-				`The long run was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${LONG_RUN_SHARE_CEILING}% guideline. Add an easy midweek run rather than shortening the long one — the aerobic work is worth keeping.`,
+				copy.longRunShare.title,
+				copy.longRunShare.detail({ share, thisOrLast, ceiling: LONG_RUN_SHARE_CEILING }),
 				share,
 				LONG_RUN_SHARE_CEILING,
 				"percent",
@@ -318,14 +306,14 @@ export function recommendations(metrics) {
 
 	if (shortSleep && ramping) {
 		const why = Number.isFinite(acwr.ratio) && acwr.ratio > ACWR_CEILING
-			? `an acute:chronic ratio of ${acwr.ratio.toFixed(2)}`
-			: `a ${basis.rampPct.toFixed(0)}% jump in volume`;
+			? copy.sleepRampWhy.acwr({ ratio: acwr.ratio })
+			: copy.sleepRampWhy.ramp({ ramp: basis.rampPct });
 		out.push(
 			rule(
 				"sleep-and-ramp",
 				"critical",
-				"You're adding load faster than you're recovering from it",
-				`${duration(sleep.recent)} a night on average over the last week, against ${why}. Short sleep is one of the better-evidenced injury risk factors in athletes, and it compounds a ramp rather than sitting alongside it — the same week of running is a different proposition on eight hours than on ${duration(sleep.recent)}. Hold the volume where it is until sleep comes back up.`,
+				copy.sleepAndRamp.title,
+				copy.sleepAndRamp.detail({ sleep: duration(sleep.recent), why }),
 				sleep.recent,
 				SLEEP_TARGET_SEC,
 				"duration",
@@ -336,8 +324,12 @@ export function recommendations(metrics) {
 			rule(
 				"sleep-short",
 				"warning",
-				"You're running short on sleep",
-				`${duration(sleep.recent)} a night over the last week, against a ${duration(SLEEP_TARGET_SEC)} floor${Number.isFinite(sleep.baseline) ? ` and your own ${duration(sleep.baseline)} average` : ""}. Sleep is where the adaptation actually happens, so this quietly costs you more of the training than a missed easy run would.`,
+				copy.sleepShort.title,
+				copy.sleepShort.detail({
+					sleep: duration(sleep.recent),
+					floor: duration(SLEEP_TARGET_SEC),
+					baseline: Number.isFinite(sleep.baseline) ? duration(sleep.baseline) : null,
+				}),
 				sleep.recent,
 				SLEEP_TARGET_SEC,
 				"duration",
@@ -350,8 +342,14 @@ export function recommendations(metrics) {
 			rule(
 				"rhr-elevated",
 				"warning",
-				"Your overnight heart rate is up",
-				`Averaging ${restingHr.recent.toFixed(0)} bpm over the last week against a ${restingHr.baseline.toFixed(0)} bpm baseline, up ${restingHr.delta.toFixed(0)}. A rise of ${RHR_RISE_BPM} or more usually means something the training log can't see: illness coming on, or work you haven't absorbed yet.${explainedBy(strain)} Worth an easy few days before a key session rather than after one.`,
+				copy.rhrElevated.title,
+				copy.rhrElevated.detail({
+					recent: restingHr.recent,
+					baseline: restingHr.baseline,
+					delta: restingHr.delta,
+					threshold: RHR_RISE_BPM,
+					explained: explainedBy(strain),
+				}),
 				restingHr.delta,
 				RHR_RISE_BPM,
 				"bpm",
@@ -364,11 +362,13 @@ export function recommendations(metrics) {
 			rule(
 				"hrv-suppressed",
 				"info",
-				"Heart-rate variability is below your baseline",
-				// The attribution is only added when HRV is the one marker
-				// raising a hand; otherwise the heart-rate rule above has
-				// already said it, in the same words.
-				`${hrv.recent.toFixed(0)} ms over the last week against a ${hrv.baseline.toFixed(0)} ms baseline, down ${Math.abs(hrv.deltaPct).toFixed(0)}%. HRV is noisy night to night and this is a week against a month, so it's worth noting rather than acting on alone — but read it alongside the resting heart rate above.${strain?.restingHrUp ? "" : explainedBy(strain)}`,
+				copy.hrvSuppressed.title,
+				copy.hrvSuppressed.detail({
+					recent: hrv.recent,
+					baseline: hrv.baseline,
+					drop: Math.abs(hrv.deltaPct),
+					explained: strain?.restingHrUp ? "" : explainedBy(strain),
+				}),
 				hrv.deltaPct,
 				-HRV_DROP_PCT,
 				"percent",
@@ -386,8 +386,8 @@ export function recommendations(metrics) {
 			rule(
 				"recovery-ok",
 				"good",
-				"You're recovering as fast as you're training",
-				`${duration(sleep.recent)} a night over the last week${Number.isFinite(restingHr.recent) ? `, with overnight heart rate at ${restingHr.recent.toFixed(0)} bpm` : ""}. Nothing here says the training isn't being absorbed.`,
+				copy.recoveryOk.title,
+				copy.recoveryOk.detail({ sleep: duration(sleep.recent), restingHr: restingHr.recent }),
 				sleep.recent,
 				SLEEP_TARGET_SEC,
 				"duration",
@@ -403,8 +403,8 @@ export function recommendations(metrics) {
 				rule(
 					"easy-share-low",
 					"warning",
-					"Your easy runs aren't easy enough",
-					`Only ${intensity.easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${EASY_SHARE_TARGET}%. Running easy days moderately hard is the most common way to arrive at a marathon tired rather than fit. Slow the easy days down.`,
+					copy.easyShareLow.title,
+					copy.easyShareLow.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET }),
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
 					"percent",
@@ -415,8 +415,8 @@ export function recommendations(metrics) {
 				rule(
 					"easy-share-ok",
 					"good",
-					"Intensity distribution looks right",
-					`${intensity.easyPct.toFixed(0)}% of your running is easy, close to the ${EASY_SHARE_TARGET}% target.`,
+					copy.easyShareOk.title,
+					copy.easyShareOk.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET }),
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
 					"percent",
@@ -430,8 +430,8 @@ export function recommendations(metrics) {
 			rule(
 				"decoupling-high",
 				"info",
-				"Heart rate drifted on your recent long run",
-				`Aerobic decoupling was ${longRunDecouplingPct.toFixed(1)}%, above the ${DECOUPLING_CEILING}% marker. Your pace faded relative to heart rate in the second half, which usually means the aerobic base still needs work. Keep long runs easy rather than pushing the finish.`,
+				copy.decouplingHigh.title,
+				copy.decouplingHigh.detail({ decouplingPct: longRunDecouplingPct, ceiling: DECOUPLING_CEILING }),
 				longRunDecouplingPct,
 				DECOUPLING_CEILING,
 				"percent",
@@ -447,8 +447,12 @@ export function recommendations(metrics) {
 				rule(
 					"volume-short",
 					"info",
-					"You came in under this week's plan",
-					`${currentWeek.actualKm.toFixed(0)} km against a target of ${currentWeek.targetKm} km (${currentWeek.volumePct.toFixed(0)}%). One week matters little; two in a row is worth adjusting the plan for rather than trying to make up.`,
+					copy.volumeShort.title,
+					copy.volumeShort.detail({
+						actualKm: currentWeek.actualKm,
+						targetKm: currentWeek.targetKm,
+						volumePct: currentWeek.volumePct,
+					}),
 					currentWeek.volumePct,
 					VOLUME_SHORTFALL_PCT,
 					"percent",
@@ -464,8 +468,8 @@ export function recommendations(metrics) {
 			rule(
 				"taper",
 				"info",
-				`${daysToRace} days out — hold the taper`,
-				"Fitness is already banked; the work now is arriving fresh. Keep some intensity to stay sharp but cut volume substantially, and resist the urge to test yourself.",
+				copy.taper.title({ days: daysToRace }),
+				copy.taper.detail,
 				daysToRace,
 				21,
 				"days",
@@ -483,8 +487,8 @@ export function recommendations(metrics) {
 				behind ? "goal-behind" : "goal-ahead",
 				behind ? "info" : "good",
 				behind
-					? `Projecting about ${duration(Math.abs(delta))} short of goal`
-					: `On track for ${duration(goal.goalTimeSec)}`,
+					? copy.goalBehind.title({ short: duration(Math.abs(delta)) })
+					: copy.goalAhead.title({ target: duration(goal.goalTimeSec) }),
 				goalAdvice({
 					prediction,
 					goal,
