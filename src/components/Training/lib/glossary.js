@@ -45,7 +45,7 @@ export const GLOSSARY = {
 		title: "Fitness and fatigue",
 		body: [
 			"Every run is scored for training load — how hard it was, for how long — and this chart tracks two rolling averages of that score. Fitness is the slow one, fatigue the fast one.",
-			"Fatigue above fitness means you're in the work and temporarily tired, which is where most of a build should sit. The lines crossing back the other way is what a taper is for: fatigue falls away, fitness stays, and you arrive fresh.",
+			"Fitness is drawn on its own scale, down the right, so a slow build stays visible. Fatigue and form share the left. Form below zero means fatigue is ahead of the fitness you've banked — where most of a build sits. Form climbing back through zero is the taper: fatigue falls away and you arrive fresh.",
 		],
 		terms: [
 			{ term: "Fitness (CTL)", definition: "Your 42-day average training load. Slow to build and slow to lose — it's the fitness you've banked." },
