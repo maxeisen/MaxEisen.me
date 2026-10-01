@@ -9,7 +9,11 @@
 	let {
 		/** Plot height in px. */
 		height = 180,
-		/** From axisTicks(): [{ value, label, pct }], pct measured from the bottom. */
+		/**
+		 * From axisTicks(): [{ value, label, pct, colour? }], pct measured
+		 * from the bottom. `colour` ties a label to one series when the
+		 * number would otherwise read as belonging to the gridlines.
+		 */
 		yTicks = [],
 		/**
 		 * A second scale down the right-hand edge, for a chart plotting two
@@ -139,7 +143,7 @@
 >
 	<div class="y-axis" aria-hidden="true">
 		{#each yTicks as tick (tick.value)}
-			<span style="bottom: {tick.pct}%">{tick.label}</span>
+			<span class:own={tick.colour} style="bottom: {tick.pct}%{tick.colour ? `; color: ${tick.colour}` : ''}">{tick.label}</span>
 		{/each}
 	</div>
 
@@ -203,7 +207,7 @@
 	{#if rightTicks.length}
 		<div class="y-axis right" aria-hidden="true">
 			{#each rightTicks as tick (tick.value)}
-				<span style="bottom: {tick.pct}%">{tick.label}</span>
+				<span class:own={tick.colour} style="bottom: {tick.pct}%{tick.colour ? `; color: ${tick.colour}` : ''}">{tick.label}</span>
 			{/each}
 		</div>
 	{/if}
@@ -258,6 +262,9 @@
 		opacity: 0.55;
 		white-space: nowrap;
 	}
+	/* A coloured label belongs to a series, so it should read as that series
+	   rather than as another gridline. */
+	.y-axis span.own { opacity: 0.9; }
 	.y-axis.right span {
 		right: auto;
 		left: 0;

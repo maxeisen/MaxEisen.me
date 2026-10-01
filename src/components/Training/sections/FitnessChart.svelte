@@ -21,26 +21,50 @@
         return windowed.filter((_, i) => i % step === 0 || i === windowed.length - 1);
     });
 
-    const scale = $derived(
+    // Form and fatigue swing well past the slow fitness line, and that shared
+    // range was flattening a steady build into a short segment. Pin them to
+    // the −50…+100 axis they already read on, and widen it only if a day runs
+    // past either end. Fitness takes the right-hand scale, fitted to itself.
+    const FORM_FLOOR = -50;
+    const FORM_CEILING = 100;
+
+    const formScale = $derived(
         niceScale(
             [
-                Math.min(0, ...sampled.map((d) => Math.min(d.ctl, d.atl, d.tsb))),
-                Math.max(1, ...sampled.map((d) => Math.max(d.ctl, d.atl, d.tsb))),
+                Math.min(FORM_FLOOR, ...sampled.map((d) => Math.min(d.atl, d.tsb))),
+                Math.max(FORM_CEILING, ...sampled.map((d) => Math.max(d.atl, d.tsb))),
             ],
             4,
         ),
     );
-    const domain = $derived([scale.min, scale.max]);
-    const yTicks = $derived(axisTicks(scale, (v) => String(Math.round(v))));
+    const formDomain = $derived([formScale.min, formScale.max]);
+    const yTicks = $derived(axisTicks(formScale, (v) => String(Math.round(v))));
 
-    // The fitness area is filled down to zero, not to the floor of the chart:
-    // the axis dips below zero to make room for negative form, and shading
-    // that band would claim fitness the athlete doesn't have.
-    const zeroY = $derived(HEIGHT - ((0 - scale.min) / (scale.max - scale.min)) * HEIGHT);
+    const fitnessScale = $derived.by(() => {
+        const values = sampled.map((d) => d.ctl).filter((v) => Number.isFinite(v));
+        if (values.length === 0) return niceScale([0, 1], 4);
+        return niceScale([Math.min(...values), Math.max(...values)], 4);
+    });
+    const fitnessDomain = $derived([fitnessScale.min, fitnessScale.max]);
+    const rightTicks = $derived(
+        axisTicks(fitnessScale, (v) => String(Math.round(v))).map((tick) => ({
+            ...tick,
+            colour: "var(--main-green)",
+        })),
+    );
 
-    const ctlPoints = $derived(seriesPoints(sampled.map((d) => d.ctl), { width: WIDTH, height: HEIGHT, domain }));
-    const atlPoints = $derived(seriesPoints(sampled.map((d) => d.atl), { width: WIDTH, height: HEIGHT, domain }));
-    const tsbPoints = $derived(seriesPoints(sampled.map((d) => d.tsb), { width: WIDTH, height: HEIGHT, domain }));
+    // Fatigue fills down to zero on the left axis. Fitness fills to its own
+    // floor: that scale starts above zero, and shading down through zero
+    // would run off the bottom of the plot.
+    const zeroY = $derived(
+        formScale.max > formScale.min
+            ? HEIGHT - ((0 - formScale.min) / (formScale.max - formScale.min)) * HEIGHT
+            : HEIGHT,
+    );
+
+    const ctlPoints = $derived(seriesPoints(sampled.map((d) => d.ctl), { width: WIDTH, height: HEIGHT, domain: fitnessDomain }));
+    const atlPoints = $derived(seriesPoints(sampled.map((d) => d.atl), { width: WIDTH, height: HEIGHT, domain: formDomain }));
+    const tsbPoints = $derived(seriesPoints(sampled.map((d) => d.tsb), { width: WIDTH, height: HEIGHT, domain: formDomain }));
 
     const xTicks = $derived(dateRangeTicks(sampled, axisDate));
 
@@ -92,16 +116,16 @@
     {#if sampled.length < 2}
         <p class="card-empty">Not enough history to plot yet.</p>
     {:else}
-        <ChartFrame height={210} {yTicks} {xTicks} {scrub} label="Fitness, fatigue and form over the last {CHART_WEEKS} weeks">
+        <ChartFrame height={210} {yTicks} {rightTicks} {xTicks} {scrub} label="Fitness on its own scale, with fatigue and form, over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 <path class="fatigue-fill" d={areaPath(atlPoints, zeroY, { smooth: true })} />
-                <path class="fitness-fill" d={areaPath(ctlPoints, zeroY, { smooth: true })} />
+                <path class="fitness-fill" d={areaPath(ctlPoints, HEIGHT, { smooth: true })} />
                 <path class="line form" d={smoothPath(tsbPoints)} />
                 <path class="line fatigue" d={smoothPath(atlPoints)} />
                 <path class="line fitness" d={smoothPath(ctlPoints)} />
             </svg>
         </ChartFrame>
-        <p class="chart-unit">training load · last {CHART_WEEKS} weeks</p>
+        <p class="chart-unit">fitness, right · form and fatigue, left · last {CHART_WEEKS} weeks</p>
     {/if}
 </Card>
 
