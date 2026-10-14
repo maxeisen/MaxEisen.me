@@ -4,7 +4,7 @@
     import { clock, clockMinutes, signed, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
-    let { today = null } = $props();
+    let { today = null, inBlock = true } = $props();
 
     const STRAIN = {
         absorbing: "body absorbing the block",
@@ -74,7 +74,7 @@
     const sessionCopy = $derived.by(() => {
         if (!session) return { title: "—", note: "" };
         if (session.status === "rest") {
-            return { title: "Rest", note: "nothing planned" };
+            return { title: "Rest", note: inBlock ? "nothing planned" : "" };
         }
         if (session.status === "ahead") {
             const kmLabel = Number.isFinite(plannedRun?.distanceKm)
@@ -94,7 +94,7 @@
         }
         return {
             title: session.actualKm > 0 ? `${session.actualKm.toFixed(1)} km` : "Extra",
-            note: "unplanned",
+            note: inBlock ? "unplanned" : "",
         };
     });
 

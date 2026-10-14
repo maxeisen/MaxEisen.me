@@ -43,6 +43,7 @@ describe("buildDashboard", () => {
 	it("counts down to race day", () => {
 		const out = buildDashboard({ activities: [], plan: PLAN, today: "2026-08-11" });
 		expect(out.summary.daysToRace).toBe(61);
+		expect(out.summary.inBlock).toBe(true);
 		expect(out.summary.race.name).toBe("Chicago Marathon");
 		expect(out.summary.race.goalPaceSecPerKm).toBeCloseTo(298.6, 1);
 	});
@@ -354,6 +355,25 @@ describe("buildDashboard", () => {
 		expect(out.summary.prediction.history.length).toBeGreaterThan(0);
 		expect(out.summary.prediction.factors.some((f) => f.id === "volume")).toBe(true);
 		expect(out.today.prediction.predictedSec).toBe(out.summary.prediction.predictedSec);
+	});
+
+	it("drops the race once it has passed", () => {
+		const runs = block("2026-10-13", 4);
+		runs[3].bestEfforts = [
+			{ name: "10k", distanceM: 10000, timeSec: 2700, date: "2026-10-13" },
+		];
+		const out = buildDashboard({ activities: runs, plan: PLAN, today: "2026-10-13" });
+
+		expect(out.summary.inBlock).toBe(false);
+		expect(out.summary.daysToRace).toBeLessThan(0);
+		expect(out.summary.prediction.predictedSec).toBeGreaterThan(0);
+		expect(out.summary.prediction.onTrack).toBeNull();
+		expect(out.runs.every((run) => run.plan == null)).toBe(true);
+		expect(out.lastRun.plan).toBeNull();
+		const ids = out.recommendations.map((rec) => rec.id);
+		expect(ids).not.toContain("goal-behind");
+		expect(ids).not.toContain("goal-ahead");
+		expect(ids).not.toContain("taper");
 	});
 });
 

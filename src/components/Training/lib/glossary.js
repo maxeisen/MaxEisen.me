@@ -154,7 +154,7 @@ export const GLOSSARY = {
 	runs: {
 		title: "Recent activity",
 		body: [
-			"Every run since the block started, newest first, matched against the plan for the day it fell on. Runs on a day with a planned session are tagged with that session; anything else is an extra.",
+			"Recent runs, newest first. While a race is on the plan, a run on a planned day is tagged with that session and anything else is an extra.",
 			"Pace and grade-adjusted pace sit side by side, because on a hilly run they diverge a lot and that difference is the point — GAP is what the same effort would have been on the flat.",
 			"Longer rides and strength sessions are listed alongside them for context, and count towards nothing on this page. Cycling and the gym build none of the running-specific durability the rest of these numbers are tracking, so they stay out of all of them rather than flattering the fitness or dragging down the form.",
 			"A run can also carry a line the athlete wrote about it, which is the only thing here that isn't measured. A twenty-kilometre long run done as ten is a red mark on every chart on this page, and sometimes the explanation is a wedding rather than a problem — so there's a way to say so.",

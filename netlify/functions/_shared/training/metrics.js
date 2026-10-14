@@ -20,6 +20,7 @@ import {
 	dayOfWeek,
 	daysToRace,
 	matchRunsToPlan,
+	raceAhead,
 	upcomingWeeks,
 	weekDays,
 	weekLongRun,
@@ -84,7 +85,11 @@ function recentLog(runs, context, planMatches) {
 	const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
 	const logged = runs
 		.slice(from)
-		.map((run, i) => ({ ...publicRun(run), plan: planMatches[from + i] }));
+		.map((run, i) => ({
+			...publicRun(run),
+			// Null outside a block, so a run with no session to miss isn't an "extra".
+			plan: planMatches ? planMatches[from + i] : null,
+		}));
 	const earliest = toDayKey(logged[0]?.startDateLocal);
 	const alongside = earliest
 		? context.filter((r) => toDayKey(r.startDateLocal) >= earliest).map(publicRun)
@@ -121,6 +126,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 
 	const thresholds = plan?.thresholds || {};
 	const race = plan?.race || {};
+	const event = raceAhead(plan, day);
 	const range = blockRange(plan, runs, day);
 
 	const loads = dailyLoads(runs);
@@ -184,7 +190,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		efforts,
 		today: day,
 		targetDistanceM: raceDistanceM,
-		goalTimeSec: race.goalTimeSec,
+		goalTimeSec: event ? race.goalTimeSec : null,
 		tsb: latest?.tsb ?? null,
 	});
 	const goalPace = goalPaceSecPerKm(race.goalTimeSec, raceDistanceM);
@@ -195,14 +201,15 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 
 	// Matched over the whole block rather than per view: a day whose first run
 	// falls outside the log would otherwise let its second run claim the
-	// session the first one already did.
-	const planMatches = matchRunsToPlan(runs, plan);
+	// session the first one already did. Outside a block there is nothing to
+	// match, and a null here is what keeps the log from calling every run an extra.
+	const planMatches = event ? matchRunsToPlan(runs, plan) : null;
 
 	const lastRun = lastRunDetail({
 		runs,
 		series,
 		weeks,
-		planMatch: planMatches.at(-1) ?? null,
+		planMatch: planMatches?.at(-1) ?? null,
 		thresholds,
 		today: day,
 	});
@@ -230,11 +237,14 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	const summary = {
 		race: {
 			name: race.name || null,
+			// Short title for the tab and the social card. The heading uses `name`.
+			label: race.label || null,
 			date: race.date || null,
 			distanceM: race.distanceM || 42195,
 			goalTimeSec: race.goalTimeSec || null,
 			goalPaceSecPerKm: goalPace,
 		},
+		inBlock: event,
 		daysToRace: remainingDays,
 		weeksToRace: weeksToRace(plan, day),
 		totals,
@@ -280,7 +290,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 						efforts,
 						today: day,
 						targetDistanceM: raceDistanceM,
-						goalTimeSec: race.goalTimeSec,
+						goalTimeSec: event ? race.goalTimeSec : null,
 					}),
 					unchangedReason: prediction.unchangedReason,
 					deltaSec: prediction.deltaSec,
@@ -328,7 +338,9 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 				}
 			: null,
 		prediction: summary.prediction,
-		goal: { goalTimeSec: race.goalTimeSec, goalPaceSecPerKm: goalPace },
+		// The goal rules compare a projection to a race that is still ahead.
+		// Passing an empty goal is how they stay quiet once it isn't.
+		goal: event ? { goalTimeSec: race.goalTimeSec, goalPaceSecPerKm: goalPace } : {},
 		daysToRace: remainingDays,
 		longRunDecouplingPct: lastLongRun?.decouplingPct ?? null,
 		recovery: recovered,
@@ -346,7 +358,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		efforts,
 		runs,
 		targetDistanceM: raceDistanceM,
-		goalTimeSec: race.goalTimeSec,
+		goalTimeSec: event ? race.goalTimeSec : null,
 		tsb: latest?.tsb ?? null,
 	});
 

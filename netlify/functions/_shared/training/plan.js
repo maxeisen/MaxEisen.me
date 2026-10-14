@@ -188,6 +188,21 @@ export function daysToRace(plan, today) {
 }
 
 /**
+ * True through race day while a race is on the plan.
+ *
+ * After that, or with no race, the same page is a running log: the countdown,
+ * the goal and matching runs to sessions belong to a block, not to the year.
+ *
+ * @param {object} plan
+ * @param {string} today day key.
+ * @returns {boolean}
+ */
+export function raceAhead(plan, today) {
+	const days = daysToRace(plan, today);
+	return days !== null && days >= 0;
+}
+
+/**
  * Is a week inside the taper?
  *
  * @param {object} plan

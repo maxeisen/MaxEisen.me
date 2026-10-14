@@ -39,6 +39,24 @@ test("training route renders its sections", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: "Recent activity" })).toBeVisible();
 });
 
+test("after the race the page is a running log", async ({ page }) => {
+	const payload = buildTrainingFixture({ today: "2026-10-13" });
+	await page.route("**/.netlify/functions/trainingData*", (route) =>
+		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
+	);
+
+	await page.goto("/training");
+	await expect(page).toHaveTitle("Running — Max Eisen");
+	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fitness");
+	await expect(page.getByText("Training for")).toHaveCount(0);
+	await expect(page.getByText("Goal", { exact: true })).toHaveCount(0);
+	await expect(page.getByRole("heading", { name: "Predicted time" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Projected finish" })).toHaveCount(0);
+	await expect(page.getByText("No target set for this week")).toHaveCount(0);
+	await expect(page.locator(".tag.plan")).toHaveCount(0);
+	await expect(page.locator(".tag.extra")).toHaveCount(0);
+});
+
 test("every card explains its own metrics on demand", async ({ page }) => {
 	await page.goto("/training");
 	const card = page.locator("section.card").filter({ hasText: "Load and risk" }).first();

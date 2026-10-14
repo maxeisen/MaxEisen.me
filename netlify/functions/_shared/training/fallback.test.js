@@ -215,6 +215,25 @@ describe("renderTrainingFallback", () => {
 		expect(html).toContain("&lt;b&gt;xss&lt;/b&gt;");
 	});
 
+	it("reads as a running log once the race has passed", () => {
+		const html = renderTrainingFallback(payload({
+			summary: { ...payload().summary, inBlock: false, daysToRace: -2 },
+			today: {
+				...payload().today,
+				session: { status: "extra", planned: [], actualKm: 8.2, runs: 1 },
+			},
+			runs: [{ ...payload().runs[0], plan: null }],
+		}));
+
+		expect(html).toContain("<h1>Fitness</h1>");
+		expect(html).toContain("Predicted time");
+		expect(html).not.toContain("Chicago Marathon");
+		expect(html).not.toContain(">Goal<");
+		expect(html).not.toContain("Goal pace");
+		expect(html).not.toContain("unplanned");
+		expect(html).not.toContain(">extra<");
+	});
+
 	it("says so when the history is still importing rather than looking finished", () => {
 		const html = renderTrainingFallback(
 			payload({

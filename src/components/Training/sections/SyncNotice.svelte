@@ -16,7 +16,7 @@
             return {
                 title: `Still importing — ${runs} to go`,
                 detail:
-                    "Fitness, form and the race projection all read the whole block, so treat them as provisional until the import finishes. The most recent weeks are already accurate.",
+                    "Fitness and form read the whole history, so treat them as provisional until the import finishes. The most recent weeks are already accurate.",
             };
         }
         return null;
