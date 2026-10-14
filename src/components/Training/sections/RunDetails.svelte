@@ -113,7 +113,7 @@
     <p class="tags">
         {#if planned}
             <span class="tag plan" title={run.plan.detail || ""}>{run.plan.type || "planned"}</span>
-        {:else}
+        {:else if run.plan}
             <span class="tag extra">extra</span>
         {/if}
         {#if stravaTag}<span class="tag">{stravaTag}</span>{/if}

@@ -23,6 +23,7 @@
     }
 
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
+    const trackingPlan = $derived(runs.some((r) => r.plan));
     const runCount = $derived(runs.filter((r) => r.sport === "run" || !r.sport).length);
     const rideCount = $derived(runs.filter((r) => r.sport === "ride").length);
     const strengthCount = $derived(runs.filter((r) => r.sport === "strength").length);
@@ -50,7 +51,7 @@
                 <span class="tag plan" title={run.plan.detail || ""}>
                     {run.plan.type || "planned"}
                 </span>
-            {:else}
+            {:else if run.plan}
                 <span class="tag extra">extra</span>
             {/if}
             {#if tag && !isRide && !isStrength}<span class="tag">{tag}</span>{/if}
@@ -103,9 +104,9 @@
                 {:else}
                     {runCount} runs
                 {/if}
-                · {plannedCount} planned
-                {#if rideCount}· {rideCount} {rideCount === 1 ? "ride" : "rides"}{/if}
-                {#if strengthCount}· {strengthCount} strength{/if}
+                {#if trackingPlan} · {plannedCount} planned{/if}
+                {#if rideCount} · {rideCount} {rideCount === 1 ? "ride" : "rides"}{/if}
+                {#if strengthCount} · {strengthCount} strength{/if}
             </span>
         {/if}
     {/snippet}
@@ -120,6 +121,7 @@
                 {@const isContext = isRide || isStrength}
                 {@const tag = stravaTag(run)}
                 {@const planned = run.plan?.planned === true}
+                {@const tracked = run.plan != null}
                 {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
                     && Math.abs(run.gapPaceSecPerKm - run.paceSecPerKm) > 5}
                 <li>
@@ -129,7 +131,7 @@
                     {#if isContext || !canOpen}
                         <a
                             class="row"
-                            class:extra={!planned && !isContext}
+                            class:extra={tracked && !planned && !isContext}
                             class:ride={isRide}
                             class:strength={isStrength}
                             href="https://www.strava.com/activities/{run.id}"
@@ -142,7 +144,7 @@
                         <button
                             type="button"
                             class="row"
-                            class:extra={!planned}
+                            class:extra={tracked && !planned}
                             onclick={() => openRun(run)}
                         >
                             {@render rowBody(run, isRide, isStrength, planned, tag, hilly)}

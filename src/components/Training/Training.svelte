@@ -1,5 +1,6 @@
 <!--
-    Public marathon training dashboard.
+    Public running dashboard. While a race is still ahead it is that block —
+    countdown, goal, week plan. Afterwards the same page just tracks fitness.
 
     trainingData computes everything server-side (Strava history in Netlify
     Blobs → deterministic metrics). This component fetches one payload and
@@ -22,6 +23,7 @@
     import { bestSplit, worthMoving } from "./lib/balance.js";
     import { readTrainingBootstrap } from "./lib/bootstrap.js";
     import { STRAVA_PROFILE_URL } from "../../lib/strava.js";
+    import { inBlock, trainingPageMeta } from "./lib/block.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
     import Today from "./sections/Today.svelte";
@@ -71,6 +73,8 @@
     const narrowIds = $derived(columnIds.slice(splitAt));
     const fullId = $derived(reorder.layout[reorder.layout.length - 1]);
     const todayKey = $derived(data?.today?.date || null);
+    const event = $derived(inBlock(data?.summary));
+    const meta = $derived(trainingPageMeta(data?.summary));
 
     const PANELS = {
         lastRun: LastRun,
@@ -96,7 +100,7 @@
             case "prediction": return { summary: data.summary };
             case "load": return { acwr: data.summary?.acwr, riskWeek: data.summary?.riskWeek };
             case "intensity": return { intensity: data.summary?.intensity };
-            case "week": return { week: data.week, upcoming: data.upcoming };
+            case "week": return { week: data.week, upcoming: data.upcoming, inBlock: event };
             case "recovery": return { recovery: data.recovery };
             case "runs": return { runs: data.runs, total: data.summary?.totals?.runs };
             default: return {};
@@ -179,8 +183,8 @@
 </script>
 
 <svelte:head>
-    <title>Road to Chicago — Max Eisen</title>
-    <meta name="description" content="Live marathon training dashboard: weekly volume, fitness and fatigue, intensity balance, and where I'm projected to finish." />
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.desc} />
 </svelte:head>
 
 {#snippet panelSlot(id, idx)}
@@ -232,7 +236,7 @@
         <SyncNotice sync={data.sync} runCount={data.runs?.length ?? 0} />
 
         <div class="today-strip">
-            <Today today={data.today} />
+            <Today today={data.today} inBlock={event} />
         </div>
 
         <div

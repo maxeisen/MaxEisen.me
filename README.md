@@ -18,7 +18,7 @@ Personal site. Svelte 5 + Vite SPA with Netlify Functions.
 
 **Dashboard** (`/dashboard`) — A rearrangeable wall of live widgets: time, weather, Spotify, Strava, GitHub, Hacker News, and a photo from the gallery.
 
-**Training** (`/training`) — Public marathon training dashboard for the 2026 Chicago Marathon: recent runs, fitness, recovery, and a race countdown.
+**Training** (`/training`) — Public running dashboard: recent runs, fitness, and recovery. While a race is on the plan it is that block, with the countdown, the goal, and the week ahead.
 
 **Toronto** (`/toronto`) — A curated map of places around the city, with recent Strava routes overlaid.
 

@@ -1,9 +1,11 @@
 <!-- Race countdown and the headline numbers. -->
 <script>
-    import { clock, clockMinutes, km, pace, signed, signedClock } from "../lib/format.js";
+    import { inBlock } from "../lib/block.js";
+    import { clock, clockMinutes, km, pace, pct, signed, signedClock } from "../lib/format.js";
 
     let { summary } = $props();
 
+    const event = $derived(inBlock(summary));
     const race = $derived(summary?.race || {});
     const prediction = $derived(summary?.prediction || null);
     const latest = $derived(summary?.latest || null);
@@ -43,43 +45,64 @@
 </script>
 
 <header class="race-header">
-    <div class="race-intro">
-        <p class="eyebrow">Training for</p>
-        <h1>{race.name || "Marathon"}</h1>
-        <p class="race-date">{raceDate}</p>
-    </div>
+    {#if event}
+        <div class="race-intro">
+            <p class="eyebrow">Training for</p>
+            <h1>{race.name || "Marathon"}</h1>
+            <p class="race-date">{raceDate}</p>
+        </div>
 
-    {#if countdown}
-        <div class="countdown">
-            <span class="countdown-value">{countdown.value}</span>
-            <span class="countdown-label">{countdown.label}</span>
+        {#if countdown}
+            <div class="countdown">
+                <span class="countdown-value">{countdown.value}</span>
+                <span class="countdown-label">{countdown.label}</span>
+            </div>
+        {/if}
+    {:else}
+        <div class="race-intro">
+            <p class="eyebrow">Running</p>
+            <h1>Fitness</h1>
         </div>
     {/if}
 </header>
 
 <div class="headline-stats">
-    <div class="stat">
-        <span class="stat-label">Goal</span>
-        <strong class="stat-value">{clock(race.goalTimeSec)}</strong>
-        <span class="stat-note">{pace(race.goalPaceSecPerKm)}</span>
-    </div>
+    {#if event}
+        <div class="stat">
+            <span class="stat-label">Goal</span>
+            <strong class="stat-value">{clock(race.goalTimeSec)}</strong>
+            <span class="stat-note">{pace(race.goalPaceSecPerKm)}</span>
+        </div>
 
-    <div class="stat">
-        <span class="stat-label">Projected</span>
-        <strong class="stat-value" class:ahead={prediction?.onTrack} class:behind={prediction && !prediction.onTrack}>
-            {prediction ? clockMinutes(prediction.predictedSec) : "—"}
-        </strong>
-        <span class="stat-note">
-            {#if prediction?.range}
-                {clockMinutes(prediction.range.fastSec)}–{clockMinutes(prediction.range.slowSec)}
-                {prediction.deltaSec != null ? ` · ${signedClock(prediction.deltaSec)}` : ""}
-            {:else if prediction}
-                {signedClock(prediction.deltaSec)}
-            {:else}
-                needs a few weeks of running to project from
-            {/if}
-        </span>
-    </div>
+        <div class="stat">
+            <span class="stat-label">Projected</span>
+            <strong class="stat-value" class:ahead={prediction?.onTrack} class:behind={prediction && !prediction.onTrack}>
+                {prediction ? clockMinutes(prediction.predictedSec) : "—"}
+            </strong>
+            <span class="stat-note">
+                {#if prediction?.range}
+                    {clockMinutes(prediction.range.fastSec)}–{clockMinutes(prediction.range.slowSec)}
+                    {prediction.deltaSec != null ? ` · ${signedClock(prediction.deltaSec)}` : ""}
+                {:else if prediction}
+                    {signedClock(prediction.deltaSec)}
+                {:else}
+                    needs a few weeks of running to project from
+                {/if}
+            </span>
+        </div>
+    {:else}
+        <div class="stat">
+            <span class="stat-label">Form</span>
+            <strong class="stat-value">{latest ? signed(latest.tsb, 0) : "—"}</strong>
+            <span class="stat-note">{latest ? `fatigue ${Math.round(latest.atl)}` : "no data yet"}</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-label">Easy</span>
+            <strong class="stat-value">{pct(summary?.intensity?.easyPct)}</strong>
+            <span class="stat-note">last 4 weeks</span>
+        </div>
+    {/if}
 
     <div class="stat">
         <span class="stat-label">Fitness</span>
@@ -90,16 +113,18 @@
             {/if}
         </strong>
         <span class="stat-note">
-            {#if latest}
-                form {signed(latest.tsb, 0)}{trend ? ` · ${trend.note}` : ""}
-            {:else}
+            {#if !latest}
                 no data yet
+            {:else if event}
+                form {signed(latest.tsb, 0)}{trend ? ` · ${trend.note}` : ""}
+            {:else if trend}
+                {trend.note}
             {/if}
         </span>
     </div>
 
     <div class="stat">
-        <span class="stat-label">Block total</span>
+        <span class="stat-label">{event ? "Block total" : "Logged"}</span>
         <strong class="stat-value">{km(summary?.totals?.distanceM)}</strong>
         <span class="stat-note">{summary?.totals?.runs || 0} runs</span>
     </div>

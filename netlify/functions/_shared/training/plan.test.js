@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
 	plannedWeek,
 	daysToRace,
+	raceAhead,
 	isTaperWeek,
 	comparePlan,
 	blockRange,
@@ -47,6 +48,18 @@ describe("daysToRace", () => {
 
 	it("goes negative once the race has passed", () => {
 		expect(daysToRace(PLAN, "2026-10-12")).toBe(-1);
+	});
+});
+
+describe("raceAhead", () => {
+	it("is a block through race day", () => {
+		expect(raceAhead(PLAN, "2026-10-01")).toBe(true);
+		expect(raceAhead(PLAN, "2026-10-11")).toBe(true);
+	});
+
+	it("stands down once the race has passed, and with no race at all", () => {
+		expect(raceAhead(PLAN, "2026-10-12")).toBe(false);
+		expect(raceAhead({}, "2026-10-01")).toBe(false);
 	});
 });
 

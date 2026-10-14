@@ -10,6 +10,10 @@
 // String rewriting (not HTMLRewriter) so it's runtime-agnostic. The index.html
 // meta tags are stable + ours, so the targeted replacements are safe.
 
+import { loadPlan } from "../functions/_shared/training/planFile.js";
+import { raceAhead } from "../functions/_shared/training/plan.js";
+import { trainingPageMeta } from "../../src/components/Training/lib/block.js";
+
 const SITE_URL = "https://maxeisen.me";
 const CLOUD = "https://res.cloudinary.com/meisen-gallery/image/upload";
 
@@ -26,7 +30,6 @@ const META = {
 	"/gallery/ride": { title: "Cycling — Max Eisen", desc: "Photos from the road, cycling around Toronto and beyond.", card: "Cycling" },
 	"/gallery/run": { title: "Running — Max Eisen", desc: "Photos from runs around Toronto and beyond.", card: "Running" },
 	"/dashboard": { title: "Live Dashboard — Max Eisen", desc: "A live look at what I'm listening to, riding, and reading.", card: "Live Dashboard" },
-	"/training": { title: "Road to Chicago — Max Eisen", desc: "Live marathon training dashboard: weekly volume, fitness and fatigue, intensity balance, and where I'm projected to finish.", card: "Road to Chicago" },
 	"/toronto": { title: "My Toronto — Max Eisen", desc: "A personal map of my Toronto.", card: "My Toronto" },
 	"/bach": { title: "Bach — Max Eisen", desc: "An interactive party game.", card: "Bach" },
 	// Private + noindex: a neutral card so sharing the link never reveals photos.
@@ -48,6 +51,13 @@ function cardUrl(text) {
 	return `${CLOUD}/${t}/og/backdrop.png`;
 }
 
+// Same switch as the page: a race still ahead keeps its card, otherwise this is just running.
+function trainingMeta() {
+	const plan = loadPlan();
+	const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" });
+	return trainingPageMeta({ inBlock: raceAhead(plan, today), race: plan.race });
+}
+
 const escAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const escText = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -64,7 +74,7 @@ export default async function handler(request, context) {
 	if (!ct.includes("text/html")) return res;
 
 	const { pathname } = new URL(request.url);
-	const m = META[pathname] || DEFAULT;
+	const m = pathname === "/training" ? trainingMeta() : (META[pathname] || DEFAULT);
 	const url = SITE_URL + pathname;
 	const img = cardUrl(m.card);
 

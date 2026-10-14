@@ -3,11 +3,13 @@
     import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { gaugePosition, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
+    import { inBlock } from "../lib/block.js";
     import { clock, clockMinutes, daysAgo, km, pace, shortDate, signedClock } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { summary = null } = $props();
 
+    const event = $derived(inBlock(summary));
     const prediction = $derived(summary?.prediction || null);
     const race = $derived(summary?.race || {});
     const basis = $derived(prediction?.basis || null);
@@ -73,7 +75,7 @@
 
     const rangeDomain = $derived.by(() => {
         if (!range) return null;
-        const values = [range.fastSec, range.slowSec, prediction.predictedSec, race.goalTimeSec]
+        const values = [range.fastSec, range.slowSec, prediction.predictedSec, event ? race.goalTimeSec : null]
             .filter((n) => n > 0);
         if (values.length < 2) return null;
         const pad = 60;
@@ -102,7 +104,7 @@
     });
 </script>
 
-<Card title="Projected finish" info={GLOSSARY.prediction}>
+<Card title={event ? "Projected finish" : "Predicted time"} info={GLOSSARY.prediction}>
     {#if !prediction}
         <p class="empty">
             Not enough recent running to project from. A few weeks of volume, or a race-quality
@@ -110,15 +112,17 @@
         </p>
     {:else}
         <div class="headline">
-            <div class="projected" class:ahead={prediction.onTrack}>
+            <div class="projected" class:ahead={event && prediction.onTrack} class:behind={event && prediction.onTrack === false}>
                 <strong>{clockMinutes(prediction.predictedSec)}</strong>
-                <span>projected</span>
+                <span>{event ? "projected" : "marathon"}</span>
             </div>
-            <div class="delta" class:ahead={prediction.onTrack}>
-                {signedClock(prediction.deltaSec)}
-            </div>
-            {#if prediction.confidence?.label}
-                <div class="confidence">{prediction.confidence.label} confidence</div>
+            {#if event}
+                <div class="delta" class:ahead={prediction.onTrack}>
+                    {signedClock(prediction.deltaSec)}
+                </div>
+                {#if prediction.confidence?.label}
+                    <div class="confidence">{prediction.confidence.label} confidence</div>
+                {/if}
             {/if}
         </div>
 
@@ -127,7 +131,7 @@
                 <svg viewBox="0 0 {TRACK} 36" class="range" role="img" aria-label="Likely race-day range">
                     <rect class="track" x="0" y="14" width={TRACK} height="8" rx="4" />
                     <rect class="band" x={rangeStart} y="14" width={Math.max(2, rangeEnd - rangeStart)} height="8" rx="4" />
-                    {#if goalMarker !== null}
+                    {#if event && goalMarker !== null}
                         <line class="goal" x1={goalMarker} x2={goalMarker} y1="8" y2="28" />
                     {/if}
                     {#if rangeMarker !== null}
@@ -154,10 +158,12 @@
                     <span class="model-note">VDOT {prediction.vdot.toFixed(1)}</span>
                 {/if}
             </div>
-            <div class="model">
-                <span class="model-label">Goal pace</span>
-                <strong>{pace(race.goalPaceSecPerKm)}</strong>
-            </div>
+            {#if event}
+                <div class="model">
+                    <span class="model-label">Goal pace</span>
+                    <strong>{pace(race.goalPaceSecPerKm)}</strong>
+                </div>
+            {/if}
         </div>
 
         {#if history.length > 1 && historyScale}
@@ -203,9 +209,10 @@
         font-size: clamp(2rem, 6vw, 2.8rem);
         font-weight: 700;
         letter-spacing: -0.03em;
-        color: var(--tone-bad);
+        color: var(--header-colour);
     }
     .projected.ahead strong { color: var(--tone-good); }
+    .projected.behind strong { color: var(--tone-bad); }
     .projected span {
         font-size: var(--font-2xs);
         text-transform: uppercase;

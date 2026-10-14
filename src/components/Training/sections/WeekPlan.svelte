@@ -4,7 +4,7 @@
     import { pct, weekday, weekRange } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
-    let { week = null, upcoming = [] } = $props();
+    let { week = null, upcoming = [], inBlock = true } = $props();
 
     const progress = $derived(
         week?.targetKm > 0
@@ -22,7 +22,7 @@
     function statusOf(day) {
         const planned = day.planned.filter((s) => s.isRun);
         const ran = day.actualKm > 0;
-        if (planned.length === 0) return ran ? "extra" : "off";
+        if (planned.length === 0) return ran ? (inBlock ? "extra" : "done") : "off";
         if (ran) return "done";
         return day.isPast ? "missed" : "ahead";
     }
@@ -54,7 +54,7 @@
                 <div class="track"><div class="fill" style="width: {progress}%"></div></div>
             {:else if week.isPlanned}
                 <p class="no-plan">A scheduled down week — no running planned.</p>
-            {:else}
+            {:else if inBlock}
                 <p class="no-plan">No target set for this week.</p>
             {/if}
         </div>
@@ -123,7 +123,9 @@
         <dl class="mini">
             <div><dt>Runs</dt><dd>{week.runs}</dd></div>
             <div><dt>Load</dt><dd>{Math.round(week.load)}</dd></div>
-            <div><dt>Of target</dt><dd>{pct(week.volumePct)}</dd></div>
+            {#if inBlock}
+                <div><dt>Of target</dt><dd>{pct(week.volumePct)}</dd></div>
+            {/if}
         </dl>
     {/if}
 

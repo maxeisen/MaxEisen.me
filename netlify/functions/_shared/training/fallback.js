@@ -23,6 +23,7 @@ import {
 	weekRange,
 	weekday,
 } from "../../../../src/components/Training/lib/format.js";
+import { inBlock } from "../../../../src/components/Training/lib/block.js";
 import { stravaTag } from "../../../../src/components/Training/lib/runTags.js";
 import { embedJson, TRAINING_BOOTSTRAP_ID } from "../../../../src/components/Training/lib/bootstrap.js";
 import { STRAVA_PROFILE_URL } from "../stravaPublic.js";
@@ -116,7 +117,7 @@ export function renderTrainingFallback(data = {}) {
 		`<p><a href="/">Home</a> · <a href="${JSON_FEED}">JSON</a> · <a href="${STRAVA_PROFILE_URL}" rel="noreferrer">Strava</a></p>`,
 		renderHeader(data.summary),
 		renderSync(data.sync, data.runs?.length ?? 0),
-		renderToday(data.today),
+		renderToday(data.today, inBlock(data.summary)),
 		renderLastRun(data.lastRun),
 		renderRecommendations(data.recommendations),
 		renderWeek(data.week, data.upcoming),
@@ -154,6 +155,7 @@ function renderHeader(summary) {
 	const prediction = summary?.prediction || null;
 	const latest = summary?.latest || null;
 	const days = finite(summary?.daysToRace);
+	const event = inBlock(summary);
 	let countdown = "";
 	if (days !== null) {
 		if (days < 0) countdown = "Race day has passed.";
@@ -183,13 +185,28 @@ function renderHeader(summary) {
 		}
 	}
 
+	const fitness = ["Fitness", latest
+		? (event ? `${Math.round(latest.ctl)}; ${trendNote}` : String(Math.round(latest.ctl)))
+		: "no data yet"];
+	const logged = [`${event ? "Block total" : "Logged"}`, `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`];
+	if (!event) {
+		return `<h1>Fitness</h1>
+<p>Running.</p>
+${pairs([
+	["Form", latest ? signed(latest.tsb, 0) : "—"],
+	["Easy", pct(summary?.intensity?.easyPct)],
+	fitness,
+	logged,
+])}`;
+	}
+
 	return `<h1>${t(race.name || "Marathon")}</h1>
 <p>${[raceDate, countdown].filter(Boolean).map(t).join(" ")}</p>
 ${pairs([
 	["Goal", `${clock(race.goalTimeSec)} (${pace(race.goalPaceSecPerKm)})`],
 	["Projected", prediction ? `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}` : "needs a few weeks of running to project from"],
-	["Fitness", latest ? `${Math.round(latest.ctl)}; ${trendNote}` : trendNote],
-	["Block total", `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`],
+	fitness,
+	logged,
 ])}`;
 }
 
@@ -200,12 +217,12 @@ function renderSync(sync, runCount) {
 	}
 	if (sync.backfilling) {
 		const runs = sync.outstanding === 1 ? "1 run" : `${sync.outstanding} runs`;
-		return `<p><strong>Still importing — ${t(runs)} to go.</strong> Fitness, form and the race projection all read the whole block, so treat them as provisional until the import finishes. The most recent weeks are already accurate.</p>`;
+		return `<p><strong>Still importing — ${t(runs)} to go.</strong> Fitness and form read the whole history, so treat them as provisional until the import finishes. The most recent weeks are already accurate.</p>`;
 	}
 	return "";
 }
 
-function renderToday(today) {
+function renderToday(today, event = true) {
 	if (!today) return section("Today", "<p>No briefing for today yet.</p>");
 	const training = today.training;
 	const session = today.session;
@@ -215,7 +232,7 @@ function renderToday(today) {
 	let sessionNote = "";
 	if (session?.status === "rest") {
 		sessionTitle = "Rest";
-		sessionNote = "nothing planned";
+		sessionNote = event ? "nothing planned" : "";
 	} else if (session?.status === "ahead") {
 		sessionTitle = plannedRun?.type || "Session";
 		sessionNote = [Number.isFinite(plannedRun?.distanceKm) ? `${plannedRun.distanceKm} km` : "", plannedRun?.detail].filter(Boolean).join("; ") || "still ahead";
@@ -224,7 +241,7 @@ function renderToday(today) {
 		sessionNote = [Number.isFinite(plannedRun?.distanceKm) ? `of ${plannedRun.distanceKm}` : "", plannedRun?.type].filter(Boolean).join("; ");
 	} else if (session) {
 		sessionTitle = session.actualKm > 0 ? `${session.actualKm.toFixed(1)} km` : "Extra";
-		sessionNote = "unplanned";
+		sessionNote = event ? "unplanned" : "";
 	}
 
 	const rows = [
@@ -347,25 +364,29 @@ function renderIntensity(intensity) {
 function renderPrediction(summary) {
 	const prediction = summary?.prediction;
 	const race = summary?.race || {};
+	const event = inBlock(summary);
+	const title = event ? "Projected finish" : "Predicted time";
 	if (!prediction) {
-		return section("Projected finish", "<p>Not enough recent running to project from.</p>");
+		return section(title, "<p>Not enough recent running to project from.</p>");
 	}
 	const basis = prediction.basis;
 	const basisLine = basis
 		? `<p>${prediction.basisStatus === "historic" ? "Historic aerobic equivalent from" : "Projected from"} ${t(kmLabel(basis.distanceM))} in ${t(clock(basis.timeSec))}${basis.date ? ` on ${t(shortDate(basis.date))}` : ""}${Number.isFinite(prediction.basisAgeDays) ? ` (${prediction.basisAgeDays} days ago)` : ""}.</p>`
 		: "";
 	const reason = prediction.unchangedReason ? `<p>${t(prediction.unchangedReason)}</p>` : "";
-	const range = prediction.range
+	const range = event && prediction.range
 		? ["Likely range", `${clockMinutes(prediction.range.fastSec)} – ${clockMinutes(prediction.range.slowSec)}${prediction.confidence?.label ? ` (${prediction.confidence.label} confidence)` : ""}`]
 		: null;
-	return section("Projected finish", `${pairs([
-		["Projected", `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}`],
+	return section(title, `${pairs([
+		["Projected", event
+			? `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}`
+			: clockMinutes(prediction.predictedSec)],
 		range,
 		["Training-supported", clockMinutes(prediction.trainingSec)],
 		["Aerobic equivalent", clockMinutes(prediction.aerobicPotentialSec)],
 		["Riegel", clock(prediction.riegelSec)],
 		["VDOT", `${clock(prediction.vdotSec)}${Number.isFinite(prediction.vdot) ? ` (${prediction.vdot.toFixed(1)})` : ""}`],
-		["Goal pace", pace(race.goalPaceSecPerKm)],
+		event ? ["Goal pace", pace(race.goalPaceSecPerKm)] : null,
 	])}
 ${basisLine}${reason}`);
 }
@@ -420,17 +441,18 @@ function renderRuns(runs, total) {
 	const rideCount = list.filter((r) => r.sport === "ride").length;
 	const strengthCount = list.filter((r) => r.sport === "strength").length;
 	const plannedCount = list.filter((r) => r.plan?.planned).length;
+	const tracking = list.some((r) => r.plan);
 	const extras = [
 		rideCount ? `${rideCount} ${rideCount === 1 ? "ride" : "rides"}` : null,
 		strengthCount ? `${strengthCount} strength` : null,
 	].filter(Boolean);
-	const summary = `${Number.isFinite(total) && total > runCount ? `latest ${runCount} of ${total}` : `${runCount} runs`}; ${plannedCount} planned${extras.length ? `; ${extras.join("; ")}` : ""}`;
+	const summary = `${Number.isFinite(total) && total > runCount ? `latest ${runCount} of ${total}` : `${runCount} runs`}${tracking ? `; ${plannedCount} planned` : ""}${extras.length ? `; ${extras.join("; ")}` : ""}`;
 	const rows = list.map((run) => {
 		const isRide = run.sport === "ride";
 		const isStrength = run.sport === "strength";
 		const tag = stravaTag(run);
 		const planned = run.plan?.planned === true;
-		const kind = isRide ? "ride" : isStrength ? "strength" : planned ? t(run.plan?.type || "planned") : "extra";
+		const kind = isRide ? "ride" : isStrength ? "strength" : !run.plan ? "run" : planned ? t(run.plan?.type || "planned") : "extra";
 		const measure = isRide
 			? t(speed(run.distanceM, run.movingTimeSec))
 			: isStrength
