@@ -23,7 +23,7 @@
     "netlify-cli": "27.5.2",
     "svelte": "^5.56.5",
     "vite": "^8.3.5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.13",
@@ -34,7 +34,7 @@
     "openai": "^6.41.0",
     "qrcode": "^1.5.4",
     "query-string": "^9.5.0",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.4"
   },
@@ -42,6 +42,7 @@
     "ipx": {
       "sharp": "$sharp"
     },
-    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5"
+    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5",
+    "toml": "5.0.1"
   }
 }
