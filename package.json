@@ -22,7 +22,7 @@
     "eslint-plugin-svelte": "^2.46.1",
     "netlify-cli": "27.5.2",
     "svelte": "^5.56.5",
-    "vite": "^8.1.4",
+    "vite": "^8.3.5",
     "vitest": "^4.1.11"
   },
   "dependencies": {
