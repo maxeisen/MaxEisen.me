@@ -4,6 +4,7 @@
     "label": "Road to Chicago",
     "date": "2026-10-11",
     "goalTimeSec": 12600,
+    "resultSec": 12379,
     "distanceM": 42195
   },
   "thresholds": {

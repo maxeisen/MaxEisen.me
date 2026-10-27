@@ -256,6 +256,9 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 			distanceM: race.distanceM || 42195,
 			goalTimeSec: race.goalTimeSec || null,
 			goalPaceSecPerKm: goalPace,
+			// Official finish, entered by hand once the race is run. Only
+			// meaningful after race day; a block in progress has none.
+			resultSec: Number(race.resultSec) > 0 && !event ? Number(race.resultSec) : null,
 		},
 		inBlock: event,
 		daysToRace: remainingDays,

@@ -23,7 +23,7 @@ import {
 	weekRange,
 	weekday,
 } from "../../../../src/components/Training/lib/format.js";
-import { inBlock, lastRaceLine } from "../../../../src/components/Training/lib/block.js";
+import { inBlock, lastRace, lastRaceLine } from "../../../../src/components/Training/lib/block.js";
 import { stravaTag } from "../../../../src/components/Training/lib/runTags.js";
 import { embedJson, TRAINING_BOOTSTRAP_ID } from "../../../../src/components/Training/lib/bootstrap.js";
 import { STRAVA_PROFILE_URL } from "../stravaPublic.js";
@@ -191,9 +191,11 @@ function renderHeader(summary) {
 	const logged = [`${event ? "Block total" : "Logged"}`, `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`];
 	if (!event) {
 		const last = lastRaceLine(summary);
+		const finished = lastRace(summary);
 		return `<h1>Running</h1>
 <p>Not training for anything right now.${last ? ` Last race: ${t(last)}.` : ""}</p>
 ${pairs([
+	finished?.resultSec ? resultRow(finished) : null,
 	["Form", latest ? signed(latest.tsb, 0) : "—"],
 	["Easy", pct(summary?.intensity?.easyPct)],
 	fitness,
@@ -209,6 +211,11 @@ ${pairs([
 	fitness,
 	logged,
 ])}`;
+}
+
+function resultRow(finished) {
+	const vsGoal = Number.isFinite(finished.goalDeltaSec) ? `; ${signedClock(finished.goalDeltaSec)} goal` : "";
+	return [finished.isMarathon ? "Last marathon" : "Last race", `${clock(finished.resultSec)}${vsGoal}`];
 }
 
 function renderSync(sync, runCount) {
@@ -372,6 +379,7 @@ function renderPrediction(summary) {
 	const race = summary?.race || {};
 	const event = inBlock(summary);
 	const title = event ? "Projected finish" : "Marathon estimate";
+	const finished = lastRace(summary);
 	if (!prediction) {
 		return section(title, "<p>Not enough recent running to project from.</p>");
 	}
@@ -393,6 +401,7 @@ function renderPrediction(summary) {
 		["Riegel", clock(prediction.riegelSec)],
 		["VDOT", `${clock(prediction.vdotSec)}${Number.isFinite(prediction.vdot) ? ` (${prediction.vdot.toFixed(1)})` : ""}`],
 		event ? ["Goal pace", pace(race.goalPaceSecPerKm)] : null,
+		finished?.resultSec ? resultRow(finished) : null,
 	])}
 ${basisLine}${reason}`);
 }

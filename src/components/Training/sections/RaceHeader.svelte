@@ -1,6 +1,6 @@
 <!-- Race countdown and the headline numbers, or just running between blocks. -->
 <script>
-    import { inBlock, lastRaceLine } from "../lib/block.js";
+    import { inBlock, lastRace as lastRaceOf, lastRaceLine } from "../lib/block.js";
     import { clock, clockMinutes, km, pace, pct, signed, signedClock } from "../lib/format.js";
 
     let { summary } = $props();
@@ -46,6 +46,7 @@
     // The plan file keeps its race after race day, so between blocks it's
     // the most recent one rather than a target.
     const lastRace = $derived(lastRaceLine(summary));
+    const finished = $derived(lastRaceOf(summary));
 </script>
 
 <header class="race-header">
@@ -98,6 +99,16 @@
             </span>
         </div>
     {:else}
+        {#if finished?.resultSec}
+            <div class="stat">
+                <span class="stat-label">{finished.isMarathon ? "Last marathon" : "Last race"}</span>
+                <strong class="stat-value" class:ahead={finished.goalDeltaSec < 0}>{clock(finished.resultSec)}</strong>
+                <span class="stat-note">
+                    {Number.isFinite(finished.goalDeltaSec) ? `${signedClock(finished.goalDeltaSec)} goal` : finished.dateLabel}
+                </span>
+            </div>
+        {/if}
+
         <div class="stat">
             <span class="stat-label">Form</span>
             <strong class="stat-value">{latest ? signed(latest.tsb, 0) : "—"}</strong>

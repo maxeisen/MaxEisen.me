@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { inBlock, lastRaceLine, trainingPageMeta } from "./block.js";
+import { inBlock, lastRace, lastRaceLine, trainingPageMeta } from "./block.js";
 
 const RACE = { name: "Bank of America Chicago Marathon", label: "Road to Chicago" };
 
@@ -38,5 +38,26 @@ describe("lastRaceLine", () => {
 	it("says nothing during a block or with no race on the plan", () => {
 		expect(lastRaceLine({ ...past, inBlock: true, daysToRace: 10 })).toBeNull();
 		expect(lastRaceLine({ inBlock: false, daysToRace: null, race: { name: null } })).toBeNull();
+	});
+});
+
+describe("lastRace", () => {
+	const past = {
+		inBlock: false,
+		daysToRace: -16,
+		race: { ...RACE, date: "2026-10-11", distanceM: 42195, goalTimeSec: 12600, resultSec: 12379 },
+	};
+
+	it("carries the finish and how it compared with the goal", () => {
+		const race = lastRace(past);
+		expect(race.isMarathon).toBe(true);
+		expect(race.resultSec).toBe(12379);
+		expect(race.goalDeltaSec).toBe(-221);
+	});
+
+	it("has no finish until one is entered", () => {
+		const race = lastRace({ ...past, race: { ...past.race, resultSec: null } });
+		expect(race.resultSec).toBeNull();
+		expect(race.goalDeltaSec).toBeNull();
 	});
 });

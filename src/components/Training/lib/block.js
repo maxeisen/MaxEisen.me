@@ -23,15 +23,41 @@ export function inBlock(summary) {
  * @returns {string|null}
  */
 export function lastRaceLine(summary) {
+	const race = lastRace(summary);
+	return race ? [race.name, race.dateLabel].filter(Boolean).join(" · ") : null;
+}
+
+/**
+ * The race behind you, once race day has passed: what it was, when, and the
+ * finish if one has been entered. Null during a block or with no named race.
+ *
+ * @param {object} [summary]
+ * @returns {{name: string, date: string|null, dateLabel: string,
+ *   distanceM: number, isMarathon: boolean, resultSec: number|null,
+ *   goalDeltaSec: number|null}|null} goalDeltaSec is negative when the
+ *   finish beat the goal.
+ */
+export function lastRace(summary) {
 	if (inBlock(summary)) return null;
 	const race = summary?.race;
 	const days = summary?.daysToRace;
 	if (!race?.name || !Number.isFinite(days) || days >= 0) return null;
 	const date = race.date ? new Date(`${race.date}T12:00:00Z`) : null;
-	const when = date && !Number.isNaN(date.getTime())
+	const dateLabel = date && !Number.isNaN(date.getTime())
 		? date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
 		: "";
-	return [race.name, when].filter(Boolean).join(" · ");
+	const distanceM = Number(race.distanceM) || 42195;
+	const resultSec = Number(race.resultSec) > 0 ? Number(race.resultSec) : null;
+	const goalSec = Number(race.goalTimeSec) > 0 ? Number(race.goalTimeSec) : null;
+	return {
+		name: race.name,
+		date: race.date || null,
+		dateLabel,
+		distanceM,
+		isMarathon: Math.abs(distanceM - 42195) < 200,
+		resultSec,
+		goalDeltaSec: resultSec && goalSec ? resultSec - goalSec : null,
+	};
 }
 
 /**

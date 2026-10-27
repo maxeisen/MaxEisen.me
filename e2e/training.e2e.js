@@ -53,6 +53,8 @@ test("after the race the page is a running log", async ({ page }) => {
 	await expect(page.getByText("Training for", { exact: true })).toHaveCount(0);
 	await expect(page.getByText("Goal", { exact: true })).toHaveCount(0);
 	await expect(page.getByRole("heading", { name: "Marathon estimate" })).toBeVisible();
+	await expect(page.locator(".headline-stats").getByText("3:26:19")).toBeVisible();
+	await expect(page.locator(".last-race").getByText("3:26:19")).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Projected finish" })).toHaveCount(0);
 	await expect(page.getByText("No target set for this week")).toHaveCount(0);
 	await expect(page.locator(".tag.plan")).toHaveCount(0);
