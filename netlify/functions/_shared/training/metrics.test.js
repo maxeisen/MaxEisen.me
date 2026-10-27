@@ -48,6 +48,14 @@ describe("buildDashboard", () => {
 		expect(out.summary.race.goalPaceSecPerKm).toBeCloseTo(298.6, 1);
 	});
 
+	it("publishes the race result only once race day is behind you", () => {
+		const plan = { ...PLAN, race: { ...PLAN.race, resultSec: 12379 } };
+		const before = buildDashboard({ activities: [], plan, today: "2026-10-01" });
+		const after = buildDashboard({ activities: [], plan, today: "2026-10-27" });
+		expect(before.summary.race.resultSec).toBeNull();
+		expect(after.summary.race.resultSec).toBe(12379);
+	});
+
 	it("totals distance and time across the block", () => {
 		const out = buildDashboard({
 			activities: block("2026-08-11", 10),

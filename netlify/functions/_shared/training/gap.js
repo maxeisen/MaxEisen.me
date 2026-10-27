@@ -18,7 +18,7 @@
 // Deliberately no GPS anywhere in this module. Gradient comes from Strava's
 // `grade_smooth` stream or from per-kilometre `elevation_difference`, both of
 // which are available without ever requesting latlng — which is what lets the
-// public /training payload carry full GAP but no coordinates.
+// public /running payload carry full GAP but no coordinates.
 
 // Cost on the flat, i.e. Cr(0). Every factor is expressed relative to this.
 export const FLAT_COST = 3.6;

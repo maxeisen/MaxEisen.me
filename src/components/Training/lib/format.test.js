@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { weekRange, pace, clock, clockMinutes, km, pct, shortDate, daysAgo, signed, speed, readout, splitLead, timeTaken } from "./format.js";
+import { weekRange, pace, clock, clockMinutes, km, pct, shortDate, daysAgo, signed, signedClock, gapDuration, speed, readout, splitLead, timeTaken } from "./format.js";
 
 describe("readout", () => {
 	it("binds symbols to both numbers and says words once", () => {
@@ -181,5 +181,15 @@ describe("training formatters", () => {
 		expect(km()).toBe("—");
 		expect(pct(null)).toBe("—");
 		expect(shortDate("")).toBe("");
+	});
+});
+
+describe("gapDuration", () => {
+	it("spells out its units, so a gap can't pass for a finish time", () => {
+		expect(gapDuration(221)).toBe("3m 41s");
+		expect(gapDuration(-45)).toBe("45s");
+		expect(gapDuration(3720)).toBe("1h 2m");
+		expect(signedClock(-221)).toBe("3m 41s under");
+		expect(signedClock(540)).toBe("9m over");
 	});
 });

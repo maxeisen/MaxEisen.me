@@ -3,8 +3,8 @@
     import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { gaugePosition, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
-    import { inBlock } from "../lib/block.js";
-    import { clock, clockMinutes, daysAgo, km, pace, shortDate, signedClock } from "../lib/format.js";
+    import { inBlock, lastRace } from "../lib/block.js";
+    import { clock, clockMinutes, daysAgo, gapDuration, km, pace, shortDate, signedClock } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { summary = null } = $props();
@@ -15,6 +15,15 @@
     const basis = $derived(prediction?.basis || null);
     const range = $derived(prediction?.range || null);
     const history = $derived(prediction?.history || []);
+    // Between blocks, the finish you actually ran is the yardstick the
+    // estimate is read against — the goal belonged to the block.
+    const finished = $derived.by(() => {
+        const race = lastRace(summary);
+        return race?.resultSec ? race : null;
+    });
+    const sinceRace = $derived(
+        finished && prediction?.predictedSec > 0 ? prediction.predictedSec - finished.resultSec : null,
+    );
 
     const WIDTH = 720;
     const HEIGHT = 110;
@@ -23,6 +32,7 @@
     const historyScale = $derived.by(() => {
         const values = history.map((point) => point.predictedSec).filter((n) => n > 0);
         if (values.length < 2) return null;
+        if (finished) values.push(finished.resultSec);
         return niceScale(
             [Math.min(...values), Math.max(...values)],
             2,
@@ -47,6 +57,10 @@
             y: y(point.predictedSec),
             value: point.predictedSec,
         }));
+    });
+    const resultY = $derived.by(() => {
+        if (!finished || !historyScale || !(historyScale.max > historyScale.min)) return null;
+        return scaleLinear([historyScale.min, historyScale.max], [0, HEIGHT])(finished.resultSec);
     });
     const xTicks = $derived.by(() => {
         if (history.length < 2) return [];
@@ -75,8 +89,13 @@
 
     const rangeDomain = $derived.by(() => {
         if (!range) return null;
-        const values = [range.fastSec, range.slowSec, prediction.predictedSec, event ? race.goalTimeSec : null]
-            .filter((n) => n > 0);
+        const values = [
+            range.fastSec,
+            range.slowSec,
+            prediction.predictedSec,
+            event ? race.goalTimeSec : null,
+            finished?.resultSec,
+        ].filter((n) => n > 0);
         if (values.length < 2) return null;
         const pad = 60;
         return [Math.min(...values) - pad, Math.max(...values) + pad];
@@ -88,6 +107,9 @@
     const rangeEnd = $derived(rangeDomain ? gaugePosition(range.slowSec, rangeDomain, TRACK) : 0);
     const goalMarker = $derived(
         rangeDomain && race.goalTimeSec > 0 ? gaugePosition(race.goalTimeSec, rangeDomain, TRACK) : null,
+    );
+    const resultMarker = $derived(
+        rangeDomain && finished ? gaugePosition(finished.resultSec, rangeDomain, TRACK) : null,
     );
 
     const basisNote = $derived.by(() => {
@@ -104,7 +126,7 @@
     });
 </script>
 
-<Card title={event ? "Projected finish" : "Predicted time"} info={GLOSSARY.prediction}>
+<Card title={event ? "Projected finish" : "Marathon estimate"} info={GLOSSARY.prediction}>
     {#if !prediction}
         <p class="empty">
             Not enough recent running to project from. A few weeks of volume, or a race-quality
@@ -114,7 +136,7 @@
         <div class="headline">
             <div class="projected" class:ahead={event && prediction.onTrack} class:behind={event && prediction.onTrack === false}>
                 <strong>{clockMinutes(prediction.predictedSec)}</strong>
-                <span>{event ? "projected" : "marathon"}</span>
+                <span>{event ? "projected" : "if raced today"}</span>
             </div>
             {#if event}
                 <div class="delta" class:ahead={prediction.onTrack}>
@@ -134,14 +156,25 @@
                     {#if event && goalMarker !== null}
                         <line class="goal" x1={goalMarker} x2={goalMarker} y1="8" y2="28" />
                     {/if}
+                    {#if resultMarker !== null}
+                        <line class="result" x1={resultMarker} x2={resultMarker} y1="8" y2="28">
+                            <title>{finished.isMarathon ? "Last marathon" : "Last race"} {clock(finished.resultSec)}</title>
+                        </line>
+                    {/if}
                     {#if rangeMarker !== null}
                         <line class="marker" x1={rangeMarker} x2={rangeMarker} y1="6" y2="30" />
                     {/if}
                 </svg>
+                <!-- A legend rather than end labels: a goal or a past finish
+                     outside the range stretches the track, so its ends are
+                     no longer the range's. -->
                 <div class="range-labels">
-                    <span>{clockMinutes(range.fastSec)}</span>
-                    <span>likely range</span>
-                    <span>{clockMinutes(range.slowSec)}</span>
+                    {#if event && goalMarker !== null}
+                        <span><span class="key-tick goal-tick"></span>goal {clock(race.goalTimeSec)}</span>
+                    {:else if resultMarker !== null}
+                        <span><span class="key-tick result-tick"></span>{finished.isMarathon ? "last marathon" : "last race"} {clock(finished.resultSec)}</span>
+                    {/if}
+                    <span class="key-range"><span class="key-band"></span>likely range {clockMinutes(range.fastSec)}–{clockMinutes(range.slowSec)}</span>
                 </div>
             </div>
         {/if}
@@ -163,15 +196,38 @@
                     <span class="model-label">Goal pace</span>
                     <strong>{pace(race.goalPaceSecPerKm)}</strong>
                 </div>
+            {:else if finished}
+                <div class="model last-race">
+                    <span class="model-label">{finished.isMarathon ? "Last marathon" : "Last race"}</span>
+                    <strong>{clock(finished.resultSec)}</strong>
+                    <span class="model-note">
+                        {#if Number.isFinite(sinceRace) && Math.abs(sinceRace) >= 30}
+                            {gapDuration(sinceRace)} {sinceRace > 0 ? "slower" : "faster"} now
+                        {:else if Number.isFinite(sinceRace)}
+                            estimate matches it
+                        {:else}
+                            {finished.dateLabel}
+                        {/if}
+                    </span>
+                </div>
             {/if}
         </div>
 
         {#if history.length > 1 && historyScale}
             <ChartFrame height={130} {yTicks} {xTicks} {scrub} label="Projected finish over recent weeks">
                 <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
+                    {#if resultY !== null}
+                        <line class="result-line" x1="0" x2={WIDTH} y1={resultY} y2={resultY} />
+                    {/if}
                     <path class="history-line" d={smoothPath(historyPoints)} />
                 </svg>
             </ChartFrame>
+            {#if finished}
+                <p class="chart-key">
+                    <span class="key-dash"></span>
+                    {finished.isMarathon ? "last marathon" : "last race"}, {clock(finished.resultSec)} on {finished.dateLabel}
+                </p>
+            {/if}
         {/if}
 
         {#if prediction.factors?.length}
@@ -254,6 +310,35 @@
         stroke-dasharray: 3 3;
         opacity: 0.55;
     }
+    /* The finish you ran: solid green, where the goal it replaced is dashed grey. */
+    .result {
+        stroke: var(--tone-good);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+    }
+    .result-line {
+        stroke: var(--tone-good);
+        stroke-width: 1.5;
+        stroke-dasharray: 5 4;
+        opacity: 0.8;
+        vector-effect: non-scaling-stroke;
+    }
+    .last-race strong { color: var(--tone-good); }
+    .chart-key {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin: var(--space-2) 0 0 0;
+        font-size: var(--font-2xs);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--paragraph-colour);
+        opacity: 0.7;
+    }
+    .key-dash {
+        width: 16px;
+        border-top: 1.5px dashed var(--tone-good);
+    }
     .range-labels {
         display: flex;
         justify-content: space-between;
@@ -263,7 +348,25 @@
         color: var(--paragraph-colour);
         opacity: 0.7;
         margin-top: 2px;
+        gap: var(--space-3);
+        flex-wrap: wrap;
     }
+    .range-labels > span { display: inline-flex; align-items: center; gap: 6px; }
+    /* Right-aligned even when there's no marker to share the row with. */
+    .key-range { margin-left: auto; }
+    .key-band {
+        width: 14px;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--main-green);
+        opacity: 0.5;
+    }
+    .key-tick { width: 0; height: 11px; }
+    .goal-tick {
+        width: 2px;
+        background: repeating-linear-gradient(to bottom, var(--paragraph-colour) 0 3px, transparent 3px 6px);
+    }
+    .result-tick { border-left: 2.5px solid var(--tone-good); }
 
     .models {
         display: grid;

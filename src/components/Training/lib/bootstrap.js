@@ -1,4 +1,4 @@
-// Shared id for the JSON payload trainingPage embeds in /training.
+// Shared id for the JSON payload trainingPage embeds in /running.
 // Kept here so the SPA and the HTML injector agree without the client
 // importing the noscript renderer.
 

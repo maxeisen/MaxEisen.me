@@ -1,4 +1,4 @@
-// Oura Cloud API access for the recovery half of /training.
+// Oura Cloud API access for the recovery half of /running.
 //
 // The awkward part here isn't the API, it's the tokens. Personal access tokens
 // were withdrawn at the end of 2025, so this is OAuth2 authorization-code only,

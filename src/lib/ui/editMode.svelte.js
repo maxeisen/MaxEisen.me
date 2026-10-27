@@ -6,7 +6,7 @@
 // otherwise how you scroll the page. The toggle only exists in that narrow
 // state, which is why widening the window turns editing back off.
 //
-// This lived inline in Dashboard.svelte until /training wanted the same
+// This lived inline in Dashboard.svelte until /running wanted the same
 // behaviour. It's here so there's one of it: the same rule for when dragging
 // is allowed, and the same rule for which clicks are drag residue.
 

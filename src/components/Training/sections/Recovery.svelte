@@ -110,7 +110,7 @@
         if (strain?.state === "absorbing") {
             return {
                 tone: "good",
-                text: `Form is ${form} from the training alone, and your overnight numbers are sitting at baseline. That's a body absorbing a heavy block rather than falling behind it.`,
+                text: `Form is ${form} from the training alone, and your overnight numbers are sitting at baseline. That's a body absorbing the training rather than falling behind it.`,
             };
         }
         if (strain?.state === "buried") {

@@ -1,4 +1,4 @@
-// Public training dashboard payload for /training.
+// Public training dashboard payload for /running.
 //
 // No auth: the page is public, and shape.js drops private activities and GPS
 // before anything is stored. This reads Blobs and runs pure functions; it

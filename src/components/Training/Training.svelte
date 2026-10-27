@@ -147,7 +147,7 @@
             data = payload;
             error = "";
         } catch (err) {
-            if (!data) error = "Couldn't load training data right now.";
+            if (!data) error = "Couldn't load running data right now.";
             console.error("trainingData load failed", err);
         }
     }

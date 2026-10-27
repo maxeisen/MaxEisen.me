@@ -14,7 +14,7 @@ test("dashboard mounts its widget grid", async ({ page }) => {
 	expect(await widgets.count()).toBeGreaterThanOrEqual(5);
 });
 
-// The drag and its edit mode are shared with /training (lib/ui/reorder and
+// The drag and its edit mode are shared with /running (lib/ui/reorder and
 // lib/ui/editMode), so the behaviour is asserted on both pages: this is where
 // it came from, and it's the one that mustn't change.
 test("a widget can be dragged into another slot, and stays there", async ({ page }) => {

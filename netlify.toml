@@ -10,7 +10,7 @@
 # signedGalleryList can read them instead of running a ~20s Admin search per
 # load. Generated at build time (see scripts/build-gallery-manifest.mjs).
 #
-# marathon-plan.json is the hand-authored training plan behind /training. The
+# marathon-plan.json is the hand-authored training plan behind /running. The
 # functions import it as JSON so the bundler inlines it (see
 # _shared/training/planFile.js for why reading it from disk doesn't work), but
 # it's listed here too so the file is present if that import ever goes back to
@@ -59,7 +59,7 @@
 [functions."bach-story-images-background"]
   timeout = 900
 
-# Strava sync for /training. Netlify caps scheduled functions at 30s;
+# Strava sync for /running. Netlify caps scheduled functions at 30s;
 # trainingSync bounds its own work to fit (see DETAIL_BUDGET) and defers the
 # remainder to the next run, so a cold-start backfill fills in over the first
 # hour. The schedule itself is declared in the function's own `config` export.
@@ -110,7 +110,7 @@
   to = "/netlify/:splat"
   status = 200
 
-# SPA rewrites — known App.svelte routes boot index.html, except /training,
+# SPA rewrites — known App.svelte routes boot index.html, except /running,
 # which is the trainingPage function so a no-JS browser still gets the
 # dashboard. Keep the rest in sync with ROUTES in src/App.svelte (+ "/" for
 # the homepage). Static files (resume.html, 404.html, /build/*, /styles/*, …)
@@ -143,9 +143,15 @@
 # HTML from trainingPage: the SPA shell plus a noscript dashboard. JS visitors
 # still boot the app from that document; browsers without JS read the fallback.
 [[redirects]]
-  from = "/training"
+  from = "/running"
   to = "/.netlify/functions/trainingPage"
   status = 200
+# The page lived at /training until it stopped being only about a race block.
+# Old links and the attribution line on past Strava descriptions still point there.
+[[redirects]]
+  from = "/training"
+  to = "/running"
+  status = 301
 [[redirects]]
   from = "/bach"
   to = "/index.html"

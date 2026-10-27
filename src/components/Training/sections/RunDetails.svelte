@@ -54,7 +54,7 @@
 
     const standout = $derived.by(() => {
         if (!load || !(load.load > 0) || load.runsCompared < 5) return null;
-        if (load.daysSinceAsHard === null) return "the hardest run of the block so far";
+        if (load.daysSinceAsHard === null) return "the hardest run on record so far";
         if (load.daysSinceAsHard < 7) return null;
         const weeks = Math.round(load.daysSinceAsHard / 7);
         return weeks === 1 ? "the hardest in a week" : `the hardest in ${weeks} weeks`;

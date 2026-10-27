@@ -1,6 +1,6 @@
 // Reduce a raw Strava activity to the lean, public-safe record we store.
 //
-// This module is the privacy boundary for /training. The page is public and the
+// This module is the privacy boundary for /running. The page is public and the
 // OAuth token carries activity:read_all, so the sync can see runs marked
 // private — this is the only thing standing between those and the open web.
 // It's an allow-list by construction: the output object is built field by

@@ -1,4 +1,4 @@
-// /training as HTML, for clients that never run the SPA.
+// /running as HTML, for clients that never run the SPA.
 //
 // The rewrite in netlify.toml sends this path here instead of index.html. The
 // response is still that shell — hashed scripts, the empty #app — with a
@@ -21,8 +21,8 @@ const memo = createMemo(60_000);
 
 const SHELL_UNAVAILABLE = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Training — Max Eisen</title></head>
-<body><p>Couldn't load the training dashboard right now.</p></body>
+<head><meta charset="utf-8"><title>Running — Max Eisen</title></head>
+<body><p>Couldn't load the running dashboard right now.</p></body>
 </html>`;
 
 // Copied from dist/index.html after vite build (see scripts/copy-spa-shell.mjs)

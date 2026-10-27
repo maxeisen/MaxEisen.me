@@ -204,7 +204,7 @@
    the /gallery and /dashboard route bodies, all referencing this one keyframe.
    The standalone /404 keeps its own copy (it doesn't load this file). */
 
-/* iOS-style jiggle for a grid in edit mode, on /dashboard and /training. Two
+/* iOS-style jiggle for a grid in edit mode, on /dashboard and /running. Two
    of them, applied to alternating tiles, so a grid doesn't rock in lockstep.
    Global because keyframes declared inside a Svelte component are scoped to
    it, and these belong to both. */
@@ -222,7 +222,7 @@
 
 /* === Rearrangeable grids ===
    How a draggable grid looks and responds, for the pages driven by
-   lib/ui/reorder + lib/ui/editMode: /dashboard's widgets and /training's
+   lib/ui/reorder + lib/ui/editMode: /dashboard's widgets and /running's
    panels. Both mark their container `.drag-grid` and their tiles
    `.drag-tile`, and the classes the drag itself sets — is-dragging,
    is-editing, dragging, drop-target — mean the same thing on both.

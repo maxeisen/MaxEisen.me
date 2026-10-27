@@ -1,5 +1,5 @@
 <!--
-    /training route shell. The Training component owns the data fetch, layout,
+    /running route shell. The Training component owns the data fetch, layout,
     and every section.
 -->
 <script>

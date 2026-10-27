@@ -56,10 +56,25 @@ export function clockMinutes(sec) {
 	return h > 0 ? `${h}:${pad(m)}` : `${m}:00`;
 }
 
-/** Signed duration, for "4:32 under goal" style deltas. */
+/**
+ * A gap between two times, with units: "3m 41s", "45s", "1h 2m". Beside a
+ * finish like 3:26:19, a bare "3:41" reads as hours and minutes.
+ */
+export function gapDuration(sec) {
+	if (!Number.isFinite(sec)) return "—";
+	const total = Math.round(Math.abs(sec));
+	const h = Math.floor(total / 3600);
+	const m = Math.floor((total % 3600) / 60);
+	const s = total % 60;
+	if (h > 0) return `${h}h ${m}m`;
+	if (m > 0) return s > 0 ? `${m}m ${s}s` : `${m}m`;
+	return `${s}s`;
+}
+
+/** Signed duration, for "4m 32s under goal" style deltas. */
 export function signedClock(sec) {
 	if (!Number.isFinite(sec) || sec === 0) return "on goal";
-	const magnitude = clock(Math.abs(sec));
+	const magnitude = gapDuration(sec);
 	return sec > 0 ? `${magnitude} over` : `${magnitude} under`;
 }
 
@@ -159,6 +174,7 @@ const UNITS = {
 	ratio: { each: (v) => `${v.toFixed(2)}×` },
 	bpm: { each: quantity, trailing: " bpm" },
 	days: { each: (v) => String(Math.round(v)), trailing: " days" },
+	km: { each: (v) => String(Math.round(v)), trailing: " km/wk" },
 	none: { each: quantity },
 };
 

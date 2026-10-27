@@ -412,3 +412,44 @@ describe("recommendations", () => {
 		}
 	});
 });
+
+describe("between blocks", () => {
+	const chicago = { name: "Chicago Marathon", distanceM: 42195 };
+
+	it("asks for easy running in the weeks right after a race", () => {
+		const out = recommendations({ inBlock: false, race: chicago, daysToRace: -10, recentWeeklyKm: 20, recentWeeks: 4 });
+		const rec = find(out, "post-race");
+		expect(rec.title).toContain("Chicago Marathon");
+		expect(rec.metric).toBe(10);
+		expect(rec.threshold).toBe(26);
+		expect(rec.detail).toContain("16 days");
+		expect(ids(out)).not.toContain("off-season");
+	});
+
+	it("moves on to the off-season note once the recovery window has passed", () => {
+		const out = recommendations({ inBlock: false, race: chicago, daysToRace: -40, recentWeeklyKm: 31.6, recentWeeks: 4 });
+		expect(ids(out)).not.toContain("post-race");
+		const rec = find(out, "off-season");
+		expect(rec.metric).toBe(31.6);
+		expect(rec.unit).toBe("km");
+		expect(rec.detail).toContain("32 km a week");
+	});
+
+	it("still has something to say with no race on the plan at all", () => {
+		const out = recommendations({ inBlock: false, daysToRace: null, recentWeeklyKm: 18, recentWeeks: 2 });
+		expect(ids(out)).toContain("off-season");
+	});
+
+	it("stays quiet about the off-season during a block", () => {
+		const out = recommendations({ inBlock: true, race: chicago, daysToRace: 40, recentWeeklyKm: 40, recentWeeks: 4 });
+		expect(ids(out)).not.toContain("off-season");
+		expect(ids(out)).not.toContain("post-race");
+	});
+
+	it("drops the block language from the shared rules", () => {
+		const out = recommendations({ inBlock: false, latest: { tsb: -30 }, intensity: { easyPct: 60 }, acwr: { ratio: 0.6 } });
+		for (const id of ["tsb-fatigued", "easy-share-low", "acwr-low"]) {
+			expect(find(out, id).detail).not.toMatch(/block|marathon|planned down week/i);
+		}
+	});
+});

@@ -1,6 +1,6 @@
 // Full detail for one run in the block, read from Blobs on demand.
 //
-// The /training run log ships the lean publicRun for every activity — the
+// The /running run log ships the lean publicRun for every activity — the
 // trace, per-kilometre splits and zone breakdown that make a run worth opening
 // are most of the payload and most of them are never looked at. Rather than
 // carry all of that for thirty runs on every page, the log asks for it here

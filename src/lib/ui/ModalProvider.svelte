@@ -2,7 +2,7 @@
     Modal context provider. Sets `simple-modal` context so any section
     can call `open(Component, props, options)` to mount a modal.
 
-    Shared: the homepage wraps its sections in this, and /training wraps its
+    Shared: the homepage wraps its sections in this, and /running wraps its
     dashboard in it too so the run log can open a run in the same window.
 
     Options:

@@ -36,6 +36,10 @@
         }),
     );
 
+    // Between blocks there's nothing to plan against, and a legend entry for
+    // ticks that aren't drawn is noise.
+    const hasTargets = $derived(targets.some(Boolean));
+
     // Run against planned, week by week. The bar and its tick are the two
     // numbers the chart is a comparison of, so both belong in the readout —
     // and a taper week says so, since a short bar there is the plan working.
@@ -89,7 +93,7 @@
     {#snippet aside()}
         <p class="legend">
             <span class="swatch actual"></span> run
-            <span class="swatch planned"></span> planned
+            {#if hasTargets}<span class="swatch planned"></span> planned{/if}
             <span class="window">last {CHART_WEEKS} weeks</span>
         </p>
     {/snippet}
@@ -97,7 +101,7 @@
     {#if shown.length === 0}
         <p class="card-empty">No weeks recorded yet.</p>
     {:else}
-        <ChartFrame height={190} {yTicks} {xTicks} {scrub} label="Weekly running volume in kilometres against plan">
+        <ChartFrame height={190} {yTicks} {xTicks} {scrub} label={hasTargets ? "Weekly running volume in kilometres against plan" : "Weekly running volume in kilometres"}>
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 {#each layout as bar, i}
                     {@const week = shown[i]}
