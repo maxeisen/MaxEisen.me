@@ -4,7 +4,7 @@
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { gaugePosition, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
     import { inBlock, lastRace } from "../lib/block.js";
-    import { clock, clockMinutes, daysAgo, km, pace, shortDate, signedClock } from "../lib/format.js";
+    import { clock, clockMinutes, daysAgo, gapDuration, km, pace, shortDate, signedClock } from "../lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { summary = null } = $props();
@@ -169,12 +169,12 @@
                      outside the range stretches the track, so its ends are
                      no longer the range's. -->
                 <div class="range-labels">
-                    <span><span class="key-band"></span>likely {clockMinutes(range.fastSec)}–{clockMinutes(range.slowSec)}</span>
                     {#if event && goalMarker !== null}
                         <span><span class="key-tick goal-tick"></span>goal {clock(race.goalTimeSec)}</span>
                     {:else if resultMarker !== null}
                         <span><span class="key-tick result-tick"></span>{finished.isMarathon ? "last marathon" : "last race"} {clock(finished.resultSec)}</span>
                     {/if}
+                    <span class="key-range"><span class="key-band"></span>likely range {clockMinutes(range.fastSec)}–{clockMinutes(range.slowSec)}</span>
                 </div>
             </div>
         {/if}
@@ -202,7 +202,7 @@
                     <strong>{clock(finished.resultSec)}</strong>
                     <span class="model-note">
                         {#if Number.isFinite(sinceRace) && Math.abs(sinceRace) >= 30}
-                            estimate {clock(Math.abs(sinceRace))} {sinceRace > 0 ? "slower" : "faster"}
+                            {gapDuration(sinceRace)} {sinceRace > 0 ? "slower" : "faster"} now
                         {:else if Number.isFinite(sinceRace)}
                             estimate matches it
                         {:else}
@@ -352,6 +352,8 @@
         flex-wrap: wrap;
     }
     .range-labels > span { display: inline-flex; align-items: center; gap: 6px; }
+    /* Right-aligned even when there's no marker to share the row with. */
+    .key-range { margin-left: auto; }
     .key-band {
         width: 14px;
         height: 6px;

@@ -245,7 +245,7 @@ describe("renderTrainingFallback", () => {
 				race: { ...base.race, distanceM: 42195, goalTimeSec: 12600, resultSec: 12379 },
 			},
 		}));
-		expect(html).toContain("<th scope=\"row\">Last marathon</th><td>3:26:19; 3:41 under goal</td>");
+		expect(html).toContain("<th scope=\"row\">Last marathon</th><td>3:26:19; 3m 41s under goal</td>");
 	});
 
 	it("leaves the session row out on a day with nothing planned or run", () => {
