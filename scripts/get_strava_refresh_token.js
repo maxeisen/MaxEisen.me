@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * One-shot helper to obtain a Strava refresh token for the Last Activity widget
- * and the /training dashboard.
+ * and the /running dashboard.
  *
  * Setup:
  *   1. Create an API app at https://www.strava.com/settings/api
@@ -30,7 +30,7 @@ const REDIRECT_URI = "http://127.0.0.1:8889/exchange_token";
 
 // activity:read_all — trainingSync needs the full activity history, including
 //   runs marked private. Those are filtered out again in shapeActivity() before
-//   anything reaches the public /training payload; see netlify/functions/
+//   anything reaches the public /running payload; see netlify/functions/
 //   _shared/training/shape.js.
 // activity:write — after a new run is shaped, the sync appends a fenced
 //   caption (FFF, load, projected finish) to that activity's description.

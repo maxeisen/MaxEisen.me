@@ -7,7 +7,7 @@ import {
 	imbalanceAt,
 } from "../src/components/Training/lib/balance.js";
 
-// /training is the one page on the site built out of charts and dense tables,
+// /running is the one page on the site built out of charts and dense tables,
 // which makes it the one page that can quietly get wider than a phone. That
 // matters more than it sounds: index.html sets `width=device-width,
 // initial-scale=1`, and without the initial-scale mobile Safari's shrink-to-fit
@@ -31,7 +31,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("training route renders its sections", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	await expect(page).toHaveTitle(/Road to Chicago/i);
 	await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
@@ -45,20 +45,36 @@ test("after the race the page is a running log", async ({ page }) => {
 		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
 	);
 
-	await page.goto("/training");
+	await page.goto("/running");
 	await expect(page).toHaveTitle("Running — Max Eisen");
-	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Fitness");
-	await expect(page.getByText("Training for")).toHaveCount(0);
+	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Running");
+	await expect(page.getByText("Not training for anything")).toBeVisible();
+	await expect(page.getByText(/^Last race: /)).toBeVisible();
+	await expect(page.getByText("Training for", { exact: true })).toHaveCount(0);
 	await expect(page.getByText("Goal", { exact: true })).toHaveCount(0);
-	await expect(page.getByRole("heading", { name: "Predicted time" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Marathon estimate" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Projected finish" })).toHaveCount(0);
 	await expect(page.getByText("No target set for this week")).toHaveCount(0);
 	await expect(page.locator(".tag.plan")).toHaveCount(0);
 	await expect(page.locator(".tag.extra")).toHaveCount(0);
 });
 
+test("between blocks, a day with nothing planned or run has no session cell", async ({ page }) => {
+	// A Saturday: the fixture rides, so there's no run, and no plan after the race.
+	const payload = buildTrainingFixture({ today: "2026-10-17" });
+	await page.route("**/.netlify/functions/trainingData*", (route) =>
+		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
+	);
+
+	await page.goto("/running");
+	const today = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Today" }) });
+	await expect(today.getByText("Readiness", { exact: true })).toBeVisible();
+	await expect(today.getByText("Session", { exact: true })).toHaveCount(0);
+	await expect(page.getByRole("heading", { name: /Still recovering from/ })).toBeVisible();
+});
+
 test("every card explains its own metrics on demand", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Load and risk" }).first();
 	const button = card.getByRole("button", { name: /Load and risk/i });
 
@@ -73,7 +89,7 @@ test("every card explains its own metrics on demand", async ({ page }) => {
 });
 
 test("the run log says which runs were the plan", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
 	// The fixture runs the real plan file, which has day-level sessions, so
 	// both kinds have to appear: matched sessions and unplanned extras.
@@ -82,7 +98,7 @@ test("the run log says which runs were the plan", async ({ page }) => {
 });
 
 test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
 	const ride = log.locator(".row.ride").first();
 
@@ -93,7 +109,7 @@ test("a ride is listed as context, in a cyclist's units", async ({ page }) => {
 });
 
 test("a strength session is listed as context, by duration", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
 	const gym = log.locator(".row.strength").first();
 
@@ -104,7 +120,7 @@ test("a strength session is listed as context, by duration", async ({ page }) =>
 });
 
 test("recovery is reported beside the training, not inside it", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const panel = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Recovery" }) });
 
 	// An average night, in hours and minutes rather than a score out of 100.
@@ -120,7 +136,7 @@ test("recovery is reported beside the training, not inside it", async ({ page })
 });
 
 test("a run carries what the athlete wrote about it, and nothing else", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const log = page.locator("section.card").filter({ hasText: "Recent activity" }).first();
 
 	const note = log.locator(".row-note").first();
@@ -134,7 +150,7 @@ test("a run carries what the athlete wrote about it, and nothing else", async ({
 // The fixture's nights are generated to follow the day before them, so a page
 // willing to blame a run for a night would have every opportunity here.
 test("no panel blames a run for the night around it", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	await expect(page.getByText(/hard day costs/i)).toHaveCount(0);
 	const last = page.locator("section.card").filter({ hasText: "Last run" }).first();
 	await expect(last.getByText(/night|slept/i)).toHaveCount(0);
@@ -152,7 +168,7 @@ test("today's projection reports the session's effect, not another copy of the f
 	await page.route("**/.netlify/functions/trainingData*", (route) =>
 		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
 	);
-	await page.goto("/training");
+	await page.goto("/running");
 	const briefing = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Today" }) });
 	await expect(briefing.getByText("No change")).toBeVisible();
 	await expect(briefing.getByText("no session yet")).toBeVisible();
@@ -168,14 +184,14 @@ test("form is read against the body, not only against the training log", async (
 		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) }),
 	);
 
-	await page.goto("/training");
+	await page.goto("/running");
 	const panel = page.locator("section.card").filter({ has: page.getByRole("heading", { name: "Recovery" }) });
-	await expect(panel.locator(".verdict")).toContainText("absorbing a heavy block");
+	await expect(panel.locator(".verdict")).toContainText("absorbing the training");
 	await expect(panel.locator(".verdict")).toContainText("-31");
 });
 
 test("the last run is reported with what it did to the training", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const panel = page.locator("section.card").filter({ hasText: "Last run" }).first();
 
 	// What it was: the run itself, linked out to Strava for the map the
@@ -202,7 +218,7 @@ test("the last run is reported with what it did to the training", async ({ page 
 });
 
 test("the week's long run is a day rather than a bar that fills up all week", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	// By its heading, not its text: "Load and risk" says "this week's ramp".
 	const week = page
 		.locator("section.card")
@@ -236,7 +252,7 @@ test("neither column runs on far past the other", async ({ page }) => {
 	// those two numbers passes and fails on how long a panel's prose happens
 	// to be this week.
 	await page.setViewportSize({ width: 1280, height: 900 });
-	await page.goto("/training");
+	await page.goto("/running");
 	await page.locator("#training-grid .col:not(.col-full)").first().waitFor();
 
 	const measure = () =>
@@ -276,7 +292,7 @@ test("neither column runs on far past the other", async ({ page }) => {
 });
 
 test("a recommendation leads with its evidence and folds the reasoning away", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Recommendations" }).first();
 	const rule = card.locator(".rec").filter({ has: page.locator("details") }).first();
 
@@ -291,20 +307,21 @@ test("a recommendation leads with its evidence and folds the reasoning away", as
 });
 
 test("a measured recommendation says what kind of number it is", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Recommendations" }).first();
+	await expect(card.locator(".rec-metric").first()).toBeVisible();
 	const readouts = await card.locator(".rec-metric").allTextContents();
 	expect(readouts.length).toBeGreaterThan(0);
 
 	// Percentages, ratios, heart rates and times all landed here as bare
 	// numbers, which left "1.17 vs 1.50" sitting above "72 vs 80".
 	for (const text of readouts) {
-		expect(text).toMatch(/%|×|bpm|days|h \d+m/);
+		expect(text).toMatch(/%|×|bpm|days|km\/wk|h \d+m/);
 	}
 });
 
 test("scrubbing a chart reads out the values under the cursor", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Fitness and fatigue" }).first();
 	const plot = card.locator(".plot");
 
@@ -328,7 +345,7 @@ test("scrubbing a chart reads out the values under the cursor", async ({ page })
 });
 
 test("the footer dates the sync, not the visit", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const stamp = page.locator(".foot .stamp");
 
 	// The page-build time ticks forward on a refresh that changed nothing, and
@@ -349,7 +366,7 @@ test("the footer dates the sync, not the visit", async ({ page }) => {
 });
 
 test("the last run scrubs to a point along it, not a kilometre of it", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
 	const plot = card.locator(".plot");
 
@@ -369,7 +386,7 @@ test("the last run scrubs to a point along it, not a kilometre of it", async ({ 
 });
 
 test("the last run is drawn at a finer grain than its splits", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
 
 	const { points, km } = await page.evaluate(async () => {
@@ -388,7 +405,7 @@ test("the last run is drawn at a finer grain than its splits", async ({ page }) 
 });
 
 test("the last run plots heart rate on its own scale", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Last run" }).first();
 
 	// Two units on one plot only works if the second one is labelled. Without
@@ -417,7 +434,7 @@ test("the last run plots heart rate on its own scale", async ({ page }) => {
 });
 
 test("the chart cursor can be driven from the keyboard", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
 	const plot = card.locator(".plot");
 
@@ -445,7 +462,7 @@ test("a chart readout at the edge of a phone doesn't widen the page", async ({ p
 	// of a chart on a 360px screen it is exactly the sort of thing that hangs
 	// off the right-hand side and takes the viewport with it.
 	await page.setViewportSize(NARROW_PHONE);
-	await page.goto("/training");
+	await page.goto("/running");
 
 	const plot = page.locator("section.card").filter({ hasText: "Weekly volume" }).first().locator(".plot");
 	await plot.scrollIntoViewIfNeeded();
@@ -460,7 +477,7 @@ test("a chart readout at the edge of a phone doesn't widen the page", async ({ p
 });
 
 test("the charts are labelled with the values they plot", async ({ page }) => {
-	await page.goto("/training");
+	await page.goto("/running");
 	const volume = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
 	const labels = await volume.locator(".y-axis span").allTextContents();
 	expect(labels.length).toBeGreaterThan(2);
@@ -509,7 +526,7 @@ test.describe("rearranging the panels", () => {
 	}
 
 	test("a drag swaps the two panels and the layout is remembered", async ({ page }) => {
-		await page.goto("/training");
+		await page.goto("/running");
 		const dragged = await panelAt(page, 0).getAttribute("data-panel");
 		// Slot 5 is the top of the narrow column: a swap across the page, and
 		// the two panels most likely to be on screen together.
@@ -527,7 +544,7 @@ test.describe("rearranging the panels", () => {
 	// A press that doesn't travel is still a click, which is what keeps every
 	// link and disclosure inside a draggable panel working.
 	test("a press that goes nowhere still opens what it pressed", async ({ page }) => {
-		await page.goto("/training");
+		await page.goto("/running");
 		const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
 		const info = card.getByRole("button", { name: /Weekly volume/i });
 
@@ -536,13 +553,13 @@ test.describe("rearranging the panels", () => {
 	});
 
 	test("there's no toggle to find on a wide screen", async ({ page }) => {
-		await page.goto("/training");
+		await page.goto("/running");
 		await expect(editToggle(page)).toHaveCount(0);
 	});
 
 	test("on a phone the panels wait to be told", async ({ page }) => {
 		await page.setViewportSize(PHONE);
-		await page.goto("/training");
+		await page.goto("/running");
 		const first = await panelAt(page, 0).getAttribute("data-panel");
 
 		// Dragging is off, so the page still scrolls with a finger rather than
@@ -563,7 +580,7 @@ test.describe("rearranging the panels", () => {
 
 	test("taps inside a panel don't fire while editing", async ({ page }) => {
 		await page.setViewportSize(PHONE);
-		await page.goto("/training");
+		await page.goto("/running");
 		const card = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
 		const info = card.getByRole("button", { name: /Weekly volume/i });
 
@@ -582,7 +599,7 @@ test.describe("rearranging the panels", () => {
 for (const viewport of [PHONE, NARROW_PHONE]) {
 	test(`training page fits a ${viewport.width}px viewport`, async ({ page }) => {
 		await page.setViewportSize(viewport);
-		await page.goto("/training");
+		await page.goto("/running");
 		await expect(page.getByRole("heading", { name: "Weekly volume" })).toBeVisible();
 
 		const overflow = await page.evaluate(() => {

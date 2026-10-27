@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * One-shot helper to obtain an Oura refresh token for the /training recovery
+ * One-shot helper to obtain an Oura refresh token for the /running recovery
  * panel.
  *
  * Setup:

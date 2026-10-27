@@ -67,7 +67,7 @@
 </script>
 
 {#if !hidden}
-    <WidgetHeader profileHref="/training" profileLabel="Training" external={false} label="Physical Activity" />
+    <WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Physical Activity" />
     <ol class="strava-list" bind:this={listEl}>
         {#if activitiesMessage}
             <li class="widget-empty">{activitiesMessage}</li>

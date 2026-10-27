@@ -3,7 +3,7 @@
       - the slot grid (3 rows × 4 cols, mobile collapse + container queries)
       - the layout state ($state array of widget IDs, persisted to localStorage)
       - drag-and-drop between slots, and the edit mode that gates it on mobile,
-        both from lib/ui (reorder + editMode) and shared with /training
+        both from lib/ui (reorder + editMode) and shared with /running
 
     Widget components are content-only — Dashboard provides the .widget wrapper
     div (or <a> for the gallery widget which is a link). Each widget id maps
@@ -46,7 +46,7 @@
     let dashboardEl;
 
     // Drag mechanics and the edit mode that gates them both live in lib/ui —
-    // /training runs the same ones. Dragging is free on desktop and behind the
+    // /running runs the same ones. Dragging is free on desktop and behind the
     // toggle once the layout goes responsive, where a press-and-drag is
     // otherwise a scroll.
     const { reorder, edit } = createRearrangeable({
@@ -156,7 +156,7 @@
         margin: 0 auto;
     }
     /* The grab cursor, the swallowed gestures and the jiggle are in global.css
-       under "Rearrangeable grids", shared with /training. What's left here is
+       under "Rearrangeable grids", shared with /running. What's left here is
        what this page does differently — starting with a grid that clips at
        100vh and has to stop while something is being dragged out of it. */
     .dashboard.is-dragging { overflow: visible; }
@@ -324,9 +324,9 @@
 
     /* === edit mode (mobile only) ===
        The toggle is lib/ui/EditToggle and the jiggle is in global.css, both
-       shared with /training. Alternate slots take the second of the two, so
+       shared with /running. Alternate slots take the second of the two, so
        the grid doesn't rock in lockstep — this page alternates by slot,
-       /training by column. */
+       /running by column. */
     .dashboard.is-editing .slot:nth-child(odd) > :global(.widget:not(.dragging)) {
         animation-name: edit-jiggle-b;
         animation-duration: 0.46s;

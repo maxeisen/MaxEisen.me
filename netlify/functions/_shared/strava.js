@@ -94,7 +94,7 @@ export function readQuota(headers) {
  * How many more requests a caller may make against the quota it last observed.
  *
  * The shares exist because one Strava app backs several endpoints here — the
- * /training sync is a background job and must leave room for the /dashboard
+ * /running sync is a background job and must leave room for the /dashboard
  * widgets, which are in a visitor's request path.
  *
  * @param {object|null} quota from readQuota(); null before the first response.

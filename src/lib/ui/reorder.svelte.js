@@ -1,6 +1,6 @@
 // Drag-to-rearrange for a grid of fixed slots.
 //
-// Extracted from /dashboard, which had all of this inline, when /training
+// Extracted from /dashboard, which had all of this inline, when /running
 // wanted the same behaviour. The model is deliberately slots-not-lists: the
 // positions are fixed and sized by the page, and a drop swaps whichever two
 // panels are involved. Nothing reflows mid-drag, so the thing under your

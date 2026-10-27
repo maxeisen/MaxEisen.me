@@ -1,4 +1,4 @@
-// /training is rewritten to this function so a no-JS browser gets the dashboard
+// /running is rewritten to this function so a no-JS browser gets the dashboard
 // as HTML inside the SPA shell's noscript. JS visitors still boot the app from
 // the same document. Fail-open: a payload error must not take the SPA with it.
 

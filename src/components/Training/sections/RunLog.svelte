@@ -10,7 +10,7 @@
     let { runs = [], total = null } = $props();
 
     // Present when an ancestor mounts the shared ModalProvider (it does on
-    // /training). Absent otherwise, in which case a run just links to Strava
+    // /running). Absent otherwise, in which case a run just links to Strava
     // like the rides and strength sessions do.
     const modal = getContext("simple-modal");
     const canOpen = typeof modal?.open === "function";

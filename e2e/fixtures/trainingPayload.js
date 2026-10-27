@@ -1,7 +1,7 @@
-// A full /training payload, built without Strava or Blobs.
+// A full /running payload, built without Strava or Blobs.
 //
 // The E2E suite runs against `vite preview`, which serves no Netlify Functions,
-// so /training would otherwise render its "couldn't load" state — and the parts
+// so /running would otherwise render its "couldn't load" state — and the parts
 // of the page most likely to break a phone (the charts, the week grid, the run
 // log) are exactly the parts that only exist once there's data. The metrics
 // engine is a pure function of (activities, plan, today), so a synthetic block

@@ -1,4 +1,4 @@
-// After vite build, copy the hashed SPA shell so /training can inject a
+// After vite build, copy the hashed SPA shell so /running can inject a
 // noscript dashboard into the real document rather than the source index.html
 // (which still points at /src/main.js and would boot a blank page in production).
 

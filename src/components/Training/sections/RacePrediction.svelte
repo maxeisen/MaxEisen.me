@@ -104,7 +104,7 @@
     });
 </script>
 
-<Card title={event ? "Projected finish" : "Predicted time"} info={GLOSSARY.prediction}>
+<Card title={event ? "Projected finish" : "Marathon estimate"} info={GLOSSARY.prediction}>
     {#if !prediction}
         <p class="empty">
             Not enough recent running to project from. A few weeks of volume, or a race-quality
@@ -114,7 +114,7 @@
         <div class="headline">
             <div class="projected" class:ahead={event && prediction.onTrack} class:behind={event && prediction.onTrack === false}>
                 <strong>{clockMinutes(prediction.predictedSec)}</strong>
-                <span>{event ? "projected" : "marathon"}</span>
+                <span>{event ? "projected" : "if raced today"}</span>
             </div>
             {#if event}
                 <div class="delta" class:ahead={prediction.onTrack}>

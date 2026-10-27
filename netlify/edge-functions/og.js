@@ -73,7 +73,7 @@ export default async function handler(request, context) {
 	if (!ct.includes("text/html")) return res;
 
 	const { pathname } = new URL(request.url);
-	const m = pathname === "/training" ? trainingMeta() : (META[pathname] || DEFAULT);
+	const m = pathname === "/running" ? trainingMeta() : (META[pathname] || DEFAULT);
 	const url = SITE_URL + pathname;
 	const img = cardUrl(m.card);
 
@@ -102,5 +102,5 @@ export default async function handler(request, context) {
 }
 
 export const config = {
-	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/training", "/bach"],
+	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/running", "/bach"],
 };

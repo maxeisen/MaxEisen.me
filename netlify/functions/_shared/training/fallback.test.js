@@ -1,4 +1,4 @@
-// The no-JS /training page is a plain HTML feed of the same payload the SPA
+// The no-JS /running page is a plain HTML feed of the same payload the SPA
 // fetches. These tests catch the failures that would make that page lie,
 // execute markup, hide the JSON alternate, or leave JS visitors without the app.
 
@@ -225,13 +225,40 @@ describe("renderTrainingFallback", () => {
 			runs: [{ ...payload().runs[0], plan: null }],
 		}));
 
-		expect(html).toContain("<h1>Fitness</h1>");
-		expect(html).toContain("Predicted time");
-		expect(html).not.toContain("Chicago Marathon");
+		expect(html).toContain("<h1>Running</h1>");
+		expect(html).toContain("Not training for anything right now.");
+		expect(html).toContain("Marathon estimate");
+		expect(html).not.toMatch(/<h1>[^<]*Chicago/);
 		expect(html).not.toContain(">Goal<");
 		expect(html).not.toContain("Goal pace");
 		expect(html).not.toContain("unplanned");
 		expect(html).not.toContain(">extra<");
+	});
+
+	it("leaves the session row out on a day with nothing planned or run", () => {
+		const html = renderTrainingFallback(payload({
+			summary: { ...payload().summary, inBlock: false, daysToRace: -20 },
+			today: {
+				...payload().today,
+				session: { status: "rest", planned: [], actualKm: 0, runs: 0 },
+			},
+		}));
+		expect(html).not.toContain(">Session<");
+	});
+
+	it("names a planned non-running day rather than calling it nothing", () => {
+		const html = renderTrainingFallback(payload({
+			today: {
+				...payload().today,
+				session: {
+					status: "rest",
+					planned: [{ type: "strength", detail: "25m - 35m Legs & Core", isRun: false }],
+					actualKm: 0,
+					runs: 0,
+				},
+			},
+		}));
+		expect(html).toContain("strength; 25m - 35m Legs &amp; Core");
 	});
 
 	it("says so when the history is still importing rather than looking finished", () => {

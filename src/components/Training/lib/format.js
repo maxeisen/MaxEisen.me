@@ -159,6 +159,7 @@ const UNITS = {
 	ratio: { each: (v) => `${v.toFixed(2)}×` },
 	bpm: { each: quantity, trailing: " bpm" },
 	days: { each: (v) => String(Math.round(v)), trailing: " days" },
+	km: { each: (v) => String(Math.round(v)), trailing: " km/wk" },
 	none: { each: quantity },
 };
 

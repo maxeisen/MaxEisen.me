@@ -29,7 +29,7 @@ import {
 import { recommendations } from "./recommend.js";
 import { recoverySummary } from "./recovery.js";
 import { strainSignal } from "./response.js";
-import { addDays, toDayKey } from "./dates.js";
+import { addDays, mondayOf, toDayKey } from "./dates.js";
 
 // How far back the intensity distribution looks. A whole block averages away
 // the thing you'd act on; four weeks reflects current habits.
@@ -41,6 +41,9 @@ const LONG_RUN_MIN_M = 18000;
 // How many runs the log carries. Enough to scroll through a couple of months
 // of training without shipping the whole block's history to every visitor.
 const RUN_LOG_LIMIT = 30;
+
+// Completed weeks averaged for "a normal week lately".
+const RECENT_WEEKS = 4;
 
 function withinDays(activities, today, days) {
 	const cutoff = addDays(toDayKey(today), -days);
@@ -158,6 +161,16 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	// collapse in volume purely because most of it hasn't happened yet, so
 	// mid-week these describe the last completed week instead.
 	const riskWeek = weekComplete ? current : previous;
+
+	// What a normal week looks like lately, for the between-blocks advice.
+	// Whole weeks only, for the same reason as the ramp above.
+	const thisMonday = mondayOf(day);
+	const completedWeeks = weeks
+		.filter((w) => (weekComplete ? w.start <= thisMonday : w.start < thisMonday))
+		.slice(-RECENT_WEEKS);
+	const recentWeeklyKm = completedWeeks.length
+		? completedWeeks.reduce((sum, w) => sum + (w.actualKm || 0), 0) / completedWeeks.length
+		: null;
 
 	const recentRuns = withinDays(runs, day, INTENSITY_WINDOW_DAYS);
 	const intensity = intensitySplit(recentRuns, thresholds);
@@ -348,6 +361,10 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		// is whether the body's own markers agree, which is the difference
 		// between "you're absorbing a big block" and "stop".
 		strain: response?.strain ?? null,
+		inBlock: event,
+		race: { name: race.name || null, distanceM: raceDistanceM },
+		recentWeeklyKm,
+		recentWeeks: completedWeeks.length,
 	});
 
 	const briefing = todayBriefing({

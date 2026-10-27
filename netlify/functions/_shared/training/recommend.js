@@ -26,6 +26,28 @@ const LONG_RUN_SHARE_CEILING = 35;
 const DECOUPLING_CEILING = 5;
 // Falling this far short of a week's planned volume is worth flagging.
 const VOLUME_SHORTFALL_PCT = 85;
+// The post-race rule of thumb: a day of easy running for each mile raced.
+const METRES_PER_MILE = 1609.344;
+
+function raceDistanceLabel(distanceM) {
+	if (Math.abs(distanceM - 42195) < 200) return "a marathon";
+	if (Math.abs(distanceM - 21097.5) < 200) return "a half marathon";
+	return `${Math.round(distanceM / 1000)} km`;
+}
+
+/**
+ * Days of easy running owed to a race that's behind you, or null once
+ * they've been served (or there was no race).
+ */
+function postRaceRecovery(race, daysToRace) {
+	if (!Number.isFinite(daysToRace) || daysToRace >= 0) return null;
+	const distanceM = Number(race?.distanceM) || 0;
+	if (!(distanceM > 0)) return null;
+	const days = -daysToRace;
+	const window = Math.round(distanceM / METRES_PER_MILE);
+	if (days >= window) return null;
+	return { days, window, left: window - days, distance: raceDistanceLabel(distanceM) };
+}
 
 function plannedLongRunKm(week) {
 	const fromTarget = Number(week?.longRunTargetKm);
@@ -94,7 +116,8 @@ function goalAdvice({ prediction, goal, daysToRace, longRunDecouplingPct, curren
  *   - "percent" for shares, ramps and drifts
  *   - "ratio"   for acute:chronic, which reads as a multiple
  *   - "bpm"     for heart rate
- *   - "days"    for the countdown to the race
+ *   - "days"    for the countdown to the race, or the days since it
+ *   - "km"      for weekly distance
  *
  *   Only form is left bare, because training-stress balance genuinely has no
  *   unit: it's the difference between two loads on an arbitrary scale, and
@@ -148,12 +171,12 @@ function temperatureNote(strain) {
  * Whether the training explains a raised marker — the question the training
  * log can't answer about itself.
  */
-function explainedBy(strain) {
+function explainedBy(strain, inBlock) {
 	if (strain?.state === "unexplained") {
 		return copy.explained.unexplained({ tsb: strain.tsb, temperature: temperatureNote(strain) });
 	}
 	if (strain?.state === "buried") {
-		return copy.explained.buried({ tsb: strain.tsb, temperature: temperatureNote(strain) });
+		return copy.explained.buried({ tsb: strain.tsb, temperature: temperatureNote(strain), inBlock });
 	}
 	return "";
 }
@@ -178,6 +201,14 @@ export function recommendations(metrics) {
 		longRunDecouplingPct = null,
 		recovery = null,
 		strain = null,
+		// Whether a race is still ahead. Outside a block the copy stops
+		// talking about the block, and the off-season rules take over from
+		// the plan and goal ones, which have nothing to compare against.
+		inBlock = true,
+		race = null,
+		// Mean weekly kilometres over the last few completed weeks.
+		recentWeeklyKm = null,
+		recentWeeks = 0,
 	} = metrics || {};
 
 	// --- Injury risk -------------------------------------------------------
@@ -201,7 +232,7 @@ export function recommendations(metrics) {
 					"acwr-low",
 					"warning",
 					copy.acwrLow.title,
-					copy.acwrLow.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR }),
+					copy.acwrLow.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR, inBlock }),
 					acwr.ratio,
 					ACWR_FLOOR,
 					"ratio",
@@ -228,7 +259,7 @@ export function recommendations(metrics) {
 				"tsb-fatigued",
 				"warning",
 				copy.tsbFatigued.title,
-				copy.tsbFatigued.detail({ tsb: latest.tsb, floor: TSB_FATIGUE, opinion: secondOpinion(strain) }),
+				copy.tsbFatigued.detail({ tsb: latest.tsb, floor: TSB_FATIGUE, opinion: secondOpinion(strain), inBlock }),
 				latest.tsb,
 				TSB_FATIGUE,
 			),
@@ -348,7 +379,7 @@ export function recommendations(metrics) {
 					baseline: restingHr.baseline,
 					delta: restingHr.delta,
 					threshold: RHR_RISE_BPM,
-					explained: explainedBy(strain),
+					explained: explainedBy(strain, inBlock),
 				}),
 				restingHr.delta,
 				RHR_RISE_BPM,
@@ -367,7 +398,7 @@ export function recommendations(metrics) {
 					recent: hrv.recent,
 					baseline: hrv.baseline,
 					drop: Math.abs(hrv.deltaPct),
-					explained: strain?.restingHrUp ? "" : explainedBy(strain),
+					explained: strain?.restingHrUp ? "" : explainedBy(strain, inBlock),
 				}),
 				hrv.deltaPct,
 				-HRV_DROP_PCT,
@@ -404,7 +435,7 @@ export function recommendations(metrics) {
 					"easy-share-low",
 					"warning",
 					copy.easyShareLow.title,
-					copy.easyShareLow.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET }),
+					copy.easyShareLow.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET, inBlock }),
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
 					"percent",
@@ -475,6 +506,41 @@ export function recommendations(metrics) {
 				"days",
 			),
 		);
+	}
+
+	// --- Between blocks ----------------------------------------------------
+	//
+	// With no race ahead there's no plan to adhere to and no goal to chase, so
+	// those rules stay quiet. What's left worth saying is either "you've just
+	// raced, recover" or, once that's done, what the in-between weeks are for.
+
+	if (!inBlock) {
+		const recovering = postRaceRecovery(race, daysToRace);
+		if (recovering) {
+			out.push(
+				rule(
+					"post-race",
+					"info",
+					copy.postRace.title({ race: race?.name || "the race" }),
+					copy.postRace.detail(recovering),
+					recovering.days,
+					recovering.window,
+					"days",
+				),
+			);
+		} else if (Number.isFinite(recentWeeklyKm) && recentWeeks > 0) {
+			out.push(
+				rule(
+					"off-season",
+					"info",
+					copy.offSeason.title,
+					copy.offSeason.detail({ weeklyKm: recentWeeklyKm, weeks: recentWeeks }),
+					recentWeeklyKm,
+					null,
+					"km",
+				),
+			);
+		}
 	}
 
 	// --- Goal tracking -----------------------------------------------------

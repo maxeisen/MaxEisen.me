@@ -1,4 +1,4 @@
-// Assemble the public /training payload: Blobs history plus the metrics engine.
+// Assemble the public /running payload: Blobs history plus the metrics engine.
 // trainingData serves this as JSON; trainingPage renders the same object as HTML.
 
 import { buildDashboard } from "./metrics.js";

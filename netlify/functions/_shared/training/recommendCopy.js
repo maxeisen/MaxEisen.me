@@ -30,8 +30,10 @@ export const copy = {
 	},
 	acwrLow: {
 		title: "Training load has dropped off",
-		detail: ({ ratio, floor }) =>
-			`Your last 7 days are only ${ratio.toFixed(2)}× your 28-day average. Below ${floor} you start losing fitness. If this wasn't a planned down week, add volume back gradually — not all at once.`,
+		detail: ({ ratio, floor, inBlock }) =>
+			inBlock
+				? `Your last 7 days are only ${ratio.toFixed(2)}× your 28-day average. Below ${floor} you start losing fitness. If this wasn't a planned down week, add volume back gradually — not all at once.`
+				: `Your last 7 days are only ${ratio.toFixed(2)}× your 28-day average. Below ${floor} you start losing fitness. That's fine for a deliberate break; if it isn't one, add volume back gradually — not all at once.`,
 	},
 	acwrOk: {
 		title: "Load progression is in the safe range",
@@ -40,8 +42,10 @@ export const copy = {
 	},
 	tsbFatigued: {
 		title: "You're carrying deep fatigue",
-		detail: ({ tsb, floor, opinion }) =>
-			`Form is ${tsb.toFixed(0)}, below ${floor}. That's normal in a heavy block but not somewhere to live. If it doesn't lift within a week, take two genuinely easy days.${opinion}`,
+		detail: ({ tsb, floor, opinion, inBlock }) =>
+			inBlock
+				? `Form is ${tsb.toFixed(0)}, below ${floor}. That's normal in a heavy block but not somewhere to live. If it doesn't lift within a week, take two genuinely easy days.${opinion}`
+				: `Form is ${tsb.toFixed(0)}, below ${floor}. With no race on the calendar there's nothing to push through for — take two genuinely easy days and let it lift.${opinion}`,
 	},
 	rampFast: {
 		title: ({ isCurrentWeek }) =>
@@ -81,8 +85,10 @@ export const copy = {
 	},
 	easyShareLow: {
 		title: "Your easy runs aren't easy enough",
-		detail: ({ easyPct, target }) =>
-			`Only ${easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${target}%. Running easy days moderately hard is the most common way to arrive at a marathon tired rather than fit. Slow the easy days down.`,
+		detail: ({ easyPct, target, inBlock }) =>
+			inBlock
+				? `Only ${easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${target}%. Running easy days moderately hard is the most common way to arrive at a marathon tired rather than fit. Slow the easy days down.`
+				: `Only ${easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${target}%. Running easy days moderately hard piles up fatigue without much fitness to show for it. Slow the easy days down.`,
 	},
 	easyShareOk: {
 		title: "Intensity distribution looks right",
@@ -129,6 +135,16 @@ export const copy = {
 		detail: ({ predicted, goalPace }) =>
 			`Current form projects ${predicted}, inside your goal. Goal pace is ${goalPace} — worth rehearsing in your remaining long runs. The headline is the slower of recent race-equivalence and eight-week training support.`,
 	},
+	postRace: {
+		title: ({ race }) => `Still recovering from ${race}`,
+		detail: ({ days, window, left, distance }) =>
+			`It's ${days} ${days === 1 ? "day" : "days"} since race day. The old rule of thumb is a day of easy running for every mile raced — about ${window} days after ${distance} — so keep it easy and leave hard sessions for another ${left} ${left === 1 ? "day" : "days"}. Fitness dipping a little over these weeks is the recovery working, not something to chase.`,
+	},
+	offSeason: {
+		title: "No race on the calendar",
+		detail: ({ weeklyKm, weeks }) =>
+			`Without a plan to follow, the useful job is keeping a base to build the next block from. You've averaged ${weeklyKm.toFixed(0)} km a week over the last ${weeks === 1 ? "week" : `${weeks} weeks`}. Keep most of it easy, a longer run in most weeks, and let volume move in small steps rather than spikes — that's what makes the first weeks of the next plan feel routine.`,
+	},
 	gap: ({ predicted, target, goalPace }) =>
 		`Current form projects ${predicted} against your ${target} target — which needs ${goalPace}.`,
 	historicSpeed:
@@ -146,8 +162,8 @@ export const copy = {
 	explained: {
 		unexplained: ({ tsb, temperature }) =>
 			` Your form is ${tsb.toFixed(0)}, so the training doesn't explain it: a rise with no load behind it is more often illness, travel, or a run of short nights than it is the running.${temperature}`,
-		buried: ({ tsb, temperature }) =>
-			` Form is ${tsb.toFixed(0)} as well, so this is consistent with the block you're in — the thing to watch is whether it lifts when you ease off.${temperature}`,
+		buried: ({ tsb, temperature, inBlock }) =>
+			` Form is ${tsb.toFixed(0)} as well, so this is consistent with ${inBlock ? "the block you're in" : "the running you've been doing"} — the thing to watch is whether it lifts when you ease off.${temperature}`,
 	},
 	temperature: ({ deviationC }) =>
 		` Your skin temperature is ${deviationC.toFixed(1)} °C above your own normal, which points the same way.`,

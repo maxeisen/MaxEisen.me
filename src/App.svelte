@@ -31,7 +31,7 @@
         '/gallery/run':   () => import('./routes/GalleryRun.svelte'),
         '/gallery/wedding': () => import('./routes/GalleryWedding.svelte'),
         '/dashboard':     () => import('./routes/Dashboard.svelte'),
-        '/training':      () => import('./routes/Training.svelte'),
+        '/running':       () => import('./routes/Running.svelte'),
         '/bach':          () => import('./routes/Bach.svelte'),
     };
 

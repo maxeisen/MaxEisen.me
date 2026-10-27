@@ -1,6 +1,6 @@
 // Scheduled incremental sync of Strava runs into the training Blobs store.
 //
-// The /training page reads only from Blobs, so nothing here is in a user's
+// The /running page reads only from Blobs, so nothing here is in a user's
 // request path and it can afford to be slow and careful. The one exception is
 // a caption written back onto a new run's Strava description after the run
 // has been shaped — see caption.js.

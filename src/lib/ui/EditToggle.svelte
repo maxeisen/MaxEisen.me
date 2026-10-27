@@ -1,5 +1,5 @@
 <!--
-    The edit-mode pill from /dashboard, shared with /training.
+    The edit-mode pill from /dashboard, shared with /running.
 
     It only appears once a layout has collapsed to the point where dragging
     has to be asked for; on a wide screen there's nothing to toggle, so the

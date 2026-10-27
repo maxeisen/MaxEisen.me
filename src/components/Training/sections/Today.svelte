@@ -7,7 +7,7 @@
     let { today = null, inBlock = true } = $props();
 
     const STRAIN = {
-        absorbing: "body absorbing the block",
+        absorbing: "body absorbing the training",
         buried: "body agrees you're tired",
         unexplained: "training doesn't explain this",
     };
@@ -71,10 +71,22 @@
 
     const plannedRun = $derived((session?.planned || []).find((s) => s.isRun) || null);
 
+    // A cell for a session only when there is one: something on the plan for
+    // today (a rest day the plan asks for counts) or a run already recorded.
+    // Between blocks most days have neither, and "—" would just be filler.
+    const hasSession = $derived(
+        Boolean(session) && ((session.planned?.length ?? 0) > 0 || session.actualKm > 0 || session.runs > 0),
+    );
+
     const sessionCopy = $derived.by(() => {
         if (!session) return { title: "—", note: "" };
         if (session.status === "rest") {
-            return { title: "Rest", note: inBlock ? "nothing planned" : "" };
+            // Strength, or a rest day the plan wrote down — no kilometres either way.
+            const entry = session.planned?.[0];
+            const detail = entry?.detail && entry.detail.toLowerCase() !== String(entry.type || "").toLowerCase()
+                ? entry.detail
+                : "";
+            return { title: entry?.type || "Rest", note: detail || "no running planned" };
         }
         if (session.status === "ahead") {
             const kmLabel = Number.isFinite(plannedRun?.distanceKm)
@@ -112,7 +124,7 @@
         {/if}
     {/snippet}
 
-    <div class="cells">
+    <div class="cells" style:--cells={hasSession ? 4 : 3}>
         <div class="cell">
             <span class="cell-label">Training</span>
             {#if changes.length}
@@ -152,16 +164,18 @@
             {/if}
         </div>
 
-        <div class="cell">
-            <span class="cell-label">Session</span>
-            <strong class="headline" class:session-title={session?.status === "ahead"}>{sessionCopy.title}</strong>
-            {#if sessionCopy.note}
-                <p class="caption">{sessionCopy.note}</p>
-            {/if}
-        </div>
+        {#if hasSession}
+            <div class="cell">
+                <span class="cell-label">Session</span>
+                <strong class="headline" class:session-title={session.status === "ahead" || session.status === "rest"}>{sessionCopy.title}</strong>
+                {#if sessionCopy.note}
+                    <p class="caption">{sessionCopy.note}</p>
+                {/if}
+            </div>
+        {/if}
 
         <div class="cell">
-            <span class="cell-label">Projected</span>
+            <span class="cell-label">{inBlock ? "Projected" : "Marathon est."}</span>
             {#if projectionCopy}
                 <strong class="headline" class:ahead={projectionCopy.tone === "ahead"} class:behind={projectionCopy.tone === "behind"}>
                     {projectionCopy.title}
@@ -188,7 +202,7 @@
     }
     .cells {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(var(--cells, 4), minmax(0, 1fr));
         gap: var(--space-3);
     }
     .cell {
@@ -280,9 +294,12 @@
 
     @media (max-width: 860px) {
         .cells { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        /* Three cells on two columns: the odd one out takes the full row. */
+        .cell:last-child:nth-child(odd) { grid-column: 1 / -1; }
     }
     @media (max-width: 540px) {
         .cells { grid-template-columns: minmax(0, 1fr); }
+        .cell:last-child:nth-child(odd) { grid-column: auto; }
         .changes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 </style>

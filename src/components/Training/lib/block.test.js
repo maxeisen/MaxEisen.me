@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { inBlock, trainingPageMeta } from "./block.js";
+import { inBlock, lastRaceLine, trainingPageMeta } from "./block.js";
 
 const RACE = { name: "Bank of America Chicago Marathon", label: "Road to Chicago" };
 
@@ -25,5 +25,18 @@ describe("trainingPageMeta", () => {
 		const meta = trainingPageMeta({ inBlock: false, race: RACE });
 		expect(meta.title).toBe("Running — Max Eisen");
 		expect(meta.card).toBe("Running");
+	});
+});
+
+describe("lastRaceLine", () => {
+	const past = { inBlock: false, daysToRace: -16, race: { ...RACE, date: "2026-10-11" } };
+
+	it("names the race that's behind you, with its date", () => {
+		expect(lastRaceLine(past)).toBe("Bank of America Chicago Marathon · 11 October 2026");
+	});
+
+	it("says nothing during a block or with no race on the plan", () => {
+		expect(lastRaceLine({ ...past, inBlock: true, daysToRace: 10 })).toBeNull();
+		expect(lastRaceLine({ inBlock: false, daysToRace: null, race: { name: null } })).toBeNull();
 	});
 });

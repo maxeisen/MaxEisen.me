@@ -18,7 +18,7 @@ Personal site. Svelte 5 + Vite SPA with Netlify Functions.
 
 **Dashboard** (`/dashboard`) — A rearrangeable wall of live widgets: time, weather, Spotify, Strava, GitHub, Hacker News, and a photo from the gallery.
 
-**Training** (`/training`) — Public running dashboard: recent runs, fitness, and recovery. While a race is on the plan it is that block, with the countdown, the goal, and the week ahead.
+**Running** (`/running`) — Public running dashboard: recent runs, fitness, and recovery. While a race is on the plan it is that block, with the countdown, the goal, and the week ahead; between blocks it's general running tracking. The old `/training` URL 301s here.
 
 **Bach** (`/bach`) — A private party game: a host and players take turns writing a collaborative story.
 
@@ -60,7 +60,7 @@ Functions that need secrets return `not_configured` when those env vars are miss
 
 ## Architecture
 
-`src/App.svelte` is the client router. `/` is Home; other known routes lazy-load from `src/routes/`. `/bach` always full-loads (it is stateful). Unknown paths go to `public/404.html`. `public/resume.html` is a standalone page. `/training` is rewritten to the `trainingPage` function so the same document can boot the SPA or render a noscript fallback.
+`src/App.svelte` is the client router. `/` is Home; other known routes lazy-load from `src/routes/`. `/bach` always full-loads (it is stateful). Unknown paths go to `public/404.html`. `public/resume.html` is a standalone page. `/running` is rewritten to the `trainingPage` function so the same document can boot the SPA or render a noscript fallback.
 
 ```
 public/
@@ -81,7 +81,7 @@ netlify/functions/
 scripts/            One-off tooling (token exchange, gallery manifest, Bach seed)
 ```
 
-A helper used by one feature stays in that feature's folder. A second consumer is the signal to move it to `src/lib/`. `/dashboard` and `/training` share the rearrangeable-grid helpers in `lib/ui/` and the `drag-grid` / `drag-tile` styles in `global.css`.
+A helper used by one feature stays in that feature's folder. A second consumer is the signal to move it to `src/lib/`. `/dashboard` and `/running` share the rearrangeable-grid helpers in `lib/ui/` and the `drag-grid` / `drag-tile` styles in `global.css`.
 
 ### Functions
 

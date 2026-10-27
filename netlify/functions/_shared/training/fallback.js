@@ -1,4 +1,4 @@
-// Plain HTML for /training when JavaScript is off.
+// Plain HTML for /running when JavaScript is off.
 //
 // This is a data feed that happens to be readable, not a second copy of the
 // dashboard. Bots (and a human with JS off) get headings and tables built from
@@ -23,7 +23,7 @@ import {
 	weekRange,
 	weekday,
 } from "../../../../src/components/Training/lib/format.js";
-import { inBlock } from "../../../../src/components/Training/lib/block.js";
+import { inBlock, lastRaceLine } from "../../../../src/components/Training/lib/block.js";
 import { stravaTag } from "../../../../src/components/Training/lib/runTags.js";
 import { embedJson, TRAINING_BOOTSTRAP_ID } from "../../../../src/components/Training/lib/bootstrap.js";
 import { STRAVA_PROFILE_URL } from "../stravaPublic.js";
@@ -190,8 +190,9 @@ function renderHeader(summary) {
 		: "no data yet"];
 	const logged = [`${event ? "Block total" : "Logged"}`, `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`];
 	if (!event) {
-		return `<h1>Fitness</h1>
-<p>Running.</p>
+		const last = lastRaceLine(summary);
+		return `<h1>Running</h1>
+<p>Not training for anything right now.${last ? ` Last race: ${t(last)}.` : ""}</p>
 ${pairs([
 	["Form", latest ? signed(latest.tsb, 0) : "—"],
 	["Easy", pct(summary?.intensity?.easyPct)],
@@ -228,11 +229,16 @@ function renderToday(today, event = true) {
 	const session = today.session;
 	const plannedRun = (session?.planned || []).find((s) => s.isRun) || null;
 
+	const hasSession = Boolean(session) &&
+		((session.planned?.length ?? 0) > 0 || session.actualKm > 0 || session.runs > 0);
 	let sessionTitle = "—";
 	let sessionNote = "";
 	if (session?.status === "rest") {
-		sessionTitle = "Rest";
-		sessionNote = event ? "nothing planned" : "";
+		const entry = session.planned?.[0];
+		sessionTitle = entry?.type || "Rest";
+		sessionNote = entry?.detail && entry.detail.toLowerCase() !== String(entry.type || "").toLowerCase()
+			? entry.detail
+			: "no running planned";
 	} else if (session?.status === "ahead") {
 		sessionTitle = plannedRun?.type || "Session";
 		sessionNote = [Number.isFinite(plannedRun?.distanceKm) ? `${plannedRun.distanceKm} km` : "", plannedRun?.detail].filter(Boolean).join("; ") || "still ahead";
@@ -249,7 +255,7 @@ function renderToday(today, event = true) {
 		training ? ["Fitness", `${signed(training.ctlDelta)} to ${Number.isFinite(training.ctl) ? training.ctl.toFixed(1) : "—"}`] : ["Fitness", "no series yet"],
 		training ? ["Fatigue", `${signed(training.atlDelta)} to ${Number.isFinite(training.atl) ? training.atl.toFixed(1) : "—"}`] : null,
 		training ? ["Form", `${signed(training.tsbDelta)} to ${Number.isFinite(training.tsb) ? training.tsb.toFixed(1) : "—"}`] : null,
-		["Session", sessionNote ? `${sessionTitle}; ${sessionNote}` : sessionTitle],
+		hasSession ? ["Session", sessionNote ? `${sessionTitle}; ${sessionNote}` : sessionTitle] : null,
 	];
 	return section("Today", pairs(rows));
 }
@@ -365,7 +371,7 @@ function renderPrediction(summary) {
 	const prediction = summary?.prediction;
 	const race = summary?.race || {};
 	const event = inBlock(summary);
-	const title = event ? "Projected finish" : "Predicted time";
+	const title = event ? "Projected finish" : "Marathon estimate";
 	if (!prediction) {
 		return section(title, "<p>Not enough recent running to project from.</p>");
 	}
