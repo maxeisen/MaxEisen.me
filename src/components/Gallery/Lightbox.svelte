@@ -18,6 +18,8 @@
         index = $bindable(0),
         /** When true, surface a download button for the current photo. */
         downloadEnabled = false,
+        /** Append the photo's camera to its caption. */
+        showCamera = false,
     } = $props();
 
     let imgEl;
@@ -62,11 +64,11 @@
         const landed = () => {
             if (myToken !== loadToken) return;
             if (imgEl) imgEl.src = url;
-            // Caption mirrors the MasonryGrid figcaption — uploader name and
-            // location joined by a center dot when both are present, either
-            // one alone otherwise. Empty caption stays hidden.
+            // Caption mirrors the MasonryGrid figcaption — uploader name,
+            // location and (opt-in) camera joined by center dots, skipping
+            // whichever are absent. Empty caption stays hidden.
             const p = photos[index] || {};
-            const parts = [p.uploader, p.caption].filter(Boolean);
+            const parts = [p.uploader, p.caption, showCamera && p.camera].filter(Boolean);
             captionText = parts.join(" · ");
             captionVisible = parts.length > 0;
             spinnerVisible = false;

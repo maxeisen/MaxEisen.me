@@ -20,6 +20,6 @@
 >
     {#snippet intro()}
         <p>A private gallery of cycling photos — long road rides and post-ride espressos with friends.</p>
-        <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>. Thumbnails load lazily and the lightbox preloads neighbours so prev/next feels instant.</p>
+        <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a> for speedy and dynamic loading.</p>
     {/snippet}
 </Gallery>

@@ -13,9 +13,9 @@
     <link rel="canonical" href="https://maxeisen.me/gallery"/>
 </svelte:head>
 
-<Gallery tag="gallery" title="Gallery" sort="random" showCount>
+<Gallery tag="gallery" title="Gallery" sort="random" showCount showCamera>
     {#snippet intro({ count })}
-        <p>A selection of {#if count != null}<strong>{count}</strong> of {/if} my favourite photos that I've shot on a Fujifilm X100S — sometimes around Toronto, where I live, and often on travels elsewhere in Canada or around the world.</p>
-        <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a>. Thumbnails load lazily and the lightbox preloads neighbours so prev/next feels instant.</p>
+        <p>A selection of {#if count != null}<strong>{count}</strong> of {/if} my favourite photos that I've shot on my Fujifilm X100S or X100V — sometimes in Toronto (where I live), or often on travels elsewhere in Canada or around the world.</p>
+        <p>Hosted on <a href="https://cloudinary.com" target="_blank" rel="noreferrer">Cloudinary</a> for speedy and dynamic loading.</p>
     {/snippet}
 </Gallery>
