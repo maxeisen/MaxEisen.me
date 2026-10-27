@@ -53,8 +53,8 @@
                     <!-- <li id="nav-bar-item"><a href="#foundations">Foundations</a></li> -->
                     <!-- <li id="nav-bar-item"><a href="#skills">Skills</a></li> -->
                     <li id="nav-bar-item"><a href="/gallery"><b>Photos</b></a></li>
-                    <li id="nav-bar-item"><a href="/training"><b>Training</b></a></li>
                     <li id="nav-bar-item"><a href="/dashboard"><b>Dashboard</b></a></li>
+                    <li id="nav-bar-item"><a href="/training"><b>Running</b></a></li>
                     <li id="nav-bar-item"><a href="/resume"><b>Resume</b></a></li>
                 </ul>
             </nav>

@@ -1,4 +1,4 @@
-// Public Strava snapshot: the homepage, dashboard widget, and /toronto map.
+// Public Strava snapshot: the homepage and dashboard widget.
 // Distinct from the training index — that one drops polylines on purpose
 // (routes reveal home), and it uses different distance/sport filters. This
 // module is the feed those surfaces already consumed from a live listing.

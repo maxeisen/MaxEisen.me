@@ -18,7 +18,6 @@
         "npm:eslint-plugin-svelte@^3.23.1",
         "npm:eslint@^8.57.1",
         "npm:jszip@^3.10.1",
-        "npm:maplibre-gl@^6.4.1",
         "npm:marked@^4.0.12",
         "npm:netlify-cli@27.5.2",
         "npm:openai@^6.41.0",

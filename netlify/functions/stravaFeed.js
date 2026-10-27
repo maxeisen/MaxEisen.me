@@ -10,8 +10,6 @@
 //   - Dashboard StravaWidget       (asks for limit=30, slices to 5)
 //   - Intro Activity Modals        (asks for limit=30; client filters
 //                                   to run / ride and slices to display)
-//   - /toronto map route overlay   (asks for limit=30; keeps the ones
-//                                   whose polyline touches the GTA)
 //
 // Never calls Strava. trainingSync is the only writer; this is the same
 // cheap-read pattern as trainingData.

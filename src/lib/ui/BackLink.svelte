@@ -1,6 +1,5 @@
 <!--
-    Shared back control for SPA routes (/gallery, /toronto, /dashboard,
-    /training). Desktop: a small uppercase "<- back" label pinned top-left.
+    Shared back control for SPA routes (/gallery, /dashboard, /training). Desktop: a small uppercase "<- back" label pinned top-left.
     Mobile (<=1100px): collapses to a frosted circular arrow button so it reads
     consistently with the gallery action buttons.
 

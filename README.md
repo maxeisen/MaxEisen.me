@@ -20,8 +20,6 @@ Personal site. Svelte 5 + Vite SPA with Netlify Functions.
 
 **Training** (`/training`) — Public running dashboard: recent runs, fitness, and recovery. While a race is on the plan it is that block, with the countdown, the goal, and the week ahead.
 
-**Toronto** (`/toronto`) — A curated map of places around the city, with recent Strava routes overlaid.
-
 **Bach** (`/bach`) — A private party game: a host and players take turns writing a collaborative story.
 
 **Resume** (`/resume`) — A standalone HTML resume.

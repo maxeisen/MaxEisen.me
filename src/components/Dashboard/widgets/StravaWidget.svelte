@@ -43,7 +43,7 @@
         requestAnimationFrame(() => trimListToFit(listEl));
     }
     // Fetch the wider feed (limit=30) so this URL is identical to the one the
-    // intro modals + Toronto map already use. Gear and YTD ride on the same
+    // intro modals already use. Gear and YTD ride on the same
     // snapshot, so a second stravaProfile call is not required.
     const feed = createSWRWidgetFeed({
         url: STRAVA_FEED_URL,

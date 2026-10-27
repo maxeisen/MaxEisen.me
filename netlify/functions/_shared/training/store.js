@@ -8,7 +8,7 @@
 //   cursor.json — sync bookkeeping (last activity seen, last run time)
 //   recovery.json — a night's sleep and overnight heart rate, per day
 //   oura.json  — Oura's rotating OAuth tokens
-//   public.json — homepage / dashboard / toronto snapshot (polylines live
+//   public.json — homepage / dashboard snapshot (polylines live
 //                 here, never in index.json)
 //
 // oura.json is the one key here that isn't a cache. Oura invalidates a refresh

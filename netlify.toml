@@ -101,6 +101,14 @@
   from = "/@fs/*"
   to = "/@fs/:splat"
   status = 200
+[[redirects]]
+  from = "/public/*"
+  to = "/public/:splat"
+  status = 200
+[[redirects]]
+  from = "/netlify/*"
+  to = "/netlify/:splat"
+  status = 200
 
 # SPA rewrites — known App.svelte routes boot index.html, except /training,
 # which is the trainingPage function so a no-JS browser still gets the
@@ -137,10 +145,6 @@
 [[redirects]]
   from = "/training"
   to = "/.netlify/functions/trainingPage"
-  status = 200
-[[redirects]]
-  from = "/toronto"
-  to = "/index.html"
   status = 200
 [[redirects]]
   from = "/bach"
