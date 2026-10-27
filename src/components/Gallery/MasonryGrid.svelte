@@ -44,6 +44,8 @@
         downloadEnabled = false,
         /** Called with the original index when the download arrow is hit. */
         ondownload,
+        /** Append the photo's camera to its caption. */
+        showCamera = false,
     } = $props();
 
     let gridEl = $state();
@@ -333,6 +335,7 @@
             {#each col as { p, originalIdx } (p.public_id ?? originalIdx)}
         {@const pad = aspectPadding(p)}
         {@const selected = selectedIds.has(p.public_id)}
+        {@const camera = showCamera ? p.camera : null}
         <figure
             role="listitem"
             class:selected
@@ -378,11 +381,13 @@
                     </button>
                 {/if}
             </div>
-            {#if p.uploader || p.caption}
+            {#if p.uploader || p.caption || camera}
                 <figcaption>
                     {#if p.uploader}<span class="caption-uploader">{p.uploader}</span>{/if}
                     {#if p.uploader && p.caption}<span class="caption-sep"> · </span>{/if}
                     {#if p.caption}<span class="caption-text">{p.caption}</span>{/if}
+                    {#if camera && (p.uploader || p.caption)}<span class="caption-sep"> · </span>{/if}
+                    {#if camera}<span class="caption-camera">{camera}</span>{/if}
                 </figcaption>
             {/if}
         </figure>

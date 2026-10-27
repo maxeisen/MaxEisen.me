@@ -45,6 +45,8 @@
         signed = false,
         /** Show "(N of)" inside the intro slot — opt-in. */
         showCount = false,
+        /** Append each photo's `camera` metadata to its caption — opt-in. */
+        showCamera = false,
         /** Enable the People filter row, driven by the `people` index the
             signed API returns (face-crop chips, multi-select). */
         faceFilter = false,
@@ -368,6 +370,7 @@
                 onset={setSelected}
                 downloadEnabled={bulkDownloadEnabled}
                 ondownload={(idx) => downloadOne(displayPhotos[idx])}
+                {showCamera}
             />
         {/if}
     {/if}
@@ -396,6 +399,7 @@
     bind:open={lightboxOpen}
     bind:index={lightboxIndex}
     downloadEnabled={bulkDownloadEnabled}
+    {showCamera}
 />
 <Slideshow photos={displayPhotos} bind:open={slideshowOpen} />
 

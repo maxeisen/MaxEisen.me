@@ -15,10 +15,29 @@ const PUBLIC_SCOPES = new Set(["gallery"]);
 // absorbs bursts past the CDN's 5-min edge cache without serving staler data.
 const memo = createMemo(60_000);
 
+// `camera` is an enum structured-metadata field, so search returns the option's
+// external_id ("fujifilm_x100v"), not its label. Map ids → labels from the
+// field's datasource so new cameras added in Cloudinary need no code change.
+// Best-effort: on failure photos just render without a camera.
+async function fetchCameraLabels(auth) {
+	try {
+		const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/metadata_fields/camera`, {
+			headers: { "Authorization": `Basic ${auth}` },
+		});
+		if (!res.ok) return {};
+		const field = await res.json();
+		return Object.fromEntries((field.datasource?.values || []).map((v) => [v.external_id, v.value]));
+	} catch (err) {
+		console.error("Cloudinary camera labels request failed:", err.message);
+		return {};
+	}
+}
+
 // Run the Cloudinary search and shape the result. Throws an Error tagged with
 // `.code` ("request_failed" | "search_failed") on upstream failure.
 async function fetchGallery(tag, apiKey, apiSecret) {
 	const auth = btoa(`${apiKey}:${apiSecret}`);
+	const cameraLabelsPromise = fetchCameraLabels(auth);
 	const searchUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/search`;
 	const body = {
 		expression: `tags=${tag}`,
@@ -52,6 +71,7 @@ async function fetchGallery(tag, apiKey, apiSecret) {
 	}
 
 	const data = await res.json();
+	const cameraLabels = await cameraLabelsPromise;
 	const resources = (data.resources || []).map((r) => {
 		const meta = r.metadata || {};
 		const ctx = r.context?.custom || r.context || {};
@@ -63,6 +83,7 @@ async function fetchGallery(tag, apiKey, apiSecret) {
 			|| meta.location || meta.Location || ctx.location
 			|| null;
 		const uploader = meta.uploader || meta.Uploader || ctx.uploader || null;
+		const camera = cameraLabels[meta.camera] || null;
 		return {
 			public_id: r.public_id,
 			format: r.format,
@@ -71,6 +92,7 @@ async function fetchGallery(tag, apiKey, apiSecret) {
 			created_at: r.created_at,
 			caption,
 			uploader,
+			camera,
 		};
 	});
 
