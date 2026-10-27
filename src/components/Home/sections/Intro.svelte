@@ -161,7 +161,7 @@
             icon: 'running',
             modal: {
                 image: 'run',
-                description: 'Running the 2025 <a href="https://www.torontowaterfrontmarathon.com/" rel="noreferrer" target="_blank">Toronto Waterfront Half Marathon</a><br>(Currently <a href="/training">training</a> for the 2026 Chicago Marathon).',
+                description: 'Running the 2026 <a href="https://www.chicagomarathon.com/" rel="noreferrer" target="_blank">Chicago Marathon</a></br>My first full marathon - chip time <i>3:26:19</i>',
                 strava: 'run'
             }
         },
@@ -170,7 +170,7 @@
             icon: 'cycling',
             modal: {
                 image: 'cycle',
-                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">GranFondo Whistler</a>',
+                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">Vancouver to Whistler GranFondo</a>',
                 strava: 'ride'
             }
         },
@@ -203,27 +203,14 @@
         {
             label: 'playing guitar',
             icon: 'guitar',
-            modal: { image: 'guitar', description: 'Playing guitar... duh' }
-        },
-        {
-            label: 'flying drones',
-            icon: 'drone',
-            modal: {
-                video: 'https://www.youtube.com/embed/fULlZkgpw50?',
-                description: 'A promotional spot of the GV70 for <a href="https://www.genesisyorkdale.ca/" rel="noreferrer" target="_blank">Genesis Yorkdale</a>'
-            }
-        },
-        {
-            label: 'cool technology',
-            icon: 'tech',
-            modal: { image: 'frc', description: '2016 FIRST Robotics Competition' },
-            separator: ', or tinkering with '
-        },
+            modal: { image: 'guitar', description: 'Playing guitar... duh' },
+            separator: ', or '
+        }
     ];
 </script>
 
 <div class="intro-container" id="intro">
-    <h1 class="section-title-intro">Who is Max?</h1>
+    <h1 class="section-title">Who is Max?</h1>
     <div class="intro-paragraph">
         <p class="title-extension">I'm a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">Software Engineer</Annotation></span> at <span class="wealthsimple-wrap"><a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a><svg class="dollar-sprinkle" class:visible={annotationsVisible} viewBox="-60 -26 120 44" aria-hidden="true">{#each dollars as d}<g transform="translate({d.x} {d.y}) rotate({d.rot}) scale({d.scale})" stroke-width={d.strokeWidth} style="--draw-delay: {d.delay}s"><path d={d.barPath} pathLength="1" /><path d={d.sPath} pathLength="1" /></g>{/each}</svg></span>,
         a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="underline" color="var(--intro-annotation-colour)">Computer Science</Annotation></span> graduate from <span class="queens-wrap"><a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a><svg class="crown-sprinkle" class:visible={annotationsVisible} viewBox="-60 -22 120 36" aria-hidden="true">{#each crowns as c}<g transform="translate({c.x} {c.y}) rotate({c.rot}) scale({c.scale})" stroke-width={c.strokeWidth} style="--draw-delay: {c.delay}s"><path d={c.outlinePath} pathLength="1" /><path d={c.bandPath} pathLength="1" /></g>{/each}</svg></span>.
@@ -246,8 +233,6 @@
         {/snippet}
 
         <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
-
-        <p class="intro-extras">While you're here, peek at my <a class="intro-link" href="/gallery">photo gallery</a>, follow my <a class="intro-link" href="/training">marathon training</a>, or check out my live <a class="intro-link" href="/dashboard">dashboard</a>.</p>
     </div>
 </div>
 

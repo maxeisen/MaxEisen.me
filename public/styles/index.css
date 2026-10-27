@@ -269,8 +269,8 @@ video::-webkit-media-controls-overlay-play-button {
 }
 
 .section-title {
-    margin-top: 20px;
-    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
     text-align: left;
     font-family: var(--font-sans);
     font-weight: 600;

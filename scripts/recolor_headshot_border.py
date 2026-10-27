@@ -21,6 +21,8 @@ Specify the source border color explicitly:
 from __future__ import annotations
 
 import argparse
+import math
+import statistics
 import sys
 from pathlib import Path
 
@@ -28,6 +30,8 @@ try:
     from PIL import Image, ImageChops, ImageDraw, ImageFilter
 except ImportError:
     sys.exit("PIL/Pillow required. Install with: pip install Pillow")
+
+RING_SCAN_ANGLES = 36
 
 
 def parse_hex(value: str) -> tuple[int, int, int]:
@@ -103,41 +107,44 @@ def thicken_border(im: Image.Image, color: tuple[int, int, int], thickness: int,
     def is_border(r: int, g: int, b: int) -> bool:
         return abs(r - tr) < tolerance and abs(g - tg) < tolerance and abs(b - tb) < tolerance
 
-    def scan_inner(dx: int, dy: int) -> int | None:
-        max_d = (w if dx else h) // 2
+    max_d = min(w, h) // 2
+    angles = [2 * math.pi * i / RING_SCAN_ANGLES for i in range(RING_SCAN_ANGLES)]
+
+    def point(theta: float, d: int) -> tuple[int, int, int, int] | None:
+        x = cx + round(math.cos(theta) * d)
+        y = cy + round(math.sin(theta) * d)
+        if not (0 <= x < w and 0 <= y < h):
+            return None
+        return px[x, y]
+
+    def scan_inner(theta: float) -> int | None:
         seen_border = False
         for d in range(max_d, 0, -1):
-            x = cx + dx * d
-            y = cy + dy * d
-            if not (0 <= x < w and 0 <= y < h):
+            p = point(theta, d)
+            if p is None or p[3] < 200:
                 continue
-            r, g, b, a = px[x, y]
-            if a < 200:
-                continue
-            if is_border(r, g, b):
+            if is_border(*p[:3]):
                 seen_border = True
                 continue
             if seen_border:
                 return d
         return None
 
-    def scan_outer(dx: int, dy: int) -> int | None:
-        max_d = (w if dx else h) // 2
+    def scan_outer(theta: float) -> int | None:
         last = None
         for d in range(1, max_d):
-            x = cx + dx * d
-            y = cy + dy * d
-            if not (0 <= x < w and 0 <= y < h):
-                continue
-            r, g, b, a = px[x, y]
-            if a > 200:
+            p = point(theta, d)
+            if p is not None and p[3] > 200:
                 last = d
         return last
 
-    inner_candidates = [scan_inner(1, 0), scan_inner(-1, 0), scan_inner(0, 1), scan_inner(0, -1)]
-    outer_candidates = [scan_outer(1, 0), scan_outer(-1, 0), scan_outer(0, 1), scan_outer(0, -1)]
-    inner_r = min((c for c in inner_candidates if c is not None), default=None)
-    outer_r = max((c for c in outer_candidates if c is not None), default=None)
+    # Median across many angles: a photo region that matches the border colour
+    # (e.g. a grey shirt touching the ring) makes the scan run straight through
+    # it on those angles, so a plain min() would collapse the ring onto the face.
+    inner_candidates = [r for r in map(scan_inner, angles) if r is not None]
+    outer_candidates = [r for r in map(scan_outer, angles) if r is not None]
+    inner_r = int(statistics.median(inner_candidates)) if inner_candidates else None
+    outer_r = max(outer_candidates, default=None)
     if inner_r is None or outer_r is None:
         raise RuntimeError("could not detect ring radii; image isn't recognizably circular")
 

@@ -11,25 +11,25 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@netlify/blobs@^10.7.9",
+        "npm:@netlify/blobs@^10.7.13",
         "npm:@playwright/test@^1.61.0",
         "npm:@sveltejs/vite-plugin-svelte@^7.2.0",
         "npm:cloudinary@^2.10.0",
-        "npm:eslint-plugin-svelte@^2.46.1",
+        "npm:eslint-plugin-svelte@^3.23.1",
         "npm:eslint@^8.57.1",
         "npm:jszip@^3.10.1",
-        "npm:maplibre-gl@^5.24.0",
+        "npm:maplibre-gl@^6.4.1",
         "npm:marked@^4.0.12",
-        "npm:netlify-cli@27.0.1",
+        "npm:netlify-cli@27.5.2",
         "npm:openai@^6.41.0",
         "npm:qrcode@^1.5.4",
-        "npm:query-string@^6.14.1",
-        "npm:sharp@0.35",
+        "npm:query-string@^9.5.0",
+        "npm:sharp@~0.35.5",
         "npm:svelte-icons@^2.1.0",
         "npm:svelte-rough-notation@~0.1.4",
         "npm:svelte@^5.56.5",
-        "npm:vite@^8.1.4",
-        "npm:vitest@^4.1.9"
+        "npm:vite@^8.3.5",
+        "npm:vitest@^4.1.12"
       ]
     }
   }

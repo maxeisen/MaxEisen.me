@@ -113,8 +113,15 @@ def detect_inner_radius(template: Image.Image, border: tuple[int, int, int], tol
 
 
 def square_crop_around_face(photo: Image.Image, face_bbox: tuple[int, int, int, int] | None,
-                            padding: float = 2.2, headroom: float = 0.10) -> Image.Image:
-    """Crop a square around the face. Falls back to upper-third center if no bbox."""
+                            padding: float = 2.2, headroom: float = 0.10,
+                            pad_color: tuple[int, int, int] | None = None) -> Image.Image:
+    """Crop a square around the face. Falls back to upper-third center if no bbox.
+
+    By default the crop is clamped (and shrunk) to stay inside the photo. With
+    `pad_color`, the crop keeps its size and position and any area beyond the
+    photo's edges is filled with that color — useful for cut-out photos where
+    the subject's head touches the top edge.
+    """
     w, h = photo.size
     if face_bbox is None:
         # Heuristic: portrait photos generally have the face in the upper third,
@@ -131,6 +138,11 @@ def square_crop_around_face(photo: Image.Image, face_bbox: tuple[int, int, int, 
         cy = fy + fh // 2 - int(face_dim * headroom)
 
     half = side // 2
+    if pad_color is not None:
+        canvas = Image.new("RGB", (side, side), pad_color)
+        canvas.paste(photo, (half - cx, half - cy))
+        return canvas
+
     left = max(0, cx - half)
     top = max(0, cy - half)
     right = min(w, left + side)
@@ -142,10 +154,23 @@ def square_crop_around_face(photo: Image.Image, face_bbox: tuple[int, int, int, 
     return photo.crop((left, top, right, bottom))
 
 
+def flatten(photo: Image.Image, background: tuple[int, int, int]) -> Image.Image:
+    """Composite onto a solid background. A bare convert("RGB") turns transparent pixels black."""
+    if photo.mode in ("RGBA", "LA", "PA") or (photo.mode == "P" and "transparency" in photo.info):
+        rgba = photo.convert("RGBA")
+        bg = Image.new("RGBA", rgba.size, (*background, 255))
+        bg.alpha_composite(rgba)
+        return bg.convert("RGB")
+    return photo.convert("RGB")
+
+
 def replace_inner(template: Image.Image, photo: Image.Image, face_bbox: tuple[int, int, int, int] | None,
-                  border: tuple[int, int, int], tolerance: int) -> Image.Image:
+                  border: tuple[int, int, int], tolerance: int,
+                  background: tuple[int, int, int] = (255, 255, 255),
+                  padding: float = 2.2, headroom: float = 0.10, pad: bool = False) -> Image.Image:
     template = template.convert("RGBA")
-    cropped = square_crop_around_face(photo.convert("RGB"), face_bbox)
+    cropped = square_crop_around_face(flatten(photo, background), face_bbox, padding, headroom,
+                                      background if pad else None)
     sized = cropped.resize(template.size, Image.LANCZOS).convert("RGBA")
 
     cx, cy, inner_r = detect_inner_radius(template, border, tolerance)
@@ -166,9 +191,11 @@ def main() -> int:
     parser.add_argument("--photo", type=Path, required=True, help="New photo to drop into the inner circle")
     parser.add_argument("--output", type=Path, required=True, help="Output PNG path (a .webp is also written)")
     parser.add_argument("--border", type=parse_hex, default=(0xB8, 0xA8, 0x88), help="Border color hex (default: #b8a888)")
+    parser.add_argument("--background", type=parse_hex, default=(0xFF, 0xFF, 0xFF), help="Fill for transparent pixels in the photo (default: #ffffff)")
     parser.add_argument("--tolerance", type=int, default=60, help="Border match tolerance per channel (default: 60)")
     parser.add_argument("--padding", type=float, default=2.2, help="Crop padding = face_max_dim * padding (default: 2.2)")
     parser.add_argument("--headroom", type=float, default=0.10, help="Shift crop up by face_max_dim * headroom (default: 0.10)")
+    parser.add_argument("--pad", action="store_true", help="Fill crop area beyond the photo edges with --background instead of clamping the crop")
     parser.add_argument("--no-face-detect", action="store_true", help="Skip face detection; use upper-third heuristic")
     parser.add_argument("--webp-quality", type=int, default=90, help="WEBP quality 0-100 (default: 90)")
     parser.add_argument("--no-webp", action="store_true", help="Skip writing the .webp variant")
@@ -192,7 +219,8 @@ def main() -> int:
     print(f"photo:        {args.photo}  size={photo.size}")
     print(f"border color: #{args.border[0]:02x}{args.border[1]:02x}{args.border[2]:02x}")
 
-    out = replace_inner(template, photo, face_bbox, args.border, args.tolerance)
+    out = replace_inner(template, photo, face_bbox, args.border, args.tolerance, args.background,
+                        args.padding, args.headroom, args.pad)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     out.save(args.output.with_suffix(".png"))
