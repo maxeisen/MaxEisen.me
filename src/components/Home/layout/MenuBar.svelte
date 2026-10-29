@@ -55,6 +55,7 @@
                     <li id="nav-bar-item"><a href="/gallery"><b>Photos</b></a></li>
                     <li id="nav-bar-item"><a href="/dashboard"><b>Dashboard</b></a></li>
                     <li id="nav-bar-item"><a href="/running"><b>Running</b></a></li>
+                    <li id="nav-bar-item"><a href="/cycling"><b>Cycling</b></a></li>
                     <li id="nav-bar-item"><a href="/resume"><b>Resume</b></a></li>
                 </ul>
             </nav>

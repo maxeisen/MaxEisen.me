@@ -1,25 +1,32 @@
 <!-- Recent activity, newest first, matched against the plan. -->
 <script>
     import { getContext } from "svelte";
-    import Card from "../../Activity/Card.svelte";
     import RunModal from "../RunModal.svelte";
+    import ActivityLog from "../../Activity/sections/ActivityLog.svelte";
     import { formatDistance, formatDuration, pace, shortDate, speed, timeTaken } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag } from "../lib/runTags.js";
 
     let { runs = [], total = null } = $props();
 
-    // Present when an ancestor mounts the shared ModalProvider (it does on
-    // /running). Absent otherwise, in which case a run just links to Strava
-    // like the rides and strength sessions do.
     const modal = getContext("simple-modal");
-    const canOpen = typeof modal?.open === "function";
 
-    // The row only holds the lean run; RunModal fetches the full detail (load,
-    // zones, splits, trace, fitness impact) by id when it opens, so every run
-    // shows everything the "Last run" widget does, not just the newest.
     function openRun(run) {
         modal.open(RunModal, { run });
+    }
+
+    const isRun = (run) => run.sport !== "ride" && run.sport !== "strength";
+
+    function rowClass(run) {
+        const ride = run.sport === "ride";
+        const strength = run.sport === "strength";
+        const planned = run.plan?.planned === true;
+        const tracked = run.plan != null;
+        const names = [];
+        if (tracked && !planned && isRun(run)) names.push("extra");
+        if (ride) names.push("ride");
+        if (strength) names.push("strength");
+        return names.join(" ");
     }
 
     const plannedCount = $derived(runs.filter((r) => r.plan?.planned).length);
@@ -33,12 +40,15 @@
         + " towards nothing here — not weekly volume, fitness, fatigue or injury risk.";
     const STRENGTH_NOTE =
         "Shown for context only. Strength is on the plan, but it does not count toward running volume, fitness or the race projection.";
-
 </script>
 
-<!-- The row's contents, rendered inside either the run's <button> or the
-     context activity's <a>. -->
-{#snippet rowBody(run, isRide, isStrength, planned, tag, hilly)}
+{#snippet row(run)}
+    {@const isRide = run.sport === "ride"}
+    {@const isStrength = run.sport === "strength"}
+    {@const tag = stravaTag(run)}
+    {@const planned = run.plan?.planned === true}
+    {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
+        && Math.abs(run.gapPaceSecPerKm - run.paceSecPerKm) > 5}
     <div class="row-main">
         <span class="row-name">{run.name}</span>
         <span class="row-meta">
@@ -78,9 +88,6 @@
 
     <div class="row-stat">
         {#if isRide}
-            <!-- Minutes per kilometre is a runner's unit and reads as nonsense
-                 on a bike, so the column a run gives to pace and GAP gives the
-                 speed a cyclist would actually quote. -->
             <strong>{speed(run.distanceM, run.movingTimeSec)}</strong>
             <span>avg speed</span>
         {:else if isStrength}
@@ -95,8 +102,16 @@
     </div>
 {/snippet}
 
-<Card title="Recent activity" info={GLOSSARY.runs}>
-    {#snippet aside()}
+<ActivityLog
+    items={runs}
+    info={GLOSSARY.runs}
+    isPrimary={isRun}
+    {rowClass}
+    onOpen={openRun}
+    primary={row}
+    context={row}
+>
+    {#snippet summary()}
         {#if runs.length}
             <span class="count">
                 {#if Number.isFinite(total) && total > runCount}
@@ -110,51 +125,7 @@
             </span>
         {/if}
     {/snippet}
-
-    {#if runs.length === 0}
-        <p class="card-empty">Nothing synced yet.</p>
-    {:else}
-        <ul class="log">
-            {#each runs as run (run.id)}
-                {@const isRide = run.sport === "ride"}
-                {@const isStrength = run.sport === "strength"}
-                {@const isContext = isRide || isStrength}
-                {@const tag = stravaTag(run)}
-                {@const planned = run.plan?.planned === true}
-                {@const tracked = run.plan != null}
-                {@const hilly = Number.isFinite(run.gapPaceSecPerKm)
-                    && Math.abs(run.gapPaceSecPerKm - run.paceSecPerKm) > 5}
-                <li>
-                    <!-- A run opens its detail in the modal; a ride or strength
-                         session (context only) links out to Strava, as does any
-                         run when no modal provider is mounted above us. -->
-                    {#if isContext || !canOpen}
-                        <a
-                            class="row"
-                            class:extra={tracked && !planned && !isContext}
-                            class:ride={isRide}
-                            class:strength={isStrength}
-                            href="https://www.strava.com/activities/{run.id}"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            {@render rowBody(run, isRide, isStrength, planned, tag, hilly)}
-                        </a>
-                    {:else}
-                        <button
-                            type="button"
-                            class="row"
-                            class:extra={tracked && !planned}
-                            onclick={() => openRun(run)}
-                        >
-                            {@render rowBody(run, isRide, isStrength, planned, tag, hilly)}
-                        </button>
-                    {/if}
-                </li>
-            {/each}
-        </ul>
-    {/if}
-</Card>
+</ActivityLog>
 
 <style>
     .count {
@@ -164,56 +135,6 @@
         color: var(--paragraph-colour);
         opacity: 0.6;
     }
-
-    .log {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-2);
-        max-height: 560px;
-        overflow-y: auto;
-    }
-    /* A hairline between rows as well as the gap: a two-line row on a phone
-       otherwise runs straight into the next one's title. */
-    .log li + li { border-top: 1px solid var(--main-green-translucent); padding-top: var(--space-2); }
-    /* A row is an <a> for context activities and a <button> for openable runs.
-       The button resets (border, background, font, width, alignment) let the
-       two render identically; box-sizing is border-box globally, so the full
-       width plays nicely with the padding. */
-    .row {
-        display: flex;
-        align-items: center;
-        gap: var(--space-4);
-        width: 100%;
-        padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
-        border: 0;
-        border-left: 2px solid var(--main-green);
-        border-radius: var(--radius-sm);
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        text-align: left;
-        text-decoration: none;
-        cursor: pointer;
-        -webkit-appearance: none;
-        appearance: none;
-        transition: background-color 0.15s ease;
-    }
-    .row:focus-visible {
-        outline: 2px solid var(--main-green);
-        outline-offset: 2px;
-    }
-    /* Runs the plan didn't ask for still belong here, but shouldn't read with
-       the same weight as the sessions that were the point of the week. */
-    .row.extra { border-left-color: transparent; }
-    /* A ride is context rather than training, so it sits a step back from even
-       an unplanned run: dashed edge, and the whole row a touch quieter. */
-    .row.ride,
-    .row.strength { border-left-style: dashed; border-left-color: var(--paragraph-colour); opacity: 0.75; }
-    .row:hover { background: var(--main-green-translucent); }
-
     .row-main { flex: 1; min-width: 0; }
     .row-name {
         display: block;
@@ -233,8 +154,6 @@
         opacity: 0.7;
         margin-top: 3px;
     }
-    /* The athlete's own words, and the only line on the page that isn't
-       measured — so it reads as speech rather than as another figure. */
     .row-note {
         display: block;
         margin-top: 4px;
@@ -250,12 +169,7 @@
         color: var(--main-green);
         margin-right: var(--space-2);
     }
-
-    /* The pill itself is a card convention; a row just needs it to breathe. */
     .tag { margin: 0 2px; }
-    /* Its own tag rather than borrowing "extra", which already means a run the
-       plan didn't ask for. A ride isn't a run at all. Local rather than a card
-       convention because this is the only panel that shows one. */
     .tag.ride-tag {
         background: transparent;
         border: 1px dashed var(--paragraph-colour);
@@ -263,7 +177,6 @@
         text-transform: lowercase;
         opacity: 0.9;
     }
-
     .row-stat {
         display: flex;
         flex-direction: column;
@@ -284,27 +197,13 @@
         color: var(--paragraph-colour);
         opacity: 0.65;
     }
-    /* Highlight GAP only when it actually differs from raw pace — otherwise
-       it's noise on a flat run. */
     .row-stat span.adjusted {
         color: var(--main-green);
         opacity: 1;
     }
 
-    /* On a phone the two stat columns leave the run name barely 40px, which
-       ellipses every title down to a word. Give the name the full width and
-       drop the numbers onto a second line under it. */
     @media (max-width: 540px) {
-        .log { gap: var(--space-3); }
-        .log li + li { padding-top: var(--space-3); }
-        .row {
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: var(--space-2) var(--space-4);
-        }
         .row-main { flex-basis: 100%; }
-        /* Distance/time to the left edge, pace/GAP to the right, on a line of
-           their own under the name. */
         .row-stat {
             min-width: 0;
             align-items: flex-start;
