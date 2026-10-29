@@ -10,6 +10,9 @@ test("cycling route renders the ride dashboard", async ({ page }) => {
 
 	await page.goto("/cycling");
 	await expect(page).toHaveTitle("Cycling — Max Eisen");
+	await expect(page.getByRole("heading", { level: 1, name: "Cycling" })).toBeVisible();
+	await expect(page.getByText("Ride log")).toBeVisible();
+	await expect(page.getByText("Not a race plan")).toHaveCount(0);
 	for (const name of [
 		"Last ride",
 		"Recommendations",

@@ -203,8 +203,8 @@
         <div class="state"><Spinner size={38} stroke={3} /></div>
     {:else}
         <header class="page-head">
+            <p class="eyebrow">Ride log</p>
             <h1>Cycling</h1>
-            <p>Fitness and fatigue from rides. Not a race plan.</p>
         </header>
 
         <div class="today-strip">
@@ -242,18 +242,23 @@
         margin: 0 auto;
         padding: var(--space-7) var(--space-5) var(--space-8);
     }
-    .page-head { margin: 0 0 var(--space-5); }
-    .page-head h1 {
-        margin: 0;
-        font-family: var(--font-sans);
-        font-size: clamp(2rem, 4vw, 2.8rem);
-        letter-spacing: -0.03em;
-        color: var(--header-colour);
+    .page-head { margin: 0 0 var(--space-6); }
+    .eyebrow {
+        font-size: var(--font-2xs);
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--main-green);
+        margin: 0 0 var(--space-2) 0;
     }
-    .page-head p {
-        margin: var(--space-2) 0 0;
-        color: var(--paragraph-colour);
-        opacity: 0.75;
+    .page-head h1 {
+        font-family: var(--font-sans);
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--header-colour);
+        margin: 0;
     }
     .state {
         min-height: 60vh;
