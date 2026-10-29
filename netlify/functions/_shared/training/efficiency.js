@@ -131,6 +131,21 @@ export function activityEfficiency(activity) {
 	return efficiencyFactor(1000 / gap, activity?.averageHr);
 }
 
+/**
+ * Watts per heartbeat for a ride that had a power meter. Estimated watts,
+ * which Strava stores with device_watts false, are not a point on this line.
+ *
+ * @param {{deviceWatts?: boolean, averageWatts?: number, averageHr?: number}} activity
+ * @returns {number|null}
+ */
+export function rideEfficiency(activity) {
+	if (activity?.deviceWatts !== true) return null;
+	const watts = reading(activity?.averageWatts);
+	const hr = reading(activity?.averageHr);
+	if (!(watts > 0) || !(hr > 0)) return null;
+	return watts / hr;
+}
+
 // Calendar days averaged into each trend point. Aerobic adaptation is a
 // weeks-scale signal; a 7-day window would track which sessions landed this
 // week. Fourteen days is roughly the old 5-run smoother at this athlete's
@@ -156,11 +171,9 @@ const MIN_TREND_RUNS = 6;
  * is built on.
  *
  * @param {{startDateLocal?: string, averageHr?: number, gapPaceSecPerKm?: number}[]} activities
- * @param {{aerobicCeilingHr?: number, today?: string}} [options]
- * @returns {{points: {date: string, ef: number}[], trend: {date: string, ef: number}[],
- *   changePct: number|null, first: number|null, latest: number|null}}
+ * @param {{aerobicCeilingHr?: number, today?: string, efficiencyOf?: function}} [options]
  */
-export function efficiencyTrend(activities, { aerobicCeilingHr = null, today = null } = {}) {
+export function efficiencyTrend(activities, { aerobicCeilingHr = null, today = null, efficiencyOf = activityEfficiency } = {}) {
 	const ceiling = reading(aerobicCeilingHr);
 	const points = [];
 
@@ -168,7 +181,7 @@ export function efficiencyTrend(activities, { aerobicCeilingHr = null, today = n
 		const hr = reading(a?.averageHr);
 		if (!(hr > 0)) continue;
 		if (Number.isFinite(ceiling) && hr >= ceiling) continue;
-		const ef = activityEfficiency(a);
+		const ef = efficiencyOf(a);
 		const date = String(a?.startDateLocal || "").slice(0, 10);
 		if (!(ef > 0) || !date) continue;
 		points.push({ date, ef });

@@ -3,6 +3,7 @@ import {
 	efficiencyFactor,
 	aerobicDecoupling,
 	activityEfficiency,
+	rideEfficiency,
 	efficiencyTrend,
 } from "./efficiency.js";
 
@@ -249,5 +250,12 @@ describe("efficiencyTrend", () => {
 		const out = efficiencyTrend([...winter, ...summer], { today: "2026-07-12" });
 		expect(out.changePct).toBeGreaterThan(0);
 		expect(out.latest).toBeGreaterThan(out.first);
+	});
+});
+
+describe("rideEfficiency", () => {
+	it("uses meter watts per heartbeat and ignores estimated watts", () => {
+		expect(rideEfficiency({ deviceWatts: true, averageWatts: 200, averageHr: 140 })).toBeCloseTo(200 / 140);
+		expect(rideEfficiency({ deviceWatts: false, averageWatts: 200, averageHr: 140 })).toBeNull();
 	});
 });
