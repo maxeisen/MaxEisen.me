@@ -339,14 +339,14 @@ export function recommendations(metrics, { sport = "run" } = {}) {
 
 	if (shortSleep && ramping) {
 		const why = Number.isFinite(acwr.ratio) && acwr.ratio > ACWR_CEILING
-			? copy.sleepRampWhy.acwr({ ratio: acwr.ratio })
-			: copy.sleepRampWhy.ramp({ ramp: basis.rampPct });
+			? prose.sleepRampWhy.acwr({ ratio: acwr.ratio })
+			: prose.sleepRampWhy.ramp({ ramp: basis.rampPct });
 		out.push(
 			rule(
 				"sleep-and-ramp",
 				"critical",
-				copy.sleepAndRamp.title,
-				copy.sleepAndRamp.detail({ sleep: duration(sleep.recent), why }),
+				prose.sleepAndRamp.title,
+				prose.sleepAndRamp.detail({ sleep: duration(sleep.recent), why }),
 				sleep.recent,
 				SLEEP_TARGET_SEC,
 				"duration",
@@ -357,8 +357,8 @@ export function recommendations(metrics, { sport = "run" } = {}) {
 			rule(
 				"sleep-short",
 				"warning",
-				copy.sleepShort.title,
-				copy.sleepShort.detail({
+				prose.sleepShort.title,
+				prose.sleepShort.detail({
 					sleep: duration(sleep.recent),
 					floor: duration(SLEEP_TARGET_SEC),
 					baseline: Number.isFinite(sleep.baseline) ? duration(sleep.baseline) : null,
@@ -419,8 +419,8 @@ export function recommendations(metrics, { sport = "run" } = {}) {
 			rule(
 				"recovery-ok",
 				"good",
-				copy.recoveryOk.title,
-				copy.recoveryOk.detail({ sleep: duration(sleep.recent), restingHr: restingHr.recent }),
+				prose.recoveryOk.title,
+				prose.recoveryOk.detail({ sleep: duration(sleep.recent), restingHr: restingHr.recent }),
 				sleep.recent,
 				SLEEP_TARGET_SEC,
 				"duration",
