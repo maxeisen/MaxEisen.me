@@ -155,6 +155,7 @@ function historyStartEpoch(plan) {
 // absent — see _shared/training/shape.js for why the payload carries no
 // coordinates, and gap.js for why GAP doesn't need them.
 const STREAM_KEYS = "time,distance,heartrate,velocity_smooth,altitude,grade_smooth";
+const RIDE_STREAM_KEYS = "time,heartrate";
 
 // How much sleep history to hold. Baselines are 28-day averages and the panel
 // draws a month, so this is comfortably more than either needs. The whole
@@ -289,9 +290,9 @@ async function fetchActivitiesSince(token, afterEpoch) {
 }
 
 // Streams come back keyed by type; flatten to { type: data[] }.
-async function fetchStreams(id, token) {
+async function fetchStreams(id, token, keys = STREAM_KEYS) {
 	try {
-		const raw = await stravaGet(`/activities/${id}/streams?keys=${STREAM_KEYS}&key_by_type=true`, token);
+		const raw = await stravaGet(`/activities/${id}/streams?keys=${keys}&key_by_type=true`, token);
 		const streams = {};
 		for (const [key, value] of Object.entries(raw || {})) {
 			if (Array.isArray(value?.data)) streams[key] = value.data;
@@ -574,16 +575,17 @@ export default async function handler(req) {
 		enqueue({
 			id: summary.id,
 			summary,
-			skipStreams: isTrackableRide(summary) || isTrackableStrength(summary),
+			kind: isTrackableStrength(summary) ? "strength" : isTrackableRide(summary) ? "ride" : "run",
 			date: summary.start_date_local,
 		});
 	}
 	for (const record of existing || []) {
 		if (!full && record?.v === SHAPE_VERSION) continue;
+		const kind = record?.sport === "ride" ? "ride" : record?.sport === "strength" ? "strength" : "run";
 		enqueue({
 			id: record?.id,
 			summary: null,
-			skipStreams: !isRunActivity(record),
+			kind,
 			date: record?.startDateLocal,
 		});
 	}
@@ -605,11 +607,35 @@ export default async function handler(req) {
 	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (item) => {
 		if (rateLimited) return null;
 
-		// A ride or gym session is complete as it stands. Everything the
-		// detailed activity and the streams would add is a running measure
-		// those sports don't carry, so they shape straight from the summary.
-		if (item.skipStreams && item.summary) {
+		// A gym session has no stream-derived number. Shape it from the summary
+		// when we have one, and spend a detail call only when we don't.
+		if (item.kind === "strength" && item.summary) {
 			return shapeActivity(item.summary, { thresholds, athleteZones: zones });
+		}
+
+		// A listed ride already carries meter watts. The only extra call is the
+		// heart-rate stream, which zone time needs. No location, power, or grade.
+		if (item.kind === "ride" && item.summary) {
+			if (Date.now() > deadline) {
+				timedOut = true;
+				return null;
+			}
+			if (!hasQuotaForOneMore()) {
+				quotaPaused = true;
+				return null;
+			}
+			try {
+				const streams = await fetchStreams(item.id, token, RIDE_STREAM_KEYS);
+				return shapeActivity(item.summary, { streams, thresholds, athleteZones: zones });
+			} catch (err) {
+				if (err.status === 429) {
+					rateLimited = true;
+					console.warn("Strava rate limit hit; deferring the rest to the next run");
+					return null;
+				}
+				console.error(`Failed to sync activity ${item.id}`, err);
+				return shapeActivity(item.summary, { thresholds, athleteZones: zones });
+			}
 		}
 
 		if (Date.now() > deadline) {
@@ -625,10 +651,14 @@ export default async function handler(req) {
 		try {
 			const [detail, streams] = await Promise.all([
 				stravaGet(`/activities/${item.id}?include_all_efforts=true`, token),
-				// A ride queued off the index has no summary to shape from, so
-				// it costs the detail — but still not the streams, which it
-				// would carry no number derived from.
-				item.skipStreams ? null : fetchStreams(item.id, token),
+				// A stale ride has no summary on the queue, so it pays for the
+				// detail. Its stream is still heart rate only. Strength pays
+				// for the detail and nothing else.
+				item.kind === "ride"
+					? fetchStreams(item.id, token, RIDE_STREAM_KEYS)
+					: item.kind === "strength"
+						? null
+						: fetchStreams(item.id, token),
 			]);
 			return shapeActivity(detail, { streams, thresholds, athleteZones: zones });
 		} catch (err) {

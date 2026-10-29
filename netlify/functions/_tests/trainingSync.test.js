@@ -192,6 +192,37 @@ describe("trainingSync", () => {
 		expect(index().map((a) => a.id)).toEqual([1000]);
 	});
 
+	it("enriches a ride from its summary and a heart-rate stream only", async () => {
+		const run = summaries(1)[0];
+		const ride = {
+			...summaries(1)[0],
+			id: 8001,
+			name: "Long ride",
+			type: "Ride",
+			sport_type: "Ride",
+			distance: 45000,
+			moving_time: 5400,
+			device_watts: true,
+			average_watts: 200,
+			average_heartrate: 140,
+		};
+		const calls = mockStrava({ activities: [run, ride] });
+		await sync();
+
+		const stored = index().find((a) => a.id === 8001);
+		expect(stored.v).toBe(SHAPE_VERSION);
+		expect(stored.deviceWatts).toBe(true);
+		expect(stored.averageWatts).toBe(200);
+		const rideStreams = calls.filter((c) => c.includes("/activities/8001/streams"));
+		expect(rideStreams).toEqual([
+			expect.stringContaining("keys=time,heartrate"),
+		]);
+		expect(rideStreams[0]).not.toMatch(/latlng|watts|grade_smooth|altitude|velocity_smooth/);
+		expect(calls.some((c) => /\/activities\/8001\?/.test(c))).toBe(false);
+		const runStreams = calls.find((c) => c.includes(`/activities/${run.id}/streams`));
+		expect(runStreams).toContain("keys=time,distance,heartrate,velocity_smooth,altitude,grade_smooth");
+	});
+
 	// The budget is what keeps an invocation inside Netlify's 30s cap for
 	// scheduled functions; the cursor is what stops the deferred remainder
 	// being skipped past and never fetched again.
