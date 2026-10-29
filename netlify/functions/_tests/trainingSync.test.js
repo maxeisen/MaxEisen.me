@@ -215,9 +215,9 @@ describe("trainingSync", () => {
 		expect(stored.averageWatts).toBe(200);
 		const rideStreams = calls.filter((c) => c.includes("/activities/8001/streams"));
 		expect(rideStreams).toEqual([
-			expect.stringContaining("keys=time,heartrate"),
+			expect.stringContaining("keys=time,distance,heartrate,watts"),
 		]);
-		expect(rideStreams[0]).not.toMatch(/latlng|watts|grade_smooth|altitude|velocity_smooth/);
+		expect(rideStreams[0]).not.toMatch(/latlng|grade_smooth|altitude|velocity_smooth/);
 		expect(calls.some((c) => /\/activities\/8001\?/.test(c))).toBe(false);
 		const runStreams = calls.find((c) => c.includes(`/activities/${run.id}/streams`));
 		expect(runStreams).toContain("keys=time,distance,heartrate,velocity_smooth,altitude,grade_smooth");

@@ -15,7 +15,7 @@ export const GLOSSARY = {
 		title: "Last ride",
 		body: [
 			"The most recent ride: distance, moving time, climb and average speed, then power, heart rate and cadence when they were recorded.",
-			"Power is shown only when a meter recorded it. Estimated watts are left out. Cadence is revolutions per minute. Two rides on one day share that day's fitness change, and the card says so.",
+			"The chart is heart rate along the ride, and watts on the same distance when a meter recorded them. Estimated watts are left out. Cadence is revolutions per minute. Two rides on one day share that day's fitness change, and the card says so.",
 		],
 		terms: [
 			{ term: "Load", definition: "Training stress from time spent at each heart rate. A ride with no heart rate is listed and does not move fitness. Compared with your own rides from the last six weeks." },

@@ -171,10 +171,33 @@ describe("shapeActivity", () => {
 		expect(Object.keys(shaped.trace).sort()).toEqual(["hr", "m", "pace"]);
 	});
 
-	it("gives a ride no trace, for the same reason it gets no splits", () => {
-		const streams = { time: [0, 60], distance: [0, 400], heartrate: [130, 132] };
-		const shaped = shapeActivity(rawRide(), { thresholds: THRESHOLDS, streams });
-		expect(shaped.trace).toBeNull();
+	it("keeps a ride's heart rate and meter watts, and drops estimated watts", () => {
+		const seconds = 120;
+		const streams = {
+			time: Array.from({ length: seconds }, (_, i) => i),
+			distance: Array.from({ length: seconds }, (_, i) => i * (45000 / seconds)),
+			heartrate: Array.from({ length: seconds }, () => 140),
+			watts: Array.from({ length: seconds }, () => 200),
+		};
+		const metered = shapeActivity(rawRide({ device_watts: true, average_watts: 200 }), {
+			thresholds: THRESHOLDS,
+			streams,
+		});
+		expect(metered.trace.hr.every((b) => b === 140)).toBe(true);
+		expect(metered.trace.watts.every((w) => w === 200)).toBe(true);
+		expect(metered.trace.pace).toBeUndefined();
+		expect(Object.keys(metered.trace).sort()).toEqual(["hr", "m", "watts"]);
+		expect(publicRideDetail(metered).trace.watts).toEqual(metered.trace.watts);
+		expect(publicRun(metered).trace).toBeUndefined();
+
+		const estimated = shapeActivity(rawRide({ device_watts: false, average_watts: 180 }), {
+			thresholds: THRESHOLDS,
+			streams,
+		});
+		expect(estimated.trace.hr.every((b) => b === 140)).toBe(true);
+		expect(estimated.trace.watts).toBeUndefined();
+		expect(publicRideDetail(estimated).trace.watts).toBeUndefined();
+		expect(JSON.stringify(publicRideDetail(estimated))).not.toContain("watts");
 	});
 
 	it("scores load by heart rate when present", () => {

@@ -155,7 +155,9 @@ function historyStartEpoch(plan) {
 // absent — see _shared/training/shape.js for why the payload carries no
 // coordinates, and gap.js for why GAP doesn't need them.
 const STREAM_KEYS = "time,distance,heartrate,velocity_smooth,altitude,grade_smooth";
-const RIDE_STREAM_KEYS = "time,heartrate";
+// Distance places the chart. Watts come back for every ride; shape.js keeps
+// them only when device_watts is set. One request, not a second call.
+const RIDE_STREAM_KEYS = "time,distance,heartrate,watts";
 
 // How much sleep history to hold. Baselines are 28-day averages and the panel
 // draws a month, so this is comfortably more than either needs. The whole
@@ -613,8 +615,8 @@ export default async function handler(req) {
 			return shapeActivity(item.summary, { thresholds, athleteZones: zones });
 		}
 
-		// A listed ride already carries meter watts. The only extra call is the
-		// heart-rate stream, which zone time needs. No location, power, or grade.
+		// A listed ride already carries meter watts. One stream call covers zone
+		// time and the last-ride chart. No location or grade.
 		if (item.kind === "ride" && item.summary) {
 			if (Date.now() > deadline) {
 				timedOut = true;
@@ -652,7 +654,7 @@ export default async function handler(req) {
 			const [detail, streams] = await Promise.all([
 				stravaGet(`/activities/${item.id}?include_all_efforts=true`, token),
 				// A stale ride has no summary on the queue, so it pays for the
-				// detail. Its stream is still heart rate only. Strength pays
+				// detail. Its streams are still the ride set. Strength pays
 				// for the detail and nothing else.
 				item.kind === "ride"
 					? fetchStreams(item.id, token, RIDE_STREAM_KEYS)

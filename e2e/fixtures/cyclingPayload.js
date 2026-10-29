@@ -21,6 +21,11 @@ export function buildCyclingFixture() {
 		maxWatts: 412,
 		weightedAverageWatts: 204,
 		effort: "easy",
+		trace: {
+			m: [5000, 20000, 40000, 60000],
+			hr: [138, 142, 150, 146],
+			watts: [170, 186, 210, 190],
+		},
 		ridesThatDay: 1,
 		impact: {
 			form: { ctl: 42.1, atl: 38.4, tsb: 3.7, ctlDelta: 0.6, atlDelta: 2.1, tsbDelta: -1.5 },

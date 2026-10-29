@@ -1,8 +1,10 @@
 <!--
     One ride: the headline four, then power, heart rate and cadence, then
-    what the day did to fitness. No splits, no pace, no map.
+    heart rate and meter watts along the distance, then what the day did
+    to fitness. No splits, no pace, no map.
 -->
 <script>
+    import LastRideChart from "../charts/LastRideChart.svelte";
     import { formatDistance, signed, speed, timeTaken } from "../../Activity/lib/format.js";
 
     let { ride = null } = $props();
@@ -103,6 +105,8 @@
             {/if}
         </div>
     {/if}
+
+    <LastRideChart {ride} />
 
     {#if changes.length}
         <div class="impact">

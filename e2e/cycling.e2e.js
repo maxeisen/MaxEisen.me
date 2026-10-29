@@ -24,7 +24,8 @@ test("cycling route renders the ride dashboard", async ({ page }) => {
 	]) {
 		await expect(page.getByRole("heading", { name })).toBeVisible();
 	}
-	await expect(page.getByText("186")).toBeVisible();
+	await expect(page.getByText("186").first()).toBeVisible();
+	await expect(page.getByRole("slider", { name: "Heart rate and power along the ride" })).toBeVisible();
 	await expect(page.getByText("29.2 km/h").first()).toBeVisible();
 	await expect(page.getByText("Projected finish")).toHaveCount(0);
 	await expect(page.getByText(/plan target/i)).toHaveCount(0);
