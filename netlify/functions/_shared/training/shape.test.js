@@ -11,6 +11,7 @@ import {
 	shapeActivities,
 	collectBestEfforts,
 	publicRun,
+	publicRideDetail,
 } from "./shape.js";
 
 const THRESHOLDS = { maxHr: 191, restingHr: 47, thresholdPaceSecPerKm: 243, marathonPaceSecPerKm: 299 };
@@ -325,15 +326,46 @@ describe("shapeActivity for rides", () => {
 		expect(ride.bestEfforts).toEqual([]);
 	});
 
-	it("is left unscored, having nothing to be scored for", () => {
-		// A ride is stored to be listed, and counted by nothing on the page.
-		// Scoring it anyway would leave a plausible number in the record for
-		// some later sum to pick up by accident. Heart rate is present here,
-		// so this fails if the load line ever stops asking whether it's a ride.
-		const ride = shaped();
-		expect(ride.averageHr).toBe(138);
-		expect(ride.load).toBe(0);
-		expect(ride.loadMethod).toBeNull();
+	it("stores meter watts and heart-rate load on a ride, and drops estimated watts", () => {
+		const metered = shapeActivity(rawRide({
+			device_watts: true,
+			average_watts: 186,
+			max_watts: 412,
+			weighted_average_watts: 204,
+			average_heartrate: 142,
+			max_heartrate: 168,
+			moving_time: 7694,
+		}), { thresholds: THRESHOLDS });
+		expect(metered.deviceWatts).toBe(true);
+		expect(metered.averageWatts).toBe(186);
+		expect(metered.maxWatts).toBe(412);
+		expect(metered.weightedAverageWatts).toBe(204);
+		expect(metered.loadMethod).toBe("hr");
+		expect(metered.load).toBeGreaterThan(0);
+		expect(metered.splits).toEqual([]);
+		expect(metered.paceSecPerKm).toBeNull();
+
+		const estimated = shapeActivity(rawRide({
+			device_watts: false,
+			average_watts: 150,
+			average_heartrate: 130,
+			moving_time: 4000,
+		}), { thresholds: THRESHOLDS });
+		expect(estimated.deviceWatts).toBe(false);
+		expect(estimated.averageWatts).toBeNull();
+		expect(publicRideDetail(estimated).averageWatts).toBeUndefined();
+	});
+
+	it("stores a ride with no heart rate and does not invent a load", () => {
+		const shapedRide = shapeActivity(rawRide({
+			device_watts: true,
+			average_watts: 180,
+			average_heartrate: null,
+			max_heartrate: null,
+		}), { thresholds: THRESHOLDS });
+		expect(shapedRide.load).toBeNull();
+		expect(shapedRide.loadMethod).toBeNull();
+		expect(shapedRide.distanceM).toBeGreaterThan(20_000);
 	});
 
 	it("drops a ride's route just as thoroughly", () => {

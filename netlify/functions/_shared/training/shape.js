@@ -71,7 +71,9 @@ export const STRENGTH_MIN_SEC = 10 * 60;
 // 7: heart-rate zones are anchored on lactate threshold rather than derived
 //    from the ends of the range, which stops steady aerobic running being
 //    reported as tempo (see zones.js).
-export const SHAPE_VERSION = 7;
+// 8: rides carry meter watts and a heart-rate load. Estimated watts are
+//    dropped. A ride with no heart rate keeps load null.
+export const SHAPE_VERSION = 8;
 
 /**
  * Is this a public run we should track?
@@ -265,13 +267,42 @@ export function shapeActivity(raw, options = {}) {
 			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
 	};
 
-	// A ride or gym session is stored to be listed and counted nowhere, so
-	// it's left unscored rather than carrying a load that sits in the record
-	// waiting to be summed by mistake.
-	const load = isContext ? null : activityLoad(shaped, thresholds);
-	shaped.load = load?.load ?? 0;
-	shaped.loadMethod = load?.method ?? null;
+	if (isRide) {
+		// Heart rate only. Pace and watts are different scales, and a ride
+		// with no strap must not invent a load from either of them.
+		const hrLoad = averageHr > 0 ? activityLoad({ movingTimeSec, averageHr }, thresholds) : null;
+		shaped.load = hrLoad?.method === "hr" ? hrLoad.load : null;
+		shaped.loadMethod = hrLoad?.method === "hr" ? "hr" : null;
+		Object.assign(shaped, meterWatts(raw));
+	} else if (isStrength) {
+		shaped.load = 0;
+		shaped.loadMethod = null;
+	} else {
+		const load = activityLoad(shaped, thresholds);
+		shaped.load = load?.load ?? 0;
+		shaped.loadMethod = load?.method ?? null;
+	}
 	return shaped;
+}
+
+// Strava fills average_watts on rides that had no meter. Those estimates are
+// not power. Only device_watts keeps the numbers.
+function meterWatts(raw) {
+	if (raw?.device_watts !== true) {
+		return {
+			deviceWatts: false,
+			averageWatts: null,
+			maxWatts: null,
+			weightedAverageWatts: null,
+		};
+	}
+	const watts = (value) => (Number.isFinite(reading(value)) ? reading(value) : null);
+	return {
+		deviceWatts: true,
+		averageWatts: watts(raw.average_watts),
+		maxWatts: watts(raw.max_watts),
+		weightedAverageWatts: watts(raw.weighted_average_watts),
+	};
 }
 
 /**
@@ -376,6 +407,34 @@ export function publicLastRun(activity) {
 		splits: publicSplits(activity.splits),
 		trace: publicTrace(activity.trace),
 	};
+}
+
+/**
+ * The public last-ride card. Watt fields are present only when a meter
+ * recorded them, so an estimated-power ride cannot grow a power row by
+ * having the keys set to null.
+ *
+ * @param {object} activity a stored, shaped ride.
+ * @returns {object|null}
+ */
+export function publicRideDetail(activity) {
+	if (!activity) return null;
+	const detail = {
+		...publicRun(activity),
+		elapsedTimeSec: activity.elapsedTimeSec,
+		maxHr: activity.maxHr,
+		averageCadence: activity.averageCadence,
+		load: activity.load,
+		loadMethod: activity.loadMethod,
+		zoneSeconds: publicZoneSeconds(activity.zoneSeconds),
+	};
+	if (activity.deviceWatts === true) {
+		detail.deviceWatts = true;
+		detail.averageWatts = activity.averageWatts;
+		detail.maxWatts = activity.maxWatts;
+		detail.weightedAverageWatts = activity.weightedAverageWatts;
+	}
+	return detail;
 }
 
 /**
