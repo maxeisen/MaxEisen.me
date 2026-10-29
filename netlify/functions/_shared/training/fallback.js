@@ -22,7 +22,7 @@ import {
 	timeTaken,
 	weekRange,
 	weekday,
-} from "../../../../src/components/Training/lib/format.js";
+} from "../../../../src/components/Activity/lib/format.js";
 import { inBlock, lastRace, lastRaceLine } from "../../../../src/components/Training/lib/block.js";
 import { stravaTag } from "../../../../src/components/Training/lib/runTags.js";
 import { embedJson, TRAINING_BOOTSTRAP_ID } from "../../../../src/components/Training/lib/bootstrap.js";

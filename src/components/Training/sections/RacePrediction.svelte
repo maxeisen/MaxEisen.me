@@ -1,10 +1,10 @@
 <!-- Projected finish: training-supported headline, aerobic equivalent, range. -->
 <script>
-    import Card from "../Card.svelte";
-    import ChartFrame from "../charts/ChartFrame.svelte";
-    import { gaugePosition, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
+    import Card from "../../Activity/Card.svelte";
+    import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
+    import { gaugePosition, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../../Activity/lib/chart.js";
     import { inBlock, lastRace } from "../lib/block.js";
-    import { clock, clockMinutes, daysAgo, gapDuration, km, pace, shortDate, signedClock } from "../lib/format.js";
+    import { clock, clockMinutes, daysAgo, gapDuration, km, pace, shortDate, signedClock } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { summary = null } = $props();

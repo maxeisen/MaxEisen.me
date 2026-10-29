@@ -2,9 +2,9 @@
 <script>
     import Card from "../Card.svelte";
     import { clock, clockMinutes, signed, shortDate } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
 
-    let { today = null, inBlock = true } = $props();
+    let { today = null, inBlock = true, info = GLOSSARY.today } = $props();
 
     const STRAIN = {
         absorbing: "body absorbing the training",
@@ -110,6 +110,9 @@
         };
     });
 
+    const showProjection = $derived(today != null && Object.hasOwn(today, "prediction"));
+    const cellCount = $derived(2 + (hasSession ? 1 : 0) + (showProjection ? 1 : 0));
+
     const staleNight = $derived(
         readiness?.night && today?.date && readiness.night !== today.date
             ? shortDate(readiness.night)
@@ -117,14 +120,14 @@
     );
 </script>
 
-<Card title="Today" info={GLOSSARY.today}>
+<Card title="Today" {info}>
     {#snippet aside()}
         {#if today?.date}
             <span class="when">{shortDate(today.date)}</span>
         {/if}
     {/snippet}
 
-    <div class="cells" style:--cells={hasSession ? 4 : 3}>
+    <div class="cells" style:--cells={cellCount}>
         <div class="cell">
             <span class="cell-label">Training</span>
             {#if changes.length}
@@ -174,6 +177,7 @@
             </div>
         {/if}
 
+        {#if showProjection}
         <div class="cell">
             <span class="cell-label">{inBlock ? "Projected" : "Marathon est."}</span>
             {#if projectionCopy}
@@ -189,6 +193,7 @@
                 </p>
             {/if}
         </div>
+        {/if}
     </div>
 </Card>
 

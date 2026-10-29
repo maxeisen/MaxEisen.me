@@ -1,9 +1,9 @@
 <!-- Recent activity, newest first, matched against the plan. -->
 <script>
     import { getContext } from "svelte";
-    import Card from "../Card.svelte";
+    import Card from "../../Activity/Card.svelte";
     import RunModal from "../RunModal.svelte";
-    import { formatDistance, formatDuration, pace, shortDate, speed, timeTaken } from "../lib/format.js";
+    import { formatDistance, formatDuration, pace, shortDate, speed, timeTaken } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
     import { stravaTag } from "../lib/runTags.js";
 

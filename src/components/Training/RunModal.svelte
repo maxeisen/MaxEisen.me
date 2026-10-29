@@ -14,7 +14,7 @@
     import RunDetails from "./sections/RunDetails.svelte";
     import Spinner from "../../lib/ui/Spinner.svelte";
     import { fetchJsonSwr } from "../../lib/data/swrCache.js";
-    import { daysAgo, shortDate } from "./lib/format.js";
+    import { daysAgo, shortDate } from "../Activity/lib/format.js";
 
     let { run = null } = $props();
 

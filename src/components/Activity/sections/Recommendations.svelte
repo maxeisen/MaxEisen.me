@@ -5,9 +5,9 @@
 <script>
     import Card from "../Card.svelte";
     import { readout, splitLead } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
 
-    let { recommendations = [] } = $props();
+    let { recommendations = [], info = GLOSSARY.recommendations } = $props();
 
     const SEVERITY = {
         critical: { label: "Act now", tone: "bad", icon: "alert" },
@@ -54,7 +54,7 @@
     </svg>
 {/snippet}
 
-<Card title="Recommendations" info={GLOSSARY.recommendations}>
+<Card title="Recommendations" {info}>
     {#snippet aside()}
         {#if counts.total > 0}
             <p class="tally">

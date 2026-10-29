@@ -3,9 +3,9 @@
     band underneath so the two scales don't read as equal when they cross.
 -->
 <script>
-    import ChartFrame from "./ChartFrame.svelte";
-    import { areaPath, contiguous, linePath, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../lib/chart.js";
-    import { pace } from "../lib/format.js";
+    import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
+    import { areaPath, contiguous, linePath, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../../Activity/lib/chart.js";
+    import { pace } from "../../Activity/lib/format.js";
 
     let { run = null } = $props();
 

@@ -1,7 +1,7 @@
 <!-- Race countdown and the headline numbers, or just running between blocks. -->
 <script>
     import { inBlock, lastRace as lastRaceOf, lastRaceLine } from "../lib/block.js";
-    import { clock, clockMinutes, km, pace, pct, signed, signedClock } from "../lib/format.js";
+    import { clock, clockMinutes, km, pace, pct, signed, signedClock } from "../../Activity/lib/format.js";
 
     let { summary } = $props();
 

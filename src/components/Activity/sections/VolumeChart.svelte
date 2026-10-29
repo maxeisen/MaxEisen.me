@@ -3,10 +3,10 @@
     import Card from "../Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { axisTicks, bars, CHART_WEEKS, niceScale, xPct, yPct } from "../lib/chart.js";
-    import { axisDate, weekRange } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { axisDate, weekCaption } from "../lib/format.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
 
-    let { weeks = [], today = null } = $props();
+    let { weeks = [], today = null, info = GLOSSARY.volume, distanceLabel = "Run", chartLabel = null } = $props();
 
     const WIDTH = 720;
     const HEIGHT = 180;
@@ -47,10 +47,10 @@
         shown.map((week, i) => ({
             key: week.start,
             pct: xPct(layout[i].x + layout[i].width / 2, WIDTH),
-            label: weekRange(week.start),
+            label: weekCaption(week),
             readouts: [
                 {
-                    label: week.isTaper ? "Run (taper)" : "Run",
+                    label: week.isTaper ? `${distanceLabel} (taper)` : distanceLabel,
                     value: `${(week.actualKm || 0).toFixed(1)} km`,
                     colour: week.isTaper ? "var(--background-accent)" : "var(--main-green)",
                     yPct: yPct(layout[i].y, HEIGHT),
@@ -89,10 +89,10 @@
     );
 </script>
 
-<Card title="Weekly volume" info={GLOSSARY.volume}>
+<Card title="Weekly volume" {info}>
     {#snippet aside()}
         <p class="legend">
-            <span class="swatch actual"></span> run
+            <span class="swatch actual"></span> {distanceLabel.toLowerCase()}
             {#if hasTargets}<span class="swatch planned"></span> planned{/if}
             <span class="window">last {CHART_WEEKS} weeks</span>
         </p>
@@ -101,7 +101,7 @@
     {#if shown.length === 0}
         <p class="card-empty">No weeks recorded yet.</p>
     {:else}
-        <ChartFrame height={190} {yTicks} {xTicks} {scrub} label={hasTargets ? "Weekly running volume in kilometres against plan" : "Weekly running volume in kilometres"}>
+        <ChartFrame height={190} {yTicks} {xTicks} {scrub} label={chartLabel ?? (hasTargets ? "Weekly running volume in kilometres against plan" : "Weekly running volume in kilometres")}>
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 {#each layout as bar, i}
                     {@const week = shown[i]}

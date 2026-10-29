@@ -26,17 +26,17 @@
     import { inBlock, trainingPageMeta } from "./lib/block.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
-    import Today from "./sections/Today.svelte";
+    import Today from "../Activity/sections/Today.svelte";
     import LastRun from "./sections/LastRun.svelte";
-    import Recommendations from "./sections/Recommendations.svelte";
-    import VolumeChart from "./sections/VolumeChart.svelte";
-    import FitnessChart from "./sections/FitnessChart.svelte";
+    import Recommendations from "../Activity/sections/Recommendations.svelte";
+    import VolumeChart from "../Activity/sections/VolumeChart.svelte";
+    import FitnessChart from "../Activity/sections/FitnessChart.svelte";
     import AerobicEfficiency from "./sections/AerobicEfficiency.svelte";
-    import LoadRisk from "./sections/LoadRisk.svelte";
-    import IntensityMix from "./sections/IntensityMix.svelte";
+    import LoadRisk from "../Activity/sections/LoadRisk.svelte";
+    import IntensityMix from "../Activity/sections/IntensityMix.svelte";
     import RacePrediction from "./sections/RacePrediction.svelte";
     import WeekPlan from "./sections/WeekPlan.svelte";
-    import Recovery from "./sections/Recovery.svelte";
+    import Recovery from "../Activity/sections/Recovery.svelte";
     import RunLog from "./sections/RunLog.svelte";
 
     const ENDPOINT = "/.netlify/functions/trainingData";

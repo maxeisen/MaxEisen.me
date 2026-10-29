@@ -137,6 +137,13 @@ export function weekRange(weekStart) {
 	return start ? span(start, sixDaysOn(start)) : "";
 }
 
+/** The same range, plus hours moving when the week recorded any. */
+export function weekCaption(week) {
+	const range = weekRange(week?.start);
+	if (!(week?.movingTimeSec > 0)) return range;
+	return `${range} · ${gapDuration(week.movingTimeSec)}`;
+}
+
 const NAMED_DAYS = new Map([
 	[0, "Today"],
 	[1, "Yesterday"],

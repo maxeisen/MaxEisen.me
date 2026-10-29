@@ -2,9 +2,16 @@
 <script>
     import Card from "../Card.svelte";
     import { formatDuration, pct } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
 
-    let { intensity = null, target = 80 } = $props();
+    let {
+        intensity = null,
+        target = 80,
+        info = GLOSSARY.intensity,
+        emptyLabel = "No runs in the last four weeks.",
+        timeLabel = "Share of running time by intensity band",
+        hardNote = "Your easy days are running too hard.",
+    } = $props();
 
     const total = $derived(intensity?.totalSec || 0);
     const bands = $derived([
@@ -16,15 +23,15 @@
     const onTarget = $derived(easyShare !== null && easyShare >= target - 5);
 </script>
 
-<Card title="Intensity mix" info={GLOSSARY.intensity}>
+<Card title="Intensity mix" {info}>
     {#snippet aside()}
         <span class="window">last 4 weeks</span>
     {/snippet}
 
     {#if total === 0}
-        <p class="card-empty">No runs in the last four weeks.</p>
+        <p class="card-empty">{emptyLabel}</p>
     {:else}
-        <div class="bar" role="img" aria-label="Share of running time by intensity band">
+        <div class="bar" role="img" aria-label={timeLabel}>
             {#each bands as band}
                 {#if band.seconds > 0}
                     <div
@@ -54,7 +61,7 @@
             {:else if onTarget}
                 {pct(easyShare)} easy — close enough to the {target}% target.
             {:else}
-                {pct(easyShare)} easy, against a {target}% target. Your easy days are running too hard.
+                {pct(easyShare)} easy, against a {target}% target. {hardNote}
             {/if}
         </p>
     {/if}

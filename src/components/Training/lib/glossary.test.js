@@ -3,7 +3,10 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { GLOSSARY } from "./glossary.js";
 
-const SECTIONS_DIR = join(import.meta.dirname, "..", "sections");
+const SECTION_DIRS = [
+	join(import.meta.dirname, "..", "sections"),
+	join(import.meta.dirname, "..", "..", "Activity", "sections"),
+];
 
 describe("GLOSSARY", () => {
 	it("gives every entry a title and something to say", () => {
@@ -29,17 +32,22 @@ describe("GLOSSARY", () => {
 	// The point of the "i" buttons is that no panel leaves you guessing, so a
 	// section added without an explanation should fail here rather than ship.
 	it("is referenced by every section that renders a card", () => {
-		const files = readdirSync(SECTIONS_DIR).filter((f) => f.endsWith(".svelte"));
 		const referenced = new Set();
 
-		for (const file of files) {
-			const source = readFileSync(join(SECTIONS_DIR, file), "utf8");
-			if (!source.includes("<Card")) continue;
-			const keys = [...source.matchAll(/info=\{GLOSSARY\.(\w+)\}/g)].map((m) => m[1]);
-			expect(keys.length, `${file} renders a Card with no info entry`).toBeGreaterThan(0);
-			for (const key of keys) {
-				expect(GLOSSARY, `${file} references GLOSSARY.${key}`).toHaveProperty(key);
-				referenced.add(key);
+		for (const dir of SECTION_DIRS) {
+			const files = readdirSync(dir).filter((f) => f.endsWith(".svelte"));
+			for (const file of files) {
+				const source = readFileSync(join(dir, file), "utf8");
+				if (!source.includes("<Card")) continue;
+				const keys = [
+					...source.matchAll(/info=\{GLOSSARY\.(\w+)\}/g),
+					...source.matchAll(/info = GLOSSARY\.(\w+)/g),
+				].map((m) => m[1]);
+				expect(keys.length, `${file} renders a Card with no info entry`).toBeGreaterThan(0);
+				for (const key of keys) {
+					expect(GLOSSARY, `${file} references GLOSSARY.${key}`).toHaveProperty(key);
+					referenced.add(key);
+				}
 			}
 		}
 
