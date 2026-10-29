@@ -173,14 +173,14 @@ export function buildCyclingDashboard({ activities = [], today, recovery = [], t
 	const recovered = recovery.length ? recoverySummary(recovery, { today: day }) : null;
 	const ratio = acwr(loads, day);
 	const riskWeek = riskOf(weeksRaw, day);
-	const advice = recommendations({
+	const advice = 	recommendations({
 		acwr: ratio,
 		latest,
 		intensity,
 		rampBasis: riskWeek,
 		recovery: recovered,
 		inBlock: false,
-	});
+	}, { sport: "ride" });
 
 	const lastRide = rideDetail({ rides, series, today: day, ride: rides.at(-1) });
 	const monday = mondayOf(day);

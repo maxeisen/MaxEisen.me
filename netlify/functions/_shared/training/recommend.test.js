@@ -452,4 +452,24 @@ describe("between blocks", () => {
 			expect(find(out, id).detail).not.toMatch(/block|marathon|planned down week/i);
 		}
 	});
+
+	it("gives cycling the restraint rules and none of the race rules", () => {
+		const advice = recommendations({
+			acwr: { ratio: 1.8 },
+			latest: { tsb: -40 },
+			intensity: { easyPct: 60 },
+			rampBasis: { rampPct: 40, actualKm: 200, previousKm: 140, isCurrentWeek: false, longRunSharePct: 50 },
+			inBlock: false,
+			prediction: { predictedSec: 3 * 3600 },
+			goal: { goalTimeSec: 3 * 3600 - 60 },
+			daysToRace: 10,
+		}, { sport: "ride" });
+		const ruleIds = advice.map((rule) => rule.id);
+		expect(ruleIds).toContain("acwr-high");
+		expect(ruleIds).toContain("long-ride-share");
+		expect(ruleIds).not.toEqual(expect.arrayContaining([
+			"taper", "goal-behind", "goal-ahead", "volume-short", "off-season", "decoupling-high", "post-race",
+		]));
+		expect(advice.map((rule) => `${rule.title} ${rule.detail}`).join(" ")).not.toMatch(/\b(run|race)\b/i);
+	});
 });

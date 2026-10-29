@@ -14,7 +14,7 @@
 import { ACWR_CEILING, ACWR_FLOOR, SAFE_RAMP_PCT, TSB_FATIGUE } from "./fitness.js";
 import { EASY_SHARE_TARGET } from "./zones.js";
 import { HRV_DROP_PCT, RHR_RISE_BPM, SLEEP_TARGET_SEC } from "./recovery.js";
-import { copy, duration, pace } from "./recommendCopy.js";
+import { copy, duration, pace, rideCopy } from "./recommendCopy.js";
 
 // Ordering for display: the things that get you injured come before the things
 // that make you slower.
@@ -187,7 +187,9 @@ function explainedBy(strain, inBlock) {
  * @param {object} metrics the computed dashboard payload.
  * @returns {object[]} ordered by severity, most urgent first.
  */
-export function recommendations(metrics) {
+export function recommendations(metrics, { sport = "run" } = {}) {
+	const riding = sport === "ride";
+	const prose = riding ? rideCopy : copy;
 	const out = [];
 	const {
 		acwr = {},
@@ -219,8 +221,8 @@ export function recommendations(metrics) {
 				rule(
 					"acwr-high",
 					"critical",
-					copy.acwrHigh.title,
-					copy.acwrHigh.detail({ ratio: acwr.ratio, ceiling: ACWR_CEILING }),
+					prose.acwrHigh.title,
+					prose.acwrHigh.detail({ ratio: acwr.ratio, ceiling: ACWR_CEILING }),
 					acwr.ratio,
 					ACWR_CEILING,
 					"ratio",
@@ -231,8 +233,8 @@ export function recommendations(metrics) {
 				rule(
 					"acwr-low",
 					"warning",
-					copy.acwrLow.title,
-					copy.acwrLow.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR, inBlock }),
+					prose.acwrLow.title,
+					prose.acwrLow.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR, inBlock }),
 					acwr.ratio,
 					ACWR_FLOOR,
 					"ratio",
@@ -243,8 +245,8 @@ export function recommendations(metrics) {
 				rule(
 					"acwr-ok",
 					"good",
-					copy.acwrOk.title,
-					copy.acwrOk.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR, ceiling: ACWR_CEILING }),
+					prose.acwrOk.title,
+					prose.acwrOk.detail({ ratio: acwr.ratio, floor: ACWR_FLOOR, ceiling: ACWR_CEILING }),
 					acwr.ratio,
 					null,
 					"ratio",
@@ -258,8 +260,8 @@ export function recommendations(metrics) {
 			rule(
 				"tsb-fatigued",
 				"warning",
-				copy.tsbFatigued.title,
-				copy.tsbFatigued.detail({ tsb: latest.tsb, floor: TSB_FATIGUE, opinion: secondOpinion(strain), inBlock }),
+				prose.tsbFatigued.title,
+				prose.tsbFatigued.detail({ tsb: latest.tsb, floor: TSB_FATIGUE, opinion: secondOpinion(strain), inBlock }),
 				latest.tsb,
 				TSB_FATIGUE,
 			),
@@ -283,8 +285,8 @@ export function recommendations(metrics) {
 			rule(
 				"ramp-fast",
 				"warning",
-				copy.rampFast.title({ isCurrentWeek: basis.isCurrentWeek }),
-				copy.rampFast.detail({
+				prose.rampFast.title({ isCurrentWeek: basis.isCurrentWeek }),
+				prose.rampFast.detail({
 					ramp,
 					thisOrLast,
 					priorWeek,
@@ -304,10 +306,10 @@ export function recommendations(metrics) {
 	if (Number.isFinite(share) && share > LONG_RUN_SHARE_CEILING) {
 		out.push(
 			rule(
-				"long-run-share",
+				riding ? "long-ride-share" : "long-run-share",
 				"warning",
-				copy.longRunShare.title,
-				copy.longRunShare.detail({ share, thisOrLast, ceiling: LONG_RUN_SHARE_CEILING }),
+				riding ? prose.longRideShare.title : prose.longRunShare.title,
+				(riding ? prose.longRideShare : prose.longRunShare).detail({ share, thisOrLast, ceiling: LONG_RUN_SHARE_CEILING }),
 				share,
 				LONG_RUN_SHARE_CEILING,
 				"percent",
@@ -434,8 +436,8 @@ export function recommendations(metrics) {
 				rule(
 					"easy-share-low",
 					"warning",
-					copy.easyShareLow.title,
-					copy.easyShareLow.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET, inBlock }),
+					prose.easyShareLow.title,
+					prose.easyShareLow.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET, inBlock }),
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
 					"percent",
@@ -446,8 +448,8 @@ export function recommendations(metrics) {
 				rule(
 					"easy-share-ok",
 					"good",
-					copy.easyShareOk.title,
-					copy.easyShareOk.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET }),
+					prose.easyShareOk.title,
+					prose.easyShareOk.detail({ easyPct: intensity.easyPct, target: EASY_SHARE_TARGET }),
 					intensity.easyPct,
 					EASY_SHARE_TARGET,
 					"percent",
@@ -456,7 +458,7 @@ export function recommendations(metrics) {
 		}
 	}
 
-	if (Number.isFinite(longRunDecouplingPct) && longRunDecouplingPct > DECOUPLING_CEILING) {
+	if (!riding && Number.isFinite(longRunDecouplingPct) && longRunDecouplingPct > DECOUPLING_CEILING) {
 		out.push(
 			rule(
 				"decoupling-high",
@@ -472,7 +474,7 @@ export function recommendations(metrics) {
 
 	// --- Plan adherence ----------------------------------------------------
 
-	if (Number.isFinite(currentWeek?.volumePct) && currentWeek.weekComplete) {
+	if (!riding && Number.isFinite(currentWeek?.volumePct) && currentWeek.weekComplete) {
 		if (currentWeek.volumePct < VOLUME_SHORTFALL_PCT) {
 			out.push(
 				rule(
@@ -494,7 +496,7 @@ export function recommendations(metrics) {
 
 	// --- Taper -------------------------------------------------------------
 
-	if (Number.isFinite(daysToRace) && daysToRace >= 0 && daysToRace <= 21) {
+	if (!riding && Number.isFinite(daysToRace) && daysToRace >= 0 && daysToRace <= 21) {
 		out.push(
 			rule(
 				"taper",
@@ -514,7 +516,7 @@ export function recommendations(metrics) {
 	// those rules stay quiet. What's left worth saying is either "you've just
 	// raced, recover" or, once that's done, what the in-between weeks are for.
 
-	if (!inBlock) {
+	if (!riding && !inBlock) {
 		const recovering = postRaceRecovery(race, daysToRace);
 		if (recovering) {
 			out.push(
@@ -545,7 +547,7 @@ export function recommendations(metrics) {
 
 	// --- Goal tracking -----------------------------------------------------
 
-	if (prediction && Number.isFinite(prediction.predictedSec) && Number.isFinite(goal.goalTimeSec)) {
+	if (!riding && prediction && Number.isFinite(prediction.predictedSec) && Number.isFinite(goal.goalTimeSec)) {
 		const delta = prediction.predictedSec - goal.goalTimeSec;
 		const behind = delta > 0;
 		out.push(

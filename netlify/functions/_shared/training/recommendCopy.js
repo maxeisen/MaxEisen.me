@@ -172,3 +172,74 @@ export const copy = {
 		hrv: "HRV is below it",
 	},
 };
+
+// Same rules as `copy`, with the race and the word "run" taken out. A ride
+// page that says "long run" or "race" is the running dashboard with the
+// label changed.
+export const rideCopy = {
+	...copy,
+	tsbFatigued: {
+		title: "You're carrying deep fatigue",
+		detail: ({ tsb, floor, opinion }) =>
+			`Form is ${tsb.toFixed(0)}, below ${floor}. Take two genuinely easy days and let it lift.${opinion}`,
+	},
+	longRideShare: {
+		title: "Your week is too concentrated in one ride",
+		detail: ({ share, thisOrLast, ceiling }) =>
+			`The longest ride was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${ceiling}% guideline. Spread the distance across more rides rather than making one of them carry the week.`,
+	},
+	easyShareLow: {
+		title: "Your easy rides aren't easy enough",
+		detail: ({ easyPct, target }) =>
+			`Only ${easyPct.toFixed(0)}% of your riding is in zones 1-2, against a target near ${target}%. Easy days ridden too hard pile up fatigue without much fitness to show for it. Slow the easy days down.`,
+	},
+	easyShareOk: {
+		title: "Intensity distribution looks right",
+		detail: ({ easyPct, target }) =>
+			`${easyPct.toFixed(0)}% of your riding is easy, close to the ${target}% target.`,
+	},
+	sleepAndRamp: {
+		title: "You're adding load faster than you're recovering from it",
+		detail: ({ sleep, why }) =>
+			`${sleep} a night on average over the last week, against ${why}. Short sleep compounds a ramp — the same week of riding is a different proposition on eight hours than on ${sleep}. Hold the volume where it is until sleep comes back up.`,
+	},
+	sleepShort: {
+		title: "You're short on sleep",
+		detail: ({ sleep, floor, baseline }) =>
+			`${sleep} a night over the last week, against a ${floor} floor${baseline ? ` and your own ${baseline} average` : ""}. Sleep is where the adaptation actually happens, so this quietly costs you more of the training than a missed easy ride would.`,
+	},
+};
+
+export const rideCopy = {
+	...copy,
+	tsbFatigued: {
+		title: "You're carrying deep fatigue",
+		detail: ({ tsb, floor, opinion }) =>
+			`Form is ${tsb.toFixed(0)}, below ${floor}. Take two genuinely easy days and let it lift.${opinion || ""}`,
+	},
+	longRideShare: {
+		title: "Your week is too concentrated in one ride",
+		detail: ({ share, thisOrLast, ceiling }) =>
+			`The longest ride was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${ceiling}% guideline. Spread the kilometres across more rides rather than stacking them into one.`,
+	},
+	easyShareLow: {
+		title: "Your easy rides aren't easy enough",
+		detail: ({ easyPct, target }) =>
+			`Only ${easyPct.toFixed(0)}% of your riding is in zones 1-2, against a target near ${target}%. Easy days ridden moderately hard pile up fatigue without much fitness to show for it. Slow the easy days down.`,
+	},
+	easyShareOk: {
+		title: "Intensity distribution looks right",
+		detail: ({ easyPct, target }) =>
+			`${easyPct.toFixed(0)}% of your riding is easy, close to the ${target}% target.`,
+	},
+	sleepAndRamp: {
+		title: copy.sleepAndRamp.title,
+		detail: ({ sleep, why }) =>
+			`${sleep} a night on average over the last week, against ${why}. Short sleep compounds a ramp rather than sitting alongside it. Hold the volume where it is until sleep comes back up.`,
+	},
+	sleepShort: {
+		title: "You're short on sleep",
+		detail: ({ sleep, floor, baseline }) =>
+			`${sleep} a night over the last week, against a ${floor} floor${baseline ? ` and your own ${baseline} average` : ""}. Sleep is where the adaptation actually happens.`,
+	},
+};
