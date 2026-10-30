@@ -191,6 +191,17 @@
         font-size: 0.9rem;
         margin: auto 0;
     }
+    /* Same ring the cycling and running pages show while data is in flight.
+       Fills the widget body so the spinner sits in the middle of the card. */
+    :global(.widget-loading) {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+        margin: 0;
+        list-style: none;
+    }
     :global(.profile-link) {
         position: absolute;
         top: 0.6rem;

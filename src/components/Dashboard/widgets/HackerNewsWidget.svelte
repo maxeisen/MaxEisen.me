@@ -10,6 +10,7 @@
     import { bindTrimOnResize } from "../lib/listResize.js";
     import { listLoadState, listStateMessage } from "../lib/listState.js";
     import WidgetHeader from "./WidgetHeader.svelte";
+    import Spinner from "../../../lib/ui/Spinner.svelte";
 
     let listEl = $state();
     let stories = $state(null); // null = loading, [] = empty/error
@@ -51,7 +52,11 @@
 
 <WidgetHeader profileHref="https://news.ycombinator.com/" profileLabel="HN" label="Hacker News" />
 <ol class="hn-list" bind:this={listEl}>
-    {#if storiesMessage}
+    {#if storiesState === "loading"}
+        <li class="widget-loading" role="status" aria-label="Loading">
+            <Spinner size={38} stroke={3} />
+        </li>
+    {:else if storiesMessage}
         <li class="widget-empty">{storiesMessage}</li>
     {:else}
         {#each stories as s (s.id)}
