@@ -13,6 +13,10 @@ test("cycling route renders the ride dashboard", async ({ page }) => {
 	await expect(page.getByRole("heading", { level: 1, name: "Cycling" })).toBeVisible();
 	await expect(page.getByText("Ride log")).toBeVisible();
 	await expect(page.getByText("Not a race plan")).toHaveCount(0);
+	const eyebrow = await page.getByText("Ride log").boundingBox();
+	const title = await page.getByRole("heading", { level: 1, name: "Cycling" }).boundingBox();
+	expect(Math.abs(eyebrow.x - title.x)).toBeLessThan(4);
+	expect(title.y).toBeGreaterThan(eyebrow.y + eyebrow.height - 2);
 	for (const name of [
 		"Last ride",
 		"Recommendations",

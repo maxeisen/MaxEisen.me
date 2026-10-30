@@ -242,7 +242,19 @@
         margin: 0 auto;
         padding: var(--space-7) var(--space-5) var(--space-8);
     }
-    .page-head { margin: 0 0 var(--space-6); }
+    /* index.css styles every header as the site nav: a two-column grid, and
+       on a phone it centers the cells. The running title opts out with
+       display:flex. Without the same opt-out, "Ride log" sits in the left
+       column and "Cycling" in the right. */
+    .page-head {
+        display: block;
+        max-width: none;
+        margin: 0 0 var(--space-6);
+        font-size: var(--font-md);
+        line-height: 1.3;
+        text-align: left;
+        color: var(--paragraph-colour);
+    }
     .eyebrow {
         font-size: var(--font-2xs);
         font-weight: 600;
