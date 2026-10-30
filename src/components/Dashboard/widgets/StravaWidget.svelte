@@ -12,6 +12,7 @@
     import { bindTrimOnResize } from "../lib/listResize.js";
     import { listLoadState, listStateMessage } from "../lib/listState.js";
     import WidgetHeader from "./WidgetHeader.svelte";
+    import Spinner from "../../../lib/ui/Spinner.svelte";
     import {
         STRAVA_ICONS,
         STRAVA_FEED_URL,
@@ -69,7 +70,11 @@
 {#if !hidden}
     <WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Physical Activity" />
     <ol class="strava-list" bind:this={listEl}>
-        {#if activitiesMessage}
+        {#if activitiesState === "loading"}
+            <li class="widget-loading" role="status" aria-label="Loading">
+                <Spinner size={38} stroke={3} />
+            </li>
+        {:else if activitiesMessage}
             <li class="widget-empty">{activitiesMessage}</li>
         {:else}
             {#each activities as a (a.id ?? a.startDate ?? a.name)}

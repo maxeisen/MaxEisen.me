@@ -8,10 +8,12 @@
     import { isFetchErrorStatus } from "../../../lib/data/fetchJson.js";
     import { createSWRWidgetFeed } from "../lib/widgetFeed.js";
     import WidgetHeader from "./WidgetHeader.svelte";
+    import Spinner from "../../../lib/ui/Spinner.svelte";
 
     let hidden = $state(false);
+    let loaded = $state(false);
     let repo = $state("—");
-    let message = $state("Loading latest commit…");
+    let message = $state("");
     let meta = $state("—");
     let widgetHref = $state("https://github.com/maxeisen");
     let weeks = $state(null);
@@ -42,6 +44,7 @@
     const heatmapCols = $derived(weeks ? weeks.length : 0);
 
     function apply(data) {
+        loaded = true;
         const latest = data?.latest;
         const contrib = data?.contributions;
         if (latest) {
@@ -72,6 +75,7 @@
         url: "/.netlify/functions/githubLatest",
         apply,
         onError: (e) => {
+            loaded = true;
             if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
             message = "GitHub unavailable";
             meta = "";
@@ -86,6 +90,11 @@
 
 {#if !hidden}
     <WidgetHeader profileHref="https://github.com/maxeisen" profileLabel="GitHub" />
+    {#if !loaded}
+        <div class="widget-loading" role="status" aria-label="Loading">
+            <Spinner size={38} stroke={3} />
+        </div>
+    {:else}
     <a class="github-main" href={widgetHref} target="_blank" rel="noreferrer">
         <div class="widget-label">Code Activity</div>
         <div class="github-repo">{repo}</div>
@@ -118,6 +127,7 @@
             <span>{range}</span>
         </div>
     </a>
+    {/if}
 {/if}
 
 <style>

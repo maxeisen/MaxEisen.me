@@ -17,6 +17,7 @@
     import { downloadPhotos, downloadOne } from "./lib/download.js";
     import { sortPhotos } from "./lib/sortPhotos.js";
     import BackLink from "../../lib/ui/BackLink.svelte";
+    import Spinner from "../../lib/ui/Spinner.svelte";
     import { fetchJson, FetchError } from "../../lib/data/fetchJson.js";
 
     let {
@@ -335,7 +336,9 @@
     {/if}
 
     {#if loading && !photos.length}
-        <div class="empty-state">Loading photos…</div>
+        <div class="state" role="status" aria-label="Loading photos" aria-busy="true">
+            <Spinner size={38} stroke={3} />
+        </div>
     {:else if error}
         <div class="empty-state">{error}</div>
     {:else if !photos.length}
@@ -539,6 +542,15 @@
         color: var(--main-green);
         opacity: 0.55;
         font-variant-numeric: tabular-nums;
+    }
+
+    /* Same centered ring the cycling and running dashboards use while
+       their payload is still in flight. */
+    .state {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .empty-state {

@@ -11,6 +11,7 @@
     import { onMount } from "svelte";
     import { lightboxUrl } from "./lib/cloudinary.js";
     import { downloadOne } from "./lib/download.js";
+    import Spinner from "../../lib/ui/Spinner.svelte";
 
     let {
         photos = [],
@@ -228,7 +229,9 @@
     <button class="lightbox-close" onclick={close} aria-label="Close">×</button>
     <button class="lightbox-nav lightbox-prev" onclick={(e) => { e.stopPropagation(); prev(); }} aria-label="Previous photo">‹</button>
     <button class="lightbox-nav lightbox-next" onclick={(e) => { e.stopPropagation(); next(); }} aria-label="Next photo">›</button>
-    <div class="lightbox-spinner" class:visible={spinnerVisible} aria-hidden="true"></div>
+    <div class="lightbox-spinner" class:visible={spinnerVisible} aria-hidden="true">
+        <Spinner size={38} stroke={3} />
+    </div>
     <img bind:this={imgEl} alt=""/>
     <div class="lightbox-caption" hidden={!captionVisible}>{captionText}</div>
 </div>
@@ -332,21 +335,12 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 44px;
-        height: 44px;
-        border: 3px solid rgba(255, 255, 255, 0.18);
-        border-top-color: var(--main-green);
-        border-radius: 50%;
         opacity: 0;
         transition: opacity 0.18s ease;
         pointer-events: none;
         z-index: 1;
     }
-    .lightbox-spinner.visible { opacity: 1; animation: lightbox-spin 0.8s linear infinite; }
-    @keyframes lightbox-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-    @media (prefers-reduced-motion: reduce) {
-        .lightbox-spinner.visible { animation: none; }
-    }
+    .lightbox-spinner.visible { opacity: 1; }
 
     .lightbox-caption {
         position: absolute;
