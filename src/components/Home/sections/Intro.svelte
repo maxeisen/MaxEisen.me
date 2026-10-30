@@ -161,7 +161,7 @@
             icon: 'running',
             modal: {
                 image: 'run',
-                description: 'Running the 2026 <a href="https://www.chicagomarathon.com/" rel="noreferrer" target="_blank">Chicago Marathon</a></br>My first full marathon - chip time <i>3:26:19</i>',
+                description: 'Running the 2026 <a href="https://www.chicagomarathon.com/" rel="noreferrer" target="_blank">Chicago Marathon</a> (chip time <a href="https://results.chicagomarathon.com/2026/?content=detail&pid=search&idp=2EFG96382D3E68" target="_blank" rel="noreferrer">3:26:19</b></a>)<br>Check out my <a href="/running">Running Dashboard</a>',
                 strava: 'run'
             }
         },
@@ -170,7 +170,7 @@
             icon: 'cycling',
             modal: {
                 image: 'cycle',
-                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">Vancouver to Whistler GranFondo</a>',
+                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">Vancouver to Whistler GranFondo</a><br>Check out my <a href="/cycling">Cycling Dashboard</a>',
                 strava: 'ride'
             }
         },
@@ -197,7 +197,7 @@
             icon: 'photos',
             modal: {
                 image: 'photography',
-                description: 'Cape Town, South Africa<br>Check out more in my <a href="/gallery">Gallery</a>.'
+                description: 'Cape Town, South Africa<br>Check out more in my <a href="/gallery">Gallery</a>'
             }
         },
         {
