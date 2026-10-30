@@ -3,13 +3,13 @@
     import Card from "../Card.svelte";
     import { gaugePosition } from "../lib/chart.js";
     import { pct } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
     import { ACWR_CEILING, ACWR_FLOOR } from "../../../../netlify/functions/_shared/training/constants.js";
 
     // riskWeek is the last whole week, which mid-week is the previous one —
     // week-over-week ramp measured on a Tuesday would otherwise read as a
     // collapse in volume just because most of the week hasn't happened.
-    let { acwr = null, riskWeek = null } = $props();
+    let { acwr = null, riskWeek = null, info = GLOSSARY.load, shareLabel = "Long run share" } = $props();
 
     const TRACK = 300;
     const DOMAIN = [0.4, 2.0];
@@ -31,7 +31,7 @@
     const weekLabel = $derived(riskWeek?.isCurrentWeek ? "This week's" : "Last week's");
 </script>
 
-<Card title="Load and risk" info={GLOSSARY.load}>
+<Card title="Load and risk" {info}>
     <div class="gauge-row">
         <div class="gauge-value tone-{status.tone}">
             <strong>{ratio === null ? "—" : ratio.toFixed(2)}</strong>
@@ -64,7 +64,7 @@
             </dd>
         </div>
         <div>
-            <dt>Long run share</dt>
+            <dt>{shareLabel}</dt>
             <dd class:over={share !== null && share > 35}>{pct(share)}</dd>
         </div>
         <div>

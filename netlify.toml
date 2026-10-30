@@ -146,6 +146,10 @@
   from = "/running"
   to = "/.netlify/functions/trainingPage"
   status = 200
+[[redirects]]
+  from = "/cycling"
+  to = "/.netlify/functions/cyclingPage"
+  status = 200
 # The page lived at /training until it stopped being only about a race block.
 # Old links and the attribution line on past Strava descriptions still point there.
 [[redirects]]

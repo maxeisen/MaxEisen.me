@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { weekRange, pace, clock, clockMinutes, km, pct, shortDate, daysAgo, signed, signedClock, gapDuration, speed, readout, splitLead, timeTaken } from "./format.js";
+import { weekRange, weekCaption, pace, clock, clockMinutes, km, pct, shortDate, daysAgo, signed, signedClock, gapDuration, speed, readout, splitLead, timeTaken } from "./format.js";
 
 describe("readout", () => {
 	it("binds symbols to both numbers and says words once", () => {
@@ -181,6 +181,16 @@ describe("training formatters", () => {
 		expect(km()).toBe("—");
 		expect(pct(null)).toBe("—");
 		expect(shortDate("")).toBe("");
+	});
+});
+
+describe("weekCaption", () => {
+	it("adds hours in the saddle to the week range", () => {
+		expect(weekCaption({ start: "2026-10-12", movingTimeSec: 15120 })).toMatch(/4h 12m/);
+	});
+
+	it("stays a date range when the week has no moving time", () => {
+		expect(weekCaption({ start: "2026-10-12" })).not.toMatch(/h/);
 	});
 });
 

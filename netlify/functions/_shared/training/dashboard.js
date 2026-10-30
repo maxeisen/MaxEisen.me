@@ -2,6 +2,7 @@
 // trainingData serves this as JSON; trainingPage renders the same object as HTML.
 
 import { buildDashboard } from "./metrics.js";
+import { buildCyclingDashboard } from "./cycling.js";
 import { loadPlan } from "./planFile.js";
 import {
 	CURSOR_KEY,
@@ -49,6 +50,31 @@ export async function loadDashboard(today = torontoToday()) {
 			plan: loadPlan(),
 			today,
 			recovery: Array.isArray(recovery) ? recovery : [],
+		}),
+		sync: syncState(cursor),
+	};
+}
+
+/**
+ * The public /cycling payload. Same blobs as running, a separate series.
+ *
+ * @param {string} [today]
+ * @returns {Promise<object>}
+ */
+export async function loadCyclingDashboard(today = torontoToday()) {
+	const store = getTrainingStore();
+	const [activities, cursor, recovery] = await Promise.all([
+		readJson(store, INDEX_KEY, []),
+		readJson(store, CURSOR_KEY, null),
+		readJson(store, RECOVERY_KEY, []),
+	]);
+	const plan = loadPlan();
+	return {
+		...buildCyclingDashboard({
+			activities: Array.isArray(activities) ? activities : [],
+			today,
+			recovery: Array.isArray(recovery) ? recovery : [],
+			thresholds: plan?.thresholds || {},
 		}),
 		sync: syncState(cursor),
 	};

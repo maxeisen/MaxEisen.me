@@ -11,7 +11,7 @@
 -->
 <script>
     import LastRunChart from "../charts/LastRunChart.svelte";
-    import { formatDistance, pace, pct, signed, timeTaken } from "../lib/format.js";
+    import { formatDistance, pace, pct, signed, timeTaken } from "../../Activity/lib/format.js";
     import { stravaTag as tagFor } from "../lib/runTags.js";
 
     let { run = null } = $props();

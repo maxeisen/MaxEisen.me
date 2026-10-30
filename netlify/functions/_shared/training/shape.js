@@ -22,7 +22,7 @@ import { activityLoad } from "./load.js";
 import { aerobicDecoupling } from "./efficiency.js";
 import { hrZoneFloors, zoneSecondsFromStreams } from "./zones.js";
 import { shapeNotes } from "./notes.js";
-import { shapeTrace } from "./trace.js";
+import { shapeRideTrace, shapeTrace } from "./trace.js";
 import { reading } from "./num.js";
 import { toDayKey } from "./dates.js";
 
@@ -71,7 +71,11 @@ export const STRENGTH_MIN_SEC = 10 * 60;
 // 7: heart-rate zones are anchored on lactate threshold rather than derived
 //    from the ends of the range, which stops steady aerobic running being
 //    reported as tempo (see zones.js).
-export const SHAPE_VERSION = 7;
+// 8: rides carry meter watts and a heart-rate load. Estimated watts are
+//    dropped. A ride with no heart rate keeps load null.
+// 9: rides carry a heart-rate trace along the distance, plus watts on that
+//    trace when a meter recorded them. Estimated watts stay off it.
+export const SHAPE_VERSION = 9;
 
 /**
  * Is this a public run we should track?
@@ -252,9 +256,13 @@ export function shapeActivity(raw, options = {}) {
 		decouplingPct: decoupling?.decouplingPct ?? null,
 		splits,
 		// Kept on the record because it can only be built while the streams
-		// are in hand, and they aren't stored. A ride has no pace worth
-		// plotting, for the same reason it has no splits.
-		trace: isContext ? null : shapeTrace(streams, { distanceM }),
+		// are in hand, and they aren't stored. A ride's trace is heart rate
+		// and, when a meter recorded it, watts — never pace.
+		trace: isStrength
+			? null
+			: isRide
+				? shapeRideTrace(streams, { distanceM, deviceWatts: raw.device_watts === true })
+				: shapeTrace(streams, { distanceM }),
 		// Only ever present on a detailed activity — the summary Strava
 		// returns from a listing carries no description at all — so a record
 		// shaped without one keeps whatever notes it already had rather than
@@ -265,13 +273,42 @@ export function shapeActivity(raw, options = {}) {
 			: shapeBestEfforts(raw.best_efforts, raw.start_date_local || raw.start_date),
 	};
 
-	// A ride or gym session is stored to be listed and counted nowhere, so
-	// it's left unscored rather than carrying a load that sits in the record
-	// waiting to be summed by mistake.
-	const load = isContext ? null : activityLoad(shaped, thresholds);
-	shaped.load = load?.load ?? 0;
-	shaped.loadMethod = load?.method ?? null;
+	if (isRide) {
+		// Heart rate only. Pace and watts are different scales, and a ride
+		// with no strap must not invent a load from either of them.
+		const hrLoad = averageHr > 0 ? activityLoad({ movingTimeSec, averageHr }, thresholds) : null;
+		shaped.load = hrLoad?.method === "hr" ? hrLoad.load : null;
+		shaped.loadMethod = hrLoad?.method === "hr" ? "hr" : null;
+		Object.assign(shaped, meterWatts(raw));
+	} else if (isStrength) {
+		shaped.load = 0;
+		shaped.loadMethod = null;
+	} else {
+		const load = activityLoad(shaped, thresholds);
+		shaped.load = load?.load ?? 0;
+		shaped.loadMethod = load?.method ?? null;
+	}
 	return shaped;
+}
+
+// Strava fills average_watts on rides that had no meter. Those estimates are
+// not power. Only device_watts keeps the numbers.
+function meterWatts(raw) {
+	if (raw?.device_watts !== true) {
+		return {
+			deviceWatts: false,
+			averageWatts: null,
+			maxWatts: null,
+			weightedAverageWatts: null,
+		};
+	}
+	const watts = (value) => (Number.isFinite(reading(value)) ? reading(value) : null);
+	return {
+		deviceWatts: true,
+		averageWatts: watts(raw.average_watts),
+		maxWatts: watts(raw.max_watts),
+		weightedAverageWatts: watts(raw.weighted_average_watts),
+	};
 }
 
 /**
@@ -336,6 +373,15 @@ function publicTrace(trace) {
 	return { m: [...trace.m], pace: [...trace.pace], hr: [...trace.hr] };
 }
 
+// Heart rate along the ride, and watts only when the stored record kept them
+// because a meter recorded the ride. Estimated watts never get a key.
+function publicRideTrace(trace, deviceWatts) {
+	if (!Array.isArray(trace?.m) || !Array.isArray(trace?.hr)) return null;
+	const out = { m: [...trace.m], hr: [...trace.hr] };
+	if (deviceWatts === true && Array.isArray(trace.watts)) out.watts = [...trace.watts];
+	return out;
+}
+
 /**
  * The same, for the one run the dashboard looks at in detail.
  *
@@ -376,6 +422,36 @@ export function publicLastRun(activity) {
 		splits: publicSplits(activity.splits),
 		trace: publicTrace(activity.trace),
 	};
+}
+
+/**
+ * The public last-ride card. Watt fields are present only when a meter
+ * recorded them, so an estimated-power ride cannot grow a power row by
+ * having the keys set to null.
+ *
+ * @param {object} activity a stored, shaped ride.
+ * @returns {object|null}
+ */
+export function publicRideDetail(activity) {
+	if (!activity) return null;
+	const detail = {
+		...publicRun(activity),
+		elapsedTimeSec: activity.elapsedTimeSec,
+		maxHr: activity.maxHr,
+		averageCadence: activity.averageCadence,
+		load: activity.load,
+		loadMethod: activity.loadMethod,
+		zoneSeconds: publicZoneSeconds(activity.zoneSeconds),
+	};
+	if (activity.deviceWatts === true) {
+		detail.deviceWatts = true;
+		detail.averageWatts = activity.averageWatts;
+		detail.maxWatts = activity.maxWatts;
+		detail.weightedAverageWatts = activity.weightedAverageWatts;
+	}
+	const trace = publicRideTrace(activity.trace, activity.deviceWatts);
+	if (trace) detail.trace = trace;
+	return detail;
 }
 
 /**

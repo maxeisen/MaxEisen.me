@@ -4,10 +4,10 @@
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { bars, xPct, yPct } from "../lib/chart.js";
     import { formatDuration, shortDate } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
     import { RHR_RISE_BPM, SLEEP_TARGET_SEC } from "../../../../netlify/functions/_shared/training/constants.js";
 
-    let { recovery = null } = $props();
+    let { recovery = null, info = GLOSSARY.recovery } = $props();
 
     // Matching the server's thresholds (recovery.js). Imported from the
     // same constants module the engine uses, so the panel and the advice
@@ -129,7 +129,7 @@
     });
 </script>
 
-<Card title="Recovery" info={GLOSSARY.recovery}>
+<Card title="Recovery" {info}>
     {#if !recovery}
         <p class="card-empty">Nothing from the ring yet.</p>
     {:else}

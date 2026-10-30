@@ -137,3 +137,82 @@ export function shapeTrace(
 	const measured = pace.some((v) => v !== null) || hr.some((v) => v !== null);
 	return measured ? { m, pace, hr } : null;
 }
+
+/**
+ * Heart rate, and watts when a meter recorded them, across one ride.
+ *
+ * Same grain as a run's trace: a bounded number of distance slices, nothing
+ * between the samples. Watts are omitted entirely unless `deviceWatts` is
+ * set, because Strava's watts stream is an estimate on a ride that had no
+ * meter and that estimate must not reach the chart.
+ *
+ * @param {object|null} streams
+ * @param {object} [options]
+ * @param {number} [options.distanceM]
+ * @param {boolean} [options.deviceWatts]
+ * @returns {{m: number[], hr: (number|null)[], watts?: (number|null)[]}|null}
+ */
+export function shapeRideTrace(
+	streams,
+	{ distanceM = 0, deviceWatts = false, maxPoints = TRACE_POINTS, minSliceM = MIN_SLICE_M } = {},
+) {
+	const distance = streams?.distance;
+	const time = streams?.time;
+	if (!Array.isArray(distance) || !Array.isArray(time)) return null;
+	if (distance.length < 2 || time.length !== distance.length) return null;
+
+	const total = distanceM > 0 ? distanceM : Number(distance.at(-1));
+	if (!(total > 0)) return null;
+
+	const heartrate =
+		Array.isArray(streams?.heartrate) && streams.heartrate.length === distance.length
+			? streams.heartrate
+			: null;
+	const wattStream =
+		deviceWatts === true && Array.isArray(streams?.watts) && streams.watts.length === distance.length
+			? streams.watts
+			: null;
+	if (!heartrate && !wattStream) return null;
+
+	const points = Math.max(2, Math.min(maxPoints, Math.floor(total / minSliceM)));
+	const slice = total / points;
+	const sliceOf = (metres) => Math.min(points - 1, Math.max(0, Math.floor(Number(metres) / slice)));
+
+	const beats = new Array(points).fill(0);
+	const beatReads = new Array(points).fill(0);
+	const power = new Array(points).fill(0);
+	const powerReads = new Array(points).fill(0);
+
+	for (let i = 0; i < distance.length; i++) {
+		const at = sliceOf(distance[i]);
+		if (heartrate) {
+			const bpm = Number(heartrate[i]);
+			if (bpm > 0) {
+				beats[at] += bpm;
+				beatReads[at] += 1;
+			}
+		}
+		if (wattStream) {
+			const w = Number(wattStream[i]);
+			if (w > 0) {
+				power[at] += w;
+				powerReads[at] += 1;
+			}
+		}
+	}
+
+	const m = [];
+	const hr = [];
+	const watts = wattStream ? [] : null;
+	for (let i = 0; i < points; i++) {
+		m.push(Math.round((i + 0.5) * slice));
+		hr.push(beatReads[i] > 0 ? Math.round(beats[i] / beatReads[i]) : null);
+		if (watts) watts.push(powerReads[i] > 0 ? Math.round(power[i] / powerReads[i]) : null);
+	}
+
+	const measured = hr.some((v) => v !== null) || (watts && watts.some((v) => v !== null));
+	if (!measured) return null;
+	const out = { m, hr };
+	if (watts) out.watts = watts;
+	return out;
+}

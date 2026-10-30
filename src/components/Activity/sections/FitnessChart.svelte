@@ -4,9 +4,9 @@
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { areaPath, axisTicks, CHART_WEEKS, dateRangeTicks, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate, signed } from "../lib/format.js";
-    import { GLOSSARY } from "../lib/glossary.js";
+    import { GLOSSARY } from "../../Training/lib/glossary.js";
 
-    let { series = [], today = null } = $props();
+    let { series = [], today = null, info = GLOSSARY.fitness } = $props();
 
     const WIDTH = 720;
     const HEIGHT = 200;
@@ -102,7 +102,7 @@
     );
 </script>
 
-<Card title="Fitness and fatigue" info={GLOSSARY.fitness}>
+<Card title="Fitness and fatigue" {info}>
     {#snippet aside()}
         {#if latest}
             <p class="readout">

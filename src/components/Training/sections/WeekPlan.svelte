@@ -1,7 +1,7 @@
 <!-- This week against its plan, plus what's coming. -->
 <script>
-    import Card from "../Card.svelte";
-    import { pct, weekday, weekRange } from "../lib/format.js";
+    import Card from "../../Activity/Card.svelte";
+    import { pct, weekday, weekRange } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { week = null, upcoming = [], inBlock = true } = $props();

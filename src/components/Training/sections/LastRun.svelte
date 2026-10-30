@@ -6,9 +6,9 @@
     two read identically.
 -->
 <script>
-    import Card from "../Card.svelte";
+    import Card from "../../Activity/Card.svelte";
     import RunDetails from "./RunDetails.svelte";
-    import { daysAgo } from "../lib/format.js";
+    import { daysAgo } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
     let { run = null } = $props();

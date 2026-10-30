@@ -11,6 +11,7 @@ import {
 	shapeActivities,
 	collectBestEfforts,
 	publicRun,
+	publicRideDetail,
 } from "./shape.js";
 
 const THRESHOLDS = { maxHr: 191, restingHr: 47, thresholdPaceSecPerKm: 243, marathonPaceSecPerKm: 299 };
@@ -170,10 +171,33 @@ describe("shapeActivity", () => {
 		expect(Object.keys(shaped.trace).sort()).toEqual(["hr", "m", "pace"]);
 	});
 
-	it("gives a ride no trace, for the same reason it gets no splits", () => {
-		const streams = { time: [0, 60], distance: [0, 400], heartrate: [130, 132] };
-		const shaped = shapeActivity(rawRide(), { thresholds: THRESHOLDS, streams });
-		expect(shaped.trace).toBeNull();
+	it("keeps a ride's heart rate and meter watts, and drops estimated watts", () => {
+		const seconds = 120;
+		const streams = {
+			time: Array.from({ length: seconds }, (_, i) => i),
+			distance: Array.from({ length: seconds }, (_, i) => i * (45000 / seconds)),
+			heartrate: Array.from({ length: seconds }, () => 140),
+			watts: Array.from({ length: seconds }, () => 200),
+		};
+		const metered = shapeActivity(rawRide({ device_watts: true, average_watts: 200 }), {
+			thresholds: THRESHOLDS,
+			streams,
+		});
+		expect(metered.trace.hr.every((b) => b === 140)).toBe(true);
+		expect(metered.trace.watts.every((w) => w === 200)).toBe(true);
+		expect(metered.trace.pace).toBeUndefined();
+		expect(Object.keys(metered.trace).sort()).toEqual(["hr", "m", "watts"]);
+		expect(publicRideDetail(metered).trace.watts).toEqual(metered.trace.watts);
+		expect(publicRun(metered).trace).toBeUndefined();
+
+		const estimated = shapeActivity(rawRide({ device_watts: false, average_watts: 180 }), {
+			thresholds: THRESHOLDS,
+			streams,
+		});
+		expect(estimated.trace.hr.every((b) => b === 140)).toBe(true);
+		expect(estimated.trace.watts).toBeUndefined();
+		expect(publicRideDetail(estimated).trace.watts).toBeUndefined();
+		expect(JSON.stringify(publicRideDetail(estimated))).not.toContain("watts");
 	});
 
 	it("scores load by heart rate when present", () => {
@@ -325,15 +349,46 @@ describe("shapeActivity for rides", () => {
 		expect(ride.bestEfforts).toEqual([]);
 	});
 
-	it("is left unscored, having nothing to be scored for", () => {
-		// A ride is stored to be listed, and counted by nothing on the page.
-		// Scoring it anyway would leave a plausible number in the record for
-		// some later sum to pick up by accident. Heart rate is present here,
-		// so this fails if the load line ever stops asking whether it's a ride.
-		const ride = shaped();
-		expect(ride.averageHr).toBe(138);
-		expect(ride.load).toBe(0);
-		expect(ride.loadMethod).toBeNull();
+	it("stores meter watts and heart-rate load on a ride, and drops estimated watts", () => {
+		const metered = shapeActivity(rawRide({
+			device_watts: true,
+			average_watts: 186,
+			max_watts: 412,
+			weighted_average_watts: 204,
+			average_heartrate: 142,
+			max_heartrate: 168,
+			moving_time: 7694,
+		}), { thresholds: THRESHOLDS });
+		expect(metered.deviceWatts).toBe(true);
+		expect(metered.averageWatts).toBe(186);
+		expect(metered.maxWatts).toBe(412);
+		expect(metered.weightedAverageWatts).toBe(204);
+		expect(metered.loadMethod).toBe("hr");
+		expect(metered.load).toBeGreaterThan(0);
+		expect(metered.splits).toEqual([]);
+		expect(metered.paceSecPerKm).toBeNull();
+
+		const estimated = shapeActivity(rawRide({
+			device_watts: false,
+			average_watts: 150,
+			average_heartrate: 130,
+			moving_time: 4000,
+		}), { thresholds: THRESHOLDS });
+		expect(estimated.deviceWatts).toBe(false);
+		expect(estimated.averageWatts).toBeNull();
+		expect(publicRideDetail(estimated).averageWatts).toBeUndefined();
+	});
+
+	it("stores a ride with no heart rate and does not invent a load", () => {
+		const shapedRide = shapeActivity(rawRide({
+			device_watts: true,
+			average_watts: 180,
+			average_heartrate: null,
+			max_heartrate: null,
+		}), { thresholds: THRESHOLDS });
+		expect(shapedRide.load).toBeNull();
+		expect(shapedRide.loadMethod).toBeNull();
+		expect(shapedRide.distanceM).toBeGreaterThan(20_000);
 	});
 
 	it("drops a ride's route just as thoroughly", () => {
