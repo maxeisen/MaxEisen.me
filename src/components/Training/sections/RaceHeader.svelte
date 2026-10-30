@@ -65,7 +65,7 @@
         {/if}
     {:else}
         <div class="race-intro">
-            <p class="eyebrow">Not training for anything</p>
+            <p class="eyebrow">Run log</p>
             <h1>Running</h1>
             {#if lastRace}
                 <p class="race-date">Last race: {lastRace}</p>

@@ -48,7 +48,7 @@ test("after the race the page is a running log", async ({ page }) => {
 	await page.goto("/running");
 	await expect(page).toHaveTitle("Running — Max Eisen");
 	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Running");
-	await expect(page.getByText("Not training for anything")).toBeVisible();
+	await expect(page.getByText("Run log")).toBeVisible();
 	await expect(page.getByText(/^Last race: /)).toBeVisible();
 	await expect(page.getByText("Training for", { exact: true })).toHaveCount(0);
 	await expect(page.getByText("Goal", { exact: true })).toHaveCount(0);
