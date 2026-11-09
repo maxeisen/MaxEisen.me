@@ -98,6 +98,7 @@
 }
 .host .pack-hint { font-size: 0.9rem; margin: 0 0 0.65rem; opacity: 0.9; }
 .host .pack-hint code { font-size: 0.85em; }
+
 .host .pack-ok {
 	color: var(--accent);
 	font-size: 0.9rem;
@@ -164,6 +165,7 @@
 	color: var(--text-strong);
 }
 .host .bar-leader { text-align: right; }
+
 .host .bar-leader-name {
 	font-weight: 600;
 	color: var(--text-strong);
