@@ -10,15 +10,15 @@
 # signedGalleryList can read them instead of running a ~20s Admin search per
 # load. Generated at build time (see scripts/build-gallery-manifest.mjs).
 #
-# marathon-plan.json is the hand-authored training plan behind /running. The
-# functions import it as JSON so the bundler inlines it (see
-# _shared/training/planFile.js for why reading it from disk doesn't work), but
-# it's listed here too so the file is present if that import ever goes back to
-# a runtime read.
+# public/content/running/ holds the live current-plan.json (when there is a
+# block) plus archived plans. Functions read current-plan.json from disk so a
+# missing file is a running log rather than a failed bundle; the directory is
+# listed here so the file is in the function zip when it exists. See
+# _shared/training/planFile.js.
 [functions]
   included_files = [
     "netlify/functions/_generated/**",
-    "public/content/marathon-plan.json",
+    "public/content/running/**",
     "index.html",
   ]
 

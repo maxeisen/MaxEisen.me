@@ -7,10 +7,16 @@
 // engine is a pure function of (activities, plan, today), so a synthetic block
 // run through the real engine gives the page a realistic payload to lay out.
 
+import { readFileSync } from "node:fs";
 import { shapeActivities } from "../../netlify/functions/_shared/training/shape.js";
 import { buildDashboard } from "../../netlify/functions/_shared/training/metrics.js";
 import { dailyLoads } from "../../netlify/functions/_shared/training/load.js";
-import { loadPlan } from "../../netlify/functions/_shared/training/planFile.js";
+
+// E2E needs a full block to lay out, independent of whether a live
+// current-plan.json is deployed. The Chicago archive is that fixture.
+const chicagoPlan = JSON.parse(
+	readFileSync(new URL("../../public/content/running/2026-chicago-marathon-plan.json", import.meta.url), "utf8"),
+);
 
 // Strava's field names are quoted throughout: they're the API's spelling rather
 // than identifiers this repo chose, and quoting says so — to a reader and to
@@ -112,7 +118,11 @@ function nightsUpTo(today, next, loads) {
  * @returns {object} the same shape trainingData serves.
  */
 export function buildTrainingFixture({ today = "2026-08-11" } = {}) {
-	const plan = loadPlan();
+	const plan = {
+		race: chicagoPlan?.race || {},
+		thresholds: chicagoPlan?.thresholds || {},
+		weeks: Array.isArray(chicagoPlan?.weeks) ? chicagoPlan.weeks : [],
+	};
 	const next = sequence();
 	const raw = [];
 	let id = 900000;

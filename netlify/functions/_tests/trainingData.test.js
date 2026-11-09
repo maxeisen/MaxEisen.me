@@ -14,7 +14,6 @@ const store = { get: vi.fn(), setJSON: vi.fn() };
 vi.mock("@netlify/blobs", () => ({ getStore: () => store }));
 
 import { shapeActivities } from "../_shared/training/shape.js";
-import { loadPlan } from "../_shared/training/planFile.js";
 
 const LAT = 43.6532;
 const LNG = -79.3832;
@@ -230,13 +229,10 @@ describe("trainingData behaviour", () => {
 		expect((await payload()).body.sync).toMatchObject({ hasSynced: false, backfilling: false });
 	});
 
-	it("reports the race it is counting down to", async () => {
-		// Asserted against the plan file rather than a copy of it, so editing
-		// the race details is a plan change and not a test failure.
-		const { race } = loadPlan();
+	it("is a running log when public/content/running/current-plan.json is absent", async () => {
 		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }));
 		const { body } = await payload();
-		expect(body.summary.race.name).toBe(race.name);
-		expect(body.summary.race.goalTimeSec).toBe(race.goalTimeSec);
+		expect(body.summary.inBlock).toBe(false);
+		expect(body.summary.race.name).toBeNull();
 	});
 });

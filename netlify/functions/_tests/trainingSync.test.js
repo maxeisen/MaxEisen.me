@@ -21,11 +21,13 @@ vi.mock("@netlify/blobs", () => ({ getStore: () => store }));
 import { SHAPE_VERSION } from "../_shared/training/shape.js";
 import { addDays } from "../_shared/training/dates.js";
 
-// A day per activity walking back from the most recent, so "newest first" is
-// unambiguous in the assertions below.
+// A day per activity walking back from today, so "newest first" is
+// unambiguous and the runs sit inside the 120-day history window used
+// when public/content/running/current-plan.json is absent.
 function summaries(count, overrides = () => ({})) {
+	const newest = Date.now();
 	return Array.from({ length: count }, (_, i) => {
-		const day = new Date(Date.UTC(2026, 6, 1) + (count - i) * 86_400_000)
+		const day = new Date(newest - i * 86_400_000)
 			.toISOString()
 			.slice(0, 10);
 		return {
@@ -625,7 +627,14 @@ describe("trainingSync", () => {
 		// start stores four months of run-up history in one go, and none of
 		// it is a run somebody is about to write a note on.
 		it("isn't opened by a backfill of history nobody is looking at", async () => {
-			mockStrava({ activities: summaries(3) });
+			mockStrava({
+				activities: summaries(3, (i) => {
+					const day = new Date(Date.now() - (30 + i) * 86_400_000)
+						.toISOString()
+						.slice(0, 10);
+					return { start_date_local: `${day}T07:00:00Z` };
+				}),
+			});
 			const { body } = await sync();
 
 			expect(body.synced).toBe(3);

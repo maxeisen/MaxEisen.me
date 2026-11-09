@@ -109,8 +109,5 @@ module.exports = {
 		"public/styles/",
 		"private/",
 		"test-results/",
-		// Imports the plan with an import attribute (`with { type: "json" }`),
-		// which ESLint 8's parser can't read. Vitest and Node both can.
-		"netlify/functions/_shared/training/planFile.js",
 	],
 };

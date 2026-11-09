@@ -10,7 +10,6 @@
 // String rewriting (not HTMLRewriter) so it's runtime-agnostic. The index.html
 // meta tags are stable + ours, so the targeted replacements are safe.
 
-import { loadPlan } from "../functions/_shared/training/planFile.js";
 import { raceAhead } from "../functions/_shared/training/plan.js";
 import { trainingPageMeta } from "../../src/components/Training/lib/block.js";
 
@@ -82,9 +81,29 @@ export function cardUrl(text) {
 	return `${CLOUD}/${t}/og/backdrop.png`;
 }
 
+const EMPTY_PLAN = { race: {}, thresholds: {}, weeks: [] };
+
+// Edge has no filesystem. The plan is a static asset, so a missing file is a
+// 404 and the card is the running log — same rule as planFile.js on Node.
+async function loadCurrentPlan(request) {
+	try {
+		const res = await fetch(new URL("/content/running/current-plan.json", request.url));
+		if (!res.ok) return EMPTY_PLAN;
+		const json = await res.json();
+		if (!json || typeof json !== "object" || Array.isArray(json)) return EMPTY_PLAN;
+		return {
+			race: json.race && typeof json.race === "object" && !Array.isArray(json.race) ? json.race : {},
+			thresholds: json.thresholds && typeof json.thresholds === "object" && !Array.isArray(json.thresholds) ? json.thresholds : {},
+			weeks: Array.isArray(json.weeks) ? json.weeks : [],
+		};
+	} catch {
+		return EMPTY_PLAN;
+	}
+}
+
 // Same switch as the page: a race still ahead keeps its card, otherwise this is just running.
-function trainingMeta() {
-	const plan = loadPlan();
+async function trainingMeta(request) {
+	const plan = await loadCurrentPlan(request);
 	const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto" });
 	return trainingPageMeta({ inBlock: raceAhead(plan, today), race: plan.race });
 }
@@ -105,7 +124,7 @@ export default async function handler(request, context) {
 	if (!ct.includes("text/html")) return res;
 
 	const { pathname } = new URL(request.url);
-	const m = pathname === "/running" ? trainingMeta() : (META[pathname] || DEFAULT);
+	const m = pathname === "/running" ? await trainingMeta(request) : (META[pathname] || DEFAULT);
 	const url = SITE_URL + pathname;
 	const img = cardUrl(m.card);
 

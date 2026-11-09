@@ -107,7 +107,7 @@ function recentLog(runs, context, planMatches) {
  *
  * @param {object} input
  * @param {object[]} input.activities shaped activities, any order.
- * @param {object} input.plan parsed marathon-plan.json.
+ * @param {object} input.plan parsed current-plan.json.
  * @param {string} input.today day key.
  * @param {object[]} [input.recovery] shaped nights from the Oura ring. Optional
  *   throughout: the page predates it and reads the same without it.
@@ -417,7 +417,7 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
  *
  * @param {object} input
  * @param {object[]} input.activities shaped activities, any order.
- * @param {object} input.plan parsed marathon-plan.json.
+ * @param {object} input.plan parsed current-plan.json.
  * @param {string} input.today day key.
  * @param {string|number} input.id the activity id to detail.
  * @returns {object|null} the run detail, or null when the id isn't a stored run.
