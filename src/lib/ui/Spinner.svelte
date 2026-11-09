@@ -19,8 +19,8 @@
 	.spinner {
 		width: var(--spinner-size);
 		height: var(--spinner-size);
-		border: var(--spinner-stroke) solid var(--main-green-translucent, rgba(184, 168, 136, 0.3));
-		border-top-color: var(--main-green, #b8a888);
+		border: var(--spinner-stroke) solid var(--border);
+		border-top-color: var(--text-2);
 		border-radius: 50%;
 		animation: spinner-rotate 0.7s linear infinite;
 	}

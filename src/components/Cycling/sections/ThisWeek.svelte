@@ -1,5 +1,5 @@
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import { formatDistance, timeTaken, weekRange } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -30,27 +30,26 @@
     .totals {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--space-3);
+        gap: var(--space-1) var(--space-3);
         align-items: baseline;
         margin: 0 0 var(--space-3);
     }
     .totals strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        color: var(--header-colour);
+        font-size: var(--font-lg);
+        font-weight: var(--weight-semibold);
+        color: var(--text-strong);
     }
-    .totals span, .meta {
-        font-size: var(--font-xs);
-        color: var(--paragraph-colour);
-        opacity: 0.75;
-    }
-    .range { text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--font-2xs); }
-    ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+    .totals span, .meta { font-size: var(--font-xs); color: var(--text-2); }
+    .range { margin-left: auto; color: var(--text-3) !important; }
+    ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
     li {
         display: flex;
         justify-content: space-between;
         gap: var(--space-3);
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--border);
         font-size: var(--font-sm);
     }
-    .name { color: var(--header-colour); font-weight: 600; }
+    .name { color: var(--text-strong); font-weight: var(--weight-medium); }
+    .meta { font-variant-numeric: tabular-nums; white-space: nowrap; }
 </style>

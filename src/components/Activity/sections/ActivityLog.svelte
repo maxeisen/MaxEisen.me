@@ -7,7 +7,7 @@
 -->
 <script>
     import { getContext } from "svelte";
-    import Card from "../Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import { GLOSSARY } from "../../Training/lib/glossary.js";
 
     let {
@@ -63,22 +63,18 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-2);
         max-height: 560px;
         overflow-y: auto;
     }
-    .log li + li { border-top: 1px solid var(--main-green-translucent); padding-top: var(--space-2); }
+    .log li + li { border-top: 1px solid var(--border); }
 
     .row {
         display: flex;
         align-items: center;
         gap: var(--space-4);
         width: 100%;
-        padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+        padding: var(--space-3) var(--space-2);
         border: 0;
-        border-left: 2px solid var(--main-green);
         border-radius: var(--radius-sm);
         background: transparent;
         color: inherit;
@@ -88,20 +84,57 @@
         cursor: pointer;
         -webkit-appearance: none;
         appearance: none;
-        transition: background-color 0.15s ease;
+        transition: background-color var(--dur-fast) var(--ease);
     }
-    .row:focus-visible {
-        outline: 2px solid var(--main-green);
-        outline-offset: 2px;
+    .row:hover { background: var(--surface-2); }
+    .row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    /* Rides and strength on the running log are context: present, quieter. */
+    .row.ride, .row.strength { opacity: 0.7; }
+    .row.ride:hover, .row.strength:hover { opacity: 1; }
+
+    /* Row content conventions, shared by every sport's row snippets:
+       .row-main (.row-name, .row-meta, .row-note) and .row-stat columns. */
+    .log :global(.row-main) { flex: 1; min-width: 0; }
+    .log :global(.row-name) {
+        display: block;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-medium);
+        color: var(--text-strong);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .row.extra { border-left-color: transparent; }
-    .row.ride,
-    .row.strength { border-left-style: dashed; border-left-color: var(--paragraph-colour); opacity: 0.75; }
-    .row:hover { background: var(--main-green-translucent); }
+    .log :global(.row-meta) {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2px 6px;
+        margin-top: 2px;
+        font-size: var(--font-2xs);
+        line-height: 1.6;
+        color: var(--text-2);
+    }
+    .log :global(.row-stat) {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        flex-shrink: 0;
+        min-width: 82px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+    .log :global(.row-stat strong) {
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        line-height: 1.3;
+        color: var(--text-strong);
+    }
+    .log :global(.row-stat span) { font-size: var(--font-2xs); color: var(--text-3); }
 
     @media (max-width: 540px) {
-        .log { gap: var(--space-3); }
-        .log li + li { padding-top: var(--space-3); }
+        .log :global(.row-main) { flex-basis: 100%; }
+        .log :global(.row-stat) { min-width: 0; align-items: flex-start; text-align: left; }
+        .log :global(.row-stat + .row-stat) { align-items: flex-end; text-align: right; }
         .row {
             flex-wrap: wrap;
             justify-content: space-between;

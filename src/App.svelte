@@ -6,8 +6,8 @@
     Navigation is client-side: same-origin links to the homepage or a known
     route are intercepted and handled with pushState + a component swap, so
     there's no full document reload (no re-downloading the shell + bundle,
-    no white flash). Anything not client-navigable — the static /resume
-    page, the stateful /bach route, hash/anchor links, external links,
+    no white flash). Anything not client-navigable — the stateful /bach
+    route, hash/anchor links, external links,
     modified clicks, downloads — falls through to a normal browser load.
 
     Loading state: while a known route's chunk downloads we show a minimal
@@ -34,6 +34,7 @@
         '/running':       () => import('./routes/Running.svelte'),
         '/cycling':       () => import('./routes/Cycling.svelte'),
         '/bach':          () => import('./routes/Bach.svelte'),
+        '/resume':        () => import('./routes/Resume.svelte'),
     };
 
     // Routes that exist in ROUTES (so they lazy-load + show the loader) but
@@ -142,8 +143,8 @@
         // query-only changes) → leave entirely to the browser.
         if (url.pathname === window.location.pathname) return;
 
-        // Only the homepage + known SPA routes are client-navigable. Static
-        // pages (/resume) and excluded routes (/bach) full-load normally.
+        // Only the homepage + known SPA routes are client-navigable. Excluded
+        // routes (/bach) full-load normally.
         const navigable =
             (url.pathname === '/' || url.pathname in ROUTES) && !NO_CLIENT_NAV.has(url.pathname);
         if (!navigable) return;
@@ -217,7 +218,7 @@
                     <RouteComponent />
                 {:else if showSpinner}
                     <div class="route-loading" role="status" aria-label="Loading" aria-busy="true">
-                        <Spinner size={38} stroke={3} />
+                        <Spinner size={24} stroke={2} />
                     </div>
                 {/if}
             {:else if isHome}
@@ -246,7 +247,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--background-one);
+        background: var(--bg);
         z-index: 1;
     }
 </style>

@@ -51,44 +51,44 @@ export const copy = {
 		title: ({ isCurrentWeek }) =>
 			isCurrentWeek ? "This week jumps too far in volume" : "Last week jumped too far in volume",
 		detail: ({ ramp, thisOrLast, priorWeek, from, to, ceiling, cap }) =>
-			`You were up ${ramp.toFixed(0)}% ${thisOrLast} on ${priorWeek} (${from.toFixed(0)} to ${to.toFixed(0)} km). The conventional ceiling is ${ceiling}%. Hold the coming week near ${cap.toFixed(0)} km rather than stacking another jump on top.`,
+			`Your distance ${thisOrLast} was up ${ramp.toFixed(0)}% on ${priorWeek} (${from.toFixed(0)} to ${to.toFixed(0)} km), past the usual ${ceiling}% ceiling. Hold the coming week near ${cap.toFixed(0)} km rather than stacking another jump on top.`,
 	},
 	longRunShare: {
 		title: "Your week is too concentrated in one run",
 		detail: ({ share, thisOrLast, ceiling }) =>
-			`The long run was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${ceiling}% guideline. Add an easy midweek run rather than shortening the long one — the aerobic work is worth keeping.`,
+			`The long run was ${share.toFixed(0)}% of ${thisOrLast}'s distance, above the ${ceiling}% guideline. Add an easy midweek run rather than shortening the long one — its aerobic work is worth keeping.`,
 	},
 	sleepAndRamp: {
 		title: "You're adding load faster than you're recovering from it",
 		detail: ({ sleep, why }) =>
-			`${sleep} a night on average over the last week, against ${why}. Short sleep is one of the better-evidenced injury risk factors in athletes, and it compounds a ramp rather than sitting alongside it — the same week of running is a different proposition on eight hours than on ${sleep}. Hold the volume where it is until sleep comes back up.`,
+			`You've averaged ${sleep} a night this past week, alongside ${why}. Short sleep is one of the better-evidenced injury risks, and it makes a ramp riskier: the same running is a different load on eight hours than on ${sleep}. Hold the volume where it is until sleep recovers.`,
 	},
 	sleepShort: {
 		title: "You're running short on sleep",
 		detail: ({ sleep, floor, baseline }) =>
-			`${sleep} a night over the last week, against a ${floor} floor${baseline ? ` and your own ${baseline} average` : ""}. Sleep is where the adaptation actually happens, so this quietly costs you more of the training than a missed easy run would.`,
+			`You've averaged ${sleep} a night this past week, under a ${floor} floor${baseline ? ` and your own ${baseline} average` : ""}. Training turns into fitness during sleep, so this costs you more than a missed easy run would.`,
 	},
 	rhrElevated: {
 		title: "Your overnight heart rate is up",
 		detail: ({ recent, baseline, delta, threshold, explained }) =>
-			`Averaging ${recent.toFixed(0)} bpm over the last week against a ${baseline.toFixed(0)} bpm baseline, up ${delta.toFixed(0)}. A rise of ${threshold} or more usually means something the training log can't see: illness coming on, or work you haven't absorbed yet.${explained} Worth an easy few days before a key session rather than after one.`,
+			`Averaging ${recent.toFixed(0)} bpm this past week against a ${baseline.toFixed(0)} bpm baseline, up ${delta.toFixed(0)}. A rise of ${threshold} or more usually means something the training log can't see: illness coming on, or training you haven't absorbed yet.${explained} Take an easy few days before your next key session, not after it.`,
 	},
 	hrvSuppressed: {
 		title: "Heart-rate variability is below your baseline",
 		detail: ({ recent, baseline, drop, explained }) =>
-			`${recent.toFixed(0)} ms over the last week against a ${baseline.toFixed(0)} ms baseline, down ${drop.toFixed(0)}%. HRV is noisy night to night and this is a week against a month, so it's worth noting rather than acting on alone — but read it alongside the resting heart rate above.${explained}`,
+			`${recent.toFixed(0)} ms this past week against a ${baseline.toFixed(0)} ms baseline, down ${drop.toFixed(0)}%. HRV is noisy, so this is worth noting rather than acting on alone — read it alongside resting heart rate.${explained}`,
 	},
 	recoveryOk: {
 		title: "You're recovering as fast as you're training",
 		detail: ({ sleep, restingHr }) =>
-			`${sleep} a night over the last week${Number.isFinite(restingHr) ? `, with overnight heart rate at ${restingHr.toFixed(0)} bpm` : ""}. Nothing here says the training isn't being absorbed.`,
+			`${sleep} a night this past week${Number.isFinite(restingHr) ? `, with overnight heart rate at ${restingHr.toFixed(0)} bpm` : ""}. Your body is keeping up with the training.`,
 	},
 	easyShareLow: {
 		title: "Your easy runs aren't easy enough",
 		detail: ({ easyPct, target, inBlock }) =>
 			inBlock
-				? `Only ${easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${target}%. Running easy days moderately hard is the most common way to arrive at a marathon tired rather than fit. Slow the easy days down.`
-				: `Only ${easyPct.toFixed(0)}% of your running is in zones 1-2, against a target near ${target}%. Running easy days moderately hard piles up fatigue without much fitness to show for it. Slow the easy days down.`,
+				? `Only ${easyPct.toFixed(0)}% of your running is in zones 1–2, against a target near ${target}%. Running easy days moderately hard is the most common way to arrive at a marathon tired rather than fit. Slow the easy days down.`
+				: `Only ${easyPct.toFixed(0)}% of your running is in zones 1–2, against a target near ${target}%. Running easy days moderately hard piles up fatigue without much fitness to show for it. Slow the easy days down.`,
 	},
 	easyShareOk: {
 		title: "Intensity distribution looks right",
@@ -98,12 +98,12 @@ export const copy = {
 	decouplingHigh: {
 		title: "Heart rate drifted on your recent long run",
 		detail: ({ decouplingPct, ceiling }) =>
-			`Aerobic decoupling was ${decouplingPct.toFixed(1)}%, above the ${ceiling}% marker. Your pace faded relative to heart rate in the second half, which usually means the aerobic base still needs work. Keep long runs easy rather than pushing the finish.`,
+			`Aerobic decoupling was ${decouplingPct.toFixed(1)}%, above the ${ceiling}% marker: pace slipped against heart rate in the second half, which usually means the aerobic base still needs work. Keep long runs easy rather than pushing the finish.`,
 	},
 	volumeShort: {
 		title: "You came in under this week's plan",
 		detail: ({ actualKm, targetKm, volumePct }) =>
-			`${actualKm.toFixed(0)} km against a target of ${targetKm} km (${volumePct.toFixed(0)}%). One week matters little; two in a row is worth adjusting the plan for rather than trying to make up.`,
+			`${actualKm.toFixed(0)} km against a target of ${targetKm} km (${volumePct.toFixed(0)}%). One short week matters little; if it happens twice in a row, adjust the plan rather than trying to make the distance up.`,
 	},
 	taper: {
 		title: ({ days }) => `${days} days out — hold the taper`,
@@ -133,7 +133,7 @@ export const copy = {
 	goalAhead: {
 		title: ({ target }) => `On track for ${target}`,
 		detail: ({ predicted, goalPace }) =>
-			`Current form projects ${predicted}, inside your goal. Goal pace is ${goalPace} — worth rehearsing in your remaining long runs. The headline is the slower of recent race-equivalence and eight-week training support.`,
+			`Current form projects ${predicted}, inside your goal. Goal pace is ${goalPace} — rehearse it in your remaining long runs.`,
 	},
 	postRace: {
 		title: ({ race }) => `Still recovering from ${race}`,
@@ -143,7 +143,7 @@ export const copy = {
 	offSeason: {
 		title: "No race on the calendar",
 		detail: ({ weeklyKm, weeks }) =>
-			`Without a plan to follow, the useful job is keeping a base to build the next block from. You've averaged ${weeklyKm.toFixed(0)} km a week over the last ${weeks === 1 ? "week" : `${weeks} weeks`}. Keep most of it easy, a longer run in most weeks, and let volume move in small steps rather than spikes — that's what makes the first weeks of the next plan feel routine.`,
+			`With no plan to follow, the job is keeping a base for the next block. You've averaged ${weeklyKm.toFixed(0)} km a week over the last ${weeks === 1 ? "week" : `${weeks} weeks`}. Keep most of it easy, include a longer run most weeks, and change volume in small steps — that makes the first weeks of the next plan feel routine.`,
 	},
 	gap: ({ predicted, target, goalPace }) =>
 		`Current form projects ${predicted} against your ${target} target — which needs ${goalPace}.`,
@@ -191,7 +191,7 @@ export const rideCopy = {
 	easyShareLow: {
 		title: "Your easy rides aren't easy enough",
 		detail: ({ easyPct, target }) =>
-			`Only ${easyPct.toFixed(0)}% of your riding is in zones 1-2, against a target near ${target}%. Easy days ridden too hard pile up fatigue without much fitness to show for it. Slow the easy days down.`,
+			`Only ${easyPct.toFixed(0)}% of your riding is in zones 1–2, against a target near ${target}%. Easy days ridden too hard pile up fatigue without much fitness to show for it. Slow the easy days down.`,
 	},
 	easyShareOk: {
 		title: "Intensity distribution looks right",
@@ -201,11 +201,11 @@ export const rideCopy = {
 	sleepAndRamp: {
 		title: "You're adding load faster than you're recovering from it",
 		detail: ({ sleep, why }) =>
-			`${sleep} a night on average over the last week, against ${why}. Short sleep compounds a ramp — the same week of riding is a different proposition on eight hours than on ${sleep}. Hold the volume where it is until sleep comes back up.`,
+			`You've averaged ${sleep} a night this past week, alongside ${why}. Short sleep makes a ramp riskier: the same riding is a different load on eight hours than on ${sleep}. Hold the volume where it is until sleep recovers.`,
 	},
 	sleepShort: {
 		title: "You're short on sleep",
 		detail: ({ sleep, floor, baseline }) =>
-			`${sleep} a night over the last week, against a ${floor} floor${baseline ? ` and your own ${baseline} average` : ""}. Sleep is where the adaptation actually happens, so this quietly costs you more of the training than a missed easy ride would.`,
+			`You've averaged ${sleep} a night this past week, under a ${floor} floor${baseline ? ` and your own ${baseline} average` : ""}. Training turns into fitness during sleep, so this costs you more than a missed easy ride would.`,
 	},
 };

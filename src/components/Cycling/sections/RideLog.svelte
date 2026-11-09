@@ -1,4 +1,5 @@
 <script>
+    import Tag from "../../../lib/ui/Tag.svelte";
     import { getContext } from "svelte";
     import ActivityLog from "../../Activity/sections/ActivityLog.svelte";
     import RideModal from "../RideModal.svelte";
@@ -40,7 +41,7 @@
         <span class="row-name">{activity.name}</span>
         <span class="row-meta">
             {shortDate(activity.startDateLocal)}
-            <span class="tag">{activity.sport === "strength" ? "strength" : "context"}</span>
+            <Tag outline>{activity.sport === "strength" ? "strength" : "context"}</Tag>
         </span>
     </div>
     <div class="row-stat">
@@ -60,7 +61,7 @@
 >
     {#snippet summary()}
         {#if activities.length}
-            <span class="count">
+            <span>
                 {#if Number.isFinite(total) && total > rideCount}
                     latest {rideCount} of {total}
                 {:else}
@@ -71,57 +72,3 @@
         {/if}
     {/snippet}
 </ActivityLog>
-
-<style>
-    .count {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-    .row-main { flex: 1; min-width: 0; }
-    .row-name {
-        display: block;
-        font-family: var(--font-sans);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--header-colour);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .row-meta {
-        display: block;
-        margin-top: 3px;
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-    .tag {
-        margin-left: 4px;
-        padding: 0 5px;
-        border: 1px dashed var(--paragraph-colour);
-        border-radius: var(--radius-pill);
-        text-transform: lowercase;
-    }
-    .row-stat {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        flex-shrink: 0;
-        min-width: 82px;
-        text-align: right;
-    }
-    .row-stat strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--header-colour);
-    }
-    .row-stat span {
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-    }
-</style>

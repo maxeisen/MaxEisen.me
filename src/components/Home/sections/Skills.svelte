@@ -1,72 +1,30 @@
 <script>
+    import Section from '../../../lib/ui/Section.svelte';
     import skills from '@content/skills.json';
 </script>
 
-<div class="skills-subsection">
+<Section title="Tools I use" id="skills">
     <ul>
         {#each skills as skill}
             <li>{skill}</li>
         {/each}
     </ul>
-</div>
+</Section>
 
 <style>
     ul {
-        text-align: center;
-        color: var(--paragraph-colour);
-        font-size: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        margin: 0;
+        padding: 0;
         list-style: none;
-        -webkit-column-count: 4;
-        -moz-column-count: 4;
-        column-count: 4;
     }
-
-    @media only screen and (max-width: 1270px) {
-        ul {
-        -webkit-column-count: 3;
-        -moz-column-count: 3;
-        column-count: 3;
-        }
-    }
-
-    @media only screen and (max-width: 1100px) {
-        ul {
-        font-size: 18px;
-        -webkit-column-count: 2;
-        -moz-column-count: 2;
-        column-count: 2;
-        }
-    }
-
-    @media only screen and (max-width: 860px) {
-        ul {
-        -webkit-column-count: 4;
-        -moz-column-count: 4;
-        column-count: 4;
-        }
-    }
-
-    @media only screen and (max-width: 600px) {
-        ul {
-        font-size: 18px;
-        -webkit-column-count: 3;
-        -moz-column-count: 3;
-        column-count: 3;
-        }
-    }
-
-    @media only screen and (max-width: 470px) {
-        ul {
-        text-align: center;
-        font-size: 18px;
-        -webkit-column-count: 2;
-        -moz-column-count: 2;
-        column-count: 2;
-        margin-left: -2em;
-        }
-
-        ul li::before {
-        display: none;
-    }
+    li {
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-sm);
+        color: var(--text);
     }
 </style>

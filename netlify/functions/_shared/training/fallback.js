@@ -33,10 +33,10 @@ const JSON_FEED = "/.netlify/functions/trainingData";
 // Lives inside <noscript>, so JS visitors never apply it. Tokens come from
 // global.css on the shell; the fallbacks are for a client that skipped CSS.
 const FEED_STYLE = `<style>
-body { color: var(--paragraph-colour, inherit); max-width: 48rem; margin: 1.25em auto; padding: 0 1em; }
+body { color: var(--text, inherit); max-width: 48rem; margin: 1.25em auto; padding: 0 1em; }
 table { border-collapse: collapse; width: 100%; margin: 0.5em 0 1.1em; }
-th, td { border: 1px solid var(--main-green-translucent, #ccc); padding: 0.28em 0.6em; text-align: left; vertical-align: top; }
-th { color: var(--main-green, inherit); font-weight: 600; }
+th, td { border: 1px solid var(--border, #ccc); padding: 0.28em 0.6em; text-align: left; vertical-align: top; }
+th { color: var(--text-2, inherit); font-weight: 600; }
 section { margin: 1.1em 0; }
 </style>`;
 

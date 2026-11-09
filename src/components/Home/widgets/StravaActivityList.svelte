@@ -86,133 +86,59 @@
 </div>
 
 <style>
-    .strava-list-wrap {
-        margin: 1rem auto 0 auto;
-        padding: 0 20px;
-        max-width: 100%;
-        text-align: left;
-    }
-
-    .strava-status {
-        color: var(--modal-title-colour, #333);
-        font-size: 0.9rem;
-        text-align: center;
-        opacity: 0.7;
-        padding: 0.75rem 0;
-    }
-
-    .strava-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
+    /* Same row as the dashboard's activity widget: map thumb, name and
+       meta, figures right-aligned, rows ruled apart. */
+    .strava-list-wrap { margin-top: var(--space-4); text-align: left; }
+    .strava-status { padding: var(--space-3) 0; font-size: var(--font-sm); color: var(--text-2); }
+    .strava-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+    .strava-list li { border-bottom: 1px solid var(--border); }
     .strava-row {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: center;
-        gap: 0.85rem;
-        padding: 0.6rem 0.75rem;
-        border-radius: 10px;
-        text-decoration: none;
+        gap: var(--space-3);
+        padding: var(--space-2) 0;
         color: inherit;
-        background: rgba(0, 0, 0, 0.03);
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
     }
-
-    .strava-row:hover {
-        background: var(--main-green-translucent, rgba(0, 128, 111, 0.12));
-        border-color: var(--main-green, #00806f);
-    }
-    .strava-row:active { transform: scale(0.99); }
-
-    .strava-row-icon {
-        font-size: 1.4rem;
-        line-height: 1;
-        display: inline-flex;
+    .strava-row:hover .strava-row-name { color: var(--accent); }
+    .strava-row-icon,
+    .strava-row-map {
+        display: flex;
         align-items: center;
         justify-content: center;
-        width: 2rem;
+        width: 52px;
+        height: 36px;
+        border-radius: var(--radius);
+        background: var(--surface-2);
     }
-
-    .strava-row-map {
-        width: 64px;
-        height: 40px;
-        flex-shrink: 0;
-        background: var(--main-green-translucent, rgba(0, 128, 111, 0.12));
-        border-radius: 8px;
-        padding: 4px;
-        box-sizing: border-box;
-        display: block;
-    }
+    .strava-row-icon { font-size: 1.1rem; }
+    .strava-row-map { padding: 4px; }
     .strava-row-map path {
         fill: none;
-        stroke: var(--main-green, #00806f);
+        stroke: var(--series-1);
         stroke-width: 1.5;
         stroke-linecap: round;
         stroke-linejoin: round;
     }
-
-    .strava-row-main {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        line-height: 1.25;
-    }
-
+    .strava-row-main { display: flex; flex-direction: column; min-width: 0; }
     .strava-row-name {
-        font-weight: 600;
-        color: var(--modal-title-colour, #222);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-medium);
+        color: var(--text-strong);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 0.95rem;
+        transition: color var(--dur-fast) var(--ease);
     }
-
-    .strava-row-meta {
-        font-size: 0.78rem;
-        color: var(--modal-title-colour, #555);
-        opacity: 0.65;
-        margin-top: 0.1rem;
-    }
-
-    .strava-row-sep {
-        display: inline-block;
-        margin: 0 0.5em;
-        opacity: 0.55;
-    }
-
+    .strava-row-meta { font-size: var(--font-xs); color: var(--text-2); }
+    .strava-row-sep { margin: 0 0.4em; color: var(--text-3); }
     .strava-row-stats {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 0.1rem;
-        font-size: 0.85rem;
-        color: var(--modal-title-colour, #333);
+        font-variant-numeric: tabular-nums;
         white-space: nowrap;
     }
-
-    .strava-row-stats strong {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: 1rem;
-        letter-spacing: -0.01em;
-    }
-
-    .strava-row-stats span {
-        font-size: 0.75rem;
-        color: var(--main-green, #00806f);
-        opacity: 0.85;
-    }
-
-    @media (max-width: 460px) {
-        .strava-list-wrap { padding: 0 10px; }
-        .strava-row { gap: 0.6rem; padding: 0.5rem 0.6rem; }
-        .strava-row-icon { font-size: 1.2rem; width: 1.6rem; }
-        .strava-row-name { font-size: 0.88rem; }
-    }
+    .strava-row-stats strong { font-size: var(--font-sm); font-weight: var(--weight-semibold); color: var(--text-strong); }
+    .strava-row-stats span { font-size: var(--font-2xs); color: var(--text-3); }
 </style>

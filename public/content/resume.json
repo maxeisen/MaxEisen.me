@@ -1,0 +1,136 @@
+{
+    "name": "Max Eisen",
+    "title": "Software Engineer",
+    "location": "Toronto, ON",
+    "headshot": "/img/headshots/2026_amazon_headshot_v2",
+    "contact": [
+        {
+            "kind": "web",
+            "label": "maxeisen.me",
+            "href": "https://maxeisen.me"
+        },
+        {
+            "kind": "email",
+            "label": "career@maxeisen.me",
+            "href": "mailto:career@maxeisen.me"
+        },
+        {
+            "kind": "phone",
+            "label": "416-992-6808",
+            "href": "tel:4169926808"
+        },
+        {
+            "kind": "linkedin",
+            "label": "linkedin.com/in/maxeisen",
+            "href": "https://linkedin.com/in/maxeisen/"
+        },
+        {
+            "kind": "github",
+            "label": "github.com/maxeisen",
+            "href": "https://github.com/maxeisen/"
+        }
+    ],
+    "skills": [
+        {
+            "category": "Languages",
+            "items": "JavaScript, TypeScript, Python, Java, Kotlin, Ruby"
+        },
+        {
+            "category": "Frontend",
+            "items": "React, React Native, Next.js, Svelte"
+        },
+        {
+            "category": "Backend",
+            "items": "Node.js, Spring, Rails, PostgreSQL"
+        },
+        {
+            "category": "Cloud",
+            "items": "AWS, Azure"
+        }
+    ],
+    "interests": [
+        "Running",
+        "Cycling",
+        "Skiing",
+        "Hiking",
+        "Guitar",
+        "Travelling"
+    ],
+    "experience": [
+        {
+            "position": "Software Engineer",
+            "company": "Wealthsimple",
+            "companyUrl": "https://wealthsimple.com/",
+            "start": "February 2026",
+            "end": "Present",
+            "location": "Toronto, ON",
+            "bullets": [
+                "Own the Corporate Actions workflows that process major company events (dividends, mergers, stock splits) for 4M+ customers",
+                "Build backend services that keep trade processing reliable across Wealthsimple's investment products",
+                "Build internal tooling the Operations team uses to run day-to-day trade operations"
+            ]
+        },
+        {
+            "position": "Software Engineer",
+            "company": "Amazon",
+            "companyUrl": "https://amazon.com/",
+            "start": "September 2022",
+            "end": "February 2026",
+            "location": "Toronto, ON",
+            "bullets": [
+                "<strong><a href=\"https://www.goodreads.com/\">Goodreads</a></strong>: integrated a new payment system into Giveaways and led brand-safety work for advertisers on a platform of 150M+ members",
+                "<strong><a href=\"https://sell.amazon.com/fulfillment-by-amazon\">Fulfillment by Amazon</a></strong>: owned end-to-end projects to streamline and safeguard how third-party sellers send inventory into Amazon's network",
+                "<strong><a href=\"https://aws.amazon.com/cloudfront/\">CloudFront (AWS)</a></strong>: spent 2 years on a tier-1 CDN, automating maintenance of 14,000+ hosts across its global Points of Presence"
+            ]
+        },
+        {
+            "position": "Software Engineer",
+            "company": "Publicis Sapient",
+            "companyUrl": "https://publicissapient.com/",
+            "start": "September 2021",
+            "end": "September 2022",
+            "location": "Toronto, ON",
+            "bullets": [
+                "Embedded with <a href=\"https://www.goldmansachs.com/\">Goldman Sachs</a> to build key features for its advisor platform, serving ultra-high-net-worth clients in Asset Management",
+                "Designed, built, and shipped across 5 production projects for one of the world's largest investment banks",
+                "Promoted to L1 engineer in under a year"
+            ]
+        },
+        {
+            "position": "Developer Intern",
+            "company": "3Pillar",
+            "companyUrl": "https://3pillarglobal.com",
+            "start": "May 2020",
+            "end": "September 2020",
+            "location": "Toronto, ON",
+            "bullets": [
+                "Built full-stack features in React, Spring Boot, and PostgreSQL on an agile team delivering custom enterprise software",
+                "Co-developed a decision engine designed to be deployed across client companies to handle complex business logic",
+                "Worked across the whole stack, from UI to data layer, through the full development lifecycle"
+            ]
+        },
+        {
+            "position": "CS Teaching Assistant",
+            "company": "Queen's University",
+            "companyUrl": "https://cs.queensu.ca/",
+            "start": "September 2019",
+            "end": "July 2021",
+            "location": "Kingston, ON",
+            "bullets": [
+                "Selected 5 times as a TA for <a href=\"https://www.cs.queensu.ca/undergraduate/courses/CISC-320\">C++</a>, <a href=\"https://www.cs.queensu.ca/undergraduate/courses/CISC-124\">Java</a>, and <a href=\"https://www.cs.queensu.ca/undergraduate/courses/CISC-121\">Python</a> courses based on academic performance, supporting classes of 200+ students",
+                "Held weekly office hours for students working through intermediate and advanced programming assignments",
+                "Helped deliver course content and grade work across multiple semesters"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "Queen's University",
+            "location": "Kingston, ON",
+            "degree": "Bachelor of Computing (Hons) in Computer Science",
+            "start": "September 2017",
+            "end": "April 2021",
+            "note": "Relevant coursework: Data Structures, Algorithms, Software Architecture, Software Development, Databases, and more."
+        }
+    ]
+}

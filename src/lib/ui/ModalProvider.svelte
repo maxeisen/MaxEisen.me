@@ -21,6 +21,7 @@
 	import { setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import CloseButton from './CloseButton.svelte';
+	let { children } = $props();
 	let current = $state(null);
 	let previousHtmlOverflow = '';
 
@@ -70,9 +71,10 @@
 	setContext('simple-modal', { open });
 </script>
 
-<slot />
+{@render children?.()}
 
 {#if current}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
 		class="modal-backdrop"
 		role="presentation"
@@ -87,9 +89,9 @@
 			aria-modal="true"
 			tabindex="-1"
 		>
-			<CloseButton onclick={close} />
+			<CloseButton onclick={close} top="12px" right="12px" />
 			<div class="modal-content" data-modal-body>
-				<svelte:component this={current.Component} {...current.props} />
+				<current.Component {...current.props} />
 			</div>
 		</div>
 	</div>
@@ -99,83 +101,56 @@
 	.modal-backdrop {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.8);
+		z-index: var(--z-modal);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		z-index: 9999;
+		padding: var(--space-4);
+		background: var(--scrim);
 	}
 	.modal-window {
-		background: var(--modal-background, #fff);
-		border-radius: 8px;
-		border: 1px solid rgba(255, 255, 255, 0.35);
-		max-width: 40rem;
+		position: relative;
+		width: min(40rem, 100%);
 		max-height: 90vh;
 		overflow: auto;
-		position: relative;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-pop);
 	}
-	.modal-window--wide {
-		width: 59.375rem; /* 950px */
-		max-width: 90rem;
-	}
-	@media only screen and (max-width: 860px) {
-		.modal-window,
-		.modal-window--wide {
-			width: 90%;
-			max-width: 90vw;
-		}
-	}
-	.modal-content {
-		padding: 1.5rem;
-	}
+	.modal-window--wide { width: min(59.375rem, 100%); }
+	.modal-content { padding: var(--space-6) var(--space-5) var(--space-5); }
 
 	/* ===================================================================
-	   Shared modal-body classes. Defined :global() so any modal mounted
-	   via <svelte:component> picks them up by class name. Each content
-	   modal previously redefined its own title / subtitle / description
-	   under different class names — these consolidate the duplicates.
+	   Shared modal-body classes, :global() so any modal mounted via
+	   <svelte:component> picks them up by class name.
 	   =================================================================== */
 	:global(.modal-title) {
-		font-family: var(--font-sans);
-		font-weight: 600;
+		margin: 0 0 var(--space-1);
+		font-size: var(--font-xl);
+		font-weight: var(--weight-semibold);
 		letter-spacing: -0.02em;
-		font-size: 35px;
-		margin: 15px 15px 10px 15px;
-		text-align: center;
-		color: var(--modal-title-colour);
-		transition: all 0.2s ease-in;
+		line-height: 1.2;
+		color: var(--text-strong);
 	}
 	:global(.modal-subtitle) {
-		font-size: 25px;
-		margin: 5px auto;
-		text-align: center;
-		color: var(--modal-title-colour);
-		transition: all 0.2s ease-in;
-	}
-	:global(.modal-subtitle a) {
-		color: var(--modal-link-colour);
-		transition: color 0.2s ease-in;
-	}
-	:global(.modal-subtitle a:hover) {
-		color: var(--link-hover-colour);
+		margin: 0;
+		font-size: var(--font-md);
+		font-weight: var(--weight-medium);
+		color: var(--text);
 	}
 	:global(.modal-meta) {
-		font-size: 16px;
-		margin: 10px auto;
-		text-align: center;
-		color: var(--modal-subtitle-colour, var(--modal-text-colour));
-		line-height: 1.4;
+		margin: var(--space-2) 0 0;
+		font-size: var(--font-sm);
+		line-height: 1.5;
+		color: var(--text-2);
 	}
 	:global(.modal-description) {
-		margin: 8px auto 10px auto;
-		color: var(--modal-text-colour);
+		margin: var(--space-4) 0 0;
 		line-height: 1.6;
+		color: var(--text);
 	}
-	:global(ul.modal-description li) {
-		margin-bottom: 10px;
-	}
-	:global(ul.modal-description li:last-child) {
-		margin-bottom: 0;
-	}
+	:global(ul.modal-description) { padding-left: 1.2em; }
+	:global(ul.modal-description li) { margin-bottom: var(--space-2); }
+	:global(ul.modal-description li:last-child) { margin-bottom: 0; }
 </style>

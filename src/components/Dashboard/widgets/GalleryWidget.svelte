@@ -54,8 +54,8 @@
 {#if visible}
     <img class="gallery-img" bind:this={imgEl} alt="" loading="lazy"/>
     <div class="gallery-overlay">
-        <div class="gallery-label">Gallery</div>
-        <div class="gallery-cta">View all →</div>
+        <div class="gallery-label">Photos</div>
+        <div class="gallery-cta">See the gallery →</div>
     </div>
 {/if}
 
@@ -67,34 +67,23 @@
         height: 100%;
         object-fit: cover;
         opacity: 0;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.5s ease, transform 0.6s var(--ease);
     }
     .gallery-img:global(.loaded) { opacity: 1; }
+    :global(.widget-gallery:hover) .gallery-img { transform: scale(1.02); }
+    /* Photo text is white on a dark scrim in both themes. */
     .gallery-overlay {
         position: absolute;
         inset: 0;
-        padding: 1rem;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.15) 50%, transparent 100%);
+        z-index: 1;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        z-index: 1;
-    }
-    .gallery-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
+        padding: 16px 20px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 45%),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0%, transparent 30%);
         color: #fff;
-        opacity: 0.9;
-        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
     }
-    .gallery-cta {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: 1rem;
-        color: #fff;
-        letter-spacing: -0.01em;
-        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
-    }
+    .gallery-label { font-size: var(--font-xs); font-weight: var(--weight-medium); opacity: 0.9; }
+    .gallery-cta { font-size: var(--font-sm); font-weight: var(--weight-semibold); }
 </style>

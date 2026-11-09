@@ -20,7 +20,7 @@ const CLOUD = "https://res.cloudinary.com/meisen-gallery/image/upload";
 const DEFAULT = {
 	title: "Max Eisen — Software Engineer",
 	desc: "A Toronto-based Software Engineer — my work, photo galleries, and what I'm up to.",
-	card: "Max Eisen",
+	card: "Software engineer in Toronto",
 };
 
 // path -> { title (document + og), desc, card (short text drawn on the image) }
@@ -32,21 +32,52 @@ const META = {
 	"/dashboard": { title: "Live Dashboard — Max Eisen", desc: "A live look at what I'm listening to, riding, and reading.", card: "Live Dashboard" },
 	"/cycling": { title: "Cycling — Max Eisen", desc: "A ride log: fitness, fatigue, and the last ride. Not a race plan.", card: "Cycling" },
 	"/bach": { title: "Bach — Max Eisen", desc: "An interactive party game.", card: "Bach" },
+	"/resume": { title: "Resume — Max Eisen", desc: "Max Eisen's résumé — software engineer in Toronto.", card: "Resume" },
 	// Private + noindex: a neutral card so sharing the link never reveals photos.
 	"/gallery/wedding": { title: "Max and Lara's Wedding", desc: "A private gallery of Max and Lara's wedding photos.", card: "Max and Lara's Wedding" },
 };
 
-// Cloudinary card: the short title in white serif over the branded backdrop,
-// with a "MAXEISEN.ME" eyebrow. Mirrors the verified transform; commas/slashes
-// inside the text are double-encoded as Cloudinary requires.
-function cardUrl(text) {
-	const enc = encodeURIComponent(text).replace(/%2C/g, "%252C").replace(/%2F/g, "%252F");
+// Cloudinary card, in the site's style: flat ink, the "me." mark and name
+// top-left, the page title large and left-aligned, the domain under it.
+// Built entirely from transformations on og/backdrop (recoloured flat), so a
+// new card needs nothing uploaded. Text that contains commas or slashes is
+// double-encoded, as Cloudinary requires.
+//
+// CARD_FONT is the closest face Cloudinary draws by name — it doesn't carry
+// Inter. Upload Inter as a raw font asset (e.g. "Inter-SemiBold.ttf") and put
+// its public id here to use the real thing.
+const CARD_FONT = "Roboto";
+const INK = "12110f";
+const PAPER = "f4efe6";
+const SAGE = "52683f";
+const MUTED = "aaa192";
+
+function cardText(text) {
+	return encodeURIComponent(text).replace(/%2C/g, "%252C").replace(/%2F/g, "%252F");
+}
+
+export function cardUrl(text) {
+	const f = CARD_FONT;
 	const t = [
 		"c_fill,h_630,w_1200",
-		`c_fit,co_rgb:ffffff,l_text:Georgia_84_bold:${enc},w_980`,
-		"fl_layer_apply,g_center,y_-8",
-		"co_rgb:8fc7a9,l_text:Verdana_30_bold_letter_spacing_6:MAXEISEN.ME",
-		"fl_layer_apply,g_south,y_66",
+		`e_colorize:100,co_rgb:${INK}`,
+		// The mark: a paper square, "me" in ink, the period in sage.
+		"l_og:backdrop",
+		"c_fill,w_88,h_88",
+		`e_colorize:100,co_rgb:${PAPER}`,
+		"r_20",
+		"fl_layer_apply,g_north_west,x_80,y_72",
+		`co_rgb:${INK},l_text:${f}_46_bold_letter_spacing_-2:me`,
+		"fl_layer_apply,g_north_west,x_90,y_103",
+		`co_rgb:${SAGE},l_text:${f}_46_bold:.`,
+		"fl_layer_apply,g_north_west,x_149,y_122",
+		`co_rgb:${PAPER},l_text:${f}_36_bold:Max%20Eisen`,
+		"fl_layer_apply,g_north_west,x_192,y_99",
+		// The title, wrapping onto a second line when it needs to.
+		`c_fit,w_1040,co_rgb:${PAPER},l_text:${f}_112_bold_letter_spacing_-4_line_spacing_-18:${cardText(text)}`,
+		"fl_layer_apply,g_south_west,x_76,y_164",
+		`co_rgb:${MUTED},l_text:${f}_32:maxeisen.me`,
+		"fl_layer_apply,g_south_west,x_80,y_84",
 	].join("/");
 	return `${CLOUD}/${t}/og/backdrop.png`;
 }
@@ -103,5 +134,5 @@ export default async function handler(request, context) {
 }
 
 export const config = {
-	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/running", "/cycling", "/bach"],
+	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/running", "/cycling", "/bach", "/resume"],
 };

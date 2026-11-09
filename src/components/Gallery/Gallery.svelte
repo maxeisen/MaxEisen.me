@@ -16,7 +16,7 @@
     import Slideshow from "./Slideshow.svelte";
     import { downloadPhotos, downloadOne } from "./lib/download.js";
     import { sortPhotos } from "./lib/sortPhotos.js";
-    import BackLink from "../../lib/ui/BackLink.svelte";
+    import SiteNav from "../../lib/ui/SiteNav.svelte";
     import Spinner from "../../lib/ui/Spinner.svelte";
     import { fetchJson, FetchError } from "../../lib/data/fetchJson.js";
 
@@ -216,8 +216,6 @@
             const saved = localStorage.getItem(INTRO_KEY);
             if (saved !== null) introOpen = saved === "true";
         } catch {}
-        document.body.classList.add("gallery-page");
-        return () => document.body.classList.remove("gallery-page");
     });
 
     // Refetch whenever we get a valid password (or on first mount with no gate).
@@ -241,78 +239,77 @@
     />
 {/if}
 
-<BackLink />
-
-{#if photos.length > 0}
-    <div class="top-actions">
-        {#if selectionMode}
-            <button class="action-link cancel" type="button" onclick={toggleSelectionMode} disabled={downloading} aria-label="Cancel selection">
-                <span class="action-link-text">cancel</span>
-                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M4.5 4.5 L11.5 11.5 M11.5 4.5 L4.5 11.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <button
-                class="action-link select-all"
-                type="button"
-                onclick={toggleAll}
-                disabled={downloading}
-                aria-label={allSelected ? "Deselect all" : "Select all"}
-                aria-pressed={allSelected ? "true" : "false"}
-            >
-                <span class="action-link-text">{allSelected ? "none" : "all"}</span>
-                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-                    {#if allSelected}
-                        <rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
-                    {:else}
-                        <rect x="3" y="3" width="10" height="10" rx="2" fill="currentColor"/>
-                        <path d="M5.5 8 L7.5 10 L11 6.5" fill="none" stroke="var(--background-one, #1c1a17)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                    {/if}
-                </svg>
-            </button>
-            <button
-                class="action-link download primary"
-                type="button"
-                onclick={runDownload}
-                disabled={selectedIds.size === 0 || downloading}
-                aria-label={downloadProgress ? `Downloading ${downloadProgress.done} of ${downloadProgress.total}` : `Download ${selectedIds.size} photos`}
-            >
-                <span class="action-link-text">
-                    {#if downloading && downloadProgress}
-                        downloading {downloadProgress.done}/{downloadProgress.total}…
-                    {:else if downloading}
-                        downloading…
-                    {:else}
-                        download ({selectedIds.size})
-                    {/if}
-                </span>
-                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M8 2 L8 11 M4 7.5 L8 11.5 L12 7.5 M3 14 L13 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-        {:else}
-            <button class="action-link" type="button" onclick={() => (slideshowOpen = true)} aria-label="Start slideshow">
-                <span class="action-link-text">slideshow</span>
-                <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M5 4 L14 8 L5 12 Z" fill="currentColor"/>
-                </svg>
-            </button>
-            {#if bulkDownloadEnabled}
-                <button class="action-link" type="button" onclick={toggleSelectionMode} aria-label="Select photos to download">
-                    <span class="action-link-text">select</span>
-                    <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/>
-                        <path d="M5 8 L7 10 L11 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            {/if}
-        {/if}
-    </div>
-{/if}
+<SiteNav />
 
 <main class="container">
     <header class="gallery-header">
         <h1>{title}</h1>
+        {#if photos.length > 0}
+            <div class="top-actions">
+                {#if selectionMode}
+                    <button class="action-link cancel" type="button" onclick={toggleSelectionMode} disabled={downloading} aria-label="Cancel selection">
+                        <span class="action-link-text">cancel</span>
+                        <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M4.5 4.5 L11.5 11.5 M11.5 4.5 L4.5 11.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button
+                        class="action-link select-all"
+                        type="button"
+                        onclick={toggleAll}
+                        disabled={downloading}
+                        aria-label={allSelected ? "Deselect all" : "Select all"}
+                        aria-pressed={allSelected ? "true" : "false"}
+                    >
+                        <span class="action-link-text">{allSelected ? "none" : "all"}</span>
+                        <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                            {#if allSelected}
+                                <rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                            {:else}
+                                <rect x="3" y="3" width="10" height="10" rx="2" fill="currentColor"/>
+                                <path d="M5.5 8 L7.5 10 L11 6.5" fill="none" stroke="var(--surface)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                            {/if}
+                        </svg>
+                    </button>
+                    <button
+                        class="action-link download primary"
+                        type="button"
+                        onclick={runDownload}
+                        disabled={selectedIds.size === 0 || downloading}
+                        aria-label={downloadProgress ? `Downloading ${downloadProgress.done} of ${downloadProgress.total}` : `Download ${selectedIds.size} photos`}
+                    >
+                        <span class="action-link-text">
+                            {#if downloading && downloadProgress}
+                                downloading {downloadProgress.done}/{downloadProgress.total}…
+                            {:else if downloading}
+                                downloading…
+                            {:else}
+                                download ({selectedIds.size})
+                            {/if}
+                        </span>
+                        <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M8 2 L8 11 M4 7.5 L8 11.5 L12 7.5 M3 14 L13 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                {:else}
+                    <button class="action-link" type="button" onclick={() => (slideshowOpen = true)} aria-label="Start slideshow">
+                        <span class="action-link-text">slideshow</span>
+                        <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M5 4 L14 8 L5 12 Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    {#if bulkDownloadEnabled}
+                        <button class="action-link" type="button" onclick={toggleSelectionMode} aria-label="Select photos to download">
+                            <span class="action-link-text">select</span>
+                            <svg class="action-link-icon" viewBox="0 0 16 16" aria-hidden="true">
+                                <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                                <path d="M5 8 L7 10 L11 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    {/if}
+                {/if}
+            </div>
+        {/if}
     </header>
 
     {#if intro}
@@ -337,7 +334,7 @@
 
     {#if loading && !photos.length}
         <div class="state" role="status" aria-label="Loading photos" aria-busy="true">
-            <Spinner size={38} stroke={3} />
+            <Spinner size={24} stroke={2} />
         </div>
     {:else if error}
         <div class="empty-state">{error}</div>
@@ -407,247 +404,129 @@
 <Slideshow photos={displayPhotos} bind:open={slideshowOpen} />
 
 <style>
-    /* The page background drift is scoped to body.gallery-page so it
-       doesn't bleed onto the SPA homepage. The class is added/removed in
-       onMount/onDestroy. */
-    :global(body.gallery-page) {
-        font-family: 'Inter', sans-serif;
-        font-weight: 300;
-        line-height: 1.4;
-        color: var(--paragraph-colour);
-        background-color: var(--background-one);
-        background-image:
-            radial-gradient(circle at 50% 50%, var(--background-glow) 0%, transparent 45%),
-            radial-gradient(circle at 50% 50%, var(--background-accent) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, var(--background-two) 0%, transparent 55%),
-            radial-gradient(circle at 50% 50%, var(--background-two) 0%, transparent 60%);
-        background-size: 180% 180%, 200% 200%, 220% 220%, 270% 270%;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        animation: gradient 25s ease-in-out infinite; /* keyframe in global.css */
-    }
-    @media (prefers-reduced-motion: reduce) {
-        :global(body.gallery-page) { animation: none; }
-    }
-
     .container {
         max-width: 1600px;
         margin: 0 auto;
-        padding: 3rem 1.5rem 4rem;
+        padding: var(--space-7) var(--page-gutter) var(--space-8);
     }
     /* Slimmer side padding on phones → bigger thumbnails edge-to-edge. */
     @media (max-width: 640px) {
-        .container { padding: 1.5rem 0.5rem 3rem; }
+        .container { padding: var(--space-6) var(--space-2) var(--space-7); }
+        .gallery-header, .gallery-intro { padding: 0 var(--space-2); }
     }
 
     .gallery-header {
         display: flex;
-        align-items: baseline;
+        align-items: flex-end;
         justify-content: space-between;
-        margin-bottom: 2.5rem;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
     }
-
     h1 {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: clamp(2rem, 4vw, 3.5rem);
-        letter-spacing: -0.03em;
         margin: 0;
-        color: var(--header-colour);
+        font-size: var(--font-3xl);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--text-strong);
     }
 
     .gallery-intro {
-        max-width: 60ch;
-        margin: -1.25rem 0 2.5rem 0;
-        font-size: 0.95rem;
-        color: var(--paragraph-colour);
+        max-width: 62ch;
+        margin: calc(-1 * var(--space-3)) 0 var(--space-6);
+        font-size: var(--font-sm);
+        color: var(--text);
     }
     .gallery-intro :global(summary) {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         list-style: none;
         cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        opacity: 0.65;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-medium);
+        color: var(--text-2);
         user-select: none;
-        transition: opacity 0.2s ease;
+        transition: color var(--dur-fast) var(--ease);
     }
     .gallery-intro :global(summary::-webkit-details-marker) { display: none; }
-    .gallery-intro :global(summary:hover),
-    .gallery-intro :global(summary:focus-visible) { opacity: 1; outline: none; }
+    .gallery-intro :global(summary:hover) { color: var(--text-strong); }
     .gallery-intro :global(summary::after) {
-        content: '▾';
-        font-size: 0.65rem;
-        line-height: 1;
-        transition: transform 0.2s ease;
+        content: "";
+        width: 0.38em;
+        height: 0.38em;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: translateY(-0.12em) rotate(45deg);
+        transition: transform var(--dur-fast) var(--ease);
     }
-    .gallery-intro[open] :global(summary::after) { transform: rotate(180deg); }
-    .gallery-intro-body {
-        margin-top: 0.65rem;
-        line-height: 1.55;
-        opacity: 0.78;
-    }
-    .gallery-intro-body :global(p) { margin: 0 0 0.7rem 0; }
+    .gallery-intro[open] :global(summary::after) { transform: translateY(0.08em) rotate(-135deg); }
+    .gallery-intro-body { margin-top: var(--space-3); line-height: 1.6; color: var(--text-2); }
+    .gallery-intro-body :global(p) { margin: 0 0 var(--space-3); color: inherit; }
     .gallery-intro-body :global(p:last-child) { margin-bottom: 0; }
     .gallery-intro-body :global(a) {
-        color: var(--main-green);
-        text-decoration: none;
-        border-bottom: 1px solid var(--main-green-translucent);
-        transition: border-color 0.2s ease;
+        text-decoration: underline;
+        text-decoration-color: var(--border-strong);
+        text-underline-offset: 0.2em;
     }
-    .gallery-intro-body :global(a:hover) { border-bottom-color: var(--main-green); }
 
-    /* Help blurb that surfaces when the gallery has upload or download
-       features enabled — sits visually distinct from the user-supplied
+    /* Help that appears when upload or download is on — set apart from the
        intro copy so it reads as instructions, not narrative. */
     .gallery-intro-features {
-        margin-top: 0.9rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid var(--main-green-translucent);
-        font-size: 0.88rem;
-        line-height: 1.55;
-        opacity: 0.78;
+        margin-top: var(--space-3);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
+        font-size: var(--font-xs);
+        line-height: 1.6;
     }
-    .gallery-intro-features strong {
-        color: var(--main-green);
-        font-weight: 600;
-    }
-    .gallery-intro-features em {
-        font-style: normal;
-        font-weight: 600;
-        color: var(--header-colour);
-    }
-    /* Smooth scroll for the in-page "jump to upload zone" link. Scoped
-       to the gallery page so it doesn't change scroll behavior elsewhere. */
-    :global(body.gallery-page) { scroll-behavior: smooth; }
-    /* scroll-margin pushes the target away from any fixed top chrome when
-       the browser scrolls to #upload-zone. */
-    .upload-zone-anchor { scroll-margin-top: 4rem; }
+    .gallery-intro-features strong { font-weight: var(--weight-semibold); color: var(--text-strong); }
+    .gallery-intro-features em { font-style: normal; font-weight: var(--weight-medium); color: var(--text-strong); }
+    .upload-zone-anchor { scroll-margin-top: calc(var(--nav-height) + var(--space-4)); }
 
-    /* Unconditional photo-count footer — sits at the bottom of every
-       gallery so the total is always visible, even when the intro is
-       collapsed or doesn't surface a count. */
+    /* Always visible, so the total is there even with the intro collapsed. */
     .gallery-count {
-        margin-top: 2.5rem;
+        margin-top: var(--space-6);
         text-align: center;
-        font-size: 0.78rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        opacity: 0.55;
+        font-size: var(--font-xs);
         font-variant-numeric: tabular-nums;
+        color: var(--text-3);
     }
 
-    /* Same centered ring the cycling and running dashboards use while
-       their payload is still in flight. */
-    .state {
-        min-height: 60vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .state { min-height: 60vh; display: flex; align-items: center; justify-content: center; }
+    .empty-state { padding: var(--space-8) var(--space-4); text-align: center; color: var(--text-2); }
 
-    .empty-state {
-        text-align: center;
-        padding: 4rem 1rem;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-
-    /* Top-right action stack. One or two buttons depending on whether the
-       gallery is in selection mode (cancel + download) or normal mode
-       (slideshow + optional select). Buttons share styling but the primary
-       download variant fills with the accent colour for emphasis. */
-    .top-actions {
-        position: fixed;
-        top: 1rem;
-        right: 1.25rem;
-        z-index: 10;
-        display: inline-flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
+    /* Header actions: slideshow / select, or, while selecting, cancel / all /
+       download. Outline buttons; download is the one filled. Icons only on
+       a phone, except download, which keeps its count. */
+    .top-actions { display: inline-flex; align-items: center; gap: var(--space-2); }
     .action-link {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        font-family: inherit;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        background: none;
-        border: none;
-        padding: 0;
+        gap: 6px;
+        height: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius);
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-medium);
         cursor: pointer;
-        opacity: 0.45;
-        transition: opacity 0.2s ease, color 0.2s ease;
+        transition: background var(--dur-fast) var(--ease);
     }
-    .action-link:hover:not(:disabled) { opacity: 1; }
-    .action-link:disabled { cursor: not-allowed; opacity: 0.25; }
-    .action-link-icon {
-        display: none;
-        width: 0.85rem;
-        height: 0.85rem;
-        flex-shrink: 0;
-    }
-    .action-link.primary {
-        opacity: 1;
-        color: var(--header-colour);
-    }
-    .action-link.primary:disabled { color: var(--paragraph-colour); opacity: 0.45; }
-    .action-link.cancel { color: var(--paragraph-colour); }
+    .action-link:hover:not(:disabled) { background: var(--surface-2); }
+    .action-link:disabled { cursor: not-allowed; opacity: 0.45; }
+    .action-link-text::first-letter { text-transform: uppercase; }
+    .action-link-icon { width: 14px; height: 14px; flex: none; }
+    .action-link.primary { background: var(--text-strong); border-color: var(--text-strong); color: var(--bg); }
+    .action-link.primary:hover:not(:disabled) { background: var(--text); }
 
-    @media (max-width: 1100px) {
-        .top-actions {
-            top: 0.5rem;
-            right: 0.75rem;
-            gap: 0.5rem;
-        }
-        .action-link {
-            top: 0.5rem;
-            width: 2rem;
-            height: 2rem;
-            box-sizing: border-box;
-            justify-content: center;
-            align-items: center;
-            line-height: 1;
-            padding: 0;
-            background: var(--inner-background, rgba(0, 0, 0, 0.25));
-            border: 1px solid var(--main-green-translucent);
-            border-radius: 50%;
-            opacity: 0.7;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .action-link { gap: 0; }
-        .action-link.primary {
-            background: var(--main-green);
-            color: var(--background-one, #1c1a17);
-            border-color: var(--main-green);
-            /* Pill shape when showing the count + status text on mobile. */
-            width: auto;
-            min-width: 2rem;
-            padding: 0 0.75rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            letter-spacing: 0.06em;
-            gap: 0.35rem;
-        }
-        .action-link.primary .action-link-text { display: inline; }
+    @media (max-width: 640px) {
+        .action-link { width: 32px; padding: 0; justify-content: center; }
         .action-link-text { display: none; }
-        .action-link-icon {
-            display: block;
-            width: 0.95rem;
-            height: 0.95rem;
-            flex: none;
-        }
+        .action-link.primary { width: auto; padding: 0 12px; }
+        .action-link.primary .action-link-text { display: inline; }
     }
 </style>

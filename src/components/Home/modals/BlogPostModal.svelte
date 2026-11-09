@@ -35,7 +35,7 @@
 
 <style>
     :global(.blog-modal) {
-        color: var(--paragraph-colour);
+        color: var(--text);
         text-align: left;
         max-height: 80vh;
         padding: 0 30px 30px 30px;
@@ -47,8 +47,8 @@
         padding-top: 10px;
         padding-bottom: 10px;
         top: -18px;
-        background: var(--modal-background);
-        border-bottom: 1.5px dotted var(--paragraph-colour);
+        background: var(--surface);
+        border-bottom: 1.5px dotted var(--text);
         opacity: 0.99;
     }
 
@@ -57,7 +57,7 @@
         font-size: 35px;
         margin: 15px 15px 10px 15px;
         text-align: center;
-        color: var(--modal-title-colour);
+        color: var(--text-strong);
     }
 
     :global(.blog-modal .blog-author),
@@ -76,7 +76,7 @@
     :global(.blog-modal .blog-date) {
         font-size: 16px;
         margin: 8px auto 8px auto;
-        color: var(--modal-text-colour);
+        color: var(--text);
         line-height: 1.4;
     }
 
@@ -91,7 +91,7 @@
     }
 
     :global(.blog-modal .signature) {
-        text-shadow: 2px 2px 8px var(--nav-background);
+        text-shadow: 2px 2px 8px var(--scrim);
     }
 
     :global(.blog-modal applause-button) {

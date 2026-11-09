@@ -229,16 +229,16 @@
            can crowd the dashed border. */
         margin: 3rem auto 2.5rem auto;
         padding: 1.25rem 1.5rem;
-        border: 2px dashed var(--main-green-translucent);
+        border: 2px dashed var(--border);
         border-radius: 14px;
         text-align: center;
-        color: var(--paragraph-colour);
-        background: rgba(255, 255, 255, 0.015);
+        color: var(--text);
+        background: var(--surface);
         transition: border-color 0.15s ease, background 0.15s ease;
     }
     .upload-zone.dragover {
-        border-color: var(--main-green);
-        background: var(--main-green-translucent);
+        border-color: var(--accent);
+        background: var(--accent-soft);
     }
     .upload-prompt {
         margin: 0;
@@ -249,7 +249,7 @@
     .upload-pick {
         font: inherit;
         font-weight: 600;
-        color: var(--main-green);
+        color: var(--accent);
         background: none;
         border: none;
         padding: 0;
@@ -258,16 +258,16 @@
         text-decoration-style: dotted;
         text-underline-offset: 3px;
     }
-    .upload-pick:hover { color: var(--header-colour); }
+    .upload-pick:hover { color: var(--text-strong); }
     .upload-pick:disabled { opacity: 0.5; cursor: progress; }
 
     .uploader-credit {
         margin: 0.45rem 0 0 0;
         font-size: 0.78rem;
-        color: var(--paragraph-colour);
+        color: var(--text);
         opacity: 0.6;
     }
-    .uploader-credit strong { color: var(--main-green); font-weight: 600; }
+    .uploader-credit strong { color: var(--accent); font-weight: 600; }
     .uploader-edit {
         font: inherit;
         color: inherit;
@@ -279,7 +279,7 @@
         text-decoration-style: dotted;
         text-underline-offset: 2px;
     }
-    .uploader-edit:hover { color: var(--main-green); opacity: 1; }
+    .uploader-edit:hover { color: var(--accent); opacity: 1; }
 
     .uploader-name-field {
         display: flex;
@@ -289,12 +289,12 @@
     }
     .uploader-name-field label {
         font-size: 0.85rem;
-        color: var(--paragraph-colour);
+        color: var(--text);
         opacity: 0.85;
     }
     .uploader-hint {
         font-size: 0.72rem;
-        color: var(--paragraph-colour);
+        color: var(--text);
         opacity: 0.55;
         margin-left: 0.25rem;
     }
@@ -309,25 +309,23 @@
         font: inherit;
         font-size: 0.95rem;
         padding: 0.5rem 0.75rem;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--main-green-translucent);
+        background: var(--bg);
+        border: 1px solid var(--border);
         border-radius: 8px;
-        color: var(--header-colour);
+        color: var(--text-strong);
         outline: none;
         transition: border-color 0.15s ease, background 0.15s ease;
     }
     .uploader-name-row input:focus {
-        border-color: var(--main-green);
-        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--accent);
+        background: var(--bg);
     }
     .uploader-save {
         font: inherit;
         font-weight: 600;
         font-size: 0.85rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--background-one, #1c1a17);
-        background: var(--main-green);
+        color: var(--bg);
+        background: var(--accent);
         border: none;
         padding: 0 1rem;
         border-radius: 8px;
@@ -339,8 +337,8 @@
     .upload-status {
         margin-top: 0.6rem;
         font-size: 0.82rem;
-        color: var(--main-green);
+        color: var(--accent);
         opacity: 0.9;
     }
-    .upload-status.error { color: var(--color-error); }
+    .upload-status.error { color: var(--tone-bad); }
 </style>

@@ -24,14 +24,14 @@ https://github.com/maxeisen/
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="https://maxeisen.me/"/>
     <meta property="og:title" content="Max Eisen — Software Engineer in Toronto"/>
-    <meta property="og:image" content="https://res.cloudinary.com/meisen-gallery/image/upload/c_fill,h_630,w_1200/c_fit,co_rgb:ffffff,l_text:Georgia_84_bold:Max%20Eisen,w_980/fl_layer_apply,g_center,y_-8/co_rgb:8fc7a9,l_text:Verdana_30_bold_letter_spacing_6:MAXEISEN.ME/fl_layer_apply,g_south,y_66/og/backdrop.png"/>
+    <meta property="og:image" content="https://res.cloudinary.com/meisen-gallery/image/upload/c_fill,h_630,w_1200/e_colorize:100,co_rgb:12110f/l_og:backdrop/c_fill,w_88,h_88/e_colorize:100,co_rgb:f4efe6/r_20/fl_layer_apply,g_north_west,x_80,y_72/co_rgb:12110f,l_text:Roboto_46_bold_letter_spacing_-2:me/fl_layer_apply,g_north_west,x_90,y_103/co_rgb:52683f,l_text:Roboto_46_bold:./fl_layer_apply,g_north_west,x_149,y_122/co_rgb:f4efe6,l_text:Roboto_36_bold:Max%20Eisen/fl_layer_apply,g_north_west,x_192,y_99/c_fit,w_1040,co_rgb:f4efe6,l_text:Roboto_112_bold_letter_spacing_-4_line_spacing_-18:Software%20engineer%20in%20Toronto/fl_layer_apply,g_south_west,x_76,y_164/co_rgb:aaa192,l_text:Roboto_32:maxeisen.me/fl_layer_apply,g_south_west,x_80,y_84/og/backdrop.png"/>
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
     <meta property="og:description" content="Software engineer in Toronto — projects, photo galleries, and what I'm up to."/>
     <meta name="twitter:card" content="summary_large_image"/>
     <meta name="twitter:title" content="Max Eisen — Software Engineer in Toronto"/>
     <meta name="twitter:description" content="Software engineer in Toronto — projects, photo galleries, and what I'm up to."/>
-    <meta name="twitter:image" content="https://res.cloudinary.com/meisen-gallery/image/upload/c_fill,h_630,w_1200/c_fit,co_rgb:ffffff,l_text:Georgia_84_bold:Max%20Eisen,w_980/fl_layer_apply,g_center,y_-8/co_rgb:8fc7a9,l_text:Verdana_30_bold_letter_spacing_6:MAXEISEN.ME/fl_layer_apply,g_south,y_66/og/backdrop.png"/>
+    <meta name="twitter:image" content="https://res.cloudinary.com/meisen-gallery/image/upload/c_fill,h_630,w_1200/e_colorize:100,co_rgb:12110f/l_og:backdrop/c_fill,w_88,h_88/e_colorize:100,co_rgb:f4efe6/r_20/fl_layer_apply,g_north_west,x_80,y_72/co_rgb:12110f,l_text:Roboto_46_bold_letter_spacing_-2:me/fl_layer_apply,g_north_west,x_90,y_103/co_rgb:52683f,l_text:Roboto_46_bold:./fl_layer_apply,g_north_west,x_149,y_122/co_rgb:f4efe6,l_text:Roboto_36_bold:Max%20Eisen/fl_layer_apply,g_north_west,x_192,y_99/c_fit,w_1040,co_rgb:f4efe6,l_text:Roboto_112_bold_letter_spacing_-4_line_spacing_-18:Software%20engineer%20in%20Toronto/fl_layer_apply,g_south_west,x_76,y_164/co_rgb:aaa192,l_text:Roboto_32:maxeisen.me/fl_layer_apply,g_south_west,x_80,y_84/og/backdrop.png"/>
     <meta charset="UTF-8">
     <meta name="author" content="Max Eisen">
     <!-- initial-scale=1 pins the layout viewport to the device width. Without
@@ -44,7 +44,7 @@ https://github.com/maxeisen/
     <meta name="description" content="Max Eisen's personal portfolio website."/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Kept in sync with the active light/dark theme by setTheme() below. -->
-    <meta name="theme-color" content="#1c1a17"/>
+    <meta name="theme-color" content="#12110f"/>
     <link rel=canonical href="https://maxeisen.me"/>
     <link rel='manifest' href='/manifest.json'>
     <!-- Warm the connection to the image CDN — gallery + dashboard pull
@@ -52,51 +52,20 @@ https://github.com/maxeisen/
          up front rather than on first image request. -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <!-- Fraunces is no longer used for text anywhere — the only thing left
-         drawing it is the ME monogram (header logo, favicon.svg, logo.svg),
-         which has to match the pre-rendered PNG/ICO icons that
-         scripts/generate_logo_icons.py bakes from this same file. It stays
-         preloaded because that logo is above the fold on every route. -->
-    <link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/img/icons/site-icons/apple_touch_icon.png">
 	<link rel="stylesheet" href="/styles/global.css">
-	<link rel="stylesheet" href="/styles/index.css">
 
     <style>
+        /* Inter is a variable font: one file covers every weight. */
         @font-face {
             font-family: "Inter";
             font-style: normal;
-            font-weight: 300;
+            font-weight: 100 900;
             font-display: swap;
             src: url(/fonts/inter-latin.woff2) format("woff2");
             unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-        }
-        @font-face {
-            font-family: "Inter";
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url(/fonts/inter-latin.woff2) format("woff2");
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-        }
-        @font-face {
-            font-family: "Inter";
-            font-style: normal;
-            font-weight: 600;
-            font-display: swap;
-            src: url(/fonts/inter-latin.woff2) format("woff2");
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-        }
-        /* Monogram only — see the preload note above. */
-        @font-face {
-            font-family: "Fraunces";
-            font-style: normal;
-            font-weight: 500 700;
-            font-display: swap;
-            src: url(/fonts/fraunces-latin.woff2) format("woff2");
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
         }
     </style>
 
@@ -116,25 +85,37 @@ https://github.com/maxeisen/
         setTheme(theme)
 
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        if (event.matches)
-            setTheme("dark");
-        else
-            setTheme("light");
+            fadeTo(event.matches ? "dark" : "light");
         })
-        
+
         function setTheme(theme) {
             localStorage.setItem("theme", theme);
             document.documentElement.setAttribute("data-theme", theme);
             // Keep the browser/PWA chrome (status bar, address bar) matching the
-            // theme's background — dark #1c1a17 / light #f0e7d6 (= --background-one).
+            // theme's background — dark #12110f / light #f2ede3 (= --bg).
             var meta = document.querySelector('meta[name="theme-color"]');
-            if (meta) meta.setAttribute("content", theme === "dark" ? "#1c1a17" : "#f0e7d6");
+            if (meta) meta.setAttribute("content", theme === "dark" ? "#12110f" : "#f2ede3");
+        }
+
+        // Switch with a short cross-fade rather than a hard cut. A view
+        // transition fades the whole page (charts and photos included) where
+        // supported; elsewhere a class briefly turns on colour transitions.
+        // Reduced motion gets the instant switch. Durations: global.css.
+        function fadeTo(theme) {
+            var root = document.documentElement;
+            if (root.getAttribute("data-theme") === theme) return;
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return setTheme(theme);
+            if (document.startViewTransition) {
+                document.startViewTransition(function () { setTheme(theme); });
+                return;
+            }
+            root.classList.add("theme-fading");
+            setTheme(theme);
+            setTimeout(function () { root.classList.remove("theme-fading"); }, 350);
         }
 
         function toggleTheme() {
-            var newTheme = document.documentElement.getAttribute("data-theme") == "dark" ? "light" : "dark";
-            console.log("Activating ".concat(newTheme.concat(" mode...")));
-            setTheme(newTheme);
+            fadeTo(document.documentElement.getAttribute("data-theme") == "dark" ? "light" : "dark");
         }
         window.toggleTheme = toggleTheme;
     </script>
@@ -162,8 +143,9 @@ https://github.com/maxeisen/
 <body>
     <div id="app"></div>
     <noscript>
-        <div style="background-color:rgba(255,255,255,0.2);border-radius:10px;">
-            <h1>You don't have JavaScript enabled! Check out my <a href="/resume">resume</a>, the <a href="/running">running dashboard</a>, or the <a href="/cycling">cycling dashboard</a>.</h1>
+        <div style="max-width:40rem;margin:3rem auto;padding:0 1rem;">
+            <h1>This site needs JavaScript.</h1>
+            <p>The <a href="/running">running</a> and <a href="/cycling">cycling</a> dashboards work without it.</p>
         </div>
     </noscript>
 </body>

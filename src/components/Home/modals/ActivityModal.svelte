@@ -1,162 +1,161 @@
+<!--
+    A hobby, opened from the intro's "Outside of work…" sentence: a photo,
+    its caption, and optionally a link onward. For running and cycling it
+    also shows the year so far and recent activities from Strava.
+
+    Props
+      image    file stem under /img/activities (webp + jpg)
+      audio / video   optional media instead of / beside the photo
+      caption  what the photo is. May hold inline links to other sites;
+               those are marked ↗ so they read as leaving.
+      link     { href, label } — the next step, its own row under the
+               caption: → for a page on this site, ↗ for anywhere else.
+      strava   "run" | "ride" — adds the Strava summary
+-->
 <script>
     import { onMount } from 'svelte';
     import { fetchJsonSwr } from '../../../lib/data/swrCache.js';
     import { STRAVA_FEED_URL } from '../../../lib/strava.js';
     import StravaActivityList from '../widgets/StravaActivityList.svelte';
+    import Stat from '../../../lib/ui/Stat.svelte';
+    import StatGrid from '../../../lib/ui/StatGrid.svelte';
 
-    export let image;
-    export let audio;
-    export let video;
-    export let description;
-    export let strava = null; // 'run' | 'ride' — when set, renders YTD + gear + recent activities
+    let { image = null, audio = null, video = null, caption = '', link = null, strava = null } = $props();
 
-    let profile = null; // null = loading, {} = loaded
+    let profile = $state(null);
 
     onMount(async () => {
         if (!strava) return;
         try {
             const data = await fetchJsonSwr(STRAVA_FEED_URL);
-            profile = {
-                bike: data?.bike ?? null,
-                shoes: data?.shoes ?? null,
-                ytd: data?.ytd ?? null,
-            };
+            profile = { bike: data?.bike ?? null, shoes: data?.shoes ?? null, ytd: data?.ytd ?? null };
         } catch {
-            // Leave profile null: the Strava section just doesn't render.
+            // No profile: the Strava section just doesn't render.
         }
     });
 
     const formatKm = (m) => {
         if (m == null) return '—';
         const km = m / 1000;
-        return km >= 1000
-            ? `${Math.round(km).toLocaleString()} km`
-            : km >= 100 ? `${Math.round(km).toLocaleString()} km`
-            : `${km.toFixed(1)} km`;
+        return km >= 100 ? `${Math.round(km).toLocaleString()} km` : `${km.toFixed(1)} km`;
     };
     const formatMeters = (m) => (m == null ? '—' : `${Math.round(m).toLocaleString()} m`);
     const currentYear = new Date().getFullYear();
 
-    $: ytdTotals = profile && strava ? profile.ytd?.[strava] : null;
-    $: gear = profile && strava === 'ride' ? profile.bike : profile && strava === 'run' ? profile.shoes : null;
-    $: gearLabel = strava === 'ride' ? 'Recently rode' : strava === 'run' ? 'Recently ran in' : '';
+    const ytd = $derived(profile && strava ? profile.ytd?.[strava] : null);
+    const gear = $derived(profile ? (strava === 'ride' ? profile.bike : strava === 'run' ? profile.shoes : null) : null);
+    const gearLabel = $derived(strava === 'ride' ? 'Recently rode' : 'Recently ran in');
+
+    const isInternal = $derived(link?.href?.startsWith('/') ?? false);
+    const alt = $derived(caption.replace(/<[^>]+>/g, ''));
 </script>
 
-<div class="activity-modal">
+<figure class="activity-modal">
     {#if image}
         <picture>
             <source srcset={`./img/activities/${image}.webp`} type="image/webp">
-            <source srcset={`./img/activities/${image}.jpg`} type="image/jpeg">
-            <img class="activity-image" src={`./img/activities/${image}.jpg`} alt={description}>
+            <img class="photo" src={`./img/activities/${image}.jpg`} {alt}>
         </picture>
     {/if}
     {#if audio}
-        <audio class="activity-audio" controls>
+        <audio class="audio" controls>
             <source src={audio} type="audio/mpeg">
             <track kind="captions">
-            Your browser does not support the audio element.
         </audio>
     {/if}
     {#if video}
-        <iframe width="100%" height="315" src="{video}hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0" title="{description}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe class="video" src="{video}hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0" title={alt} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     {/if}
-    <h3 class="activity-description">{@html description}</h3>
 
-    {#if strava && (ytdTotals || gear)}
-        <div class="strava-profile">
-            {#if ytdTotals}
-                <div class="strava-profile-ytd">
-                    <div class="strava-profile-ytd-label">{currentYear} to date</div>
-                    <div class="strava-profile-ytd-stats">
-                        <span><strong>{formatKm(ytdTotals.distance)}</strong></span>
-                        <span><strong>{ytdTotals.count}</strong> {strava === 'ride' ? 'rides' : 'runs'}</span>
-                        <span><strong>{formatMeters(ytdTotals.elevationGain)}</strong> climbed</span>
-                    </div>
-                </div>
+    <figcaption class="caption">{@html caption}</figcaption>
+
+    {#if link}
+        <a
+            class="next"
+            href={link.href}
+            target={isInternal ? undefined : '_blank'}
+            rel={isInternal ? undefined : 'noreferrer'}
+        >
+            <span>{link.label}</span>
+            <span class="arrow" aria-hidden="true">{isInternal ? '→' : '↗'}</span>
+        </a>
+    {/if}
+
+    {#if strava && (ytd || gear?.name)}
+        <section class="strava">
+            {#if ytd}
+                <StatGrid columns={3} rule="top" gap={3}>
+                    <Stat label="{currentYear} distance" value={formatKm(ytd.distance)} />
+                    <Stat label={strava === 'ride' ? 'Rides' : 'Runs'} value={ytd.count} />
+                    <Stat label="Climbed" value={formatMeters(ytd.elevationGain)} />
+                </StatGrid>
             {/if}
             {#if gear?.name}
-                <div class="strava-profile-gear">
-                    {gearLabel} <strong>{gear.name}</strong>
-                </div>
+                <p class="gear">{gearLabel} <strong>{gear.name}</strong></p>
             {/if}
-        </div>
+        </section>
     {/if}
 
     {#if strava}
         <StravaActivityList type={strava} />
     {/if}
-</div>
+
+</figure>
 
 <style>
-    :global(.activity-modal) {
-        color: black;
-        text-align: center;
-    }
+    .activity-modal { margin: 0; text-align: left; }
+    .photo { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+    .audio { width: 100%; margin-top: var(--space-4); }
+    .video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius); }
 
-    :global(.activity-modal .activity-image) {
-        width: 90%;
-        height: auto;
-        border-radius: 5px;
-        box-shadow: 0px 0px 10px #0000009a;
-        margin: 20px auto 0 auto;
-    }
-
-    :global(.activity-modal .activity-audio) {
-        margin: 20px auto 0 auto;
-    }
-
-    :global(.activity-modal .activity-description) {
-        font-weight: 300;
-        margin: 10px auto 10px auto;
-        padding-left: 20px;
-        padding-right: 20px;
-        color: var(--modal-title-colour);
-        line-height: 1.4;
-    }
-
-    :global(.activity-modal .strava-profile) {
-        max-width: 100%;
-        margin: 1rem auto 0.25rem auto;
-        padding: 0 20px;
-        text-align: left;
-        color: var(--modal-title-colour, #333);
-    }
-
-    :global(.activity-modal .strava-profile-ytd) {
-        padding: 0.65rem 0.85rem;
-        border-radius: 10px;
-        background: var(--main-green-translucent, rgba(0, 128, 111, 0.12));
-        border: 1px solid var(--main-green-translucent, rgba(0, 128, 111, 0.18));
-    }
-
-    :global(.activity-modal .strava-profile-ytd-label) {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green, #00806f);
-        margin-bottom: 0.3rem;
-    }
-
-    :global(.activity-modal .strava-profile-ytd-stats) {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem 1rem;
-        font-size: 0.85rem;
-        color: var(--modal-title-colour, #333);
-    }
-
-    :global(.activity-modal .strava-profile-ytd-stats strong) {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: 1rem;
+    /* The caption reads as a caption: the photo's subject in strong ink.
+       Links inside it go to other sites, so each carries a small ↗. */
+    .caption {
+        margin: var(--space-4) 0 0;
+        padding-right: var(--space-5);
+        font-size: var(--font-lg);
+        font-weight: var(--weight-medium);
+        line-height: 1.45;
         letter-spacing: -0.01em;
+        color: var(--text-strong);
+    }
+    .caption :global(a) {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: var(--border-strong);
+        text-underline-offset: 0.2em;
+        transition: text-decoration-color var(--dur-fast) var(--ease);
+    }
+    .caption :global(a:hover) { text-decoration-color: currentColor; }
+    .caption :global(a[target="_blank"])::after {
+        content: "↗";
+        margin-left: 1px;
+        font-size: 0.7em;
+        vertical-align: 0.35em;
+        color: var(--text-3);
     }
 
-    :global(.activity-modal .strava-profile-gear) {
-        margin-top: 0.55rem;
-        font-size: 0.85rem;
-        color: var(--modal-title-colour, #555);
-        opacity: 0.85;
+    .strava { margin-top: var(--space-4); }
+    .gear { margin: var(--space-3) 0 0; font-size: var(--font-sm); color: var(--text-2); }
+    .gear strong { font-weight: var(--weight-medium); color: var(--text-strong); }
+
+    /* The next step: its own row right under the caption, styled as a
+       destination rather than as more of the sentence. */
+    .next {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-top: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-medium);
+        color: var(--text-strong);
+        transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
     }
+    .next:hover { background: var(--surface-2); border-color: var(--border-strong); color: var(--text-strong); }
+    .arrow { color: var(--text-3); transition: transform var(--dur-fast) var(--ease); }
+    .next:hover .arrow { transform: translateX(2px); }
 </style>

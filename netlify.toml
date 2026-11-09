@@ -113,7 +113,7 @@
 # SPA rewrites — known App.svelte routes boot index.html, except /running,
 # which is the trainingPage function so a no-JS browser still gets the
 # dashboard. Keep the rest in sync with ROUTES in src/App.svelte (+ "/" for
-# the homepage). Static files (resume.html, 404.html, /build/*, /styles/*, …)
+# the homepage). Static files (404.html, /build/*, /styles/*, …)
 # are served as-is before these rules run. Anything else falls through to
 # 404.html.
 [[redirects]]
@@ -160,6 +160,16 @@
   from = "/bach"
   to = "/index.html"
   status = 200
+[[redirects]]
+  from = "/resume"
+  to = "/index.html"
+  status = 200
+# The résumé was a standalone resume.html until it became an SPA route; old
+# links (and anything a recruiter bookmarked) still point there.
+[[redirects]]
+  from = "/resume.html"
+  to = "/resume"
+  status = 301
 
 # Unknown paths (e.g. /afgrgadsf, /gallery/nasdjhba) → the standalone
 # 404 page with a real 404 status, not a half-loaded homepage.

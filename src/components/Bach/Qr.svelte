@@ -19,7 +19,7 @@
         QRCode.toDataURL(value, {
             width: size,
             margin: 1,
-            color: { dark: "#1c1a17", light: "#f0e7d6" },
+            color: { dark: "#15130f", light: "#faf8f3" },
             errorCorrectionLevel: "M",
         })
             .then((url) => { if (!cancelled) { dataUrl = url; failed = false; } })
@@ -38,7 +38,7 @@
     .bach-qr {
         display: block;
         border-radius: 12px;
-        background: #f0e7d6;
+        background: #faf8f3;
         padding: 0.5rem;
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
     }

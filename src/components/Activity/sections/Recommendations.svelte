@@ -3,7 +3,7 @@
     triggered it next to the threshold it crossed.
 -->
 <script>
-    import Card from "../Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import { readout, splitLead } from "../lib/format.js";
     import { GLOSSARY } from "../../Training/lib/glossary.js";
 
@@ -57,7 +57,7 @@
 <Card title="Recommendations" {info}>
     {#snippet aside()}
         {#if counts.total > 0}
-            <p class="tally">
+            <p>
                 {#if counts.acted === 0}
                     nothing needs changing
                 {:else}
@@ -97,141 +97,105 @@
 </Card>
 
 <style>
-    .tally {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-        margin: 0;
-    }
+    /* A ruled list rather than a stack of tinted boxes. Severity is carried
+       by the icon and its label, in the tone colour; the copy stays in text
+       colours so six recommendations don't turn the card into a rainbow. */
     ul {
         list-style: none;
         margin: 0;
         padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-3);
     }
-
-    /* A darker tile on the card's lighter surface: the boundary has to be
-       visible without a heavy border, and both surfaces are theme tokens so
-       the relationship holds in light and dark. */
     .rec {
-        padding: var(--space-4);
-        padding-left: var(--space-5);
-        border-radius: var(--radius-md);
-        background: var(--item-background);
-        border: 1px solid var(--main-green-translucent);
-        border-left: 4px solid var(--tone);
-        box-shadow: var(--inner-box-shadow);
+        padding: var(--space-4) 0;
+        border-top: 1px solid var(--border);
     }
-    .tone-bad { --tone: var(--tone-bad); --tone-bg: var(--tone-bad-bg); }
-    .tone-warn { --tone: var(--tone-warn); --tone-bg: var(--tone-warn-bg); }
-    .tone-info { --tone: var(--tone-info); --tone-bg: var(--tone-info-bg); }
-    .tone-good { --tone: var(--tone-good); --tone-bg: var(--tone-good-bg); }
+    .rec:first-child { padding-top: 0; border-top: 0; }
+    .rec:last-child { padding-bottom: 0; }
+    .tone-bad { --tone: var(--tone-bad); }
+    .tone-warn { --tone: var(--tone-warn); }
+    .tone-info { --tone: var(--tone-info); }
+    .tone-good { --tone: var(--tone-good); }
 
     .rec-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: var(--space-3);
-        margin-bottom: var(--space-3);
+        margin-bottom: var(--space-2);
     }
     .rec-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 3px var(--space-2) 3px 6px;
-        border-radius: var(--radius-pill);
-        background: var(--tone-bg);
-        font-size: var(--font-2xs);
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+        gap: 6px;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-semibold);
         color: var(--tone);
     }
     .rec-icon {
         flex: none;
-        width: 1.25em;
-        height: 1.25em;
+        width: 15px;
+        height: 15px;
         display: block;
         fill: none;
         stroke: currentColor;
-        stroke-width: 1.4;
+        stroke-width: 1.5;
         stroke-linecap: round;
         stroke-linejoin: round;
     }
-    .rec-icon .dot {
-        fill: currentColor;
-        stroke: none;
+    .rec-icon .dot { fill: currentColor; stroke: none; }
+
+    .rec-metric {
+        font-size: var(--font-xs);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-3);
+        white-space: nowrap;
+    }
+    h3 {
+        margin: 0 0 var(--space-1);
+        font-size: var(--font-md);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.01em;
+        color: var(--text-strong);
+    }
+    p {
+        margin: 0;
+        max-width: 72ch;
+        font-size: var(--font-sm);
+        line-height: 1.55;
+        color: var(--text-2);
     }
 
     /* Native <details>: keyboard, expanded/collapsed, and find-in-page. */
-    details {
-        margin-top: var(--space-3);
-    }
+    details { margin-top: var(--space-2); }
     summary {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         width: fit-content;
         cursor: pointer;
-        font-size: var(--font-2xs);
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--tone);
-        opacity: 0.8;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-medium);
+        color: var(--text-2);
         list-style: none;
         border-radius: var(--radius-sm);
+        transition: color var(--dur-fast) var(--ease);
     }
     summary::-webkit-details-marker { display: none; }
-    summary:hover { opacity: 1; }
-    summary:focus-visible {
-        outline: 2px solid var(--tone);
-        outline-offset: 3px;
-    }
+    summary:hover { color: var(--text-strong); }
     /* Half a square rotated into a chevron. */
     summary::after {
         content: "";
-        width: 0.4em;
-        height: 0.4em;
+        width: 0.38em;
+        height: 0.38em;
         border-right: 1.5px solid currentColor;
         border-bottom: 1.5px solid currentColor;
         transform: translateY(-0.12em) rotate(45deg);
-        transition: transform 0.15s ease;
+        transition: transform var(--dur-fast) var(--ease);
     }
-    details[open] summary::after {
-        transform: translateY(0.08em) rotate(-135deg);
-    }
+    details[open] summary::after { transform: translateY(0.08em) rotate(-135deg); }
     .rest { margin-top: var(--space-2); }
 
     @media (prefers-reduced-motion: reduce) {
         summary::after { transition: none; }
-    }
-
-    .rec-metric {
-        font-family: var(--font-sans);
-        font-size: var(--font-xs);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        white-space: nowrap;
-    }
-    h3 {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 600;
-        color: var(--header-colour);
-        margin: 0 0 var(--space-2) 0;
-        letter-spacing: -0.01em;
-    }
-    p {
-        font-size: var(--font-sm);
-        line-height: 1.55;
-        color: var(--paragraph-colour);
-        opacity: 0.9;
-        margin: 0;
-        max-width: 78ch;
     }
 </style>

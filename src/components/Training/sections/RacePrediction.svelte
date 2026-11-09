@@ -1,7 +1,11 @@
 <!-- Projected finish: training-supported headline, aerobic equivalent, range. -->
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import ChartLegend from "../../Activity/charts/ChartLegend.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
+    import Stat from "../../../lib/ui/Stat.svelte";
+    import StatGrid from "../../../lib/ui/StatGrid.svelte";
+    import Tag from "../../../lib/ui/Tag.svelte";
     import { gaugePosition, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../../Activity/lib/chart.js";
     import { inBlock, lastRace } from "../lib/block.js";
     import { clock, clockMinutes, daysAgo, gapDuration, km, pace, shortDate, signedClock } from "../../Activity/lib/format.js";
@@ -80,7 +84,7 @@
                 {
                     label: "Projected",
                     value: clockMinutes(history[i].predictedSec),
-                    colour: "var(--main-green)",
+                    colour: "var(--series-1)",
                     yPct: yPct(point.y, HEIGHT),
                 },
             ],
@@ -128,41 +132,41 @@
 
 <Card title={event ? "Projected finish" : "Marathon estimate"} info={GLOSSARY.prediction}>
     {#if !prediction}
-        <p class="empty">
+        <p class="card-empty">
             Not enough recent running to project from. A few weeks of volume, or a race-quality
             effort of 5&nbsp;km or longer, fills this in.
         </p>
     {:else}
         <div class="headline">
-            <div class="projected" class:ahead={event && prediction.onTrack} class:behind={event && prediction.onTrack === false}>
-                <strong>{clockMinutes(prediction.predictedSec)}</strong>
-                <span>{event ? "projected" : "if raced today"}</span>
-            </div>
+            <Stat
+                size="xl"
+                label={event ? "Projected" : "If raced today"}
+                value={clockMinutes(prediction.predictedSec)}
+                tone={event ? (prediction.onTrack ? "good" : prediction.onTrack === false ? "bad" : null) : null}
+            />
             {#if event}
-                <div class="delta" class:ahead={prediction.onTrack}>
-                    {signedClock(prediction.deltaSec)}
-                </div>
+                <Tag tone={prediction.onTrack ? "good" : "bad"} size="md">{signedClock(prediction.deltaSec)}</Tag>
                 {#if prediction.confidence?.label}
-                    <div class="confidence">{prediction.confidence.label} confidence</div>
+                    <span class="confidence">{prediction.confidence.label} confidence</span>
                 {/if}
             {/if}
         </div>
 
         {#if range && rangeDomain}
             <div class="range-wrap">
-                <svg viewBox="0 0 {TRACK} 36" class="range" role="img" aria-label="Likely race-day range">
-                    <rect class="track" x="0" y="14" width={TRACK} height="8" rx="4" />
-                    <rect class="band" x={rangeStart} y="14" width={Math.max(2, rangeEnd - rangeStart)} height="8" rx="4" />
+                <svg viewBox="0 0 {TRACK} 24" class="range" role="img" aria-label="Likely race-day range">
+                    <rect class="track" x="0" y="8" width={TRACK} height="8" rx="4" />
+                    <rect class="band" x={rangeStart} y="8" width={Math.max(2, rangeEnd - rangeStart)} height="8" rx="4" />
                     {#if event && goalMarker !== null}
-                        <line class="goal" x1={goalMarker} x2={goalMarker} y1="8" y2="28" />
+                        <line class="goal" x1={goalMarker} x2={goalMarker} y1="3" y2="21" />
                     {/if}
                     {#if resultMarker !== null}
-                        <line class="result" x1={resultMarker} x2={resultMarker} y1="8" y2="28">
+                        <line class="result" x1={resultMarker} x2={resultMarker} y1="3" y2="21">
                             <title>{finished.isMarathon ? "Last marathon" : "Last race"} {clock(finished.resultSec)}</title>
                         </line>
                     {/if}
                     {#if rangeMarker !== null}
-                        <line class="marker" x1={rangeMarker} x2={rangeMarker} y1="6" y2="30" />
+                        <line class="marker" x1={rangeMarker} x2={rangeMarker} y1="1" y2="23" />
                     {/if}
                 </svg>
                 <!-- A legend rather than end labels: a goal or a past finish
@@ -170,75 +174,74 @@
                      no longer the range's. -->
                 <div class="range-labels">
                     {#if event && goalMarker !== null}
-                        <span><span class="key-tick goal-tick"></span>goal {clock(race.goalTimeSec)}</span>
+                        <span><span class="key-tick goal-tick"></span>Goal {clock(race.goalTimeSec)}</span>
                     {:else if resultMarker !== null}
-                        <span><span class="key-tick result-tick"></span>{finished.isMarathon ? "last marathon" : "last race"} {clock(finished.resultSec)}</span>
+                        <span><span class="key-tick result-tick"></span>{finished.isMarathon ? "Last marathon" : "Last race"} {clock(finished.resultSec)}</span>
                     {/if}
-                    <span class="key-range"><span class="key-band"></span>likely range {clockMinutes(range.fastSec)}–{clockMinutes(range.slowSec)}</span>
+                    <span class="key-range"><span class="key-band"></span>Likely {clockMinutes(range.fastSec)}–{clockMinutes(range.slowSec)}</span>
                 </div>
             </div>
         {/if}
 
-        <div class="models">
-            <div class="model">
-                <span class="model-label">Training</span>
-                <strong>{clockMinutes(prediction.trainingSec)}</strong>
-            </div>
-            <div class="model">
-                <span class="model-label">Aerobic</span>
-                <strong>{clockMinutes(prediction.aerobicPotentialSec)}</strong>
-                {#if Number.isFinite(prediction.vdot)}
-                    <span class="model-note">VDOT {prediction.vdot.toFixed(1)}</span>
+        <div class="section">
+            <StatGrid rule="top" min={96}>
+                <Stat label="Training" value={clockMinutes(prediction.trainingSec)} />
+                <Stat
+                    label="Aerobic"
+                    value={clockMinutes(prediction.aerobicPotentialSec)}
+                    note={Number.isFinite(prediction.vdot) ? `VDOT ${prediction.vdot.toFixed(1)}` : null}
+                />
+                {#if event}
+                    <Stat label="Goal pace" value={pace(race.goalPaceSecPerKm)} />
+                {:else if finished}
+                    <div class="last-race">
+                        <Stat
+                            label={finished.isMarathon ? "Last marathon" : "Last race"}
+                            value={clock(finished.resultSec)}
+                            note={Number.isFinite(sinceRace) && Math.abs(sinceRace) >= 30
+                                ? `${gapDuration(sinceRace)} ${sinceRace > 0 ? "slower" : "faster"} now`
+                                : Number.isFinite(sinceRace)
+                                    ? "estimate matches it"
+                                    : finished.dateLabel}
+                        />
+                    </div>
                 {/if}
-            </div>
-            {#if event}
-                <div class="model">
-                    <span class="model-label">Goal pace</span>
-                    <strong>{pace(race.goalPaceSecPerKm)}</strong>
-                </div>
-            {:else if finished}
-                <div class="model last-race">
-                    <span class="model-label">{finished.isMarathon ? "Last marathon" : "Last race"}</span>
-                    <strong>{clock(finished.resultSec)}</strong>
-                    <span class="model-note">
-                        {#if Number.isFinite(sinceRace) && Math.abs(sinceRace) >= 30}
-                            {gapDuration(sinceRace)} {sinceRace > 0 ? "slower" : "faster"} now
-                        {:else if Number.isFinite(sinceRace)}
-                            estimate matches it
-                        {:else}
-                            {finished.dateLabel}
-                        {/if}
-                    </span>
-                </div>
-            {/if}
+            </StatGrid>
         </div>
 
         {#if history.length > 1 && historyScale}
-            <ChartFrame height={130} {yTicks} {xTicks} {scrub} label="Projected finish over recent weeks">
-                <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
-                    {#if resultY !== null}
-                        <line class="result-line" x1="0" x2={WIDTH} y1={resultY} y2={resultY} />
-                    {/if}
-                    <path class="history-line" d={smoothPath(historyPoints)} />
-                </svg>
-            </ChartFrame>
-            {#if finished}
-                <p class="chart-key">
-                    <span class="key-dash"></span>
-                    {finished.isMarathon ? "last marathon" : "last race"}, {clock(finished.resultSec)} on {finished.dateLabel}
-                </p>
-            {/if}
+            <div class="section">
+                <ChartFrame height={120} {yTicks} {xTicks} {scrub} label="Projected finish over recent weeks">
+                    <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
+                        {#if resultY !== null}
+                            <line class="result-line" x1="0" x2={WIDTH} y1={resultY} y2={resultY} />
+                        {/if}
+                        <path class="history-line" d={smoothPath(historyPoints)} />
+                    </svg>
+                </ChartFrame>
+                <ChartLegend
+                    under
+                    items={[
+                        { label: "Projection over time", color: "var(--series-1)" },
+                        ...(finished ? [{ label: `${finished.isMarathon ? "Last marathon" : "Last race"}, ${clock(finished.resultSec)} on ${finished.dateLabel}`, color: "var(--tone-good)", mark: "dash" }] : []),
+                    ]}
+                />
+            </div>
         {/if}
 
         {#if prediction.factors?.length}
-            <ul class="factors">
-                {#each prediction.factors as factor (factor.id)}
-                    <li class="tone-{factor.tone}">
-                        <span>{factor.label}</span>
-                        <strong>{factor.value || "—"}</strong>
-                    </li>
-                {/each}
-            </ul>
+            <div class="section">
+                <StatGrid rule="top" min={140} gap={3}>
+                    {#each prediction.factors as factor (factor.id)}
+                        <Stat
+                            size="sm"
+                            label={factor.label}
+                            value={factor.value || "—"}
+                            tone={factor.tone === "supporting" ? "good" : factor.tone === "limiting" ? "bad" : null}
+                        />
+                    {/each}
+                </StatGrid>
+            </div>
         {/if}
 
         <p class="basis">{basisNote}</p>
@@ -251,191 +254,63 @@
 <style>
     .headline {
         display: flex;
-        align-items: baseline;
-        gap: var(--space-4);
+        align-items: flex-end;
+        gap: var(--space-3) var(--space-4);
         flex-wrap: wrap;
     }
-    .projected {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.05;
-    }
-    .projected strong {
-        font-family: var(--font-sans);
-        font-size: clamp(2rem, 6vw, 2.8rem);
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        color: var(--header-colour);
-    }
-    .projected.ahead strong { color: var(--tone-good); }
-    .projected.behind strong { color: var(--tone-bad); }
-    .projected span {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin-top: var(--space-2);
-    }
-    .delta {
-        font-size: var(--font-sm);
-        font-weight: 600;
-        padding: var(--space-1) var(--space-3);
-        border-radius: var(--radius-pill);
-        background: var(--tone-bad-bg);
-        color: var(--tone-bad);
-    }
-    .delta.ahead { background: var(--tone-good-bg); color: var(--tone-good); }
     .confidence {
-        font-size: var(--font-2xs);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
         margin-left: auto;
+        font-size: var(--font-xs);
+        color: var(--text-2);
     }
 
     .range-wrap { margin-top: var(--space-5); }
-    .range { width: 100%; height: 36px; display: block; }
-    .track { fill: var(--paragraph-colour); opacity: 0.15; }
-    .band { fill: var(--main-green); opacity: 0.35; }
-    .marker {
-        stroke: var(--header-colour);
-        stroke-width: 3;
-        stroke-linecap: round;
+    .range { width: 100%; height: 24px; display: block; }
+    .track { fill: var(--surface-2); }
+    .band { fill: var(--series-1); opacity: 0.3; }
+    .marker { stroke: var(--text-strong); stroke-width: 2.5; stroke-linecap: round; }
+    .goal { stroke: var(--text-2); stroke-width: 2; stroke-dasharray: 3 3; }
+    /* The finish you ran: solid, where the goal it replaced is dashed. */
+    .result { stroke: var(--tone-good); stroke-width: 2.5; stroke-linecap: round; }
+
+    .range-labels {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--space-1) var(--space-3);
+        margin-top: var(--space-1);
+        font-size: var(--font-2xs);
+        color: var(--text-2);
     }
-    .goal {
-        stroke: var(--paragraph-colour);
+    .range-labels > span { display: inline-flex; align-items: center; gap: 6px; }
+    .key-range { margin-left: auto; }
+    .key-band { width: 14px; height: 6px; border-radius: 3px; background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+    .key-tick { width: 0; height: 11px; }
+    .goal-tick { width: 2px; background: repeating-linear-gradient(to bottom, var(--text-2) 0 3px, transparent 3px 6px); }
+    .result-tick { border-left: 2.5px solid var(--tone-good); }
+
+    .section { margin-top: var(--space-5); }
+    .last-race :global(.stat-value) { color: var(--tone-good); }
+
+    .history-line {
+        fill: none;
+        stroke: var(--series-1);
         stroke-width: 2;
-        stroke-dasharray: 3 3;
-        opacity: 0.55;
-    }
-    /* The finish you ran: solid green, where the goal it replaced is dashed grey. */
-    .result {
-        stroke: var(--tone-good);
-        stroke-width: 2.5;
+        stroke-linejoin: round;
         stroke-linecap: round;
+        vector-effect: non-scaling-stroke;
     }
     .result-line {
         stroke: var(--tone-good);
         stroke-width: 1.5;
         stroke-dasharray: 5 4;
-        opacity: 0.8;
-        vector-effect: non-scaling-stroke;
-    }
-    .last-race strong { color: var(--tone-good); }
-    .chart-key {
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
-        margin: var(--space-2) 0 0 0;
-        font-size: var(--font-2xs);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-    .key-dash {
-        width: 16px;
-        border-top: 1.5px dashed var(--tone-good);
-    }
-    .range-labels {
-        display: flex;
-        justify-content: space-between;
-        font-size: var(--font-2xs);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin-top: 2px;
-        gap: var(--space-3);
-        flex-wrap: wrap;
-    }
-    .range-labels > span { display: inline-flex; align-items: center; gap: 6px; }
-    /* Right-aligned even when there's no marker to share the row with. */
-    .key-range { margin-left: auto; }
-    .key-band {
-        width: 14px;
-        height: 6px;
-        border-radius: 3px;
-        background: var(--main-green);
-        opacity: 0.5;
-    }
-    .key-tick { width: 0; height: 11px; }
-    .goal-tick {
-        width: 2px;
-        background: repeating-linear-gradient(to bottom, var(--paragraph-colour) 0 3px, transparent 3px 6px);
-    }
-    .result-tick { border-left: 2.5px solid var(--tone-good); }
-
-    .models {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: var(--space-3);
-        margin-top: var(--space-5);
-        padding-top: var(--space-4);
-        border-top: 1px solid var(--main-green-translucent);
-    }
-    .model { display: flex; flex-direction: column; gap: 2px; }
-    .model-label {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-    }
-    .model strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 600;
-        color: var(--header-colour);
-    }
-    .model-note {
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-
-    .history-line {
-        fill: none;
-        stroke: var(--main-green);
-        stroke-width: 2.25;
-        stroke-linejoin: round;
-        stroke-linecap: round;
         vector-effect: non-scaling-stroke;
     }
 
-    .factors {
-        list-style: none;
-        margin: var(--space-5) 0 0 0;
-        padding: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: var(--space-3);
-    }
-    .factors li {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.8;
-    }
-    .factors strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--header-colour);
-        opacity: 1;
-    }
-    .factors .tone-supporting strong { color: var(--tone-good); }
-    .factors .tone-limiting strong { color: var(--tone-bad); }
-
-    .basis, .empty {
+    .basis {
+        margin: var(--space-4) 0 0;
         font-size: var(--font-xs);
         line-height: 1.55;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: var(--space-4) 0 0 0;
+        color: var(--text-2);
     }
-    .empty { margin: 0; }
 </style>

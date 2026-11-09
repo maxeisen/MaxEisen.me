@@ -424,7 +424,7 @@
         margin: 0;
         border-radius: 12px;
         overflow: hidden;
-        background: var(--main-green-translucent);
+        background: var(--accent-soft);
         cursor: zoom-in;
         transition: transform 0.2s ease;
         position: relative;
@@ -443,7 +443,7 @@
         user-select: none;
     }
     .gallery.selecting :global(figure.selected) {
-        outline: 3px solid var(--main-green);
+        outline: 3px solid var(--accent);
         outline-offset: -3px;
     }
     .gallery.selecting :global(figure.selected > div) { opacity: 0.85; }
@@ -496,9 +496,9 @@
     }
     .gallery :global(.select-check svg) { width: 16px; height: 16px; display: block; }
     .gallery :global(figure.selected .select-check) {
-        background: var(--main-green);
-        border-color: var(--main-green);
-        color: var(--background-one, #1c1a17);
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg);
     }
 
     /* Per-photo download arrow. Top-right of each figure (same anchor as
@@ -529,7 +529,7 @@
     .gallery :global(.figure-download svg) { width: 14px; height: 14px; display: block; }
     .gallery :global(figure:hover .figure-download),
     .gallery :global(.figure-download:focus-visible) { opacity: 1; }
-    .gallery :global(.figure-download:hover) { background: var(--main-green); border-color: var(--main-green); color: var(--background-one, #1c1a17); }
+    .gallery :global(.figure-download:hover) { background: var(--accent); border-color: var(--accent); color: var(--bg); }
     .gallery :global(.figure-download:active) { transform: scale(0.92); }
     @media (hover: none) {
         .gallery :global(.figure-download) { opacity: 0.9; }

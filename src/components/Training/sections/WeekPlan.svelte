@@ -1,6 +1,8 @@
 <!-- This week against its plan, plus what's coming. -->
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
+    import Stat from "../../../lib/ui/Stat.svelte";
+    import StatGrid from "../../../lib/ui/StatGrid.svelte";
     import { pct, weekday, weekRange } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
 
@@ -35,7 +37,7 @@
 <Card title="This week" info={GLOSSARY.week}>
     {#snippet aside()}
         {#if week?.start}
-            <span class="range">{weekRange(week.start)}</span>
+            <span>{weekRange(week.start)}</span>
         {/if}
     {/snippet}
 
@@ -44,7 +46,7 @@
     {:else}
         <div class="metric">
             <div class="metric-head">
-                <span>Volume</span>
+                <span class="kicker">Volume</span>
                 <strong>
                     {(week.actualKm || 0).toFixed(1)} km
                     {#if week.targetKm}<span class="target">of {week.targetKm}</span>{/if}
@@ -61,7 +63,7 @@
 
         {#if longRun}
             <p class="long-run {longRun.status}">
-                <span class="long-run-label">Long run</span>
+                <span class="kicker">Long run</span>
                 <!-- A distance actually run is what says it happened, so the
                      done state doesn't need a word for it; the other two do. -->
                 {#if longRun.status === "done"}
@@ -120,18 +122,18 @@
             </ul>
         {/if}
 
-        <dl class="mini">
-            <div><dt>Runs</dt><dd>{week.runs}</dd></div>
-            <div><dt>Load</dt><dd>{Math.round(week.load)}</dd></div>
+        <StatGrid rule="top" columns={inBlock ? 3 : 2}>
+            <Stat label="Runs" value={week.runs} />
+            <Stat label="Load" value={Math.round(week.load)} />
             {#if inBlock}
-                <div><dt>Of target</dt><dd>{pct(week.volumePct)}</dd></div>
+                <Stat label="Of target" value={pct(week.volumePct)} />
             {/if}
-        </dl>
+        </StatGrid>
     {/if}
 
     {#if upcoming.length}
         <div class="upcoming">
-            <h3>Coming up</h3>
+            <h3 class="kicker">Coming up</h3>
             <ul>
                 {#each upcoming as week (week.start)}
                     <li>
@@ -146,13 +148,6 @@
 </Card>
 
 <style>
-    .range {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
     .metric { margin-bottom: var(--space-4); }
     .metric-head {
         display: flex;
@@ -160,197 +155,117 @@
         justify-content: space-between;
         margin-bottom: var(--space-2);
     }
-    .metric-head span {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-    }
     .metric-head strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 600;
-        color: var(--header-colour);
+        font-size: var(--font-lg);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.01em;
+        color: var(--text-strong);
     }
     .target {
-        font-family: var(--font-sans);
-        font-size: var(--font-2xs);
-        font-weight: 400;
-        text-transform: none;
-        letter-spacing: 0;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
         margin-left: var(--space-1);
+        font-size: var(--font-xs);
+        font-weight: var(--weight-regular);
+        color: var(--text-3);
     }
     .track {
         height: 6px;
         border-radius: var(--radius-pill);
-        background: var(--item-background);
+        background: var(--surface-2);
         overflow: hidden;
     }
     .fill {
         height: 100%;
-        background: var(--main-green);
         border-radius: var(--radius-pill);
-        transition: width 0.3s ease;
+        background: var(--series-1);
+        transition: width 0.3s var(--ease);
     }
-    .no-plan {
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.55;
-        margin: 0;
-    }
+    .no-plan { margin: 0; font-size: var(--font-xs); color: var(--text-3); }
 
     .long-run {
         display: flex;
         align-items: baseline;
         flex-wrap: wrap;
         gap: var(--space-2);
-        margin: 0 0 var(--space-4) 0;
-        font-size: var(--font-xs);
+        margin: 0 0 var(--space-4);
+        font-size: var(--font-sm);
     }
-    .long-run-label {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-    }
-    .long-run strong {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        color: var(--header-colour);
-    }
+    .long-run .kicker { display: inline; }
+    .long-run strong { font-weight: var(--weight-semibold); color: var(--text-strong); }
     .long-run.done strong { color: var(--tone-good); }
     .long-run.missed strong { color: var(--tone-warn); }
-    .long-run-note { color: var(--paragraph-colour); opacity: 0.6; }
+    .long-run-note { color: var(--text-3); }
 
+    /* The week as a ruled list; today is marked by weight and a rule, not a
+       highlighted box. */
     .days {
         list-style: none;
-        margin: 0 0 var(--space-4) 0;
+        margin: 0 0 var(--space-4);
         padding: 0;
-        display: flex;
-        flex-direction: column;
+        border-top: 1px solid var(--border);
     }
     .day {
         display: grid;
-        grid-template-columns: 46px 1fr auto;
+        grid-template-columns: 52px 1fr auto;
         align-items: baseline;
         gap: var(--space-3);
-        padding: var(--space-2) var(--space-2);
-        border-radius: var(--radius-sm, 4px);
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--border);
         font-size: var(--font-xs);
-        color: var(--paragraph-colour);
-        border-left: 2px solid transparent;
+        color: var(--text);
     }
-    .day.today {
-        background: var(--main-green-translucent);
-        border-left-color: var(--main-green);
-    }
-    /* Rest and strength days recede, but not so far that today disappears on
-       the one week where today happens to be a rest day. */
-    .day.off { opacity: 0.45; }
-    .day.off.today { opacity: 0.8; }
+    .day.today { box-shadow: inset 2px 0 0 var(--accent); padding-left: var(--space-2); }
+    .day.today .day-name { color: var(--text-strong); font-weight: var(--weight-semibold); }
+    /* Rest days recede, but not so far that today disappears on the week
+       where today happens to be a rest day. */
+    .day.off { color: var(--text-3); }
     .day-name {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--main-green);
-        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--text-2);
         white-space: nowrap;
     }
-    .day-plan {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
-    }
+    .day-plan { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .session { display: flex; align-items: baseline; gap: var(--space-2); min-width: 0; }
     .session-type {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-weight: 600;
-        color: var(--header-colour);
-        opacity: 0.75;
+        font-weight: var(--weight-medium);
+        color: var(--text-strong);
         white-space: nowrap;
+        text-transform: capitalize;
     }
+    .day.off .session-type { color: inherit; }
     .session-detail {
-        opacity: 0.65;
+        color: var(--text-3);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .day-km { font-family: var(--font-sans); text-align: right; white-space: nowrap; }
-    .day-km strong { color: var(--main-green); font-weight: 600; }
+    .day-km { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .day-km strong { font-weight: var(--weight-semibold); color: var(--text-strong); }
     .day.done .day-km strong { color: var(--tone-good); }
-    .day.extra .day-km strong { color: var(--header-colour); }
-    .mark {
-        font-family: var(--font-sans);
-        font-size: var(--font-2xs);
-        opacity: 0.5;
-    }
-    .day.missed .mark { color: var(--tone-warn); opacity: 1; font-weight: 600; }
+    .mark { font-size: var(--font-2xs); color: var(--text-3); }
+    .day.missed .mark { color: var(--tone-warn); font-weight: var(--weight-semibold); }
 
     .key {
         list-style: none;
-        margin: 0 0 var(--space-4) 0;
+        margin: 0 0 var(--space-4);
         padding: 0;
         display: flex;
         flex-direction: column;
         gap: var(--space-2);
     }
-    .key li {
-        font-size: var(--font-xs);
-        color: var(--paragraph-colour);
-        opacity: 0.85;
-    }
+    .key li { font-size: var(--font-xs); color: var(--text); }
     .key-type {
-        display: inline-block;
-        padding: 1px 7px;
         margin-right: var(--space-2);
-        border-radius: var(--radius-pill);
-        background: var(--main-green-translucent);
-        color: var(--main-green);
-        font-size: var(--font-2xs);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-    }
-
-    .mini {
-        display: flex;
-        gap: var(--space-5);
-        margin: 0;
-        padding-top: var(--space-3);
-        border-top: 1px solid var(--main-green-translucent);
-    }
-    .mini div { display: flex; flex-direction: column; gap: 2px; }
-    dt {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-    }
-    dd {
-        margin: 0;
-        font-family: var(--font-sans);
-        font-weight: 600;
-        color: var(--header-colour);
+        font-weight: var(--weight-semibold);
+        color: var(--text-strong);
+        text-transform: capitalize;
     }
 
     .upcoming {
         margin-top: var(--space-5);
         padding-top: var(--space-4);
-        border-top: 1px solid var(--main-green-translucent);
+        border-top: 1px solid var(--border);
     }
-    h3 {
-        font-size: var(--font-2xs);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--main-green);
-        margin: 0 0 var(--space-3) 0;
-    }
+    .upcoming h3 { margin: 0 0 var(--space-3); }
     .upcoming ul {
         list-style: none;
         margin: 0;
@@ -364,14 +279,9 @@
         align-items: baseline;
         gap: var(--space-3);
         font-size: var(--font-xs);
-        color: var(--paragraph-colour);
+        color: var(--text);
     }
-    .week-date { flex: 1; opacity: 0.75; }
-    .week-km {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        color: var(--header-colour);
-    }
-    .week-long { opacity: 0.55; min-width: 92px; text-align: right; }
-
+    .week-date { flex: 1; color: var(--text-2); }
+    .week-km { font-weight: var(--weight-semibold); color: var(--text-strong); font-variant-numeric: tabular-nums; }
+    .week-long { min-width: 92px; text-align: right; color: var(--text-3); }
 </style>

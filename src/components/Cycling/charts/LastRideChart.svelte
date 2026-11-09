@@ -1,5 +1,6 @@
 <!-- Heart rate, and meter watts, across one ride. Higher is higher. -->
 <script>
+    import ChartLegend from "../../Activity/charts/ChartLegend.svelte";
     import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
     import { areaPath, contiguous, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../../Activity/lib/chart.js";
 
@@ -81,7 +82,7 @@
                         ? [{
                                 label: "Power",
                                 value: `${Math.round(sample.watts)} W`,
-                                colour: "var(--main-green)",
+                                colour: "var(--series-1)",
                                 yPct: yPct(wattsAxis.y(sample.watts), HEIGHT),
                             }]
                         : []),
@@ -89,7 +90,7 @@
                         ? [{
                                 label: "Heart rate",
                                 value: `${Math.round(sample.hr)} bpm`,
-                                colour: "var(--tone-bad)",
+                                colour: "var(--series-2)",
                                 yPct: yPct(hrAxis.y(sample.hr), HEIGHT),
                             }]
                         : []),
@@ -114,11 +115,14 @@
                 {/each}
             </svg>
         </ChartFrame>
-        <p class="legend">
-            <span>kilometre</span>
-            {#if hasWatts}<span class="key"><span class="swatch power"></span> watts</span>{/if}
-            {#if hasHr}<span class="key"><span class="swatch beats"></span> bpm{hasWatts ? ", right" : ""}</span>{/if}
-        </p>
+        <ChartLegend
+            under
+            items={[
+                ...(hasWatts ? [{ label: "Power, watts", color: "var(--series-1)" }] : []),
+                ...(hasHr ? [{ label: hasWatts ? "Heart rate, right scale" : "Heart rate", color: "var(--series-2)" }] : []),
+            ]}
+            note="By kilometre"
+        />
     </div>
 {/if}
 
@@ -126,31 +130,17 @@
     .chart { margin-top: var(--space-5); }
     .line {
         fill: none;
-        stroke: var(--main-green);
+        stroke: var(--series-1);
         stroke-width: 2;
         stroke-linejoin: round;
+        stroke-linecap: round;
         vector-effect: non-scaling-stroke;
     }
     .hr {
         fill: none;
-        stroke: var(--tone-bad);
-        stroke-width: 1.25;
-        opacity: 0.55;
+        stroke: var(--series-2);
+        stroke-width: 1.5;
         vector-effect: non-scaling-stroke;
     }
-    .hr-fill { fill: var(--tone-bad); opacity: 0.12; }
-    .legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-3);
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-    .key { display: inline-flex; align-items: center; gap: 6px; }
-    .swatch { width: 14px; height: 2px; background: var(--tone-bad); }
-    .swatch.power { background: var(--main-green); }
+    .hr-fill { fill: var(--series-2); opacity: 0.1; }
 </style>

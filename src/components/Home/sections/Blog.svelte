@@ -66,14 +66,14 @@
         font-size: 23px;
         font-weight: 300;
         margin: 5px auto 5px auto;
-        color: var(--item-subtitle);
+        color: var(--text-2);
     }
 
     .blog-description {
         margin: 8px auto 5px auto;
         text-align: center;
         font-size: 18px;
-        color: var(--item-small-text);
+        color: var(--text-2);
         font-weight: 300;
     }
 </style>

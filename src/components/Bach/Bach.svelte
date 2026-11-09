@@ -552,8 +552,8 @@
 <style>
     .bach-root {
         min-height: 100vh;
-        background: var(--background-one);
-        color: var(--paragraph-colour);
+        background: var(--bg);
+        color: var(--text);
         font-family: 'Inter', sans-serif;
     }
 
