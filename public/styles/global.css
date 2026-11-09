@@ -193,6 +193,7 @@
 html {
     box-sizing: border-box;
     scroll-behavior: smooth;
+
     /* <html> owns the page scroll (rather than the viewport) so that
        `scrollbar-gutter: stable` holds through a modal's overflow:hidden
        lock — content never shifts sideways when a scrollbar comes or goes. */
@@ -276,6 +277,7 @@ img { max-width: 100%; }
     animation-duration: 280ms;
     animation-timing-function: ease;
 }
+
 html.theme-fading,
 html.theme-fading *,
 html.theme-fading *::before,
@@ -309,6 +311,7 @@ html.theme-fading *::after {
 
 .drag-tile {
     cursor: grab;
+
     /* A press that becomes a drag mustn't select text or scroll. Pages
        release both once their layout collapses. */
     touch-action: none;

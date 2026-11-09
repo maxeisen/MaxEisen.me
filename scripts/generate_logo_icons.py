@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Generate the "me." mark everywhere it's drawn, from the site's own Inter.
+"""
+Generate the "me." mark everywhere it's drawn, from the site's own Inter.
 
 The mark is a lowercase "me." on an ink square, the period in sage. The
 glyph outlines come from public/fonts/inter-latin.woff2 (instanced at the
@@ -71,8 +72,12 @@ def instanced_font(weight: int) -> tuple[TTFont, Path]:
 
 
 def layout(font: TTFont, width_ratio: float):
-    """Glyph placements for TEXT, scaled so the word is width_ratio of BOX
-    wide, centred horizontally, x-height centred vertically."""
+    """
+    Lay out TEXT as glyph placements in BOX units.
+
+    The word is scaled to width_ratio of BOX, centred horizontally, with its
+    x-height centred vertically.
+    """
     cmap = font.getBestCmap()
     glyphs = font.getGlyphSet()
     upm = font["head"].unitsPerEm
@@ -129,11 +134,11 @@ def raster(ttf_path: Path, font: TTFont, size: int, rounded: bool, width_ratio: 
     else:
         draw.rectangle([0, 0, big, big], fill=INK)
 
-    glyphs, placed, scale, baseline = layout(font, width_ratio)
+    _, placed, scale, baseline = layout(font, width_ratio)
     upm = font["head"].unitsPerEm
     k = big / BOX
     pil_font = ImageFont.truetype(str(ttf_path), round(upm * scale * k))
-    for i, (name, x) in enumerate(placed):
+    for i, (_, x) in enumerate(placed):
         ch = TEXT[i]
         draw.text((x * k, baseline * k), ch, font=pil_font, fill=SAGE if ch == "." else PAPER, anchor="ls")
     return img.resize((size, size), Image.LANCZOS)

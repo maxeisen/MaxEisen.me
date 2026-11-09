@@ -98,7 +98,11 @@
 }
 .host .pack-hint { font-size: 0.9rem; margin: 0 0 0.65rem; opacity: 0.9; }
 .host .pack-hint code { font-size: 0.85em; }
-.host .pack-ok { color: var(--accent); font-size: 0.9rem; margin: 0.35rem 0 0; }
+.host .pack-ok {
+	color: var(--accent);
+	font-size: 0.9rem;
+	margin: 0.35rem 0 0;
+}
 .host .pack-select-row {
 	display: flex;
 	gap: 0.5rem;
@@ -160,7 +164,10 @@
 	color: var(--text-strong);
 }
 .host .bar-leader { text-align: right; }
-.host .bar-leader-name { font-weight: 600; color: var(--text-strong); }
+.host .bar-leader-name {
+	font-weight: 600;
+	color: var(--text-strong);
+}
 .host .bar-actions { margin-left: auto; display: flex; gap: 0.5rem; flex-shrink: 0; }
 
 /* --- Lobby --- */
