@@ -1,5 +1,6 @@
 <!-- Recent activity, newest first, matched against the plan. -->
 <script>
+    import Tag from "../../../lib/ui/Tag.svelte";
     import { getContext } from "svelte";
     import RunModal from "../RunModal.svelte";
     import ActivityLog from "../../Activity/sections/ActivityLog.svelte";
@@ -54,17 +55,15 @@
         <span class="row-meta">
             {shortDate(run.startDateLocal)}
             {#if isRide}
-                <span class="tag ride-tag" title={RIDE_NOTE}>ride</span>
+                <Tag outline class="ride-tag" title={RIDE_NOTE}>ride</Tag>
             {:else if isStrength}
-                <span class="tag ride-tag" title={STRENGTH_NOTE}>strength</span>
+                <Tag outline class="ride-tag" title={STRENGTH_NOTE}>strength</Tag>
             {:else if planned}
-                <span class="tag plan" title={run.plan.detail || ""}>
-                    {run.plan.type || "planned"}
-                </span>
+                <Tag tone="good" class="plan" title={run.plan.detail || ""}>{run.plan.type || "planned"}</Tag>
             {:else if run.plan}
-                <span class="tag extra">extra</span>
+                <Tag outline class="extra">extra</Tag>
             {/if}
-            {#if tag && !isRide && !isStrength}<span class="tag">{tag}</span>{/if}
+            {#if tag && !isRide && !isStrength}<Tag>{tag}</Tag>{/if}
             {#if run.averageHr && !isStrength}· {Math.round(run.averageHr)} bpm{/if}
             {#if run.elevationGainM > 50}· {Math.round(run.elevationGainM)} m up{/if}
         </span>
@@ -113,7 +112,7 @@
 >
     {#snippet summary()}
         {#if runs.length}
-            <span class="count">
+            <span>
                 {#if Number.isFinite(total) && total > runCount}
                     latest {runCount} of {total}
                 {:else}
@@ -128,90 +127,19 @@
 </ActivityLog>
 
 <style>
-    .count {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-    .row-main { flex: 1; min-width: 0; }
-    .row-name {
-        display: block;
-        font-family: var(--font-sans);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--header-colour);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .row-meta {
-        display: block;
-        font-size: var(--font-2xs);
-        line-height: 1.7;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin-top: 3px;
-    }
     .row-note {
         display: block;
-        margin-top: 4px;
-        font-size: var(--font-2xs);
-        line-height: 1.6;
+        margin-top: var(--space-1);
+        font-size: var(--font-xs);
+        line-height: 1.55;
         font-style: italic;
-        color: var(--paragraph-colour);
+        color: var(--text);
     }
     .note-label {
-        font-style: normal;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
         margin-right: var(--space-2);
+        font-style: normal;
+        font-weight: var(--weight-medium);
+        color: var(--text-3);
     }
-    .tag { margin: 0 2px; }
-    .tag.ride-tag {
-        background: transparent;
-        border: 1px dashed var(--paragraph-colour);
-        color: var(--paragraph-colour);
-        text-transform: lowercase;
-        opacity: 0.9;
-    }
-    .row-stat {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        flex-shrink: 0;
-        min-width: 82px;
-        text-align: right;
-    }
-    .row-stat strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--header-colour);
-        line-height: 1.2;
-    }
-    .row-stat span {
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-    }
-    .row-stat span.adjusted {
-        color: var(--main-green);
-        opacity: 1;
-    }
-
-    @media (max-width: 540px) {
-        .row-main { flex-basis: 100%; }
-        .row-stat {
-            min-width: 0;
-            align-items: flex-start;
-            text-align: left;
-        }
-        .row-stat + .row-stat {
-            align-items: flex-end;
-            text-align: right;
-        }
-    }
+    .row-stat span.adjusted { color: var(--text-2); font-weight: var(--weight-medium); }
 </style>

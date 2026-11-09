@@ -1,6 +1,6 @@
 // MaxEisen.me service worker
 // Bump SHELL_VERSION to force clients to refresh the precache.
-const SHELL_VERSION = "v13";
+const SHELL_VERSION = "v15";
 const SHELL_CACHE = `maxeisen-shell-${SHELL_VERSION}`;
 const RUNTIME_CACHE = `maxeisen-runtime-${SHELL_VERSION}`;
 
@@ -8,10 +8,9 @@ const PRECACHE_URLS = [
 	"/",
 	"/dashboard",
 	"/gallery",
-	"/resume.html",
+	"/resume",
 	"/manifest.json",
 	"/fonts/inter-latin.woff2",
-	"/fonts/fraunces-latin.woff2",
 	"/img/icons/site-icons/icon-192.png",
 	"/img/icons/site-icons/icon-512.png",
 	"/img/icons/site-icons/apple_touch_icon.png",

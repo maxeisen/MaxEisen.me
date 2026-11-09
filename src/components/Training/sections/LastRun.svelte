@@ -6,7 +6,7 @@
     two read identically.
 -->
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import RunDetails from "./RunDetails.svelte";
     import { daysAgo } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
@@ -17,7 +17,7 @@
 <Card title="Last run" info={GLOSSARY.lastRun}>
     {#snippet aside()}
         {#if run}
-            <span class="when">{daysAgo(run.daysAgo)}</span>
+            <span>{daysAgo(run.daysAgo)}</span>
         {/if}
     {/snippet}
 
@@ -27,13 +27,3 @@
         <RunDetails {run} />
     {/if}
 </Card>
-
-<style>
-    .when {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-</style>

@@ -1,7 +1,9 @@
 <!-- Weekly volume against the plan. Bars are what was run; ticks are targets. -->
 <script>
-    import Card from "../Card.svelte";
+    import ChartLegend from "../charts/ChartLegend.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
+    import Bars from "../charts/Bars.svelte";
     import { axisTicks, bars, CHART_WEEKS, niceScale, xPct, yPct } from "../lib/chart.js";
     import { axisDate, weekCaption } from "../lib/format.js";
     import { GLOSSARY } from "../../Training/lib/glossary.js";
@@ -39,6 +41,7 @@
     // Between blocks there's nothing to plan against, and a legend entry for
     // ticks that aren't drawn is noise.
     const hasTargets = $derived(targets.some(Boolean));
+    const hasTaper = $derived(shown.some((w) => w.isTaper));
 
     // Run against planned, week by week. The bar and its tick are the two
     // numbers the chart is a comparison of, so both belong in the readout —
@@ -52,7 +55,7 @@
                 {
                     label: week.isTaper ? `${distanceLabel} (taper)` : distanceLabel,
                     value: `${(week.actualKm || 0).toFixed(1)} km`,
-                    colour: week.isTaper ? "var(--background-accent)" : "var(--main-green)",
+                    colour: week.isTaper ? "var(--series-3)" : "var(--series-1)",
                     yPct: yPct(layout[i].y, HEIGHT),
                 },
                 ...(week.targetKm > 0
@@ -60,7 +63,7 @@
                             {
                                 label: "Planned",
                                 value: `${week.targetKm} km`,
-                                colour: "var(--paragraph-colour)",
+                                colour: "var(--text-strong)",
                                 yPct: yPct(targets[i].y, HEIGHT),
                             },
                         ]
@@ -91,93 +94,29 @@
 
 <Card title="Weekly volume" {info}>
     {#snippet aside()}
-        <p class="legend">
-            <span class="swatch actual"></span> {distanceLabel.toLowerCase()}
-            {#if hasTargets}<span class="swatch planned"></span> planned{/if}
-            <span class="window">last {CHART_WEEKS} weeks</span>
-        </p>
+        <ChartLegend
+            items={[
+                { label: distanceLabel, color: "var(--series-1)", mark: "box" },
+                ...(hasTaper ? [{ label: "Taper", color: "var(--series-3)", mark: "box" }] : []),
+                ...(hasTargets ? [{ label: "Planned", color: "var(--text-strong)" }] : []),
+            ]}
+            note="Last {CHART_WEEKS} weeks"
+        />
     {/snippet}
 
     {#if shown.length === 0}
         <p class="card-empty">No weeks recorded yet.</p>
     {:else}
         <ChartFrame height={190} {yTicks} {xTicks} {scrub} label={chartLabel ?? (hasTargets ? "Weekly running volume in kilometres against plan" : "Weekly running volume in kilometres")}>
-            <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
-                {#each layout as bar, i}
-                    {@const week = shown[i]}
-                    <rect
-                        class="bar"
-                        class:taper={week.isTaper}
-                        x={bar.x}
-                        y={bar.y}
-                        width={bar.width}
-                        height={bar.height}
-                        rx="2"
-                    ></rect>
-                    {#if targets[i]}
-                        <line
-                            class="target"
-                            x1={targets[i].x - 2}
-                            x2={targets[i].x + targets[i].width + 2}
-                            y1={targets[i].y}
-                            y2={targets[i].y}
-                        />
-                    {/if}
-                {/each}
-            </svg>
+            <Bars
+                {layout}
+                width={WIDTH}
+                height={HEIGHT}
+                colorFor={(i) => (shown[i]?.isTaper ? "var(--series-3)" : null)}
+                targets={targets.map((t) => t?.y ?? null)}
+            />
         </ChartFrame>
-        <p class="chart-unit">kilometres per week</p>
+        <p class="chart-unit">Kilometres per week</p>
     {/if}
 </Card>
 
-<style>
-    .legend {
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin: 0;
-        flex-wrap: wrap;
-    }
-    .swatch {
-        display: inline-block;
-        width: 12px;
-        height: 8px;
-        border-radius: 2px;
-    }
-    .swatch.actual { background: var(--main-green); }
-    .swatch.planned {
-        height: 2px;
-        background: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-    .window {
-        padding-left: var(--space-2);
-        border-left: 1px solid var(--main-green-translucent);
-        opacity: 0.85;
-    }
-
-    .bar {
-        fill: var(--main-green);
-        opacity: 0.75;
-        transition: opacity 0.15s ease;
-    }
-    .bar:hover { opacity: 1; }
-    /* Taper weeks are meant to be small — mark them so a short bar late in
-       the block doesn't read as a missed week. */
-    .bar.taper {
-        fill: var(--background-accent);
-        opacity: 0.9;
-    }
-    .target {
-        stroke: var(--paragraph-colour);
-        stroke-width: 2;
-        opacity: 0.55;
-        stroke-linecap: round;
-    }
-
-</style>

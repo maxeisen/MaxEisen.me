@@ -161,7 +161,8 @@
             icon: 'running',
             modal: {
                 image: 'run',
-                description: 'Running the 2026 <a href="https://www.chicagomarathon.com/" rel="noreferrer" target="_blank">Chicago Marathon</a> (chip time <a href="https://events.hakuapp.com/?registration_number=258E41295DE0" target="_blank" rel="noreferrer">3:26:19</b></a>)<br>Check out my <a href="/running">Running Dashboard</a>',
+                caption: 'Running the 2026 <a href="https://www.chicagomarathon.com/" rel="noreferrer" target="_blank">Chicago Marathon</a> in a chip time of <a href="https://events.hakuapp.com/?registration_number=258E41295DE0" target="_blank" rel="noreferrer">3:26:19</a>',
+                link: { href: '/running', label: 'Running dashboard' },
                 strava: 'run'
             }
         },
@@ -170,26 +171,27 @@
             icon: 'cycling',
             modal: {
                 image: 'cycle',
-                description: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">Vancouver to Whistler GranFondo</a><br>Check out my <a href="/cycling">Cycling Dashboard</a>',
+                caption: 'Riding the 2023 <a href="https://www.rbcgranfondo.com/whistler/" rel="noreferrer" target="_blank">Vancouver to Whistler GranFondo</a>',
+                link: { href: '/cycling', label: 'Cycling dashboard' },
                 strava: 'ride'
             }
         },
         {
             label: 'skiing',
             icon: 'skiing',
-            modal: { image: 'ski', description: 'Skiing in Whistler, BC' }
+            modal: { image: 'ski', caption: 'Skiing in Whistler, BC' }
         },
         {
             label: 'hiking',
             icon: 'hiking',
-            modal: { image: 'hike', description: 'Hiking in Bergen, Norway' }
+            modal: { image: 'hike', caption: 'Hiking in Bergen, Norway' }
         },
         {
             label: 'travelling',
             icon: 'travelling',
             modal: {
                 image: 'travel',
-                description: 'Post-landing at <a href="https://en.wikipedia.org/wiki/Gustaf_III_Airport" rel="noreferrer" target="_blank">Gustaf III Airport</a> in a DHC-6 Twin Otter'
+                caption: 'Post-landing at <a href="https://en.wikipedia.org/wiki/Gustaf_III_Airport" rel="noreferrer" target="_blank">Gustaf III Airport</a> in a DHC-6 Twin Otter'
             }
         },
         {
@@ -197,26 +199,27 @@
             icon: 'photos',
             modal: {
                 image: 'photography',
-                description: 'Cape Town, South Africa<br>Check out more in my <a href="/gallery">Gallery</a>'
+                caption: 'Cape Town, South Africa',
+                link: { href: '/gallery', label: 'More in the photo gallery' }
             }
         },
         {
             label: 'playing guitar',
             icon: 'guitar',
-            modal: { image: 'guitar', description: 'Playing guitar... duh' },
+            modal: { image: 'guitar', caption: 'Playing guitar… duh' },
             separator: ', or '
         }
     ];
 </script>
 
 <div class="intro-container" id="intro">
-    <h1 class="section-title">Who is Max?</h1>
+    <h2 class="intro-title">Who is Max?</h2>
     <div class="intro-paragraph">
-        <p class="title-extension">I'm a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">Software Engineer</Annotation></span> at <span class="wealthsimple-wrap"><a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a><svg class="dollar-sprinkle" class:visible={annotationsVisible} viewBox="-60 -26 120 44" aria-hidden="true">{#each dollars as d}<g transform="translate({d.x} {d.y}) rotate({d.rot}) scale({d.scale})" stroke-width={d.strokeWidth} style="--draw-delay: {d.delay}s"><path d={d.barPath} pathLength="1" /><path d={d.sPath} pathLength="1" /></g>{/each}</svg></span>,
-        a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="underline" color="var(--intro-annotation-colour)">Computer Science</Annotation></span> graduate from <span class="queens-wrap"><a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a><svg class="crown-sprinkle" class:visible={annotationsVisible} viewBox="-60 -22 120 36" aria-hidden="true">{#each crowns as c}<g transform="translate({c.x} {c.y}) rotate({c.rot}) scale({c.scale})" stroke-width={c.strokeWidth} style="--draw-delay: {c.delay}s"><path d={c.outlinePath} pathLength="1" /><path d={c.bandPath} pathLength="1" /></g>{/each}</svg></span>.
+        <p class="title-extension">I'm a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="highlight" color="var(--highlight)">Software Engineer</Annotation></span> at <span class="wealthsimple-wrap"><a class="intro-link" href="https://wealthsimple.com" rel="noreferrer" target="_blank">Wealthsimple</a><svg class="dollar-sprinkle" class:visible={annotationsVisible} viewBox="-60 -26 120 44" aria-hidden="true">{#each dollars as d}<g transform="translate({d.x} {d.y}) rotate({d.rot}) scale({d.scale})" stroke-width={d.strokeWidth} style="--draw-delay: {d.delay}s"><path d={d.barPath} pathLength="1" /><path d={d.sPath} pathLength="1" /></g>{/each}</svg></span>,
+        a <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="underline" color="var(--highlight)">Computer Science</Annotation></span> graduate from <span class="queens-wrap"><a class="intro-link" href="https://www.queensu.ca/" rel="noreferrer" target="_blank">Queen's University</a><svg class="crown-sprinkle" class:visible={annotationsVisible} viewBox="-60 -22 120 36" aria-hidden="true">{#each crowns as c}<g transform="translate({c.x} {c.y}) rotate({c.rot}) scale({c.scale})" stroke-width={c.strokeWidth} style="--draw-delay: {c.delay}s"><path d={c.outlinePath} pathLength="1" /><path d={c.bandPath} pathLength="1" /></g>{/each}</svg></span>.
         I build software that works, works well, and works at scale.</p>
 
-        <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--intro-annotation-colour)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--intro-annotation-colour)">end to end</Annotation></span>.</p>
+        <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--highlight)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--highlight)">end to end</Annotation></span>.</p>
 
         <p class="activities-paragraph">Outside of work, you'll find me {#each activities as a, i}{#if i > 0}{a.separator ?? ', '}{/if}<activity tabindex="0" on:click={() => openActivityModal(a.modal)}>{a.label}{@render activityIcon(a.icon)}</activity>{/each}.</p>
 
@@ -232,29 +235,33 @@
             {/if}
         {/snippet}
 
-        <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--intro-highlight-colour)">recruiting</Annotation>.</p>
+        <p><a class="intro-link" href="mailto:intro@maxeisen.me" rel="noreferrer" target="_blank">Email me</a> if you want to connect, or check out my <a class="intro-link" href="/resume">resume</a> if you're <Annotation bind:visible={annotationsVisible} type="highlight" color="var(--highlight)">recruiting</Annotation>.</p>
     </div>
 </div>
 
 <style>
-    .section-title-intro {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        text-align: left;
-        font-family: var(--font-sans);
-        font-weight: 600;
-        letter-spacing: -0.02em;
+    .intro-container { margin-bottom: var(--space-8); }
+    .intro-title {
+        margin: 0 0 var(--space-4);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: 0;
+        color: var(--text-3);
     }
-
-    .title-extension {
-        padding-top: 0;
-        margin-top: 0;
-    }
-
     .intro-paragraph {
-        font-size: 18px;
-        margin-bottom: 30px;
-        line-height: 1.5;
+        font-size: var(--font-lg);
+        line-height: 1.6;
+    }
+    .intro-paragraph p { margin: 0 0 var(--space-4); color: var(--text); }
+    /* Leading tall enough for the dollar and crown sprinkles to sit between
+       lines: "Queen's University" wraps to the second line at every desktop
+       width, and its crowns draw up into the space under the first. Back to
+       ordinary leading below 860px, where the sprinkles are hidden. */
+    .intro-paragraph p:first-child {
+        font-size: 1.375rem;
+        line-height: 2;
+        letter-spacing: -0.01em;
+        color: var(--text-strong);
     }
 
     .nowrap {
@@ -268,8 +275,11 @@
     activity {
         position: relative;
         display: inline-block;
-        color: var(--intro-link-colour);
-        transition: all 0.2s ease-in;
+        color: var(--text-strong);
+        text-decoration: underline dotted;
+        text-decoration-color: var(--border-strong);
+        text-underline-offset: 0.25em;
+        transition: color var(--dur-fast) var(--ease);
     }
 
     .activity-icon {
@@ -287,7 +297,7 @@
 
     .activity-icon path {
         fill: none;
-        stroke: var(--main-green);
+        stroke: var(--accent);
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
         opacity: 0;
@@ -306,23 +316,20 @@
     }
 
     activity:hover {
-        color: var(--main-green);
+        color: var(--accent);
         cursor: pointer;
     }
 
     .intro-link {
-        font-weight: 400;
-        color: var(--intro-link-colour);
+        color: var(--text-strong);
+        text-decoration: underline;
+        text-decoration-color: var(--border-strong);
+        text-underline-offset: 0.2em;
+        text-decoration-thickness: 1px;
     }
 
     .intro-link:hover {
-        color: var(--link-hover-colour);
-    }
-
-    .intro-extras {
-        font-size: 0.9em;
-        opacity: 0.75;
-        margin-top: -0.4rem;
+        color: var(--accent-hover);
     }
 
     .wealthsimple-wrap,
@@ -335,7 +342,7 @@
     .crown-sprinkle {
         position: absolute;
         left: 50%;
-        bottom: calc(100% - 8px);
+        bottom: calc(100% - 0.6em);
         transform: translateX(-50%);
         overflow: visible;
         pointer-events: none;
@@ -344,19 +351,19 @@
     }
 
     .dollar-sprinkle {
-        width: 7em;
-        height: 1.7em;
+        width: 4.9em;
+        height: 1.2em;
     }
 
     .crown-sprinkle {
-        width: 8.5em;
-        height: 1.6em;
+        width: 6em;
+        height: 1.1em;
     }
 
     .dollar-sprinkle path,
     .crown-sprinkle path {
         fill: none;
-        stroke: var(--main-green);
+        stroke: var(--accent);
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
         opacity: 0;
@@ -383,16 +390,12 @@
     }
 
     @media only screen and (max-width: 460px) {
-        .section-title-intro {
-            font-size: 36px;
-        }
-
-        .intro-paragraph {
-            font-size: 16px;
-        }
+        .intro-paragraph { font-size: var(--font-md); }
+        .intro-paragraph p:first-child { font-size: var(--font-lg); }
     }
 
     @media only screen and (max-width: 860px) {
+        .intro-paragraph p:first-child { line-height: 1.45; }
         .dollar-sprinkle,
         .crown-sprinkle,
         .activity-icon {

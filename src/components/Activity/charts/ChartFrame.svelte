@@ -10,9 +10,9 @@
 		/** Plot height in px. */
 		height = 180,
 		/**
-		 * From axisTicks(): [{ value, label, pct, colour? }], pct measured
-		 * from the bottom. `colour` ties a label to one series when the
-		 * number would otherwise read as belonging to the gridlines.
+		 * From axisTicks(): [{ value, label, pct }], pct measured from
+		 * the bottom. Tick text is always text ink, never a series colour:
+		 * the caption under the chart says which scale belongs to which line.
 		 */
 		yTicks = [],
 		/**
@@ -143,7 +143,7 @@
 >
 	<div class="y-axis" aria-hidden="true">
 		{#each yTicks as tick (tick.value)}
-			<span class:own={tick.colour} style="bottom: {tick.pct}%{tick.colour ? `; color: ${tick.colour}` : ''}">{tick.label}</span>
+			<span style="bottom: {tick.pct}%">{tick.label}</span>
 		{/each}
 	</div>
 
@@ -180,7 +180,7 @@
 					<span
 						class="dot"
 						style="left: {current.pct}%; bottom: {readout.yPct}%; --dot: {readout.colour ||
-							'var(--main-green)'}"
+							'var(--series-1)'}"
 						aria-hidden="true"
 					></span>
 				{/if}
@@ -207,7 +207,7 @@
 	{#if rightTicks.length}
 		<div class="y-axis right" aria-hidden="true">
 			{#each rightTicks as tick (tick.value)}
-				<span class:own={tick.colour} style="bottom: {tick.pct}%{tick.colour ? `; color: ${tick.colour}` : ''}">{tick.label}</span>
+				<span style="bottom: {tick.pct}%">{tick.label}</span>
 			{/each}
 		</div>
 	{/if}
@@ -245,30 +245,20 @@
 		position: relative;
 		height: var(--plot-height);
 		/* Reserve the label column without measuring: four characters of
-		   0.7rem digits, which covers "1.30" and "-20". */
+		   tick text, which covers "1.30" and "-20". */
 		min-width: 2.1rem;
 	}
-	.y-axis.right {
-		grid-column: 3;
-		min-width: 1.9rem;
-	}
-	.y-axis span {
+	.y-axis.right { grid-column: 3; min-width: 1.9rem; }
+	.y-axis span,
+	.x-axis span {
 		position: absolute;
-		right: 0;
-		transform: translateY(50%);
 		font-size: var(--font-2xs);
 		font-variant-numeric: tabular-nums;
-		color: var(--paragraph-colour);
-		opacity: 0.55;
+		color: var(--text-3);
 		white-space: nowrap;
 	}
-	/* A coloured label belongs to a series, so it should read as that series
-	   rather than as another gridline. */
-	.y-axis span.own { opacity: 0.9; }
-	.y-axis.right span {
-		right: auto;
-		left: 0;
-	}
+	.y-axis span { right: 0; transform: translateY(50%); }
+	.y-axis.right span { right: auto; left: 0; }
 
 	.plot {
 		grid-column: 2;
@@ -284,7 +274,7 @@
 	}
 	.plot:focus { outline: none; }
 	.plot:focus-visible {
-		outline: 2px solid var(--main-green);
+		outline: 2px solid var(--accent);
 		outline-offset: 4px;
 		border-radius: var(--radius-sm);
 	}
@@ -296,22 +286,21 @@
 		display: block;
 		overflow: visible;
 	}
+	/* Hairline, solid, one step off the surface: the grid recedes. */
 	.grid line {
-		stroke: var(--paragraph-colour);
+		stroke: var(--border);
 		stroke-width: 1;
-		opacity: 0.12;
 		vector-effect: non-scaling-stroke;
 	}
 	/* Zero is a reference, not a gridline — it wants to read as the floor. */
-	.grid line.base { opacity: 0.28; }
+	.grid line.base { stroke: var(--border-strong); }
 
 	.cursor {
 		position: absolute;
 		top: 0;
 		bottom: 0;
 		width: 1px;
-		background: var(--paragraph-colour);
-		opacity: 0.45;
+		background: var(--text-3);
 		pointer-events: none;
 	}
 	.dot {
@@ -321,9 +310,8 @@
 		margin: 0 0 -4.5px -4.5px;
 		border-radius: 50%;
 		background: var(--dot);
-		/* Ringed in an opaque surface so a dot stays legible where it sits on
-		   top of the line it belongs to. */
-		box-shadow: 0 0 0 2px var(--background-one);
+		/* A ring in the card surface keeps a dot legible on its own line. */
+		box-shadow: 0 0 0 2px var(--surface);
 		pointer-events: none;
 	}
 
@@ -333,78 +321,58 @@
 		z-index: 2;
 		min-width: max-content;
 		padding: var(--space-2) var(--space-3);
-		border-radius: var(--radius-sm);
-		/* The card surface tint composited over an opaque base, rather than
-		   used alone: --inner-background is 28% alpha on the dark theme, which
-		   is fine for a panel sitting on the page background and unreadable
-		   for a label sitting on top of the chart it's describing. */
-		background:
-			linear-gradient(var(--inner-background), var(--inner-background)),
-			var(--background-one);
-		border: 1px solid var(--main-green-translucent);
-		box-shadow: var(--box-shadow, 0 4px 16px rgb(0 0 0 / 18%));
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		box-shadow: var(--shadow-pop);
 		pointer-events: none;
 	}
 	.tip-label {
-		margin: 0 0 var(--space-1) 0;
+		margin: 0 0 var(--space-1);
 		font-size: var(--font-2xs);
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--main-green);
+		font-weight: var(--weight-semibold);
+		color: var(--text-strong);
 		white-space: nowrap;
 	}
-	.tip dl {
-		display: grid;
-		gap: 2px;
-		margin: 0;
-	}
+	.tip dl { display: grid; gap: 2px; margin: 0; }
 	.tip dl div {
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: var(--space-3);
+		gap: var(--space-4);
 	}
 	.tip dt {
 		display: flex;
 		align-items: center;
-		gap: 5px;
+		gap: 6px;
 		font-size: var(--font-2xs);
-		color: var(--paragraph-colour);
-		opacity: 0.75;
+		color: var(--text-2);
 		white-space: nowrap;
 	}
 	.tip dd {
 		margin: 0;
 		font-size: var(--font-xs);
 		font-variant-numeric: tabular-nums;
-		font-weight: 600;
-		color: var(--header-colour);
+		font-weight: var(--weight-semibold);
+		color: var(--text-strong);
 		white-space: nowrap;
 	}
 	.swatch {
+		flex: none;
 		width: 8px;
 		height: 8px;
 		border-radius: 2px;
 		background: var(--dot);
-		flex: none;
 	}
 
 	.x-axis {
 		grid-column: 2;
 		grid-row: 2;
 		position: relative;
-		height: 1.3em;
+		height: 1.4em;
 		margin-top: var(--space-2);
 		overflow: hidden;
 	}
-	.x-axis span {
-		position: absolute;
-		top: 0;
-		font-size: var(--font-2xs);
-		color: var(--paragraph-colour);
-		opacity: 0.6;
-		white-space: nowrap;
-	}
+	.x-axis span { top: 0; }
 	.x-axis span.middle { transform: translateX(-50%); }
 </style>

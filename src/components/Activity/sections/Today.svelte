@@ -1,6 +1,7 @@
 <!-- Today's briefing: FFF change, readiness, session, projection delta. -->
 <script>
-    import Card from "../Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
+    import Stat from "../../../lib/ui/Stat.svelte";
     import { clock, clockMinutes, signed, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../../Training/lib/glossary.js";
 
@@ -123,21 +124,23 @@
 <Card title="Today" {info}>
     {#snippet aside()}
         {#if today?.date}
-            <span class="when">{shortDate(today.date)}</span>
+            <span>{shortDate(today.date)}</span>
         {/if}
     {/snippet}
 
     <div class="cells" style:--cells={cellCount}>
         <div class="cell">
-            <span class="cell-label">Training</span>
+            <span class="kicker">Training</span>
             {#if changes.length}
                 <div class="changes">
                     {#each changes as change (change.key)}
-                        <div class="change" class:good={change.good}>
-                            <span class="change-label">{change.label}</span>
-                            <strong>{signed(change.delta)}</strong>
-                            <span class="change-value">to {change.value.toFixed(1)}</span>
-                        </div>
+                        <Stat
+                            size="sm"
+                            label={change.label}
+                            value={signed(change.delta)}
+                            note={`to ${change.value.toFixed(1)}`}
+                            tone={change.good ? "good" : null}
+                        />
                     {/each}
                 </div>
             {:else}
@@ -146,15 +149,12 @@
         </div>
 
         <div class="cell">
-            <span class="cell-label">Readiness</span>
+            <span class="kicker">Readiness</span>
             {#if readiness}
                 <strong class="headline">{signed(readiness.value)}</strong>
                 <div class="terms">
                     {#each terms as term (term.key)}
-                        <span>
-                            {term.label}
-                            <em>{term.value}</em>
-                        </span>
+                        <span>{term.label} <em>{term.value}</em></span>
                     {/each}
                 </div>
                 {#if STRAIN[readiness.strain] || staleNight}
@@ -169,7 +169,7 @@
 
         {#if hasSession}
             <div class="cell">
-                <span class="cell-label">Session</span>
+                <span class="kicker">Session</span>
                 <strong class="headline" class:session-title={session.status === "ahead" || session.status === "rest"}>{sessionCopy.title}</strong>
                 {#if sessionCopy.note}
                     <p class="caption">{sessionCopy.note}</p>
@@ -178,133 +178,89 @@
         {/if}
 
         {#if showProjection}
-        <div class="cell">
-            <span class="cell-label">{inBlock ? "Projected" : "Marathon est."}</span>
-            {#if projectionCopy}
-                <strong class="headline" class:ahead={projectionCopy.tone === "ahead"} class:behind={projectionCopy.tone === "behind"}>
-                    {projectionCopy.title}
-                </strong>
-                {#if projectionCopy.note}
-                    <p class="caption">{projectionCopy.note}</p>
+            <div class="cell">
+                <span class="kicker">{inBlock ? "Projected" : "Marathon estimate"}</span>
+                {#if projectionCopy}
+                    <strong class="headline" class:ahead={projectionCopy.tone === "ahead"} class:behind={projectionCopy.tone === "behind"}>
+                        {projectionCopy.title}
+                    </strong>
+                    {#if projectionCopy.note}
+                        <p class="caption">{projectionCopy.note}</p>
+                    {/if}
+                {:else}
+                    <p class="empty">Not enough recent running to project from.</p>
                 {/if}
-            {:else}
-                <p class="empty">
-                    Not enough recent running to project from.
-                </p>
-            {/if}
-        </div>
+            </div>
         {/if}
     </div>
 </Card>
 
 <style>
-    .when {
-        font-size: var(--font-2xs);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
+    /* Columns divided by hairlines rather than boxed: a box inside a card
+       is a second surface competing with the first. */
     .cells {
         display: grid;
         grid-template-columns: repeat(var(--cells, 4), minmax(0, 1fr));
-        gap: var(--space-3);
     }
     .cell {
         display: flex;
         flex-direction: column;
         gap: var(--space-2);
         min-width: 0;
-        padding: var(--space-4);
-        background: var(--item-background);
-        border-radius: var(--radius-md);
+        padding: 0 var(--space-5);
     }
-    .cell-label {
-        font-size: var(--font-2xs);
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-    }
+    .cell:first-child { padding-left: 0; }
+    .cell:last-child { padding-right: 0; }
+    .cell + .cell { border-left: 1px solid var(--border); }
+
     .headline {
-        font-family: var(--font-sans);
-        font-size: clamp(1.4rem, 3vw, 1.85rem);
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        line-height: 1.1;
-        color: var(--header-colour);
+        font-size: var(--font-xl);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        color: var(--text-strong);
     }
     .headline.ahead { color: var(--tone-good); }
     .headline.behind { color: var(--tone-bad); }
     /* Session types ("easy run"), not distances — capitalize would print "8.0 Km". */
     .session-title { text-transform: capitalize; }
-    .caption {
-        margin: 0;
-        font-size: var(--font-2xs);
-        line-height: 1.5;
-        color: var(--paragraph-colour);
-        opacity: 0.75;
-    }
-    .empty {
+    .caption, .empty {
         margin: 0;
         font-size: var(--font-xs);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
+        line-height: 1.5;
+        color: var(--text-2);
     }
     .changes {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: var(--space-2);
-    }
-    .change {
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-        min-width: 0;
-    }
-    .change-label {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-    .change strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 700;
-        color: var(--header-colour);
-        line-height: 1.2;
-    }
-    .change.good strong { color: var(--tone-good); }
-    .change-value {
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
+        gap: var(--space-3);
     }
     .terms {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--space-2) var(--space-3);
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.8;
+        gap: var(--space-1) var(--space-3);
+        font-size: var(--font-xs);
+        color: var(--text-2);
     }
     .terms em {
+        margin-left: 0.2em;
         font-style: normal;
-        font-weight: 600;
-        color: var(--header-colour);
-        margin-left: 0.25em;
+        font-weight: var(--weight-semibold);
+        color: var(--text-strong);
     }
 
     @media (max-width: 860px) {
-        .cells { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cells { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-4); }
+        .cell:nth-child(odd) { padding-left: 0; border-left: 0; }
+        .cell:nth-child(even) { padding-right: 0; }
+        .cell:nth-child(n + 3) { padding-top: var(--space-4); border-top: 1px solid var(--border); }
         /* Three cells on two columns: the odd one out takes the full row. */
         .cell:last-child:nth-child(odd) { grid-column: 1 / -1; }
     }
     @media (max-width: 540px) {
         .cells { grid-template-columns: minmax(0, 1fr); }
+        .cell, .cell:nth-child(even) { padding: 0; border-left: 0; }
+        .cell + .cell { padding-top: var(--space-4); border-top: 1px solid var(--border); }
         .cell:last-child:nth-child(odd) { grid-column: auto; }
-        .changes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 </style>

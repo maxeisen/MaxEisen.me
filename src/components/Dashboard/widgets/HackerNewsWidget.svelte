@@ -54,7 +54,7 @@
 <ol class="hn-list" bind:this={listEl}>
     {#if storiesState === "loading"}
         <li class="widget-loading" role="status" aria-label="Loading">
-            <Spinner size={38} stroke={3} />
+            <Spinner size={24} stroke={2} />
         </li>
     {:else if storiesMessage}
         <li class="widget-empty">{storiesMessage}</li>
@@ -76,61 +76,55 @@
 <style>
     .hn-list {
         list-style: none;
-        padding: 0;
-        margin: 0.25rem 0 0 0;
         display: flex;
         flex-direction: column;
-        gap: 0.55rem;
         flex: 1;
         min-height: 0;
+        margin: 0;
+        padding: 0;
         overflow: hidden;
     }
     .hn-item {
         display: flex;
-        gap: 0.5rem;
-        font-size: 0.82rem;
         align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-2) 0;
+        font-size: var(--font-sm);
+    }
+    .hn-item + .hn-item { border-top: 1px solid var(--border); }
+    .hn-item:first-child { padding-top: 0; }
+    .hn-score {
+        flex-shrink: 0;
+        min-width: 2.25rem;
+        padding-top: 1px;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-medium);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        color: var(--text-3);
     }
     .hn-link {
-        color: var(--paragraph-colour);
-        text-decoration: none;
-        line-height: 1.3;
         display: flex;
         flex-direction: column;
-        gap: 0.15rem;
-        min-width: 0;
         flex: 1;
+        gap: 2px;
+        min-width: 0;
+        line-height: 1.35;
+        color: var(--text-strong);
     }
-    .hn-link:hover .hn-title { color: var(--main-green); }
+    .hn-link:hover .hn-title { color: var(--accent); }
     .hn-title {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        transition: color var(--dur-fast) var(--ease);
     }
     .hn-domain {
-        font-size: 0.68rem;
-        color: var(--paragraph-colour);
-        opacity: 0.55;
-        text-transform: lowercase;
+        font-size: var(--font-2xs);
+        color: var(--text-3);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-    .hn-score {
-        color: var(--main-green);
-        font-weight: 600;
-        min-width: 2.5rem;
-        font-variant-numeric: tabular-nums;
-        text-align: right;
-        flex-shrink: 0;
-        font-size: 0.78rem;
-        padding-top: 0.1rem;
-    }
-    .hn-score::before {
-        content: "▲";
-        font-size: 0.6rem;
-        margin-right: 0.15rem;
-        opacity: 0.7;
     }
 </style>

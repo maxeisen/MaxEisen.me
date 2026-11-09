@@ -48,7 +48,7 @@
     const hr12 = $derived(((now.getHours() + 11) % 12) + 1);
     const timeStr = $derived(`${pad(hr12)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
     const meridiem = $derived(now.getHours() < 12 ? "AM" : "PM");
-    const greeting = $derived(greetingFor(now.getHours()) + ".");
+    const greeting = $derived(greetingFor(now.getHours()));
     const dateStr = $derived(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }));
     const dayPct = $derived(dayProgress(now));
     const weekPct = $derived(weekProgress(now));
@@ -85,11 +85,11 @@
 {/if}
 <div class="clock-progress">
     <div class="clock-progress-item">
-        <div class="clock-progress-label"><span>Work Day</span><span class="clock-progress-pct">{formatPct(dayPct)}</span></div>
+        <div class="clock-progress-label"><span>Work day</span><span class="clock-progress-pct">{formatPct(dayPct)}</span></div>
         <div class="clock-progress-bar"><div class="clock-progress-fill" style:width={formatWidth(dayPct)}></div></div>
     </div>
     <div class="clock-progress-item">
-        <div class="clock-progress-label"><span>Work Week</span><span class="clock-progress-pct">{formatPct(weekPct)}</span></div>
+        <div class="clock-progress-label"><span>Work week</span><span class="clock-progress-pct">{formatPct(weekPct)}</span></div>
         <div class="clock-progress-bar"><div class="clock-progress-fill" style:width={formatWidth(weekPct)}></div></div>
     </div>
     <div class="clock-progress-item">
@@ -100,92 +100,75 @@
 
 <style>
     .clock-time {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-feature-settings: "tnum";
-        font-size: min(clamp(3rem, 12vw, 11rem), 36cqh);
+        font-weight: var(--weight-semibold);
+        font-variant-numeric: tabular-nums;
+        font-size: min(clamp(3rem, 12vw, 10rem), 36cqh);
         line-height: 1;
-        letter-spacing: -0.04em;
-        color: var(--header-colour);
+        letter-spacing: -0.045em;
+        color: var(--text-strong);
     }
     .clock-meridiem {
-        font-family: var(--font-sans);
-        font-weight: 500;
-        font-size: clamp(0.9rem, 1.4vw, 1.4rem);
-        margin-left: 0.4em;
-        color: var(--main-green);
-        vertical-align: middle;
+        margin-left: 0.35em;
+        font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+        font-weight: var(--weight-medium);
+        letter-spacing: 0;
+        color: var(--text-3);
+        vertical-align: 0.15em;
     }
     .clock-meta {
         display: flex;
         align-items: baseline;
-        gap: 1rem;
-        flex-wrap: wrap;
         justify-content: center;
-        margin-top: 0.25rem;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin-top: var(--space-1);
     }
     .clock-greeting {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: clamp(1.1rem, 1.9vw, 1.9rem);
-        letter-spacing: -0.02em;
-        color: var(--header-colour);
+        font-size: clamp(1.05rem, 1.6vw, 1.5rem);
+        font-weight: var(--weight-medium);
+        letter-spacing: -0.015em;
+        color: var(--text-strong);
     }
-    .clock-date {
-        font-size: 0.95rem;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
+    .clock-date { font-size: var(--font-sm); color: var(--text-2); }
     .clock-daylight {
-        margin-top: 0.4rem;
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        opacity: 0.75;
-        font-feature-settings: "tnum";
+        font-size: var(--font-xs);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-3);
     }
     .clock-progress {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        gap: var(--space-5);
         width: 100%;
         max-width: 540px;
-        margin-top: 1.5rem;
+        margin-top: var(--space-5);
     }
-    .clock-progress-item { display: flex; flex-direction: column; gap: 0.35rem; }
+    .clock-progress-item { display: flex; flex-direction: column; gap: 6px; }
     .clock-progress-label {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--main-green);
+        font-size: var(--font-xs);
+        color: var(--text-2);
     }
     .clock-progress-pct {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: 1rem;
-        letter-spacing: -0.02em;
-        color: var(--header-colour);
-        text-transform: none;
+        font-weight: var(--weight-semibold);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-strong);
     }
     .clock-progress-bar {
-        height: 3px;
-        background: var(--main-green-translucent);
-        border-radius: 999px;
+        height: 4px;
+        border-radius: var(--radius-pill);
+        background: var(--surface-2);
         overflow: hidden;
     }
     .clock-progress-fill {
         height: 100%;
-        background: var(--main-green);
-        border-radius: 999px;
-        transition: width 0.4s ease-out;
+        border-radius: var(--radius-pill);
+        background: var(--series-1);
+        transition: width 0.4s var(--ease);
     }
     @media (max-width: 700px) {
-        .clock-progress { gap: 0.6rem; }
+        .clock-progress { gap: var(--space-3); }
     }
 </style>

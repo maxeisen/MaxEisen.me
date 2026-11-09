@@ -230,7 +230,7 @@
     <button class="lightbox-nav lightbox-prev" onclick={(e) => { e.stopPropagation(); prev(); }} aria-label="Previous photo">‹</button>
     <button class="lightbox-nav lightbox-next" onclick={(e) => { e.stopPropagation(); next(); }} aria-label="Next photo">›</button>
     <div class="lightbox-spinner" class:visible={spinnerVisible} aria-hidden="true">
-        <Spinner size={38} stroke={3} />
+        <Spinner size={24} stroke={2} />
     </div>
     <img bind:this={imgEl} alt=""/>
     <div class="lightbox-caption" hidden={!captionVisible}>{captionText}</div>

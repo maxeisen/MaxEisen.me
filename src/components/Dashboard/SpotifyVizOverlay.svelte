@@ -193,10 +193,8 @@
         min-width: 0; flex: 1;
     }
     .viz-overlay-status {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
+        font-size: 0.8rem;
+        font-weight: 500;
         color: rgba(255, 255, 255, 0.65);
         display: inline-flex; align-items: center;
         gap: 0.45rem;
@@ -260,8 +258,6 @@
         color: rgba(255, 255, 255, 0.6);
     }
     .viz-overlay-genre {
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
         font-weight: 600;
     }
     .viz-overlay-open {

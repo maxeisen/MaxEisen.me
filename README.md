@@ -22,7 +22,7 @@ Personal site. Svelte 5 + Vite SPA with Netlify Functions.
 
 **Bach** (`/bach`) — A private party game: a host and players take turns writing a collaborative story.
 
-**Resume** (`/resume`) — A standalone HTML resume.
+**Resume** (`/resume`) — The résumé, from `public/content/resume.json`. "Save as PDF" prints a one-page Letter version.
 
 ## Development
 
@@ -60,7 +60,7 @@ Functions that need secrets return `not_configured` when those env vars are miss
 
 ## Architecture
 
-`src/App.svelte` is the client router. `/` is Home; other known routes lazy-load from `src/routes/`. `/bach` always full-loads (it is stateful). Unknown paths go to `public/404.html`. `public/resume.html` is a standalone page. `/running` is rewritten to the `trainingPage` function so the same document can boot the SPA or render a noscript fallback.
+`src/App.svelte` is the client router. `/` is Home; other known routes lazy-load from `src/routes/`. `/bach` always full-loads (it is stateful). Unknown paths go to `public/404.html`. `/running` is rewritten to the `trainingPage` function so the same document can boot the SPA or render a noscript fallback.
 
 ```
 public/

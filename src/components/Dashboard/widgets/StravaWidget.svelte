@@ -68,11 +68,11 @@
 </script>
 
 {#if !hidden}
-    <WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Physical Activity" />
+    <WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Activity" />
     <ol class="strava-list" bind:this={listEl}>
         {#if activitiesState === "loading"}
             <li class="widget-loading" role="status" aria-label="Loading">
-                <Spinner size={38} stroke={3} />
+                <Spinner size={24} stroke={2} />
             </li>
         {:else if activitiesMessage}
             <li class="widget-empty">{activitiesMessage}</li>
@@ -114,16 +114,14 @@
             <div class="strava-ytd-stats">
                 {#if ytd.run}
                     <span class="strava-ytd-item">
-                        <span class="strava-ytd-icon" aria-hidden="true">🏃</span>
                         <strong>{ytdKm(ytd.run.distance)}</strong>
-                        <span class="strava-ytd-count">{ytd.run.count} runs</span>
+                        <span class="strava-ytd-count">running · {ytd.run.count} runs</span>
                     </span>
                 {/if}
                 {#if ytd.ride}
                     <span class="strava-ytd-item">
-                        <span class="strava-ytd-icon" aria-hidden="true">🚴</span>
                         <strong>{ytdKm(ytd.ride.distance)}</strong>
-                        <span class="strava-ytd-count">{ytd.ride.count} rides</span>
+                        <span class="strava-ytd-count">cycling · {ytd.ride.count} rides</span>
                     </span>
                 {/if}
             </div>
@@ -134,127 +132,93 @@
 <style>
     .strava-list {
         list-style: none;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        margin: 0;
         padding: 0;
-        margin: 0.25rem 0 0 0;
-        display: flex; flex-direction: column;
-        gap: 0.6rem;
-        flex: 1; min-height: 0; overflow: hidden;
+        overflow: hidden;
     }
+    .strava-list li + li { border-top: 1px solid var(--border); }
     .strava-row {
-        display: flex; align-items: center; gap: 0.85rem;
-        text-decoration: none; color: inherit;
-        padding: 0.4rem 0.5rem;
-        border-radius: 10px;
-        transition: background-color 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-2) 0;
+        color: inherit;
     }
-    .strava-row:hover { background: var(--main-green-translucent); }
-    .strava-row-icon {
-        width: 38px; height: 38px;
-        border-radius: 10px;
-        background: var(--main-green-translucent);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.4rem;
-        flex-shrink: 0;
-    }
+    .strava-row:hover .strava-row-name { color: var(--accent); }
+    .strava-row-icon,
     .strava-row-map {
-        width: 56px; height: 38px;
         flex-shrink: 0;
-        background: var(--main-green-translucent);
-        border-radius: 10px;
-        padding: 4px;
-        box-sizing: border-box;
-        display: block;
+        height: 36px;
+        border-radius: var(--radius);
+        background: var(--surface-2);
     }
+    .strava-row-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        font-size: 1.1rem;
+    }
+    .strava-row-map { display: block; width: 52px; padding: 4px; }
     .strava-row-map :global(path) {
         fill: none;
-        stroke: var(--main-green);
+        stroke: var(--series-1);
         stroke-width: 1.5;
         stroke-linecap: round;
         stroke-linejoin: round;
     }
     .strava-row-main { flex: 1; min-width: 0; }
     .strava-row-name {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: 1rem;
-        color: var(--header-colour);
-        letter-spacing: -0.01em;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-medium);
+        color: var(--text-strong);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: color var(--dur-fast) var(--ease);
     }
-    .strava-row-meta {
-        font-size: 0.78rem;
-        color: var(--paragraph-colour);
-        opacity: 0.75;
-        margin-top: 0.15rem;
-    }
+    .strava-row-meta { margin-top: 1px; font-size: var(--font-xs); color: var(--text-2); }
     .strava-row-stats {
-        display: flex; gap: 0.85rem;
-        font-size: 0.85rem;
-        color: var(--paragraph-colour);
+        display: flex;
         flex-shrink: 0;
         text-align: right;
+        font-variant-numeric: tabular-nums;
     }
     .strava-row-stats strong {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        color: var(--header-colour);
         display: block;
-        line-height: 1.2;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        line-height: 1.3;
+        color: var(--text-strong);
     }
-    .strava-row-stats span {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--main-green);
-    }
+    .strava-row-stats span { font-size: var(--font-2xs); color: var(--text-3); }
 
-    /* Year-to-date footer. Hidden by default; revealed only when the slot
-       is wide enough to lay it out without crowding — i.e. large slots on
-       desktop and full-width slots on mobile. In a narrow (1-col / "small")
-       slot it stays hidden so the activity list keeps the room. The
-       container is the .slot ancestor (container-name: slot). */
+    /* Year to date. Only where the slot has the width to lay it out; in a
+       narrow slot the activity list keeps the room. */
     .strava-ytd {
         display: none;
         flex-direction: column;
-        gap: 0.35rem;
-        margin-top: 0.6rem;
-        padding-top: 0.6rem;
-        border-top: 1px solid var(--main-green-translucent);
         flex-shrink: 0;
+        gap: var(--space-1);
+        margin-top: var(--space-2);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
     }
     @container slot (min-width: 420px) {
         .strava-ytd { display: flex; }
     }
-    .strava-ytd-label {
-        font-size: 0.62rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--main-green);
-        opacity: 0.8;
-    }
-    .strava-ytd-stats {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem 1.5rem;
-        font-size: 0.85rem;
-        color: var(--paragraph-colour);
-    }
-    .strava-ytd-item {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 0.35rem;
-    }
-    .strava-ytd-icon { font-size: 0.9rem; }
+    .strava-ytd-label { font-size: var(--font-xs); color: var(--text-2); }
+    .strava-ytd-stats { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); }
+    .strava-ytd-item { display: inline-flex; align-items: baseline; gap: var(--space-2); }
     .strava-ytd-item strong {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        color: var(--header-colour);
+        font-size: var(--font-lg);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.01em;
+        color: var(--text-strong);
     }
-    .strava-ytd-count {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--main-green);
-    }
+    .strava-ytd-count { font-size: var(--font-xs); color: var(--text-3); }
 </style>

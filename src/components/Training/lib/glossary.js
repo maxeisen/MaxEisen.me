@@ -1,81 +1,85 @@
-// Copy behind each panel's "i" button. Thresholds quoted here are the ones
-// the engine actually uses (netlify/functions/_shared/training/).
+// Copy behind each running panel's "?" button. Thresholds quoted here are the
+// ones the engine uses (netlify/functions/_shared/training/).
+//
+// House style: written to "you", plain words, a sentence or two per idea.
+// Say what the panel shows and how to read it; leave out how it's computed
+// unless that changes how you'd read it.
 
 export const GLOSSARY = {
 	today: {
 		title: "Today",
 		body: [
-			"Where today stands right now — not what the last run was, which may have been Tuesday. Fitness, fatigue and form still come from training load alone. Readiness sits beside them and never feeds them.",
-			"Readiness is the mean of four terms on the same scale as form: today's form, last night's sleep vs your 28-day baseline, last night's HRV vs that baseline, and overnight resting heart rate inverted so a rise counts against you. A notable overnight move is an hour of sleep, 15% HRV, or 5 bpm of resting heart rate; a spectacular night is capped so it cannot drown form. The row under the headline is physiology, not those scores. The projection cell is what today's session did to the finish, not a second copy of it — no session yet is no change. A run moves the number when it changes training support or replaces the current race-quality basis.",
+			"Where things stand this morning. Fitness, fatigue and form come from training load alone. Readiness is a separate read of how your body is coping, and never feeds back into them.",
+			"Readiness averages four signals on the same scale as form: today's form, plus last night's sleep, HRV and resting heart rate, each against your 28-day baseline. An hour of sleep, 15% of HRV or 5 bpm of resting heart rate counts as a notable change, and one exceptional night is capped so it can't outweigh the rest.",
 		],
 		terms: [
-			{ term: "Training", definition: "Today's fitness, fatigue and form against yesterday's close. A rest day still moves them — fatigue decays faster than fitness, so form usually lifts. A run is already in these numbers once it has synced." },
-			{ term: "Readiness", definition: "A signed number like form, not a 0–100 score. The row under it is last night in its own units — extra hours of sleep, HRV in milliseconds, resting heart rate in bpm — not the points that went into the mean. A lower overnight heart rate raises readiness; a rise is what counts against you. Last night doesn't change until tomorrow; today's run moves readiness only through form." },
-			{ term: "Session", definition: "What the plan asked for today, and whether it's still ahead, done, extra, or a rest day. An 8am blank is ahead, not missed. Only shown when something is planned or a run is already in — between blocks, most days have neither." },
-			{ term: "Projected", definition: "What today's session did to the projected finish, not the finish itself. No run yet is no change. The same engine as the header runs with and without today's activities, so a long run that changes volume or durability counts even when it does not beat a 10k PR." },
+			{ term: "Training", definition: "How fitness, fatigue and form changed since yesterday. Rest days move them too: fatigue fades faster than fitness, so form usually rises." },
+			{ term: "Readiness", definition: "A signed number like form, not a score out of 100. The figures under it are last night's actual readings. It updates once a night; a run today only moves it through form." },
+			{ term: "Session", definition: "What the plan has for today, and whether it's still ahead, done, extra or a rest day. Only shown when something is planned or you've already run." },
+			{ term: "Projected", definition: "How today's running changed the projected marathon time — not the time itself. No run yet means no change." },
 		],
 	},
 
 	lastRun: {
 		title: "Last run",
 		body: [
-			"The most recent run, read against your own recent history rather than in isolation — a load of 90 is a big day or an ordinary Tuesday depending entirely on whose 90 it is.",
-			"The chart is pace for each kilometre, drawn with faster higher up. The dotted line across it is the run's own average, so the shape tells you whether it held together; grade-adjusted pace appears over it only when the hills made the two differ.",
+			"Your most recent run, compared with your own recent runs rather than in isolation: a load of 90 can be a big day for one runner and an ordinary Tuesday for another.",
+			"The chart shows pace along the run, faster higher up, with heart rate on the right-hand scale. The dotted line is the run's average pace. Grade-adjusted pace is drawn as well when hills made it differ.",
 		],
 		terms: [
-			{ term: "Load", definition: "This run's training stress, from time spent at each heart rate. Compared here against the median run of your last six weeks, so 130% means half again as hard as your usual." },
-			{ term: "Fitness, fatigue and form", definition: "What the day's running moved. Fitness is the 42-day average of load, fatigue the 7-day one, form the difference. A hard run always adds more fatigue than fitness — that's the trade you're making." },
-			{ term: "Fade", definition: "How much slower the second half of the run was than the first. Under about 2% is even pacing; a negative number means you finished quicker than you started. On a workout the halves are just describing the session — intervals, then a jog home." },
-			{ term: "Drift", definition: "Aerobic decoupling: how far pace-per-heartbeat slipped between the halves of the run. Under 5% means the distance is within your aerobic base. Only shown for runs held at one effort, since on an interval session it measures the intervals rather than your base." },
+			{ term: "Load", definition: "Training stress, from time spent at each heart rate. \"% of typical\" compares it with your median run over the last six weeks." },
+			{ term: "Fitness, fatigue and form", definition: "What the day's running changed. A hard run always adds more fatigue than fitness — that's the trade." },
+			{ term: "Pacing", definition: "How the second half compared with the first. Within about 2% is even; quicker is a negative split. On a workout it simply describes the session." },
+			{ term: "Drift", definition: "How far pace per heartbeat slipped from the first half to the second. Under 5% means the distance is within your aerobic base. Shown only for steady runs." },
 		],
 	},
 
 	volume: {
 		title: "Weekly volume",
 		body: [
-			"How far you actually ran each week, against the week's target wherever a training plan set one. The bar is what you ran; the short line above it is what was planned. Weeks outside a plan are just the bar.",
-			"Consistency matters more than any single week here. A week or two under target is noise; a run of them is the plan quietly changing.",
+			"Kilometres run each week. When a training plan set a target, the short line across the bar shows it.",
+			"Read the run of weeks, not any single one: one week under target is noise, several in a row means the plan has changed.",
 		],
 		terms: [
-			{ term: "Taper", definition: "The deliberate drop in volume over the last three weeks before the race. Those bars are meant to be short — they're marked in a different colour so a small one doesn't read as a missed week." },
+			{ term: "Taper", definition: "The planned drop in volume in the final weeks before a race. Taper weeks are shaded differently so a short bar doesn't read as a missed week." },
 		],
 	},
 
 	fitness: {
 		title: "Fitness and fatigue",
 		body: [
-			"Every run is scored for training load — how hard it was, for how long — and this chart tracks two rolling averages of that score. Fitness is the slow one, fatigue the fast one.",
-			"Fitness is drawn on its own scale, down the right, so a slow build stays visible. Fatigue and form share the left. Form below zero means fatigue is ahead of the fitness you've banked — where most of a build sits. Form climbing back through zero is the taper: fatigue falls away and you arrive fresh.",
+			"Every run gets a training-load score from how hard and how long it was. This chart tracks two rolling averages of that score — fitness, which moves slowly, and fatigue, which moves fast — and form, the gap between them.",
+			"Fitness uses the right-hand scale so a slow build stays visible; fatigue and form share the left. Form below zero is normal while training. It climbs back above zero when you rest or taper.",
 		],
 		terms: [
-			{ term: "Fitness (CTL)", definition: "Your 42-day average training load. Slow to build and slow to lose — it's the fitness you've banked." },
-			{ term: "Fatigue (ATL)", definition: "Your 7-day average training load. Rises and falls within days, and reflects how tired you are right now." },
-			{ term: "Form (TSB)", definition: "Fitness minus fatigue. Negative means you're carrying fatigue (normal mid-block); positive means you're fresh, which is what you want on race day." },
+			{ term: "Fitness (CTL)", definition: "Your 42-day average training load. Slow to build and slow to lose." },
+			{ term: "Fatigue (ATL)", definition: "Your 7-day average training load. Rises and falls within days, and reflects how tired you are now." },
+			{ term: "Form (TSB)", definition: "Fitness minus fatigue. Negative means you're carrying fatigue, which is normal mid-training; positive means you're fresh, which is what you want on race day." },
 		],
 	},
 
 	efficiency: {
 		title: "Aerobic efficiency",
 		body: [
-			"How much speed you get per heartbeat on aerobic runs. A line that climbs means the same effort is buying more pace, which is the clearest sign that base fitness is genuinely improving rather than that last week happened to be cool and flat. The percentage is the last twelve weeks — the same window as the chart — not the whole history back to January.",
-			"Only aerobic runs are plotted — anything at or above threshold is left out, because efficiency rises with intensity by construction and including intervals would draw your workout schedule instead of a trend. Tempo still counts: it is below lactate threshold, and the line is a 14-day average so a single workout does not decide the week.",
+			"Speed per heartbeat on easy and steady runs. A rising line means the same effort is buying more pace — the clearest sign your aerobic base is improving. The figure in the corner is the change over the last 12 weeks.",
+			"Hard sessions are left out, because intensity raises the number on its own. The line is a 14-day average, so no single run decides it.",
 		],
 		terms: [
-			{ term: "Efficiency factor", definition: "Grade-adjusted speed divided by heart rate, averaged over the last 14 days on the trend line. The absolute value doesn't mean much; the direction of travel over weeks does." },
-			{ term: "Decoupling", definition: "How much your pace-per-heartbeat drifts between the first and second half of a long run. Under 5% means you're aerobically ready for the distance; above it means the distance is still ahead of the base." },
+			{ term: "Efficiency factor", definition: "Grade-adjusted speed divided by heart rate. The value itself means little; its direction over weeks is what matters." },
+			{ term: "Decoupling", definition: "How much pace per heartbeat drifts between the first and second half of a long run. Under 5% means you're aerobically ready for the distance." },
 		],
 	},
 
 	recommendations: {
 		title: "Recommendations",
 		body: [
-			"A fixed set of rules read the metrics on this page and flag anything worth acting on. Nothing here is generated by a model: the same numbers always produce the same advice, and every card shows the value that triggered it next to the threshold it crossed, so you can disagree with it on the evidence.",
-			"The rules are mostly about restraint, because the things that most often go wrong — ramping too fast, running easy days hard, skipping recovery or the taper — are none of them fixed by working harder. With no race on the calendar, the plan and goal rules go quiet and the advice is about recovering from the last race and keeping a base for the next one.",
+			"A fixed set of rules reads the numbers on this page and flags anything worth acting on. The same numbers always give the same advice, and each card shows the value that triggered it beside the threshold it crossed.",
+			"Most rules are about holding back: ramping too fast, running easy days too hard, skipping recovery. With no race planned, the race rules switch off and the advice turns to recovering and keeping a base.",
 		],
 		terms: [
-			{ term: "Act now", definition: "An injury or blow-up risk that's live today. Worth changing this week's running for." },
-			{ term: "Watch", definition: "Heading the wrong way but not yet a problem. Worth knowing before it becomes one." },
-			{ term: "Note", definition: "Context rather than a warning — something about where you are in the block, or between them." },
+			{ term: "Act now", definition: "An injury or burnout risk that's live today. Worth changing this week's running for." },
+			{ term: "Watch", definition: "Heading the wrong way, but not a problem yet." },
+			{ term: "Note", definition: "Context rather than a warning." },
 			{ term: "On track", definition: "A check that passed. Nothing to do." },
 		],
 	},
@@ -83,88 +87,85 @@ export const GLOSSARY = {
 	prediction: {
 		title: "Projected finish",
 		body: [
-			"The headline is what the last eight weeks of running support, not a short-race equivalent treated as a marathon result. It takes the slower of two published models: Tanda's volume-and-pace estimate, and Riegel/VDOT race-equivalence from recent race-quality efforts. Older PRs stay visible as historic aerobic potential and do not freeze the number.",
-			"Easy and long-run splits are training evidence — volume, longest run, decoupling — not a new 10k. Recovery and form widen the likely range rather than inventing seconds of ability. Treat the range as the honest forecast; the single time is the centre of it.",
+			"The marathon time the last eight weeks of training support. It takes the slower of two models: one from weekly volume and training pace, one from recent race-quality efforts. Older personal bests are shown but don't prop the number up.",
+			"Treat the range as the forecast and the single time as its centre. Recovery and form widen the range rather than moving the time.",
 		],
 		terms: [
-			{ term: "Training-supported", definition: "Tanda's model: mean weekly distance and mean training pace over the trailing eight weeks, converted to a marathon. It moves when you add volume or change training pace, including long runs that would never beat a 10k PR." },
-			{ term: "Aerobic equivalent", definition: "Riegel and Daniels VDOT applied to recent race-quality efforts of 5 km or longer — tagged races, workouts, or whole-run time trials. The slower of the two models is kept. A 10k from months ago is historic potential, not current fitness." },
-			{ term: "Likely range", definition: "Uncertainty around the headline from model disagreement, missing marathon-specific evidence, and current form. A buried week widens the range; it does not slow the centre by a made-up number of seconds." },
-			{ term: "Goal pace", definition: "The average pace per kilometre your goal time requires, start to finish." },
+			{ term: "Training", definition: "Tanda's model: average weekly distance and training pace over the last eight weeks, converted to a marathon time. Long runs move it even when they're nowhere near race pace." },
+			{ term: "Aerobic", definition: "Riegel and Daniels' VDOT applied to recent race-quality efforts of 5 km or more. A result from months ago counts as past potential, not current fitness." },
+			{ term: "Likely range", definition: "How uncertain the headline is, from model disagreement, missing marathon-specific training and current form." },
+			{ term: "Goal pace", definition: "The average pace per kilometre the goal time requires." },
 		],
 	},
 
 	load: {
 		title: "Load and risk",
 		body: [
-			"The single best early warning available from training data alone: how the last 7 days of load compare with the last 28. Inside the corridor, you're training at a rate your body is keeping up with. Drifting above it is where injury rates climb sharply.",
-			"Ramp and long-run share describe the shape of the last whole week. Both are measured on completed weeks — the same numbers taken on a Tuesday would call every normal week a collapse.",
+			"The best early warning in training data: your last 7 days of load against your last 28. Inside the corridor you're adding training at a rate your body is keeping up with; above it, injury risk climbs sharply.",
+			"Ramp and long-run share use the last complete week, so a quiet Monday doesn't look like a collapse.",
 		],
 		terms: [
-			{ term: "Acute : chronic", definition: "7-day load divided by 28-day load. The 0.8–1.5 corridor is the target; above 1.5 is a spike, below 0.8 is detraining." },
-			{ term: "Ramp", definition: "How much this week's distance grew over last week's. Around 10% is the conventional ceiling for adding volume safely." },
-			{ term: "Long run share", definition: "What fraction of the week's distance came from the long run. Above about 35% is a week built around one run, which is a fragile way to hit a target." },
-			{ term: "Load", definition: "One run's training stress, from time spent at each heart rate. It's a unitless score — only useful compared with your own other runs." },
+			{ term: "Acute : chronic", definition: "7-day load divided by 28-day load. Aim for 0.8–1.5: above is a spike, below is detraining." },
+			{ term: "Ramp", definition: "How much last week's distance grew over the week before. About 10% is the usual ceiling." },
+			{ term: "Long run share", definition: "How much of the week's distance came from the long run. Above about 35% leans too hard on one run." },
+			{ term: "Load", definition: "One run's training stress, from time spent at each heart rate. Only meaningful compared with your own other runs." },
 		],
 	},
 
 	intensity: {
 		title: "Intensity mix",
 		body: [
-			"Where your running time went over the last four weeks, split by effort. The target is roughly 80% easy — that's the ratio nearly all successful endurance programmes converge on.",
-			"The band to watch is the moderate middle. Time there is the classic way to accumulate fatigue without the adaptation that either genuinely easy or genuinely hard running gives.",
-			"The zones are anchored on lactate threshold heart rate, which is measured, rather than derived from a maximum and a resting rate, which for a trained runner puts every boundary about fifteen beats too low and reports steady aerobic running as tempo. These bands won't match Strava's: Strava gives everyone a set derived from percentages of max heart rate, and its zone 2 is thirty beats wide.",
+			"Where your running time went over the last four weeks, by effort. Aim for about 80% easy — the split most successful endurance training settles on.",
+			"Watch the moderate middle: it adds fatigue without the benefits of truly easy or truly hard running.",
+			"Zones are set from lactate threshold heart rate, so they won't match Strava's, which are based on maximum heart rate.",
 		],
 		terms: [
-			{ term: "Easy", definition: "Heart rate zones 1–2, below 90% of threshold heart rate. Conversational. Should be the overwhelming majority of your running." },
-			{ term: "Moderate", definition: "Zone 3, from 90% of threshold to 95%. Feels productive, costs like hard running, and buys less than either neighbour." },
-			{ term: "Hard", definition: "Zones 4–5, from 95% of threshold upwards. Threshold work and intervals — valuable in small, deliberate doses." },
+			{ term: "Easy", definition: "Zones 1–2, below 90% of threshold heart rate. Conversational. Most of your running belongs here." },
+			{ term: "Moderate", definition: "Zone 3, 90–95% of threshold. Feels productive, costs like hard running, and gives less back." },
+			{ term: "Hard", definition: "Zones 4–5, above 95% of threshold. Threshold work and intervals — valuable in small doses." },
 		],
 	},
 
 	week: {
 		title: "This week",
 		body: [
-			"The plan for the current week, day by day, with whatever you actually ran alongside it. Volume is shown against the week's target without judgement mid-week: being at 40% on a Wednesday is on pace, not behind.",
-			"A day is only marked missed once it's over, so this morning's session is still ahead of you rather than a failure.",
+			"This week's plan day by day, with what you actually ran. Volume isn't judged mid-week: 40% on a Wednesday is on pace, not behind.",
+			"A day only counts as missed once it's over.",
 		],
 		terms: [
-			{ term: "Missed", definition: "A past day that had a run planned and none recorded." },
-			{ term: "Extra", definition: "A day you ran that had no run planned." },
-			{ term: "Long run", definition: "The week's long run is a single session on a single day, so it's reported as one: still ahead of you, done, or gone by. It deliberately doesn't have a progress bar — kilometres from the rest of the week aren't part of it." },
+			{ term: "Missed", definition: "A past day with a planned run and none recorded." },
+			{ term: "Extra", definition: "A run on a day with nothing planned." },
+			{ term: "Long run", definition: "One session on one day, so it shows as ahead, done or missed rather than as a progress bar." },
 		],
 	},
 
 	recovery: {
 		title: "Recovery",
 		body: [
-			"Sleep and overnight heart rate from an Oura ring, read the same way as the load panel: the last 7 days against the last 28, so every number here is recent measured against your own established normal rather than against anybody else's.",
-			"None of this feeds fitness, fatigue or form. Those are a closed system fed by training load alone, and that's what makes them readable — mixing a second source into part of it is how form ends up permanently negative. Recovery sits alongside instead, and shows up in the recommendations where the combination says more than either half: a 12% jump in volume means something different on eight hours a night than on six.",
-			"Nights with no record are skipped rather than counted as zero. A missing night is a ring left on the bedside table, not a night without sleep, and averaging it in would manufacture exactly the alarm this is meant to raise honestly.",
-			"The two sources meet in exactly one place, and it isn't attribution. A night has a run in it and also a late dinner, a hot bedroom and whatever tomorrow is bringing, so nothing here can tell you what a given run cost you overnight. What it can do is check the two measurements against each other: form is derived from training load alone, and whether your body agrees is a separate question with a separate answer.",
+			"Sleep and overnight heart rate from an Oura ring, comparing the last 7 nights with your 28-day normal.",
+			"Recovery doesn't feed fitness, fatigue or form, which come from training alone. It's a second opinion: deep fatigue with recovery at baseline means you're absorbing the training, while recovery slipping with little training behind it usually means illness, travel or short nights.",
+			"Nights without a reading are skipped, not counted as zero.",
 		],
 		terms: [
-			{ term: "Resting HR", definition: "Your lowest heart rate overnight. Measured asleep, so it's a truer resting rate than any daytime reading, and a rise of about 5 bpm over baseline is a long-standing marker of illness or work you haven't absorbed." },
-			{ term: "HRV", definition: "Heart-rate variability, the beat-to-beat variation while you sleep. Higher generally means better recovered, but it's noisy night to night, which is why it's read as a week against a month." },
-			{ term: "Baseline", definition: "Your own 28-day average for the same measure. Everything here is a deviation from it rather than an absolute judgement." },
-			{ term: "Form against the markers", definition: "Form comes from training load alone, so on its own it can only repeat what you already told it: run a lot and it goes negative whether or not you're coping. Your overnight numbers are an independent answer to the same question. Deep form with markers at baseline is a body absorbing the block; markers up with no load behind them is usually illness, travel or a run of short nights." },
+			{ term: "Resting HR", definition: "Your lowest heart rate overnight. A rise of about 5 bpm over baseline often means illness or training you haven't absorbed." },
+			{ term: "HRV", definition: "Heart-rate variability while you sleep. Higher generally means better recovered, but it's noisy night to night, so it's read as a week against a month." },
+			{ term: "Baseline", definition: "Your own 28-day average for the same measure." },
 		],
 	},
 
 	runs: {
 		title: "Recent activity",
 		body: [
-			"Recent runs, newest first. While a race is on the plan, a run on a planned day is tagged with that session and anything else is an extra.",
-			"Pace and grade-adjusted pace sit side by side, because on a hilly run they diverge a lot and that difference is the point — GAP is what the same effort would have been on the flat.",
-			"Longer rides and strength sessions are listed alongside them for context, and count towards nothing on this page. Cycling and the gym build none of the running-specific durability the rest of these numbers are tracking, so they stay out of all of them rather than flattering the fitness or dragging down the form.",
-			"A run can also carry a line the athlete wrote about it, which is the only thing here that isn't measured. A twenty-kilometre long run done as ten is a red mark on every chart on this page, and sometimes the explanation is a wedding rather than a problem — so there's a way to say so.",
+			"Recent runs, newest first. While training for a race, runs on planned days are tagged with the session; anything else is marked extra.",
+			"Pace and grade-adjusted pace sit side by side. On hilly runs they differ, and GAP is what the effort would have been on flat ground.",
+			"Rides and strength sessions are listed for context but don't count toward any running numbers. Some runs carry a short note explaining them — the only thing here that isn't measured.",
 		],
 		terms: [
-			{ term: "GAP", definition: "Grade-adjusted pace: your pace corrected for the gradient you ran it on, so hilly and flat runs can be compared." },
-			{ term: "Extra", definition: "A run with no planned session on that day. Not a bad thing — just not part of the plan." },
-			{ term: "Ride", definition: "A ride over 20 km, shown so the week reads honestly. Nothing on this page counts it." },
-			{ term: "Strength", definition: "A WeightTraining session from Strava, shown because it is on the plan. Nothing on this page counts it toward running volume or the race projection." },
-			{ term: "Why / note", definition: "Written into the Strava description as a tagged line — \"excuse: wedding in the evening\" or \"note: new shoes\" — and picked up on the next sync. Only tagged lines are published: the rest of a description was written for a different audience and never leaves the server." },
+			{ term: "GAP", definition: "Grade-adjusted pace: pace corrected for hills, so hilly and flat runs compare fairly." },
+			{ term: "Extra", definition: "A run on a day with no planned session." },
+			{ term: "Ride", definition: "A ride over 20 km, listed for context. It doesn't count toward anything here." },
+			{ term: "Strength", definition: "A gym session, listed because it's on the plan. It doesn't count toward running volume or the projection." },
+			{ term: "Why / note", definition: "A tagged line from the Strava description, like \"excuse: wedding in the evening\". Only tagged lines are published." },
 		],
 	},
 };

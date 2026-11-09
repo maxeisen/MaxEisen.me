@@ -89,14 +89,13 @@
 </script>
 
 {#if !hidden}
-    <WidgetHeader profileHref="https://github.com/maxeisen" profileLabel="GitHub" />
+    <WidgetHeader profileHref="https://github.com/maxeisen" profileLabel="GitHub" label="Code" />
     {#if !loaded}
         <div class="widget-loading" role="status" aria-label="Loading">
-            <Spinner size={38} stroke={3} />
+            <Spinner size={24} stroke={2} />
         </div>
     {:else}
     <a class="github-main" href={widgetHref} target="_blank" rel="noreferrer">
-        <div class="widget-label">Code Activity</div>
         <div class="github-repo">{repo}</div>
         <div class="github-message">{message}</div>
         <div class="github-meta">{meta}</div>
@@ -136,102 +135,76 @@
         flex-direction: column;
         flex: 1;
         min-height: 0;
-        text-decoration: none;
         color: inherit;
     }
-    .github-main :global(*) { text-decoration: none; }
+    .github-main:hover .github-repo { color: var(--accent); }
+    .github-repo,
+    .github-message,
+    .github-meta,
+    .github-graph-meta { flex-shrink: 0; }
     .github-repo {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        font-size: clamp(1rem, 1.25vw, 1.4rem);
-        color: var(--header-colour);
-        letter-spacing: -0.02em;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        flex-shrink: 0;
+        font-size: clamp(1rem, 1.2vw, 1.25rem);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.015em;
+        color: var(--text-strong);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: color var(--dur-fast) var(--ease);
     }
     .github-message {
-        font-size: clamp(0.8rem, 0.95vw, 1.05rem);
-        color: var(--paragraph-colour);
-        opacity: 0.85;
-        margin-top: 0.3rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        flex-shrink: 0;
+        margin-top: var(--space-1);
+        font-size: var(--font-sm);
+        color: var(--text);
     }
-    .github-meta {
-        font-size: clamp(0.72rem, 0.85vw, 0.92rem);
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-        margin-top: 0.3rem;
-        flex-shrink: 0;
-    }
+    .github-meta { margin-top: 2px; font-size: var(--font-xs); color: var(--text-3); }
     .github-heatmap-wrap {
         display: flex;
         align-items: stretch;
-        gap: 0.4rem;
-        margin-top: 0.75rem;
-        padding-top: 0.6rem;
         flex: 1 1 0;
-        min-height: 60px;
+        gap: 6px;
         min-width: 0;
+        min-height: 60px;
+        margin-top: var(--space-3);
         overflow: hidden;
     }
     .github-heatmap-rows {
         display: grid;
         grid-template-rows: repeat(7, 1fr);
-        gap: 2px;
-        font-size: clamp(0.55rem, 0.7vw, 0.78rem);
-        font-weight: 600;
-        color: var(--paragraph-colour);
-        opacity: 0.55;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
         flex: 0 0 auto;
+        gap: 2px;
+        font-size: var(--font-2xs);
+        color: var(--text-3);
     }
-    .github-heatmap-rows span {
-        display: flex;
-        align-items: center;
-        line-height: 1;
-    }
+    .github-heatmap-rows span { display: flex; align-items: center; line-height: 1; }
     .github-heatmap {
         display: grid;
         grid-auto-flow: column;
         grid-template-rows: repeat(7, minmax(0, 1fr));
-        gap: 2px;
         flex: 1 1 0;
+        gap: 2px;
         min-width: 0;
         height: 100%;
     }
-    .github-cell {
-        border-radius: 2px;
-        background: var(--main-green-translucent);
-        opacity: 0.35;
-        min-width: 0;
-        min-height: 0;
-    }
-    .github-cell.l1 { opacity: 0.55; background: var(--main-green); }
-    .github-cell.l2 { opacity: 0.7;  background: var(--main-green); }
-    .github-cell.l3 { opacity: 0.85; background: var(--main-green); }
-    .github-cell.l4 { opacity: 1;    background: var(--main-green); }
-    .github-cell.future { opacity: 0.12; }
-    .github-cell.today { box-shadow: inset 0 0 0 1.5px var(--header-colour); opacity: 1; }
+    /* One hue, light to dark: a sequential scale for a count. */
+    .github-cell { min-width: 0; min-height: 0; border-radius: 2px; background: var(--surface-2); }
+    .github-cell.l1 { background: color-mix(in oklab, var(--series-1) 30%, var(--surface-2)); }
+    .github-cell.l2 { background: color-mix(in oklab, var(--series-1) 55%, var(--surface-2)); }
+    .github-cell.l3 { background: color-mix(in oklab, var(--series-1) 78%, var(--surface-2)); }
+    .github-cell.l4 { background: var(--series-1); }
+    .github-cell.future { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+    .github-cell.today { box-shadow: inset 0 0 0 1.5px var(--text-strong); }
     .github-graph-meta {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        margin-top: 0.5rem;
-        font-size: clamp(0.7rem, 0.85vw, 0.9rem);
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        flex-shrink: 0;
+        margin-top: var(--space-2);
+        font-size: var(--font-xs);
+        color: var(--text-2);
     }
-    .github-graph-total {
-        font-family: var(--font-sans);
-        font-weight: 600;
-        color: var(--header-colour);
-        font-size: clamp(0.95rem, 1.15vw, 1.25rem);
-        opacity: 1;
-    }
+    .github-graph-total { font-weight: var(--weight-semibold); color: var(--text-strong); }
 </style>

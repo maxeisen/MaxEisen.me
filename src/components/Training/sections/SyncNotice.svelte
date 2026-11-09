@@ -24,7 +24,7 @@
 </script>
 
 {#if state}
-    <div class="notice" role="status">
+    <div class="notice surface" role="status">
         <span class="dot" aria-hidden="true"></span>
         <div>
             <strong>{state.title}</strong>
@@ -38,11 +38,8 @@
         display: flex;
         align-items: flex-start;
         gap: var(--space-3);
-        padding: var(--space-4);
+        padding: var(--space-3) var(--space-4);
         margin-bottom: var(--space-5);
-        border-radius: var(--radius-md);
-        background: var(--inner-background);
-        border: 1px solid var(--main-green-translucent);
     }
     .dot {
         flex: none;
@@ -50,7 +47,7 @@
         height: 8px;
         margin-top: 6px;
         border-radius: 50%;
-        background: var(--main-green);
+        background: var(--tone-info);
         animation: pulse 1.8s ease-in-out infinite;
     }
     @keyframes pulse {
@@ -58,21 +55,19 @@
         50% { opacity: 1; }
     }
     @media (prefers-reduced-motion: reduce) {
-        .dot { animation: none; opacity: 0.8; }
+        .dot { animation: none; }
     }
     strong {
         display: block;
-        font-family: var(--font-sans);
         font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--header-colour);
+        font-weight: var(--weight-semibold);
+        color: var(--text-strong);
     }
     p {
+        margin: var(--space-1) 0 0;
+        max-width: 70ch;
         font-size: var(--font-xs);
         line-height: 1.6;
-        color: var(--paragraph-colour);
-        opacity: 0.75;
-        margin: var(--space-1) 0 0 0;
-        max-width: 70ch;
+        color: var(--text-2);
     }
 </style>

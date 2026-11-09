@@ -203,15 +203,15 @@
     </div>
 </div>
 <div class="weather-right">
-    <div class="widget-label">Sun &amp; Moon</div>
+    <div class="widget-label">Sun and moon</div>
     <svg class="sun-svg" viewBox="0 0 200 90" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <line class="sun-horizon" x1="0" y1="80" x2="200" y2="80"/>
         <path class="sun-arc" d="M 10 80 Q 100 -20, 190 80"/>
         <circle class="sun-dot" cx={sunDot.cx} cy={sunDot.cy} r="5" style:opacity={sunDot.opacity}/>
     </svg>
     <div class="sun-times">
-        <span><span class="sun-times-label">↑</span><span>{sunriseLabel}</span></span>
-        <span><span class="sun-times-label">↓</span><span>{sunsetLabel}</span></span>
+        <span><span class="sun-times-label">Sunrise</span>{sunriseLabel}</span>
+        <span><span class="sun-times-label">Sunset</span>{sunsetLabel}</span>
     </div>
     <div class="moon-info">
         <div class="moon-emoji">{moon.emoji}</div>
@@ -223,84 +223,81 @@
 </div>
 
 <style>
-    .weather-left {
-        flex: 1; min-width: 0;
-        display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;
-    }
+    .weather-left,
     .weather-right {
-        flex: 1.25; min-width: 0;
-        display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: var(--space-2);
     }
+    .weather-right { flex: 1.25; }
     .weather-temp {
-        font-family: var(--font-sans);
-        font-weight: 600;
+        margin-top: var(--space-1);
         font-size: clamp(2rem, 4vw, 3.5rem);
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.04em;
         line-height: 1;
-        color: var(--header-colour);
-        letter-spacing: -0.03em;
-        margin-top: 0.25rem;
+        color: var(--text-strong);
     }
-    .weather-cond { font-size: 0.95rem; color: var(--header-colour); margin-top: 0.3rem; }
+    .weather-cond { font-size: var(--font-md); color: var(--text-strong); }
+    .weather-meta { font-size: var(--font-xs); color: var(--text-3); }
     .weather-stats {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.4rem 1rem;
-        margin-top: 0.6rem;
-        padding-top: 0.5rem;
-        font-size: 0.9rem;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--space-2) var(--space-4);
+        margin-top: var(--space-2);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
+        font-size: var(--font-sm);
     }
-    .weather-stat-label { color: var(--main-green); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.7rem; }
-    .weather-stat-value { color: var(--paragraph-colour); }
-    .weather-meta {
-        font-size: 0.78rem;
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-        margin-top: 0.3rem;
-    }
+    .weather-stat-label { font-size: var(--font-2xs); color: var(--text-2); }
+    .weather-stat-value { font-weight: var(--weight-medium); color: var(--text-strong); }
+
     .sun-svg {
+        flex-shrink: 0;
         width: 100%;
         height: auto;
         max-height: 110px;
-        margin: 0.25rem 0 0.5rem 0;
-        flex-shrink: 0;
+        margin: var(--space-1) 0 var(--space-2);
+    }
+    @container slot (max-width: 560px) {
+        .weather-stats { grid-template-columns: 1fr 1fr; }
     }
     @container slot (min-height: 380px) {
-        .weather-temp { font-size: clamp(2.5rem, 5.5vw, 4.75rem); }
+        .weather-temp { font-size: clamp(2.5rem, 5.5vw, 4.5rem); }
         .sun-svg { max-height: 150px; }
     }
     .sun-svg :global(path.sun-arc) {
-        stroke: var(--main-green);
-        stroke-width: 1.4;
         fill: none;
-        opacity: 0.4;
+        stroke: var(--border-strong);
+        stroke-width: 1.4;
         stroke-dasharray: 3 4;
+        vector-effect: non-scaling-stroke;
     }
-    .sun-svg :global(circle.sun-dot) { fill: var(--main-green); }
-    .sun-svg :global(line.sun-horizon) { stroke: var(--main-green-translucent); stroke-width: 1; }
+    .sun-svg :global(circle.sun-dot) { fill: var(--tone-warn); }
+    .sun-svg :global(line.sun-horizon) { stroke: var(--border-strong); stroke-width: 1; }
     .sun-times {
-        display: flex; justify-content: space-between;
-        font-size: 0.85rem; color: var(--paragraph-colour);
-        padding: 0 0.25rem;
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--font-sm);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-strong);
     }
-    .sun-times-label { color: var(--main-green); font-weight: 600; margin-right: 0.4rem; }
+    .sun-times > span { display: flex; flex-direction: column; }
+    .sun-times > span:last-child { text-align: right; }
+    .sun-times-label { font-size: var(--font-2xs); color: var(--text-2); }
     .moon-info {
-        display: flex; align-items: center; gap: 0.75rem;
-        margin-top: 0.6rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid var(--main-green-translucent);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
     }
-    .moon-emoji { font-size: 1.6rem; line-height: 1; }
+    .moon-emoji { font-size: 1.5rem; line-height: 1; }
     .moon-text { display: flex; flex-direction: column; min-width: 0; }
-    .moon-name {
-        font-family: var(--font-sans); font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--header-colour);
-        letter-spacing: -0.01em;
-    }
-    .moon-illum {
-        font-size: 0.75rem;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-        margin-top: 0.1rem;
-    }
+    .moon-name { font-size: var(--font-sm); font-weight: var(--weight-medium); color: var(--text-strong); }
+    .moon-illum { font-size: var(--font-xs); color: var(--text-2); }
 </style>

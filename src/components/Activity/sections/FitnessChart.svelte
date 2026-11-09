@@ -1,6 +1,7 @@
 <!-- Fitness, fatigue and form over the trailing window. -->
 <script>
-    import Card from "../Card.svelte";
+    import ChartLegend from "../charts/ChartLegend.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../charts/ChartFrame.svelte";
     import { areaPath, axisTicks, CHART_WEEKS, dateRangeTicks, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../lib/chart.js";
     import { axisDate, shortDate, signed } from "../lib/format.js";
@@ -47,10 +48,7 @@
     });
     const fitnessDomain = $derived([fitnessScale.min, fitnessScale.max]);
     const rightTicks = $derived(
-        axisTicks(fitnessScale, (v) => String(Math.round(v))).map((tick) => ({
-            ...tick,
-            colour: "var(--main-green)",
-        })),
+        axisTicks(fitnessScale, (v) => String(Math.round(v))),
     );
 
     // Fatigue fills down to zero on the left axis. Fitness fills to its own
@@ -82,19 +80,19 @@
                 {
                     label: "Fitness",
                     value: String(Math.round(day.ctl)),
-                    colour: "var(--main-green)",
+                    colour: "var(--series-1)",
                     yPct: yPct(ctlPoints[i].y, HEIGHT),
                 },
                 {
                     label: "Fatigue",
                     value: String(Math.round(day.atl)),
-                    colour: "var(--tone-bad)",
+                    colour: "var(--series-2)",
                     yPct: yPct(atlPoints[i].y, HEIGHT),
                 },
                 {
                     label: "Form",
                     value: signed(day.tsb, 0),
-                    colour: "var(--paragraph-colour)",
+                    colour: "var(--series-3)",
                     yPct: yPct(tsbPoints[i].y, HEIGHT),
                 },
             ],
@@ -105,11 +103,13 @@
 <Card title="Fitness and fatigue" {info}>
     {#snippet aside()}
         {#if latest}
-            <p class="readout">
-                <span class="key fitness">Fitness {Math.round(latest.ctl)}</span>
-                <span class="key fatigue">Fatigue {Math.round(latest.atl)}</span>
-                <span class="key form">Form {latest.tsb > 0 ? "+" : ""}{Math.round(latest.tsb)}</span>
-            </p>
+            <ChartLegend
+                items={[
+                    { label: "Fitness", value: Math.round(latest.ctl), color: "var(--series-1)" },
+                    { label: "Fatigue", value: Math.round(latest.atl), color: "var(--series-2)" },
+                    { label: "Form", value: `${latest.tsb > 0 ? "+" : ""}${Math.round(latest.tsb)}`, color: "var(--series-3)", mark: "dash" },
+                ]}
+            />
         {/if}
     {/snippet}
 
@@ -125,33 +125,15 @@
                 <path class="line fitness" d={smoothPath(ctlPoints)} />
             </svg>
         </ChartFrame>
-        <p class="chart-unit">fitness, right · form and fatigue, left · last {CHART_WEEKS} weeks</p>
+        <p class="chart-unit">Fitness on the right-hand scale; form and fatigue on the left · last {CHART_WEEKS} weeks</p>
     {/if}
 </Card>
 
 <style>
-    .readout {
-        display: flex;
-        gap: var(--space-4);
-        flex-wrap: wrap;
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin: 0;
-    }
-    .key { color: var(--paragraph-colour); opacity: 0.75; }
-    .key.fitness { color: var(--main-green); opacity: 1; }
-    .key.fatigue { color: var(--tone-bad); }
 
-    .fitness-fill {
-        fill: var(--main-green);
-        opacity: 0.12;
-    }
+    .fitness-fill { fill: var(--series-1); opacity: 0.1; }
     /* Fill fatigue so the 7-day sawtooth reads as hills, not a zigzag. */
-    .fatigue-fill {
-        fill: var(--tone-bad);
-        opacity: 0.14;
-    }
+    .fatigue-fill { fill: var(--series-2); opacity: 0.1; }
     .line {
         fill: none;
         stroke-width: 2;
@@ -160,20 +142,7 @@
         vector-effect: non-scaling-stroke;
     }
     /* Fitness is the slow line; fatigue and form oscillate with every session. */
-    .line.fitness {
-        stroke: var(--main-green);
-        stroke-width: 2.25;
-    }
-    .line.fatigue {
-        stroke: var(--tone-bad);
-        stroke-width: 1.25;
-        opacity: 0.55;
-    }
-    .line.form {
-        stroke: var(--paragraph-colour);
-        stroke-width: 1.25;
-        opacity: 0.35;
-        stroke-dasharray: 3 3;
-    }
-
+    .line.fitness { stroke: var(--series-1); }
+    .line.fatigue { stroke: var(--series-2); stroke-width: 1.5; }
+    .line.form { stroke: var(--series-3); stroke-width: 1.5; stroke-dasharray: 3 3; }
 </style>

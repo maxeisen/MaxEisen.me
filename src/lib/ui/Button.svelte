@@ -1,5 +1,5 @@
 <!--
-    Shared button. variant: "primary" (filled sand/sage) | "ghost" (outline).
+    Shared button. variant: "primary" (filled, ink) | "ghost" (outline).
     Forwards arbitrary attributes (type, disabled, onclick, aria-*, ...).
 -->
 <script>
@@ -18,27 +18,25 @@
 
 <style>
 	.btn {
-		font: inherit;
-		font-weight: 600;
-		border-radius: var(--radius-sm);
-		padding: 0.65rem 1rem;
-		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		height: 40px;
+		padding: 0 var(--space-4);
 		border: 1px solid transparent;
-		transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
+		border-radius: var(--radius);
+		font: inherit;
+		font-size: var(--font-sm);
+		font-weight: var(--weight-medium);
+		cursor: pointer;
+		transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 	}
-	.btn:active:not(:disabled) { transform: scale(0.97); }
 	.btn:disabled { opacity: 0.5; cursor: progress; }
 
-	.primary {
-		color: var(--background-one);
-		background: var(--main-green);
-	}
-	.primary:hover:not(:disabled) { opacity: 0.92; }
+	.primary { background: var(--text-strong); color: var(--bg); }
+	.primary:hover:not(:disabled) { background: var(--text); }
 
-	.ghost {
-		color: var(--main-green);
-		background: transparent;
-		border-color: var(--main-green-translucent);
-	}
-	.ghost:hover:not(:disabled) { background: var(--main-green-translucent); }
+	.ghost { background: transparent; color: var(--text); border-color: var(--border-strong); }
+	.ghost:hover:not(:disabled) { background: var(--surface-2); }
 </style>

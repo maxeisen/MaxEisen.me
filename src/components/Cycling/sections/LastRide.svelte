@@ -1,5 +1,5 @@
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import RideDetails from "./RideDetails.svelte";
     import { daysAgo } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
@@ -10,7 +10,7 @@
 <Card title="Last ride" {info}>
     {#snippet aside()}
         {#if ride}
-            <span class="when">{daysAgo(ride.daysAgo)}</span>
+            <span>{daysAgo(ride.daysAgo)}</span>
         {/if}
     {/snippet}
 
@@ -20,13 +20,3 @@
         <RideDetails {ride} />
     {/if}
 </Card>
-
-<style>
-    .when {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-</style>

@@ -1,16 +1,15 @@
 <!--
-    Homepage. Renders the page chrome (cursor spotlight, theme toggle,
-    modal context, menu bar on desktop) around the content sections.
+    Homepage: the site nav, then a two-column page — who I am on the left
+    (sticky on a wide screen), everything else on the right as a run of
+    ruled sections.
 
     Imports are grouped by subfolder:
-      - layout/   page-shell pieces (overlays, nav, providers)
-      - sections/ the actual content blocks rendered in the grid
+      - sections/ the content blocks
+      - modals/   what a row opens into (via ModalProvider)
 -->
 <script>
-    import CursorSpotlight from './layout/CursorSpotlight.svelte';
-    import ThemeToggle from './layout/ThemeToggle.svelte';
+    import SiteNav from '../../lib/ui/SiteNav.svelte';
     import ModalProvider from '../../lib/ui/ModalProvider.svelte';
-    import MenuBar from './layout/MenuBar.svelte';
 
     import Profile from './sections/Profile.svelte';
     import Intro from './sections/Intro.svelte';
@@ -21,38 +20,51 @@
     import Footer from './sections/Footer.svelte';
     // Blog kept here intentionally — wired in once it's ready to surface.
     // import Blog from './sections/Blog.svelte';
-
-    const screenSize = window.matchMedia("(min-width: 860px)");
 </script>
 
 <svelte:head>
     <!-- Owns the homepage title so client-side navigation back to "/"
-         restores it (routes set their own title via <svelte:head>; without
-         this, the tab would keep the last route's title after navigating
-         home). Matches the static <title> in index.html for first paint. -->
+         restores it (routes set their own title via <svelte:head>). Matches
+         the static <title> in index.html for first paint. -->
     <title>Get to Know Max Eisen | MaxEisen.me</title>
 </svelte:head>
 
-<CursorSpotlight />
-<ThemeToggle />
+<SiteNav />
 <ModalProvider>
-    {#if screenSize.matches}
-        <MenuBar/>
-    {/if}
-    <main class="grid-container">
-        <div class="profile-section">
-            <Profile/>
-        </div>
-        <div class="info-section-main">
-            <div class="info-section-inner">
-                <Intro/>
-                <Experience/>
-                <Projects/>
-                <!-- <Blog/> -->
-                <Foundations/>
-                <Skills/>
-            </div>
-            <Footer/>
+    <main class="home">
+        <aside class="profile">
+            <Profile />
+        </aside>
+        <div class="content">
+            <Intro />
+            <Experience />
+            <Projects />
+            <!-- <Blog/> -->
+            <Foundations />
+            <Skills />
+            <Footer />
         </div>
     </main>
 </ModalProvider>
+
+<style>
+    .home {
+        display: grid;
+        grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+        gap: var(--space-8);
+        max-width: var(--page-max);
+        margin: 0 auto;
+        padding: var(--space-7) var(--page-gutter) var(--space-7);
+    }
+    .profile {
+        position: sticky;
+        top: calc(var(--nav-height) + var(--space-7));
+        align-self: start;
+    }
+    .content { min-width: 0; max-width: 760px; }
+
+    @media (max-width: 860px) {
+        .home { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); padding-top: var(--space-6); }
+        .profile { position: static; }
+    }
+</style>

@@ -1,18 +1,30 @@
 /* ============================================================================
-   Design tokens — single source of truth for the whole site.
+   Design system — the single source of truth for how the site looks.
    Loaded by index.html (SPA + homepage) and resume.html.
 
-   - :root        -> theme-independent scales (spacing, radius, shadow, blur,
-                     z-index, typography, breakpoint reference values).
-   - [data-theme] -> resolved colour palette per theme (warm sand + sage).
+   Change the look here, not in components. Components only ever reference
+   the semantic tokens below (--bg, --surface, --text-2, --accent, …), never
+   raw colours, so a palette tweak is a one-line edit in one place.
 
-   NOTE: CSS @media queries cannot read custom properties, so the --bp-*
-   values are reference values for JS (matchMedia) only — not usable directly
-   inside @media (...). Keep the literal px in @media in sync with these.
+   Layout of this file:
+     1. Scales        — spacing, radius, type, z-index (theme-independent)
+     2. Palettes      — light + dark, the same token names in each
+     3. Base elements — body, links, focus, selection
+     4. Primitives    — .surface, .kicker, .num: the three classes that
+                        markup outside lib/ui is allowed to lean on
+     5. Rearrangeable grids (dashboard + activity pages)
+
+   Components for everything bigger (Card, Stat, Tag, PageHeader, SiteNav…)
+   live in src/lib/ui and are built from these tokens.
+
+   NOTE: CSS @media queries cannot read custom properties, so --bp-* are
+   reference values for JS (matchMedia) only. Keep literal px in @media in
+   sync with them.
    ============================================================================ */
 
+/* 1. Scales ---------------------------------------------------------------- */
 :root {
-    /* Spacing scale */
+    /* Spacing — a 4px grid. */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -20,29 +32,46 @@
     --space-5: 24px;
     --space-6: 32px;
     --space-7: 48px;
-    --space-8: 60px;
+    --space-8: 64px;
 
-    /* Border radius */
-    --radius-xs: 4px;
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
-    --radius-2xl: 25px;
+    /* Radius — three steps. Small for chips and inputs, default for cards,
+       large only for media (photos, album art). */
+    --radius-sm: 4px;
+    --radius: 8px;
+    --radius-lg: 12px;
     --radius-pill: 999px;
 
-    /* Elevation / shadows */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
-    --shadow-lg: 0 24px 80px rgba(0, 0, 0, 0.55);
+    /* Type. One family; hierarchy comes from size and weight, not from
+       uppercase tracking. --font-2xs is the floor: nothing reads smaller. */
+    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+    --font-2xs: 0.75rem;
+    --font-xs: 0.8125rem;
+    --font-sm: 0.875rem;
+    --font-md: 1rem;
+    --font-lg: 1.125rem;
+    --font-xl: 1.5rem;
+    --font-2xl: 2rem;
+    --font-3xl: clamp(2.25rem, 5vw, 3rem);
 
-    /* Backdrop blur */
-    --blur-sm: 4px;
-    --blur-md: 8px;
-    --blur-lg: 12px;
-    --blur-xl: 16px;
+    --weight-regular: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
 
-    /* Z-index scale (named by role; see usages across routes) */
+    --leading-tight: 1.15;
+    --leading: 1.5;
+
+    /* Layout */
+    --page-max: 1200px;
+    --page-gutter: clamp(16px, 4vw, 32px);
+    --nav-height: 56px;
+
+    /* Motion */
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --dur-fast: 120ms;
+    --dur: 200ms;
+
+    /* Z-index, named by role. */
     --z-base: 1;
     --z-raised: 10;
     --z-sticky: 50;
@@ -51,27 +80,6 @@
     --z-chrome: 9998;   /* theme toggle, cursor spotlight */
     --z-modal: 9999;    /* modal provider */
     --z-top: 10000;     /* spotify viz overlay */
-
-    /* Typography */
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-2xs: 0.7rem;
-    --font-xs: 0.8rem;
-    --font-sm: 0.9rem;
-    --font-md: 1rem;
-    --font-lg: 1.25rem;
-    --font-xl: 1.5rem;
-    --font-2xl: 2rem;
-
-    /* Semantic colours (theme-independent) */
-    --color-error: #d97777;
-    --color-error-soft: #e89a9a;
-
-    /* Status tones — good / warn / bad / info — are resolved per theme below,
-       because a colour that carries meaning has to stay legible on both
-       backgrounds, and the accent (--main-green) can't do the job on its own:
-       a page that says "on track" and "watch this" in two shades of the same
-       sage tells you nothing at a glance. Each tone has a `-bg` tint for
-       chips and panels. */
 
     /* Breakpoint reference values (JS matchMedia; @media cannot read vars) */
     --bp-xs: 460px;
@@ -82,166 +90,230 @@
     --bp-2xl: 1270px;
 }
 
-/* === Colour palette: warm sand + sage ===
-   Flattened from a prior two-pass cascade (an older teal palette overridden by
-   this one) into a single resolved block per theme. */
-[data-theme="dark"] {
-    --main-green: #b8a888;
-    --main-green-translucent: rgba(184, 168, 136, 0.3);
+/* 2. Palettes ---------------------------------------------------------------
+   Warm paper and ink, with one sage accent. Every token exists in both
+   themes; nothing is defined in only one.
 
-    --tone-good: #8fc7a9;
-    --tone-good-bg: rgba(143, 199, 169, 0.16);
-    --tone-warn: #e0b566;
-    --tone-warn-bg: rgba(224, 181, 102, 0.16);
-    --tone-bad: #e89a9a;
-    --tone-bad-bg: rgba(232, 154, 154, 0.16);
-    --tone-info: #a8c0dc;
-    --tone-info-bg: rgba(168, 192, 220, 0.16);
-    --background-one: #1c1a17;
-    --background-two: #0d0c0a;
-    --background-accent: #3d2a18;
-    --background-glow: #4a3a55;
+   Surfaces    --bg (page) < --surface (cards) ; --surface-2 is a recessed
+               well or hover inside a card.
+   Text        --text-strong (headings, figures) > --text (body) >
+               --text-2 (secondary) > --text-3 (axis ticks, captions).
+   Lines       --border (card edges, dividers) ; --border-strong (inputs,
+               controls).
+   Accent      --accent for links, the one highlighted series, focus.
+   Tones       good / warn / bad / info carry *meaning* only — never used to
+               tell two data series apart. Each has a -bg tint for chips.
+   Series      --series-1..3 tell data series apart in charts. Validated for
+               colour-vision deficiency on --surface in both themes. */
 
-    --nav-link: #cccccc;
-    --nav-link-hover: white;
-    --nav-background: black;
-    --nav-background-mobile: rgba(18, 18, 18, 0);
-    --scrollbar-thumb: rgba(114, 114, 114, 0.4);
-    --scrollbar-thumb-hover: rgba(114, 114, 114);
-
-    --header-colour: white;
-    --paragraph-colour: #e6e6e6;
-    --link-hover-colour: var(--main-green);
-
-    --intro-link-colour: #e8dcc8;
-    --headshot-glow: rgba(232, 220, 200, 0.28);
-    --intro-annotation-colour: rgba(184, 168, 136, 0.35);
-    --intro-highlight-colour: rgba(184, 168, 136, 0.18);
-
-    --inner-background: rgba(114, 114, 114, 0.281);
-    --inner-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    --item-background: rgba(25, 25, 25, 0.8);
-    --item-border: 1.25px solid #8a8989;
-    --item-hover-background: rgba(35, 35, 35, 0.8);
-    --item-subtitle: rgb(202, 202, 202);
-    --item-small-text: rgb(173, 173, 173);
-
-    --project-item-box-shadow: inset 0 0 0 1000px rgba(25, 25, 25, 0.95);
-    --project-item-hover-box-shadow: inset 0 0 0 1000px rgba(35, 35, 35, 0.85);
-
-    --skill-bullet-colour: rgb(153, 153, 153);
-
-    --modal-background: #222222;
-    --modal-title-colour: var(--header-colour);
-    --modal-subtitle-colour: #c7c7c7;
-    --modal-text-colour: var(--paragraph-colour);
-    --modal-link-colour: #e8dcc8;
-    --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6);
-
-    --badge-text-colour: #1c1a17;
-}
-
+:root,
 [data-theme="light"] {
-    --main-green: #6b7a5a;
-    --main-green-translucent: rgba(107, 122, 90, 0.3);
+    color-scheme: light;
+
+    --bg: #f2ede3;
+    --surface: #faf8f3;
+    --surface-2: #efe9de;
+    --border: #e0d8c9;
+    --border-strong: #c8bca7;
+
+    --text-strong: #15130f;
+    --text: #2a2620;
+    --text-2: #5f584c;
+    --text-3: #776f61;
+
+    --accent: #52683f;
+    --accent-hover: #3f5230;
+    --accent-soft: rgba(82, 104, 63, 0.12);
+    --on-accent: #ffffff;
+    --highlight: rgba(107, 122, 90, 0.28);   /* hand-drawn annotations */
+
+    --logo-bg: #15130f;
+    --logo-fg: #f4efe6;
+    --logo-dot: #a9bf8c;
 
     --tone-good: #3f7d5c;
-    --tone-good-bg: rgba(63, 125, 92, 0.14);
-    --tone-warn: #9a6114;
-    --tone-warn-bg: rgba(154, 97, 20, 0.14);
+    --tone-good-bg: rgba(63, 125, 92, 0.12);
+    --tone-warn: #94600f;
+    --tone-warn-bg: rgba(154, 97, 20, 0.12);
     --tone-bad: #ab362f;
-    --tone-bad-bg: rgba(171, 54, 47, 0.12);
+    --tone-bad-bg: rgba(171, 54, 47, 0.1);
     --tone-info: #3b5c85;
-    --tone-info-bg: rgba(59, 92, 133, 0.12);
-    --background-one: #f0e7d6;
-    --background-two: #d8c9a3;
-    --background-accent: #b8c4a3;
-    --background-glow: #e6c8a8;
+    --tone-info-bg: rgba(59, 92, 133, 0.1);
 
-    --nav-link: #ffffff;
-    --nav-link-hover: #dadada;
-    --nav-background: #c7c7c7;
-    --nav-background-mobile: rgba(18, 18, 18, 0);
-    --scrollbar-thumb: rgba(114, 114, 114, 0.8);
-    --scrollbar-thumb-hover: rgba(114, 114, 114);
+    --series-1: #4f7a2f;   /* green — the primary series */
+    --series-2: #5a68b0;   /* slate blue — the series read against it */
+    --series-3: #8a8170;   /* stone — context, de-emphasised */
 
-    --header-colour: black;
-    --paragraph-colour: #1a1919;
-    --link-hover-colour: var(--main-green);
-
-    --intro-link-colour: #2a3528;
-    --headshot-glow: rgba(60, 70, 50, 0.18);
-    --intro-annotation-colour: rgba(107, 122, 90, 0.5);
-    --intro-highlight-colour: rgba(107, 122, 90, 0.2);
-
-    --inner-background: rgba(255, 255, 255, 0.6);
-    --inner-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
-
-    --item-background: rgba(175, 175, 175, 0.65);
-    --item-border: 1.25px solid #8a8989;
-    --item-hover-background: rgb(175, 175, 175);
-    --item-subtitle: rgb(34, 34, 34);
-    --item-small-text: rgb(39, 39, 39);
-
-    --project-item-box-shadow: inset 0 0 0 1000px rgba(200, 200, 200, 0.92);
-    --project-item-hover-box-shadow: inset 0 0 0 1000px rgba(200, 200, 200, 0.85);
-
-    --skill-bullet-colour: rgb(39, 39, 39);
-
-    --modal-background: white;
-    --modal-title-colour: var(--header-colour);
-    --modal-subtitle-colour: #333333;
-    --modal-text-colour: var(--paragraph-colour);
-    --modal-link-colour: #3d4a35;
-    --modal-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0);
-
-    --badge-text-colour: #ffffff;
+    --shadow-pop: 0 1px 2px rgba(30, 24, 14, 0.06), 0 8px 24px rgba(30, 24, 14, 0.1);
+    --scrim: rgba(21, 19, 15, 0.55);
 }
 
-/* === Shared animations ===
-   Multi-layer radial-gradient "drift" used by the homepage + resume (body) and
-   the /gallery and /dashboard route bodies, all referencing this one keyframe.
-   The standalone /404 keeps its own copy (it doesn't load this file). */
+[data-theme="dark"] {
+    color-scheme: dark;
 
-/* iOS-style jiggle for a grid in edit mode, on /dashboard and /running. Two
-   of them, applied to alternating tiles, so a grid doesn't rock in lockstep.
-   Global because keyframes declared inside a Svelte component are scoped to
-   it, and these belong to both. */
+    --bg: #12110f;
+    --surface: #1b1916;
+    --surface-2: #24211d;
+    --border: #2d2a25;
+    --border-strong: #423d35;
+
+    --text-strong: #f4efe6;
+    --text: #e2dbcf;
+    --text-2: #aaa192;
+    --text-3: #8b8273;
+
+    --accent: #a9bf8c;
+    --accent-hover: #c0d3a6;
+    --accent-soft: rgba(169, 191, 140, 0.14);
+    --on-accent: #15130f;
+    --highlight: rgba(184, 168, 136, 0.3);
+
+    --logo-bg: #f4efe6;
+    --logo-fg: #12110f;
+    --logo-dot: #52683f;
+
+    --tone-good: #8fc7a9;
+    --tone-good-bg: rgba(143, 199, 169, 0.14);
+    --tone-warn: #e0b566;
+    --tone-warn-bg: rgba(224, 181, 102, 0.14);
+    --tone-bad: #ec9a92;
+    --tone-bad-bg: rgba(236, 154, 146, 0.14);
+    --tone-info: #a8c0dc;
+    --tone-info-bg: rgba(168, 192, 220, 0.14);
+
+    --series-1: #7ba158;
+    --series-2: #7d88d6;
+    --series-3: #8b8273;
+
+    --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.45);
+    --scrim: rgba(0, 0, 0, 0.7);
+}
+
+/* 3. Base elements --------------------------------------------------------- */
+html {
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+
+    /* <html> owns the page scroll (rather than the viewport) so that
+       `scrollbar-gutter: stable` holds through a modal's overflow:hidden
+       lock — content never shifts sideways when a scrollbar comes or goes. */
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-weight: var(--weight-regular);
+    font-size: var(--font-md);
+    line-height: var(--leading);
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11", "ss01";
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-sans);
+    color: var(--text-strong);
+    line-height: var(--leading-tight);
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.015em;
+}
+
+p { color: var(--text); }
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease);
+}
+a:hover { color: var(--accent-hover); }
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+::selection { background: var(--accent-soft); }
+
+img { max-width: 100%; }
+
+/* 4. Primitives -------------------------------------------------------------
+   The only global classes. Everything else is a component. */
+
+/* A card's surface: the same recipe for a dashboard widget, an activity
+   panel, a homepage card and a modal. */
+.surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+/* A small label above a value or a section — sentence case, secondary ink.
+   Replaces the uppercase, letter-spaced "eyebrow" everywhere. */
+.kicker {
+    display: block;
+    margin: 0;
+    font-size: var(--font-2xs);
+    font-weight: var(--weight-medium);
+    line-height: 1.3;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-2);
+}
+
+/* Figures that line up in a column (tables, axes, clocks). */
+.num { font-variant-numeric: tabular-nums; }
+
+/* Theme switch fade (see fadeTo in index.html). */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 280ms;
+    animation-timing-function: ease;
+}
+
+html.theme-fading,
+html.theme-fading *,
+html.theme-fading *::before,
+html.theme-fading *::after {
+    transition: background-color 280ms ease, color 280ms ease, border-color 280ms ease,
+        fill 280ms ease, stroke 280ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
+
+/* 5. Rearrangeable grids ----------------------------------------------------
+   How a draggable grid looks and responds, for the pages driven by
+   lib/ui/reorder + lib/ui/editMode: /dashboard's widgets and the activity
+   pages' panels. Containers are `.drag-grid`, tiles `.drag-tile`; the drag
+   sets is-dragging, is-editing, dragging and drop-target on both. */
 @keyframes edit-jiggle-a {
     0%   { transform: rotate(-0.5deg) translate(0, 0); }
     50%  { transform: rotate(0.5deg)  translate(0, -1px); }
     100% { transform: rotate(-0.5deg) translate(0, 0); }
 }
-
 @keyframes edit-jiggle-b {
     0%   { transform: rotate(0.55deg)  translate(0, -1px); }
     50%  { transform: rotate(-0.55deg) translate(0, 0); }
     100% { transform: rotate(0.55deg)  translate(0, -1px); }
 }
 
-/* === Rearrangeable grids ===
-   How a draggable grid looks and responds, for the pages driven by
-   lib/ui/reorder + lib/ui/editMode: /dashboard's widgets and /running's
-   panels. Both mark their container `.drag-grid` and their tiles
-   `.drag-tile`, and the classes the drag itself sets — is-dragging,
-   is-editing, dragging, drop-target — mean the same thing on both.
-
-   Here rather than in either component because these rules ARE the feel of
-   the thing: the grab cursor, the gestures a tile swallows, whether it
-   jiggles and how fast. Two copies is how the two pages came to behave
-   differently in the first place. What stays local to each page is what
-   genuinely differs: where its layout collapses, and how its tiles
-   alternate between the two jiggles. */
 .drag-grid.is-dragging,
 .drag-grid.is-dragging * { cursor: grabbing !important; }
 
 .drag-tile {
     cursor: grab;
 
-    /* A press that turns into a drag mustn't start selecting text on the
-       way, and mustn't be read as a scroll. Pages release both once their
-       layout collapses, where dragging waits to be asked for. */
+    /* A press that becomes a drag mustn't select text or scroll. Pages
+       release both once their layout collapses. */
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
@@ -251,19 +323,17 @@
 .drag-tile.dragging {
     cursor: grabbing;
     pointer-events: none;
-    opacity: 0.92;
+    opacity: 0.94;
+    box-shadow: var(--shadow-pop);
 }
 
-/* The slot a drop would land in. Dashed, and faded in rather than snapped on.
-   Each page sets the two geometry properties to suit its own tiles; the
-   treatment itself is the same on both. */
 .drag-grid .slot {
     outline: 2px dashed transparent;
-    outline-offset: var(--drop-outline-offset, -8px);
-    border-radius: var(--drop-outline-radius, 20px);
-    transition: outline 0.15s ease;
+    outline-offset: var(--drop-outline-offset, 3px);
+    border-radius: var(--drop-outline-radius, var(--radius));
+    transition: outline-color var(--dur-fast) ease;
 }
-.drag-grid .slot.drop-target { outline-color: var(--main-green); }
+.drag-grid .slot.drop-target { outline-color: var(--accent); }
 
 .drag-grid.is-editing .drag-tile {
     animation: edit-jiggle-a 0.42s ease-in-out infinite;
@@ -275,14 +345,4 @@
 @media (prefers-reduced-motion: reduce) {
     .drag-grid.is-editing .drag-tile,
     .drag-grid.is-editing .drag-tile.dragging { animation: none; }
-}
-
-@keyframes gradient {
-    0%   { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
-    16%  { background-position: 70% 60%, 30% 40%, 55% 48%, 35% 82%; }
-    33%  { background-position: 45% 25%, 60% 80%, 78% 75%, 48% 22%; }
-    50%  { background-position: 80% 40%, 20% 65%, 38% 62%, 82% 38%; }
-    66%  { background-position: 30% 70%, 75% 30%, 68% 22%, 15% 72%; }
-    83%  { background-position: 65% 20%, 35% 75%, 22% 70%, 72% 45%; }
-    100% { background-position: 25% 75%, 80% 20%, 18% 28%, 82% 72%; }
 }

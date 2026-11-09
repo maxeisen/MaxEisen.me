@@ -11,8 +11,8 @@
     for a few minutes and a re-open is instant.
 -->
 <script>
+    import ActivityModalFrame from "../Activity/ActivityModalFrame.svelte";
     import RunDetails from "./sections/RunDetails.svelte";
-    import Spinner from "../../lib/ui/Spinner.svelte";
     import { fetchJsonSwr } from "../../lib/data/swrCache.js";
     import { daysAgo, shortDate } from "../Activity/lib/format.js";
 
@@ -60,75 +60,6 @@
     });
 </script>
 
-<div class="run-modal">
-    <div class="eyebrow">
-        {#if when}<span class="when">{when}</span>{/if}
-        {#if loading}
-            <span class="loading" role="status" aria-label="Loading run detail">
-                <Spinner size={12} stroke={2} /> loading detail…
-            </span>
-        {/if}
-    </div>
-
+<ActivityModalFrame {when} {loading} id={shown?.id}>
     <RunDetails run={shown} />
-
-    {#if shown?.id}
-        <a
-            class="strava-link"
-            href="https://www.strava.com/activities/{shown.id}"
-            target="_blank"
-            rel="noreferrer"
-        >
-            View on Strava ↗
-        </a>
-    {/if}
-</div>
-
-<style>
-    /* The modal window is centred text by convention (the homepage activity
-       modal), but a run's stats read as a left-aligned dashboard panel. */
-    .run-modal { text-align: left; }
-
-    .eyebrow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--space-3);
-        margin-bottom: var(--space-2);
-    }
-
-    .when {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-
-    .loading {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-2);
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-
-    .strava-link {
-        display: inline-block;
-        margin-top: var(--space-5);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--main-green);
-        text-decoration: none;
-        opacity: 0.9;
-        transition: opacity 0.15s ease;
-    }
-    .strava-link:hover,
-    .strava-link:focus-visible {
-        opacity: 1;
-        text-decoration: underline;
-    }
-</style>
+</ActivityModalFrame>

@@ -19,3 +19,37 @@ test("homepage boots and renders", async ({ page }) => {
 	// The SPA mounted into #app rather than leaving a blank shell.
 	await expect(page.locator("#app")).not.toBeEmpty();
 });
+
+// Links inside a homepage modal used to full-load the next page: the modal
+// window stopped click propagation, so App.svelte's document listener (the
+// thing that makes internal links client-side) never saw them.
+for (const [activity, link, path] of [
+	["running", /Running dashboard/, "/running"],
+	["cycling", /Cycling dashboard/, "/cycling"],
+]) {
+	test(`the ${activity} modal's dashboard link navigates without reloading the site`, async ({ page }) => {
+		await page.goto("/");
+		await page.locator("activity", { hasText: activity }).click();
+		const dialog = page.getByRole("dialog");
+		await expect(dialog).toBeVisible();
+
+		// A click inside the window must not close it…
+		await dialog.locator("figcaption").click();
+		await expect(dialog).toBeVisible();
+
+		// …and the link must be a client-side navigation: state on window survives.
+		await page.evaluate(() => { window.__noReload = true; });
+		await dialog.getByRole("link", { name: link }).click();
+		await expect(page).toHaveURL(new RegExp(`${path}$`));
+		expect(await page.evaluate(() => window.__noReload)).toBe(true);
+	});
+}
+
+test("clicking the backdrop closes a modal", async ({ page }) => {
+	await page.goto("/");
+	await page.locator("activity", { hasText: "skiing" }).click();
+	const dialog = page.getByRole("dialog");
+	await expect(dialog).toBeVisible();
+	await page.mouse.click(10, 10);
+	await expect(dialog).toHaveCount(0);
+});

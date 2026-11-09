@@ -1,83 +1,86 @@
-// Copy behind each cycling panel's "i" button. Thresholds match the engine.
+// Copy behind each cycling panel's "?" button. Thresholds match the engine.
+// Same house style as the running glossary (Training/lib/glossary.js), and
+// written to stand on its own: nothing here refers to the running page.
 
 export const GLOSSARY = {
 	today: {
 		title: "Today",
 		body: [
-			"Cycling fitness, fatigue and form against yesterday, plus readiness. Readiness never feeds the load model. It is cycling form together with last night's sleep, heart-rate variability and resting heart rate against a 28-day baseline.",
+			"Where things stand this morning. Fitness, fatigue and form come from ride load alone. Readiness is a separate read of how your body is coping, and never feeds back into them.",
 		],
 		terms: [
-			{ term: "Training", definition: "Today's cycling fitness, fatigue and form. A rest day still moves them, because fatigue fades faster than fitness. Only rides change the load." },
-			{ term: "Readiness", definition: "A signed number like form. Last night does not change until tomorrow. A ride moves readiness only through form." },
+			{ term: "Training", definition: "How cycling fitness, fatigue and form changed since yesterday. Rest days move them too: fatigue fades faster than fitness, so form usually rises." },
+			{ term: "Readiness", definition: "A signed number like form, built from form plus last night's sleep, HRV and resting heart rate against your 28-day baseline. It updates once a night; a ride only moves it through form." },
 		],
 	},
 	lastRide: {
 		title: "Last ride",
 		body: [
-			"The most recent ride: distance, moving time, climb and average speed, then power, heart rate and cadence when they were recorded.",
-			"The chart is heart rate along the ride, and watts on the same distance when a meter recorded them. Estimated watts are left out. Cadence is revolutions per minute. Two rides on one day share that day's fitness change, and the card says so.",
+			"Your most recent ride: distance, time, climb and speed, then power, heart rate and cadence when they were recorded.",
+			"The chart shows power along the ride when a power meter recorded it, with heart rate on the right-hand scale. Estimated power isn't shown.",
 		],
 		terms: [
-			{ term: "Load", definition: "Training stress from time spent at each heart rate. A ride with no heart rate is listed and does not move fitness. Compared with your own rides from the last six weeks." },
-			{ term: "Fitness, fatigue and form", definition: "What the day's riding moved. Fitness is the 42-day average of load, fatigue the 7-day one, form the difference." },
+			{ term: "Load", definition: "Training stress from time spent at each heart rate, compared with your rides from the last six weeks. A ride without heart rate doesn't change fitness." },
+			{ term: "Fitness, fatigue and form", definition: "What the day's riding changed. Two rides on one day share that day's change." },
 		],
 	},
 	recommendations: {
 		title: "Recommendations",
 		body: [
-			"The same restraint rules as the other dashboard, written for riding. Each card shows the number that crossed a threshold.",
+			"A fixed set of rules reads the numbers on this page and flags anything worth acting on. Each card shows the value that triggered it beside the threshold it crossed.",
+			"Most rules are about holding back: ramping too fast, riding easy days too hard, or not recovering.",
 		],
 		terms: [
-			{ term: "Load ratio", definition: "The last 7 days of ride load divided by the last 28. The corridor is 0.8 to 1.5." },
-			{ term: "Long ride share", definition: "How much of the week's distance sat in the longest ride. Above 35% is a lot to put in one day." },
+			{ term: "Load ratio", definition: "Your last 7 days of ride load divided by your last 28. Aim for 0.8–1.5." },
+			{ term: "Long ride share", definition: "How much of the week's distance came from the longest ride. Above 35% leans too hard on one day." },
 		],
 	},
 	volume: {
 		title: "Weekly volume",
 		body: [
-			"Kilometres and hours ridden, week by week. Weeks start on Monday. There is no plan target on this chart.",
+			"Kilometres ridden each week, Monday to Sunday.",
 		],
 	},
 	fitness: {
 		title: "Fitness and fatigue",
 		body: [
-			"Fitness is the 42-day average of ride load, fatigue the 7-day average, and form is the difference. Rides are the only input.",
+			"Every ride gets a training-load score from heart rate and duration. Fitness is the 42-day average of that score, fatigue the 7-day average, and form the gap between them. Fitness uses the right-hand scale so a slow build stays visible.",
 		],
 	},
 	efficiency: {
 		title: "Aerobic efficiency",
 		body: [
-			"Watts per heartbeat on easier rides that recorded meter power. Estimated watts are not plotted. Rides without a meter are skipped. The direction of the line is the point.",
+			"Power per heartbeat on easier rides with a power meter. A rising line means the same effort is producing more power. Rides without a meter are left out.",
 		],
 	},
 	week: {
 		title: "This week",
 		body: [
-			"Rides so far in the current Monday-to-Sunday week, with the distance and moving time they add up to.",
+			"Rides so far this week, Monday to Sunday, with their total distance and time.",
 		],
 	},
 	load: {
 		title: "Load and risk",
 		body: [
-			"This week's ride load against the last four weeks. The safe corridor is 0.8 to 1.5. A week-to-week ramp above 10%, or a longest ride above 35% of the week, is flagged.",
+			"Your last 7 days of ride load against your last 28. The safe corridor is 0.8 to 1.5. A week-on-week jump over 10%, or one ride carrying more than 35% of the week, gets flagged.",
 		],
 	},
 	recovery: {
 		title: "Recovery",
 		body: [
-			"Sleep and overnight heart rate from the ring. The same nights the other dashboard reads. They are not written into cycling fitness.",
+			"Sleep and overnight heart rate from an Oura ring, comparing the last 7 nights with your 28-day normal. It doesn't feed cycling fitness; it's a second opinion on how you're coping with the training.",
 		],
 	},
 	intensity: {
 		title: "Intensity mix",
 		body: [
-			"Where riding time went over the last four weeks, by heart-rate zone. Easy is zones 1–2, moderate is zone 3, hard is zones 4–5. The easy share to hold is about 80%.",
+			"Where your riding time went over the last four weeks, by heart-rate zone: easy is zones 1–2, moderate zone 3, hard zones 4–5. Aim for about 80% easy.",
 		],
 	},
 	rides: {
 		title: "Recent activity",
 		body: [
-			"Rides are the rows that open here. Other activities are listed for context and count toward nothing on this page.",
+			"Your recent rides, newest first. Open one for the full detail. Other activities are listed for context and don't count toward anything here.",
 		],
 	},
 };

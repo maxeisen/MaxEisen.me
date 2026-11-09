@@ -3,26 +3,15 @@
     countdown, goal, week plan. Afterwards the same page just tracks fitness.
 
     trainingData computes everything server-side (Strava history in Netlify
-    Blobs → deterministic metrics). This component fetches one payload and
-    lays it out. No password gate: the page is public, and shape.js drops
-    private activities and GPS before anything is stored.
+    Blobs → deterministic metrics). No password gate: the page is public, and
+    shape.js drops private activities and GPS before anything is stored.
 
-    Panels rearrange the same way /dashboard widgets do (lib/ui/reorder +
-    editMode): drop one on another to swap. Free on a wide screen; behind
-    the Edit toggle once a press-and-drag would otherwise be a scroll.
+    The shell (fetch, grid, drag, footer) is Activity/ActivityPage, shared
+    with /cycling; this file is the running-specific configuration.
 -->
 <script>
-    import { onMount, onDestroy } from "svelte";
-    import ModalProvider from "../../lib/ui/ModalProvider.svelte";
-    import BackLink from "../../lib/ui/BackLink.svelte";
-    import EditToggle from "../../lib/ui/EditToggle.svelte";
-    import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
-    import Spinner from "../../lib/ui/Spinner.svelte";
-    import { fetchJsonSwr, swrSeed } from "../../lib/data/swrCache.js";
-    import { createPoller } from "../../lib/data/poller.js";
-    import { bestSplit, worthMoving } from "./lib/balance.js";
+    import ActivityPage from "../Activity/ActivityPage.svelte";
     import { readTrainingBootstrap } from "./lib/bootstrap.js";
-    import { STRAVA_PROFILE_URL } from "../../lib/strava.js";
     import { inBlock, trainingPageMeta } from "./lib/block.js";
     import RaceHeader from "./sections/RaceHeader.svelte";
     import SyncNotice from "./sections/SyncNotice.svelte";
@@ -39,42 +28,14 @@
     import Recovery from "../Activity/sections/Recovery.svelte";
     import RunLog from "./sections/RunLog.svelte";
 
-    const ENDPOINT = "/.netlify/functions/trainingData";
-
-    // Authored reading order. The column split is measured at runtime
-    // (lib/balance.js) so a panel added, resized, or dragged doesn't
-    // leave one column hundreds of pixels past the other.
-    const DEFAULT_ORDER = [
+    // Authored reading order; the last panel spans both columns. Bump the
+    // storage key when this changes so a saved layout can't pin the old
+    // imbalance or silently drop a new panel.
+    const ORDER = [
         "lastRun", "recommendations", "volume", "fitness",
         "efficiency", "prediction", "week", "load", "recovery", "intensity",
         "runs",
     ];
-    const INITIAL_SPLIT = 4;
-    // Bump when the default order changes so a saved layout can't pin
-    // the old imbalance or silently drop a new panel.
-    const LAYOUT_KEY = "training-layout-4";
-
-    let data = $state(null);
-    let error = $state("");
-    let stopPoll;
-
-    const { reorder, edit } = createRearrangeable({
-        gridId: "training-grid",
-        responsiveQuery: "(max-width: 860px)",
-        order: DEFAULT_ORDER,
-        storageKey: LAYOUT_KEY,
-        onReorder: () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize"))),
-    });
-
-    let splitAt = $state(INITIAL_SPLIT);
-
-    const columnIds = $derived(reorder.layout.slice(0, -1));
-    const wideIds = $derived(columnIds.slice(0, splitAt));
-    const narrowIds = $derived(columnIds.slice(splitAt));
-    const fullId = $derived(reorder.layout[reorder.layout.length - 1]);
-    const todayKey = $derived(data?.today?.date || null);
-    const event = $derived(inBlock(data?.summary));
-    const meta = $derived(trainingPageMeta(data?.summary));
 
     const PANELS = {
         lastRun: LastRun,
@@ -90,281 +51,44 @@
         runs: RunLog,
     };
 
-    function propsFor(id) {
+    function propsFor(id, data) {
+        const today = data?.today?.date || null;
         switch (id) {
             case "lastRun": return { run: data.lastRun };
-            case "volume": return { weeks: data.weeks, today: todayKey };
-            case "fitness": return { series: data.series, today: todayKey };
-            case "efficiency": return { efficiency: data.efficiency, summary: data.summary, today: todayKey };
+            case "volume": return { weeks: data.weeks, today };
+            case "fitness": return { series: data.series, today };
+            case "efficiency": return { efficiency: data.efficiency, summary: data.summary, today };
             case "recommendations": return { recommendations: data.recommendations };
             case "prediction": return { summary: data.summary };
             case "load": return { acwr: data.summary?.acwr, riskWeek: data.summary?.riskWeek };
             case "intensity": return { intensity: data.summary?.intensity };
-            case "week": return { week: data.week, upcoming: data.upcoming, inBlock: event };
+            case "week": return { week: data.week, upcoming: data.upcoming, inBlock: inBlock(data.summary) };
             case "recovery": return { recovery: data.recovery };
             case "runs": return { runs: data.runs, total: data.summary?.totals?.runs };
             default: return {};
         }
     }
-
-    const MAX_PASSES = 3;
-
-    function rebalance(passesLeft = MAX_PASSES) {
-        if (edit.isResponsive) return;
-        const grid = document.getElementById("training-grid");
-        if (!grid) return;
-
-        const measured = new Map();
-        for (const panel of grid.querySelectorAll("[data-panel]")) {
-            measured.set(panel.dataset.panel, panel.offsetHeight);
-        }
-        const heights = columnIds.map((id) => measured.get(id) ?? NaN);
-
-        const column = grid.querySelector(".col");
-        const gap = column ? parseFloat(getComputedStyle(column).rowGap) || 0 : 0;
-
-        const next = bestSplit(heights, { gap });
-        if (!worthMoving(heights, splitAt, next, { gap })) return;
-        splitAt = next;
-        if (passesLeft > 1) requestAnimationFrame(() => rebalance(passesLeft - 1));
-    }
-
-    // Deliberately not reading splitAt: rebalance writes it, and an effect
-    // that read it would loop. The rAF callback runs outside the effect.
-    $effect(() => {
-        void data;
-        void reorder.layout;
-        void edit.isResponsive;
-        requestAnimationFrame(() => rebalance());
-    });
-
-    async function load() {
-        try {
-            const payload = await fetchJsonSwr(ENDPOINT, {
-                maxAgeMs: 60_000,
-                onRevalidate: (fresh) => { data = fresh; },
-            });
-            data = payload;
-            error = "";
-        } catch (err) {
-            if (!data) error = "Couldn't load running data right now.";
-            console.error("trainingData load failed", err);
-        }
-    }
-
-    let resizeTimer;
-    function onResize() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => rebalance(), 150);
-    }
-
-    onMount(() => {
-        reorder.restore();
-        edit.listen();
-        window.addEventListener("resize", onResize);
-        const boot = readTrainingBootstrap();
-        if (boot) {
-            swrSeed(ENDPOINT, boot);
-            data = boot;
-        }
-        load();
-        // Match the upstream sync so an open tab is never more than one
-        // cycle behind a reopen. SWR's 60s window and the edge cache sit
-        // under this, so each tick actually revalidates.
-        stopPoll = createPoller(load, 1000 * 60 * 5, { jitterMs: 30_000 });
-    });
-
-    onDestroy(() => {
-        stopPoll?.();
-        edit.stop();
-        clearTimeout(resizeTimer);
-        window.removeEventListener("resize", onResize);
-    });
 </script>
 
-<svelte:head>
-    <title>{meta.title}</title>
-    <meta name="description" content={meta.desc} />
-</svelte:head>
-
-{#snippet panelSlot(id, idx)}
-    <div
-        class="slot"
-        class:drop-target={reorder.dropTargetIdx === idx}
-        data-slot-index={idx}
-    >
-        <div
-            class="panel drag-tile"
-            class:dragging={reorder.draggingId === id}
-            data-panel={id}
-            style:transform={reorder.transformFor(id)}
-            onpointerdown={(e) => reorder.start(id, e)}
-        >
-            {@render panelBody(id)}
-        </div>
-    </div>
-{/snippet}
-
-{#snippet panelBody(id)}
-    {@const Panel = PANELS[id]}
-    {#if Panel}
-        <Panel {...propsFor(id)} />
-    {/if}
-{/snippet}
-
-<!-- ModalProvider gives the run log a window to open a run in, the same one
-     the homepage uses for its activity/experience modals. -->
-<ModalProvider>
-<main class="training">
-    <BackLink />
-
-    {#if data && edit.isResponsive}
-        <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
-    {/if}
-
-    {#if error && !data}
-        <div class="state">
-            <p>{error}</p>
-        </div>
-    {:else if !data}
-        <div class="state">
-            <Spinner size={38} stroke={3} />
-        </div>
-    {:else}
+<ActivityPage
+    endpoint="/.netlify/functions/trainingData"
+    seed={readTrainingBootstrap}
+    errorMessage="Couldn't load running data right now."
+    order={ORDER}
+    storageKey="training-layout-4"
+    gridId="training-grid"
+    panels={PANELS}
+    {propsFor}
+    title={(data) => trainingPageMeta(data?.summary).title}
+    description={(data) => trainingPageMeta(data?.summary).desc}
+    footnote="Synced from Strava. Metrics are computed deterministically — training load from heart-rate reserve, pace adjusted for gradient — and every recommendation shows the number that triggered it. No route maps here by design."
+>
+    {#snippet header(data)}
         <RaceHeader summary={data.summary} />
-
         <SyncNotice sync={data.sync} runCount={data.runs?.length ?? 0} />
+    {/snippet}
 
-        <div class="today-strip">
-            <Today today={data.today} inBlock={event} />
-        </div>
-
-        <div
-            class="grid drag-grid"
-            class:is-editing={edit.isEditing}
-            class:is-dragging={reorder.isDragging}
-            id="training-grid"
-        >
-            <div class="col">
-                {#each wideIds as id, i (id)}{@render panelSlot(id, i)}{/each}
-            </div>
-
-            <div class="col">
-                {#each narrowIds as id, i (id)}{@render panelSlot(id, i + splitAt)}{/each}
-            </div>
-
-            <div class="col col-full">
-                {@render panelSlot(fullId, columnIds.length)}
-            </div>
-        </div>
-
-        <footer class="foot">
-            <p>
-                Synced from Strava. Metrics are computed deterministically — training load from
-                heart-rate reserve, pace adjusted for gradient, and every recommendation shows the
-                number that triggered it. No route maps here by design.
-            </p>
-            <p class="links">
-                <a href={STRAVA_PROFILE_URL} target="_blank" rel="noreferrer">Strava profile ↗</a>
-            </p>
-            {#if data.sync?.lastRunAt}
-                <p class="stamp">Last synced {new Date(data.sync.lastRunAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</p>
-            {/if}
-        </footer>
-    {/if}
-</main>
-</ModalProvider>
-
-<style>
-    /* BackLink is fixed top-left. Below 1100px it becomes a 40px circle
-       and the eyebrow would sit under it without the extra padding. */
-    .training {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: var(--space-7) var(--space-5) var(--space-8);
-    }
-
-    .state {
-        min-height: 60vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--paragraph-colour);
-    }
-
-    .today-strip {
-        margin-bottom: var(--space-4);
-        min-width: 0;
-    }
-    .grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-        gap: var(--space-4);
-        align-items: start;
-        margin-bottom: var(--space-4);
-    }
-    .col {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-4);
-        min-width: 0;
-    }
-    .col-full { grid-column: 1 / -1; }
-
-    /* Cards sit inside the slot, so the drop outline goes outside
-       rather than inset the way the dashboard's does. */
-    .slot {
-        min-width: 0;
-        --drop-outline-offset: 3px;
-        --drop-outline-radius: var(--radius-xl);
-    }
-    /* Grab cursor, swallowed gestures and jiggle live in global.css. */
-    .panel {
-        position: relative;
-        min-width: 0;
-    }
-    .panel.dragging {
-        z-index: 20;
-        filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.35));
-    }
-    /* Alternate jiggle by column so the page doesn't rock in lockstep. */
-    .grid.is-editing .col:nth-child(even) .panel:not(.dragging) {
-        animation-name: edit-jiggle-b;
-        animation-duration: 0.46s;
-        animation-delay: -0.18s;
-    }
-
-    @media (max-width: 1100px) {
-        .training { padding-top: 3.5rem; }
-    }
-    @media (max-width: 860px) {
-        .grid { grid-template-columns: minmax(0, 1fr); }
-        .training { padding: 3.5rem var(--space-4) var(--space-7); }
-        .panel { touch-action: auto; cursor: default; }
-        .grid.is-editing .panel { touch-action: none; }
-    }
-
-    .foot {
-        margin-top: var(--space-6);
-        padding-top: var(--space-4);
-        border-top: 1px solid var(--main-green-translucent);
-    }
-    .foot p {
-        font-size: var(--font-xs);
-        line-height: 1.6;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-        margin: 0;
-        max-width: 70ch;
-    }
-    .links { margin-top: var(--space-3) !important; opacity: 1 !important; }
-    .links a {
-        font-size: var(--font-xs);
-        color: var(--main-green);
-        text-decoration: none;
-        opacity: 0.85;
-        transition: opacity 0.15s ease;
-    }
-    .links a:hover, .links a:focus-visible { opacity: 1; text-decoration: underline; }
-    .stamp { margin-top: var(--space-2) !important; opacity: 0.45 !important; }
-</style>
+    {#snippet today(data)}
+        <Today today={data.today} inBlock={inBlock(data.summary)} />
+    {/snippet}
+</ActivityPage>

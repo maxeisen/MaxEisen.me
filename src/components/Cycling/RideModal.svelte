@@ -1,6 +1,6 @@
 <script>
+    import ActivityModalFrame from "../Activity/ActivityModalFrame.svelte";
     import RideDetails from "./sections/RideDetails.svelte";
-    import Spinner from "../../lib/ui/Spinner.svelte";
     import { fetchJsonSwr } from "../../lib/data/swrCache.js";
     import { daysAgo, shortDate } from "../Activity/lib/format.js";
 
@@ -43,57 +43,6 @@
     });
 </script>
 
-<div class="ride-modal">
-    <div class="eyebrow">
-        {#if when}<span class="when">{when}</span>{/if}
-        {#if loading}
-            <span class="loading" role="status" aria-label="Loading ride detail">
-                <Spinner size={12} stroke={2} /> loading detail…
-            </span>
-        {/if}
-    </div>
-
+<ActivityModalFrame {when} {loading} id={shown?.id}>
     <RideDetails ride={shown} />
-
-    {#if shown?.id}
-        <a class="strava-link" href="https://www.strava.com/activities/{shown.id}" target="_blank" rel="noreferrer">
-            View on Strava ↗
-        </a>
-    {/if}
-</div>
-
-<style>
-    .ride-modal { text-align: left; }
-    .eyebrow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--space-3);
-        margin-bottom: var(--space-2);
-    }
-    .when {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-    .loading {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-2);
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-    .strava-link {
-        display: inline-block;
-        margin-top: var(--space-5);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--main-green);
-        text-decoration: none;
-    }
-</style>
+</ActivityModalFrame>

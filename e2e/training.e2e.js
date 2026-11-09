@@ -211,12 +211,12 @@ test("the last run is reported with what it did to the training", async ({ page 
 
 	// What it changed: all three of fitness, fatigue and form, each with a
 	// signed delta rather than just a value.
-	const changes = panel.locator(".change");
+	const changes = panel.locator(".impact .stat");
 	await expect(changes).toHaveCount(3);
 	for (const label of ["Fitness", "Fatigue", "Form"]) {
 		await expect(panel.getByText(label, { exact: true })).toBeVisible();
 	}
-	await expect(changes.first().locator("strong")).toHaveText(/^[+-]?\d/);
+	await expect(changes.first().locator(".stat-value")).toHaveText(/^[+-]?\d/);
 });
 
 test("the week's long run is a day rather than a bar that fills up all week", async ({ page }) => {

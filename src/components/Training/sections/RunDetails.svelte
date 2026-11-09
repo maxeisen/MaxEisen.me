@@ -11,7 +11,12 @@
 -->
 <script>
     import LastRunChart from "../charts/LastRunChart.svelte";
-    import { formatDistance, pace, pct, signed, timeTaken } from "../../Activity/lib/format.js";
+    import ActivityHead from "../../Activity/sections/ActivityHead.svelte";
+    import WhatItDid from "../../Activity/sections/WhatItDid.svelte";
+    import Stat from "../../../lib/ui/Stat.svelte";
+    import StatGrid from "../../../lib/ui/StatGrid.svelte";
+    import Tag from "../../../lib/ui/Tag.svelte";
+    import { formatDistance, pace, pct, timeTaken } from "../../Activity/lib/format.js";
     import { stravaTag as tagFor } from "../lib/runTags.js";
 
     let { run = null } = $props();
@@ -94,6 +99,8 @@
         return list;
     });
 
+    const EFFORT_TONE = { hard: "bad", moderate: "warn", easy: "good" };
+
     function article(word) {
         return /^[aeiou]/i.test(word) ? "An" : "A";
     }
@@ -106,261 +113,74 @@
 </script>
 
 {#if run}
-    <a class="title" href="https://www.strava.com/activities/{run.id}" target="_blank" rel="noreferrer">
-        {run.name}
-    </a>
-
-    <p class="tags">
-        {#if planned}
-            <span class="tag plan" title={run.plan.detail || ""}>{run.plan.type || "planned"}</span>
-        {:else if run.plan}
-            <span class="tag extra">extra</span>
-        {/if}
-        {#if stravaTag}<span class="tag">{stravaTag}</span>{/if}
-        {#if run.effort}<span class="tag effort-{run.effort}">{run.effort}</span>{/if}
-        {#if planned && run.plan.distanceKm}<span class="planned-km">{run.plan.distanceKm} km asked for</span>{/if}
-    </p>
+    <ActivityHead id={run.id} name={run.name}>
+        {#snippet tags()}
+            {#if planned}
+                <Tag tone="good" class="plan" title={run.plan.detail || ""}>{run.plan.type || "planned"}</Tag>
+            {:else if run.plan}
+                <Tag outline class="extra">extra</Tag>
+            {/if}
+            {#if stravaTag}<Tag>{stravaTag}</Tag>{/if}
+            {#if run.effort}<Tag tone={EFFORT_TONE[run.effort] || "neutral"}>{run.effort}</Tag>{/if}
+            {#if planned && run.plan.distanceKm}<span>{run.plan.distanceKm} km asked for</span>{/if}
+        {/snippet}
+    </ActivityHead>
 
     <div class="headline">
-        <div class="stat">
-            <strong>{formatDistance(run.distanceM)}</strong>
-            <span>distance</span>
-        </div>
-        <div class="stat">
-            <strong>{timeTaken(run.movingTimeSec)}</strong>
-            <span>moving</span>
-        </div>
-        <div class="stat">
-            <strong>{pace(run.paceSecPerKm)}</strong>
-            <span>average pace</span>
-        </div>
-        <div class="stat">
-            <strong>{beatsShown}</strong>
-            <span>{run.maxHr && run.averageHr ? "average/max hr" : "average hr"}</span>
-        </div>
+        <StatGrid rule="both" min={96}>
+            <Stat size="lg" label="Distance" value={formatDistance(run.distanceM)} />
+            <Stat size="lg" label="Moving" value={timeTaken(run.movingTimeSec)} />
+            <Stat size="lg" label="Average pace" value={pace(run.paceSecPerKm)} />
+            <Stat size="lg" label={run.maxHr && run.averageHr ? "Average / max HR" : "Average HR"} value={beatsShown} />
+        </StatGrid>
     </div>
 
     <LastRunChart {run} />
 
-    {#if changes.length}
-        <div class="impact">
-            <h3>What it did</h3>
-            <div class="changes">
-                {#each changes as change (change.key)}
-                    <div class="change" class:good={change.good}>
-                        <span class="change-label">{change.label}</span>
-                        <strong>{signed(change.delta)}</strong>
-                        <span class="change-value">to {change.value.toFixed(1)}</span>
-                    </div>
-                {/each}
-            </div>
-            <p class="verdict">
-                {#if run.runsThatDay > 1}
-                    The day's change, across {run.runsThatDay} runs.
-                {/if}
-                {#if relativeSize}
-                    {article(run.effort || "steady")} {run.effort || "steady"} run,
-                    {relativeSize}{standout ? `, and ${standout}` : ""}.
-                {/if}
-            </p>
-        </div>
-    {/if}
+    <WhatItDid {changes}>
+        {#if run.runsThatDay > 1}
+            The day's change, across {run.runsThatDay} runs.
+        {/if}
+        {#if relativeSize}
+            {article(run.effort || "steady")} {run.effort || "steady"} run,
+            {relativeSize}{standout ? `, and ${standout}` : ""}.
+        {/if}
+    </WhatItDid>
 
     {#each run.notes || [] as note, i (i)}
         <p class="note">
-            <span class="note-label">{note.kind === "excuse" ? "why" : "note"}</span>
+            <span class="note-label">{note.kind === "excuse" ? "Why" : "Note"}</span>
             {note.text}
         </p>
     {/each}
 
     {#if facts.length}
-        <dl class="facts">
-            {#each facts as fact (fact.term)}
-                <div>
-                    <dt>{fact.term}</dt>
-                    <dd>{fact.value}</dd>
-                    {#if fact.note}<dd class="note">{fact.note}</dd>{/if}
-                </div>
-            {/each}
-        </dl>
+        <div class="facts">
+            <StatGrid rule="top" min={104} gap={3}>
+                {#each facts as fact (fact.term)}
+                    <Stat label={fact.term} value={fact.value} note={fact.note} />
+                {/each}
+            </StatGrid>
+        </div>
     {/if}
 {/if}
 
 <style>
-    .title {
-        display: block;
-        font-family: var(--font-sans);
-        font-size: var(--font-lg);
-        font-weight: 600;
-        color: var(--header-colour);
-        text-decoration: none;
-        line-height: 1.2;
-    }
-    .title:hover { color: var(--main-green); }
-
-    .tags {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: var(--space-2);
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-    }
-
-    /* Tag pills. These match the conventions the Card sets globally, but are
-       repeated here so RunDetails stands on its own inside the modal, which
-       has no .card ancestor to inherit them from. */
-    .tag {
-        display: inline-block;
-        padding: 1px 6px;
-        border-radius: var(--radius-pill);
-        background: var(--main-green-translucent);
-        color: var(--main-green);
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
-    .tag.plan {
-        background: var(--tone-good-bg);
-        color: var(--tone-good);
-        text-transform: lowercase;
-    }
-    .tag.extra {
-        background: transparent;
-        border: 1px solid var(--main-green-translucent);
-        color: var(--paragraph-colour);
-        opacity: 0.8;
-    }
-    .tag.effort-hard { background: var(--tone-bad-bg); color: var(--tone-bad); }
-    .tag.effort-moderate { background: var(--tone-warn-bg); color: var(--tone-warn); }
-    .tag.effort-easy { background: var(--tone-good-bg); color: var(--tone-good); }
-    .planned-km {
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-    }
-
-    .headline {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-        gap: var(--space-3);
-        margin-top: var(--space-4);
-        padding: var(--space-3) var(--space-4);
-        background: var(--item-background);
-        border-radius: var(--radius-sm);
-    }
-    .stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .stat strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 700;
-        color: var(--header-colour);
-        line-height: 1.1;
-    }
-    .stat span {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-    }
-
-    .impact { margin-top: var(--space-5); }
-    .impact h3 {
-        margin: 0 0 var(--space-2);
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-        font-weight: 600;
-    }
-    .changes {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: var(--space-2);
-    }
-    .change {
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-        padding: var(--space-3);
-        background: var(--item-background);
-        border-radius: var(--radius-sm);
-        border-left: 2px solid var(--main-green-translucent);
-    }
-    .change.good { border-left-color: var(--tone-good); }
-    .change-label {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--paragraph-colour);
-        opacity: 0.7;
-    }
-    .change strong {
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 700;
-        color: var(--header-colour);
-        line-height: 1.2;
-    }
-    .change.good strong { color: var(--tone-good); }
-    .change-value {
-        font-size: var(--font-2xs);
-        color: var(--paragraph-colour);
-        opacity: 0.6;
-    }
-    .verdict {
-        margin: var(--space-3) 0 0;
-        font-size: var(--font-sm);
-        line-height: 1.5;
-        color: var(--paragraph-colour);
-    }
-
+    .headline { margin-top: var(--space-4); }
     .note {
         margin: var(--space-3) 0 0;
         padding-left: var(--space-3);
-        border-left: 2px solid var(--main-green-translucent);
-        font-size: var(--font-xs);
-        line-height: 1.6;
+        border-left: 2px solid var(--border-strong);
+        font-size: var(--font-sm);
+        line-height: 1.55;
         font-style: italic;
-        color: var(--paragraph-colour);
+        color: var(--text);
     }
     .note-label {
-        font-style: normal;
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
         margin-right: var(--space-2);
+        font-style: normal;
+        font-weight: var(--weight-medium);
+        color: var(--text-3);
     }
-
-    .facts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
-        gap: var(--space-3);
-        margin: var(--space-4) 0 0;
-    }
-    .facts div { display: flex; flex-direction: column; gap: 1px; }
-    dt {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--main-green);
-    }
-    dd {
-        margin: 0;
-        font-family: var(--font-sans);
-        font-size: var(--font-md);
-        font-weight: 600;
-        color: var(--header-colour);
-    }
-    dd.note {
-        font-family: inherit;
-        font-size: var(--font-2xs);
-        font-weight: 400;
-        color: var(--paragraph-colour);
-        opacity: 0.65;
-    }
-
-    @media (max-width: 540px) {
-        .changes { grid-template-columns: repeat(auto-fit, minmax(86px, 1fr)); }
-    }
+    .facts { margin-top: var(--space-4); }
 </style>

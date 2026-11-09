@@ -3,6 +3,8 @@
     band underneath so the two scales don't read as equal when they cross.
 -->
 <script>
+    import ChartLegend from "../../Activity/charts/ChartLegend.svelte";
+    import Dots from "../../Activity/charts/Dots.svelte";
     import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
     import { areaPath, contiguous, linePath, niceScale, scaleLinear, smoothPath, xPct, yPct } from "../../Activity/lib/chart.js";
     import { pace } from "../../Activity/lib/format.js";
@@ -115,7 +117,7 @@
                         ? [{
                             label: "Pace",
                             value: pace(sample.paceSecPerKm),
-                            colour: "var(--main-green)",
+                            colour: "var(--series-1)",
                             yPct: yPct(y(sample.paceSecPerKm), HEIGHT),
                         }]
                         : []),
@@ -123,7 +125,7 @@
                         ? [{
                             label: "Grade adjusted",
                             value: pace(splits[i].gapPaceSecPerKm),
-                            colour: "var(--paragraph-colour)",
+                            colour: "var(--series-3)",
                             yPct: yPct(y(splits[i].gapPaceSecPerKm), HEIGHT),
                         }]
                         : []),
@@ -131,7 +133,7 @@
                         ? [{
                             label: "Heart rate",
                             value: `${Math.round(sample.hr)} bpm`,
-                            colour: "var(--tone-bad)",
+                            colour: "var(--series-2)",
                             yPct: hrY ? yPct(hrY(sample.hr), HEIGHT) : undefined,
                         }]
                         : []),
@@ -183,19 +185,20 @@
                 {#each paceLines as line, i (i)}
                     <path class="line" d={smoothPath(line)} />
                 {/each}
-                {#if !traced}
-                    {#each paceLines.flat() as point (point.x)}
-                        <circle class="dot" cx={point.x} cy={point.y} r="4" />
-                    {/each}
-                {/if}
             </svg>
+            {#if !traced}
+                <Dots points={paceLines.flat()} width={WIDTH} height={HEIGHT} size={8} color="var(--series-1)" />
+            {/if}
         </ChartFrame>
-        <p class="legend">
-            <span>kilometre · faster is higher</span>
-            {#if showGap}<span class="key"><span class="swatch"></span> grade adjusted</span>{/if}
-            {#if hasHr}<span class="key"><span class="swatch beats"></span> bpm, right</span>{/if}
-            {#if pacingNote}<span class="pacing">{pacingNote}</span>{/if}
-        </p>
+        <ChartLegend
+            under
+            items={[
+                { label: "Pace per km, faster is higher", color: "var(--series-1)" },
+                ...(showGap ? [{ label: "Grade adjusted", color: "var(--series-3)", mark: "dash" }] : []),
+                ...(hasHr ? [{ label: "Heart rate, right scale", color: "var(--series-2)" }] : []),
+            ]}
+            note={pacingNote || null}
+        />
     </div>
 {/if}
 
@@ -203,75 +206,30 @@
     .chart { margin-top: var(--space-5); }
     .line {
         fill: none;
-        stroke: var(--main-green);
+        stroke: var(--series-1);
         stroke-width: 2;
         stroke-linejoin: round;
-        vector-effect: non-scaling-stroke;
-    }
-    .dot {
-        fill: var(--main-green);
+        stroke-linecap: round;
         vector-effect: non-scaling-stroke;
     }
     .gap {
         fill: none;
-        stroke: var(--paragraph-colour);
+        stroke: var(--series-3);
         stroke-width: 1.5;
         stroke-dasharray: 4 4;
-        opacity: 0.55;
         vector-effect: non-scaling-stroke;
     }
     .hr {
         fill: none;
-        stroke: var(--tone-bad);
-        stroke-width: 1.25;
-        opacity: 0.5;
+        stroke: var(--series-2);
+        stroke-width: 1.5;
         vector-effect: non-scaling-stroke;
     }
-    .hr-fill {
-        fill: var(--tone-bad);
-        opacity: 0.12;
-    }
+    .hr-fill { fill: var(--series-2); opacity: 0.1; }
     .average {
-        stroke: var(--header-colour);
+        stroke: var(--text-3);
         stroke-width: 1;
-        stroke-dasharray: 2 5;
-        opacity: 0.45;
+        stroke-dasharray: 2 4;
         vector-effect: non-scaling-stroke;
-    }
-    .legend {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: var(--space-2);
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.55;
-    }
-    .key {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-2);
-        white-space: nowrap;
-    }
-    .swatch {
-        display: inline-block;
-        width: 14px;
-        height: 0;
-        border-top: 1.5px dashed var(--paragraph-colour);
-    }
-    .swatch.beats {
-        border-top-style: solid;
-        border-top-color: var(--tone-bad);
-        opacity: 0.65;
-    }
-    .pacing {
-        padding-left: var(--space-2);
-        border-left: 1px solid var(--main-green-translucent);
-        text-transform: none;
-        letter-spacing: 0;
-        opacity: 0.9;
     }
 </style>

@@ -1,6 +1,7 @@
 <!-- Watts per heartbeat on metered aerobic rides. Not the running pace chart. -->
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
+    import Dots from "../../Activity/charts/Dots.svelte";
     import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
     import { axisTicks, dateRangeTicks, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../../Activity/lib/chart.js";
     import { axisDate } from "../../Activity/lib/format.js";
@@ -26,7 +27,7 @@
             key: points[i]?.date,
             pct: xPct(dot.x, WIDTH),
             label: axisDate(points[i]?.date),
-            readouts: [{ label: "W/bpm", value: points[i]?.ef?.toFixed(2) ?? "—", colour: "var(--main-green)", yPct: yPct(dot.y, HEIGHT) }],
+            readouts: [{ label: "W/bpm", value: points[i]?.ef?.toFixed(2) ?? "—", colour: "var(--series-1)", yPct: yPct(dot.y, HEIGHT) }],
         })),
     );
 </script>
@@ -38,24 +39,20 @@
         <ChartFrame height={160} {yTicks} {xTicks} {scrub} label="Watts per heartbeat on metered aerobic rides">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
                 {#if path}<path class="trend" d={path} />{/if}
-                {#each dots as dot, i (points[i].date)}
-                    <circle class="dot" cx={dot.x} cy={dot.y} r="3" />
-                {/each}
             </svg>
+            <Dots points={dots} width={WIDTH} height={HEIGHT} />
         </ChartFrame>
-        <p class="unit">watts per heartbeat</p>
+        <p class="chart-unit">Watts per heartbeat</p>
     {/if}
 </Card>
 
 <style>
-    .trend { fill: none; stroke: var(--main-green); stroke-width: 2; }
-    .dot { fill: var(--main-green); }
-    .unit {
-        margin: var(--space-2) 0 0;
-        font-size: var(--font-2xs);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--paragraph-colour);
-        opacity: 0.6;
+    .trend {
+        fill: none;
+        stroke: var(--series-1);
+        stroke-width: 2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        vector-effect: non-scaling-stroke;
     }
 </style>

@@ -1,7 +1,8 @@
 <!-- Aerobic efficiency over the last twelve weeks. -->
 <script>
-    import Card from "../../Activity/Card.svelte";
+    import Card from "../../../lib/ui/Card.svelte";
     import ChartFrame from "../../Activity/charts/ChartFrame.svelte";
+    import Dots from "../../Activity/charts/Dots.svelte";
     import { axisTicks, CHART_WEEKS, dateRangeTicks, niceScale, seriesPoints, smoothPath, withinWindow, xPct, yPct } from "../../Activity/lib/chart.js";
     import { axisDate, shortDate } from "../../Activity/lib/format.js";
     import { GLOSSARY } from "../lib/glossary.js";
@@ -53,13 +54,13 @@
                 {
                     label: "This run",
                     value: point.ef.toFixed(3),
-                    colour: "var(--paragraph-colour)",
+                    colour: "var(--series-3)",
                     yPct: yPct(dots[i].y, HEIGHT),
                 },
                 {
                     label: "Trend",
                     value: trend[i].ef.toFixed(3),
-                    colour: "var(--main-green)",
+                    colour: "var(--series-1)",
                     yPct: yPct(line[i].y, HEIGHT),
                 },
             ],
@@ -70,7 +71,7 @@
 <Card title="Aerobic efficiency" info={GLOSSARY.efficiency}>
     {#snippet aside()}
         {#if change !== null}
-            <p class="readout" class:up={change > 0} class:down={change < 0}>
+            <p class:up={change > 0} class:down={change < 0}>
                 {change > 0 ? "+" : ""}{change.toFixed(1)}% over {CHART_WEEKS} weeks
             </p>
         {/if}
@@ -81,13 +82,11 @@
     {:else}
         <ChartFrame height={160} {yTicks} {xTicks} {scrub} label="Efficiency factor per aerobic run over the last {CHART_WEEKS} weeks">
             <svg viewBox="0 0 {WIDTH} {HEIGHT}" preserveAspectRatio="none">
-                {#each dots as dot}
-                    <circle class="dot" cx={dot.x} cy={dot.y} r="3" />
-                {/each}
                 <path class="line" d={smoothPath(line)} />
             </svg>
+            <Dots points={dots} width={WIDTH} height={HEIGHT} />
         </ChartFrame>
-        <p class="chart-unit">speed per heartbeat · {points.length} aerobic runs in the last {CHART_WEEKS} weeks</p>
+        <p class="chart-unit">Speed per heartbeat · {points.length} aerobic runs in the last {CHART_WEEKS} weeks</p>
 
         <p class="note">
             {#if change !== null && change > 1}
@@ -105,37 +104,21 @@
 </Card>
 
 <style>
-    .readout {
-        font-size: var(--font-2xs);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--paragraph-colour);
-        opacity: 0.75;
-        margin: 0;
-    }
-    .readout.up { color: var(--tone-good); opacity: 1; }
-    .readout.down { color: var(--tone-bad); opacity: 1; }
-
-    .dot {
-        fill: var(--paragraph-colour);
-        opacity: 0.3;
-        vector-effect: non-scaling-stroke;
-    }
+    .up { color: var(--tone-good) !important; }
+    .down { color: var(--tone-bad) !important; }
     .line {
         fill: none;
-        stroke: var(--main-green);
+        stroke: var(--series-1);
         stroke-width: 2;
         stroke-linejoin: round;
         stroke-linecap: round;
         vector-effect: non-scaling-stroke;
     }
-
     .note {
         margin: var(--space-3) 0 0;
-        font-size: var(--font-xs);
-        line-height: 1.6;
-        color: var(--paragraph-colour);
-        opacity: 0.75;
         max-width: 70ch;
+        font-size: var(--font-sm);
+        line-height: 1.55;
+        color: var(--text-2);
     }
 </style>
