@@ -30,6 +30,12 @@ test("a widget can be dragged into another slot, and stays there", async ({ page
 	await page.mouse.move(source.x + source.width / 2, source.y + 24);
 	await page.mouse.down();
 	await page.mouse.move(target.x + target.width / 2, target.y + 24, { steps: 14 });
+	// The slot under the pointer is outlined. The outline sits outside the
+	// slot: a slot is a size container, so its own stacking context, and the
+	// widget would paint over an outline drawn inside it.
+	const outlined = page.locator('[data-slot-index="4"]');
+	await expect(outlined).toHaveClass(/drop-target/);
+	expect(await outlined.evaluate((el) => parseFloat(getComputedStyle(el).outlineOffset))).toBeGreaterThanOrEqual(0);
 	await page.mouse.up();
 
 	await expect(widgetAt(4)).toHaveAttribute("data-widget", first);

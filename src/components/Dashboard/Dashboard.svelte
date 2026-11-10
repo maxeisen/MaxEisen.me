@@ -295,15 +295,17 @@
         list-style: none;
     }
 
-    /* Widgets fill their slot edge to edge, so the drop outline sits inside.
-       Each slot is a size container: widgets query its width and height to
-       pick their compact or roomy layouts. */
+    /* Each slot is a size container: widgets query its width and height to
+       pick their compact or roomy layouts. Containment also makes the slot
+       its own stacking context, so the widget paints over anything the slot
+       draws inside its box — the drop outline (global.css, shared with
+       /running) has to sit outside it, in the gap, as it does there. */
     .slot {
         display: flex;
         min-width: 0;
         min-height: 0;
         position: relative;
-        --drop-outline-offset: -6px;
+        --drop-outline-offset: 3px;
         container-type: size;
         container-name: slot;
     }
