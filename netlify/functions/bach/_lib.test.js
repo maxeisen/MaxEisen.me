@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
+	hostTokenOk,
 	validCode, validPlayerId, validPartyPackId,
 	normalizePassword, subId, keys, randomCode, shuffle,
 	withBachAuth, loadBachBinary,
@@ -218,5 +219,18 @@ describe("loadBachBinary (pre-store gate)", () => {
 		);
 		expect(gate.response?.status).toBe(400);
 		await expect(gate.response.json()).resolves.toEqual({ error: "invalid_params" });
+	});
+});
+
+describe("hostTokenOk", () => {
+	const meta = { hostToken: "11111111-2222-3333-4444-555555555555" };
+	it("accepts only the session's own token", () => {
+		expect(hostTokenOk(meta, meta.hostToken)).toBe(true);
+		expect(hostTokenOk(meta, "nope")).toBe(false);
+		expect(hostTokenOk(meta, undefined)).toBe(false);
+	});
+	it("denies everything when the session has no token", () => {
+		expect(hostTokenOk({}, "")).toBe(false);
+		expect(hostTokenOk(null, "")).toBe(false);
 	});
 });

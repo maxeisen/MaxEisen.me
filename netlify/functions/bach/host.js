@@ -1,6 +1,7 @@
 // POST /.netlify/functions/bach-host
 
 import {
+	hostTokenOk,
 	withBachAuth, jsonResponse, getSessionStore,
 	readMeta, writeMeta, keys, listJSON, deletePrefix,
 	shuffle, subId,
@@ -15,8 +16,7 @@ export default async function handler(req) {
 	const meta = await readMeta(store, code);
 	if (!meta) return jsonResponse({ error: "no_such_session" }, 404);
 
-	const hostToken = typeof body?.hostToken === "string" ? body.hostToken : "";
-	if (hostToken !== meta.hostToken) return jsonResponse({ error: "not_host" }, 403);
+	if (!hostTokenOk(meta, body?.hostToken)) return jsonResponse({ error: "not_host" }, 403);
 
 	const action = typeof body?.action === "string" ? body.action : "";
 

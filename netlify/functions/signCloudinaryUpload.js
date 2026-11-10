@@ -1,8 +1,15 @@
 // Returns a short-lived Cloudinary signed-upload payload that the browser
 // uses to POST images directly to Cloudinary. The signature is over a fixed
-// set of params (tags + folder + timestamp) — the client can't widen the tag
-// set or move uploads to a different folder, because doing so would
-// invalidate the signature and Cloudinary would reject.
+// set of params (allowed_formats + tags + folder + timestamp) — the client
+// can't widen the tag set, move uploads to a different folder or upload
+// another kind of file, because doing so would invalidate the signature and
+// Cloudinary would reject.
+//
+// allowed_formats matters more than it looks. Cloudinary doesn't sign the
+// resource type (it's in the URL path), so without it the same signature is
+// accepted on /raw/upload and /video/upload — anyone with the gallery password
+// could host arbitrary files (HTML, executables) under the account's public
+// delivery domain.
 //
 // Auth: the caller must already know the per-scope gallery password (sent on
 // X-Gallery-Password). That's the same gate that controls reading the
@@ -14,6 +21,10 @@ import { CLOUD_NAME, SCOPE_RE } from "./_shared/gallery.js";
 import { secureCompare } from "./_shared/secureCompare.js";
 
 const jsonResponse = createJsonResponder(cacheControl.none);
+
+// Image formats the gallery accepts (the picker is `accept="image/*"`; phones
+// hand over HEIC). Exported for the test.
+export const ALLOWED_FORMATS = "jpg,jpeg,png,gif,webp,heic,heif,avif,tif,tiff,bmp";
 
 // Conventions for an arbitrary scope:
 //   tag         → scope as-is (e.g. "ride")
@@ -96,6 +107,7 @@ export default async function handler(req) {
 	// append apiSecret, SHA-1 hex. Excluded from signing: file, cloud_name,
 	// resource_type, api_key, signature itself.
 	const signedParams = {
+		allowed_formats: ALLOWED_FORMATS,
 		folder: scope.folder,
 		tags: scope.tag,
 		timestamp,
@@ -112,6 +124,7 @@ export default async function handler(req) {
 		cloud_name: CLOUD_NAME,
 		api_key: apiKey,
 		timestamp,
+		allowed_formats: ALLOWED_FORMATS,
 		folder: scope.folder,
 		tags: scope.tag,
 		metadata: metadataField || undefined,

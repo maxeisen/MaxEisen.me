@@ -116,6 +116,9 @@
             fd.append("signature", signed.signature);
             fd.append("folder", signed.folder);
             fd.append("tags", signed.tags);
+            if (signed.allowed_formats) {
+                fd.append("allowed_formats", signed.allowed_formats);
+            }
             if (signed.metadata) {
                 fd.append("metadata", signed.metadata);
             }
