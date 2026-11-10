@@ -3,7 +3,8 @@
     "name": "Around The Bay 2027",
     "label": "Road to Around the Bay",
     "date": "2027-04-11",
-    "distanceM": 30000
+    "distanceM": 30000,
+    "goalTimeSec": 8100
   },
   "thresholds": {
     "maxHr": 191,
