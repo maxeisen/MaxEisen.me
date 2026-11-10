@@ -26,7 +26,7 @@
     <!-- Owns the homepage title so client-side navigation back to "/"
          restores it (routes set their own title via <svelte:head>). Matches
          the static <title> in index.html for first paint. -->
-    <title>Get to Know Max Eisen | MaxEisen.me</title>
+    <title>Max Eisen — Software Engineer</title>
 </svelte:head>
 
 <SiteNav />

@@ -15,7 +15,7 @@ import { test, expect } from "@playwright/test";
 
 test("homepage boots and renders", async ({ page }) => {
 	await page.goto("/");
-	await expect(page).toHaveTitle(/Max Eisen/i);
+	await expect(page).toHaveTitle("Max Eisen — Software Engineer");
 	// The SPA mounted into #app rather than leaving a blank shell.
 	await expect(page.locator("#app")).not.toBeEmpty();
 });

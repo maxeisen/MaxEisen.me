@@ -20,12 +20,12 @@
                 maxHeight: "92.5%"
             },
             onOpen: () => {
-                window.history.replaceState({}, title+" | MaxEisen.me", "/?blog=true&postId="+postId);
-                document.title = title+" | MaxEisen.me";
+                window.history.replaceState({}, title+" — Max Eisen", "/?blog=true&postId="+postId);
+                document.title = title+" — Max Eisen";
             },
             onClose: () => {
-                window.history.replaceState({}, "Get to Know Max Eisen | MaxEisen.me", "/");
-                document.title = "Get to Know Max Eisen | MaxEisen.me";
+                window.history.replaceState({}, "Max Eisen — Software Engineer", "/");
+                document.title = "Max Eisen — Software Engineer";
             }
         });
     };

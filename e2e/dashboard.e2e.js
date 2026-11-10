@@ -4,7 +4,7 @@ import { mockDashboardFeeds } from "./fixtures/dashboardPayload.js";
 test("dashboard mounts its widget grid", async ({ page }) => {
 	await mockDashboardFeeds(page);
 	await page.goto("/dashboard");
-	await expect(page).toHaveTitle(/Dashboard/i);
+	await expect(page).toHaveTitle("Dashboard — Max Eisen");
 
 	const grid = page.locator("#dashboard-grid");
 	await expect(grid).toBeVisible();
