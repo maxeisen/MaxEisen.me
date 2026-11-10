@@ -62,6 +62,27 @@ function shapeTrack(item, playing, extra = {}) {
 	};
 }
 
+// The tracks played before the most recent one: distinct, newest first,
+// with just enough to list them.
+function earlierTracks(items = [], max = 5) {
+	const seen = new Set([items[0]?.track?.id]);
+	const tracks = [];
+	for (const entry of items.slice(1)) {
+		const t = entry?.track;
+		if (!t || seen.has(t.id)) continue;
+		seen.add(t.id);
+		tracks.push({
+			id: t.id || null,
+			track: t.name,
+			artist: (t.artists || []).map((a) => a.name).join(", "),
+			url: t.external_urls?.spotify || null,
+			playedAt: entry.played_at || null,
+		});
+		if (tracks.length === max) break;
+	}
+	return tracks;
+}
+
 // Pull the artist's primary genre to use as a coarse vibe hint client-side.
 async function fetchPrimaryGenre(artistIds, token) {
 	if (!artistIds || artistIds.length === 0) return null;
@@ -106,9 +127,11 @@ export default async function handler() {
 		}
 	}
 
-	// 204 No Content (or empty response) — fall back to recently played
+	// 204 No Content (or empty response) — fall back to recently played. A
+	// few tracks rather than one: the dashboard lists the ones before the
+	// last when its tile has room.
 	const recentRes = await fetch(
-		"https://api.spotify.com/v1/me/player/recently-played?limit=1",
+		"https://api.spotify.com/v1/me/player/recently-played?limit=8",
 		{ headers: { "Authorization": `Bearer ${token}` } }
 	);
 	if (!recentRes.ok) {
@@ -117,7 +140,10 @@ export default async function handler() {
 	const recentData = await recentRes.json();
 	const item = recentData.items?.[0];
 	if (!item) return jsonResponse({ playing: false });
-	const shape = shapeTrack(item.track, false, { playedAt: item.played_at });
+	const shape = shapeTrack(item.track, false, {
+		playedAt: item.played_at,
+		recent: earlierTracks(recentData.items),
+	});
 	shape.genre = await fetchPrimaryGenre(shape.artistIds, token);
 	delete shape.artistIds;
 	return jsonResponse(shape);
