@@ -1,6 +1,6 @@
 /* ============================================================================
    Design system — the single source of truth for how the site looks.
-   Loaded by index.html (SPA + homepage) and resume.html.
+   Loaded by index.html (the SPA, every route included) and 404.html.
 
    Change the look here, not in components. Components only ever reference
    the semantic tokens below (--bg, --surface, --text-2, --accent, …), never

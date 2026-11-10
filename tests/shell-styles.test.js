@@ -13,7 +13,8 @@ describe("which stylesheets each document asks for", () => {
 		expect(indexHtml).not.toMatch(/alternate stylesheet/);
 	});
 
-	it("the 404 page only loads its own sheet, not the SPA or resume ones", () => {
+	it("the 404 page loads the shared sheet and its own, not the old SPA or resume ones", () => {
+		expect(notFoundHtml).toContain('href="/styles/global.css"');
 		expect(notFoundHtml).toContain('href="/styles/404.css"');
 		expect(notFoundHtml).not.toMatch(/index\.css/);
 		expect(notFoundHtml).not.toMatch(/resume\.css/);

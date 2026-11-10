@@ -1,57 +1,107 @@
-html, body {
-    height: 100%;
+/* 404.html. Tokens come from global.css; this sheet is only the page's
+   layout and its one large element, the "404." mark. */
+
+/* index.html declares Inter inline; this page doesn't load index.html. */
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(/fonts/inter-latin.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-html {
-    display: table;
-    margin: auto;
-    box-sizing: border-box;
+.lost {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: clamp(var(--space-7), 14vh, 9rem) var(--page-gutter) var(--space-8);
 }
 
-*, *:before, *:after {
-    box-sizing: inherit;
+/* The site mark, scaled up, with the status code where "me" goes. Same
+   proportions as lib/ui/Logo.svelte: radius 15/64 of the side, Inter at
+   650, the period in the mark's accent. Sized in container units so the
+   type keeps its place in the square at any width. */
+.mark {
+    container-type: inline-size;
+    display: grid;
+    place-items: center;
+    width: clamp(120px, 34vw, 168px);
+    aspect-ratio: 1;
+    margin-bottom: var(--space-6);
+    border-radius: 23.4%;
+    background: var(--logo-bg);
+    color: var(--logo-fg);
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+}
+/* On the child: container units on .mark itself would measure an ancestor. */
+.mark > span { font-size: 40px; font-size: 30cqi; }
+.mark .dot { color: var(--logo-dot); }
+
+h1 {
+    margin: 0;
+    font-size: var(--font-2xl);
+    letter-spacing: -0.025em;
 }
 
-body {
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.3;
-
-    /* Flat, matching the site's dark --bg (this page doesn't load global.css). */
-    background-color: #12110f;
-    color: #f4efe6;
+.lede {
+    margin: var(--space-3) 0 0;
+    font-size: var(--font-lg);
+    color: var(--text-2);
 }
 
-.back-button {
-    transition: color .15s ease;
-    font-size: 20px;
-    font-weight: 500;
-    color: #aaa192;
+/* Same recipe as the résumé's "Save as PDF": ink on paper, inverted per theme. */
+.home {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    margin-top: var(--space-6);
+    padding: 0 var(--space-4);
+    border-radius: var(--radius);
+    background: var(--text-strong);
+    color: var(--bg);
+    font-size: var(--font-sm);
+    font-weight: var(--weight-medium);
+    transition: background var(--dur-fast) var(--ease);
+}
+.home:hover { background: var(--text); color: var(--bg); }
+
+h2 {
+    margin: var(--space-7) 0 var(--space-2);
+    font-size: var(--font-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0;
+    color: var(--text-2);
 }
 
-.back-button:hover {
-    color: #f4efe6;
+.places {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
 }
-
-h1, h2 {
-    color: #f4efe6;
-    font-weight: 600;
-    letter-spacing: -0.015em;
+.places li { border-top: 1px solid var(--border); }
+.places a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    color: var(--text);
 }
-
-h1.bruh {
-    color: #423d35;
-    font-size: 10px;
+.places .name {
+    flex: none;
+    width: 6.5rem;
+    font-weight: var(--weight-medium);
+    color: var(--text-strong);
+    transition: color var(--dur-fast) var(--ease);
 }
+.places .what { font-size: var(--font-sm); color: var(--text-2); }
+.places a:hover .name { color: var(--accent); }
 
-a {
-    text-decoration: none;
-}
-
-@media only screen and (max-width: 610px) {
-    h1.bruh {
-        font-size: 4px;
-    }
+@media (max-width: 460px) {
+    .places a { flex-direction: column; gap: 2px; }
+    .places .name { width: auto; }
 }
