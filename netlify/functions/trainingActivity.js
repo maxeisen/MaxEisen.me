@@ -14,7 +14,7 @@ import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { ACTIVITY_ID_RE, loadActivityIndex } from "./_shared/training/store.js";
 import { createMemo } from "./_shared/memo.js";
 import { runDetailById } from "./_shared/training/metrics.js";
-import { loadPlan } from "./_shared/training/planFile.js";
+import { loadTrainingPlan } from "./_shared/training/planFile.js";
 import { torontoToday } from "./_shared/training/dates.js";
 
 // A completed run's numbers don't change, but daysAgo drifts and a note can
@@ -27,6 +27,7 @@ const errResponse = createJsonResponder(cacheControl.none);
 // Blobs once per click. The sync only writes every five minutes and the edge
 // holds responses for a minute anyway, so a minute here is no worse.
 const indexMemo = createMemo(60_000);
+const planMemo = createMemo(60_000);
 
 export default async function handler(req) {
 	const id = new URL(req.url).searchParams.get("id");
@@ -34,10 +35,13 @@ export default async function handler(req) {
 	if (!ACTIVITY_ID_RE.test(id)) return errResponse({ error: "invalid_id" }, 400);
 
 	try {
-		const activities = await indexMemo("index", loadActivityIndex);
+		const [activities, plan] = await Promise.all([
+			indexMemo("index", loadActivityIndex),
+			planMemo("plan", () => loadTrainingPlan()),
+		]);
 		const run = runDetailById({
 			activities,
-			plan: loadPlan(),
+			plan,
 			today: torontoToday(),
 			id,
 		});
