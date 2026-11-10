@@ -239,7 +239,7 @@
     />
 {/if}
 
-<SiteNav />
+<SiteNav hideable />
 
 <main class="container">
     <header class="gallery-header">

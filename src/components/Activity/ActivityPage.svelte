@@ -164,12 +164,6 @@
     <meta name="description" content={description(data)} />
 </svelte:head>
 
-{#snippet actions()}
-    {#if data && edit.isResponsive}
-        <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
-    {/if}
-{/snippet}
-
 {#snippet panelSlot(id, idx)}
     {@const Panel = panels[id]}
     <div class="slot" class:drop-target={reorder.dropTargetIdx === idx} data-slot-index={idx}>
@@ -185,7 +179,11 @@
     </div>
 {/snippet}
 
-<SiteNav {actions} />
+<SiteNav />
+<!-- Floats bottom-right; the page's foot padding leaves it room. -->
+{#if data && edit.isResponsive}
+    <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
+{/if}
 
 <!-- ModalProvider gives the activity log a window to open an activity in. -->
 <ModalProvider>

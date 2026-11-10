@@ -260,10 +260,13 @@
         .t-today { display: none; }
         .t-form { padding-top: var(--space-2); }
     }
-    @container slot (max-height: 200px) {
+    @container slot (max-height: 215px) {
         .t-stat-delta { display: none; }
     }
-    @container slot (max-height: 170px) {
+    @container slot (max-height: 185px) {
         .t-stats { display: none; }
+    }
+    @container slot (max-height: 160px) {
+        .t-last .t-kicker { display: none; }
     }
 </style>

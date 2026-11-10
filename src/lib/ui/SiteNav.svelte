@@ -2,9 +2,9 @@
     The site's one navigation bar — on the homepage and every SPA route.
 
     Monogram + name on the left (home), section links on the right, the
-    current one marked. Pages that need a control in the bar (the layout
-    Edit toggle on the dashboards) pass it as the `actions` snippet, so
-    nothing floats over page content.
+    current one marked, then the theme toggle. Nothing page-specific goes in
+    the row: a control only some pages have (like the layout Edit toggle,
+    which floats on the page instead) would push the links over there.
 
     `sticky` keeps it pinned while a long page scrolls; the full-height
     dashboard turns that off because it never scrolls.
@@ -12,7 +12,12 @@
     `hideable` adds a control that tucks the bar away, leaving a small tab
     at the top edge to bring it back; the choice is remembered per page.
     Bind `hidden` to lay the page out for either state. The bar is always
-    the same width on every page, so nothing shifts between routes.
+    the same width on every page, so nothing shifts between routes — which
+    is why the hide control sits outside the bar's layout instead of taking
+    a place in the row (where it would push the links over on the pages
+    that have it). It's a tab at the top-centre of the bar, the same spot as
+    the tab that brings it back, so the bar can be put away and brought
+    back without moving the pointer.
 
     The link list is the single place to add or rename a section.
 -->
@@ -21,7 +26,7 @@
     import ThemeToggle from "./ThemeToggle.svelte";
     import Logo from "./Logo.svelte";
 
-    let { sticky = true, hideable = false, hidden = $bindable(false), actions = null } = $props();
+    let { sticky = true, hideable = false, hidden = $bindable(false) } = $props();
 
     const LINKS = [
         { href: "/resume", label: "Resume" },
@@ -69,15 +74,15 @@
         </nav>
 
         <div class="tools">
-            {@render actions?.()}
             <ThemeToggle />
-            {#if hideable}
-                <button class="hide" type="button" onclick={() => setHidden(true)} aria-label="Hide navigation" title="Hide navigation">
-                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" /></svg>
-                </button>
-            {/if}
         </div>
     </div>
+    <!-- Out of the row, at the top-centre: see .hide. -->
+    {#if hideable}
+        <button class="hide" type="button" onclick={() => setHidden(true)} aria-label="Hide navigation" title="Hide navigation">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" /></svg>
+        </button>
+    {/if}
 </header>
 {/if}
 
@@ -154,19 +159,12 @@
         cursor: pointer;
         transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
     }
-    .hide {
-        width: 32px;
-        height: 32px;
-        border-radius: var(--radius);
-        background: transparent;
-    }
-    .hide:hover { color: var(--text-strong); background: var(--surface-2); }
-    /* A tab hanging from the top edge, in the gutter above the content. */
+    /* Both tabs hang from the top edge at the centre, the same size, so
+       hiding and showing the bar is one spot clicked twice. */
+    .hide,
     .reveal {
-        position: fixed;
         top: 0;
         left: 50%;
-        z-index: var(--z-sticky);
         width: 48px;
         height: 18px;
         transform: translateX(-50%);
@@ -174,6 +172,13 @@
         border-top: 0;
         border-radius: 0 0 var(--radius) var(--radius);
         background: var(--surface);
+    }
+    .hide { position: absolute; }
+    .hide:hover { color: var(--text-strong); background: var(--surface-2); }
+    /* While hidden, the tab hangs in the gutter above the content. */
+    .reveal {
+        position: fixed;
+        z-index: var(--z-sticky);
     }
     .reveal:hover { color: var(--text-strong); height: 22px; }
     .hide svg, .reveal svg {
@@ -184,6 +189,13 @@
         stroke-width: 1.6;
         stroke-linecap: round;
         stroke-linejoin: round;
+    }
+    /* Narrower than this, a link sits under the bar's centre, 12px down.
+       The tab slims to stay above it; it's still inside the top of the
+       revealing tab, so the pointer needn't move. */
+    @media (max-width: 1099px) {
+        .hide { height: 10px; }
+        .hide svg { width: 10px; height: 10px; }
     }
 
     .tools {

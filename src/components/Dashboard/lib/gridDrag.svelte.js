@@ -45,7 +45,10 @@ export function createGridDrag({
 }) {
 	const defaults = [...order];
 
-	let layout = $state([...defaults]);
+	// Read at construction, before the first render: restoring later would
+	// paint the default order for a frame, and the glide between layouts
+	// would then animate every widget from there into place on each load.
+	let layout = $state(readLayout(storageKey, defaults) ?? [...defaults]);
 	let draggingId = $state(null);
 	let preview = $state(null); // visible ids in their previewed order
 	let origin = $state(null); // the dragged widget's placement at the start

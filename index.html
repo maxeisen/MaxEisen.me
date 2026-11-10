@@ -84,7 +84,23 @@ https://github.com/maxeisen/
             theme = (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
         setTheme(theme)
 
+        // Printing lays the page out in the light scheme, which browsers
+        // report as a prefers-color-scheme change. Followed, it switched the
+        // page on screen to light and saved that as the theme, and nothing
+        // switched it back when the dialog closed. So while printing, the
+        // system setting is ignored, and afterwards the theme from before
+        // is put back. (Print stylesheets set their own palette.)
+        var themeBeforePrint = null;
+        window.addEventListener("beforeprint", function () {
+            themeBeforePrint = document.documentElement.getAttribute("data-theme");
+        });
+        window.addEventListener("afterprint", function () {
+            if (themeBeforePrint) setTheme(themeBeforePrint);
+            themeBeforePrint = null;
+        });
+
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (themeBeforePrint || window.matchMedia("print").matches) return;
             fadeTo(event.matches ? "dark" : "light");
         })
 
