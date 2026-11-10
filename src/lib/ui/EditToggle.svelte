@@ -1,8 +1,14 @@
 <!--
     The layout Edit/Done toggle for rearrangeable grids (/dashboard and the
-    activity pages). Lives in SiteNav's actions slot, and only renders once
-    the layout has collapsed to the point where dragging has to be asked
-    for — on a wide screen there's nothing to toggle.
+    activity pages). It floats in the bottom-right corner rather than sitting
+    in the nav bar: the bar is identical on every page, so a control only
+    some pages have would push its links over on those pages. Floating also
+    keeps it reachable when the dashboard's nav is tucked away.
+
+    Each page decides when to show it: the dashboard always (edit mode is
+    also where widgets are shown and hidden), the activity pages once their
+    layout has collapsed and dragging has to be asked for. A page that shows
+    it leaves room at its foot so it never covers content at rest.
 -->
 <script>
     let { editing = false, onclick } = $props();
@@ -19,11 +25,16 @@
 
 <style>
     .edit-btn {
-        height: 32px;
-        padding: 0 12px;
+        position: fixed;
+        right: max(var(--page-gutter), env(safe-area-inset-right));
+        bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
+        z-index: var(--z-sticky);
+        height: 30px;
+        padding: 0 14px;
         border: 1px solid var(--border-strong);
-        border-radius: var(--radius);
-        background: transparent;
+        border-radius: var(--radius-pill);
+        background: var(--surface);
+        box-shadow: var(--shadow-pop);
         color: var(--text);
         font: inherit;
         font-size: var(--font-xs);

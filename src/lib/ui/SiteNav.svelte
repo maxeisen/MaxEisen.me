@@ -2,9 +2,9 @@
     The site's one navigation bar — on the homepage and every SPA route.
 
     Monogram + name on the left (home), section links on the right, the
-    current one marked. Pages that need a control in the bar (the layout
-    Edit toggle on the dashboards) pass it as the `actions` snippet, so
-    nothing floats over page content.
+    current one marked, then the theme toggle. Nothing page-specific goes in
+    the row: a control only some pages have (like the layout Edit toggle,
+    which floats on the page instead) would push the links over there.
 
     `sticky` keeps it pinned while a long page scrolls; the full-height
     dashboard turns that off because it never scrolls.
@@ -12,7 +12,10 @@
     `hideable` adds a control that tucks the bar away, leaving a small tab
     at the top edge to bring it back; the choice is remembered per page.
     Bind `hidden` to lay the page out for either state. The bar is always
-    the same width on every page, so nothing shifts between routes.
+    the same width on every page, so nothing shifts between routes — which
+    is why the hide control sits outside the bar's layout, just right of
+    the theme toggle, instead of taking a place in the row (where it would
+    push the links over on the pages that have it).
 
     The link list is the single place to add or rename a section.
 -->
@@ -21,7 +24,7 @@
     import ThemeToggle from "./ThemeToggle.svelte";
     import Logo from "./Logo.svelte";
 
-    let { sticky = true, hideable = false, hidden = $bindable(false), actions = null } = $props();
+    let { sticky = true, hideable = false, hidden = $bindable(false) } = $props();
 
     const LINKS = [
         { href: "/resume", label: "Resume" },
@@ -69,8 +72,8 @@
         </nav>
 
         <div class="tools">
-            {@render actions?.()}
             <ThemeToggle />
+            <!-- Positioned against the whole bar, not the row: see .hide. -->
             {#if hideable}
                 <button class="hide" type="button" onclick={() => setHidden(true)} aria-label="Hide navigation" title="Hide navigation">
                     <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" /></svg>
@@ -154,9 +157,16 @@
         cursor: pointer;
         transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
     }
+    /* Out of the row, so it moves nothing: placed against the full-width
+       bar, 8px right of the theme toggle. On a wide window that's in the
+       margin beside the centred row; once the row spans the window, it's
+       in the side gutter (26px fits the narrowest gutter it's shown at). */
     .hide {
-        width: 32px;
-        height: 32px;
+        position: absolute;
+        top: calc((var(--nav-height) - 26px) / 2);
+        right: max(2px, calc(max(0px, (100% - var(--page-max)) / 2) + var(--page-gutter) - 34px));
+        width: 26px;
+        height: 26px;
         border-radius: var(--radius);
         background: transparent;
     }
@@ -205,5 +215,9 @@
             padding-right: var(--space-5);
         }
         nav a { padding: 6px 8px; }
+        /* The gutter is too thin to hold it here, and taking a place in the
+           row would move the theme toggle; a window this narrow scrolls
+           anyway. A bar already hidden still has its tab to come back. */
+        .hide { display: none; }
     }
 </style>
