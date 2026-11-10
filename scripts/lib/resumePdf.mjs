@@ -47,7 +47,26 @@ export function inputsFingerprint() {
 	return hash.digest("hex");
 }
 
-/** Count the pages in a PDF Chrome wrote (one /Type /Page object each). */
+/**
+ * The number of pages in a PDF Chrome wrote, counted two ways that have to
+ * agree: the page objects (one /Type /Page each), and the /Count the page
+ * tree declares. Chrome writes both as plain text. If a future version
+ * compressed them, or they disagreed, a count can't be trusted, so this
+ * throws rather than let a one-page check pass on a misread.
+ *
+ * @param {Uint8Array} bytes
+ * @returns {number}
+ */
 export function pdfPageCount(bytes) {
-	return (Buffer.from(bytes).toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+	const text = Buffer.from(bytes).toString("latin1");
+	const objects = (text.match(/\/Type\s*\/Page(?![s\w])/g) || []).length;
+	const declared = [...text.matchAll(/<<[^<>]*\/Type\s*\/Pages\b[^<>]*>>/g)]
+		.map((match) => Number((/\/Count\s+(\d+)/.exec(match[0]) || [])[1]))
+		.filter(Number.isFinite);
+	// The root of the page tree holds the total; nested nodes hold less.
+	const total = declared.length ? Math.max(...declared) : null;
+	if (!objects || total !== objects) {
+		throw new Error(`Couldn't read the PDF's page count (${objects} page objects, page tree says ${total}).`);
+	}
+	return objects;
 }

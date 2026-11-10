@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import { test, expect } from "@playwright/test";
+import { pdfPageCount } from "../scripts/lib/resumePdf.mjs";
 
 // The résumé is an SPA route now, not a standalone resume.html. It has to
 // render its content on screen, and printing it ("Save as PDF") has to give a
@@ -28,7 +29,7 @@ test("Save as PDF downloads the résumé as a one-page PDF", async ({ page }) =>
 	expect(download.suggestedFilename()).toBe("MaxEisen_Resume.pdf");
 	const bytes = await fs.readFile(await download.path());
 	expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
-	expect((bytes.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length).toBe(1);
+	expect(pdfPageCount(bytes)).toBe(1);
 });
 
 test("Save as PDF is the same link on a phone", async ({ page }) => {
@@ -49,8 +50,18 @@ test("printing the résumé gives exactly one page", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
 	await page.emulateMedia({ media: "print" });
 	const pdf = await page.pdf({ format: "Letter", preferCSSPageSize: true, printBackground: true });
-	const pages = (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
-	expect(pages).toBe(1);
+	expect(pdfPageCount(pdf)).toBe(1);
+});
+
+// And the check can actually fail: with the type blown up so the résumé
+// spills, the same print counts more than one page.
+test("a résumé that spills onto a second page is caught", async ({ page }) => {
+	await page.goto("/resume");
+	await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
+	await page.emulateMedia({ media: "print" });
+	await page.addStyleTag({ content: "@media print { .sheet { font-size: 16pt !important; } .bullets li { font-size: 14pt !important; } }" });
+	const pdf = await page.pdf({ format: "Letter", preferCSSPageSize: true, printBackground: true });
+	expect(pdfPageCount(pdf)).toBeGreaterThan(1);
 });
 
 test("the résumé fits a phone", async ({ page }) => {
