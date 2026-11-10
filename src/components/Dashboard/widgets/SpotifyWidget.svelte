@@ -9,6 +9,10 @@
       2. compute vibe from genre or track-id hash
       3. apply paletteForVibe immediately (fast first paint)
       4. asynchronously upgrade to album-art-derived palette
+
+    Size tiers (container queries on the slot): the art tracks the slot's
+    height; a short slot sheds the album line, then the progress bar and
+    status; a tall, narrow one stacks the art over the text.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
@@ -21,10 +25,12 @@
     import { createPoller } from "../../../lib/data/poller.js";
     import WidgetHeader from "./WidgetHeader.svelte";
 
+    let { onavailability = () => {} } = $props();
+
     let canvasEl = $state();
     let vizCtx = null;
     let raf = 0;
-    let hidden = $state(false);
+    let loadedOnce = false;
     let stopPoll;
     let stopTick;
     let endTimer = 0; // single pending "refetch at track end" timer
@@ -60,6 +66,8 @@
         clearTimeout(endTimer); // ensure only one end-of-track refetch is ever pending
         try {
             const data = await fetchJson("/.netlify/functions/spotifyNowPlaying");
+            loadedOnce = true;
+            onavailability(true);
             if (!data || (!data.track && !data.playing)) {
                 spotify.data = null;
                 spotify.playing = false;
@@ -83,22 +91,21 @@
                 }
             }
         } catch (e) {
-            if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
-            spotify.data = { _error: true };
-            spotify.playing = false;
+            // Nothing to show yet, or the function isn't configured (503):
+            // step aside. A blip after a good load keeps the last track up
+            // until the next poll.
+            if (!loadedOnce || isFetchErrorStatus(e, 503)) onavailability(false);
         }
     }
 
     const data = $derived(spotify.data);
-    const isError = $derived(data?._error === true);
-    const hasTrack = $derived(!!data && !isError && (data?.track || data?.playing));
+    const hasTrack = $derived(!!data && (data?.track || data?.playing));
     const elapsedMs = $derived.by(() => {
         if (!spotify.playing || !spotify.durationMs) return 0;
         return Math.min(spotify.durationMs, spotify.progressMs + (now - spotify.fetchedAt));
     });
     const progressPct = $derived(spotify.durationMs ? (elapsedMs / spotify.durationMs) * 100 : 0);
     const statusLabel = $derived.by(() => {
-        if (isError) return "Spotify unavailable";
         if (!hasTrack) return "Nothing playing";
         if (data?.playing) return "now-playing";
         if (data?.playedAt) return `Last played · ${timeAgo(data.playedAt)}`;
@@ -108,7 +115,9 @@
     const vizActive = $derived(hasTrack && !!data?.playing);
 
     function vizLoop() {
-        if (!document.hidden && vizCtx) drawViz(vizCtx, viz.params, viz.startTime);
+        // Skips drawing while the tab, or the tile (an unavailable widget
+        // stays mounted, undisplayed), can't be seen.
+        if (!document.hidden && vizCtx && canvasEl?.clientWidth) drawViz(vizCtx, viz.params, viz.startTime);
         raf = requestAnimationFrame(vizLoop);
     }
 
@@ -151,48 +160,46 @@
     });
 </script>
 
-{#if !hidden}
-    <canvas class="spotify-viz" class:active={vizActive} bind:this={canvasEl} aria-hidden="true"></canvas>
-    <WidgetHeader profileHref="https://open.spotify.com/user/maxeisen" profileLabel="Spotify" />
-    {#if vizActive}
-        <button
-            class="viz-fullscreen-btn"
-            type="button"
-            aria-label="Fullscreen visualizer"
-            title="Fullscreen visualizer"
-            onpointerdown={handleVizPointerDown}
-            onclick={openOverlay}
-        >
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" /></svg>
-        </button>
+<canvas class="spotify-viz" class:active={vizActive} bind:this={canvasEl} aria-hidden="true"></canvas>
+<WidgetHeader profileHref="https://open.spotify.com/user/maxeisen" profileLabel="Spotify" />
+{#if vizActive}
+    <button
+        class="viz-fullscreen-btn"
+        type="button"
+        aria-label="Fullscreen visualizer"
+        title="Fullscreen visualizer"
+        onpointerdown={handleVizPointerDown}
+        onclick={openOverlay}
+    >
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" /></svg>
+    </button>
+{/if}
+<a class="spotify-main" href={data?.url || undefined} target="_blank" rel="noreferrer">
+    {#if hasTrack && data.albumArt}
+        <img class="spotify-art" src={data.albumArt} alt={data.album || data.track || ""}/>
+    {:else}
+        <div class="spotify-art spotify-art-placeholder">♪</div>
     {/if}
-    <a class="spotify-main" href={data?.url || undefined} target="_blank" rel="noreferrer">
-        {#if hasTrack && data.albumArt}
-            <img class="spotify-art" src={data.albumArt} alt={data.album || data.track || ""}/>
-        {:else}
-            <div class="spotify-art spotify-art-placeholder">♪</div>
-        {/if}
-        <div class="spotify-info">
-            <div class="spotify-status">
-                {#if statusLabel === "now-playing"}
-                    <span class="pulse"></span>Now playing
-                {:else}
-                    {statusLabel}
-                {/if}
-            </div>
-            <div class="spotify-track">{hasTrack ? (data.track || "—") : "—"}</div>
-            <div class="spotify-artist">{hasTrack ? (data.artist || "") : ""}</div>
-            <div class="spotify-album">{hasTrack ? (data.album || "") : ""}</div>
-            {#if showProgress}
-                <div class="spotify-progress">
-                    <span>{fmtMs(elapsedMs)}</span>
-                    <div class="spotify-progress-bar"><div class="spotify-progress-fill" style:width={progressPct.toFixed(2) + "%"}></div></div>
-                    <span>{fmtMs(spotify.durationMs)}</span>
-                </div>
+    <div class="spotify-info">
+        <div class="spotify-status">
+            {#if statusLabel === "now-playing"}
+                <span class="pulse"></span>Now playing
+            {:else}
+                {statusLabel}
             {/if}
         </div>
-    </a>
-{/if}
+        <div class="spotify-track">{hasTrack ? (data.track || "—") : "—"}</div>
+        <div class="spotify-artist">{hasTrack ? (data.artist || "") : ""}</div>
+        <div class="spotify-album">{hasTrack ? (data.album || "") : ""}</div>
+        {#if showProgress}
+            <div class="spotify-progress">
+                <span>{fmtMs(elapsedMs)}</span>
+                <div class="spotify-progress-bar"><div class="spotify-progress-fill" style:width={progressPct.toFixed(2) + "%"}></div></div>
+                <span>{fmtMs(spotify.durationMs)}</span>
+            </div>
+        {/if}
+    </div>
+</a>
 
 <style>
     .spotify-viz {
@@ -234,15 +241,18 @@
         z-index: 1;
         display: flex;
         align-items: center;
-        gap: var(--space-5);
+        gap: clamp(var(--space-3), 4cqi, var(--space-5));
         flex: 1;
         min-width: 0;
+        min-height: 0;
         color: inherit;
     }
+    /* As tall as the slot allows (less its padding), within limits. */
     .spotify-art {
         flex-shrink: 0;
-        width: clamp(72px, 9vw, 128px);
-        height: clamp(72px, 9vw, 128px);
+        width: clamp(36px, min(28cqi, 100cqh - 2 * var(--widget-pad-y, 20px)), 128px);
+        aspect-ratio: 1;
+        height: auto;
         border-radius: var(--radius);
         background: var(--surface-2);
         object-fit: cover;
@@ -254,7 +264,15 @@
         font-size: 2rem;
         color: var(--text-3);
     }
-    .spotify-info { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+    /* Clear of the fullscreen button in the bottom corner. */
+    .spotify-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        min-width: 0;
+        padding-right: 40px;
+    }
     .spotify-status {
         display: inline-flex;
         align-items: center;
@@ -282,7 +300,7 @@
     .spotify-artist,
     .spotify-album { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .spotify-track {
-        font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+        font-size: clamp(0.95rem, min(4.5cqi, 14cqh), 1.6rem);
         font-weight: var(--weight-semibold);
         letter-spacing: -0.02em;
         line-height: 1.2;
@@ -311,5 +329,28 @@
         border-radius: var(--radius-pill);
         background: var(--text-2);
         transition: width 0.5s linear;
+    }
+
+    /* Short enough that the text spans the corner link's height too. */
+    @container slot (max-height: 170px) {
+        .spotify-info { padding-right: 72px; }
+    }
+    @container slot (max-height: 150px) {
+        .spotify-album { display: none; }
+        .spotify-status { margin-bottom: var(--space-1); }
+        .spotify-progress { margin-top: var(--space-2); }
+    }
+    /* A strip: just the track and artist, clear of the corner controls. */
+    @container slot (max-height: 110px) {
+        .spotify-status,
+        .spotify-progress { display: none; }
+        .spotify-info { padding-right: 44px; }
+        .viz-fullscreen-btn { top: 50%; bottom: auto; transform: translateY(-50%); }
+    }
+    @container slot (max-width: 340px) and (min-height: 240px) {
+        .spotify-main { flex-direction: column; justify-content: center; text-align: center; }
+        .spotify-art { width: clamp(56px, min(40cqi, 45cqh), 128px); }
+        .spotify-info { align-items: center; width: 100%; flex: none; padding-right: 0; }
+        .spotify-progress { width: 100%; }
     }
 </style>

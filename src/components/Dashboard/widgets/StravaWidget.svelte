@@ -1,7 +1,10 @@
 <!--
     Recent Strava activities with route preview (when a route shape is available) or
-    icon fallback. Hides itself if backing function returns 503. List is
-    trimmed dynamically so no partial rows are shown.
+    icon fallback. Reports itself unavailable if the feed never loads (or
+    the function isn't configured, 503). List is
+    trimmed to whatever fits the slot, so no partial rows are shown; the
+    year-to-date footer only appears when the slot is wide and tall enough
+    to spare it.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
@@ -22,8 +25,9 @@
         routeToSvgPath,
     } from "../../../lib/strava.js";
 
+    let { onavailability = () => {} } = $props();
+
     let listEl = $state();
-    let hidden = $state(false);
     let activities = $state(null); // null = loading
     let ytd = $state(null); // { run, ride } YTD totals, or null
     let stopPoll;
@@ -39,6 +43,7 @@
     const activitiesMessage = $derived(listStateMessage(activitiesState, "Loading…", "Strava unavailable"));
 
     function applyFeed(data) {
+        onavailability(true);
         activities = (data?.activities || []).slice(0, 5);
         ytd = data?.ytd || null;
         requestAnimationFrame(() => trimListToFit(listEl));
@@ -49,9 +54,9 @@
     const feed = createSWRWidgetFeed({
         url: STRAVA_FEED_URL,
         apply: applyFeed,
+        // A failure after a good load keeps the last activities up.
         onError: (e) => {
-            if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
-            activities = [];
+            if (activities === null || isFetchErrorStatus(e, 503)) onavailability(false);
         },
     });
 
@@ -67,66 +72,64 @@
     });
 </script>
 
-{#if !hidden}
-    <WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Activity" />
-    <ol class="strava-list" bind:this={listEl}>
-        {#if activitiesState === "loading"}
-            <li class="widget-loading" role="status" aria-label="Loading">
-                <Spinner size={24} stroke={2} />
+<WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Activity" />
+<ol class="strava-list" bind:this={listEl}>
+    {#if activitiesState === "loading"}
+        <li class="widget-loading" role="status" aria-label="Loading">
+            <Spinner size={24} stroke={2} />
+        </li>
+    {:else if activitiesMessage}
+        <li class="widget-empty">{activitiesMessage}</li>
+    {:else}
+        {#each activities as a (a.id ?? a.startDate ?? a.name)}
+            {@const icon = STRAVA_ICONS[a.type] || "🏃"}
+            {@const pace = formatPace(a.distance, a.movingTime, a.type)}
+            {@const url = a.id ? `https://www.strava.com/activities/${a.id}` : "#"}
+            {@const path = routeToSvgPath(a.route)}
+            {@const metaBits = [a.type, a.startDate ? timeAgo(a.startDate) : null, a.sufferScore != null ? `Effort ${Math.round(a.sufferScore)}` : null].filter(Boolean)}
+            <li>
+                <a class="strava-row" href={url} target="_blank" rel="noreferrer">
+                    {#if path}
+                        <svg class="strava-row-map" viewBox="0 0 56 38" aria-hidden="true"><path d={path}/></svg>
+                    {:else}
+                        <div class="strava-row-icon">{icon}</div>
+                    {/if}
+                    <div class="strava-row-main">
+                        <div class="strava-row-name">{a.name || a.type || "Activity"}</div>
+                        <div class="strava-row-meta">{metaBits.join(" · ")}</div>
+                    </div>
+                    <div class="strava-row-stats">
+                        <div>
+                            <strong>{formatDistance(a.distance)}</strong>
+                            <span>{pace || formatDuration(a.movingTime)}</span>
+                        </div>
+                    </div>
+                </a>
             </li>
-        {:else if activitiesMessage}
-            <li class="widget-empty">{activitiesMessage}</li>
-        {:else}
-            {#each activities as a (a.id ?? a.startDate ?? a.name)}
-                {@const icon = STRAVA_ICONS[a.type] || "🏃"}
-                {@const pace = formatPace(a.distance, a.movingTime, a.type)}
-                {@const url = a.id ? `https://www.strava.com/activities/${a.id}` : "#"}
-                {@const path = routeToSvgPath(a.route)}
-                {@const metaBits = [a.type, a.startDate ? timeAgo(a.startDate) : null, a.sufferScore != null ? `Effort ${Math.round(a.sufferScore)}` : null].filter(Boolean)}
-                <li>
-                    <a class="strava-row" href={url} target="_blank" rel="noreferrer">
-                        {#if path}
-                            <svg class="strava-row-map" viewBox="0 0 56 38" aria-hidden="true"><path d={path}/></svg>
-                        {:else}
-                            <div class="strava-row-icon">{icon}</div>
-                        {/if}
-                        <div class="strava-row-main">
-                            <div class="strava-row-name">{a.name || a.type || "Activity"}</div>
-                            <div class="strava-row-meta">{metaBits.join(" · ")}</div>
-                        </div>
-                        <div class="strava-row-stats">
-                            <div>
-                                <strong>{formatDistance(a.distance)}</strong>
-                                <span>{pace || formatDuration(a.movingTime)}</span>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-            {/each}
-        {/if}
-    </ol>
-
-    {#if ytd && (ytd.run || ytd.ride)}
-        <!-- Year-to-date summary. Hidden in narrow (small) slots via the
-             container query below; shown when the slot has horizontal room. -->
-        <div class="strava-ytd">
-            <span class="strava-ytd-label">{new Date().getFullYear()} to date</span>
-            <div class="strava-ytd-stats">
-                {#if ytd.run}
-                    <span class="strava-ytd-item">
-                        <strong>{ytdKm(ytd.run.distance)}</strong>
-                        <span class="strava-ytd-count">running · {ytd.run.count} runs</span>
-                    </span>
-                {/if}
-                {#if ytd.ride}
-                    <span class="strava-ytd-item">
-                        <strong>{ytdKm(ytd.ride.distance)}</strong>
-                        <span class="strava-ytd-count">cycling · {ytd.ride.count} rides</span>
-                    </span>
-                {/if}
-            </div>
-        </div>
+        {/each}
     {/if}
+</ol>
+
+{#if ytd && (ytd.run || ytd.ride)}
+    <!-- Year-to-date summary. Hidden in small slots via the container
+         query below; shown when the slot has room to spare. -->
+    <div class="strava-ytd">
+        <span class="strava-ytd-label">{new Date().getFullYear()} to date</span>
+        <div class="strava-ytd-stats">
+            {#if ytd.run}
+                <span class="strava-ytd-item">
+                    <strong>{ytdKm(ytd.run.distance)}</strong>
+                    <span class="strava-ytd-count">running · {ytd.run.count} runs</span>
+                </span>
+            {/if}
+            {#if ytd.ride}
+                <span class="strava-ytd-item">
+                    <strong>{ytdKm(ytd.ride.distance)}</strong>
+                    <span class="strava-ytd-count">cycling · {ytd.ride.count} rides</span>
+                </span>
+            {/if}
+        </div>
+    </div>
 {/if}
 
 <style>
@@ -197,8 +200,8 @@
     }
     .strava-row-stats span { font-size: var(--font-2xs); color: var(--text-3); }
 
-    /* Year to date. Only where the slot has the width to lay it out; in a
-       narrow slot the activity list keeps the room. */
+    /* Year to date. Only where the slot has the room to lay it out; in a
+       small slot the activity list keeps the room. */
     .strava-ytd {
         display: none;
         flex-direction: column;
@@ -208,8 +211,15 @@
         padding-top: var(--space-3);
         border-top: 1px solid var(--border);
     }
-    @container slot (min-width: 420px) {
+    @container slot (min-width: 420px) and (min-height: 280px) {
         .strava-ytd { display: flex; }
+    }
+    @container slot (max-height: 240px) {
+        .strava-row { padding: 6px 0; }
+    }
+    @container slot (max-width: 300px) {
+        .strava-row-map,
+        .strava-row-icon { display: none; }
     }
     .strava-ytd-label { font-size: var(--font-xs); color: var(--text-2); }
     .strava-ytd-stats { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); }

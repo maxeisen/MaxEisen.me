@@ -11,6 +11,8 @@
     const CLOUDINARY_TAG = "gallery";
     const LIST_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/list/${CLOUDINARY_TAG}.json`;
 
+    let { onavailability = () => {} } = $props();
+
     let imgEl = $state();
     let visible = $state(true);
     let photos = [];
@@ -35,10 +37,12 @@
                 onRevalidate: (d) => { photos = d.resources || []; },
             });
             photos = data.resources || [];
-            if (photos.length === 0) { visible = false; return; }
-            pickRandom();
+            visible = photos.length > 0;
+            onavailability(visible);
+            if (visible) pickRandom();
         } catch {
             visible = false;
+            onavailability(false);
         }
     }
 
@@ -79,7 +83,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 16px 20px;
+        padding: clamp(10px, 4cqmin, 16px) clamp(12px, 5cqmin, 20px);
         background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 45%),
             linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0%, transparent 30%);
         color: #fff;

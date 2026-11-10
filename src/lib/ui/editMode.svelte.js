@@ -21,12 +21,16 @@ import { createReorder } from "./reorder.svelte.js";
  *   suppressed inside it.
  * @param {string} [options.responsiveQuery] media query for "the layout has
  *   collapsed", i.e. where dragging has to be asked for first.
+ * @param {boolean} [options.editableWhenWide] the page offers edit mode at
+ *   every width (the dashboard, where it's also how widgets are shown and
+ *   hidden), so leaving the collapsed state shouldn't end it.
  * @param {...*} options.rest everything else goes to createReorder.
  * @returns {{reorder: object, edit: object}}
  */
 export function createRearrangeable({
 	gridId,
 	responsiveQuery = "(max-width: 1100px)",
+	editableWhenWide = false,
 	...reorderOptions
 }) {
 	let isEditing = $state(false);
@@ -47,8 +51,9 @@ export function createRearrangeable({
 		onQueryChange = (event) => {
 			isResponsive = event.matches;
 			// Widening the window puts dragging back within reach anyway, and
-			// leaves no button to turn edit mode off with.
-			if (!event.matches) {
+			// (unless the page keeps it) leaves no button to turn edit mode
+			// off with.
+			if (!event.matches && !editableWhenWide) {
 				isEditing = false;
 			}
 		};
@@ -57,9 +62,10 @@ export function createRearrangeable({
 		// Capture phase, so this beats anchor navigation: a click inside the
 		// grid is swallowed for a moment after a drag, and at all times while
 		// editing — matching iOS jiggle mode, where tapping an icon doesn't
-		// open it.
+		// open it. Controls that only exist in edit mode (a tile's hide
+		// button) opt out with data-edit-control.
 		onClickCapture = (event) => {
-			if (!event.target.closest(`#${gridId}`)) {
+			if (!event.target.closest(`#${gridId}`) || event.target.closest("[data-edit-control]")) {
 				return;
 			}
 			if (reorder.suppressesClick() || isEditing) {

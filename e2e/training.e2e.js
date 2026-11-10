@@ -414,6 +414,9 @@ test("the last run plots heart rate on its own scale", async ({ page }) => {
 	// the right-hand axis the beats are a shape with no magnitude, and the
 	// height it shares with the pace line is a coincidence of scaling.
 	const beats = card.locator(".y-axis.right span");
+	// The axis draws once the chart has measured itself, a beat after the
+	// page renders; reading it straight away raced that.
+	await expect(beats.nth(2)).toBeAttached();
 	const labels = (await beats.allTextContents()).map(Number);
 	expect(labels.length).toBeGreaterThan(2);
 	for (const bpm of labels) {
@@ -481,7 +484,11 @@ test("a chart readout at the edge of a phone doesn't widen the page", async ({ p
 test("the charts are labelled with the values they plot", async ({ page }) => {
 	await page.goto("/running");
 	const volume = page.locator("section.card").filter({ hasText: "Weekly volume" }).first();
-	const labels = await volume.locator(".y-axis span").allTextContents();
+	const axis = volume.locator(".y-axis span");
+	// Retried rather than read once: the axis draws a beat after the page
+	// renders, once the chart has measured itself.
+	await expect(axis.nth(2)).toBeAttached();
+	const labels = await axis.allTextContents();
 	expect(labels.length).toBeGreaterThan(2);
 	// A y-axis of nothing but zeroes would pass a "has labels" check.
 	expect(labels.some((text) => Number(text) > 0)).toBe(true);

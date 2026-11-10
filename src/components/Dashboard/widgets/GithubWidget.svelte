@@ -1,6 +1,11 @@
 <!--
-    Latest public push + 53-week contribution heatmap. Hides itself if the
-    backing function returns 503 (e.g. missing token).
+    Latest public push + 53-week contribution heatmap. Reports itself
+    unavailable if the feed never loads (or the function isn't configured,
+    503, e.g. missing token).
+
+    Size tiers (container queries on the slot): the heatmap takes whatever
+    height is left; a short slot trims the commit message to one line, then
+    drops the push details, leaving the repo and the heatmap.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
@@ -10,7 +15,8 @@
     import WidgetHeader from "./WidgetHeader.svelte";
     import Spinner from "../../../lib/ui/Spinner.svelte";
 
-    let hidden = $state(false);
+    let { onavailability = () => {} } = $props();
+
     let loaded = $state(false);
     let repo = $state("—");
     let message = $state("");
@@ -45,6 +51,7 @@
 
     function apply(data) {
         loaded = true;
+        onavailability(true);
         const latest = data?.latest;
         const contrib = data?.contributions;
         if (latest) {
@@ -74,11 +81,9 @@
     const feed = createSWRWidgetFeed({
         url: "/.netlify/functions/githubLatest",
         apply,
+        // A failure after a good load keeps the last push up.
         onError: (e) => {
-            loaded = true;
-            if (isFetchErrorStatus(e, 503)) { hidden = true; return; }
-            message = "GitHub unavailable";
-            meta = "";
+            if (!loaded || isFetchErrorStatus(e, 503)) onavailability(false);
         },
     });
 
@@ -88,45 +93,43 @@
     onDestroy(() => stopPoll?.());
 </script>
 
-{#if !hidden}
-    <WidgetHeader profileHref="https://github.com/maxeisen" profileLabel="GitHub" label="Code" />
-    {#if !loaded}
-        <div class="widget-loading" role="status" aria-label="Loading">
-            <Spinner size={24} stroke={2} />
+<WidgetHeader profileHref="https://github.com/maxeisen" profileLabel="GitHub" label="Code" />
+{#if !loaded}
+    <div class="widget-loading" role="status" aria-label="Loading">
+        <Spinner size={24} stroke={2} />
+    </div>
+{:else}
+<a class="github-main" href={widgetHref} target="_blank" rel="noreferrer">
+    <div class="github-repo">{repo}</div>
+    <div class="github-message">{message}</div>
+    <div class="github-meta">{meta}</div>
+    <div class="github-heatmap-wrap">
+        <div class="github-heatmap-rows" aria-hidden="true">
+            <span></span><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span>
         </div>
-    {:else}
-    <a class="github-main" href={widgetHref} target="_blank" rel="noreferrer">
-        <div class="github-repo">{repo}</div>
-        <div class="github-message">{message}</div>
-        <div class="github-meta">{meta}</div>
-        <div class="github-heatmap-wrap">
-            <div class="github-heatmap-rows" aria-hidden="true">
-                <span></span><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span>
-            </div>
-            <div class="github-heatmap" style:grid-template-columns={weeks ? `repeat(${heatmapCols}, minmax(0, 1fr))` : null}>
-                {#if weeks}
-                    {#each weeks as w}
-                        {#each w.days as d}
-                            {#if d.future}
-                                <div class="github-cell future" aria-hidden="true"></div>
-                            {:else}
-                                {@const lvl = levelFor(d.count, heatmapMax)}
-                                <div
-                                    class="github-cell {lvl > 0 ? `l${lvl}` : ''} {d.date === todayIso ? 'today' : ''}"
-                                    title={`${labelFor(d.date)}: ${d.count} contribution${d.count === 1 ? "" : "s"}`}
-                                ></div>
-                            {/if}
-                        {/each}
+        <div class="github-heatmap" style:grid-template-columns={weeks ? `repeat(${heatmapCols}, minmax(0, 1fr))` : null}>
+            {#if weeks}
+                {#each weeks as w}
+                    {#each w.days as d}
+                        {#if d.future}
+                            <div class="github-cell future" aria-hidden="true"></div>
+                        {:else}
+                            {@const lvl = levelFor(d.count, heatmapMax)}
+                            <div
+                                class="github-cell {lvl > 0 ? `l${lvl}` : ''} {d.date === todayIso ? 'today' : ''}"
+                                title={`${labelFor(d.date)}: ${d.count} contribution${d.count === 1 ? "" : "s"}`}
+                            ></div>
+                        {/if}
                     {/each}
-                {/if}
-            </div>
+                {/each}
+            {/if}
         </div>
-        <div class="github-graph-meta">
-            <span><span class="github-graph-total">{total}</span> public contributions</span>
-            <span>{range}</span>
-        </div>
-    </a>
-    {/if}
+    </div>
+    <div class="github-graph-meta">
+        <span><span class="github-graph-total">{total}</span> public contributions</span>
+        <span>{range}</span>
+    </div>
+</a>
 {/if}
 
 <style>
@@ -143,7 +146,7 @@
     .github-meta,
     .github-graph-meta { flex-shrink: 0; }
     .github-repo {
-        font-size: clamp(1rem, 1.2vw, 1.25rem);
+        font-size: clamp(0.95rem, 2.6cqi, 1.25rem);
         font-weight: var(--weight-semibold);
         letter-spacing: -0.015em;
         color: var(--text-strong);
@@ -168,7 +171,7 @@
         flex: 1 1 0;
         gap: 6px;
         min-width: 0;
-        min-height: 60px;
+        min-height: 28px;
         margin-top: var(--space-3);
         overflow: hidden;
     }
@@ -207,4 +210,20 @@
         color: var(--text-2);
     }
     .github-graph-total { font-weight: var(--weight-semibold); color: var(--text-strong); }
+
+    @container slot (max-height: 280px) {
+        .github-message { -webkit-line-clamp: 1; }
+        .github-heatmap-wrap { margin-top: var(--space-2); }
+    }
+    @container slot (max-height: 220px) {
+        .github-meta { display: none; }
+    }
+    @container slot (max-height: 170px) {
+        .github-message,
+        .github-heatmap-rows { display: none; }
+        .github-graph-meta { margin-top: var(--space-1); }
+    }
+    @container slot (max-width: 300px) {
+        .github-graph-meta > span:last-child { display: none; }
+    }
 </style>
