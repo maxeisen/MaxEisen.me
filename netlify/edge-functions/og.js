@@ -17,7 +17,7 @@ const SITE_URL = "https://maxeisen.me";
 const CLOUD = "https://res.cloudinary.com/meisen-gallery/image/upload";
 
 const DEFAULT = {
-	title: "Max Eisen — Software Engineer",
+	title: "Max Eisen — Software Engineer in Toronto",
 	desc: "A Toronto-based Software Engineer — my work, photo galleries, and what I'm up to.",
 	card: "Software engineer in Toronto",
 };
@@ -136,16 +136,15 @@ export default async function handler(request, context) {
 	html = setMeta(html, "property", "og:image", img);
 	html = setMeta(html, "name", "description", m.desc);
 
-	const extra = [
-		`<meta property="og:image:width" content="1200"/>`,
-		`<meta property="og:image:height" content="630"/>`,
-		`<meta property="og:image:alt" content="${escAttr(m.title)}"/>`,
-		`<meta name="twitter:card" content="summary_large_image"/>`,
-		`<meta name="twitter:title" content="${escAttr(m.title)}"/>`,
-		`<meta name="twitter:description" content="${escAttr(m.desc)}"/>`,
-		`<meta name="twitter:image" content="${escAttr(img)}"/>`,
-	].join("");
-	html = html.replace("</head>", `${extra}</head>`);
+	// Replaced, not appended: index.html already carries these, and a second
+	// copy leaves crawlers to pick between the stale tag and this one.
+	html = setMeta(html, "property", "og:image:width", "1200");
+	html = setMeta(html, "property", "og:image:height", "630");
+	html = setMeta(html, "property", "og:image:alt", m.title);
+	html = setMeta(html, "name", "twitter:card", "summary_large_image");
+	html = setMeta(html, "name", "twitter:title", m.title);
+	html = setMeta(html, "name", "twitter:description", m.desc);
+	html = setMeta(html, "name", "twitter:image", img);
 
 	const headers = new Headers(res.headers);
 	headers.delete("content-length");

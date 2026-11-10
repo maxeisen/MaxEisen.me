@@ -21,6 +21,12 @@ describe("trainingPageMeta", () => {
 		expect(trainingPageMeta({ inBlock: true, race: RACE }).title).toBe("Road to Chicago — Max Eisen");
 	});
 
+	it("describes the block by its race rather than assuming a marathon", () => {
+		const meta = trainingPageMeta({ inBlock: true, race: { name: "Around The Bay 2027", label: "Road to Around the Bay" } });
+		expect(meta.desc).toMatch(/^Live training for Around The Bay 2027:/);
+		expect(meta.desc).not.toMatch(/marathon/i);
+	});
+
 	it("is a running log once the block is over", () => {
 		const meta = trainingPageMeta({ inBlock: false, race: RACE });
 		expect(meta.title).toBe("Running — Max Eisen");
