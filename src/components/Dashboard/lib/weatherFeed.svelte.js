@@ -42,7 +42,22 @@ export const weather = $state({
 	aqi: "—",
 	sunriseLabel: "—",
 	sunsetLabel: "—",
+	// The next 24 hours from now, and the next five days from today, in the
+	// location's own time: [{time, hour, temp, precip, wind, code}] and
+	// [{date, code, hi, lo, precip}]. Empty until the first forecast lands.
+	hourly: [],
+	days: [],
+	// Local time of the reading ("2026-11-10T14:00"), and today's sunset as
+	// the same kind of string, for the ride check.
+	localTime: null,
+	sunsetLocal: null,
 });
+
+/** Emoji and label for a WMO weather code. */
+export function describeCode(code) {
+	const [label, emoji] = WMO[code] || ["—", ""];
+	return { label, emoji };
+}
 
 function uvBand(v) {
 	if (v == null) return "—";
@@ -94,9 +109,45 @@ function applySun(daily) {
 	}
 }
 
+const at = (list, i) => (Array.isArray(list) ? list[i] : undefined);
+
+// Hours from the current one onward, and days from today onward. Times are
+// the location's local wall clock (timezone=auto), compared as strings.
+function applyOutlook({ current, hourly, daily }) {
+	const now = String(current?.time || "").slice(0, 13); // "2026-11-10T14"
+	weather.localTime = current?.time ?? null;
+	if (hourly?.time) {
+		const from = Math.max(0, hourly.time.findIndex((t) => String(t).slice(0, 13) >= now));
+		weather.hourly = hourly.time.slice(from, from + 24).map((time, i) => ({
+			time,
+			hour: Number(String(time).slice(11, 13)),
+			temp: at(hourly.temperature_2m, from + i),
+			precip: at(hourly.precipitation_probability, from + i),
+			wind: at(hourly.wind_speed_10m, from + i),
+			code: at(hourly.weather_code, from + i),
+		}));
+	}
+	if (daily?.time) {
+		const today = now.slice(0, 10);
+		const from = Math.max(0, daily.time.findIndex((t) => String(t).slice(0, 10) >= today));
+		weather.sunsetLocal = at(daily.sunset, from) ?? null;
+		weather.days = daily.time.slice(from, from + 5).map((date, i) => ({
+			date,
+			code: at(daily.weather_code, from + i),
+			hi: at(daily.temperature_2m_max, from + i),
+			lo: at(daily.temperature_2m_min, from + i),
+			precip: at(daily.precipitation_probability_max, from + i),
+		}));
+	}
+}
+
 async function load(lat, lon) {
 	try {
-		const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m,uv_index&daily=sunrise,sunset&past_days=1&timezone=auto&wind_speed_unit=kmh`;
+		const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+			+ "&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m,uv_index"
+			+ "&hourly=temperature_2m,precipitation_probability,wind_speed_10m,weather_code"
+			+ "&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max"
+			+ "&past_days=1&forecast_days=6&timezone=auto&wind_speed_unit=kmh";
 		const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi`;
 		const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
 		const [forecast, aqiR, geo] = await Promise.allSettled([
@@ -113,6 +164,7 @@ async function load(lat, lon) {
 		if (aqiR.status === "fulfilled") weather.aqi = aqiBand(aqiR.value.current?.european_aqi);
 		weather.meta = (geo.status === "fulfilled" && placeLabel(geo.value)) || "Location unavailable";
 		if (forecast.value.daily) applySun(forecast.value.daily);
+		applyOutlook(forecast.value);
 		weather.status = "ready";
 	} catch {
 		if (weather.status !== "ready") {

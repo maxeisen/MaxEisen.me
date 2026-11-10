@@ -1,6 +1,8 @@
 <!--
-    Recent Strava activities with route preview (when a route shape is available) or
-    icon fallback. Reports itself unavailable if the feed never loads (or
+    Recent activity of every kind from Strava — runs, rides, walks, hikes —
+    with a route preview (when a route shape is available) or an icon. The
+    Running and Cycling widgets cover the training side; this one is the
+    feed, and links to Strava itself. Reports itself unavailable if the feed never loads (or
     the function isn't configured, 503). List is
     trimmed to whatever fits the slot, so no partial rows are shown; the
     year-to-date footer only appears when the slot is wide and tall enough
@@ -19,6 +21,7 @@
     import {
         STRAVA_ICONS,
         STRAVA_FEED_URL,
+        STRAVA_PROFILE_URL,
         formatDistance,
         formatDuration,
         formatPace,
@@ -44,7 +47,9 @@
 
     function applyFeed(data) {
         onavailability(true);
-        activities = (data?.activities || []).slice(0, 5);
+        // More than a small tile shows; trimming hides whatever doesn't fit,
+        // so a tall tile fills up instead of ending in blank space.
+        activities = (data?.activities || []).slice(0, 10);
         ytd = data?.ytd || null;
         requestAnimationFrame(() => trimListToFit(listEl));
     }
@@ -72,7 +77,7 @@
     });
 </script>
 
-<WidgetHeader profileHref="/running" profileLabel="Running" external={false} label="Activity" />
+<WidgetHeader profileHref={STRAVA_PROFILE_URL} profileLabel="Strava" label="Activity" />
 <ol class="strava-list" bind:this={listEl}>
     {#if activitiesState === "loading"}
         <li class="widget-loading" role="status" aria-label="Loading">

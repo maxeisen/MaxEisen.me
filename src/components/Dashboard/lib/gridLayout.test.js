@@ -64,6 +64,12 @@ describe("pack", () => {
 		}
 	});
 
+	it("places a pinned widget exactly, and packs the rest around it", () => {
+		const { placements } = pack(DASHBOARD, 4, { pin: { id: "hn", x: 1, y: 3 } });
+		expect(placements.hn).toMatchObject({ x: 1, y: 3, w: 1 });
+		expect(placements.clock).toMatchObject({ x: 0, y: 0 });
+	});
+
 	it("handles an empty dashboard", () => {
 		expect(pack([], 4)).toEqual({ cols: 4, rows: 0, holes: 0, placements: {} });
 	});

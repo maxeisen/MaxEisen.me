@@ -24,19 +24,23 @@ import { createReorder } from "./reorder.svelte.js";
  * @param {boolean} [options.editableWhenWide] the page offers edit mode at
  *   every width (the dashboard, where it's also how widgets are shown and
  *   hidden), so leaving the collapsed state shouldn't end it.
- * @param {...*} options.rest everything else goes to createReorder.
+ * @param {Function} [options.createDrag] the drag mechanics; defaults to
+ *   createReorder (fixed slots that swap). The dashboard passes its own,
+ *   with the same `enabled` option and `suppressesClick()`.
+ * @param {...*} options.rest everything else goes to createDrag.
  * @returns {{reorder: object, edit: object}}
  */
 export function createRearrangeable({
 	gridId,
 	responsiveQuery = "(max-width: 1100px)",
 	editableWhenWide = false,
+	createDrag = createReorder,
 	...reorderOptions
 }) {
 	let isEditing = $state(false);
 	let isResponsive = $state(false);
 
-	const reorder = createReorder({
+	const reorder = createDrag({
 		...reorderOptions,
 		enabled: () => !(isResponsive && !isEditing),
 	});

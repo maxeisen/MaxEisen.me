@@ -1,7 +1,7 @@
 <!--
 	A widget's header: its label on the left, a link out on the right.
 	Without a label (Spotify, whose own status line names it) only the link
-	renders, pinned to the corner.
+	renders, pinned to the corner. Without a link, just the label.
 
 	Links off-site by default. An internal one has to drop target="_blank" as
 	well as the arrow: App.svelte's click handler ignores any anchor with a
@@ -9,7 +9,7 @@
 	client-side.
 -->
 <script>
-	let { profileHref, profileLabel, label = null, external = true } = $props();
+	let { profileHref = null, profileLabel = null, label = null, external = true } = $props();
 </script>
 
 {#snippet link()}
@@ -24,9 +24,9 @@
 {#if label}
 	<div class="widget-head">
 		<span class="widget-label">{label}</span>
-		{@render link()}
+		{#if profileHref}{@render link()}{/if}
 	</div>
-{:else}
+{:else if profileHref}
 	<div class="corner">{@render link()}</div>
 {/if}
 
@@ -67,5 +67,10 @@
 	/* A strip-sized widget has no room for the corner link. */
 	@container slot (max-height: 110px) {
 		.corner { display: none; }
+	}
+	/* Nor, in the thinnest strip, for a header at all: the content is
+	   recognisable on its own, and needs the room. */
+	@container slot (max-height: 90px) {
+		.widget-head { display: none; }
 	}
 </style>

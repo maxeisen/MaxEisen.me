@@ -11,6 +11,7 @@ const functions = [
 	"trainingActivity.js",
 	"trainingPage.js",
 	"trainingSync.js",
+	"trainingSummary.js",
 	"stravaFeed.js",
 	"stravaProfile.js",
 ];

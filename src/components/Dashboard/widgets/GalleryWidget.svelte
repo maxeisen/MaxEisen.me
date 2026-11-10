@@ -1,6 +1,10 @@
 <!--
     Anchors to /gallery, fronts a random photo from the gallery tag as a
     background. The whole widget is an <a>, so clicking anywhere navigates.
+
+    Each photo is requested cropped to the tile's own shape (rounded up, so a
+    small resize reuses the same image) and carries its caption, if it has
+    one in Cloudinary.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
@@ -14,6 +18,7 @@
     let { onavailability = () => {} } = $props();
 
     let imgEl = $state();
+    let caption = $state("");
     let visible = $state(true);
     let photos = [];
     let stopPoll;
@@ -25,7 +30,19 @@
         if (!photos.length || !imgEl) return;
         const pick = photos[Math.floor(Math.random() * photos.length)];
         imgEl.onload = () => imgEl.classList.add("loaded");
-        imgEl.src = cloudinaryUrl(pick.public_id, "f_auto,q_auto,c_fill,g_auto,w_1600,h_1200");
+        imgEl.src = cloudinaryUrl(pick.public_id, `f_auto,q_auto,c_fill,g_auto,${cropFor(imgEl)}`);
+        caption = pick.context?.custom?.caption || pick.context?.caption || "";
+    }
+
+    // The tile's size in device pixels, rounded up to 200px steps and capped,
+    // so Cloudinary's g_auto crop matches the tile's shape (portrait or
+    // landscape) without a fresh image for every pixel of a resize.
+    function cropFor(el) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const step = (n) => Math.min(2400, Math.max(400, Math.ceil((n * dpr) / 200) * 200));
+        const w = el.clientWidth || 800;
+        const h = el.clientHeight || 600;
+        return `w_${step(w)},h_${step(h)}`;
     }
 
     async function loadList() {
@@ -59,7 +76,10 @@
     <img class="gallery-img" bind:this={imgEl} alt="" loading="lazy"/>
     <div class="gallery-overlay">
         <div class="gallery-label">Photos</div>
-        <div class="gallery-cta">See the gallery →</div>
+        <div class="gallery-foot">
+            {#if caption}<div class="gallery-caption">{caption}</div>{/if}
+            <div class="gallery-cta">See the gallery →</div>
+        </div>
     </div>
 {/if}
 
@@ -89,5 +109,17 @@
         color: #fff;
     }
     .gallery-label { font-size: var(--font-xs); font-weight: var(--weight-medium); opacity: 0.9; }
+    .gallery-foot { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .gallery-caption {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: var(--font-xs);
+        opacity: 0.9;
+    }
     .gallery-cta { font-size: var(--font-sm); font-weight: var(--weight-semibold); }
+    @container slot (max-height: 140px) {
+        .gallery-caption { display: none; }
+    }
 </style>

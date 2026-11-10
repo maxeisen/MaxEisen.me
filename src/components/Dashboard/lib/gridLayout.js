@@ -38,10 +38,13 @@ export const GRID_DEFAULTS = {
  *
  * @param {{id: string, w: number, h: number}[]} items in layout order.
  * @param {number} cols
+ * @param {{pin?: {id: string, x: number, y: number}}} [options] `pin` places
+ *   one widget at an exact cell first (clamped to fit) and packs the rest
+ *   around it; used to work out where a dragged widget can go.
  * @returns {{cols: number, rows: number, holes: number,
  *   placements: Record<string, {x: number, y: number, w: number, h: number}>}}
  */
-export function pack(items, cols) {
+export function pack(items, cols, { pin = null } = {}) {
 	const cells = [];
 	const placements = {};
 	const occupied = (r, c) => cells[r]?.[c] != null;
@@ -64,7 +67,18 @@ export function pack(items, cols) {
 		}
 	};
 
+	const pinned = pin && items.find((item) => item.id === pin.id);
+	if (pinned) {
+		const w = Math.max(1, Math.min(pinned.w, cols));
+		const h = Math.max(1, pinned.h);
+		const x = Math.max(0, Math.min(pin.x, cols - w));
+		const y = Math.max(0, pin.y);
+		claim(pinned.id, y, x, w, h);
+		placements[pinned.id] = { x, y, w, h };
+	}
+
 	for (const item of items) {
+		if (item === pinned) continue;
 		const w = Math.max(1, Math.min(item.w, cols));
 		const h = Math.max(1, item.h);
 		let placed = false;
@@ -126,23 +140,42 @@ function trackSize(total, count, gap) {
 }
 
 /**
- * Pick a column count for the box and pack into it.
+ * Pack into a given column count and size the rows for the box: shared
+ * between them if that keeps every row at or above `rowMin`, otherwise at a
+ * fixed height in a grid that scrolls.
  *
  * @param {{id: string, w: number, h: number}[]} items
- * @param {{width: number, height: number, gap: number}} box the grid's
- *   content box in px, and the gap between tracks.
+ * @param {number} cols
+ * @param {{height: number, gap: number}} box
  * @param {Partial<typeof GRID_DEFAULTS>} [options]
  * @returns {ReturnType<typeof pack> & {fit: boolean, rowHeight: number}}
  *   `fit` is true when the rows share the box's height; otherwise the grid
  *   is taller than the box, at a fixed `rowHeight`, and scrolls.
  */
-export function chooseLayout(items, { width, height, gap }, options = {}) {
+export function layoutFor(items, cols, { height, gap }, options = {}) {
+	const opts = { ...GRID_DEFAULTS, ...options };
+	const packed = pack(items, cols);
+	if (!packed.rows) return { ...packed, fit: true, rowHeight: 0 };
+	const rowHeight = trackSize(height, packed.rows, gap);
+	if (rowHeight >= opts.rowMin) return { ...packed, fit: true, rowHeight };
+	return { ...packed, fit: false, rowHeight: cols === 1 ? opts.stackRow : opts.scrollRow };
+}
+
+/**
+ * The column count that suits these widgets in this box: of every count the
+ * width allows, the one whose cells come out closest to the ideal shape
+ * while every row still clears `rowMin`; failing that, whichever is
+ * shortest (it scrolls least).
+ *
+ * @param {{id: string, w: number, h: number}[]} items
+ * @param {{width: number, height: number, gap: number}} box
+ * @param {Partial<typeof GRID_DEFAULTS>} [options]
+ * @returns {number}
+ */
+export function chooseColumns(items, { width, height, gap }, options = {}) {
 	const opts = { ...GRID_DEFAULTS, ...options };
 	const widest = Math.max(1, Math.min(opts.maxCols, Math.floor((width + gap) / (opts.colMin + gap))));
-
-	if (!items.length) {
-		return { ...pack([], widest), fit: true, rowHeight: 0 };
-	}
+	if (!items.length) return widest;
 
 	let bestFit = null;
 	let bestScroll = null;
@@ -152,12 +185,11 @@ export function chooseLayout(items, { width, height, gap }, options = {}) {
 		const colWidth = trackSize(width, cols, gap);
 		const score = Math.abs(Math.log(colWidth / rowHeight / opts.idealCellAspect))
 			+ packed.holes * opts.holePenalty;
-		const candidate = { ...packed, score, rowHeight };
+		const candidate = { cols, rows: packed.rows, score };
 
 		if (rowHeight >= opts.rowMin) {
 			if (!bestFit || score < bestFit.score) bestFit = candidate;
 		} else if (
-			// Scrolling either way: the shortest grid scrolls least.
 			!bestScroll
 			|| packed.rows < bestScroll.rows
 			|| (packed.rows === bestScroll.rows && score < bestScroll.score)
@@ -165,15 +197,26 @@ export function chooseLayout(items, { width, height, gap }, options = {}) {
 			bestScroll = candidate;
 		}
 	}
+	return (bestFit || bestScroll).cols;
+}
 
-	if (bestFit) {
-		const { score, ...layout } = bestFit;
-		return { ...layout, fit: true };
-	}
-	const { score, ...layout } = bestScroll;
-	return {
-		...layout,
-		fit: false,
-		rowHeight: layout.cols === 1 ? opts.stackRow : opts.scrollRow,
-	};
+/**
+ * Pick a column count for the box and pack into it.
+ *
+ * `options.colsFrom` decides the column count from a different list than the
+ * one being packed. The dashboard passes the visible widgets in their
+ * default order, so the count depends on which widgets are showing and how
+ * big the window is, never on how someone has arranged them: rearranging
+ * then moves widgets within a grid that holds still, instead of
+ * occasionally re-gridding everything.
+ *
+ * @param {{id: string, w: number, h: number}[]} items
+ * @param {{width: number, height: number, gap: number}} box the grid's
+ *   content box in px, and the gap between tracks.
+ * @param {Partial<typeof GRID_DEFAULTS> & {colsFrom?: typeof items}} [options]
+ * @returns {ReturnType<typeof layoutFor>}
+ */
+export function chooseLayout(items, box, options = {}) {
+	const { colsFrom = items, ...opts } = options;
+	return layoutFor(items, chooseColumns(colsFrom, box, opts), box, opts);
 }
