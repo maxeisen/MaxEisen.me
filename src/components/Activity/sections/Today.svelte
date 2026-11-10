@@ -4,6 +4,7 @@
     import Stat from "../../../lib/ui/Stat.svelte";
     import { clock, clockMinutes, signed, shortDate } from "../lib/format.js";
     import { GLOSSARY } from "../../Training/lib/glossary.js";
+    import { hasSession, sessionCopy } from "../lib/session.js";
 
     let { today = null, inBlock = true, info = GLOSSARY.today } = $props();
 
@@ -70,49 +71,12 @@
         };
     });
 
-    const plannedRun = $derived((session?.planned || []).find((s) => s.isRun) || null);
-
-    // A cell for a session only when there is one: something on the plan for
-    // today (a rest day the plan asks for counts) or a run already recorded.
-    // Between blocks most days have neither, and "—" would just be filler.
-    const hasSession = $derived(
-        Boolean(session) && ((session.planned?.length ?? 0) > 0 || session.actualKm > 0 || session.runs > 0),
-    );
-
-    const sessionCopy = $derived.by(() => {
-        if (!session) return { title: "—", note: "" };
-        if (session.status === "rest") {
-            // Strength, or a rest day the plan wrote down — no kilometres either way.
-            const entry = session.planned?.[0];
-            const detail = entry?.detail && entry.detail.toLowerCase() !== String(entry.type || "").toLowerCase()
-                ? entry.detail
-                : "";
-            return { title: entry?.type || "Rest", note: detail || "no running planned" };
-        }
-        if (session.status === "ahead") {
-            const kmLabel = Number.isFinite(plannedRun?.distanceKm)
-                ? `${plannedRun.distanceKm} km`
-                : "";
-            return {
-                title: plannedRun?.type || "Session",
-                note: [kmLabel, plannedRun?.detail].filter(Boolean).join(" · ") || "still ahead",
-            };
-        }
-        if (session.status === "done") {
-            const actual = session.actualKm > 0 ? `${session.actualKm.toFixed(1)} km` : "done";
-            const target = Number.isFinite(plannedRun?.distanceKm)
-                ? `of ${plannedRun.distanceKm}`
-                : "";
-            return { title: actual, note: [target, plannedRun?.type].filter(Boolean).join(" · ") };
-        }
-        return {
-            title: session.actualKm > 0 ? `${session.actualKm.toFixed(1)} km` : "Extra",
-            note: inBlock ? "unplanned" : "",
-        };
-    });
+    // A cell for a session only when there is one; see lib/session.
+    const sessionShown = $derived(hasSession(session));
+    const sessionText = $derived(sessionCopy(session, { inBlock }));
 
     const showProjection = $derived(today != null && Object.hasOwn(today, "prediction"));
-    const cellCount = $derived(2 + (hasSession ? 1 : 0) + (showProjection ? 1 : 0));
+    const cellCount = $derived(2 + (sessionShown ? 1 : 0) + (showProjection ? 1 : 0));
 
     const staleNight = $derived(
         readiness?.night && today?.date && readiness.night !== today.date
@@ -167,12 +131,12 @@
             {/if}
         </div>
 
-        {#if hasSession}
+        {#if sessionShown}
             <div class="cell">
                 <span class="kicker">Session</span>
-                <strong class="headline" class:session-title={session.status === "ahead" || session.status === "rest"}>{sessionCopy.title}</strong>
-                {#if sessionCopy.note}
-                    <p class="caption">{sessionCopy.note}</p>
+                <strong class="headline" class:session-title={session.status === "ahead" || session.status === "rest"}>{sessionText.title}</strong>
+                {#if sessionText.note}
+                    <p class="caption">{sessionText.note}</p>
                 {/if}
             </div>
         {/if}
