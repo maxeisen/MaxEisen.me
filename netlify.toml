@@ -110,12 +110,12 @@
   to = "/netlify/:splat"
   status = 200
 
-# SPA rewrites — known App.svelte routes boot index.html, except /running,
-# which is the trainingPage function so a no-JS browser still gets the
-# dashboard. Keep the rest in sync with ROUTES in src/App.svelte (+ "/" for
-# the homepage). Static files (404.html, /build/*, /styles/*, …)
-# are served as-is before these rules run. Anything else falls through to
-# 404.html.
+# SPA rewrites — known App.svelte routes boot index.html, except /running
+# and /cycling (functions) and /resume (a build-time copy of the shell), which
+# carry a no-JS version of the page. Keep the rest in sync with ROUTES in
+# src/App.svelte (+ "/" for the homepage). Static files (404.html, /build/*,
+# /styles/*, …) are served as-is before these rules run. Anything else falls
+# through to 404.html.
 [[redirects]]
   from = "/"
   to = "/index.html"
@@ -160,9 +160,11 @@
   from = "/bach"
   to = "/index.html"
   status = 200
+# The SPA shell with a plain résumé in its <noscript>, written at build time
+# from public/content/resume.json (src/components/Resume/lib/shellPlugin.js).
 [[redirects]]
   from = "/resume"
-  to = "/index.html"
+  to = "/resume.shell.html"
   status = 200
 # The résumé was a standalone resume.html until it became an SPA route; old
 # links (and anything a recruiter bookmarked) still point there.

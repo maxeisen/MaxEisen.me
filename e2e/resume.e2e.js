@@ -101,3 +101,25 @@ test("a real change to the system scheme still switches the theme", async ({ pag
 	await page.emulateMedia({ colorScheme: "light" });
 	await expect.poll(() => page.evaluate(() => document.documentElement.getAttribute("data-theme"))).toBe("light");
 });
+
+// With JavaScript off the app never mounts, so /resume is served from a copy
+// of the shell with a plain résumé in its <noscript> (Resume/lib/shellPlugin).
+test.describe("without JavaScript", () => {
+	test.use({ javaScriptEnabled: false });
+
+	test("the résumé is still readable, with the PDF a click away", async ({ page }) => {
+		await page.goto("/resume");
+		await expect(page.getByRole("heading", { level: 1, name: "Max Eisen" })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Education" })).toBeVisible();
+		await expect(page.getByRole("link", { name: "Download the résumé as a PDF" })).toHaveAttribute("href", "/MaxEisen_Resume.pdf");
+		// Role queries, not getByText: Playwright's text engine skips <noscript>.
+		await expect(page.getByRole("heading", { name: "This site needs JavaScript." })).toHaveCount(0);
+	});
+
+	test("the homepage points to it", async ({ page }) => {
+		await page.goto("/");
+		await expect(page.getByRole("heading", { name: "This site needs JavaScript." })).toBeVisible();
+		await expect(page.getByRole("link", { name: "résumé" })).toHaveAttribute("href", "/resume");
+	});
+});
