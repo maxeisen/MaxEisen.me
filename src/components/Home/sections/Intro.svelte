@@ -210,6 +210,14 @@
             separator: ', or '
         }
     ];
+
+    // Text after activity i: the next entry's separator, or the closing
+    // period. Split into its leading punctuation (kept on the same line as the
+    // activity) and the remainder (where the line is free to break).
+    const trailing = (i) => {
+        const text = i < activities.length - 1 ? (activities[i + 1].separator ?? ', ') : '.';
+        return [text[0], text.slice(1)];
+    };
 </script>
 
 <div class="intro-container" id="intro">
@@ -221,7 +229,11 @@
 
         <p>I've spent the last several years shipping ultra-large-scale, production software across fintech, e-commerce, media, and cloud infrastructure. I think in systems, care about <Annotation bind:visible={annotationsVisible} type="circle" color="var(--highlight)">craft</Annotation>, and thrive in environments where engineers are expected to own their work <span class="nowrap"><Annotation bind:visible={annotationsVisible} type="bracket" brackets={['left', 'right']} padding={[0, 2]} color="var(--highlight)">end to end</Annotation></span>.</p>
 
-        <p class="activities-paragraph">Outside of work, you'll find me {#each activities as a, i}{#if i > 0}{a.separator ?? ', '}{/if}<activity tabindex="0" on:click={() => openActivityModal(a.modal)}>{a.label}{@render activityIcon(a.icon)}</activity>{/each}.</p>
+        <!-- Each activity is glued to the punctuation that follows it (the
+             comma of the next separator, or the closing period). Activities are
+             inline-blocks, and browsers allow a line break right after one even
+             before a comma, which on phones started a line with ", ". -->
+        <p class="activities-paragraph">Outside of work, you'll find me {#each activities as a, i}{@const [punct, rest] = trailing(i)}<span class="activity-item"><activity tabindex="0" on:click={() => openActivityModal(a.modal)}>{a.label}{@render activityIcon(a.icon)}</activity>{punct}</span>{rest}{/each}</p>
 
         {#snippet activityIcon(key)}
             {#if activityIcons[key]}
@@ -270,6 +282,10 @@
 
     .intro-paragraph .activities-paragraph {
         line-height: 1.95;
+    }
+
+    .activity-item {
+        white-space: nowrap;
     }
 
     activity {
