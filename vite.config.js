@@ -2,11 +2,13 @@ import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import resumeShell from './src/components/Resume/lib/shellPlugin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-	plugins: [svelte()],
+	// resumeShell: /resume's document, with a plain résumé for no-JS visitors.
+	plugins: [svelte(), resumeShell()],
 	resolve: {
 		alias: {
 			'@content': path.resolve(__dirname, 'public/content')

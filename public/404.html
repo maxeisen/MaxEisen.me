@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="en" data-theme="light">
 <!-- DESIGNED AND DEVELOPED BY
 ███╗   ███╗ █████╗ ██╗  ██╗    ███████╗██╗███████╗███████╗███╗   ██╗
 ████╗ ████║██╔══██╗╚██╗██╔╝    ██╔════╝██║██╔════╝██╔════╝████╗  ██║
@@ -8,49 +9,62 @@
 ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚══════╝╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝
 https://github.com/maxeisen/
 -->
-<html lang="en">
-
+<!--
+    Served with a 404 status for any path netlify.toml doesn't know. A
+    standalone document rather than an SPA route, so it's the same with or
+    without JavaScript; the only script sets the theme. The mark is the
+    site's "me." square with the status code in it (lib/ui/Logo.svelte).
+-->
 <head>
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163680623-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VMHWGG50E9"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'UA-163680623-1');
+        gtag('config', 'G-VMHWGG50E9');
     </script>
-    <title>Uh Oh! | MaxEisen.me</title>
     <meta charset="UTF-8">
+    <title>Page not found | MaxEisen.me</title>
     <meta name="author" content="Max Eisen">
-    <meta name="viewport" content="width=device-width"/>
-    <link href="/styles/404.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,600" rel="stylesheet">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#f2ede3"/>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="/favicon.ico" sizes="any">
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/404.css">
+    <script>
+        // The theme the rest of the site last used, else the system's. Read
+        // only: this page doesn't save a choice of its own.
+        (function () {
+            var theme = localStorage.getItem("theme")
+                || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            document.documentElement.setAttribute("data-theme", theme);
+            document.querySelector('meta[name="theme-color"]')
+                .setAttribute("content", theme === "dark" ? "#12110f" : "#f2ede3");
+        })();
+    </script>
 </head>
 
 <body>
-    <h1 class="bruh"><pre>
-          _____                    _____                    _____                    _____          
-         /\    \                  /\    \                  /\    \                  /\    \         
-        /::\    \                /::\    \                /::\____\                /::\____\        
-       /::::\    \              /::::\    \              /:::/    /               /:::/    /        
-      /::::::\    \            /::::::\    \            /:::/    /               /:::/    /         
-     /:::/\:::\    \          /:::/\:::\    \          /:::/    /               /:::/    /          
-    /:::/__\:::\    \        /:::/__\:::\    \        /:::/    /               /:::/____/           
-   /::::\   \:::\    \      /::::\   \:::\    \      /:::/    /               /::::\    \           
-  /::::::\   \:::\    \    /::::::\   \:::\    \    /:::/    /      _____    /::::::\    \   _____  
- /:::/\:::\   \:::\ ___\  /:::/\:::\   \:::\____\  /:::/____/      /\    \  /:::/\:::\    \ /\    \ 
-/:::/__\:::\   \:::|    |/:::/  \:::\   \:::|    ||:::|    /      /::\____\/:::/  \:::\    /::\____\
-\:::\   \:::\  /:::|____|\::/   |::::\  /:::|____||:::|____\     /:::/    /\::/    \:::\  /:::/    /
- \:::\   \:::\/:::/    /  \/____|:::::\/:::/    /  \:::\    \   /:::/    /  \/____/ \:::\/:::/    / 
-  \:::\   \::::::/    /         |:::::::::/    /    \:::\    \ /:::/    /            \::::::/    /  
-   \:::\   \::::/    /          |::|\::::/    /      \:::\    /:::/    /              \::::/    /   
-    \:::\  /:::/    /           |::| \::/____/        \:::\__/:::/    /               /:::/    /    
-     \:::\/:::/    /            |::|  ~|               \::::::::/    /               /:::/    /     
-      \::::::/    /             |::|   |                \::::::/    /               /:::/    /      
-       \::::/    /              \::|   |                 \::::/    /               /:::/    /       
-        \::/____/                \:|   |                  \::/____/                \::/    /        
-         ~~                       \|___|                   ~~                       \/____/         
-    </pre></h1>
-    <h1>Error 404 🙄</h1>
-    <div class="back-button"><a href="/" target="_self"><h1 class="back-button">Return to MaxEisen.me</h1></a></div>
+    <main class="lost">
+        <div class="mark" aria-hidden="true"><span>404<span class="dot">.</span></span></div>
+
+        <h1>This page doesn't exist</h1>
+        <p class="lede">The link may be out of date, or the address mistyped.</p>
+
+        <a class="home" href="/">Go to the homepage</a>
+
+        <h2>Or go straight to</h2>
+        <ul class="places">
+            <li><a href="/resume"><span class="name">Résumé</span><span class="what">Work, education, and a PDF to download</span></a></li>
+            <li><a href="/gallery"><span class="name">Gallery</span><span class="what">Photos from the Fujifilm X100S and X100V</span></a></li>
+            <li><a href="/running"><span class="name">Running</span><span class="what">Training log and the current plan</span></a></li>
+            <li><a href="/cycling"><span class="name">Cycling</span><span class="what">Ride log, fitness and fatigue</span></a></li>
+            <li><a href="/dashboard"><span class="name">Dashboard</span><span class="what">What I'm listening to, riding and reading</span></a></li>
+        </ul>
+    </main>
 </body>
+</html>
