@@ -14,35 +14,73 @@ test("dashboard mounts its widget grid", async ({ page }) => {
 	await expect(grid.locator(".widget:visible")).toHaveCount(7);
 });
 
-// The drag and its edit mode are shared with /running (lib/ui/reorder and
-// lib/ui/editMode), so the behaviour is asserted on both pages: this is where
-// it came from, and it's the one that mustn't change.
-test("a widget can be dragged into another slot, and stays there", async ({ page }) => {
+// Dragging previews where a widget will land and puts it there. The edit
+// mode that gates it on touch screens is shared with /running.
+test("a dragged widget lands where it's dropped, and stays there", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
 	await mockDashboardFeeds(page);
 	await page.goto("/dashboard");
-	const widgetAt = (idx) => page.locator(`[data-slot-index="${idx}"] .widget`);
+	await expect(page.locator(".github-repo")).toBeVisible();
 
-	const first = await widgetAt(0).getAttribute("data-widget");
-	const fifth = await widgetAt(4).getAttribute("data-widget");
+	const clock = page.locator('[data-widget="clock"]');
+	const github = page.locator('[data-widget="github"]');
+	const from = await clock.boundingBox();
+	const target = await github.boundingBox();
 
-	const source = await widgetAt(0).boundingBox();
-	const target = await page.locator('[data-slot-index="4"]').boundingBox();
-	await page.mouse.move(source.x + source.width / 2, source.y + 24);
+	// Pick the clock up near its top-left and carry that corner to GitHub's.
+	await page.mouse.move(from.x + 30, from.y + 30);
 	await page.mouse.down();
-	await page.mouse.move(target.x + target.width / 2, target.y + 24, { steps: 14 });
-	// The slot under the pointer is outlined. The outline sits outside the
-	// slot: a slot is a size container, so its own stacking context, and the
-	// widget would paint over an outline drawn inside it.
-	const outlined = page.locator('[data-slot-index="4"]');
-	await expect(outlined).toHaveClass(/drop-target/);
-	expect(await outlined.evaluate((el) => parseFloat(getComputedStyle(el).outlineOffset))).toBeGreaterThanOrEqual(0);
-	await page.mouse.up();
+	await page.mouse.move(target.x + 30, target.y + 30, { steps: 16 });
 
-	await expect(widgetAt(4)).toHaveAttribute("data-widget", first);
-	await expect(widgetAt(0)).toHaveAttribute("data-widget", fifth);
+	// Mid-drag, a placeholder shows the landing spot: GitHub's old one, or
+	// within a cell of it. (Lifting the clock out of the top row moves
+	// everything above the target up, so an exact landing isn't always
+	// possible without leaving a gap.) GitHub is 2×2, so a cell is half it
+	// plus half a gap.
+	const placeholder = page.locator(".drop-placeholder");
+	await expect(placeholder).toBeVisible();
+	const landing = await placeholder.boundingBox();
+	const cell = { w: (target.width + 16) / 2, h: (target.height + 16) / 2 };
+	expect(Math.abs(landing.x - target.x)).toBeLessThanOrEqual(cell.w + 2);
+	expect(Math.abs(landing.y - target.y)).toBeLessThanOrEqual(cell.h + 2);
+	// …and it's somewhere new.
+	expect(Math.abs(landing.x - from.x) + Math.abs(landing.y - from.y)).toBeGreaterThan(cell.h);
+
+	await page.mouse.up();
+	await expect(placeholder).toHaveCount(0);
+	await page.waitForTimeout(300); // the glide into place
+	const dropped = await clock.boundingBox();
+	expect(Math.abs(dropped.x - landing.x)).toBeLessThan(4);
+	expect(Math.abs(dropped.y - landing.y)).toBeLessThan(4);
 
 	await page.reload();
-	await expect(widgetAt(4)).toHaveAttribute("data-widget", first);
+	await expect(page.locator(".github-repo")).toBeVisible();
+	const reloaded = await clock.boundingBox();
+	expect(Math.abs(reloaded.x - dropped.x)).toBeLessThan(4);
+	expect(Math.abs(reloaded.y - dropped.y)).toBeLessThan(4);
+});
+
+test("Escape puts a drag back", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await mockDashboardFeeds(page);
+	await page.goto("/dashboard");
+	await expect(page.locator(".github-repo")).toBeVisible();
+
+	const clock = page.locator('[data-widget="clock"]');
+	const from = await clock.boundingBox();
+	const target = await page.locator('[data-widget="github"]').boundingBox();
+	await page.mouse.move(from.x + 30, from.y + 30);
+	await page.mouse.down();
+	await page.mouse.move(target.x + 30, target.y + 30, { steps: 10 });
+	await expect(page.locator(".drop-placeholder")).toBeVisible();
+	await page.keyboard.press("Escape");
+	await page.mouse.up();
+
+	await expect(page.locator(".drop-placeholder")).toHaveCount(0);
+	await page.waitForTimeout(300);
+	const after = await clock.boundingBox();
+	expect(Math.abs(after.x - from.x)).toBeLessThan(4);
+	expect(Math.abs(after.y - from.y)).toBeLessThan(4);
 });
 
 test("edit mode hides a widget, and the customize bar brings it back", async ({ page }) => {

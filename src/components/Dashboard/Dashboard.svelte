@@ -3,8 +3,10 @@
       - the grid: lib/gridLayout picks a column count and packs the widgets
         for whatever box the window leaves, filling it until rows would get
         too short, then scrolling
-      - the layout (widget order, persisted, dragged with lib/ui/reorder) and
-        which widgets are showing (persisted, lib/widgetVisibility)
+      - the layout (widget order, persisted) and dragging it (lib/gridDrag:
+        a live preview of where the widget will land, then a short glide
+        into place) and which widgets are showing (persisted,
+        lib/widgetVisibility)
       - stepping aside for widgets that can't load: each reports through
         `onavailability`, and one that has nothing to show leaves the grid
         for this visit. It stays mounted and keeps polling, so it comes back
@@ -18,13 +20,14 @@
     container queries on `slot`.
 -->
 <script>
-    import { onMount, onDestroy } from "svelte";
+    import { onMount, onDestroy, untrack } from "svelte";
     import SpotifyVizOverlay from "./SpotifyVizOverlay.svelte";
     import SiteNav from "../../lib/ui/SiteNav.svelte";
     import EditToggle from "../../lib/ui/EditToggle.svelte";
     import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
     import { WIDGETS, WIDGETS_BY_ID } from "./widgets/registry.js";
     import { chooseLayout } from "./lib/gridLayout.js";
+    import { createGridDrag } from "./lib/gridDrag.svelte.js";
     import {
         isShown, setShown, readVisibility, writeVisibility, clearVisibility,
     } from "./lib/widgetVisibility.js";
@@ -44,8 +47,10 @@
         gridId: "dashboard-grid",
         responsiveQuery: "(pointer: coarse)",
         editableWhenWide: true,
+        createDrag: createGridDrag,
         order: WIDGET_IDS,
         storageKey: LAYOUT_KEY,
+        measure: measureGrid,
     });
     const layout = $derived(reorder.layout);
 
@@ -66,6 +71,20 @@
     }
     const placed = $derived(shown.filter((w) => !unavailable[w.id]));
 
+    // While dragging, the grid shows the order a drop would give.
+    const arranged = $derived.by(() => {
+        if (!reorder.preview) return placed;
+        const live = new Set(placed.map((w) => w.id));
+        return reorder.preview.filter((id) => live.has(id)).map((id) => WIDGETS_BY_ID[id]);
+    });
+    // The same widgets in registry order: what the column count is decided
+    // from, so rearranging never changes it (see lib/gridLayout).
+    const canonical = $derived.by(() => {
+        const live = new Set(placed.map((w) => w.id));
+        return WIDGETS.filter((w) => live.has(w.id));
+    });
+    const asItems = (widgets) => widgets.map((w) => ({ id: w.id, ...w.size }));
+
     function setWidgetShown(id, shown) {
         choices = setShown(choices, id, shown);
         writeVisibility(VISIBILITY_KEY, choices);
@@ -85,8 +104,11 @@
         gap: 16,
     });
     const grid = $derived(
-        chooseLayout(placed.map((w) => ({ id: w.id, ...w.size })), box),
+        chooseLayout(asItems(arranged), box, { colsFrom: asItems(canonical) }),
     );
+    // The dragged widget's slot stays where it started (its tile follows the
+    // pointer from there); everything else takes the previewed layout.
+    const placeOf = (id) => (id === reorder.draggingId ? reorder.origin : grid.placements[id]);
     const templateRows = $derived(
         grid.fit
             ? `repeat(${grid.rows}, minmax(0, 1fr))`
@@ -98,7 +120,7 @@
     // never depends on the grid inside it (the grid scrolls within it), so
     // measuring can't feed back into itself.
     let observer;
-    function measure(rect) {
+    function measureBox(rect) {
         const gap = parseFloat(getComputedStyle(gridEl).rowGap) || 0;
         const width = Math.floor(rect.width);
         const height = Math.floor(rect.height);
@@ -107,10 +129,65 @@
         }
     }
 
+    // What a drag needs to know about the grid as it starts. Rows and columns
+    // are measured off the rendered grid, so this holds in fitted and
+    // scrolling layouts alike.
+    function measureGrid() {
+        const rect = gridEl.getBoundingClientRect();
+        const gap = box.gap;
+        return {
+            items: asItems(arranged),
+            cols: grid.cols,
+            placements: grid.placements,
+            grid: gridEl,
+            colPitch: (rect.width + gap) / grid.cols,
+            rowPitch: (rect.height + gap) / grid.rows,
+        };
+    }
+
+    // FLIP: when the arrangement changes (a drag preview, a drop, a widget
+    // shown or hidden — not a window resize), each tile glides from where it
+    // was to where it now is. Positions are read just before the DOM updates
+    // and again just after; the difference is animated on `translate`, which
+    // leaves `transform` to the drag and the edit-mode jiggle.
+    const arrangement = $derived(`${arranged.map((w) => w.id).join()}|${reorder.draggingId ?? ""}`);
+    let before = null;
+    function tileRects() {
+        const rects = {};
+        for (const el of gridEl.querySelectorAll(".slot > .widget")) {
+            rects[el.dataset.widget] = el.getBoundingClientRect();
+        }
+        return rects;
+    }
+    $effect.pre(() => {
+        void arrangement;
+        if (gridEl) before = untrack(tileRects);
+    });
+    $effect(() => {
+        void arrangement;
+        const from = before;
+        before = null;
+        if (!from || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const dragging = untrack(() => reorder.draggingId);
+        for (const el of gridEl.querySelectorAll(".slot > .widget")) {
+            const id = el.dataset.widget;
+            const was = from[id];
+            if (id === dragging || !was || !was.width) continue;
+            const now = el.getBoundingClientRect();
+            const dx = was.left - now.left;
+            const dy = was.top - now.top;
+            if (!now.width || (Math.abs(dx) < 1 && Math.abs(dy) < 1)) continue;
+            el.animate(
+                [{ translate: `${dx}px ${dy}px` }, { translate: "0 0" }],
+                { duration: 220, easing: "cubic-bezier(0.2, 0, 0, 1)" },
+            );
+        }
+    });
+
     onMount(() => {
         reorder.restore();
         edit.listen();
-        observer = new ResizeObserver(([entry]) => measure(entry.contentRect));
+        observer = new ResizeObserver(([entry]) => measureBox(entry.contentRect));
         observer.observe(fitEl);
     });
 
@@ -172,14 +249,21 @@
             style:grid-template-columns="repeat({grid.cols}, minmax(0, 1fr))"
             style:grid-template-rows={templateRows}
         >
+            {#if reorder.draggingId && grid.placements[reorder.draggingId]}
+                {@const landing = grid.placements[reorder.draggingId]}
+                <div
+                    class="drop-placeholder"
+                    aria-hidden="true"
+                    style:grid-column="{landing.x + 1} / span {landing.w}"
+                    style:grid-row="{landing.y + 1} / span {landing.h}"
+                ></div>
+            {/if}
             {#each shown as widget (widget.id)}
-                {@const place = grid.placements[widget.id]}
-                {@const idx = layout.indexOf(widget.id)}
+                {@const place = placeOf(widget.id)}
                 <div
                     class="slot"
-                    class:drop-target={reorder.dropTargetIdx === idx}
+                    class:is-dragging={reorder.draggingId === widget.id}
                     hidden={!place}
-                    data-slot-index={place ? idx : null}
                     style:grid-column={place ? `${place.x + 1} / span ${place.w}` : null}
                     style:grid-row={place ? `${place.y + 1} / span ${place.h}` : null}
                 >
@@ -297,17 +381,24 @@
 
     /* Each slot is a size container: widgets query its width and height to
        pick their compact or roomy layouts. Containment also makes the slot
-       its own stacking context, so the widget paints over anything the slot
-       draws inside its box — the drop outline (global.css, shared with
-       /running) has to sit outside it, in the gap, as it does there. */
+       its own stacking context, so a dragged widget can only rise above the
+       others if its slot does. */
     .slot {
         display: flex;
         min-width: 0;
         min-height: 0;
         position: relative;
-        --drop-outline-offset: 3px;
         container-type: size;
         container-name: slot;
+    }
+    .slot.is-dragging { z-index: 20; }
+
+    /* Where the dragged widget will land. */
+    .drop-placeholder {
+        border: 2px dashed var(--accent);
+        border-radius: var(--radius);
+        background: color-mix(in oklab, var(--accent) 7%, transparent);
+        pointer-events: none;
     }
     .slot[hidden] { display: none; }
     .slot > :global(.widget) {
