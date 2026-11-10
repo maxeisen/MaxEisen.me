@@ -12,8 +12,10 @@
     import WidgetHeader from "./WidgetHeader.svelte";
     import Spinner from "../../../lib/ui/Spinner.svelte";
 
+    let { onavailability = () => {} } = $props();
+
     let listEl = $state();
-    let stories = $state(null); // null = loading, [] = empty/error
+    let stories = $state(null); // null = loading, [] = none
     let stopPoll;
     let stopResizeTrim;
 
@@ -33,9 +35,11 @@
                 ids.map((id) => fetchJsonSwr(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, { maxAgeMs: HN_MAX_AGE_MS })),
             );
             stories = items.filter(Boolean);
+            onavailability(true);
             requestAnimationFrame(() => trimListToFit(listEl));
         } catch {
-            stories = [];
+            // Never loaded: step aside. Otherwise keep the last stories up.
+            if (stories === null) onavailability(false);
         }
     }
 
@@ -126,5 +130,9 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    @container slot (max-width: 240px) {
+        .hn-score { display: none; }
     }
 </style>

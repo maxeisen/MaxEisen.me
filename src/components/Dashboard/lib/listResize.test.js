@@ -1,51 +1,72 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { bindTrimOnResize } from "./listResize.js";
 
-afterEach(() => {
-	vi.useRealTimers();
-	vi.restoreAllMocks();
-});
+/** A ResizeObserver stand-in whose callback the test fires by hand. */
+function fakeObserver() {
+	const instances = [];
+	class Observer {
+		constructor(callback) {
+			this.callback = callback;
+			this.observe = vi.fn();
+			this.disconnect = vi.fn();
+			instances.push(this);
+		}
+	}
+	return { Observer, instances };
+}
+
+/** A frame scheduler the test flushes by hand. */
+function fakeFrames() {
+	const queue = new Map();
+	let next = 1;
+	return {
+		schedule: (fn) => { queue.set(next, fn); return next++; },
+		cancel: (id) => queue.delete(id),
+		flush: () => { const fns = [...queue.values()]; queue.clear(); fns.forEach((fn) => fn()); },
+		get size() { return queue.size; },
+	};
+}
 
 describe("bindTrimOnResize", () => {
-	it("debounces trim calls on resize", () => {
-		vi.useFakeTimers();
+	it("observes the list and trims once per burst of resizes", () => {
+		const { Observer, instances } = fakeObserver();
+		const frames = fakeFrames();
 		const trim = vi.fn();
-		let handler = null;
-		const windowObj = {
-			addEventListener: vi.fn((_evt, fn) => {
-				handler = fn;
-			}),
-			removeEventListener: vi.fn(),
-		};
+		const list = { id: "list" };
 
-		bindTrimOnResize({ id: "list" }, { trim, debounceMs: 100, windowObj });
-		expect(windowObj.addEventListener).toHaveBeenCalledWith("resize", expect.any(Function));
+		bindTrimOnResize(list, { trim, Observer, ...frames });
+		expect(instances[0].observe).toHaveBeenCalledWith(list);
 
-		handler();
-		handler();
-		vi.advanceTimersByTime(99);
+		instances[0].callback();
+		instances[0].callback();
 		expect(trim).not.toHaveBeenCalled();
-		vi.advanceTimersByTime(1);
+		frames.flush();
 		expect(trim).toHaveBeenCalledTimes(1);
+		expect(trim).toHaveBeenCalledWith(list);
+
+		instances[0].callback();
+		frames.flush();
+		expect(trim).toHaveBeenCalledTimes(2);
 	});
 
-	it("returns a cleanup that clears pending timers and detaches listener", () => {
-		vi.useFakeTimers();
+	it("returns a cleanup that disconnects and drops a pending trim", () => {
+		const { Observer, instances } = fakeObserver();
+		const frames = fakeFrames();
 		const trim = vi.fn();
-		let handler = null;
-		const windowObj = {
-			addEventListener: vi.fn((_evt, fn) => {
-				handler = fn;
-			}),
-			removeEventListener: vi.fn(),
-		};
 
-		const cleanup = bindTrimOnResize({ id: "list" }, { trim, debounceMs: 100, windowObj });
-		handler();
+		const cleanup = bindTrimOnResize({}, { trim, Observer, ...frames });
+		instances[0].callback();
 		cleanup();
-		vi.runAllTimers();
+		frames.flush();
 
 		expect(trim).not.toHaveBeenCalled();
-		expect(windowObj.removeEventListener).toHaveBeenCalledWith("resize", handler);
+		expect(instances[0].disconnect).toHaveBeenCalled();
+		expect(frames.size).toBe(0);
+	});
+
+	it("does nothing without a list or a ResizeObserver", () => {
+		const trim = vi.fn();
+		expect(() => bindTrimOnResize(null, { trim })()).not.toThrow();
+		expect(() => bindTrimOnResize({}, { trim, Observer: null })()).not.toThrow();
 	});
 });

@@ -59,4 +59,13 @@
 		transition: color var(--dur-fast) var(--ease);
 	}
 	.widget-link:hover { color: var(--text-strong); }
+
+	@container slot (max-height: 200px) {
+		.widget-head { margin-bottom: var(--space-2); }
+		.corner { top: 10px; right: 12px; }
+	}
+	/* A strip-sized widget has no room for the corner link. */
+	@container slot (max-height: 110px) {
+		.corner { display: none; }
+	}
 </style>

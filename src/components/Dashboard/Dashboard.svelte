@@ -1,71 +1,123 @@
 <!--
     Dashboard scaffold. Owns:
-      - the slot grid (3 rows × 4 cols, mobile collapse + container queries)
-      - the layout state ($state array of widget IDs, persisted to localStorage)
-      - drag-and-drop between slots, and the edit mode that gates it on mobile,
-        both from lib/ui (reorder + editMode) and shared with /running
+      - the grid: lib/gridLayout picks a column count and packs the widgets
+        for whatever box the window leaves, filling it until rows would get
+        too short, then scrolling
+      - the layout (widget order, persisted, dragged with lib/ui/reorder) and
+        which widgets are showing (persisted, lib/widgetVisibility)
+      - stepping aside for widgets that can't load: each reports through
+        `onavailability`, and one that has nothing to show leaves the grid
+        for this visit. It stays mounted and keeps polling, so it comes back
+        by itself if its feed recovers; a reload tries every widget afresh.
+      - edit mode (lib/ui/editMode, shared with /running): where widgets are
+        shown and hidden, and the only way to drag on a touch screen
 
-    Widget components are content-only — Dashboard provides the .widget wrapper
-    div (or <a> for the gallery widget which is a link). Each widget id maps
-    to a component + slot size + wrapper kind. Default order is preserved
-    when no layout is in storage or storage is corrupt.
+    Widgets are listed in widgets/registry.js, each with its size. They are
+    content only: Dashboard provides the tile around each one (an <a> for a
+    widget that's one big link), and each widget adapts to its tile through
+    container queries on `slot`.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
-    import ClockWidget from "./widgets/ClockWidget.svelte";
-    import GalleryWidget from "./widgets/GalleryWidget.svelte";
-    import WeatherWidget from "./widgets/WeatherWidget.svelte";
-    import SpotifyWidget from "./widgets/SpotifyWidget.svelte";
-    import StravaWidget from "./widgets/StravaWidget.svelte";
-    import GithubWidget from "./widgets/GithubWidget.svelte";
-    import HackerNewsWidget from "./widgets/HackerNewsWidget.svelte";
     import SpotifyVizOverlay from "./SpotifyVizOverlay.svelte";
     import SiteNav from "../../lib/ui/SiteNav.svelte";
     import EditToggle from "../../lib/ui/EditToggle.svelte";
     import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
+    import { WIDGETS, WIDGETS_BY_ID } from "./widgets/registry.js";
+    import { chooseLayout } from "./lib/gridLayout.js";
+    import {
+        isShown, setShown, readVisibility, writeVisibility, clearVisibility,
+    } from "./lib/widgetVisibility.js";
 
-    const WIDGETS = {
-        clock:   { component: ClockWidget,      kind: "div" },
-        gallery: { component: GalleryWidget,    kind: "a", href: "/gallery" },
-        weather: { component: WeatherWidget,    kind: "div" },
-        spotify: { component: SpotifyWidget,    kind: "div" },
-        strava:  { component: StravaWidget,     kind: "div" },
-        github:  { component: GithubWidget,     kind: "div" },
-        hn:      { component: HackerNewsWidget, kind: "div" },
-    };
-
-    // Slot sizes are fixed by position, not by which widget currently sits
-    // there. Five 2-col + two 1-col slots arrange neatly as (2+2)/(2+2)/
-    // (2+1+1) into a 4-col grid. Any widget can occupy any slot; widgets
-    // adapt via container queries + slot-small overrides below.
-    const SLOT_SIZES = ["large", "large", "large", "large", "large", "small", "small"];
-
-    const DEFAULT_ORDER = ["clock", "gallery", "weather", "spotify", "strava", "github", "hn"];
     const LAYOUT_KEY = "dashboard-layout";
+    const VISIBILITY_KEY = "dashboard-widgets";
+    const WIDGET_IDS = WIDGETS.map((w) => w.id);
 
-    let dashboardEl;
     let navHidden = $state(false);
+    let fitEl;
+    let gridEl;
 
-    // Drag mechanics and the edit mode that gates them both live in lib/ui —
-    // /running runs the same ones. Dragging is free on desktop and behind the
-    // toggle once the layout goes responsive, where a press-and-drag is
-    // otherwise a scroll.
+    // Dragging is free with a mouse. On a touch screen a press-and-drag is
+    // how you scroll, so there it waits for edit mode — which is offered at
+    // every size here, since it's also where widgets are shown and hidden.
     const { reorder, edit } = createRearrangeable({
         gridId: "dashboard-grid",
-        responsiveQuery: "(max-width: 1100px)",
-        order: DEFAULT_ORDER,
+        responsiveQuery: "(pointer: coarse)",
+        editableWhenWide: true,
+        order: WIDGET_IDS,
         storageKey: LAYOUT_KEY,
-        // Swap-flash + forced resize so list trimming and the viz canvas re-fit.
-        onReorder: () => requestAnimationFrame(() => window.dispatchEvent(new Event("resize"))),
     });
     const layout = $derived(reorder.layout);
+
+    // Only the choices someone made; see lib/widgetVisibility. Read before
+    // the first render, so a hidden widget never mounts (and fetches) for a
+    // frame first.
+    let choices = $state(readVisibility(VISIBILITY_KEY, WIDGET_IDS));
+    const shown = $derived(
+        layout.map((id) => WIDGETS_BY_ID[id]).filter((w) => w && isShown(choices, w)),
+    );
+
+    // Widgets that couldn't load, this visit only (never saved).
+    let unavailable = $state({});
+    function setAvailable(id, ok) {
+        if (Boolean(unavailable[id]) !== !ok) {
+            unavailable = { ...unavailable, [id]: !ok };
+        }
+    }
+    const placed = $derived(shown.filter((w) => !unavailable[w.id]));
+
+    function setWidgetShown(id, shown) {
+        choices = setShown(choices, id, shown);
+        writeVisibility(VISIBILITY_KEY, choices);
+    }
+
+    function resetLayout() {
+        reorder.reset();
+        choices = {};
+        clearVisibility(VISIBILITY_KEY);
+    }
+
+    // The grid's content box. Seeded from the window so the first frame is
+    // close; the observer corrects it before anything has had time to notice.
+    let box = $state({
+        width: Math.max(0, window.innerWidth - 64),
+        height: Math.max(0, window.innerHeight - 88),
+        gap: 16,
+    });
+    const grid = $derived(
+        chooseLayout(placed.map((w) => ({ id: w.id, ...w.size })), box),
+    );
+    const templateRows = $derived(
+        grid.fit
+            ? `repeat(${grid.rows}, minmax(0, 1fr))`
+            : `repeat(${grid.rows}, ${grid.rowHeight}px)`,
+    );
+
+    // Watches the wrapper rather than the window: the box also changes when
+    // the nav is tucked away or the customize bar opens. The wrapper's size
+    // never depends on the grid inside it (the grid scrolls within it), so
+    // measuring can't feed back into itself.
+    let observer;
+    function measure(rect) {
+        const gap = parseFloat(getComputedStyle(gridEl).rowGap) || 0;
+        const width = Math.floor(rect.width);
+        const height = Math.floor(rect.height);
+        if (width !== box.width || height !== box.height || gap !== box.gap) {
+            box = { width, height, gap };
+        }
+    }
 
     onMount(() => {
         reorder.restore();
         edit.listen();
+        observer = new ResizeObserver(([entry]) => measure(entry.contentRect));
+        observer.observe(fitEl);
     });
 
-    onDestroy(() => edit.stop());
+    onDestroy(() => {
+        edit.stop();
+        observer?.disconnect();
+    });
 </script>
 
 <svelte:head>
@@ -75,92 +127,157 @@
 </svelte:head>
 
 {#snippet actions()}
-    {#if edit.isResponsive}
-        <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
-    {/if}
+    <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
 {/snippet}
 
 <SiteNav sticky={false} hideable bind:hidden={navHidden} {actions} />
 
-<div
-    class="dashboard drag-grid"
-    class:nav-hidden={navHidden}
-    class:is-editing={edit.isEditing}
-    class:is-dragging={reorder.isDragging}
-    bind:this={dashboardEl}
-    id="dashboard-grid"
->
-    {#each layout as widgetId, idx (widgetId)}
-        {@const cfg = WIDGETS[widgetId]}
-        <div
-            class="slot slot-{SLOT_SIZES[idx]}"
-            class:drop-target={reorder.dropTargetIdx === idx}
-            data-slot-index={idx}
-        >
-            {#if cfg.kind === "a"}
-                <a
-                    class="widget surface drag-tile widget-{widgetId}"
-                    class:dragging={reorder.draggingId === widgetId}
-                    data-widget={widgetId}
-                    href={cfg.href}
-                    style:transform={reorder.transformFor(widgetId)}
-                    onpointerdown={(e) => reorder.start(widgetId, e)}
-                >
-                    <cfg.component />
-                </a>
-            {:else}
-                <div
-                    class="widget surface drag-tile widget-{widgetId}"
-                    class:dragging={reorder.draggingId === widgetId}
-                    data-widget={widgetId}
-                    style:transform={reorder.transformFor(widgetId)}
-                    onpointerdown={(e) => reorder.start(widgetId, e)}
-                >
-                    <cfg.component />
-                </div>
-            {/if}
+<div class="dashboard" class:nav-hidden={navHidden}>
+    {#if edit.isEditing}
+        <div class="customize" role="group" aria-label="Widgets to show">
+            <span class="customize-label">Widgets</span>
+            <div class="customize-list">
+                {#each WIDGETS as widget (widget.id)}
+                    {@const on = isShown(choices, widget)}
+                    {@const failed = on && unavailable[widget.id]}
+                    <button
+                        class="chip"
+                        class:on
+                        class:failed
+                        type="button"
+                        aria-pressed={on ? "true" : "false"}
+                        title={failed ? `${widget.description} (couldn't load just now)` : widget.description}
+                        onclick={() => setWidgetShown(widget.id, !on)}
+                    >{widget.title}{#if failed}<span class="chip-note"> · unavailable</span>{/if}</button>
+                {/each}
+            </div>
+            <button class="reset" type="button" onclick={resetLayout}>Reset layout</button>
         </div>
-    {/each}
+    {/if}
+
+    <div
+        class="dashboard-fit"
+        class:is-scrolling={!grid.fit}
+        class:is-dragging={reorder.isDragging}
+        bind:this={fitEl}
+    >
+        <div
+            class="dashboard-grid drag-grid"
+            class:is-editing={edit.isEditing}
+            class:is-dragging={reorder.isDragging}
+            bind:this={gridEl}
+            id="dashboard-grid"
+            data-cols={grid.cols}
+            data-fit={grid.fit}
+            style:grid-template-columns="repeat({grid.cols}, minmax(0, 1fr))"
+            style:grid-template-rows={templateRows}
+        >
+            {#each shown as widget (widget.id)}
+                {@const place = grid.placements[widget.id]}
+                {@const idx = layout.indexOf(widget.id)}
+                <div
+                    class="slot"
+                    class:drop-target={reorder.dropTargetIdx === idx}
+                    hidden={!place}
+                    data-slot-index={place ? idx : null}
+                    style:grid-column={place ? `${place.x + 1} / span ${place.w}` : null}
+                    style:grid-row={place ? `${place.y + 1} / span ${place.h}` : null}
+                >
+                    <svelte:element
+                        this={widget.href ? "a" : "div"}
+                        href={widget.href}
+                        class="widget surface drag-tile widget-{widget.id}"
+                        class:dragging={reorder.draggingId === widget.id}
+                        data-widget={widget.id}
+                        style:transform={reorder.transformFor(widget.id)}
+                        onpointerdown={(e) => reorder.start(widget.id, e)}
+                    >
+                        <widget.component onavailability={(ok) => setAvailable(widget.id, ok)} />
+                    </svelte:element>
+                    {#if edit.isEditing && reorder.draggingId !== widget.id}
+                        <button
+                            class="hide-btn"
+                            type="button"
+                            data-edit-control
+                            aria-label="Hide {widget.title}"
+                            title="Hide {widget.title}"
+                            onpointerdown={(e) => e.stopPropagation()}
+                            onclick={() => setWidgetShown(widget.id, false)}
+                        >
+                            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+                        </button>
+                    {/if}
+                </div>
+            {/each}
+        </div>
+
+        {#if !placed.length}
+            <div class="dashboard-empty">
+                <p>{shown.length ? "None of the widgets you've picked could load." : "Every widget is hidden."}</p>
+                {#if !edit.isEditing}
+                    <button class="reset" type="button" onclick={edit.toggle}>Choose widgets</button>
+                {/if}
+            </div>
+        {/if}
+    </div>
 </div>
 
 <SpotifyVizOverlay />
 
 <style>
-    /* Fills the viewport under the nav on a wide screen — a wall display,
-       not a page — and becomes an ordinary scrolling page once it collapses. */
+    /* A wall display, not a page: the dashboard is exactly the window under
+       the nav, and when the widgets can't fit, the grid scrolls inside it. */
     .dashboard {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        grid-template-rows: 1.3fr 1fr 0.85fr;
-        gap: var(--space-4);
+        display: flex;
+        flex-direction: column;
         height: calc(100vh - var(--nav-height) - 1px);
         height: calc(100dvh - var(--nav-height) - 1px);
-        max-width: 1800px;
-        margin: 0 auto;
-        padding: var(--space-4) var(--page-gutter);
-        overflow: hidden;
     }
-    /* The grab cursor, swallowed gestures and jiggle are in global.css under
-       "Rearrangeable grids". The grid clips at full height, so it has to
-       stop clipping while something is dragged out of it. */
-    .dashboard.is-dragging { overflow: visible; }
     /* With the nav tucked away the grid takes the whole viewport, leaving a
        gutter at the top for the tab that brings the nav back. */
     .dashboard.nav-hidden {
         height: 100vh;
         height: 100dvh;
-        padding-top: 26px;
+        padding-top: 10px;
     }
 
+    .dashboard-fit {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        padding: var(--space-4) var(--page-gutter);
+        overflow: hidden;
+        /* So a scrollbar arriving doesn't narrow the box and re-trigger a
+           layout. Overlay scrollbars (macOS) take no room either way. */
+        scrollbar-gutter: stable;
+    }
+    .dashboard-fit.is-scrolling {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    /* A fitted grid clips at the window edge; let a dragged tile leave it. */
+    .dashboard-fit.is-dragging:not(.is-scrolling) { overflow: visible; }
+
+    .dashboard-grid {
+        display: grid;
+        gap: var(--space-4);
+        height: 100%;
+    }
+    .dashboard-fit.is-scrolling .dashboard-grid { height: auto; }
+
     /* Widget surface comes from the global .surface class (the same as a
-       Card); a widget also has to be a flex column that clips its overflow. */
+       Card); a widget also has to be a flex column that clips its overflow.
+       Padding is a pair of variables so widgets can size things against
+       what's left of their slot (e.g. Spotify's art). */
     :global(.widget) {
+        --widget-pad-y: 20px;
+        --widget-pad-x: 20px;
         position: relative;
         display: flex;
         flex-direction: column;
         min-width: 0;
         min-height: 0;
-        padding: 20px;
+        padding: var(--widget-pad-y) var(--widget-pad-x);
         overflow: hidden;
     }
     :global(.widget-empty) {
@@ -178,7 +295,9 @@
         list-style: none;
     }
 
-    /* Widgets fill their slot edge to edge, so the drop outline sits inside. */
+    /* Widgets fill their slot edge to edge, so the drop outline sits inside.
+       Each slot is a size container: widgets query its width and height to
+       pick their compact or roomy layouts. */
     .slot {
         display: flex;
         min-width: 0;
@@ -188,8 +307,7 @@
         container-type: size;
         container-name: slot;
     }
-    .slot-large { grid-column: span 2; }
-    .slot-small { grid-column: span 1; }
+    .slot[hidden] { display: none; }
     .slot > :global(.widget) {
         flex: 1 1 auto;
         width: 100%;
@@ -203,101 +321,114 @@
         background: var(--surface-2);
     }
 
-    /* spotify widget needs flex-row + relative for the viz canvas underlay */
-    .slot > :global(.widget-spotify) {
-        flex-direction: row;
-        align-items: center;
-        gap: var(--space-5);
+    /* Tighter padding as tiles shrink, for every widget. */
+    @container slot (max-height: 200px) {
+        :global(.widget) { --widget-pad-y: 12px; --widget-pad-x: 16px; }
+    }
+    @container slot (max-height: 110px) {
+        :global(.widget) { --widget-pad-y: 10px; }
+    }
+    @container slot (max-width: 260px) {
+        :global(.widget) { --widget-pad-x: 14px; }
     }
 
-    /* weather widget is a left-right split */
-    .slot > :global(.widget-weather) {
-        flex-direction: row;
-        gap: var(--space-6);
-    }
-
-    .slot > :global(.widget-clock) {
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: var(--space-2);
-    }
-
-    /* Compact overrides when widgets land in a 1-col slot. */
-    .slot-small :global(.widget-clock) { padding: 20px 16px; gap: 6px; }
-    .slot-small :global(.clock-time) { font-size: clamp(2.25rem, 7vw, 4rem); }
-    .slot-small :global(.clock-meridiem) { font-size: clamp(0.7rem, 1.1vw, 1rem); }
-    .slot-small :global(.clock-greeting) { font-size: clamp(0.95rem, 1.4vw, 1.2rem); }
-    .slot-small :global(.clock-date) { font-size: var(--font-xs); }
-    .slot-small :global(.clock-meta) { gap: var(--space-2); flex-direction: column; }
-    .slot-small :global(.clock-progress) {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
-        margin-top: var(--space-3);
-        max-width: 100%;
-    }
-
-    .slot-small :global(.weather-stats > div:nth-child(n+3)) { display: none; }
-
-    /* Spotify's art + info row doesn't fit a 1-col slot: stack it. */
-    .slot-small :global(.widget-spotify),
-    .slot-small :global(.widget-spotify .spotify-main) {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: var(--space-3);
-    }
-    .slot-small :global(.widget-spotify .spotify-art) {
-        width: clamp(56px, 22vw, 96px);
-        height: clamp(56px, 22vw, 96px);
-    }
-    .slot-small :global(.widget-spotify .spotify-info) { align-items: center; width: 100%; min-width: 0; }
-    .slot-small :global(.widget-spotify .spotify-progress) { width: 100%; }
-
-    @container slot (max-height: 320px) {
-        :global(.widget-clock) { padding: 16px 20px; gap: 4px; }
-        :global(.widget-clock .clock-greeting) { font-size: clamp(0.95rem, 1.4vw, 1.2rem); }
-        :global(.widget-clock .clock-date) { font-size: var(--font-xs); }
-        :global(.widget-clock .clock-progress) { margin-top: var(--space-2); gap: var(--space-3); max-width: 480px; }
-    }
-
-    @container slot (max-height: 300px) {
-        :global(.widget-weather) { flex-direction: column; gap: var(--space-3); padding: 20px; }
-        :global(.widget-weather .weather-left) { flex: 1 1 auto; gap: 6px; }
-        :global(.widget-weather .weather-right) { display: none; }
-        :global(.widget-weather .weather-temp) { font-size: clamp(2rem, 4.5vw, 3rem); }
-        :global(.widget-weather .weather-stats) { gap: 4px var(--space-3); }
-    }
-
-    /* === edit mode (once collapsed) ===
+    /* === edit mode ===
        Alternate slots take the second jiggle so the grid doesn't rock in
        lockstep. */
-    .dashboard.is-editing .slot:nth-child(odd) > :global(.widget:not(.dragging)) {
+    .dashboard-grid.is-editing .slot:nth-child(odd) > :global(.widget:not(.dragging)) {
         animation-name: edit-jiggle-b;
         animation-duration: 0.46s;
         animation-delay: -0.18s;
     }
 
-    @media (max-width: 1100px) {
-        .dashboard {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-rows: auto;
-            height: auto;
-            overflow: visible;
-            padding-bottom: var(--space-7);
-        }
-        .dashboard.nav-hidden { height: auto; }
-        .slot { container-type: inline-size; }
-        .slot-large, .slot-small { grid-column: span 2; }
-        .slot > :global(.widget-gallery) { aspect-ratio: 16 / 9; }
-        /* A finger scrolls the page until edit mode says otherwise. */
-        .slot > :global(.widget) { touch-action: auto; cursor: default; }
-        .dashboard.is-editing .slot > :global(.widget) { touch-action: none; }
+    .hide-btn {
+        position: absolute;
+        top: -6px;
+        left: -6px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 1px solid var(--border-strong);
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: var(--shadow-pop);
+        cursor: pointer;
+    }
+    .hide-btn:hover { background: var(--surface-2); color: var(--text-strong); }
+    .hide-btn svg {
+        width: 10px;
+        height: 10px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+        stroke-linecap: round;
     }
 
-    @media (max-width: 700px) {
-        .dashboard { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
-        .slot-large, .slot-small { grid-column: span 1; }
-        .slot > :global(.widget-weather) { flex-direction: column; }
+    .customize {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-2) var(--space-3);
+        padding: var(--space-4) var(--page-gutter) 0;
+    }
+    .customize-label {
+        font-size: var(--font-xs);
+        font-weight: var(--weight-medium);
+        color: var(--text-2);
+    }
+    .customize-list {
+        display: flex;
+        flex-wrap: wrap;
+        flex: 1;
+        gap: var(--space-2);
+    }
+    .chip,
+    .reset {
+        height: 30px;
+        padding: 0 12px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-pill);
+        background: transparent;
+        color: var(--text-2);
+        font: inherit;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-medium);
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    }
+    .chip:hover,
+    .reset:hover { background: var(--surface-2); color: var(--text-strong); }
+    .chip.on {
+        border-color: var(--text-strong);
+        background: var(--text-strong);
+        color: var(--bg);
+    }
+    .chip.failed { opacity: 0.6; }
+    .chip-note { font-weight: var(--weight-regular); }
+    .reset { border-radius: var(--radius); }
+
+    .dashboard-empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-3);
+        color: var(--text-2);
+        font-size: var(--font-sm);
+    }
+    .dashboard-empty p { margin: 0; }
+
+    /* On a touch screen a finger scrolls until edit mode says otherwise. */
+    @media (pointer: coarse) {
+        .slot > :global(.widget) { touch-action: auto; cursor: default; }
+        .dashboard-grid.is-editing .slot > :global(.widget) { touch-action: none; }
     }
 </style>
