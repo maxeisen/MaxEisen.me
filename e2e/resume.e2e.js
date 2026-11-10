@@ -31,3 +31,33 @@ test("the résumé fits a phone", async ({ page }) => {
 	const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
 	expect(overflow).toBeLessThanOrEqual(0);
 });
+
+// Printing lays the page out in the light scheme, which the browser reports
+// as a prefers-color-scheme change. The page used to follow it: the screen
+// went light and stayed light (and "light" was saved as the theme). A real
+// print dialog can't be opened here, so this reproduces what one does: the
+// beforeprint/afterprint pair, with the scheme flipping to light between.
+test("printing doesn't change the theme on screen", async ({ page }) => {
+	await page.emulateMedia({ colorScheme: "dark" });
+	await page.goto("/resume");
+	const theme = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+	const saved = () => page.evaluate(() => localStorage.getItem("theme"));
+	expect(await theme()).toBe("dark");
+
+	await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+	await page.emulateMedia({ colorScheme: "light" });
+	await page.waitForTimeout(100);
+	expect(await theme()).toBe("dark");
+
+	await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+	await page.emulateMedia({ colorScheme: "dark" });
+	expect(await theme()).toBe("dark");
+	expect(await saved()).toBe("dark");
+});
+
+test("a real change to the system scheme still switches the theme", async ({ page }) => {
+	await page.emulateMedia({ colorScheme: "dark" });
+	await page.goto("/resume");
+	await page.emulateMedia({ colorScheme: "light" });
+	await expect.poll(() => page.evaluate(() => document.documentElement.getAttribute("data-theme"))).toBe("light");
+});
