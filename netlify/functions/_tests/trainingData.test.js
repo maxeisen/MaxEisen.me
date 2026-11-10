@@ -230,9 +230,21 @@ describe("trainingData behaviour", () => {
 	});
 
 	it("is a running log when public/content/running/current-plan.json is absent", async () => {
-		seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }));
-		const { body } = await payload();
-		expect(body.summary.inBlock).toBe(false);
-		expect(body.summary.race.name).toBeNull();
+		// Simulated rather than read from disk, so the test holds whether or
+		// not a block is live in the repo right now.
+		vi.resetModules();
+		vi.doMock("../_shared/training/planFile.js", async (importOriginal) => {
+			const actual = await importOriginal();
+			const empty = { race: {}, thresholds: {}, weeks: [] };
+			return { ...actual, loadPlan: () => empty, loadTrainingPlan: async () => empty };
+		});
+		try {
+			seed(shapeActivities([rawRun()], { thresholds: PLAN_THRESHOLDS }));
+			const { body } = await payload();
+			expect(body.summary.inBlock).toBe(false);
+			expect(body.summary.race.name).toBeNull();
+		} finally {
+			vi.doUnmock("../_shared/training/planFile.js");
+		}
 	});
 });
