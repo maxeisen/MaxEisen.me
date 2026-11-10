@@ -1,10 +1,9 @@
 <script>
     import { getContext, onMount } from 'svelte';
-    import qs from 'query-string';
     import BlogPostModal from '../modals/BlogPostModal.svelte';
     import blogPosts from '@content/blogPostMeta.json';
 
-    const userQuery = qs.parse(window.location.search);
+    const userQuery = Object.fromEntries(new URLSearchParams(window.location.search));
 
     blogPosts.sort(function(a, b){
         return b.postId-a.postId
@@ -36,7 +35,7 @@
             if (userQuery.postId) {
                 // postId is a number in the metadata and a string in the URL.
                 const blogPost = blogPosts.find(post => String(post.postId) === userQuery.postId);
-                blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.updated, blogPost.content)
+                if (blogPost) blogPostModal(blogPost.postId, blogPost.title, blogPost.author, blogPost.date, blogPost.updated, blogPost.content)
             }
         }
     });

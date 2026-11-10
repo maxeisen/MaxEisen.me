@@ -179,9 +179,8 @@ function renderHeader(summary) {
 		trendNote = `form ${signed(latest.tsb, 0)}`;
 		if (gain !== null) {
 			if (Math.abs(gain) < 1) trendNote += "; holding over 4 weeks";
-			else trendNote += gain > 0
-				? `; up ${Math.round(gain)} in 4 weeks`
-				: `; down ${Math.round(Math.abs(gain))} in 4 weeks`;
+			else if (gain > 0) trendNote += `; up ${Math.round(gain)} in 4 weeks`;
+			else trendNote += `; down ${Math.round(Math.abs(gain))} in 4 weeks`;
 		}
 	}
 

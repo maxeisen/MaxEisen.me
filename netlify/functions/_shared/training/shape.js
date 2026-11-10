@@ -77,6 +77,14 @@ export const STRENGTH_MIN_SEC = 10 * 60;
 //    trace when a meter recorded them. Estimated watts stay off it.
 export const SHAPE_VERSION = 9;
 
+// Strava's `visibility: "only_me"` is the newer spelling of private. Both are
+// checked, so an activity hidden either way never reaches the public index.
+// Followers-only activities are kept: the index carries no location, and the
+// dashboard is the athlete's own training record.
+function isHidden(raw) {
+	return !raw || raw.private === true || raw.visibility === "only_me";
+}
+
 /**
  * Is this a public run we should track?
  *
@@ -84,7 +92,7 @@ export const SHAPE_VERSION = 9;
  * @returns {boolean}
  */
 export function isTrackableRun(raw) {
-	if (!raw || raw.private === true) return false;
+	if (isHidden(raw)) return false;
 	return RUN_TYPES.has(raw.sport_type || raw.type);
 }
 
@@ -95,7 +103,7 @@ export function isTrackableRun(raw) {
  * @returns {boolean}
  */
 export function isTrackableRide(raw) {
-	if (!raw || raw.private === true) return false;
+	if (isHidden(raw)) return false;
 	if (!RIDE_TYPES.has(raw.sport_type || raw.type)) return false;
 	return (reading(raw.distance) || 0) > RIDE_MIN_M;
 }
@@ -107,7 +115,7 @@ export function isTrackableRide(raw) {
  * @returns {boolean}
  */
 export function isTrackableStrength(raw) {
-	if (!raw || raw.private === true) return false;
+	if (isHidden(raw)) return false;
 	if (!STRENGTH_TYPES.has(raw.sport_type || raw.type)) return false;
 	return (reading(raw.moving_time) || 0) > STRENGTH_MIN_SEC;
 }

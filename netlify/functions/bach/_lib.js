@@ -28,6 +28,16 @@ export function passwordOk(req) {
 	return Boolean(expected) && secureCompare(supplied, expected);
 }
 
+// Host-only actions (advancing rounds, generating the story and its paid
+// narration/images) are gated on the token minted at create time. Compared in
+// constant time like every other secret here; a session without one (never
+// expected) denies rather than matching an empty string.
+export function hostTokenOk(meta, supplied) {
+	const expected = meta?.hostToken;
+	if (typeof expected !== "string" || !expected) return false;
+	return secureCompare(typeof supplied === "string" ? supplied : "", expected);
+}
+
 export function getSessionStore() {
 	return getStore({ name: "bach-sessions", consistency: "strong" });
 }

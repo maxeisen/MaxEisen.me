@@ -19,7 +19,7 @@
     "@playwright/test": "^1.61.0",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "eslint": "^8.57.1",
-    "eslint-plugin-svelte": "^3.23.1",
+    "eslint-plugin-svelte": "^2.46.1",
     "netlify-cli": "27.5.2",
     "svelte": "^5.56.5",
     "vite": "^8.3.5",
@@ -32,7 +32,6 @@
     "marked": "^4.0.12",
     "openai": "^6.41.0",
     "qrcode": "^1.5.4",
-    "query-string": "^9.5.0",
     "sharp": "^0.35.5",
     "svelte-icons": "^2.1.0",
     "svelte-rough-notation": "^0.1.4"
@@ -42,6 +41,7 @@
       "sharp": "$sharp"
     },
     "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5",
-    "toml": "5.0.1"
+    "toml": "5.0.1",
+    "zod": "^4.6.6"
   }
 }

@@ -66,6 +66,8 @@ describe("isTrackableRun", () => {
 
 	it("rejects private activities", () => {
 		expect(isTrackableRun({ sport_type: "Run", private: true })).toBe(false);
+		expect(isTrackableRun({ sport_type: "Run", visibility: "only_me" })).toBe(false);
+		expect(isTrackableRun({ sport_type: "Run", visibility: "followers_only" })).toBe(true);
 	});
 
 	it("rejects nothing at all", () => {

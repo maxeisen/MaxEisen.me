@@ -18,7 +18,7 @@ const SAMPLE = {
 	elapsedTime: 3100,
 	elevationGain: 40,
 	startDate: "2026-07-01T11:00:00Z",
-	polyline: "_p~iF~ps|U_ulLnnqC",
+	route: [[0, 0], [1000, 1000]],
 	sufferScore: 61,
 };
 
@@ -48,6 +48,15 @@ describe("stravaFeed", () => {
 		expect(body.activities[0]).toEqual(SAMPLE);
 		expect(res.headers.get("cache-control")).toMatch(/max-age=300/);
 		expect(globalThis.fetch).not.toHaveBeenCalled();
+	});
+
+	it("converts a legacy stored polyline to a route shape instead of serving it", async () => {
+		const { route, ...rest } = SAMPLE;
+		blobs.set("public.json", { activities: [{ ...rest, polyline: "_p~iF~ps|U_ulLnnqC_mqNvxq`@" }] });
+		const { body } = await payload("?limit=30");
+		expect(body.activities[0]).not.toHaveProperty("polyline");
+		expect(body.activities[0].route).toEqual([[1000, 760], [880, 408], [0, 0]]);
+		expect(route).toBeDefined();
 	});
 
 	it("honors limit", async () => {

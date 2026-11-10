@@ -1,6 +1,7 @@
 // POST /.netlify/functions/bach-story-images-background
 
 import {
+	hostTokenOk,
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, keys, readImagesStatus, writeImagesStatus,
 } from "./_lib.js";
@@ -23,8 +24,7 @@ export default async function handler(req) {
 	const meta = await readMeta(store, code);
 	if (!meta) return jsonResponse({ error: "no_such_session" }, 404);
 
-	const hostToken = typeof body?.hostToken === "string" ? body.hostToken : "";
-	if (hostToken !== meta.hostToken) return jsonResponse({ error: "not_host" }, 403);
+	if (!hostTokenOk(meta, body?.hostToken)) return jsonResponse({ error: "not_host" }, 403);
 
 	if (!["reveal", "voting", "results"].includes(meta.phase)) {
 		return jsonResponse({ error: "bad_phase" }, 409);

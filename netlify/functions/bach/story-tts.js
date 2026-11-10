@@ -3,6 +3,7 @@
 // This sync path only does work locally when BACH_TTS_SYNC=1; otherwise it returns 409.
 
 import {
+	hostTokenOk,
 	passwordOk, jsonResponse, readBody, getSessionStore, getEnv,
 	validCode, readMeta, keys, readNarrationStatus, writeNarrationStatus,
 } from "./_lib.js";
@@ -24,8 +25,7 @@ export default async function handler(req) {
 	const meta = await readMeta(store, code);
 	if (!meta) return jsonResponse({ error: "no_such_session" }, 404);
 
-	const hostToken = typeof body?.hostToken === "string" ? body.hostToken : "";
-	if (hostToken !== meta.hostToken) return jsonResponse({ error: "not_host" }, 403);
+	if (!hostTokenOk(meta, body?.hostToken)) return jsonResponse({ error: "not_host" }, 403);
 
 	if (!["reveal", "voting", "results"].includes(meta.phase)) {
 		return jsonResponse({ error: "bad_phase" }, 409);

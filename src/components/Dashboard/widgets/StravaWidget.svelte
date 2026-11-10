@@ -1,5 +1,5 @@
 <!--
-    Recent Strava activities with route preview (when polyline available) or
+    Recent Strava activities with route preview (when a route shape is available) or
     icon fallback. Hides itself if backing function returns 503. List is
     trimmed dynamically so no partial rows are shown.
 -->
@@ -19,7 +19,7 @@
         formatDistance,
         formatDuration,
         formatPace,
-        polylineToSvgPath,
+        routeToSvgPath,
     } from "../../../lib/strava.js";
 
     let listEl = $state();
@@ -81,7 +81,7 @@
                 {@const icon = STRAVA_ICONS[a.type] || "🏃"}
                 {@const pace = formatPace(a.distance, a.movingTime, a.type)}
                 {@const url = a.id ? `https://www.strava.com/activities/${a.id}` : "#"}
-                {@const path = polylineToSvgPath(a.polyline)}
+                {@const path = routeToSvgPath(a.route)}
                 {@const metaBits = [a.type, a.startDate ? timeAgo(a.startDate) : null, a.sufferScore != null ? `Effort ${Math.round(a.sufferScore)}` : null].filter(Boolean)}
                 <li>
                     <a class="strava-row" href={url} target="_blank" rel="noreferrer">
