@@ -1,5 +1,5 @@
 // Shared Strava helpers: activity icons, distance/pace/duration formatting,
-// and Google-polyline decode → SVG path. Used by the dashboard StravaWidget
+// and route shape → SVG path. Used by the dashboard StravaWidget
 // and the homepage StravaActivityList (which previously reimplemented the
 // decode + format logic), so it lives in src/lib rather than a feature folder.
 
@@ -46,45 +46,24 @@ export function formatPace(distanceM, timeS, type) {
 	return `${speed.toFixed(1)} km/h`;
 }
 
-// Decode a Google-encoded polyline string into an array of [lat,lng] pairs.
-export function decodePolyline(str, precision = 5) {
-	if (!str) return [];
-	const factor = Math.pow(10, precision);
-	const len = str.length;
-	let index = 0, lat = 0, lng = 0;
-	const points = [];
-	while (index < len) {
-		let b, shift = 0, result = 0;
-		do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
-		lat += (result & 1) ? ~(result >> 1) : (result >> 1);
-		shift = 0; result = 0;
-		do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
-		lng += (result & 1) ? ~(result >> 1) : (result >> 1);
-		points.push([lat / factor, lng / factor]);
+// Route thumbnail → SVG path. The feed ships each route as a shape already
+// fitted to a ROUTE_GRID square (see routeShape in stravaPublic.js) rather
+// than as coordinates, so all that's left is to fit it into the widget's box.
+export function routeToSvgPath(route, width = 56, height = 38, padding = 5) {
+	if (!Array.isArray(route) || route.length < 2) return null;
+	let maxX = 0, maxY = 0;
+	for (const [x, y] of route) {
+		if (x > maxX) maxX = x;
+		if (y > maxY) maxY = y;
 	}
-	return points;
-}
-
-export function polylineToSvgPath(encoded, width = 56, height = 38, padding = 5) {
-	const pts = decodePolyline(encoded);
-	if (pts.length < 2) return null;
-	let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
-	for (const [lat, lng] of pts) {
-		if (lat < minLat) minLat = lat;
-		if (lat > maxLat) maxLat = lat;
-		if (lng < minLng) minLng = lng;
-		if (lng > maxLng) maxLng = lng;
-	}
-	const dLat = maxLat - minLat || 1;
-	const dLng = maxLng - minLng || 1;
+	const dx = maxX || 1;
+	const dy = maxY || 1;
 	const w = width - padding * 2;
 	const h = height - padding * 2;
-	const scale = Math.min(w / dLng, h / dLat);
-	const offsetX = padding + (w - dLng * scale) / 2;
-	const offsetY = padding + (h - dLat * scale) / 2;
-	return pts.map(([lat, lng], i) => {
-		const x = offsetX + (lng - minLng) * scale;
-		const y = offsetY + (maxLat - lat) * scale; // SVG y grows down
-		return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
-	}).join(" ");
+	const scale = Math.min(w / dx, h / dy);
+	const offsetX = padding + (w - dx * scale) / 2;
+	const offsetY = padding + (h - dy * scale) / 2;
+	return route.map(([x, y], i) =>
+		`${i === 0 ? "M" : "L"}${(offsetX + x * scale).toFixed(1)} ${(offsetY + y * scale).toFixed(1)}`,
+	).join(" ");
 }

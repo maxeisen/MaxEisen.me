@@ -4,8 +4,7 @@ import {
 	formatDistance,
 	formatDuration,
 	formatPace,
-	decodePolyline,
-	polylineToSvgPath,
+	routeToSvgPath,
 } from './strava.js';
 
 // Characterization tests: lock the CURRENT formatting + decode behavior.
@@ -36,27 +35,21 @@ describe('strava formatting', () => {
 	});
 });
 
-describe('polyline decode', () => {
-	// Canonical Google example.
-	const ENCODED = '_p~iF~ps|U_ulLnnqC_mqNvxq`@';
-
-	it('returns [] for empty input', () => {
-		expect(decodePolyline('')).toEqual([]);
+describe('route thumbnail', () => {
+	it('is null for a missing or one-point route', () => {
+		expect(routeToSvgPath(null)).toBeNull();
+		expect(routeToSvgPath([[0, 0]])).toBeNull();
 	});
 
-	it('decodes the canonical example', () => {
-		const pts = decodePolyline(ENCODED);
-		expect(pts).toHaveLength(3);
-		expect(pts[0][0]).toBeCloseTo(38.5, 4);
-		expect(pts[0][1]).toBeCloseTo(-120.2, 4);
-		expect(pts[2][0]).toBeCloseTo(43.252, 4);
-		expect(pts[2][1]).toBeCloseTo(-126.453, 4);
-	});
-
-	it('renders an SVG path (null when fewer than 2 points)', () => {
-		expect(polylineToSvgPath('')).toBeNull();
-		const path = polylineToSvgPath(ENCODED);
+	it('fits the route inside the padded box', () => {
+		const path = routeToSvgPath([[0, 0], [500, 1000], [1000, 0]], 56, 38, 5);
 		expect(path).toMatch(/^M/);
-		expect(path).toContain('L');
+		const nums = path.match(/-?\d+(\.\d+)?/g).map(Number);
+		const xs = nums.filter((_, i) => i % 2 === 0);
+		const ys = nums.filter((_, i) => i % 2 === 1);
+		expect(Math.min(...xs)).toBeGreaterThanOrEqual(5);
+		expect(Math.max(...xs)).toBeLessThanOrEqual(51);
+		expect(Math.min(...ys)).toBeGreaterThanOrEqual(5);
+		expect(Math.max(...ys)).toBeLessThanOrEqual(33);
 	});
 });

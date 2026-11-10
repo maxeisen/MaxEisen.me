@@ -435,16 +435,20 @@ describe("trainingSync", () => {
 	});
 
 	describe("the public snapshot", () => {
+		// Google's canonical example: three real points, so the route survives
+		// decoding and the coordinates are recognisable in a leak check.
+		const ROUTE_POLYLINE = "_p~iF~ps|U_ulLnnqC_mqNvxq`@";
 		function publicActivities(count) {
 			return summaries(count, (i) => ({
 				start_date: summaries(count)[i].start_date_local.replace("Z", "").replace("T07", "T11") + "Z",
-				map: { summary_polyline: `poly-${1000 + i}` },
+				map: { summary_polyline: ROUTE_POLYLINE },
+				name: `Public run ${i}`,
 				gear_id: i === 0 ? "g-superblast" : undefined,
 				suffer_score: 50,
 			}));
 		}
 
-		it("stores qualifying activities with polylines for the public surfaces", async () => {
+		it("stores qualifying activities with route shapes, never coordinates, for the public surfaces", async () => {
 			mockStrava({
 				activities: publicActivities(3),
 				gear: {
@@ -460,7 +464,9 @@ describe("trainingSync", () => {
 
 			const snap = publicSnap();
 			expect(snap.activities).toHaveLength(3);
-			expect(snap.activities[0].polyline).toMatch(/^poly-/);
+			expect(snap.activities[0].route).toEqual([[1000, 760], [880, 408], [0, 0]]);
+			expect(JSON.stringify(snap)).not.toContain(ROUTE_POLYLINE);
+			expect(snap.activities[0]).not.toHaveProperty("polyline");
 			expect(snap.ytd.run.count).toBe(10);
 			expect(snap.shoes).toEqual({
 				id: "g-superblast",
@@ -468,7 +474,7 @@ describe("trainingSync", () => {
 				distance: 400_000,
 			});
 			expect(JSON.stringify(index())).not.toContain("polyline");
-			expect(JSON.stringify(index())).not.toContain("poly-");
+			expect(JSON.stringify(index())).not.toContain(ROUTE_POLYLINE);
 		});
 
 		it("never stores a private activity's polyline on the public snapshot", async () => {
@@ -480,7 +486,17 @@ describe("trainingSync", () => {
 			const snap = publicSnap();
 			expect(snap.activities.map((a) => a.id)).toEqual([listed[0].id]);
 			expect(JSON.stringify(snap)).not.toContain("Secret loop");
-			expect(JSON.stringify(snap)).not.toContain(`poly-${listed[1].id}`);
+		});
+
+		it("leaves followers-only activities off the public snapshot", async () => {
+			const listed = publicActivities(2);
+			listed[1] = { ...listed[1], visibility: "followers_only", name: "Friends loop" };
+			mockStrava({ activities: listed });
+			await sync();
+
+			const snap = publicSnap();
+			expect(snap.activities.map((a) => a.id)).toEqual([listed[0].id]);
+			expect(JSON.stringify(snap)).not.toContain("Friends loop");
 		});
 
 		it("removes a previously stored activity once the listing says it is private", async () => {
