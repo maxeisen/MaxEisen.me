@@ -36,6 +36,17 @@ describe("trainingProjection", () => {
 		expect(out.predictedPaceSecPerKm).toBeCloseTo(expectedPace, 6);
 		expect(out.predictedSec).toBeCloseTo(expectedPace * 42.195, 6);
 	});
+
+	it("carries the marathon estimate to other race distances with Riegel, not marathon pace", () => {
+		const runs = ["07-26", "08-02", "08-09", "08-16", "08-23", "08-30", "09-06", "09-13"].map((d) => run(`2026-${d}`, 40));
+		const marathon = trainingProjection(runs, "2026-09-16");
+		const thirty = trainingProjection(runs, "2026-09-16", 30000);
+
+		expect(thirty.marathonPaceSecPerKm).toBeCloseTo(marathon.predictedPaceSecPerKm, 6);
+		expect(thirty.predictedSec).toBeCloseTo(marathon.predictedSec * (30000 / 42195) ** 1.06, 6);
+		// Faster per km than marathon pace, as a shorter race should be.
+		expect(thirty.predictedPaceSecPerKm).toBeLessThan(marathon.predictedPaceSecPerKm);
+	});
 });
 
 describe("projectMarathon", () => {

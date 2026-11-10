@@ -9,7 +9,7 @@
 
 import { addDays, daysBetween, mondayOf, toDayKey } from "./dates.js";
 import { TSB_FATIGUE } from "./fitness.js";
-import { goalDelta, predictRace } from "./predict.js";
+import { goalDelta, predictRace, riegel } from "./predict.js";
 import { collectBestEfforts } from "./shape.js";
 
 const MARATHON_M = 42195;
@@ -53,7 +53,12 @@ function qualityEfforts(efforts) {
 }
 
 /**
- * Tanda training-only marathon estimate.
+ * Tanda training-only estimate.
+ *
+ * Tanda's regression predicts marathon pace specifically. For any other race
+ * distance the marathon time is carried across with Riegel, the same
+ * equivalence the effort-based estimates use — scaling marathon pace by the
+ * distance would project a 30k run at marathon pace, several minutes slow.
  *
  * @param {object[]} runs shaped activities.
  * @param {string} today day key.
@@ -91,8 +96,12 @@ export function trainingProjection(runs, today, targetDistanceM = MARATHON_M) {
 
 	const averageKmPerWeek = totals.distanceM / 1000 / TRAINING_WEEKS;
 	const averagePaceSecPerKm = totals.movingTimeSec / (totals.distanceM / 1000);
-	const predictedPaceSecPerKm =
+	const marathonPaceSecPerKm =
 		17.1 + 140 * Math.exp(-0.0053 * averageKmPerWeek) + 0.55 * averagePaceSecPerKm;
+	const marathonSec = marathonPaceSecPerKm * (MARATHON_M / 1000);
+	const target = Number(targetDistanceM) > 0 ? Number(targetDistanceM) : MARATHON_M;
+	const predictedSec =
+		Math.abs(target - MARATHON_M) < 1 ? marathonSec : riegel(marathonSec, MARATHON_M, target);
 	const weeksWithRuns = bins.filter((week) => week.distanceM > 0).length;
 
 	return {
@@ -100,8 +109,9 @@ export function trainingProjection(runs, today, targetDistanceM = MARATHON_M) {
 		weeksWithRuns,
 		averageKmPerWeek,
 		averagePaceSecPerKm,
-		predictedPaceSecPerKm,
-		predictedSec: predictedPaceSecPerKm * (targetDistanceM / 1000),
+		marathonPaceSecPerKm,
+		predictedPaceSecPerKm: predictedSec / (target / 1000),
+		predictedSec,
 	};
 }
 
