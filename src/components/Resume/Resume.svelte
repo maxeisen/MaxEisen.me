@@ -3,9 +3,15 @@
     document. Content lives in public/content/resume.json; edit that, not
     this file, to change what it says.
 
-    On screen it wears the site's theme like any other route. "Save as PDF"
-    prints it, and the print stylesheet below turns it into a single black-
-    on-white Letter page: no nav, no buttons, no theme colours, tighter type.
+    On screen it wears the site's theme like any other route. The print
+    stylesheet below turns it into a single black-on-white Letter page: no
+    nav, no buttons, no theme colours, tighter type.
+
+    "Save as PDF" downloads that page, already printed: public/MaxEisen_
+    Resume.pdf, made by `npm run resume:pdf` and committed. It used to open
+    the print dialog, which does nothing in the home-screen app on iOS; a
+    file works the same everywhere. A test fails the build if the PDF falls
+    behind this page or resume.json — see scripts/lib/resumePdf.mjs.
 -->
 <script>
     import SiteNav from "../../lib/ui/SiteNav.svelte";
@@ -19,14 +25,7 @@
 
     const ICONS = { web: GlobeIcon, email: MailIcon, phone: PhoneIcon, linkedin: LinkedInIcon, github: GitHubIcon };
     const PAGE_TITLE = "Resume | MaxEisen.me";
-
-    // The browser names the PDF after document.title, so swap it for the
-    // length of the print dialog.
-    function savePdf() {
-        document.title = "MaxEisen_Resume.pdf";
-        window.print();
-        document.title = PAGE_TITLE;
-    }
+    const PDF_FILE = "MaxEisen_Resume.pdf";
 
     const range = (start, end) => `${start} – ${end}`;
     // Links inside a bullet open elsewhere; the content file writes plain <a>s.
@@ -43,10 +42,10 @@
 <main class="resume-page">
     <PageHeader kicker="Résumé" title={resume.name} subtitle="{resume.title} · {resume.location}">
         {#snippet aside()}
-            <button class="save" type="button" onclick={savePdf}>
+            <a class="save" href="/{PDF_FILE}" download={PDF_FILE} type="application/pdf">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8.5M4.5 7 8 10.5 11.5 7M3 13.5h10" /></svg>
                 Save as PDF
-            </button>
+            </a>
         {/snippet}
     </PageHeader>
 
@@ -147,7 +146,7 @@
         cursor: pointer;
         transition: background var(--dur-fast) var(--ease);
     }
-    .save:hover { background: var(--text); }
+    .save:hover { background: var(--text); color: var(--bg); }
     .save svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
     /* The sheet: a sidebar of who-and-how-to-reach, and the record. */
