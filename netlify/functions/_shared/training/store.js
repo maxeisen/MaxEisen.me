@@ -8,8 +8,8 @@
 //   cursor.json — sync bookkeeping (last activity seen, last run time)
 //   recovery.json — a night's sleep and overnight heart rate, per day
 //   oura.json  — Oura's rotating OAuth tokens
-//   public.json — homepage / dashboard snapshot (polylines live
-//                 here, never in index.json)
+//   public.json — homepage / dashboard snapshot (route shapes, never
+//                 coordinates; nothing route-related is in index.json)
 //
 // oura.json is the one key here that isn't a cache. Oura invalidates a refresh
 // token the moment it's used, so the successor is the only way back in and
@@ -29,6 +29,16 @@ export const PUBLIC_KEY = "public.json";
 export function getTrainingStore() {
 	return getStore({ name: STORE_NAME, consistency: "strong" });
 }
+
+/** Every shaped activity, or [] before the first sync / on a bad blob. */
+export async function loadActivityIndex() {
+	const activities = await readJson(getTrainingStore(), INDEX_KEY, []);
+	return Array.isArray(activities) ? activities : [];
+}
+
+// Strava activity ids are integers. Checked before any read so a junk or
+// cache-busting ?id= is a cheap 400 rather than a full index read.
+export const ACTIVITY_ID_RE = /^\d{1,20}$/;
 
 /** Homepage / dashboard / toronto snapshot. Missing keys look like an empty feed. */
 export function loadPublicSnapshot() {
