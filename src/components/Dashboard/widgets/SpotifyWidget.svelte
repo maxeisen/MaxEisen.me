@@ -10,6 +10,9 @@
       3. apply paletteForVibe immediately (fast first paint)
       4. asynchronously upgrade to album-art-derived palette
 
+    When nothing is playing and the tile has room, the tracks played before
+    the last one are listed under it.
+
     Size tiers (container queries on the slot): the art tracks the slot's
     height; a short slot sheds the album line, then the progress bar and
     status; a tall, narrow one stacks the art over the text.
@@ -24,10 +27,12 @@
     import { fetchJson, isFetchErrorStatus } from "../../../lib/data/fetchJson.js";
     import { createPoller } from "../../../lib/data/poller.js";
     import WidgetHeader from "./WidgetHeader.svelte";
+    import { bindTrimOnResize } from "../lib/listResize.js";
 
     let { onavailability = () => {} } = $props();
 
     let canvasEl = $state();
+    let recentEl = $state();
     let vizCtx = null;
     let raf = 0;
     let loadedOnce = false;
@@ -112,6 +117,7 @@
         return "Recently played";
     });
     const showProgress = $derived(spotify.playing && spotify.durationMs > 0);
+    const earlier = $derived(!data?.playing && Array.isArray(data?.recent) ? data.recent : []);
     const vizActive = $derived(hasTrack && !!data?.playing);
 
     function vizLoop() {
@@ -152,6 +158,11 @@
         stopPoll = createPoller(load, 1000 * 30, { jitterMs: 3000 });
         stopTick = createPoller(() => { now = Date.now(); }, 1000);
     });
+    // The earlier-tracks list shows whole rows only, however tall the tile.
+    $effect(() => {
+        if (recentEl) return bindTrimOnResize(recentEl);
+    });
+
     onDestroy(() => {
         cancelAnimationFrame(raf);
         clearTimeout(endTimer);
@@ -200,6 +211,19 @@
         {/if}
     </div>
 </a>
+{#if earlier.length}
+    <ol class="spotify-recent" aria-label="Played before that" bind:this={recentEl}>
+        {#each earlier as t (t.id ?? t.playedAt)}
+            <li>
+                <a href={t.url || undefined} target="_blank" rel="noreferrer">
+                    <span class="spotify-recent-track">{t.track}</span>
+                    <span class="spotify-recent-artist">{t.artist}</span>
+                    {#if t.playedAt}<span class="spotify-recent-when">{timeAgo(t.playedAt)}</span>{/if}
+                </a>
+            </li>
+        {/each}
+    </ol>
+{/if}
 
 <style>
     .spotify-viz {
@@ -335,6 +359,39 @@
     @container slot (max-height: 170px) {
         .spotify-info { padding-right: 72px; }
     }
+    /* Earlier tracks: only below the main row, and only with room for some. */
+    .spotify-recent {
+        position: relative;
+        z-index: 1;
+        display: none;
+        flex: 1 1 0;
+        min-height: 0;
+        margin: var(--space-3) 0 0;
+        padding: var(--space-2) 0 0;
+        border-top: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+        overflow: hidden;
+        list-style: none;
+    }
+    .spotify-recent li + li { margin-top: 6px; }
+    .spotify-recent a {
+        display: grid;
+        grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+        align-items: baseline;
+        gap: var(--space-2);
+        color: inherit;
+        font-size: var(--font-xs);
+    }
+    .spotify-recent-track,
+    .spotify-recent-artist { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .spotify-recent-track { color: var(--text-strong); font-weight: var(--weight-medium); }
+    .spotify-recent-artist { color: var(--text-2); }
+    .spotify-recent-when { color: var(--text-3); font-size: var(--font-2xs); white-space: nowrap; }
+    .spotify-recent a:hover .spotify-recent-track { color: var(--accent); }
+    @container slot (min-height: 250px) {
+        .spotify-recent { display: block; }
+        .spotify-main { flex: none; }
+    }
+
     @container slot (max-height: 150px) {
         .spotify-album { display: none; }
         .spotify-status { margin-bottom: var(--space-1); }

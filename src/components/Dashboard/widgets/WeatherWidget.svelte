@@ -4,6 +4,7 @@
     daylight line; this widget only adds the sun's position and the moon.
 
     Size tiers (container queries on the slot), from roomy to cramped:
+    the next hours along the bottom when there's height to spare;
     conditions beside sun-and-moon; then stacked, with sun-and-moon dropped;
     then the stats go, then the location line.
 -->
@@ -11,6 +12,7 @@
     import { onMount, onDestroy } from "svelte";
     import { sun } from "../lib/stores.svelte.js";
     import { weather, subscribeWeather } from "../lib/weatherFeed.svelte.js";
+    import HourStrip from "./HourStrip.svelte";
 
     const MOON_PHASES = [
         { emoji: "🌑", name: "New Moon" },
@@ -111,6 +113,12 @@
     </div>
 </div>
 
+{#if weather.hourly.length}
+    <div class="weather-hours">
+        <HourStrip hours={weather.hourly} />
+    </div>
+{/if}
+
 <style>
     .weather {
         display: flex;
@@ -200,6 +208,16 @@
     .moon-illum { font-size: var(--font-xs); color: var(--text-2); }
 
     /* Two stats to a row once four would crowd each other. */
+    .weather-hours {
+        display: none;
+        flex: none;
+        margin-top: var(--space-3);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
+    }
+    @container slot (min-height: 420px) and (min-width: 420px) {
+        .weather-hours { display: block; }
+    }
     @container slot (max-width: 640px) {
         .weather-stats { grid-template-columns: 1fr 1fr; }
     }

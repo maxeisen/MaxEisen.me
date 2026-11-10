@@ -3,6 +3,10 @@
 // are deliberate: what a widget has to cope with is a long track name or
 // commit message, not the tidy one.
 
+import { widgetSummary } from "../../netlify/functions/_shared/training/widgetSummary.js";
+import { buildTrainingFixture } from "./trainingPayload.js";
+import { buildCyclingFixture } from "./cyclingPayload.js";
+
 const DAY = 86_400_000;
 const isoDay = (ms) => new Date(ms).toISOString().slice(0, 10);
 
@@ -61,20 +65,48 @@ export const spotify = {
 	progressMs: 60_000,
 };
 
+// Open-Meteo answers in the location's wall-clock time, without an offset.
+const local = (ms) => {
+	const d = new Date(ms);
+	const pad = (n) => String(n).padStart(2, "0");
+	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:00`;
+};
+const thisHour = new Date().setMinutes(0, 0, 0);
+const firstHour = new Date(thisHour - DAY).setHours(0);
+const hourTimes = Array.from({ length: 7 * 24 }, (_, i) => local(firstHour + i * 3_600_000));
+const dayTimes = Array.from({ length: 7 }, (_, i) => hourTimes[i * 24].slice(0, 10));
+
 export const forecast = {
 	current: {
+		time: local(thisHour),
 		temperature_2m: 21.4,
 		weather_code: 2,
 		apparent_temperature: 20.1,
 		wind_speed_10m: 14,
 		uv_index: 5.2,
 	},
+	hourly: {
+		time: hourTimes,
+		temperature_2m: hourTimes.map((_, i) => 12 + 6 * Math.sin((i % 24 - 9) / 24 * 2 * Math.PI)),
+		precipitation_probability: hourTimes.map((_, i) => (i % 24 > 15 ? 60 : 10)),
+		wind_speed_10m: hourTimes.map(() => 14),
+		weather_code: hourTimes.map((_, i) => [0, 2, 3, 61][Math.floor(i / 6) % 4]),
+	},
 	daily: {
-		time: [isoDay(Date.now() - DAY), isoDay(Date.now())],
-		sunrise: [`${isoDay(Date.now() - DAY)}T07:01`, `${isoDay(Date.now())}T07:02`],
-		sunset: [`${isoDay(Date.now() - DAY)}T16:55`, `${isoDay(Date.now())}T16:53`],
+		time: dayTimes,
+		sunrise: dayTimes.map((d) => `${d}T07:02`),
+		sunset: dayTimes.map((d) => `${d}T16:53`),
+		weather_code: dayTimes.map((_, i) => [2, 61, 0, 3, 71, 2, 0][i]),
+		temperature_2m_max: dayTimes.map((_, i) => 14 + i),
+		temperature_2m_min: dayTimes.map((_, i) => 4 + i),
+		precipitation_probability_max: dayTimes.map((_, i) => [10, 70, 5, 30, 80, 10, 0][i]),
 	},
 };
+
+export const trainingSummary = widgetSummary({
+	running: buildTrainingFixture(),
+	cycling: buildCyclingFixture(),
+});
 
 export const airQuality = { current: { european_aqi: 32 } };
 export const geocode = { city: "Toronto", principalSubdivision: "Ontario", countryName: "Canada" };
@@ -98,6 +130,7 @@ export async function mockDashboardFeeds(page) {
 	await page.route("**/.netlify/functions/githubLatest*", (r) => r.fulfill(json(github)));
 	await page.route("**/.netlify/functions/stravaFeed*", (r) => r.fulfill(json(strava)));
 	await page.route("**/.netlify/functions/spotifyNowPlaying*", (r) => r.fulfill(json(spotify)));
+	await page.route("**/.netlify/functions/trainingSummary*", (r) => r.fulfill(json(trainingSummary)));
 	await page.route("https://api.open-meteo.com/**", (r) => r.fulfill(json(forecast)));
 	await page.route("https://air-quality-api.open-meteo.com/**", (r) => r.fulfill(json(airQuality)));
 	await page.route("https://api.bigdatacloud.net/**", (r) => r.fulfill(json(geocode)));

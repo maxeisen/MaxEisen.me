@@ -11,7 +11,7 @@ test("dashboard mounts its widget grid", async ({ page }) => {
 
 	// Feeds are stubbed: without them most widgets would (rightly) step
 	// aside, which is tested on its own below.
-	await expect(grid.locator(".widget:visible")).toHaveCount(7);
+	await expect(grid.locator(".widget:visible")).toHaveCount(12);
 });
 
 // Dragging previews where a widget will land and puts it there. The edit
@@ -26,25 +26,28 @@ test("a dragged widget lands where it's dropped, and stays there", async ({ page
 	const github = page.locator('[data-widget="github"]');
 	const from = await clock.boundingBox();
 	const target = await github.boundingBox();
+	const cellOf = (locator) => locator.evaluate((el) => {
+		const style = getComputedStyle(el);
+		return { col: Number(style.gridColumnStart), row: Number(style.gridRowStart) };
+	});
+	const was = await cellOf(github.locator("xpath=.."));
 
 	// Pick the clock up near its top-left and carry that corner to GitHub's.
 	await page.mouse.move(from.x + 30, from.y + 30);
 	await page.mouse.down();
 	await page.mouse.move(target.x + 30, target.y + 30, { steps: 16 });
 
-	// Mid-drag, a placeholder shows the landing spot: GitHub's old one, or
-	// within a cell of it. (Lifting the clock out of the top row moves
-	// everything above the target up, so an exact landing isn't always
-	// possible without leaving a gap.) GitHub is 2×2, so a cell is half it
-	// plus half a gap.
+	// Mid-drag, a placeholder shows the landing spot: GitHub's old cell, or
+	// one next to it. (Lifting the clock out moves everything after it, so
+	// an exact landing isn't always possible without leaving a gap.) Judged
+	// in grid cells, since a preview can change how tall the rows are.
 	const placeholder = page.locator(".drop-placeholder");
 	await expect(placeholder).toBeVisible();
+	const now = await cellOf(placeholder);
+	expect(Math.abs(now.col - was.col) + Math.abs(now.row - was.row)).toBeLessThanOrEqual(1);
 	const landing = await placeholder.boundingBox();
-	const cell = { w: (target.width + 16) / 2, h: (target.height + 16) / 2 };
-	expect(Math.abs(landing.x - target.x)).toBeLessThanOrEqual(cell.w + 2);
-	expect(Math.abs(landing.y - target.y)).toBeLessThanOrEqual(cell.h + 2);
 	// …and it's somewhere new.
-	expect(Math.abs(landing.x - from.x) + Math.abs(landing.y - from.y)).toBeGreaterThan(cell.h);
+	expect(Math.abs(landing.x - from.x) + Math.abs(landing.y - from.y)).toBeGreaterThan(50);
 
 	await page.mouse.up();
 	await expect(placeholder).toHaveCount(0);
@@ -122,13 +125,19 @@ test("a widget whose feed fails steps aside, and says so in edit mode", async ({
 	const grid = page.locator("#dashboard-grid");
 	await expect(grid.locator('[data-widget="hn"]')).toBeVisible();
 	await expect(grid.locator('[data-widget="github"]')).toBeHidden();
-	await expect(grid.locator(".widget:visible")).toHaveCount(6);
+	await expect(grid.locator(".widget:visible")).toHaveCount(11);
 
 	// It's still chosen, just not loading: edit mode says which.
 	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
 	const chip = page.getByRole("group", { name: "Widgets to show" }).getByRole("button", { name: /^Code/ });
 	await expect(chip).toHaveAttribute("aria-pressed", "true");
 	await expect(chip).toContainText("unavailable");
+
+	// …and offers a hidden widget to take its place.
+	await page.getByRole("button", { name: "Show World clocks in its place" }).click();
+	await expect(grid.locator('[data-widget="clocks"]')).toBeVisible();
+	await expect(chip).toHaveAttribute("aria-pressed", "false");
+	await chip.click(); // back on, for the reload below
 
 	// Not remembered: a visit where the feed works shows it again.
 	await page.unroute("**/.netlify/functions/githubLatest*");
@@ -141,14 +150,14 @@ test("hiding every widget leaves a way back", async ({ page }) => {
 	await mockDashboardFeeds(page);
 	await page.goto("/dashboard");
 	await page.evaluate(() => {
-		const ids = ["clock", "gallery", "weather", "spotify", "strava", "github", "hn"];
+		const ids = ["clock", "weather", "running", "cycling", "spotify", "forecast", "recovery", "week", "strava", "github", "gallery", "hn", "clocks"];
 		localStorage.setItem("dashboard-widgets", JSON.stringify(Object.fromEntries(ids.map((id) => [id, false]))));
 	});
 	await page.reload();
 	await expect(page.getByText("Every widget is hidden.")).toBeVisible();
 	await page.getByRole("button", { name: "Choose widgets" }).click();
 	await page.getByRole("button", { name: "Reset layout" }).click();
-	await expect(page.locator("#dashboard-grid .widget")).toHaveCount(7);
+	await expect(page.locator("#dashboard-grid .widget")).toHaveCount(12);
 });
 
 // The dashboard is often a window squeezed into part of a screen, so the
@@ -170,6 +179,9 @@ for (const [width, height] of SIZES) {
 		await expect(page.locator(".hn-item").first()).toBeVisible();
 		await expect(page.locator(".strava-row").first()).toBeVisible();
 		await expect(page.locator(".weather-temp")).toHaveText("21°");
+		await expect(page.locator('[data-widget="running"] .t-stat').first()).toBeVisible();
+		await expect(page.locator('[data-widget="forecast"] .hour').first()).toBeVisible();
+		await expect(page.locator('[data-widget="week"] .wk-day').first()).toBeVisible();
 		// List trimming runs a frame after a resize; give it a couple.
 		await page.waitForTimeout(250);
 

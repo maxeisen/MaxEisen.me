@@ -184,5 +184,16 @@ export function createGridDrag({
 		reset() {
 			save([...defaults]);
 		},
+
+		/** Trade two widgets' places in the saved order. */
+		swap(a, b) {
+			const ia = layout.indexOf(a);
+			const ib = layout.indexOf(b);
+			if (ia < 0 || ib < 0 || ia === ib) return;
+			const next = [...layout];
+			next[ia] = b;
+			next[ib] = a;
+			save(next);
+		},
 	};
 }

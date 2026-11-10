@@ -90,6 +90,28 @@
         writeVisibility(VISIBILITY_KEY, choices);
     }
 
+    // For each widget that couldn't load, a hidden one to offer in its place:
+    // the same size if there is one, so the grid barely moves.
+    const suggestions = $derived.by(() => {
+        const spare = WIDGETS.filter((w) => !isShown(choices, w) && !unavailable[w.id]);
+        const taken = new Set();
+        const out = [];
+        for (const failed of shown.filter((w) => unavailable[w.id])) {
+            const free = spare.filter((w) => !taken.has(w.id));
+            const alt = free.find((w) => w.size.w === failed.size.w && w.size.h === failed.size.h) ?? free[0];
+            if (!alt) continue;
+            taken.add(alt.id);
+            out.push({ failed, alt });
+        }
+        return out;
+    });
+
+    function swapIn(failedId, altId) {
+        reorder.swap(failedId, altId);
+        choices = setShown(setShown(choices, failedId, false), altId, true);
+        writeVisibility(VISIBILITY_KEY, choices);
+    }
+
     function resetLayout() {
         reorder.reset();
         choices = {};
@@ -229,6 +251,12 @@
                 {/each}
             </div>
             <button class="reset" type="button" onclick={resetLayout}>Reset layout</button>
+            {#each suggestions as { failed, alt } (failed.id)}
+                <p class="suggest">
+                    {failed.title} couldn't load.
+                    <button class="suggest-btn" type="button" onclick={() => swapIn(failed.id, alt.id)}>Show {alt.title} in its place</button>
+                </p>
+            {/each}
         </div>
     {/if}
 
@@ -276,7 +304,7 @@
                         style:transform={reorder.transformFor(widget.id)}
                         onpointerdown={(e) => reorder.start(widget.id, e)}
                     >
-                        <widget.component onavailability={(ok) => setAvailable(widget.id, ok)} />
+                        <widget.component {...widget.props} onavailability={(ok) => setAvailable(widget.id, ok)} />
                     </svelte:element>
                     {#if edit.isEditing && reorder.draggingId !== widget.id}
                         <button
@@ -503,6 +531,23 @@
         color: var(--bg);
     }
     .chip.failed { opacity: 0.6; }
+    .suggest {
+        flex-basis: 100%;
+        margin: 0;
+        font-size: var(--font-xs);
+        color: var(--text-2);
+    }
+    .suggest-btn {
+        margin-left: var(--space-1);
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--accent);
+        font: inherit;
+        font-weight: var(--weight-medium);
+        cursor: pointer;
+    }
+    .suggest-btn:hover { text-decoration: underline; }
     .chip-note { font-weight: var(--weight-regular); }
     .reset { border-radius: var(--radius); }
 
