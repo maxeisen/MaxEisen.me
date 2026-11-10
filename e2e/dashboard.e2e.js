@@ -51,16 +51,21 @@ test("a dragged widget lands where it's dropped, and stays there", async ({ page
 
 	await page.mouse.up();
 	await expect(placeholder).toHaveCount(0);
-	await page.waitForTimeout(300); // the glide into place
+	// Once the glide into place has finished, it's where the placeholder was.
+	await expect.poll(async () => {
+		const box = await clock.boundingBox();
+		return Math.max(Math.abs(box.x - landing.x), Math.abs(box.y - landing.y));
+	}).toBeLessThan(4);
 	const dropped = await clock.boundingBox();
-	expect(Math.abs(dropped.x - landing.x)).toBeLessThan(4);
-	expect(Math.abs(dropped.y - landing.y)).toBeLessThan(4);
 
+	// After a reload it's there from the first frame: no glide in from the
+	// default layout.
 	await page.reload();
 	await expect(page.locator(".github-repo")).toBeVisible();
 	const reloaded = await clock.boundingBox();
 	expect(Math.abs(reloaded.x - dropped.x)).toBeLessThan(4);
 	expect(Math.abs(reloaded.y - dropped.y)).toBeLessThan(4);
+	expect(await clock.evaluate((el) => el.getAnimations().length)).toBe(0);
 });
 
 test("Escape puts a drag back", async ({ page }) => {
@@ -187,18 +192,27 @@ for (const [width, height] of SIZES) {
 
 		const report = await page.evaluate(() => {
 			const overflows = [];
+			// Content counts as cut off if it crosses the edge of the tile, or
+			// of any box between it and the tile that clips (overflow other
+			// than visible): text clipped by an inner container is as lost as
+			// text spilling out of the tile.
+			const clips = (el) => getComputedStyle(el).overflow !== "visible";
 			for (const widget of document.querySelectorAll("#dashboard-grid .widget")) {
-				const box = widget.getBoundingClientRect();
 				for (const el of widget.querySelectorAll("*")) {
 					// An SVG's children are drawn in its viewBox; the <svg> itself is checked.
 					if (el.ownerSVGElement) continue;
-					const style = getComputedStyle(el);
-					if (style.visibility === "hidden") continue;
+					if (getComputedStyle(el).visibility === "hidden") continue;
 					const r = el.getBoundingClientRect();
 					if (r.width === 0 && r.height === 0) continue;
-					const over = Math.max(r.bottom - box.bottom, r.right - box.right, box.top - r.top, box.left - r.left);
-					if (over > 1) {
-						overflows.push(`${widget.dataset.widget}: .${[...el.classList].join(".") || el.tagName} by ${Math.round(over)}px`);
+					for (let box = el.parentElement; box; box = box.parentElement) {
+						if (box !== widget && !clips(box)) continue;
+						const b = box.getBoundingClientRect();
+						const over = Math.max(r.bottom - b.bottom, r.right - b.right, b.top - r.top, b.left - r.left);
+						if (over > 1) {
+							overflows.push(`${widget.dataset.widget}: .${[...el.classList].join(".") || el.tagName} by ${Math.round(over)}px`);
+							break;
+						}
+						if (box === widget) break;
 					}
 				}
 			}

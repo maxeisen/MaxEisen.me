@@ -218,9 +218,12 @@
     @container slot (max-height: 220px) {
         .github-meta { display: none; }
     }
-    @container slot (max-height: 170px) {
-        .github-message,
+    /* The M/W/F labels need ~100px of heatmap; below that they'd be cut. */
+    @container slot (max-height: 260px) {
         .github-heatmap-rows { display: none; }
+    }
+    @container slot (max-height: 170px) {
+        .github-message { display: none; }
         .github-graph-meta { margin-top: var(--space-1); }
     }
     @container slot (max-width: 300px) {
