@@ -78,7 +78,6 @@
 	     the window must keep propagating: App.svelte's document listener is
 	     what turns an internal link into a client-side navigation, and
 	     stopping them here made links in a modal full-reload the site. -->
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
 		class="modal-backdrop"
 		role="presentation"
