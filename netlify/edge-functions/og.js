@@ -26,9 +26,9 @@ const DEFAULT = {
 const META = {
 	"/": DEFAULT,
 	"/gallery": { title: "Gallery — Max Eisen", desc: "A gallery of photos taken with my Fujifilm X100S and X100V.", card: "Gallery" },
-	"/gallery/ride": { title: "Cycling — Max Eisen", desc: "Photos from the road, cycling around Toronto and beyond.", card: "Cycling" },
-	"/gallery/run": { title: "Running — Max Eisen", desc: "Photos from runs around Toronto and beyond.", card: "Running" },
-	"/dashboard": { title: "Live Dashboard — Max Eisen", desc: "A live look at what I'm listening to, riding, and reading.", card: "Live Dashboard" },
+	"/gallery/ride": { title: "Rides — Max Eisen", desc: "Photos from the road, cycling around Toronto and beyond.", card: "Rides" },
+	"/gallery/run": { title: "Runs — Max Eisen", desc: "Photos from runs around Toronto and beyond.", card: "Runs" },
+	"/dashboard": { title: "Dashboard — Max Eisen", desc: "A live look at what I'm listening to, riding, and reading.", card: "Live Dashboard" },
 	"/cycling": { title: "Cycling — Max Eisen", desc: "A ride log: fitness, fatigue, and the last ride. Not a race plan.", card: "Cycling" },
 	"/bach": { title: "Bach — Max Eisen", desc: "An interactive party game.", card: "Bach" },
 	"/resume": { title: "Resume — Max Eisen", desc: "Max Eisen's résumé — software engineer in Toronto.", card: "Resume" },

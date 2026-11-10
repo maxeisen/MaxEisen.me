@@ -24,7 +24,7 @@
     import GitHubIcon from "svelte-icons/io/IoLogoGithub.svelte";
 
     const ICONS = { web: GlobeIcon, email: MailIcon, phone: PhoneIcon, linkedin: LinkedInIcon, github: GitHubIcon };
-    const PAGE_TITLE = "Resume | MaxEisen.me";
+    const PAGE_TITLE = "Resume — Max Eisen";
     const PDF_FILE = "MaxEisen_Resume.pdf";
 
     const range = (start, end) => `${start} – ${end}`;

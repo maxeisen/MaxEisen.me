@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-    <title>Rides | MaxEisen.me</title>
+    <title>Rides — Max Eisen</title>
     <link rel="canonical" href="https://maxeisen.me/gallery/ride"/>
 </svelte:head>
 

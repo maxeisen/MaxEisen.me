@@ -9,7 +9,7 @@ import { pdfPageCount } from "../scripts/lib/resumePdf.mjs";
 
 test("the résumé renders as a page of the site", async ({ page }) => {
 	await page.goto("/resume");
-	await expect(page).toHaveTitle(/Resume/);
+	await expect(page).toHaveTitle("Resume — Max Eisen");
 	await expect(page.getByRole("heading", { level: 1, name: "Max Eisen" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Experience" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Education" })).toBeVisible();

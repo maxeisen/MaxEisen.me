@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("gallery route renders its shell and the photo fetch settles", async ({ page }) => {
 	await page.goto("/gallery");
-	await expect(page).toHaveTitle(/Gallery/i);
+	await expect(page).toHaveTitle("Gallery — Max Eisen");
 
 	// The page header renders independently of data.
 	await expect(page.getByRole("heading", { name: "Gallery", level: 1 })).toBeVisible();

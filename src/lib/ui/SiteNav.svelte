@@ -60,7 +60,7 @@
     <div class="inner">
         <a class="home" href="/" aria-label="Max Eisen — home">
             <Logo size={28} />
-            <span class="name">Max Eisen</span>
+            <span class="name">MEisen</span>
         </a>
 
         <nav aria-label="Site">

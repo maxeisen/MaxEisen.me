@@ -9,7 +9,7 @@ for (const javaScriptEnabled of [true, false]) {
 
 		test("the 404 page says what happened and where to go", async ({ page }) => {
 			await page.goto("/404.html");
-			await expect(page).toHaveTitle(/Page not found/);
+			await expect(page).toHaveTitle("Page not found — Max Eisen");
 			await expect(page.getByRole("heading", { level: 1, name: "This page doesn't exist" })).toBeVisible();
 			await expect(page.getByRole("link", { name: "Go to the homepage" })).toHaveAttribute("href", "/");
 			for (const href of ["/resume", "/gallery", "/running", "/cycling", "/dashboard"]) {

@@ -7,7 +7,7 @@ import { injectTrainingFallback, renderTrainingFallback } from "./fallback.js";
 
 const SHELL = `<!DOCTYPE html>
 <html lang="en" data-theme="light">
-<head><title>Get to Know Max Eisen | MaxEisen.me</title></head>
+<head><title>Max Eisen — Software Engineer</title></head>
 <body>
     <div id="app"></div>
     <noscript>

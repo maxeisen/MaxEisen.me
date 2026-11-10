@@ -45,7 +45,7 @@
 </script>
 
 <svelte:head>
-    <title>Wedding | MaxEisen.me</title>
+    <title>Max and Lara's Wedding</title>
     <meta name="robots" content="noindex"/>
     <link rel="canonical" href="https://maxeisen.me/gallery/wedding"/>
 </svelte:head>

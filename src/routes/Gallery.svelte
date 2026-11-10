@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-    <title>Gallery | MaxEisen.me</title>
+    <title>Gallery — Max Eisen</title>
     <link rel="canonical" href="https://maxeisen.me/gallery"/>
 </svelte:head>
 

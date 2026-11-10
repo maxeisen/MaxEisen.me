@@ -221,7 +221,7 @@
 </script>
 
 <svelte:head>
-    <title>Dashboard | MaxEisen.me</title>
+    <title>Dashboard — Max Eisen</title>
     <meta name="robots" content="noindex"/>
     <link rel="canonical" href="https://maxeisen.me/dashboard"/>
 </svelte:head>
