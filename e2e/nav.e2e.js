@@ -46,16 +46,27 @@ for (const width of [1920, 1280, 1100, 900, 760, 390]) {
 		expect(withHide.boxes).toEqual(plain.boxes);
 
 		const hide = page.getByRole("button", { name: "Hide navigation" });
-		// Below 700px there's no room for it outside the row, so it isn't offered.
-		if (width <= 700) {
-			await expect(hide).toBeHidden();
-			return;
-		}
 		await expect(hide).toBeVisible();
 		const box = await hide.boundingBox();
-		// Right of the theme toggle, clear of it, and on screen.
-		expect(box.x).toBeGreaterThanOrEqual(withHide.theme.x + withHide.theme.width);
-		expect(box.x + box.width).toBeLessThanOrEqual(width);
+
+		// It covers nothing in the row.
+		const items = await page.locator("header.site-nav nav a, header.site-nav .home, header.site-nav .tools > *")
+			.evaluateAll((els) => els.map((el) => {
+				const r = el.getBoundingClientRect();
+				return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+			}));
+		for (const r of items) {
+			const overlaps = r.left < box.x + box.width && r.right > box.x && r.top < box.y + box.height && r.bottom > box.y;
+			expect(overlaps).toBe(false);
+		}
+
+		// Hide and show are the same spot: click, and click again without
+		// moving the pointer.
+		const spot = { x: box.x + box.width / 2, y: box.y + Math.min(box.height, 8) / 2 + 1 };
+		await page.mouse.click(spot.x, spot.y);
+		await expect(page.locator("header.site-nav")).toHaveCount(0);
+		await page.mouse.click(spot.x, spot.y);
+		await expect(page.locator("header.site-nav")).toBeVisible();
 	});
 }
 

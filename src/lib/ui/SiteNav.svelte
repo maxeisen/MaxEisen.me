@@ -13,9 +13,11 @@
     at the top edge to bring it back; the choice is remembered per page.
     Bind `hidden` to lay the page out for either state. The bar is always
     the same width on every page, so nothing shifts between routes — which
-    is why the hide control sits outside the bar's layout, just right of
-    the theme toggle, instead of taking a place in the row (where it would
-    push the links over on the pages that have it).
+    is why the hide control sits outside the bar's layout instead of taking
+    a place in the row (where it would push the links over on the pages
+    that have it). It's a tab at the top-centre of the bar, the same spot as
+    the tab that brings it back, so the bar can be put away and brought
+    back without moving the pointer.
 
     The link list is the single place to add or rename a section.
 -->
@@ -73,14 +75,14 @@
 
         <div class="tools">
             <ThemeToggle />
-            <!-- Positioned against the whole bar, not the row: see .hide. -->
-            {#if hideable}
-                <button class="hide" type="button" onclick={() => setHidden(true)} aria-label="Hide navigation" title="Hide navigation">
-                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" /></svg>
-                </button>
-            {/if}
         </div>
     </div>
+    <!-- Out of the row, at the top-centre: see .hide. -->
+    {#if hideable}
+        <button class="hide" type="button" onclick={() => setHidden(true)} aria-label="Hide navigation" title="Hide navigation">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" /></svg>
+        </button>
+    {/if}
 </header>
 {/if}
 
@@ -157,26 +159,12 @@
         cursor: pointer;
         transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
     }
-    /* Out of the row, so it moves nothing: placed against the full-width
-       bar, 8px right of the theme toggle. On a wide window that's in the
-       margin beside the centred row; once the row spans the window, it's
-       in the side gutter (26px fits the narrowest gutter it's shown at). */
-    .hide {
-        position: absolute;
-        top: calc((var(--nav-height) - 26px) / 2);
-        right: max(2px, calc(max(0px, (100% - var(--page-max)) / 2) + var(--page-gutter) - 34px));
-        width: 26px;
-        height: 26px;
-        border-radius: var(--radius);
-        background: transparent;
-    }
-    .hide:hover { color: var(--text-strong); background: var(--surface-2); }
-    /* A tab hanging from the top edge, in the gutter above the content. */
+    /* Both tabs hang from the top edge at the centre, the same size, so
+       hiding and showing the bar is one spot clicked twice. */
+    .hide,
     .reveal {
-        position: fixed;
         top: 0;
         left: 50%;
-        z-index: var(--z-sticky);
         width: 48px;
         height: 18px;
         transform: translateX(-50%);
@@ -184,6 +172,13 @@
         border-top: 0;
         border-radius: 0 0 var(--radius) var(--radius);
         background: var(--surface);
+    }
+    .hide { position: absolute; }
+    .hide:hover { color: var(--text-strong); background: var(--surface-2); }
+    /* While hidden, the tab hangs in the gutter above the content. */
+    .reveal {
+        position: fixed;
+        z-index: var(--z-sticky);
     }
     .reveal:hover { color: var(--text-strong); height: 22px; }
     .hide svg, .reveal svg {
@@ -194,6 +189,13 @@
         stroke-width: 1.6;
         stroke-linecap: round;
         stroke-linejoin: round;
+    }
+    /* Narrower than this, a link sits under the bar's centre, 12px down.
+       The tab slims to stay above it; it's still inside the top of the
+       revealing tab, so the pointer needn't move. */
+    @media (max-width: 1099px) {
+        .hide { height: 10px; }
+        .hide svg { width: 10px; height: 10px; }
     }
 
     .tools {
@@ -215,9 +217,5 @@
             padding-right: var(--space-5);
         }
         nav a { padding: 6px 8px; }
-        /* The gutter is too thin to hold it here, and taking a place in the
-           row would move the theme toggle; a window this narrow scrolls
-           anyway. A bar already hidden still has its tab to come back. */
-        .hide { display: none; }
     }
 </style>
