@@ -122,7 +122,8 @@
     // close; the observer corrects it before anything has had time to notice.
     let box = $state({
         width: Math.max(0, window.innerWidth - 64),
-        height: Math.max(0, window.innerHeight - 88),
+        // Less the nav (56) and the grid's padding (16 top, 50 foot).
+        height: Math.max(0, window.innerHeight - 122),
         gap: 16,
     });
     const grid = $derived(
@@ -225,11 +226,8 @@
     <link rel="canonical" href="https://maxeisen.me/dashboard"/>
 </svelte:head>
 
-{#snippet actions()}
-    <EditToggle editing={edit.isEditing} onclick={edit.toggle} />
-{/snippet}
-
-<SiteNav sticky={false} hideable bind:hidden={navHidden} {actions} />
+<SiteNav sticky={false} hideable bind:hidden={navHidden} />
+<EditToggle editing={edit.isEditing} onclick={edit.toggle} />
 
 <div class="dashboard" class:nav-hidden={navHidden}>
     {#if edit.isEditing}
@@ -353,11 +351,13 @@
         padding-top: 10px;
     }
 
+    /* The foot is deeper than the rest of the padding: it's where the
+       floating Edit toggle sits, clear of the widgets. */
     .dashboard-fit {
         position: relative;
         flex: 1;
         min-height: 0;
-        padding: var(--space-4) var(--page-gutter);
+        padding: var(--space-4) var(--page-gutter) 50px;
         overflow: hidden;
         /* So a scrollbar arriving doesn't narrow the box and re-trigger a
            layout. Overlay scrollbars (macOS) take no room either way. */

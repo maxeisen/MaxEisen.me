@@ -119,6 +119,10 @@
     @container slot (max-height: 135px) {
         .fc :global(.hour-sky) { display: none; }
     }
+    /* The verdict's bike says what this is; the label row can go first. */
+    @container slot (max-height: 135px) {
+        :global(.widget-forecast .widget-head) { display: none; }
+    }
     @container slot (max-height: 110px) {
         .fc-verdict { display: none; }
     }
