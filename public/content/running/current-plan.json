@@ -1,7 +1,9 @@
 {
   "race": {
+    "name": "Around The Bay 2027",
+    "label": "Road to Around the Bay",
     "date": "2027-04-11",
-    "label": "Road to Around the Bay"
+    "distanceM": 30000
   },
   "thresholds": {
     "maxHr": 191,
