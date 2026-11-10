@@ -39,6 +39,9 @@ describe.each(ENDPOINTS)("%s", (_name, path) => {
 		for (const id of ["1", "2", "3"]) {
 			await handler(new Request(`https://maxeisen.me/.netlify/functions/x?id=${id}`));
 		}
-		expect(store.get).toHaveBeenCalledTimes(1);
+		const reads = store.get.mock.calls.map(([key]) => key);
+		expect(reads.filter((k) => k === "index.json")).toHaveLength(1);
+		// trainingActivity also reads the synced plan, at most once.
+		expect(reads.filter((k) => k !== "index.json").length).toBeLessThanOrEqual(1);
 	});
 });

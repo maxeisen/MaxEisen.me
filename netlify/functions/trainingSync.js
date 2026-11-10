@@ -25,6 +25,7 @@
 // provisional numbers pass for final ones.
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
+import { getEnv } from "./_shared/env.js";
 import {
 	STRAVA_API_BASE,
 	callsRemaining,
@@ -49,7 +50,8 @@ import { shapeRecovery } from "./_shared/training/recovery.js";
 import { captionRecentRuns } from "./_shared/training/caption.js";
 import { dailyLoads } from "./_shared/training/load.js";
 import { fitnessSeries } from "./_shared/training/fitness.js";
-import { loadPlan } from "./_shared/training/planFile.js";
+import { combinePlans, loadPlan } from "./_shared/training/planFile.js";
+import { mergeRunnaPlan, parseIcs } from "./_shared/training/runna.js";
 import { blockRange } from "./_shared/training/plan.js";
 import { addDays, toDayKey, torontoToday } from "./_shared/training/dates.js";
 import {
@@ -58,6 +60,7 @@ import {
 	INDEX_KEY,
 	PUBLIC_KEY,
 	RECOVERY_KEY,
+	RUNNA_PLAN_KEY,
 	getTrainingStore,
 	mergeActivities,
 	readJson,
@@ -217,6 +220,50 @@ async function syncRecovery(store, today) {
 		// wrong here, and it's worth being able to tell them apart in a log.
 		console.error("Oura sync failed", err);
 		return { configured: true, ok: false, reason: err.status === 403 ? "membership" : "fetch" };
+	}
+}
+
+// How often the Runna feed is re-read. Moving a workout in the app should show
+// up on the page about as fast as a run does, and one small GET every quarter
+// hour is nothing to Runna — but there's no reason to make it every tick.
+const RUNNA_REFRESH_MS = 15 * 60 * 1000;
+const RUNNA_TIMEOUT_MS = 8_000;
+
+/**
+ * Re-read the plan from Runna's calendar feed into Blobs.
+ *
+ * Isolated the same way as syncRecovery: no feed configured is a normal
+ * state (the plan file alone), and a broken feed keeps the last good plan
+ * rather than blanking the block. A feed that parses to no sessions at all is
+ * treated as broken, not as a plan with nothing in it.
+ *
+ * @param {object} store
+ * @param {object|null} stored the last runna-plan.json
+ * @param {string} today day key.
+ * @returns {Promise<object>} a status for the response body, never a throw.
+ */
+async function syncRunnaPlan(store, stored, today) {
+	const url = (getEnv("RUNNA_ICS_URL") || "").trim();
+	if (!url) return { configured: false };
+	if (!/^https:\/\//i.test(url)) return { configured: true, ok: false, reason: "bad_url" };
+
+	const last = Date.parse(stored?.fetchedAt || "") || 0;
+	if (Date.now() - last < RUNNA_REFRESH_MS) return { configured: true, ok: true, fresh: false };
+
+	try {
+		const res = await fetch(url, { signal: AbortSignal.timeout(RUNNA_TIMEOUT_MS) });
+		if (!res.ok) {
+			// The status only — the URL is the credential and must not be logged.
+			console.error("Runna feed failed", res.status);
+			return { configured: true, ok: false, reason: "fetch" };
+		}
+		const plan = mergeRunnaPlan(stored, parseIcs(await res.text()), today);
+		if (plan.sessions.length === 0) return { configured: true, ok: false, reason: "empty" };
+		await writeJson(store, RUNNA_PLAN_KEY, { ...plan, fetchedAt: new Date().toISOString() });
+		return { configured: true, ok: true, fresh: true, sessions: plan.sessions.length };
+	} catch (err) {
+		console.error("Runna feed failed", err?.name || "error");
+		return { configured: true, ok: false, reason: "fetch" };
 	}
 }
 
@@ -445,19 +492,23 @@ export default async function handler(req) {
 	quota = null;
 
 	const store = getTrainingStore();
-	const [existing, cursor, snapshot] = await Promise.all([
+	const [existing, cursor, snapshot, runnaPlan] = await Promise.all([
 		readJson(store, INDEX_KEY, []),
 		readJson(store, CURSOR_KEY, {}),
 		readJson(store, PUBLIC_KEY, null),
+		readJson(store, RUNNA_PLAN_KEY, null),
 	]);
 
-	const plan = loadPlan();
+	// This tick works from the plan as last synced; the refresh below lands for
+	// the next one (and for the page, which reads the blob directly).
+	const plan = combinePlans(loadPlan(), runnaPlan);
 	const blockStart = historyStartEpoch(plan);
 
 	// Started rather than awaited. It shares no state, token or rate limit
 	// with the Strava work below, which is allowed to spend twenty seconds,
 	// and there's no reason three quick requests should queue behind it.
 	const recoveryWork = syncRecovery(store, torontoToday());
+	const planWork = syncRunnaPlan(store, runnaPlan, torontoToday());
 
 	const stoodDown = async () =>
 		jsonResponse({
@@ -478,6 +529,7 @@ export default async function handler(req) {
 			quotaPaused: false,
 			timedOut: false,
 			recovery: await recoveryWork,
+			plan: await planWork,
 		});
 
 	// A 429 still counts against the daily quota, so retrying every five
@@ -815,6 +867,7 @@ export default async function handler(req) {
 		quotaPaused,
 		timedOut,
 		recovery: await recoveryWork,
+		plan: await planWork,
 	});
 }
 

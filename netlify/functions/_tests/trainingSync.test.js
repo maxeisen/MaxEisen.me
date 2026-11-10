@@ -142,8 +142,9 @@ const publicSnap = () => blobs.get("public.json") || null;
 // Netlify injects real Oura credentials into the build environment. Oura still
 // runs while Strava is stood down, so those vars would make every sync hit
 // api.ouraring.com/oauth/token and trip assertions that meant Strava. Keep
-// this file's default hermetic; the Oura window tests opt back in.
-const OURA_ENV = ["OURA_CLIENT_ID", "OURA_CLIENT_SECRET", "OURA_REFRESH_TOKEN"];
+// this file's default hermetic; the Oura window tests opt back in. The Runna
+// feed URL is cleared for the same reason.
+const OURA_ENV = ["OURA_CLIENT_ID", "OURA_CLIENT_SECRET", "OURA_REFRESH_TOKEN", "RUNNA_ICS_URL"];
 let savedOura = {};
 
 beforeEach(() => {
@@ -669,6 +670,76 @@ describe("trainingSync", () => {
 			// Every detail call this made was an enrichment, which carries its
 			// query string; a note refresh asks for the activity bare.
 			expect(calls.filter((c) => /\/activities\/\d+$/.test(c))).toHaveLength(0);
+		});
+	});
+
+	describe("the Runna plan", () => {
+		const FEED_URL = "https://cal.runna.com/secret-token.ics";
+		const FEED = [
+			"BEGIN:VCALENDAR",
+			"BEGIN:VEVENT",
+			"UID:UPCOMING_PLAN_WORKOUT-p_plan_week_1_LONG_RUN_0",
+			"DTSTART:20990104",
+			"SUMMARY:🏃 13km Long Run • 13km",
+			"DESCRIPTION:Long Run • 13km • 1h0m - 1h10m",
+			"END:VEVENT",
+			"END:VCALENDAR",
+		].join("\r\n");
+
+		function withFeed(reply) {
+			const strava = globalThis.fetch;
+			const feedCalls = [];
+			globalThis.fetch = vi.fn(async (url, init) => {
+				if (String(url) === FEED_URL) {
+					feedCalls.push(url);
+					return reply();
+				}
+				return strava(url, init);
+			});
+			return feedCalls;
+		}
+
+		it("does nothing without a feed configured", async () => {
+			mockStrava({ activities: summaries(1) });
+			const { body } = await sync();
+			expect(body.plan).toEqual({ configured: false });
+			expect(blobs.has("runna-plan.json")).toBe(false);
+		});
+
+		it("stores the plan from the feed without logging or storing its URL", async () => {
+			process.env.RUNNA_ICS_URL = FEED_URL;
+			mockStrava({ activities: summaries(1) });
+			withFeed(() => new Response(FEED, { status: 200 }));
+			const { body } = await sync();
+
+			expect(body.plan).toMatchObject({ configured: true, ok: true, fresh: true, sessions: 1 });
+			const stored = blobs.get("runna-plan.json");
+			expect(stored.sessions[0]).toMatchObject({ date: "2099-01-04", type: "long run", distanceKm: 13 });
+			expect(JSON.stringify(stored)).not.toContain("secret-token");
+			expect(JSON.stringify(body)).not.toContain("secret-token");
+		});
+
+		it("keeps the last good plan when the feed breaks or comes back empty", async () => {
+			process.env.RUNNA_ICS_URL = FEED_URL;
+			const good = { sessions: [{ date: "2099-01-04", day: "Sunday", type: "long run" }], fetchedAt: "2000-01-01T00:00:00Z" };
+			for (const reply of [() => new Response("nope", { status: 500 }), () => new Response("<html></html>", { status: 200 })]) {
+				blobs.set("runna-plan.json", good);
+				mockStrava({ activities: summaries(1) });
+				withFeed(reply);
+				const { body } = await sync();
+				expect(body.plan.ok).toBe(false);
+				expect(blobs.get("runna-plan.json")).toBe(good);
+			}
+		});
+
+		it("re-reads the feed at most every fifteen minutes", async () => {
+			process.env.RUNNA_ICS_URL = FEED_URL;
+			blobs.set("runna-plan.json", { sessions: [], fetchedAt: new Date().toISOString() });
+			mockStrava({ activities: summaries(1) });
+			const feedCalls = withFeed(() => new Response(FEED, { status: 200 }));
+			const { body } = await sync();
+			expect(feedCalls).toHaveLength(0);
+			expect(body.plan).toEqual({ configured: true, ok: true, fresh: false });
 		});
 	});
 

@@ -1,5 +1,9 @@
 // The live training plan, when there is one.
 //
+// With RUNNA_ICS_URL set, the weeks come from Runna's calendar feed (synced
+// into Blobs by trainingSync — see runna.js and loadTrainingPlan below) and
+// this file only needs `race` overrides and `thresholds`.
+//
 // Named plans live in public/content/running/. The dashboard only reads
 // current-plan.json from that directory — copy or rename a plan to that name
 // to put a block on /running. A missing, unreadable or empty file is the
@@ -17,6 +21,8 @@
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { toPlanWeeks } from "./runna.js";
+import { RUNNA_PLAN_KEY, getTrainingStore, readJson } from "./store.js";
 
 const REL = "public/content/running/current-plan.json";
 
@@ -62,4 +68,39 @@ export function loadPlan(root) {
 		if (plan) return plan;
 	}
 	return normalizePlan(null);
+}
+
+/**
+ * The plan file and the Runna feed, as one plan.
+ *
+ * With a feed configured, its sessions are the weeks: Runna is where the plan
+ * gets changed, and a file kept in step by hand would only ever be behind it.
+ * The file still supplies what the feed can't — thresholds, and race fields
+ * such as a goal time or label — and wins on any race field it sets, unless
+ * it describes a different race (a file left over from the last block).
+ *
+ * @param {{race: object, thresholds: object, weeks: object[]}} filePlan
+ * @param {{sessions?: object[], race?: object|null}|null} runna stored feed state
+ */
+export function combinePlans(filePlan, runna) {
+	if (!Array.isArray(runna?.sessions) || runna.sessions.length === 0) return filePlan;
+	const feedRace = runna.race || {};
+	const fileRace = filePlan.race || {};
+	const sameRace = !fileRace.date || !feedRace.date || fileRace.date === feedRace.date;
+	return {
+		race: sameRace ? { ...feedRace, ...fileRace } : { ...feedRace },
+		thresholds: filePlan.thresholds,
+		weeks: toPlanWeeks(runna.sessions),
+	};
+}
+
+/**
+ * The live plan: the file, overlaid with the last Runna feed sync if there is
+ * one. A missing or unreadable blob is the file alone.
+ *
+ * @param {object} [store]
+ */
+export async function loadTrainingPlan(store = getTrainingStore()) {
+	const runna = await readJson(store, RUNNA_PLAN_KEY, null);
+	return combinePlans(loadPlan(), runna);
 }

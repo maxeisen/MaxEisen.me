@@ -8,6 +8,8 @@
 //   cursor.json — sync bookkeeping (last activity seen, last run time)
 //   recovery.json — a night's sleep and overnight heart rate, per day
 //   oura.json  — Oura's rotating OAuth tokens
+//   runna-plan.json — the training plan as last read from Runna's calendar
+//                 feed, with past days frozen (see runna.js)
 //   public.json — homepage / dashboard snapshot (route shapes, never
 //                 coordinates; nothing route-related is in index.json)
 //
@@ -25,6 +27,7 @@ export const CURSOR_KEY = "cursor.json";
 export const RECOVERY_KEY = "recovery.json";
 export const OURA_KEY = "oura.json";
 export const PUBLIC_KEY = "public.json";
+export const RUNNA_PLAN_KEY = "runna-plan.json";
 
 export function getTrainingStore() {
 	return getStore({ name: STORE_NAME, consistency: "strong" });
