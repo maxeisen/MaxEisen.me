@@ -1,0 +1,10 @@
+{
+	"note": "Written by scripts/build-resume-pdf.mjs. Fingerprint of the files below; tests/resumePdf.test.js checks it.",
+	"inputs": [
+		"public/content/resume.json",
+		"src/components/Resume/Resume.svelte",
+		"public/img/headshots/2026_amazon_headshot_v2.png",
+		"public/img/headshots/2026_amazon_headshot_v2.webp"
+	],
+	"fingerprint": "e197847beb2df6f4f6a22cd14b6b4045dd63efd05f2c6f655cf0d61a368d7171"
+}
