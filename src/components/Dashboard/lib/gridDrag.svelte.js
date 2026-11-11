@@ -111,10 +111,7 @@ export function createGridDrag({
 		};
 
 		const finish = (commit) => {
-			document.removeEventListener("pointermove", onMove);
-			document.removeEventListener("pointerup", onUp);
-			document.removeEventListener("pointercancel", onCancel);
-			document.removeEventListener("keydown", onKey);
+			detach();
 			if (draggingId !== null) {
 				const visible = snapshot.items.map((item) => item.id);
 				if (commit && preview.join() !== visible.join()) {
@@ -153,6 +150,15 @@ export function createGridDrag({
 				finish(false);
 			}
 		};
+
+		// Declared after the handlers it removes, and hoisted, so finish() can
+		// call it from above them.
+		function detach() {
+			document.removeEventListener("pointermove", onMove);
+			document.removeEventListener("pointerup", onUp);
+			document.removeEventListener("pointercancel", onCancel);
+			document.removeEventListener("keydown", onKey);
+		}
 
 		document.addEventListener("pointermove", onMove);
 		document.addEventListener("pointerup", onUp);
