@@ -37,8 +37,10 @@ jobs:
         with:
           node-version: 22
 
+      # A full install, not --package-lock-only: with overrides the lock-only
+      # resolve can write a lockfile that npm ci then rejects.
       - name: Resolve the lockfile
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+        run: npm install --ignore-scripts --no-audit --no-fund
 
       - name: Commit it back if it changed
         run: |
