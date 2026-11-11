@@ -16,14 +16,17 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: lockfile-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   refresh:
-    # Only for branches in this repo: a fork's PR can't be pushed to.
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    # Only for branches in this repo (a fork's PR can't be pushed to), and
+    # not for the lockfile commit this job pushes itself.
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+    # Job-level, so the run its own push starts (skipped above) can't cancel it.
+    concurrency:
+      group: lockfile-${{ github.head_ref || github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
