@@ -38,8 +38,9 @@
     "svelte-rough-notation": "^0.1.4"
   },
   "overrides": {
-    "minimatch@^9.0.0": "^11.0.1",
-    "minimatch@^10.0.0": "^11.0.1",
+    "netlify-cli": {
+      "minimatch": "^11.0.1"
+    },
     "ipx": {
       "sharp": "$sharp"
     },
