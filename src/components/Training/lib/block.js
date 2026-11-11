@@ -72,7 +72,7 @@ export function trainingPageMeta(summary) {
 		const label = summary.race.label || summary.race.name;
 		return {
 			title: `${label} — Max Eisen`,
-			desc: "Live marathon training dashboard: weekly volume, fitness and fatigue, intensity balance, and where I'm projected to finish.",
+			desc: `Live training for ${summary.race.name}: weekly volume, fitness and fatigue, intensity balance, and where I'm projected to finish.`,
 			card: label,
 		};
 	}
