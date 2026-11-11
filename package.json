@@ -43,6 +43,8 @@
     },
     "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5",
     "toml": "5.0.1",
+    "minimatch@^9.0.0": "^11.0.1",
+    "minimatch@^10.0.0": "^11.0.1",
     "zod": "^4.6.6"
   }
 }
