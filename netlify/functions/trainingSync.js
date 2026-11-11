@@ -23,25 +23,19 @@
 // under an hour, and the cursor's `outstanding` count is published so
 // trainingData can tell the page it's still filling in rather than letting
 // provisional numbers pass for final ones.
+//
+// The decisions — what to list, what to enrich, when to sweep notes, when to
+// caption, how far the cursor moves — are in _shared/training/syncPlan.js. The
+// rate limit is the Strava client's (_shared/strava.js). This file is the
+// sequence and the I/O.
 
 import { createJsonResponder, cacheControl } from "./_shared/http.js";
 import { getEnv } from "./_shared/env.js";
-import {
-	STRAVA_API_BASE,
-	callsRemaining,
-	cooldownExpiresAt,
-	getAccessToken,
-	isCoolingDown,
-	noteRateLimit,
-	readQuota,
-} from "./_shared/strava.js";
+import { openStravaClient } from "./_shared/strava.js";
 import { getOuraAccessToken, ouraCollection } from "./_shared/oura.js";
 import {
 	SHAPE_VERSION,
 	collectBestEfforts,
-	isTrackableActivity,
-	isTrackableRide,
-	isTrackableStrength,
 	isRunActivity,
 	shapeActivity,
 } from "./_shared/training/shape.js";
@@ -53,7 +47,13 @@ import { fitnessSeries } from "./_shared/training/fitness.js";
 import { combinePlans, loadPlan } from "./_shared/training/planFile.js";
 import { mergeRunnaPlan, parseIcs } from "./_shared/training/runna.js";
 import { blockRange } from "./_shared/training/plan.js";
-import { addDays, toDayKey, torontoToday } from "./_shared/training/dates.js";
+import { addDays, torontoToday } from "./_shared/training/dates.js";
+import {
+	listingAfter,
+	noteSweepTargets,
+	queueWork,
+	settleSync,
+} from "./_shared/training/syncPlan.js";
 import {
 	ATHLETE_KEY,
 	CURSOR_KEY,
@@ -72,12 +72,6 @@ import { mapWithConcurrency } from "../../src/lib/data/concurrent.js";
 
 const jsonResponse = createJsonResponder(cacheControl.none);
 
-// Detail + streams is 2 upstream calls per activity, so this budget is 60
-// calls per invocation. Three things bound the work and the smallest wins:
-// this count, the wall-clock deadline below, and Strava's own reported quota
-// (QUOTA_SHARE). A block plus its run-up is on the order of 70 runs, so a cold
-// start now converges in two or three invocations rather than a working day.
-const DETAIL_BUDGET = 30;
 const FETCH_CONCURRENCY = 5;
 const PER_PAGE = 100;
 const MAX_PAGES = 4;
@@ -100,59 +94,6 @@ const QUOTA_SHARE = { shortShare: 0.6, dailyShare: 0.75 };
 // the Blobs write, so an unbounded run makes no progress at all and the next
 // one starts from exactly the same place.
 const WORK_DEADLINE_MS = 20_000;
-
-// A finished run never changes, which is the assumption the whole sync rests
-// on — but its description does. The note explaining why a long run was cut
-// short is usually written hours later, with the evening's hindsight, long
-// after the record was shaped and settled.
-//
-// Rather than making a settled record pending again (which would re-fetch the
-// streams to recompute numbers that cannot have moved), the last few days are
-// swept for the description alone: one call each, and only the notes are
-// patched across. Three days because a note that hasn't been written by then
-// isn't coming.
-//
-// How long the sweep waits between passes is the whole delay on seeing a note,
-// and the odds of there being one to see are not flat over those three days.
-// They spike right after a run lands: the note is usually typed in the same
-// sitting as the upload, or in the hour or two after it while the run is still
-// the thing being looked at. So for the first few hours after an activity
-// first appears the sweep runs on every invocation — the same five minutes the
-// activity itself took to show up, so a note written beside it isn't waiting
-// an hour behind a run the page already has. After that the odds flatten out
-// and it falls back to hourly, which is what a note remembered the next
-// morning is worth.
-//
-// The fast pass is bounded by an activity arriving rather than by a clock, so
-// the steady state is still the hourly one: a week with no runs in it costs
-// exactly what it did before. A day with a run in it costs the three hours
-// after it — 36 invocations of at most NOTE_BUDGET reads each, against a daily
-// share of 750 that the listing spends 288 of. The quota guard is what makes
-// that a ceiling rather than a promise: the sweep stands down at its share
-// like everything else here, so a busy day trims the fast pass rather than
-// taking the window the /dashboard widgets need.
-const NOTE_WINDOW_DAYS = 3;
-const NOTE_RESCAN_MS = 60 * 60 * 1000;
-const NOTE_FRESH_WINDOW_MS = 3 * 60 * 60 * 1000;
-const NOTE_BUDGET = 5;
-
-// Chronic training load is a 42-day average, so the block needs a run-up of
-// history behind it to mean anything from day one. Four months is comfortably
-// more than that without dragging in years of unrelated riding and running.
-const HISTORY_LEAD_DAYS = 120;
-
-// Epoch seconds to start listing activities from. Without a bound, the first
-// sync pages through an entire Strava history and times out before writing
-// anything.
-function historyStartEpoch(plan) {
-	const starts = (plan?.weeks || [])
-		.map((w) => w?.start)
-		.filter(Boolean)
-		.sort();
-	const anchor = starts[0] ? new Date(`${starts[0]}T00:00:00Z`) : new Date();
-	if (Number.isNaN(anchor.getTime())) return null;
-	return Math.floor((anchor.getTime() - HISTORY_LEAD_DAYS * 86_400_000) / 1000);
-}
 
 // Only the stream types the engine actually reads. `latlng` is deliberately
 // absent — see _shared/training/shape.js for why the payload carries no
@@ -267,57 +208,15 @@ async function syncRunnaPlan(store, stored, today) {
 	}
 }
 
-// Last quota Strava reported, updated on every response (including errors —
-// a 429 carries the headers that say how long we've overshot by).
-let quota = null;
-
-async function stravaGet(path, token) {
-	const res = await fetch(`${STRAVA_API_BASE}${path}`, {
-		headers: { Authorization: `Bearer ${token}` },
-	});
-	quota = readQuota(res.headers) ?? quota;
-	if (!res.ok) {
-		if (res.status === 429) noteRateLimit(res.headers);
-		const err = new Error(`Strava ${path} failed: ${res.status}`);
-		err.status = res.status;
-		throw err;
-	}
-	return res.json();
-}
-
-async function stravaPut(path, token, body) {
-	const res = await fetch(`${STRAVA_API_BASE}${path}`, {
-		method: "PUT",
-		headers: {
-			Authorization: `Bearer ${token}`,
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(body),
-	});
-	quota = readQuota(res.headers) ?? quota;
-	if (!res.ok) {
-		if (res.status === 429) noteRateLimit(res.headers);
-		const text = await res.text();
-		const err = new Error(`Strava PUT ${path} failed: ${res.status} ${text}`);
-		err.status = res.status;
-		err.body = text;
-		throw err;
-	}
-	return res.json();
-}
-
-// Enough headroom left for one more activity? Two calls each. Infinity when
-// Strava hasn't told us anything, in which case DETAIL_BUDGET is the only
-// bound — which is what the tests and local runs see.
-function hasQuotaForOneMore() {
-	return callsRemaining(quota, QUOTA_SHARE) >= 2;
-}
+// An activity needs two calls (detail + streams), so that's what a step that
+// starts one has to see left.
+const CALLS_PER_ACTIVITY = 2;
 
 // The athlete's configured HR zones. Optional — falls back to percentages of
 // max HR from the plan file when the token lacks profile:read_all.
-async function fetchAthleteZones(token) {
+async function fetchAthleteZones(strava) {
 	try {
-		const zones = await stravaGet("/athlete/zones", token);
+		const zones = await strava.get("/athlete/zones");
 		return zones?.heart_rate?.zones || null;
 	} catch {
 		return null;
@@ -325,12 +224,12 @@ async function fetchAthleteZones(token) {
 }
 
 // Summary activities since `after`, walking pages until they run out.
-async function fetchActivitiesSince(token, afterEpoch) {
+async function fetchActivitiesSince(strava, afterEpoch) {
 	const all = [];
 	for (let page = 1; page <= MAX_PAGES; page++) {
 		const query = new URLSearchParams({ per_page: String(PER_PAGE), page: String(page) });
 		if (afterEpoch) query.set("after", String(afterEpoch));
-		const batch = await stravaGet(`/athlete/activities?${query}`, token);
+		const batch = await strava.get(`/athlete/activities?${query}`);
 		if (!Array.isArray(batch) || batch.length === 0) break;
 		all.push(...batch);
 		if (batch.length < PER_PAGE) break;
@@ -339,9 +238,9 @@ async function fetchActivitiesSince(token, afterEpoch) {
 }
 
 // Streams come back keyed by type; flatten to { type: data[] }.
-async function fetchStreams(id, token, keys = STREAM_KEYS) {
+async function fetchStreams(strava, id, keys = STREAM_KEYS) {
 	try {
-		const raw = await stravaGet(`/activities/${id}/streams?keys=${keys}&key_by_type=true`, token);
+		const raw = await strava.get(`/activities/${id}/streams?keys=${keys}&key_by_type=true`);
 		const streams = {};
 		for (const [key, value] of Object.entries(raw || {})) {
 			if (Array.isArray(value?.data)) streams[key] = value.data;
@@ -355,12 +254,77 @@ async function fetchStreams(id, token, keys = STREAM_KEYS) {
 	}
 }
 
-// A record a note sweep would look at at all: recent enough that a note could
-// still be written on it, and a run rather than a ride, since a ride's
-// description is never read for notes.
-function inNoteWindow(record, today) {
-	if (!isRunActivity(record)) return false;
-	return toDayKey(record?.startDateLocal) >= addDays(today, -NOTE_WINDOW_DAYS);
+/**
+ * Shape what the queue gave this tick, as far as the deadline and the share
+ * allow. Whatever isn't reached stays queued: the next tick finds it again.
+ *
+ * @param {object[]} items from queueWork's `enrich`.
+ * @param {object} ctx
+ * @returns {Promise<{shaped: object[], rateLimited: boolean, quotaPaused: boolean, timedOut: boolean}>}
+ */
+async function enrich(items, { strava, thresholds, zones, deadline }) {
+	const outcome = { rateLimited: strava.coolingDown(), quotaPaused: false, timedOut: false };
+	const options = { thresholds, athleteZones: zones };
+
+	const fetched = await mapWithConcurrency(items, FETCH_CONCURRENCY, async (item) => {
+		if (outcome.rateLimited) return null;
+
+		// A gym session has no stream-derived number. Shape it from the summary
+		// when we have one, and spend a detail call only when we don't.
+		if (item.kind === "strength" && item.summary) return shapeActivity(item.summary, options);
+
+		if (Date.now() > deadline) {
+			outcome.timedOut = true;
+			return null;
+		}
+		if (strava.coolingDown()) {
+			outcome.rateLimited = true;
+			return null;
+		}
+		// Stop before Strava has to say no: a 429 costs a call and, if we kept
+		// going, would eat into the window the /dashboard widgets need.
+		if (!strava.canSpend(CALLS_PER_ACTIVITY)) {
+			outcome.quotaPaused = true;
+			return null;
+		}
+
+		// A listed ride already carries meter watts. One stream call covers
+		// zone time and the last-ride chart. No location or grade.
+		const listedRide = item.kind === "ride" && item.summary;
+		try {
+			if (listedRide) {
+				const streams = await fetchStreams(strava, item.id, RIDE_STREAM_KEYS);
+				return shapeActivity(item.summary, { ...options, streams });
+			}
+			const [detail, streams] = await Promise.all([
+				strava.get(`/activities/${item.id}?include_all_efforts=true`),
+				// A stale ride has no summary on the queue, so it pays for the
+				// detail. Its streams are still the ride set. Strength pays for
+				// the detail and nothing else.
+				item.kind === "ride"
+					? fetchStreams(strava, item.id, RIDE_STREAM_KEYS)
+					: item.kind === "strength"
+						? null
+						: fetchStreams(strava, item.id),
+			]);
+			return shapeActivity(detail, { ...options, streams });
+		} catch (err) {
+			// Once Strava starts refusing, stop asking — the remaining
+			// activities will be picked up by the next scheduled run.
+			if (err.status === 429) {
+				if (err.overShare) {
+					outcome.quotaPaused = true;
+				} else {
+					outcome.rateLimited = true;
+					console.warn("Strava rate limit hit; deferring the rest to the next run");
+				}
+				return null;
+			}
+			console.error(`Failed to sync activity ${item.id}`, err);
+			return listedRide ? shapeActivity(item.summary, options) : null;
+		}
+	});
+	return { shaped: fetched.filter(Boolean), ...outcome };
 }
 
 /**
@@ -370,38 +334,51 @@ function inNoteWindow(record, today) {
  * failure here costs the note and nothing else.
  *
  * @param {object[]} records the merged index, mutated.
- * @param {string} token
- * @param {string} today day key.
- * @param {number} deadline epoch ms to stop by.
  * @returns {Promise<number>} how many were refreshed.
  */
-async function refreshNotes(records, token, today, deadline) {
-	const recent = records.filter((a) => inNoteWindow(a, today)).slice(-NOTE_BUDGET);
-
+async function refreshNotes(records, strava, today, deadline) {
 	let refreshed = 0;
-	for (const record of recent) {
-		if (Date.now() > deadline || !hasQuotaForOneMore()) break;
+	for (const record of noteSweepTargets(records, today)) {
+		if (Date.now() > deadline || !strava.canSpend(CALLS_PER_ACTIVITY)) break;
 		try {
-			const detail = await stravaGet(`/activities/${record.id}`, token);
+			const detail = await strava.get(`/activities/${record.id}`);
 			record.notes = shapeNotes(detail?.description);
 			refreshed += 1;
 		} catch (err) {
-			console.error(`Failed to refresh notes on ${record.id}`, err);
 			if (err.status === 429) break;
+			console.error(`Failed to refresh notes on ${record.id}`, err);
 		}
 	}
 	return refreshed;
 }
 
-function persistCooldown() {
-	const until = cooldownExpiresAt();
-	return until > Date.now() ? new Date(until).toISOString() : null;
+/** Caption the newest runs that have numbers and no caption yet. */
+function caption(merged, plan, today, strava, deadline) {
+	const runs = merged.filter(isRunActivity);
+	const range = blockRange(plan, runs, today);
+	const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
+	return captionRecentRuns({
+		records: merged,
+		today,
+		series,
+		efforts: collectBestEfforts(runs),
+		runs,
+		raceDistanceM: plan.race?.distanceM || 42195,
+		deadline,
+		getDescription: async (id) => {
+			// The read is only worth spending if the write can follow it.
+			strava.reserve(CALLS_PER_ACTIVITY);
+			const detail = await strava.get(`/activities/${id}`);
+			return detail?.description ?? "";
+		},
+		putDescription: (id, description) => strava.put(`/activities/${id}`, { description }),
+	});
 }
 
-async function fetchPublicGear(token, id) {
+async function fetchPublicGear(strava, id) {
 	if (!id) return null;
 	try {
-		return shapeGear(await stravaGet(`/gear/${id}`, token));
+		return shapeGear(await strava.get(`/gear/${id}`));
 	} catch (err) {
 		if (err.status === 429) throw err;
 		console.error("Strava gear failed:", id, err);
@@ -425,7 +402,7 @@ function feedDropIds(list, existingActs) {
  * still writes, even on an otherwise quiet tick, so the polyline does not
  * linger on the public surfaces.
  */
-async function updatePublicSnapshot(store, token, snapshot, summaries) {
+async function updatePublicSnapshot(store, strava, snapshot, summaries) {
 	const existingActs = snapshot?.activities || [];
 	let incoming = (summaries || []).filter(passesFeedFilter).map(shapeFeedItem).filter(Boolean);
 	let dropIds = feedDropIds(summaries, existingActs);
@@ -433,7 +410,7 @@ async function updatePublicSnapshot(store, token, snapshot, summaries) {
 
 	if (existingActs.length === 0 && incoming.length === 0) {
 		try {
-			const latest = await stravaGet(`/athlete/activities?per_page=${PER_PAGE}&page=1`, token);
+			const latest = await strava.get(`/athlete/activities?per_page=${PER_PAGE}&page=1`);
 			if (Array.isArray(latest)) {
 				rawForGear.push(...latest);
 				incoming = latest.filter(passesFeedFilter).map(shapeFeedItem).filter(Boolean);
@@ -461,7 +438,7 @@ async function updatePublicSnapshot(store, token, snapshot, summaries) {
 	let ytd = snapshot?.ytd ?? { run: null, ride: null };
 
 	if (needProfile) {
-		const stats = await stravaGet(`/athletes/${STRAVA_ATHLETE_ID}/stats`, token);
+		const stats = await strava.get(`/athletes/${STRAVA_ATHLETE_ID}/stats`);
 		ytd = {
 			run: shapeYtdTotals(stats?.ytd_run_totals),
 			ride: shapeYtdTotals(stats?.ytd_ride_totals),
@@ -470,10 +447,10 @@ async function updatePublicSnapshot(store, token, snapshot, summaries) {
 		const shoesId = runGear || snapshot?.shoes?.id;
 		const [nextBike, nextShoes] = await Promise.all([
 			bikeId && bikeId !== snapshot?.bike?.id
-				? fetchPublicGear(token, bikeId)
+				? fetchPublicGear(strava, bikeId)
 				: Promise.resolve(snapshot?.bike ?? null),
 			shoesId && shoesId !== snapshot?.shoes?.id
-				? fetchPublicGear(token, shoesId)
+				? fetchPublicGear(strava, shoesId)
 				: Promise.resolve(snapshot?.shoes ?? null),
 		]);
 		bike = nextBike ?? snapshot?.bike ?? null;
@@ -486,11 +463,6 @@ async function updatePublicSnapshot(store, token, snapshot, summaries) {
 }
 
 export default async function handler(req) {
-	// Netlify reuses warm instances, and a quota reading from a previous
-	// invocation describes a window that has almost certainly rolled over
-	// since. Start blind and let this run's first response say where we are.
-	quota = null;
-
 	const store = getTrainingStore();
 	const [existing, cursor, snapshot, runnaPlan] = await Promise.all([
 		readJson(store, INDEX_KEY, []),
@@ -502,7 +474,6 @@ export default async function handler(req) {
 	// This tick works from the plan as last synced; the refresh below lands for
 	// the next one (and for the page, which reads the blob directly).
 	const plan = combinePlans(loadPlan(), runnaPlan);
-	const blockStart = historyStartEpoch(plan);
 
 	// Started rather than awaited. It shares no state, token or rate limit
 	// with the Strava work below, which is allowed to spend twenty seconds,
@@ -510,7 +481,7 @@ export default async function handler(req) {
 	const recoveryWork = syncRecovery(store, torontoToday());
 	const planWork = syncRunnaPlan(store, runnaPlan, torontoToday());
 
-	const stoodDown = async () =>
+	const report = async (fields) =>
 		jsonResponse({
 			ok: true,
 			scanned: 0,
@@ -525,12 +496,14 @@ export default async function handler(req) {
 			stale: cursor?.stale ?? 0,
 			shapeVersion: SHAPE_VERSION,
 			rescan: false,
-			rateLimited: true,
+			rateLimited: false,
 			quotaPaused: false,
 			timedOut: false,
+			...fields,
 			recovery: await recoveryWork,
 			plan: await planWork,
 		});
+	const stoodDown = () => report({ rateLimited: true });
 
 	// A 429 still counts against the daily quota, so retrying every five
 	// minutes after a blowout is what keeps every function 429ing until
@@ -540,46 +513,27 @@ export default async function handler(req) {
 		return stoodDown();
 	}
 
-	let token;
+	let strava;
 	try {
-		token = await getAccessToken();
+		strava = await openStravaClient({ share: QUOTA_SHARE });
 	} catch (err) {
 		if (err.code === "not_configured") return jsonResponse({ error: "not_configured" }, 503);
 		console.error(err);
 		return jsonResponse({ error: "auth_failed" }, 502);
 	}
 
-	// The listing's job is finding activities we have never seen. That's all,
-	// and it matters that it's all: paging back through the block costs three
-	// reads against a limit of a thousand a day, and at a five-minute cadence
-	// that's 864 a day spent before a single activity is fetched.
-	//
-	// A re-shape used to force exactly that, on the reasoning that stale
-	// records have to be visible to the pass below. They already are — they're
-	// in the stored index, with their ids — so the listing was being walked to
-	// rediscover what was on disk, and a SHAPE_VERSION bump then had no quota
-	// left to act on what it found. Stale records are queued from the index
-	// instead, and the listing stays incremental.
-	//
-	// So only ?full=1 pages back, plus a cold start, which falls out of the
-	// cursor being empty. The gap this leaves is an activity uploaded with a
-	// date behind the cursor — a backdated manual entry — which no amount of
-	// listing forward will find; ?full=1 is the answer to that too.
-	const url = new URL(req.url);
-	const full = url.searchParams.get("full") === "1";
-	const rescan = full;
-	const after = rescan ? blockStart : Math.max(cursor?.lastActivityEpoch || 0, blockStart || 0) || null;
+	const full = new URL(req.url).searchParams.get("full") === "1";
 
 	let summaries;
 	try {
-		summaries = await fetchActivitiesSince(token, after);
+		summaries = await fetchActivitiesSince(strava, listingAfter({ cursor, plan, full }));
 	} catch (err) {
 		console.error("Strava activity list failed", err);
 		if (err.status === 429) {
 			await writeJson(store, CURSOR_KEY, {
 				...cursor,
 				lastRunAt: new Date().toISOString(),
-				rateLimitedUntil: persistCooldown(),
+				rateLimitedUntil: strava.cooldownUntil(),
 			});
 			return stoodDown();
 		}
@@ -587,7 +541,7 @@ export default async function handler(req) {
 	}
 
 	try {
-		await updatePublicSnapshot(store, token, snapshot, summaries);
+		await updatePublicSnapshot(store, strava, snapshot, summaries);
 	} catch (err) {
 		if (err.status === 429) {
 			console.warn("Strava rate limit hit while updating the public snapshot");
@@ -596,55 +550,7 @@ export default async function handler(req) {
 		}
 	}
 
-	const thresholds = plan.thresholds;
-
-	// Private activities, other sports and short rides are dropped here, before
-	// we spend any upstream budget enriching them.
-	const candidates = summaries.filter(isTrackableActivity);
-
-	// Anything we've never seen, plus anything shaped by an older version of
-	// the shaping logic. Version checking is what makes a re-shape finish:
-	// each batch lands at the current version and so drops out of this set,
-	// where re-fetching everything on ?full=1 alone would pick the same newest
-	// DETAIL_BUDGET activities on every invocation and never move past them.
-	const current = new Map((existing || []).map((a) => [String(a.id), a]));
-	const isStale = (id) => {
-		const stored = current.get(id);
-		return !stored || stored.v !== SHAPE_VERSION;
-	};
-
-	// Two sources, one queue. The listing contributes activities that aren't
-	// stored; the index contributes records shaped by an older version, which
-	// need no listing at all. Newest first, so a cold start fills in the most
-	// recent (most relevant) weeks before working backwards through the block.
-	const queued = new Set();
-	const work = [];
-	const enqueue = (item) => {
-		if (queued.has(String(item.id))) return;
-		queued.add(String(item.id));
-		work.push(item);
-	};
-	for (const summary of candidates) {
-		if (!full && !isStale(String(summary.id))) continue;
-		enqueue({
-			id: summary.id,
-			summary,
-			kind: isTrackableStrength(summary) ? "strength" : isTrackableRide(summary) ? "ride" : "run",
-			date: summary.start_date_local,
-		});
-	}
-	for (const record of existing || []) {
-		if (!full && record?.v === SHAPE_VERSION) continue;
-		const kind = record?.sport === "ride" ? "ride" : record?.sport === "strength" ? "strength" : "run";
-		enqueue({
-			id: record?.id,
-			summary: null,
-			kind,
-			date: record?.startDateLocal,
-		});
-	}
-	work.sort((a, b) => String(b.date).localeCompare(String(a.date)));
-	const needsDetail = work.slice(0, DETAIL_BUDGET);
+	const { candidates, queue, enrich: batch } = queueWork({ summaries, existing, full });
 
 	// Fetched once and then kept. Zones only move when the athlete edits them,
 	// and since they're now the third choice behind a measured threshold (see
@@ -652,222 +558,69 @@ export default async function handler(req) {
 	// invocation of a backfill was a call a minute spent on a value that
 	// mostly doesn't apply. ?full=1 picks up an edit.
 	const storedZones = await readJson(store, ATHLETE_KEY, null);
-	const zones = (storedZones && !full ? null : await fetchAthleteZones(token)) || storedZones;
+	const zones = (storedZones && !full ? null : await fetchAthleteZones(strava)) || storedZones;
 
 	const deadline = Date.now() + WORK_DEADLINE_MS;
-	let rateLimited = isCoolingDown();
-	let timedOut = false;
-	let quotaPaused = false;
-	const fetched = await mapWithConcurrency(needsDetail, FETCH_CONCURRENCY, async (item) => {
-		if (rateLimited) return null;
-
-		// A gym session has no stream-derived number. Shape it from the summary
-		// when we have one, and spend a detail call only when we don't.
-		if (item.kind === "strength" && item.summary) {
-			return shapeActivity(item.summary, { thresholds, athleteZones: zones });
-		}
-
-		// A listed ride already carries meter watts. One stream call covers zone
-		// time and the last-ride chart. No location or grade.
-		if (item.kind === "ride" && item.summary) {
-			if (Date.now() > deadline) {
-				timedOut = true;
-				return null;
-			}
-			if (!hasQuotaForOneMore()) {
-				quotaPaused = true;
-				return null;
-			}
-			try {
-				const streams = await fetchStreams(item.id, token, RIDE_STREAM_KEYS);
-				return shapeActivity(item.summary, { streams, thresholds, athleteZones: zones });
-			} catch (err) {
-				if (err.status === 429) {
-					rateLimited = true;
-					console.warn("Strava rate limit hit; deferring the rest to the next run");
-					return null;
-				}
-				console.error(`Failed to sync activity ${item.id}`, err);
-				return shapeActivity(item.summary, { thresholds, athleteZones: zones });
-			}
-		}
-
-		if (Date.now() > deadline) {
-			timedOut = true;
-			return null;
-		}
-		// Stop before Strava has to say no: a 429 costs a call and, if we kept
-		// going, would eat into the window the /dashboard widgets need.
-		if (!hasQuotaForOneMore()) {
-			quotaPaused = true;
-			return null;
-		}
-		try {
-			const [detail, streams] = await Promise.all([
-				stravaGet(`/activities/${item.id}?include_all_efforts=true`, token),
-				// A stale ride has no summary on the queue, so it pays for the
-				// detail. Its streams are still the ride set. Strength pays
-				// for the detail and nothing else.
-				item.kind === "ride"
-					? fetchStreams(item.id, token, RIDE_STREAM_KEYS)
-					: item.kind === "strength"
-						? null
-						: fetchStreams(item.id, token),
-			]);
-			return shapeActivity(detail, { streams, thresholds, athleteZones: zones });
-		} catch (err) {
-			// Once Strava starts refusing, stop asking — the remaining
-			// activities will be picked up by the next scheduled run.
-			if (err.status === 429) {
-				rateLimited = true;
-				console.warn("Strava rate limit hit; deferring the rest to the next run");
-				return null;
-			}
-			console.error(`Failed to sync activity ${item.id}`, err);
-			return null;
-		}
+	const { shaped, rateLimited, quotaPaused, timedOut } = await enrich(batch, {
+		strava,
+		thresholds: plan.thresholds,
+		zones,
+		deadline,
 	});
-	const shaped = fetched.filter(Boolean);
-
 	const merged = mergeActivities(existing, shaped);
 
-	// Deliberately last, and deliberately not part of the staleness pass
-	// above: nothing here can make a record pending, so a sweep that runs out
-	// of budget just leaves a note until the next pass. Skipped entirely while
-	// there's backfill outstanding, which is when the calls are worth more
-	// spent on runs that have no numbers at all yet.
 	const today = torontoToday();
+	const settled = settleSync({
+		cursor,
+		existing,
+		candidates,
+		queued: queue.length,
+		shaped,
+		merged,
+		rateLimited,
+		quotaPaused,
+		today,
+	});
 
-	// When a run last turned up that a note could be written on. Wall-clock
-	// arrival rather than the run's own start time, because what starts the
-	// clock is the activity reaching the page — an upload hours after a race,
-	// or a watch that only syncs when it finds wifi, is still a run the
-	// athlete is looking at now.
-	//
-	// Gated on the record being one the sweep would read anyway, which is what
-	// keeps a cold start from spending three hours sweeping every five minutes
-	// on the strength of a four-month backfill of run-up history.
-	const arrived = shaped.some((a) => !current.has(String(a.id)) && inNoteWindow(a, today));
-	const arrivedAt = arrived ? new Date().toISOString() : cursor?.activityArrivedAt || null;
-	const fresh = Date.now() - (Date.parse(arrivedAt || "") || 0) < NOTE_FRESH_WINDOW_MS;
-
-	const lastNoteScan = Date.parse(cursor?.notesScannedAt || "") || 0;
-	// Zero is every invocation, which is the schedule's five minutes.
-	const noteInterval = fresh ? 0 : NOTE_RESCAN_MS;
-	const scanNotes = !rateLimited && work.length === 0 && Date.now() - lastNoteScan >= noteInterval;
-	const notesRefreshed = scanNotes ? await refreshNotes(merged, token, today, deadline) : 0;
+	// Deliberately after the index is merged, and deliberately not part of
+	// the queue: nothing here can make a record pending, so a sweep that runs
+	// out of budget just leaves a note until the next pass.
+	const notesRefreshed = settled.sweepNotes
+		? await refreshNotes(merged, strava, today, deadline)
+		: 0;
 
 	// The one write. A new run that has numbers gets a fenced block on its
 	// Strava description; a later pass sees the stamp (or the fence) and
-	// leaves it. Skipped when the read path already stood down, so a caption
-	// never spends the window the widgets need.
-	let captioned = 0;
-	let captionUrlRejected = false;
-	if (!rateLimited && !quotaPaused && work.length === 0) {
-		const runs = merged.filter(isRunActivity);
-		const range = blockRange(plan, runs, today);
-		const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
-		const result = await captionRecentRuns({
-			records: merged,
-			today,
-			series,
-			efforts: collectBestEfforts(runs),
-			runs,
-			raceDistanceM: plan.race?.distanceM || 42195,
-			deadline,
-			getDescription: async (id) => {
-				if (!hasQuotaForOneMore()) {
-					const err = new Error("quota");
-					err.status = 429;
-					throw err;
-				}
-				const detail = await stravaGet(`/activities/${id}`, token);
-				return detail?.description ?? "";
-			},
-			putDescription: async (id, description) => {
-				await stravaPut(`/activities/${id}`, token, { description });
-			},
-		});
-		captioned = result.captioned;
-		captionUrlRejected = result.urlRejected;
-	}
-
-	// Two kinds of incomplete, and only one of them is worth interrupting a
-	// reader over.
-	//
-	// Missing is an activity the listing found and there's no record of at
-	// all. Every metric on the page reads the whole block — fitness is a
-	// 42-day average, the projection reads the block's best efforts — so a
-	// short history doesn't render slightly-off numbers, it renders numbers
-	// for a block the athlete didn't do. That has to be said out loud.
-	//
-	// Stale is an activity that's stored and complete and merely shaped by an
-	// older version of the code. Re-shaping moves some of its numbers and
-	// changes nothing else about it. Counted together with missing, as they
-	// were, every SHAPE_VERSION bump hung a "still importing" banner on a page
-	// that was already whole — and since the queue runs newest-first, the
-	// stragglers are the oldest run-up records, which exist only to seed a CTL
-	// four months before anything on the page and are the least visible
-	// records in the store.
-	const stored = new Map(merged.map((a) => [String(a.id), a]));
-	const missing = candidates.filter((a) => !stored.has(String(a.id))).length;
-	const stale = merged.filter((a) => a?.v !== SHAPE_VERSION).length;
-
-	// The cursor guards the listing and nothing else, so it may advance as
-	// soon as every activity the listing found is stored. A record still
-	// waiting to be re-shaped no longer holds it back: that one is queued from
-	// the index now, and listing it again wouldn't help.
-	const allListedStored = candidates.every((a) => stored.has(String(a.id)));
-	const latestEpoch = merged.length
-		? Math.floor(new Date(merged.at(-1).startDateLocal).getTime() / 1000)
-		: cursor?.lastActivityEpoch || null;
+	// leaves it.
+	const captions = settled.caption
+		? await caption(merged, plan, today, strava, deadline)
+		: { captioned: 0, urlRejected: false };
 
 	await Promise.all([
 		writeJson(store, INDEX_KEY, merged),
 		zones ? writeJson(store, ATHLETE_KEY, zones) : Promise.resolve(),
-		writeJson(store, CURSOR_KEY, {
-			lastRunAt: new Date().toISOString(),
-			// Stamped on the attempt rather than on a success, so a sweep that
-			// finds nothing to do waits out its interval instead of being
-			// retried on the next invocation — which, outside the fast window,
-			// is the difference between hourly and every five minutes.
-			notesScannedAt: scanNotes ? new Date().toISOString() : cursor?.notesScannedAt || null,
-			// What the fast window is measured from, and why it survives the
-			// invocation that opened it: the run that starts the clock arrives
-			// on a pass that has backfill outstanding and so doesn't sweep.
-			activityArrivedAt: arrivedAt,
-			lastActivityEpoch: allListedStored ? latestEpoch : cursor?.lastActivityEpoch || null,
-			// What the page needs to describe a partial history honestly. Only
-			// `missing` reaches a reader; `stale` is here to be read in a log
-			// when a re-shape looks like it has stopped.
-			missing,
-			stale,
-			stored: merged.length,
-			rateLimitedUntil: persistCooldown(),
-		}),
+		// The cooldown is read now, not earlier, so a 429 during the sweep or a
+		// caption still sticks across a cold start.
+		writeJson(store, CURSOR_KEY, { ...settled.cursor, rateLimitedUntil: strava.cooldownUntil() }),
 	]);
 
-	return jsonResponse({
-		ok: true,
+	return report({
 		scanned: summaries.length,
 		runs: candidates.length,
 		synced: shaped.length,
 		notesRefreshed,
 		// Whether the sweep is on the five-minute cadence or the hourly one,
 		// which is otherwise only visible as a read count in Strava's quota.
-		notesFresh: fresh,
-		captioned,
-		captionUrlRejected,
+		notesFresh: settled.notesFresh,
+		captioned: captions.captioned,
+		captionUrlRejected: captions.urlRejected,
 		stored: merged.length,
-		missing,
-		stale,
-		shapeVersion: SHAPE_VERSION,
-		rescan,
-		rateLimited: rateLimited || isCoolingDown(),
+		missing: settled.missing,
+		stale: settled.stale,
+		rescan: full,
+		rateLimited: rateLimited || strava.coolingDown(),
 		quotaPaused,
 		timedOut,
-		recovery: await recoveryWork,
-		plan: await planWork,
 	});
 }
 

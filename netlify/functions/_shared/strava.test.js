@@ -154,3 +154,98 @@ describe("the in-memory 429 cache", () => {
 		expect(isCoolingDown()).toBe(false);
 	});
 });
+
+describe("the Strava client", () => {
+	beforeEach(() => {
+		vi.resetModules();
+	});
+
+	// A fake transport: each call gets the next reply, and every reply carries
+	// the quota headers given, as Strava's do.
+	function transport(replies, quota = null) {
+		const calls = [];
+		const send = vi.fn(async (url, init) => {
+			calls.push({ url, init });
+			const [status, body, usage = quota?.usage] = replies.shift() ?? [200, {}];
+			const head = quota ? { "x-ratelimit-limit": quota.limit, "x-ratelimit-usage": usage } : {};
+			return new Response(JSON.stringify(body), { status, headers: head });
+		});
+		return { send, calls };
+	}
+
+	it("spends freely until a response says where the quota is", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const { send, calls } = transport([[200, { id: 1 }]]);
+		const strava = createStravaClient({ token: "tok", share: { shortShare: 0.5 }, fetch: send });
+
+		expect(strava.canSpend(1000)).toBe(true);
+		await expect(strava.get("/athlete")).resolves.toEqual({ id: 1 });
+		expect(calls[0].url).toBe("https://www.strava.com/api/v3/athlete");
+		expect(calls[0].init.headers.Authorization).toBe("Bearer tok");
+	});
+
+	// The widgets share this app's limit (60 of 100 here), so a job stops at its share and
+	// leaves the rest. Nothing is sent once the share is gone.
+	it("refuses to send once its share is spent, without asking Strava", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const { send } = transport([[200, {}], [200, {}, "60,101"]], { limit: "100,1000", usage: "59,100" });
+		const strava = createStravaClient({ token: "t", share: { shortShare: 0.6 }, fetch: send });
+
+		await strava.get("/first");
+		expect(strava.canSpend(1)).toBe(true);
+		expect(strava.canSpend(2)).toBe(false);
+		expect(() => strava.reserve(2)).toThrow(expect.objectContaining({ status: 429, overShare: true }));
+
+		await strava.get("/second");
+		const err = await strava.get("/third").catch((e) => e);
+		expect(err).toMatchObject({ status: 429, overShare: true });
+		expect(send).toHaveBeenCalledTimes(2);
+	});
+
+	it("keeps quota per client, so one tick's reading never limits the next", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const spent = transport([[200, {}]], { limit: "100,1000", usage: "100,1000" });
+		const first = createStravaClient({ token: "t", fetch: spent.send });
+		await first.get("/x");
+		expect(first.canSpend()).toBe(false);
+
+		const second = createStravaClient({ token: "t", fetch: transport([]).send });
+		expect(second.canSpend()).toBe(true);
+	});
+
+	it("stands every client down after a 429 until the window it describes", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const { send } = transport([[429, { message: "slow down" }]], { limit: "100,1000", usage: "100,500" });
+		const strava = createStravaClient({ token: "t", fetch: send });
+
+		const err = await strava.get("/x").catch((e) => e);
+		expect(err).toMatchObject({ status: 429 });
+		expect(err.overShare).toBeUndefined();
+		expect(strava.coolingDown()).toBe(true);
+		expect(Date.parse(strava.cooldownUntil())).toBeGreaterThan(Date.now());
+
+		const other = createStravaClient({ token: "t", fetch: send });
+		const refused = await other.get("/y").catch((e) => e);
+		expect(refused).toMatchObject({ status: 429, overShare: false });
+		expect(send).toHaveBeenCalledTimes(1);
+	});
+
+	it("sends a write as JSON and puts the reply on a failed one", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const { send, calls } = transport([[400, { message: "bad url" }]]);
+		const strava = createStravaClient({ token: "t", fetch: send });
+
+		const err = await strava.put("/activities/1", { description: "hi" }).catch((e) => e);
+		expect(calls[0].init).toMatchObject({
+			method: "PUT",
+			body: JSON.stringify({ description: "hi" }),
+			headers: { "Content-Type": "application/json" },
+		});
+		expect(err).toMatchObject({ status: 400, body: JSON.stringify({ message: "bad url" }) });
+	});
+
+	it("has no cooldown to persist when nothing was refused", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		expect(createStravaClient({ token: "t", fetch: transport([]).send }).cooldownUntil()).toBeNull();
+	});
+});

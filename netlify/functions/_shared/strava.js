@@ -180,6 +180,103 @@ export function noteRateLimit(headers, now = Date.now()) {
 	return coolUntil;
 }
 
+function standDown(message, overShare) {
+	const err = new Error(message);
+	// A 429 to every caller, so "stop asking" is one check whichever of the
+	// two said it. `overShare` tells apart this job stopping at its own share
+	// (nothing was sent) from Strava refusing a call (one was).
+	err.status = 429;
+	err.overShare = overShare;
+	return err;
+}
+
+/**
+ * A Strava session for one job that spends a share of the app's rate limit.
+ *
+ * One app's credentials serve several endpoints, and some of them are in a
+ * visitor's request path, so a background job has to stop short of the limit
+ * rather than at it. The client owns that: it reads the quota off every
+ * response, and every call it makes first checks the share and any 429
+ * cooldown. Nothing is sent once either says stop; the call throws a 429 with
+ * `overShare` set when it was the share.
+ *
+ * Quota is per client. Create one per invocation: a reading left over from a
+ * warm instance describes a window that has almost certainly rolled over.
+ *
+ * @param {object} input
+ * @param {string} input.token access token.
+ * @param {{shortShare?: number, dailyShare?: number}} [input.share]
+ * @param {typeof fetch} [input.fetch] the HTTP adapter; defaults to the global.
+ * @returns {{
+ *   get: (path: string) => Promise<any>,
+ *   put: (path: string, body: object) => Promise<any>,
+ *   canSpend: (calls?: number) => boolean,
+ *   reserve: (calls?: number) => void,
+ *   coolingDown: () => boolean,
+ *   cooldownUntil: () => string|null,
+ * }}
+ */
+export function createStravaClient({ token, share = {}, fetch: send = (...args) => globalThis.fetch(...args) }) {
+	// null until the first response; callsRemaining reads that as no bound.
+	let quota = null;
+
+	function canSpend(calls = 1) {
+		return !isCoolingDown() && callsRemaining(quota, share) >= calls;
+	}
+
+	// Throw unless `calls` more requests fit. For a step that needs several
+	// calls to be worth anything, so it doesn't spend the first and strand it.
+	function reserve(calls = 1) {
+		if (isCoolingDown()) throw standDown("Strava is cooling down after a 429", false);
+		if (callsRemaining(quota, share) < calls) throw standDown("Strava share spent", true);
+	}
+
+	async function request(method, path, body) {
+		reserve(1);
+		const init = { headers: { Authorization: `Bearer ${token}` } };
+		if (method !== "GET") {
+			init.method = method;
+			init.headers["Content-Type"] = "application/json";
+			init.body = JSON.stringify(body);
+		}
+		const res = await send(`${STRAVA_API_BASE}${path}`, init);
+		// Errors too: a 429 carries the headers that say how far over we are.
+		quota = readQuota(res.headers) ?? quota;
+		if (!res.ok) {
+			if (res.status === 429) noteRateLimit(res.headers);
+			const text = method === "GET" ? "" : await res.text();
+			const err = new Error(`Strava ${method} ${path} failed: ${res.status}${text ? ` ${text}` : ""}`);
+			err.status = res.status;
+			if (text) err.body = text;
+			throw err;
+		}
+		return res.json();
+	}
+
+	return {
+		get: (path) => request("GET", path),
+		put: (path, body) => request("PUT", path, body),
+		canSpend,
+		reserve,
+		coolingDown: () => isCoolingDown(),
+		// For persisting across cold starts: the cooldown's end, while it's ahead.
+		cooldownUntil: () => {
+			const until = cooldownExpiresAt();
+			return until > Date.now() ? new Date(until).toISOString() : null;
+		},
+	};
+}
+
+/**
+ * Refresh the token and open a client on it.
+ *
+ * @param {{share?: object, fetch?: typeof fetch}} [options]
+ * @throws {Error} code "not_configured" when the Strava env vars are missing.
+ */
+export async function openStravaClient(options = {}) {
+	return createStravaClient({ ...options, token: await getAccessToken() });
+}
+
 export function rateLimitCacheHeaders(now = Date.now()) {
 	const retryAfter = Math.max(1, Math.ceil((coolUntil - now) / 1000));
 	return {
