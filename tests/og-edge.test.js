@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { readFileSync } from "node:fs";
-import handler from "./og.js";
+// Lives here rather than beside og.js: Netlify deploys every file in
+// netlify/edge-functions/ as an edge function, and a test file there (with its
+// vitest and node:fs imports) fails the edge bundle and with it the deploy.
+import handler from "../netlify/edge-functions/og.js";
 
-const SHELL = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
+const SHELL = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
 async function render(path) {
 	const context = { next: async () => new Response(SHELL, { headers: { "content-type": "text/html; charset=utf-8" } }) };
@@ -38,5 +41,13 @@ describe("og edge function", () => {
 	it("titles a route from its own entry", async () => {
 		const html = await render("/resume");
 		expect(html).toContain('<meta name="twitter:title" content="Resume — Max Eisen"/>');
+	});
+});
+
+describe("netlify/edge-functions", () => {
+	it("holds nothing but deployable edge functions", async () => {
+		const { readdirSync } = await import("node:fs");
+		const files = readdirSync(new URL("../netlify/edge-functions/", import.meta.url));
+		expect(files.filter((f) => /\.(test|spec)\.[cm]?[jt]s$/.test(f))).toEqual([]);
 	});
 });
