@@ -3,6 +3,12 @@
    view or the rest of the site. Each host/* component renders inside `.host`,
    so these rules cover all of them; component files carry only markup + logic. */
 
+/* stylelint-disable no-descending-specificity --
+   The rule flags pairs that can never match the same element: `.host` and
+   `.player` rules (separate roots that are never nested), and a
+   `:hover:not(:disabled)` rule followed by its `:disabled` state. Reordering
+   can't satisfy it across the two roots, so it's off for this file. */
+
 .host {
 	max-width: 1100px;
 	margin: 0 auto;
@@ -504,6 +510,7 @@
 	margin: 1.25rem 0 1.5rem;
 	text-align: center;
 }
+
 /* img + placeholder share one fixed square box so an image loading in never
    reflows the page (which would make the narration auto-scroll lurch/speed up). */
 .host .story-illustration img {

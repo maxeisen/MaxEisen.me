@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generate the "me." mark everywhere it's drawn, from the site's own Inter.
+"""Generate the "me." mark everywhere it's drawn, from the site's own Inter.
 
 The mark is a lowercase "me." on an ink square, the period in sage. The
 glyph outlines come from public/fonts/inter-latin.woff2 (instanced at the

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Proof-of-concept face clustering for the wedding gallery.
+"""Proof-of-concept face clustering for the wedding gallery.
 
 Runs ENTIRELY LOCALLY on the original photos — no uploads, no cloud, no
 Cloudinary credits touched. It detects every face, computes an embedding,

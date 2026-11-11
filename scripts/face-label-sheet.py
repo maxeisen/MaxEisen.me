@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Build a numbered labeling sheet from clusters.json.
+"""Build a numbered labeling sheet from clusters.json.
 
 It lets a human put first names to the top-N people: one representative face
 per person, with its cluster rank stamped on it. Open the sheet, then hand
