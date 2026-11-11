@@ -20,7 +20,7 @@ for (const javaScriptEnabled of [true, false]) {
 }
 
 test("the 404 page follows the saved theme", async ({ page }) => {
-	await page.addInitScript(() => localStorage.setItem("theme", "dark"));
+	await page.addInitScript(() => localStorage.setItem("theme-choice", "dark"));
 	await page.goto("/404.html");
 	await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });

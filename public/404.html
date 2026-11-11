@@ -36,11 +36,13 @@ https://github.com/maxeisen/
     <link rel="stylesheet" href="/styles/global.css">
     <link rel="stylesheet" href="/styles/404.css">
     <script>
-        // The theme the rest of the site last used, else the system's. Read
+        // The theme chosen with the site's toggle, else the system's. Read
         // only: this page doesn't save a choice of its own.
         (function () {
-            var theme = localStorage.getItem("theme")
-                || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            var saved = null;
+            try { saved = localStorage.getItem("theme-choice"); } catch (e) {}
+            var theme = (saved === "dark" || saved === "light") ? saved
+                : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
             document.documentElement.setAttribute("data-theme", theme);
             document.querySelector('meta[name="theme-color"]')
                 .setAttribute("content", theme === "dark" ? "#12110f" : "#f2ede3");
