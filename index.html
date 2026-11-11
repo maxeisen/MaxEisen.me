@@ -76,20 +76,42 @@ https://github.com/maxeisen/
 
     <!-- theme switch logic -->
     <script>
-        var theme;
-        if (localStorage.getItem("theme")) {
-            theme = localStorage.getItem("theme");
+        // The theme is the visitor's own choice if they've made one with the
+        // toggle, otherwise whatever the system is set to. Only the toggle
+        // saves anything: following the system is never written down, so it
+        // can't go stale.
+        //
+        // It used to save every switch, system ones included, and iOS broke
+        // that: when a home-screen app goes to the background, iOS renders it
+        // in both light and dark for the app switcher, which the page sees as
+        // prefers-color-scheme flipping. The flip was followed and saved, and
+        // the next launch opened in whichever scheme the snapshot left behind.
+        // So system changes are now ignored while the page is hidden, and the
+        // theme is re-read from the system each time the page comes back.
+        //
+        // "theme" was the old key; its values can't be trusted (see above),
+        // so it's dropped in favour of "theme-choice".
+        var THEME_KEY = "theme-choice";
+        var darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        try { localStorage.removeItem("theme"); } catch (e) {}
+
+        function savedTheme() {
+            try {
+                var t = localStorage.getItem(THEME_KEY);
+                return t === "dark" || t === "light" ? t : null;
+            } catch (e) { return null; }
         }
-        else
-            theme = (window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
-        setTheme(theme)
+        function systemTheme() { return darkQuery.matches ? "dark" : "light"; }
+        function wantedTheme() { return savedTheme() || systemTheme(); }
+
+        setTheme(wantedTheme());
 
         // Printing lays the page out in the light scheme, which browsers
         // report as a prefers-color-scheme change. Followed, it switched the
-        // page on screen to light and saved that as the theme, and nothing
-        // switched it back when the dialog closed. So while printing, the
-        // system setting is ignored, and afterwards the theme from before
-        // is put back. (Print stylesheets set their own palette.)
+        // page on screen to light, and nothing switched it back when the
+        // dialog closed. So while printing, the system setting is ignored,
+        // and afterwards the theme from before is put back. (Print
+        // stylesheets set their own palette.)
         var themeBeforePrint = null;
         window.addEventListener("beforeprint", function () {
             themeBeforePrint = document.documentElement.getAttribute("data-theme");
@@ -99,13 +121,22 @@ https://github.com/maxeisen/
             themeBeforePrint = null;
         });
 
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        darkQuery.addEventListener("change", function () {
             if (themeBeforePrint || window.matchMedia("print").matches) return;
-            fadeTo(event.matches ? "dark" : "light");
-        })
+            if (document.visibilityState === "hidden") return;
+            if (savedTheme()) return;
+            fadeTo(systemTheme());
+        });
+
+        // Coming back to the page (app switcher, another tab, back/forward
+        // cache): catch up with the system, or put the saved choice back,
+        // without a fade.
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "visible") setTheme(wantedTheme());
+        });
+        window.addEventListener("pageshow", function () { setTheme(wantedTheme()); });
 
         function setTheme(theme) {
-            localStorage.setItem("theme", theme);
             document.documentElement.setAttribute("data-theme", theme);
             // Keep the browser/PWA chrome (status bar, address bar) matching the
             // theme's background — dark #12110f / light #f2ede3 (= --bg).
@@ -130,8 +161,15 @@ https://github.com/maxeisen/
             setTimeout(function () { root.classList.remove("theme-fading"); }, 350);
         }
 
+        // The toggle saves the choice, unless it lands back on the system's
+        // scheme: then nothing is saved and the page follows the system again.
         function toggleTheme() {
-            fadeTo(document.documentElement.getAttribute("data-theme") == "dark" ? "light" : "dark");
+            var next = document.documentElement.getAttribute("data-theme") == "dark" ? "light" : "dark";
+            try {
+                if (next === systemTheme()) localStorage.removeItem(THEME_KEY);
+                else localStorage.setItem(THEME_KEY, next);
+            } catch (e) {}
+            fadeTo(next);
         }
         window.toggleTheme = toggleTheme;
     </script>
