@@ -17,9 +17,9 @@ const SITE_URL = "https://maxeisen.me";
 const CLOUD = "https://res.cloudinary.com/meisen-gallery/image/upload";
 
 const DEFAULT = {
-	title: "Max Eisen — Software Engineer in Toronto",
+	title: "Max Eisen — Hi, I'm Max",
 	desc: "A Toronto-based Software Engineer — my work, photo galleries, and what I'm up to.",
-	card: "Software engineer in Toronto",
+	card: "Hi, I'm Max.",
 };
 
 // path -> { title (document + og), desc, card (short text drawn on the image) }
