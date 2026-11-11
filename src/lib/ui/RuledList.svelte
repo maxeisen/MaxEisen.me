@@ -5,15 +5,17 @@
     Props
       items  strings
       html   render items as HTML (content files with inline links). Links
-             to other sites get a small ↗ so they read as leaving.
+             to other sites open in a new tab and get the global ↗.
 -->
 <script>
+    import { externalizeLinks } from "./externalLinks.js";
+
     let { items = [], html = false } = $props();
 </script>
 
 <ul class="ruled">
     {#each items as item}
-        <li>{#if html}{@html item}{:else}{item}{/if}</li>
+        <li>{#if html}{@html externalizeLinks(item)}{:else}{item}{/if}</li>
     {/each}
 </ul>
 
@@ -45,11 +47,4 @@
         transition: text-decoration-color var(--dur-fast) var(--ease);
     }
     li :global(a:hover) { text-decoration-color: currentColor; }
-    li :global(a[target="_blank"])::after {
-        content: "↗";
-        margin-left: 1px;
-        font-size: 0.75em;
-        vertical-align: 0.3em;
-        color: var(--text-3);
-    }
 </style>

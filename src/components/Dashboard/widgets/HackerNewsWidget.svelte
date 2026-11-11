@@ -68,7 +68,7 @@
             {@const domain = s.url ? hostnameOf(s.url) : "news.ycombinator.com"}
             <li class="hn-item">
                 <span class="hn-score" title={`${s.score || 0} upvotes`}>{s.score || 0}</span>
-                <a class="hn-link" href={href} target="_blank" rel="noreferrer">
+                <a class="hn-link no-ext-arrow" href={href} target="_blank" rel="noreferrer">
                     <span class="hn-title">{s.title || "—"}</span>
                     {#if domain}<span class="hn-domain">{domain}</span>{/if}
                 </a>

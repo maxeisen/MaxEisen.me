@@ -235,6 +235,24 @@ a {
 }
 a:hover { color: var(--accent-hover); }
 
+/* Every link that leaves the site opens in a new tab (see
+   src/lib/ui/externalLinks.js) and carries a small ↗ to say so. Whole-row
+   and icon-only links opt out with .no-ext-arrow; mailto links never get it.
+   The "/ ''" alt text keeps screen readers from announcing the arrow;
+   :where() keeps specificity low so a component can tweak the spacing. */
+:where(a[target="_blank"]:not([href^="mailto:"]):not(.no-ext-arrow))::after {
+    content: "↗";
+    content: "↗" / "";
+    margin-left: 0.1em;
+    font-size: 0.75em;
+    vertical-align: 0.3em;
+    line-height: 0;
+    color: var(--text-3);
+}
+@media print {
+    a[target="_blank"]::after { content: none; }
+}
+
 :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;

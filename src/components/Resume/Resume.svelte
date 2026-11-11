@@ -22,14 +22,13 @@
     import PhoneIcon from "svelte-icons/io/IoIosCall.svelte";
     import LinkedInIcon from "svelte-icons/io/IoLogoLinkedin.svelte";
     import GitHubIcon from "svelte-icons/io/IoLogoGithub.svelte";
+    import { externalizeLinks, isExternalHref } from "../../lib/ui/externalLinks.js";
 
     const ICONS = { web: GlobeIcon, email: MailIcon, phone: PhoneIcon, linkedin: LinkedInIcon, github: GitHubIcon };
     const PAGE_TITLE = "Resume — Max Eisen";
     const PDF_FILE = "MaxEisen_Resume.pdf";
 
     const range = (start, end) => `${start} – ${end}`;
-    // Links inside a bullet open elsewhere; the content file writes plain <a>s.
-    const external = (html) => html.replaceAll("<a ", '<a target="_blank" rel="noreferrer" ');
 </script>
 
 <svelte:head>
@@ -65,7 +64,7 @@
                 {#each resume.contact as c (c.kind)}
                     {@const Icon = ICONS[c.kind]}
                     <li>
-                        <a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+                        <a href={c.href} target={isExternalHref(c.href) ? "_blank" : undefined} rel="noreferrer">
                             <span class="icon" aria-hidden="true"><Icon /></span>{c.label}
                         </a>
                     </li>
@@ -99,7 +98,7 @@
                         <p class="where">{job.location}</p>
                         <ul class="bullets">
                             {#each job.bullets as bullet}
-                                <li>{@html external(bullet)}</li>
+                                <li>{@html externalizeLinks(bullet)}</li>
                             {/each}
                         </ul>
                     </div>
@@ -191,6 +190,8 @@
         overflow-wrap: break-word;
     }
     .contact a:hover { color: var(--accent); }
+    /* Pull the global ↗ back across the flex gap so it hugs the label. */
+    .contact a::after { margin-left: calc(0.1em - var(--space-2)); align-self: flex-start; }
     .icon { flex: none; width: 16px; height: 16px; color: var(--text-3); }
 
     .skills { margin: 0; }

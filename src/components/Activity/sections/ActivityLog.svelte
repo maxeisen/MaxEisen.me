@@ -44,7 +44,7 @@
                         </button>
                     {:else}
                         <a
-                            class="row {rowClass(item)}"
+                            class="row no-ext-arrow {rowClass(item)}"
                             href="https://www.strava.com/activities/{item.id}"
                             target="_blank"
                             rel="noreferrer"

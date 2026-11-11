@@ -1,6 +1,6 @@
 <footer class="footer">
     <span>© {new Date().getFullYear()} Max Eisen</span>
-    <a href="https://github.com/maxeisen/MaxEisen.me/" rel="noreferrer" target="_blank">Source on GitHub ↗</a>
+    <a href="https://github.com/maxeisen/MaxEisen.me/" rel="noreferrer" target="_blank">Source on GitHub</a>
 </footer>
 
 <style>

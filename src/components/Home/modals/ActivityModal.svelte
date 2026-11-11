@@ -14,6 +14,7 @@
 -->
 <script>
     import { onMount } from 'svelte';
+    import { externalizeLinks } from '../../../lib/ui/externalLinks.js';
     import { fetchJsonSwr } from '../../../lib/data/swrCache.js';
     import { STRAVA_FEED_URL } from '../../../lib/strava.js';
     import StravaActivityList from '../widgets/StravaActivityList.svelte';
@@ -67,11 +68,11 @@
         <iframe class="video" src="{video}hd=1&autoplay=0&modestbranding=1&showinfo=0&rel=0" title={alt} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     {/if}
 
-    <figcaption class="caption">{@html caption}</figcaption>
+    <figcaption class="caption">{@html externalizeLinks(caption)}</figcaption>
 
     {#if link}
         <a
-            class="next"
+            class="next no-ext-arrow"
             href={link.href}
             target={isInternal ? undefined : '_blank'}
             rel={isInternal ? undefined : 'noreferrer'}
@@ -109,7 +110,7 @@
     .video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius); }
 
     /* The caption reads as a caption: the photo's subject in strong ink.
-       Links inside it go to other sites, so each carries a small ↗. */
+       Off-site links in it get the global ↗ (global.css). */
     .caption {
         margin: var(--space-4) 0 0;
         padding-right: var(--space-5);
@@ -127,13 +128,6 @@
         transition: text-decoration-color var(--dur-fast) var(--ease);
     }
     .caption :global(a:hover) { text-decoration-color: currentColor; }
-    .caption :global(a[target="_blank"])::after {
-        content: "↗";
-        margin-left: 1px;
-        font-size: 0.7em;
-        vertical-align: 0.35em;
-        color: var(--text-3);
-    }
 
     .strava { margin-top: var(--space-4); }
     .gear { margin: var(--space-3) 0 0; font-size: var(--font-sm); color: var(--text-2); }

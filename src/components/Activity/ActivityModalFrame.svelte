@@ -23,7 +23,7 @@
 
     {#if id}
         <a class="strava-link" href="https://www.strava.com/activities/{id}" target="_blank" rel="noreferrer">
-            View on Strava ↗
+            View on Strava
         </a>
     {/if}
 </div>

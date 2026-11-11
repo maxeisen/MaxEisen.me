@@ -1,5 +1,6 @@
 <script>
     import { marked } from 'marked';
+    import { externalizeLinks } from '../../../lib/ui/externalLinks.js';
 
     export let id;
     export let title;
@@ -27,7 +28,7 @@
             <h3 class="blog-date">Updated: <b class="date-string">{updated}</b></h3>
         {/if}
     </div>
-    <div class="blog-content">{@html marked.parse(postContent)}</div>
+    <div class="blog-content">{@html externalizeLinks(marked.parse(postContent))}</div>
     <div class="blog-footer">
         <h2 class="signature"><b style="font-weight: 300">-</b>{author.split(" ")[0]}</h2>
     </div>

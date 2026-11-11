@@ -116,7 +116,7 @@
         <div class="viz-overlay-extras">
             <span class="viz-overlay-genre">{hasTrack && data.genre ? data.genre : ""}</span>
             {#if hasTrack && data.url}
-                <a class="viz-overlay-open" href={data.url} target="_blank" rel="noreferrer">Open in Spotify ↗</a>
+                <a class="viz-overlay-open" href={data.url} target="_blank" rel="noreferrer">Open in Spotify</a>
             {/if}
         </div>
     </div>

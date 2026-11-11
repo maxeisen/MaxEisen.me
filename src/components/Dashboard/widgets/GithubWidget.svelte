@@ -99,7 +99,7 @@
         <Spinner size={24} stroke={2} />
     </div>
 {:else}
-<a class="github-main" href={widgetHref} target="_blank" rel="noreferrer">
+<a class="github-main no-ext-arrow" href={widgetHref} target="_blank" rel="noreferrer">
     <div class="github-repo">{repo}</div>
     <div class="github-message">{message}</div>
     <div class="github-meta">{meta}</div>
