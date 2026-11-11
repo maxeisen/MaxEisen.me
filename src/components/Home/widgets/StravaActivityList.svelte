@@ -60,7 +60,7 @@
             {#each activities as a (a.id)}
                 {@const mapPath = routeToSvgPath(a.route, 64, 40)}
                 <li>
-                    <a class="strava-row" href={a.id ? `https://www.strava.com/activities/${a.id}` : '#'} target="_blank" rel="noreferrer">
+                    <a class="strava-row no-ext-arrow" href={a.id ? `https://www.strava.com/activities/${a.id}` : '#'} target="_blank" rel="noreferrer">
                         {#if mapPath}
                             <svg class="strava-row-map" viewBox="0 0 64 40" aria-hidden="true">
                                 <path d={mapPath}/>

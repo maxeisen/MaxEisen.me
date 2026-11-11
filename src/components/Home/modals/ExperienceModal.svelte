@@ -19,7 +19,7 @@
         <h2>{position}</h2>
         <p class="company">
             {#if companyLink}
-                <a href={companyLink} rel="noreferrer" target="_blank">{company} ↗</a>
+                <a href={companyLink} rel="noreferrer" target="_blank">{company}</a>
             {:else}
                 {company}
             {/if}

@@ -219,7 +219,7 @@
             <footer class="foot">
                 {#if footnote}<p>{footnote}</p>{/if}
                 <p class="links">
-                    <a href={STRAVA_PROFILE_URL} target="_blank" rel="noreferrer">Strava profile ↗</a>
+                    <a href={STRAVA_PROFILE_URL} target="_blank" rel="noreferrer">Strava profile</a>
                     {#if syncedAt}<span class="stamp">Last synced {syncedAt}</span>{/if}
                 </p>
             </footer>

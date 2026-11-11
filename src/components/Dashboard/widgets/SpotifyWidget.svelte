@@ -185,7 +185,7 @@
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" /></svg>
     </button>
 {/if}
-<a class="spotify-main" href={data?.url || undefined} target="_blank" rel="noreferrer">
+<a class="spotify-main no-ext-arrow" href={data?.url || undefined} target="_blank" rel="noreferrer">
     {#if hasTrack && data.albumArt}
         <img class="spotify-art" src={data.albumArt} alt={data.album || data.track || ""}/>
     {:else}
@@ -215,7 +215,7 @@
     <ol class="spotify-recent" aria-label="Played before that" bind:this={recentEl}>
         {#each earlier as t (t.id ?? t.playedAt)}
             <li>
-                <a href={t.url || undefined} target="_blank" rel="noreferrer">
+                <a class="no-ext-arrow" href={t.url || undefined} target="_blank" rel="noreferrer">
                     <span class="spotify-recent-track">{t.track}</span>
                     <span class="spotify-recent-artist">{t.artist}</span>
                     {#if t.playedAt}<span class="spotify-recent-when">{timeAgo(t.playedAt)}</span>{/if}

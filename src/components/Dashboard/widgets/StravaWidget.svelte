@@ -93,7 +93,7 @@
             {@const path = routeToSvgPath(a.route)}
             {@const metaBits = [a.type, a.startDate ? timeAgo(a.startDate) : null, a.sufferScore != null ? `Effort ${Math.round(a.sufferScore)}` : null].filter(Boolean)}
             <li>
-                <a class="strava-row" href={url} target="_blank" rel="noreferrer">
+                <a class="strava-row no-ext-arrow" href={url} target="_blank" rel="noreferrer">
                     {#if path}
                         <svg class="strava-row-map" viewBox="0 0 56 38" aria-hidden="true"><path d={path}/></svg>
                     {:else}

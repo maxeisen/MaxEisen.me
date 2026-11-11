@@ -33,7 +33,7 @@
             <div class="links">
                 {#if projectLink}
                     <a class="link primary" href={projectLink} rel="noreferrer" target="_blank">
-                        Visit <span aria-hidden="true">↗</span>
+                        Visit
                     </a>
                 {/if}
                 {#if githubLink}

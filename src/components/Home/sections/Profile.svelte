@@ -27,8 +27,8 @@
         <p class="location">Toronto, Ontario</p>
 
         <ul class="socials">
-            <li><a aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a></li>
-            <li><a aria-label="GitHub" href="https://github.com/maxeisen/" rel="noreferrer" target="_blank"><GitHubLogo /></a></li>
+            <li><a class="no-ext-arrow" aria-label="LinkedIn" href="https://linkedin.com/in/maxeisen/" rel="noreferrer" target="_blank"><LinkedInLogo /></a></li>
+            <li><a class="no-ext-arrow" aria-label="GitHub" href="https://github.com/maxeisen/" rel="noreferrer" target="_blank"><GitHubLogo /></a></li>
             <li><a aria-label="Email" href="mailto:profile@maxeisen.me" rel="noreferrer" target="_blank"><MailIcon /></a></li>
         </ul>
     </div>

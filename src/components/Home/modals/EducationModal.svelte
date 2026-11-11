@@ -7,6 +7,7 @@
 -->
 <script>
     import Stat from "../../../lib/ui/Stat.svelte";
+    import { externalizeLinks } from "../../../lib/ui/externalLinks.js";
     import StatGrid from "../../../lib/ui/StatGrid.svelte";
 
     let { school, location, degree, major, years, courses = "", committees = "" } = $props();
@@ -25,13 +26,13 @@
 <article class="edu">
     <header>
         <h2>{school}</h2>
-        <p class="degree">{@html degree}</p>
+        <p class="degree">{@html externalizeLinks(degree)}</p>
     </header>
 
     <StatGrid columns={3} rule="both" gap={3}>
         <Stat size="sm" label="When" value={years.replace(" - ", " – ")} />
         <Stat size="sm" label="Where" value={location} />
-        <Stat size="sm" label="Major">{@html major}</Stat>
+        <Stat size="sm" label="Major">{@html externalizeLinks(major)}</Stat>
     </StatGrid>
 
     {#snippet chips(items)}

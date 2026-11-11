@@ -18,7 +18,7 @@
 		href={profileHref}
 		target={external ? "_blank" : null}
 		rel={external ? "noreferrer" : null}
-	>{profileLabel} {external ? "↗" : "→"}</a>
+	>{profileLabel}{external ? "" : " →"}</a>
 {/snippet}
 
 {#if label}
