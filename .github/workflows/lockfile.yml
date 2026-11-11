@@ -1,0 +1,67 @@
+# Keeps package-lock.json in step with package.json from CI.
+#
+# The machine this repo is usually edited on can't reach the npm registry, so
+# a dependency change is made in package.json alone and pushed as a PR. This
+# job resolves the lockfile on GitHub's runners, commits it back to the PR
+# branch, then installs from it and runs the unit tests and the build.
+name: Lockfile
+
+on:
+  pull_request:
+    paths:
+      - package.json
+      - package-lock.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    # Only for branches in this repo (a fork's PR can't be pushed to), and
+    # not for the lockfile commit this job pushes itself.
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+    # Job-level, so the run its own push starts (skipped above) can't cancel it.
+    concurrency:
+      group: lockfile-${{ github.head_ref || github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # A full install, not --package-lock-only: with overrides the lock-only
+      # resolve can write a lockfile that npm ci then rejects.
+      - name: Resolve the lockfile
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Commit it back if it changed
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json already matches package.json"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "Refresh package-lock.json from package.json"
+          git push
+
+      - name: Install from the lockfile
+        run: npm ci --no-audit --no-fund
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build
+        run: npm run build
+
+      - name: Report vulnerable packages that remain
+        run: npm audit --omit=optional || true
