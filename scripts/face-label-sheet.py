@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
-Build a numbered labeling sheet from clusters.json so a human can put first
-names to the top-N people. One representative face per person, with its
-cluster rank stamped on it. Open the sheet, then hand back "rank: Name" lines.
+Build a numbered labeling sheet from clusters.json.
+
+It lets a human put first names to the top-N people: one representative face
+per person, with its cluster rank stamped on it. Open the sheet, then hand
+back "rank: Name" lines.
 
 Usage (venv from cluster-faces.py setup):
   ~/.venvs/faces/bin/python scripts/face-label-sheet.py --min-photos 30
@@ -106,7 +108,7 @@ def main():
         sheets += 1
 
     (out / "names-template.txt").write_text("\n".join(template) + "\n")
-    print(f"\nOpen labeling-sheet_*.jpg, then fill in names-template.txt (or just send me 'rank: Name' lines).")
+    print("\nOpen labeling-sheet_*.jpg, then fill in names-template.txt (or just send me 'rank: Name' lines).")
 
 
 if __name__ == "__main__":

@@ -38,7 +38,6 @@ The model pack (~300MB, "buffalo_l") downloads once on first run.
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -104,8 +103,10 @@ def blur_var(crop):
 
 def nose_offset(kps):
     """How far the nose sits from the eye-midpoint, in eye-distance units.
+
     ~0 frontal, large = profile (eyes foreshorten so the ratio blows up).
-    Returns 0 (treated as frontal) if keypoints are unavailable."""
+    Returns 0 (treated as frontal) if keypoints are unavailable.
+    """
     if kps is None or len(kps) < 3:
         return 0.0
     le, re, nose = kps[0], kps[1], kps[2]
@@ -129,7 +130,7 @@ def montage(crops, cols=6, cell=160, pad=4, bg=30):
     return sheet
 
 
-def main():
+def parse_args():
     ap = argparse.ArgumentParser(description="Local face clustering POC")
     ap.add_argument("--src", nargs="*", default=[str(p) for p in DEFAULT_SRC], help="source image dirs")
     ap.add_argument("--out", default=str(DEFAULT_OUT), help="output dir for contact sheets + json")
@@ -148,7 +149,131 @@ def main():
     ap.add_argument("--min-assign-det", type=float, default=0.4, help="2nd pass: minimal detection score to be eligible at all")
     ap.add_argument("--min-assign-px", type=int, default=40, help="2nd pass: minimal face size (long edge) to be eligible at all")
     ap.add_argument("--max-sheet", type=int, default=48, help="max faces shown per contact sheet")
-    args = ap.parse_args()
+    return ap.parse_args()
+
+
+def detect_faces(app, images, args):
+    """Detect every face, keep those above the minimal bar, and flag the clean ones."""
+    embeddings = []          # (512,) normalized vectors — ALL eligible faces
+    faces = []               # parallel metadata; each carries a "clean" flag
+    drop = {"det": 0, "size": 0}   # below even the minimal assignment bar
+    for i, path in enumerate(images, 1):
+        img = cv2.imread(str(path))
+        if img is None:
+            print(f"  [{i}/{len(images)}] unreadable, skipped: {path.name}")
+            continue
+        img = downscale(img, args.max_dim)
+        for f in app.get(img):
+            face = face_record(img, path, f, args, drop)
+            if face is not None:
+                embeddings.append(f.normed_embedding.astype(np.float32))
+                faces.append(face)
+        if i % 50 == 0 or i == len(images):
+            print(f"  [{i}/{len(images)}] photos scanned, {len(faces)} faces so far")
+    return embeddings, faces, drop
+
+
+def face_record(img, path, f, args, drop):
+    """Metadata for one detected face, or None if it falls below the minimal bar."""
+    size = max(f.bbox[2] - f.bbox[0], f.bbox[3] - f.bbox[1])
+    # Minimal bar: drop only true garbage. Profile/blurry/smaller faces
+    # stay eligible so the 2nd pass can match them to a known person.
+    if f.det_score < args.min_assign_det:
+        drop["det"] += 1
+        return None
+    if size < args.min_assign_px:
+        drop["size"] += 1
+        return None
+    crop = square_crop(img, f.bbox)
+    if crop is None:
+        return None
+    # "clean" faces (sharp, frontal, large, confident) FORM the clusters
+    # / person identities; the rest are assignment-only in pass two.
+    clean = (
+        f.det_score >= args.min_det_score
+        and size >= args.min_face_px
+        and nose_offset(f.kps) <= args.max_nose_offset
+        and blur_var(crop) >= args.min_blur
+    )
+    ih, iw = img.shape[:2]
+    return {
+        "stem": path.stem,            # = Cloudinary display_name (join key)
+        "det": float(f.det_score),
+        "bbox": [float(v) for v in f.bbox],
+        "dims": [iw, ih],
+        "crop": crop,
+        "clean": clean,
+    }
+
+
+def centroids_for(X, clean_idx, clean_labels):
+    """Centroid per person = renormalized mean of its clean faces."""
+    labels_sorted = sorted({int(lab) for lab in clean_labels if lab >= 0})
+    centroids = []
+    for lab in labels_sorted:
+        rows = clean_idx[clean_labels == lab]
+        c = X[rows].mean(axis=0)
+        centroids.append(c / (np.linalg.norm(c) + 1e-9))
+    C = np.vstack(centroids) if centroids else np.zeros((0, X.shape[1]), np.float32)
+    return labels_sorted, C
+
+
+def assign_to_people(X, C, labels_sorted, args):
+    """Assign each face to the closest person when confident and unambiguous."""
+    n = X.shape[0]
+    assign = np.full(n, -1, dtype=int)
+    if C.shape[0]:
+        sims = X @ C.T                              # (N, L)
+        order = np.argsort(-sims, axis=1)
+        rows = np.arange(n)
+        best = sims[rows, order[:, 0]]
+        second = sims[rows, order[:, 1]] if C.shape[0] > 1 else np.zeros(n)
+        ok = (best >= args.assign_sim) & ((best - second) >= args.assign_margin)
+        assign[ok] = np.array(labels_sorted)[order[ok, 0]]
+    return assign
+
+
+def group_by_label(labels_sorted, pairs):
+    """{label: [face index, ...]} for every non-noise (index, label) pair."""
+    groups = {lab: [] for lab in labels_sorted}
+    for i, lab in pairs:
+        if lab >= 0:
+            groups[int(lab)].append(i)
+    return groups
+
+
+def frac_of(face):
+    """A face's bbox as fractions of its photo: [x, y, w, h]."""
+    x1, y1, x2, y2 = face["bbox"]
+    w, h = face["dims"]
+    return [round(x1 / w, 5), round(y1 / h, 5), round((x2 - x1) / w, 5), round((y2 - y1) / h, 5)]
+
+
+def write_cluster(out, rank, idxs, clean_ids, faces, max_sheet):
+    """Write one person's contact sheet and return their manifest entry."""
+    photos = sorted({faces[i]["stem"] for i in idxs})
+    # Candidate chip faces = the cluster's best CLEAN faces (sharp/frontal),
+    # so a human can pick the most flattering one. candidates[0] is the
+    # default representative (highest detection score).
+    clean_sorted = sorted(clean_ids, key=lambda i: faces[i]["det"], reverse=True)
+    candidates = [{"stem": faces[i]["stem"], "bbox_frac": frac_of(faces[i])} for i in clean_sorted[:9]]
+    rep = candidates[0]
+    sheet = montage([faces[i]["crop"] for i in idxs[:max_sheet]])
+    name = f"cluster_{rank:03d}_n{len(idxs)}_p{len(photos)}.jpg"
+    cv2.imwrite(str(out / name), sheet)
+    return {
+        "rank": rank,
+        "num_faces": len(idxs),
+        "num_photos": len(photos),
+        "representative": {"stem": rep["stem"], "bbox_frac": rep["bbox_frac"]},
+        "candidates": candidates,
+        "photos": photos,
+        "sheet": name,
+    }
+
+
+def main():
+    args = parse_args()
 
     # Imported here so --help works without the heavy dep installed.
     try:
@@ -168,49 +293,8 @@ def main():
     app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
     app.prepare(ctx_id=0, det_size=(640, 640))
 
-    embeddings = []          # (512,) normalized vectors — ALL eligible faces
-    faces = []               # parallel metadata; each carries a "clean" flag
-    n_faces = 0
-    drop = {"det": 0, "size": 0}   # below even the minimal assignment bar
-    for i, path in enumerate(images, 1):
-        img = cv2.imread(str(path))
-        if img is None:
-            print(f"  [{i}/{len(images)}] unreadable, skipped: {path.name}")
-            continue
-        img = downscale(img, args.max_dim)
-        for f in app.get(img):
-            size = max(f.bbox[2] - f.bbox[0], f.bbox[3] - f.bbox[1])
-            # Minimal bar: drop only true garbage. Profile/blurry/smaller faces
-            # stay eligible so the 2nd pass can match them to a known person.
-            if f.det_score < args.min_assign_det:
-                drop["det"] += 1; continue
-            if size < args.min_assign_px:
-                drop["size"] += 1; continue
-            crop = square_crop(img, f.bbox)
-            if crop is None:
-                continue
-            # "clean" faces (sharp, frontal, large, confident) FORM the clusters
-            # / person identities; the rest are assignment-only in pass two.
-            clean = (
-                f.det_score >= args.min_det_score
-                and size >= args.min_face_px
-                and nose_offset(f.kps) <= args.max_nose_offset
-                and blur_var(crop) >= args.min_blur
-            )
-            ih, iw = img.shape[:2]
-            embeddings.append(f.normed_embedding.astype(np.float32))
-            faces.append({
-                "stem": path.stem,            # = Cloudinary display_name (join key)
-                "det": float(f.det_score),
-                "bbox": [float(v) for v in f.bbox],
-                "dims": [iw, ih],
-                "crop": crop,
-                "clean": clean,
-            })
-            n_faces += 1
-        if i % 50 == 0 or i == len(images):
-            print(f"  [{i}/{len(images)}] photos scanned, {n_faces} faces so far")
-
+    embeddings, faces, drop = detect_faces(app, images, args)
+    n_faces = len(faces)
     n_clean = sum(1 for f in faces if f["clean"])
     print(f"  {n_faces} eligible faces ({n_clean} clean for clustering) | dropped garbage — low-conf:{drop['det']} tiny:{drop['size']}")
     if not embeddings:
@@ -222,41 +306,19 @@ def main():
     # Pass 1: cluster the clean faces into person identities.
     print(f"\nPass 1: clustering {len(clean_idx)} clean faces (eps={args.eps}, min_samples={args.min_samples})…")
     clean_labels = DBSCAN(eps=args.eps, min_samples=args.min_samples, metric="cosine", n_jobs=-1).fit_predict(X[clean_idx])
-
-    # Centroid per person = renormalized mean of its clean faces.
-    labels_sorted = sorted({int(l) for l in clean_labels if l >= 0})
-    centroids = []
-    for lab in labels_sorted:
-        rows = clean_idx[clean_labels == lab]
-        c = X[rows].mean(axis=0)
-        centroids.append(c / (np.linalg.norm(c) + 1e-9))
-    C = np.vstack(centroids) if centroids else np.zeros((0, X.shape[1]), np.float32)
+    labels_sorted, C = centroids_for(X, clean_idx, clean_labels)
 
     # Pass 2: assign EVERY eligible face to the closest person, if the match is
     # confident (sim) AND unambiguous (beats 2nd-best by a margin).
     print(f"Pass 2: assigning all {n_faces} faces to {len(labels_sorted)} identities "
           f"(sim>={args.assign_sim}, margin>={args.assign_margin})…")
-    assign = np.full(n_faces, -1, dtype=int)
-    if C.shape[0]:
-        sims = X @ C.T                              # (N, L)
-        order = np.argsort(-sims, axis=1)
-        rows = np.arange(n_faces)
-        best = sims[rows, order[:, 0]]
-        second = sims[rows, order[:, 1]] if C.shape[0] > 1 else np.zeros(n_faces)
-        ok = (best >= args.assign_sim) & ((best - second) >= args.assign_margin)
-        assign[ok] = np.array(labels_sorted)[order[ok, 0]]
+    assign = assign_to_people(X, C, labels_sorted, args)
 
     # Pass-1 clean membership → STABLE ranking + representative (identical clean
     # faces + params + deterministic DBSCAN ⇒ same ranks as the labeled run, so
     # names-template.txt stays valid). Pass-2 assignment → final photo coverage.
-    clean_members = {lab: [] for lab in labels_sorted}
-    for j, lab in zip(clean_idx.tolist(), clean_labels.tolist()):
-        if lab >= 0:
-            clean_members[lab].append(j)
-    assigned = {lab: [] for lab in labels_sorted}
-    for i, lab in enumerate(assign):
-        if lab >= 0:
-            assigned[int(lab)].append(i)
+    clean_members = group_by_label(labels_sorted, zip(clean_idx.tolist(), clean_labels.tolist()))
+    assigned = group_by_label(labels_sorted, enumerate(assign))
     noise = int((assign < 0).sum())
     recovered = sum(1 for i, lab in enumerate(assign) if lab >= 0 and not faces[i]["clean"])
 
@@ -276,34 +338,12 @@ def main():
 
     print(f"\n→ {len(ordered_labels)} people | recovered {recovered} extra faces via pass 2 | {noise} unmatched\n")
     print(f"{'person':>7}  {'faces':>5}  {'photos':>6}")
-    def frac_of(i):
-        x1, y1, x2, y2 = faces[i]["bbox"]
-        w, h = faces[i]["dims"]
-        return [round(x1 / w, 5), round(y1 / h, 5), round((x2 - x1) / w, 5), round((y2 - y1) / h, 5)]
-
     for rank, lab in enumerate(ordered_labels):
         idxs = sorted(assigned[lab], key=lambda i: faces[i]["det"], reverse=True)
-        photos = sorted({faces[i]["stem"] for i in idxs})
-        # Candidate chip faces = the cluster's best CLEAN faces (sharp/frontal),
-        # so a human can pick the most flattering one. candidates[0] is the
-        # default representative (highest detection score).
-        clean_sorted = sorted(clean_members[lab], key=lambda i: faces[i]["det"], reverse=True)
-        candidates = [{"stem": faces[i]["stem"], "bbox_frac": frac_of(i)} for i in clean_sorted[:9]]
-        rep = candidates[0]
-        sheet = montage([faces[i]["crop"] for i in idxs[:args.max_sheet]])
-        name = f"cluster_{rank:03d}_n{len(idxs)}_p{len(photos)}.jpg"
-        cv2.imwrite(str(out / name), sheet)
-        manifest["clusters"].append({
-            "rank": rank,
-            "num_faces": len(idxs),
-            "num_photos": len(photos),
-            "representative": {"stem": rep["stem"], "bbox_frac": rep["bbox_frac"]},
-            "candidates": candidates,
-            "photos": photos,
-            "sheet": name,
-        })
+        entry = write_cluster(out, rank, idxs, clean_members[lab], faces, args.max_sheet)
+        manifest["clusters"].append(entry)
         if rank < 25:
-            print(f"{rank:>7}  {len(idxs):>5}  {len(photos):>6}")
+            print(f"{rank:>7}  {entry['num_faces']:>5}  {entry['num_photos']:>6}")
     if len(ordered_labels) > 25:
         print(f"   …and {len(ordered_labels) - 25} smaller clusters")
 

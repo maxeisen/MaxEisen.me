@@ -14,7 +14,12 @@ app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
 app.prepare(ctx_id=0, det_size=(640, 640))
 
 def fetch(u):
-    return cv2.imdecode(np.frombuffer(urllib.request.urlopen(u, timeout=25).read(), np.uint8), cv2.IMREAD_COLOR)
+    # Only ever fetch web images; refuse file:// and other schemes.
+    if not u.startswith(("https://", "http://")):
+        print("NOMATCH:refusing non-http url"); sys.exit(0)
+    with urllib.request.urlopen(u, timeout=25) as resp:  # nosec B310 - scheme checked above
+        data = resp.read()
+    return cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
 
 ref = fetch(ref_url)
 rf = app.get(ref) if ref is not None else None
