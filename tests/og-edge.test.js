@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 // Lives here rather than beside og.js: Netlify deploys every file in
 // netlify/edge-functions/ as an edge function, and a test file there (with its
 // vitest and node:fs imports) fails the edge bundle and with it the deploy.
-import handler from "../netlify/edge-functions/og.js";
+import handler, { cardUrl } from "../netlify/edge-functions/og.js";
 
 const SHELL = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
@@ -21,10 +21,11 @@ beforeEach(() => {
 });
 
 describe("og edge function", () => {
-	it("gives the homepage its full title", async () => {
+	it("introduces Max on the homepage title and card", async () => {
 		const html = await render("/");
-		expect(html).toContain("<title>Max Eisen — Software Engineer in Toronto</title>");
-		expect(html).toContain('<meta property="og:title" content="Max Eisen — Software Engineer in Toronto"/>');
+		expect(html).toContain("<title>Max Eisen — Hi, I'm Max</title>");
+		expect(html).toContain('<meta property="og:title" content="Max Eisen — Hi, I\'m Max"/>');
+		expect(html).toContain(`<meta property="og:image" content="${cardUrl("Hi, I'm Max.")}"/>`);
 	});
 
 	it.each(["/", "/resume", "/running", "/gallery"])("leaves exactly one of each social tag on %s", async (path) => {
