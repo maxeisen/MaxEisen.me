@@ -1,0 +1,53 @@
+# Prospector config for Codacy. Once Codacy is set to use this file, it
+# replaces the Prospector checkboxes in Codacy's UI, so this mirrors what was
+# enabled there: cyclomatic complexity, Pyflakes, docstring conventions and
+# hardcoded-secret detection. Everything else stays off.
+
+strictness: veryhigh
+doc-warnings: true
+test-warnings: false
+
+ignore-paths:
+  - node_modules
+  - dist
+
+mccabe:
+  run: true
+
+pyflakes:
+  run: true
+
+# D212 and D213 are mutually exclusive (summary on the first vs the second
+# line of a multi-line docstring), so with both on every docstring fails one.
+# The scripts follow D212, PEP 257's own style, so D213 is off.
+pydocstyle:
+  run: true
+  disable:
+    - D213
+
+dodgy:
+  run: true
+
+pycodestyle:
+  run: false
+
+pylint:
+  run: false
+
+mypy:
+  run: false
+
+pyright:
+  run: false
+
+bandit:
+  run: false
+
+vulture:
+  run: false
+
+pyroma:
+  run: false
+
+profile-validator:
+  run: false
