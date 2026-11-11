@@ -249,6 +249,7 @@ a:hover { color: var(--accent-hover); }
     line-height: 0;
     color: var(--text-3);
 }
+
 @media print {
     a[target="_blank"]::after { content: none; }
 }
