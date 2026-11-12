@@ -35,7 +35,21 @@
         '/cycling':       () => import('./routes/Cycling.svelte'),
         '/bach':          () => import('./routes/Bach.svelte'),
         '/resume':        () => import('./routes/Resume.svelte'),
+        '/blog':          () => import('./routes/Blog.svelte'),
+        '/blog/:slug':    () => import('./routes/BlogPost.svelte'),
     };
+
+    // Paths with a variable part, mapped to their ROUTES key. A post with
+    // that slug may not exist; BlogPost sends those to the 404 page itself.
+    const PATTERNS = [
+        [/^\/blog\/[a-z0-9-]+\/?$/, '/blog/:slug'],
+    ];
+
+    /** The ROUTES key for a path, or null if it isn't a route. */
+    function routeKey(path) {
+        if (path in ROUTES) return path;
+        return PATTERNS.find(([re]) => re.test(path))?.[1] ?? null;
+    }
 
     // Routes that exist in ROUTES (so they lazy-load + show the loader) but
     // are deliberately NOT client-side-navigated via link clicks: /bach
@@ -43,7 +57,7 @@
     // full load is safer than an in-place mount.
     const NO_CLIENT_NAV = new Set(['/bach']);
 
-    const isRoute = $derived(pathname in ROUTES);
+    const isRoute = $derived(routeKey(pathname) !== null);
     const isHome = $derived(pathname === '/');
 
     // Unknown paths (e.g. /gallery/nasdjhba) used to fall through to Home,
@@ -52,7 +66,7 @@
     // in play.
     $effect(() => {
         if (typeof window === 'undefined') return;
-        if (pathname !== '/' && !(pathname in ROUTES)) {
+        if (pathname !== '/' && !routeKey(pathname)) {
             window.location.replace('/404.html');
         }
     });
@@ -74,23 +88,25 @@
         return { duration: prefersReduced ? 60 : 150, css: (t) => `opacity: ${t}` };
     }
 
-    let RouteComponent = $state(null);
+    // The last loaded route component, with the ROUTES key it belongs to.
+    // It's only shown on that route: otherwise the previous page's component
+    // would mount at the new URL for a moment while the next chunk loads.
+    // Moving between two posts keeps the same key, so that stays instant.
+    let loaded = $state({ key: null, component: null });
+    const RouteComponent = $derived(loaded.key === routeKey(pathname) ? loaded.component : null);
     $effect(() => {
-        const loader = ROUTES[pathname];
-        if (!loader) {
-            RouteComponent = null;
-            return;
-        }
+        const key = routeKey(pathname);
+        const loader = ROUTES[key];
+        if (!loader) return;
         const requestedPath = pathname;
         loader().then((mod) => {
             // Race guard: only commit if the URL still matches when the
             // chunk resolves (a fast back/forward could have moved on).
             if (window.location.pathname === requestedPath) {
-                RouteComponent = mod.default;
+                loaded = { key, component: mod.default };
             }
         }).catch((err) => {
             console.error('Failed to load route', pathname, err);
-            RouteComponent = null;
         });
     });
 
@@ -146,7 +162,7 @@
         // Only the homepage + known SPA routes are client-navigable. Excluded
         // routes (/bach) full-load normally.
         const navigable =
-            (url.pathname === '/' || url.pathname in ROUTES) && !NO_CLIENT_NAV.has(url.pathname);
+            (url.pathname === '/' || routeKey(url.pathname)) && !NO_CLIENT_NAV.has(url.pathname);
         if (!navigable) return;
 
         e.preventDefault();
@@ -163,10 +179,11 @@
         let url;
         try { url = new URL(a.href, window.location.origin); } catch { return; }
         if (url.origin !== window.location.origin) return;
-        if (prefetched.has(url.pathname)) return;
-        const loader = ROUTES[url.pathname];
+        const key = routeKey(url.pathname);
+        if (!key || prefetched.has(key)) return;
+        const loader = ROUTES[key];
         if (!loader) return;
-        prefetched.add(url.pathname);
+        prefetched.add(key);
         loader();
     }
 

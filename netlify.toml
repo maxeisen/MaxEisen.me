@@ -140,6 +140,16 @@
   from = "/dashboard"
   to = "/index.html"
   status = 200
+# The blog list and each post (/blog/<slug>). An unknown slug boots the app,
+# which sends it on to /404.html.
+[[redirects]]
+  from = "/blog"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/blog/*"
+  to = "/index.html"
+  status = 200
 # HTML from trainingPage: the SPA shell plus a noscript dashboard. JS visitors
 # still boot the app from that document; browsers without JS read the fallback.
 [[redirects]]
