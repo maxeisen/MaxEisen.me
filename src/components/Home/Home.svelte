@@ -55,7 +55,10 @@
     }
     .profile {
         position: sticky;
-        top: calc(var(--nav-height) + var(--space-7));
+        /* + 1px for the nav's bottom border, which sits outside --nav-height.
+           Without it the column starts 1px lower than where it sticks, so it
+           shifts up by 1px as soon as the page scrolls. */
+        top: calc(var(--nav-height) + 1px + var(--space-7));
         align-self: start;
     }
     .content { min-width: 0; max-width: 760px; }
