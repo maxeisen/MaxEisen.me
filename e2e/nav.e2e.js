@@ -106,3 +106,51 @@ test("a gallery's nav can be hidden and brought back", async ({ page }) => {
 	await page.getByRole("button", { name: "Show navigation" }).click();
 	await expect(page.locator("header.site-nav")).toBeVisible();
 });
+
+// The page you're on is marked by one highlight shape: behind the logo and
+// name on the homepage, behind the section's link elsewhere. Moving between
+// pages slides it from the old spot to the new one.
+// During the page cross-fade the old page's bar is still there, so these
+// look at the newest one.
+const bar = (page) => page.locator("header.site-nav").last();
+async function pillBox(page) {
+	return bar(page).locator(".pill").boundingBox();
+}
+
+test("the highlight sits behind the logo on the homepage and slides to the page you open", async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto("/");
+	const home = page.locator("header.site-nav .home");
+	await expect(home).toHaveAttribute("aria-current", "page");
+	const homeBox = await home.boundingBox();
+	const start = await pillBox(page);
+	expect(start.x).toBeLessThan(homeBox.x);
+	expect(start.x + start.width).toBeGreaterThan(homeBox.x + homeBox.width);
+
+	await bar(page).locator("nav a", { hasText: "Resume" }).click();
+	await expect(page).toHaveURL(/\/resume$/);
+	await expect(page.locator("header.site-nav")).toHaveCount(1);
+	const link = bar(page).locator("nav a", { hasText: "Resume" });
+	await expect(link).toHaveAttribute("aria-current", "page");
+
+	// It slides (the transition is on) rather than jumping, and ends on the link.
+	await expect(bar(page).locator(".pill")).toHaveClass(/animate/);
+	const linkBox = await link.boundingBox();
+	await expect.poll(async () => {
+		const b = await pillBox(page);
+		return b && Math.round(b.x) === Math.round(linkBox.x) && Math.round(b.width) === Math.round(linkBox.width);
+	}).toBe(true);
+});
+
+test("a fresh load puts the highlight straight on the current link", async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 800 });
+	await page.goto("/running");
+	const link = page.locator("header.site-nav nav a", { hasText: "Running" });
+	await expect(link).toHaveAttribute("aria-current", "page");
+	await expect(page.locator("header.site-nav .home")).not.toHaveAttribute("aria-current", "page");
+	await expect(page.locator("header.site-nav .pill")).not.toHaveClass(/animate/);
+	const linkBox = await link.boundingBox();
+	const b = await pillBox(page);
+	expect(Math.round(b.x)).toBe(Math.round(linkBox.x));
+	expect(Math.round(b.width)).toBe(Math.round(linkBox.width));
+});
