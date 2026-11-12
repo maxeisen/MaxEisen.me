@@ -1,0 +1,5 @@
+#!/bin/sh
+# Rebuilds the résumé PDF when a commit changes what it's made from.
+# See scripts/resume-pdf-hook.mjs. Turned on by `npm install` (the
+# "prepare" script sets core.hooksPath to this folder).
+exec node scripts/resume-pdf-hook.mjs

@@ -6,9 +6,12 @@
 // inputs' fingerprint (see lib/resumePdf.mjs) so the tests can tell when the
 // committed PDF has fallen behind the résumé.
 //
-// Run it after changing public/content/resume.json, the résumé page, or the
-// headshot, and commit both the PDF and scripts/resume-pdf.lock.json. If you
-// forget, `npm run test:run` (and so the Netlify build) fails and says so.
+// The pre-commit hook (scripts/resume-pdf-hook.mjs) runs this for you when a
+// commit changes public/content/resume.json, the résumé page, or the
+// headshot, and adds the PDF and scripts/resume-pdf.lock.json to the commit.
+// Run it by hand after a change the hook doesn't watch, like site-wide CSS.
+// If the PDF falls behind, `npm run test:run` (and so the Netlify build)
+// fails and says so.
 
 import fs from "node:fs";
 import { build, preview } from "vite";
