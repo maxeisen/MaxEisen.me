@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "gallery:manifest": "node scripts/build-gallery-manifest.mjs",
     "gallery:chip": "node scripts/set-chip.mjs",
-    "resume:pdf": "node scripts/build-resume-pdf.mjs"
+    "resume:pdf": "node scripts/build-resume-pdf.mjs",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
