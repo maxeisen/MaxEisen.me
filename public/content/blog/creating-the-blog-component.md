@@ -1,3 +1,9 @@
+---
+title: Creating the Blog Component
+date: 2021-03-03
+description: How I created this blog component on my site from scratch (it was a pain).
+note: Written in 2021, about the first version of this blog. Posts used to open in a pop-up on the homepage; they now have real pages and URLs of their own.
+---
 ## Foreword
 This week, I decided to add some functionality to my site to make it more... interesting.
 

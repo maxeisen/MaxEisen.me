@@ -6,10 +6,6 @@
     dashboard in it too so the run log can open a run in the same window.
 
     Options:
-      - wide:        widen the modal window to ~950px (used by long-form
-                     content like the blog post modal). Replaces the
-                     previous hack where supplying a custom close-button
-                     component was the implicit trigger for "wide".
       - styleWindow: object of extra CSS to apply to the .modal-window
       - onOpen / onClose: lifecycle callbacks
 
@@ -47,7 +43,6 @@
 
 	function open(Component, props = {}, options = {}) {
 		const {
-			wide = false,
 			styleWindow = {},
 			onOpen,
 			onClose: onCloseCallback
@@ -56,7 +51,6 @@
 		current = {
 			Component,
 			props,
-			wide,
 			styleWindow,
 			onCloseCallback
 		};
@@ -85,7 +79,7 @@
 		transition:fade={{ duration: 200 }}
 	>
 		<div
-			class="modal-window {current.wide ? 'modal-window--wide' : ''}"
+			class="modal-window"
 			style={Object.entries(current.styleWindow || {}).map(([k, v]) => `${k}: ${v}`).join('; ')}
 			role="dialog"
 			aria-modal="true"
@@ -120,7 +114,6 @@
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-pop);
 	}
-	.modal-window--wide { width: min(59.375rem, 100%); }
 	.modal-content { padding: var(--space-6) var(--space-5) var(--space-5); }
 
 	/* ===================================================================

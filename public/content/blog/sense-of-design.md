@@ -1,3 +1,10 @@
+---
+title: My Sense of Design
+date: 2021-04-14
+updated: 2021-05-14
+description: Take a peek into the things that have influenced and currently define my sense of design.
+note: Written in 2021. The site has been redesigned since, so some of what this describes, like the memoji theme switcher, is no longer here.
+---
 ## Foreword
 Hey there! It's been a while. I'm all finished with my degree and ready to get some blog posts out!
 
@@ -13,11 +20,11 @@ The basis for my interest in anything digital, including digital design, stems f
 
 I always enjoyed using computers and learning how to navigate their operating systems. From my family's old Dell Dimension running Windows XP, that I used to use for Club Penguin
 
-![Dell Dimension 4200](../../img/blog/major-design-influences/dell-dimension.png)
+![Dell Dimension 4200](/img/blog/major-design-influences/dell-dimension.png)
 
 to the eMac desktops that we used in my school's computer lab,
 
-![Apple eMac](../../img/blog/major-design-influences/apple-emac.png)
+![Apple eMac](/img/blog/major-design-influences/apple-emac.png)
 
 I loved learning how to do new things on any system I could get my hands on.
 
@@ -25,11 +32,11 @@ This meant learning how to efficiently navigate two very different operating sys
 
 I saw Windows XP as much less modern looking. I guess, in comparison, the eMac's OS X Puma *did* have a much more modern look. Apple always has and still does strive to look like they're "ahead of the curve".
 
-![OS X Puma](../../img/blog/major-design-influences/osx-puma.png)
+![OS X Puma](/img/blog/major-design-influences/osx-puma.png)
 
 Although I was fascinated by the different ways the two operating systems were made to be easy to navigate, I loved the colours, fonts, rounded window corners, use of transparency, and just the general feel of Apple's desktop OS way more than Microsoft's.
 
-This started a great appreciating of Apple's design in my mind.
+This started a great appreciation of Apple's design in my mind.
 
 ## Think [and Design] Different
 I'm not sure exactly when it happened, but I started being known as a real "Apple guy".
@@ -38,16 +45,17 @@ I begged my mom for a first generation iPod Nano, and I brought that thing with 
 
 Although I adored the beautifully simple design behind the click wheel on OG iPods, it was the touch-centric OS on my first generation iPod Touch that really cemented my love for Apple's design. With sleek, rounded icons, a reflective dock, and consistent UI design throughout, Apple's first [(technically second)](https://en.wikipedia.org/wiki/Apple_Newton) touch device was a true winner in my eyes.
 
-![iPod Touch](../../img/blog/major-design-influences/ipod-touch.png)
+![iPod Touch](/img/blog/major-design-influences/ipod-touch.png)
 
-My Apple love only continued from there, with my first computer - a 2010 polycarbonate MacBook - showing me how much the Mac operating system had evolved since Puma, to become the beloved Snow Leopard. I can still hear that [surreal OS welcome music](https://www.youtube.com/watch?v=FPTp-YInbJ0)... damn.
+My Apple love only continued from there, with my first computer - a 2010 polycarbonate MacBook - showing me how much the Mac operating system had evolved since Puma, to become the beloved Snow Leopard. I can still hear that surreal OS welcome music ([“Exodus Honey” by Honeycut](https://www.youtube.com/watch?v=l_PezlYvevY))... damn.
 
-![OS X Snow Leopard](../../img/blog/major-design-influences/osx-snow-leopard.png)
+![OS X Snow Leopard](/img/blog/major-design-influences/osx-snow-leopard.png)
 
 Everything about Apple's design (software, mainly) spoke to me and still does in many ways, to this day.
 
 ## Specific Design Elements
 Let's take a look at some of the specific elements in a UI that I've taken a liking to, and use pretty consistently throughout my software design.
+
 ### Rounded Corners
 I really, really like rounded corners. Although, technically speaking, they are a waste of space in a UI, I just think they make software so much easier to use. Same goes for hardware, to be honest - things with rounded corners are just more appealing to me.
 
@@ -56,7 +64,7 @@ I really, really like rounded corners. Although, technically speaking, they are 
 My use of the CSS `border-radius` property can certainly be seen throughout this site. I just feel that, especially when there's no need to pack many things into a tight UI, using rounded corners just makes things easier on the eyes and less threatening.
 
 ### Darker Colours (by Choice)
-With dark mode on the rise in software these past few years, I've hopped onto the trend wherever I can, with my OS appearance preference across all devices being to enable dark more.
+With dark mode on the rise in software these past few years, I've hopped onto the trend wherever I can, with my OS appearance preference across all devices being to enable dark mode.
 
 While designing this website, I kept that in mind, using dark colours for the initial version of the site. It wasn't until my recent implementation of a theme switcher (currently the memoji gif at the top of the page) that I decided to create a *light* mode for the site.
 

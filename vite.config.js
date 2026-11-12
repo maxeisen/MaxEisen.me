@@ -3,12 +3,14 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import resumeShell from './src/components/Resume/lib/shellPlugin.js';
+import blogPosts from './src/components/Blog/lib/postsPlugin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
 	// resumeShell: /resume's document, with a plain résumé for no-JS visitors.
-	plugins: [svelte(), resumeShell()],
+	// blogPosts: a post's .md as ?meta (front matter) or ?body (the text).
+	plugins: [svelte(), resumeShell(), blogPosts()],
 	resolve: {
 		alias: {
 			'@content': path.resolve(__dirname, 'public/content')

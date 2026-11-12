@@ -18,8 +18,6 @@
     import Foundations from './sections/Foundations.svelte';
     import Skills from './sections/Skills.svelte';
     import Footer from './sections/Footer.svelte';
-    // Blog kept here intentionally — wired in once it's ready to surface.
-    // import Blog from './sections/Blog.svelte';
 </script>
 
 <svelte:head>
@@ -39,7 +37,6 @@
             <Intro />
             <Experience />
             <Projects />
-            <!-- <Blog/> -->
             <Foundations />
             <Skills />
             <Footer />

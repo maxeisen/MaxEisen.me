@@ -52,6 +52,8 @@
         { href: "/running", label: "Running" },
         { href: "/cycling", label: "Cycling" },
         { href: "/dashboard", label: "Dashboard" },
+        // /blog works by URL but stays out of the nav until it's ready:
+        // { href: "/blog", label: "Blog" },
     ];
 
     const path = typeof window !== "undefined" ? window.location.pathname : "/";
