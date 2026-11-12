@@ -19,10 +19,28 @@
     the tab that brings it back, so the bar can be put away and brought
     back without moving the pointer.
 
+    The page you're on is marked by one highlight shape (.pill) behind its
+    link, or behind the logo and name on the homepage. Each page mounts its
+    own SiteNav, so the shape's last position is kept at module level: when
+    a client-side navigation mounts the next page's bar, the shape starts
+    where the old one was and slides to the new link.
+
     The link list is the single place to add or rename a section.
 -->
+<script module>
+    // Where the highlight was on the last page, relative to .inner. It
+    // outlives each SiteNav instance, so the next page can slide from it.
+    let lastPill = null;
+    // While a slide is running: where it started, and when it ends. Some
+    // pages build their bar twice as they load; the second one picks up
+    // the same slide instead of starting at the end of it.
+    let slideFrom = null;
+    let slideUntil = 0;
+    const SLIDE_MS = 320;
+</script>
+
 <script>
-    import { onMount } from "svelte";
+    import { onMount, untrack } from "svelte";
     import ThemeToggle from "./ThemeToggle.svelte";
     import Logo from "./Logo.svelte";
 
@@ -49,6 +67,93 @@
         hidden = next;
         try { localStorage.setItem(storageKey, next ? "1" : "0"); } catch {}
     }
+
+    // === current-page highlight ===========================================
+    const isHome = path === "/";
+    const currentHref = isHome ? "/" : (LINKS.find((link) => isCurrent(link.href))?.href ?? null);
+    const reduceMotion =
+        typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let inner = $state(null);
+    let list = $state(null);
+    let homeEl = $state(null);
+    let pill = $state(null);
+    let animate = $state(false);
+
+    // The box the highlight should cover, relative to .inner. The logo and
+    // name have no padding of their own, so the shape reaches a little past
+    // them to sit like the links' padded boxes. A link is clipped to the
+    // link row, which scrolls sideways on narrow screens.
+    function measure() {
+        const el = isHome ? homeEl : list?.querySelector('a[aria-current="page"]');
+        if (!el || !inner || !list) return null;
+        const box = inner.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        let { left, right, top, bottom } = r;
+        if (isHome) {
+            left -= 6; right += 6; top -= 2; bottom += 2;
+        } else {
+            const row = list.getBoundingClientRect();
+            left = Math.max(left, row.left);
+            right = Math.min(right, row.right);
+        }
+        if (right <= left) return null;
+        return { x: left - box.left, y: top - box.top, w: right - left, h: bottom - top };
+    }
+
+    const same = (a, b) => a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
+
+    $effect(() => {
+        if (!inner || !list) return;
+        // The bindings are cleared before this effect's cleanup runs.
+        const row = list;
+        let live = true;
+        // Only the bar appearing should re-run this, not the link bindings
+        // settling, or the second run would start from the new spot.
+        const target = untrack(measure);
+        let frame = 0;
+        const from = performance.now() < slideUntil ? slideFrom : lastPill;
+        if (from && target && !reduceMotion && !same(from, target)) {
+            // Paint at the old spot first, then turn the transition on and
+            // move, so the browser has a start point to slide from.
+            slideFrom = from;
+            slideUntil = performance.now() + SLIDE_MS + 100;
+            animate = false;
+            pill = from;
+            frame = requestAnimationFrame(() => {
+                frame = requestAnimationFrame(() => {
+                    animate = true;
+                    pill = target;
+                });
+            });
+        } else {
+            pill = target;
+        }
+        if (target) lastPill = target;
+
+        // Keep it on its link if the layout changes. Scrolling the link row
+        // must not lag behind, so that one moves it without the transition.
+        const follow = (instant) => () => {
+            if (!live) return;
+            if (instant) animate = false;
+            const next = measure();
+            pill = next;
+            if (next) lastPill = next;
+        };
+        const onResize = follow(false);
+        const onScroll = follow(true);
+        window.addEventListener("resize", onResize);
+        row.addEventListener("scroll", onScroll, { passive: true });
+        // Re-measure once the web font is in, if it isn't yet. (When it is,
+        // `ready` resolves at once and would cut the slide short.)
+        if (document.fonts && document.fonts.status !== "loaded") document.fonts.ready.then(onResize);
+        return () => {
+            live = false;
+            cancelAnimationFrame(frame);
+            window.removeEventListener("resize", onResize);
+            row.removeEventListener("scroll", onScroll);
+        };
+    });
 </script>
 
 {#if hideable && hidden}
@@ -57,14 +162,25 @@
     </button>
 {:else}
 <header class="site-nav" class:sticky>
-    <div class="inner">
-        <a class="home" href="/" aria-label="Max Eisen — home">
+    <div class="inner" bind:this={inner}>
+        {#if pill}
+            <span
+                class="pill"
+                class:animate
+                aria-hidden="true"
+                style:width="{pill.w}px"
+                style:height="{pill.h}px"
+                style:transform="translate({pill.x}px, {pill.y}px)"
+            ></span>
+        {/if}
+
+        <a class="home" href="/" aria-label="Max Eisen — home" aria-current={isHome ? "page" : undefined} bind:this={homeEl}>
             <Logo size={28} />
             <span class="name">MEisen</span>
         </a>
 
         <nav aria-label="Site">
-            <ul>
+            <ul bind:this={list}>
                 {#each LINKS as link (link.href)}
                     <li>
                         <a href={link.href} aria-current={isCurrent(link.href) ? "page" : undefined}>{link.label}</a>
@@ -98,6 +214,7 @@
         top: 0;
     }
     .inner {
+        position: relative;
         display: flex;
         align-items: center;
         gap: var(--space-5);
@@ -107,7 +224,26 @@
         padding: 0 var(--page-gutter);
     }
 
+    /* The current-page highlight. It comes first in .inner and the home link
+       and nav are positioned, so they paint on top of it. */
+    .pill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: var(--radius);
+        background: var(--surface-2);
+        box-shadow: inset 0 0 0 1px var(--border);
+        pointer-events: none;
+    }
+    .pill.animate {
+        transition:
+            transform 320ms var(--ease),
+            width 320ms var(--ease),
+            height 320ms var(--ease); /* keep in step with SLIDE_MS */
+    }
+
     .home {
+        position: relative;
         display: inline-flex;
         align-items: center;
         gap: var(--space-2);
@@ -120,6 +256,7 @@
     .home:hover { color: var(--text-strong); }
 
     nav {
+        position: relative;
         flex: 1;
         min-width: 0;
         display: flex;
@@ -146,7 +283,9 @@
         transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
     }
     nav a:hover { color: var(--text-strong); background: var(--surface-2); }
-    nav a[aria-current="page"] { color: var(--text-strong); background: var(--surface-2); }
+    /* The highlight shape behind it does the background. */
+    nav a[aria-current="page"],
+    nav a[aria-current="page"]:hover { color: var(--text-strong); background: transparent; }
 
     .hide,
     .reveal {
