@@ -58,6 +58,17 @@ describe("pack", () => {
 		expect(coverage(layout).every((ids) => ids.length === 1)).toBe(true);
 	});
 
+	it("never grows a fixed widget; its neighbours take the gap or it stays empty", () => {
+		const layout = pack([{ id: "a", w: 2, h: 2 }, { id: "b", w: 1, h: 1, fixed: true }], 3);
+		expect(layout.placements.b).toEqual({ x: 2, y: 0, w: 1, h: 1 });
+		expect(layout.holes).toBe(1);
+
+		const shared = pack([{ id: "a", w: 1, h: 1, fixed: true }, { id: "b", w: 1, h: 1 }], 3);
+		expect(shared.placements.a).toEqual({ x: 0, y: 0, w: 1, h: 1 });
+		expect(shared.placements.b).toEqual({ x: 1, y: 0, w: 2, h: 1 });
+		expect(shared.holes).toBe(0);
+	});
+
 	it("packs the dashboard's widgets without holes at common column counts", () => {
 		for (const cols of [1, 2, 4, 5, 6]) {
 			expect(pack(DASHBOARD, cols).holes).toBe(0);

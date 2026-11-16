@@ -99,7 +99,14 @@
         line-height: 1.1;
         color: var(--text-strong);
     }
-    .r-caption { font-size: var(--font-xs); color: var(--text-2); white-space: nowrap; }
+    .r-caption {
+        min-width: 0;
+        overflow: hidden;
+        font-size: var(--font-xs);
+        color: var(--text-2);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
     .r-items {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -129,6 +136,9 @@
     @container slot (max-width: 440px) {
         .r { flex-direction: column; align-items: stretch; gap: var(--space-2); }
         .r-head { flex-direction: row; align-items: baseline; gap: var(--space-3); }
+    }
+    @container slot (max-height: 200px) and (max-width: 440px) {
+        dd.r-note { display: none; }
     }
     @container slot (max-height: 150px) {
         .r-items { grid-template-columns: repeat(4, minmax(0, 1fr)); }

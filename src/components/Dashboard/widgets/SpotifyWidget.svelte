@@ -406,8 +406,10 @@
     }
     @container slot (max-width: 340px) and (min-height: 240px) {
         .spotify-main { flex-direction: column; justify-content: center; text-align: center; }
-        .spotify-art { width: clamp(56px, min(40cqi, 45cqh), 128px); }
+        .spotify-art { width: clamp(56px, min(40cqi, 38cqh), 128px); }
         .spotify-info { align-items: center; width: 100%; flex: none; padding-right: 0; }
+        /* Centred items shrink to their text; cap them so long titles clip. */
+        .spotify-info > * { max-width: 100%; }
         .spotify-progress { width: 100%; }
     }
 </style>

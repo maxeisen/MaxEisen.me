@@ -1,6 +1,6 @@
 <!--
-    Top 6 Hacker News stories. Story count is trimmed dynamically by
-    trimListToFit so partial rows aren't shown when the container shrinks.
+    Top 10 Hacker News stories. Story count is trimmed dynamically by
+    trimListToFit, so smaller tiles show fewer and no partial rows.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
@@ -30,7 +30,7 @@
 
     async function load() {
         try {
-            const ids = (await fetchJsonSwr("https://hacker-news.firebaseio.com/v0/topstories.json", { maxAgeMs: HN_MAX_AGE_MS })).slice(0, 6);
+            const ids = (await fetchJsonSwr("https://hacker-news.firebaseio.com/v0/topstories.json", { maxAgeMs: HN_MAX_AGE_MS })).slice(0, 10);
             const items = await Promise.all(
                 ids.map((id) => fetchJsonSwr(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, { maxAgeMs: HN_MAX_AGE_MS })),
             );

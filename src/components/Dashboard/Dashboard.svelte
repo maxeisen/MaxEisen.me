@@ -5,16 +5,18 @@
         too short, then scrolling
       - the layout (widget order, persisted) and dragging it (lib/gridDrag:
         a live preview of where the widget will land, then a short glide
-        into place) and which widgets are showing (persisted,
-        lib/widgetVisibility)
+        into place), which widgets are showing (persisted,
+        lib/widgetVisibility) and how big each one is (persisted,
+        lib/widgetSize)
       - stepping aside for widgets that can't load: each reports through
         `onavailability`, and one that has nothing to show leaves the grid
         for this visit. It stays mounted and keeps polling, so it comes back
         by itself if its feed recovers; a reload tries every widget afresh.
       - edit mode (lib/ui/editMode, shared with /running): where widgets are
-        shown and hidden, and the only way to drag on a touch screen
+        shown, hidden and sized, and the only way to drag on a touch screen
 
-    Widgets are listed in widgets/registry.js, each with its size. They are
+    Widgets are listed in widgets/registry.js, with their sizes in
+    widgets/sizes.js. They are
     content only: Dashboard provides the tile around each one (an <a> for a
     widget that's one big link), and each widget adapts to its tile through
     container queries on `slot`.
@@ -31,9 +33,13 @@
     import {
         isShown, setShown, readVisibility, writeVisibility, clearVisibility,
     } from "./lib/widgetVisibility.js";
+    import {
+        SIZE_LABELS, sizeKeys, sizeOf, setSize, readSizes, writeSizes, clearSizes,
+    } from "./lib/widgetSize.js";
 
     const LAYOUT_KEY = "dashboard-layout";
     const VISIBILITY_KEY = "dashboard-widgets";
+    const SIZES_KEY = "dashboard-sizes";
     const WIDGET_IDS = WIDGETS.map((w) => w.id);
 
     let navHidden = $state(false);
@@ -83,7 +89,19 @@
         const live = new Set(placed.map((w) => w.id));
         return WIDGETS.filter((w) => live.has(w.id));
     });
-    const asItems = (widgets) => widgets.map((w) => ({ id: w.id, ...w.size }));
+    // Sizes someone picked; see lib/widgetSize. A picked size is `fixed`: the
+    // grid packs it as is and never grows it into a gap.
+    let sizeChoices = $state(readSizes(SIZES_KEY, WIDGETS));
+    const sizeFor = (widget) => sizeOf(sizeChoices, widget);
+    const asItems = (widgets) => widgets.map((w) => {
+        const { w: width, h, fixed } = sizeFor(w);
+        return { id: w.id, w: width, h, fixed };
+    });
+
+    function setWidgetSize(id, key) {
+        sizeChoices = setSize(sizeChoices, id, key);
+        writeSizes(SIZES_KEY, sizeChoices);
+    }
 
     function setWidgetShown(id, shown) {
         choices = setShown(choices, id, shown);
@@ -98,7 +116,11 @@
         const out = [];
         for (const failed of shown.filter((w) => unavailable[w.id])) {
             const free = spare.filter((w) => !taken.has(w.id));
-            const alt = free.find((w) => w.size.w === failed.size.w && w.size.h === failed.size.h) ?? free[0];
+            const want = sizeFor(failed);
+            const alt = free.find((w) => {
+                const size = sizeFor(w);
+                return size.w === want.w && size.h === want.h;
+            }) ?? free[0];
             if (!alt) continue;
             taken.add(alt.id);
             out.push({ failed, alt });
@@ -116,6 +138,8 @@
         reorder.reset();
         choices = {};
         clearVisibility(VISIBILITY_KEY);
+        sizeChoices = {};
+        clearSizes(SIZES_KEY);
     }
 
     // The grid's content box. Seeded from the window so the first frame is
@@ -173,7 +197,9 @@
     // was to where it now is. Positions are read just before the DOM updates
     // and again just after; the difference is animated on `translate`, which
     // leaves `transform` to the drag and the edit-mode jiggle.
-    const arrangement = $derived(`${arranged.map((w) => w.id).join()}|${reorder.draggingId ?? ""}`);
+    const arrangement = $derived(
+        `${arranged.map((w) => `${w.id}:${sizeFor(w).key}`).join()}|${reorder.draggingId ?? ""}`,
+    );
     let before = null;
     function tileRects() {
         const rects = {};
@@ -302,7 +328,11 @@
                         style:transform={reorder.transformFor(widget.id)}
                         onpointerdown={(e) => reorder.start(widget.id, e)}
                     >
-                        <widget.component {...widget.props} onavailability={(ok) => setAvailable(widget.id, ok)} />
+                        <widget.component
+                            {...widget.props}
+                            size={sizeFor(widget).key}
+                            onavailability={(ok) => setAvailable(widget.id, ok)}
+                        />
                     </svelte:element>
                     {#if edit.isEditing && reorder.draggingId !== widget.id}
                         <button
@@ -316,6 +346,25 @@
                         >
                             <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg>
                         </button>
+                        {@const current = sizeFor(widget).key}
+                        <div
+                            class="size-picker"
+                            role="group"
+                            aria-label="Size of {widget.title}"
+                            data-edit-control
+                            onpointerdown={(e) => e.stopPropagation()}
+                        >
+                            {#each sizeKeys(widget) as key (key)}
+                                <button
+                                    type="button"
+                                    class:on={key === current}
+                                    aria-pressed={key === current ? "true" : "false"}
+                                    aria-label={SIZE_LABELS[key]}
+                                    title={SIZE_LABELS[key]}
+                                    onclick={() => setWidgetSize(widget.id, key)}
+                                >{key.toUpperCase()}</button>
+                            {/each}
+                        </div>
                     {/if}
                 </div>
             {/each}
@@ -488,6 +537,40 @@
         stroke: currentColor;
         stroke-width: 1.6;
         stroke-linecap: round;
+    }
+
+    /* S / M / L, centred on the tile's bottom edge so it clears the hide
+       button and stays reachable on the smallest tiles. */
+    .size-picker {
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        z-index: 5;
+        display: flex;
+        padding: 2px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-pill);
+        background: var(--surface);
+        box-shadow: var(--shadow-pop);
+        transform: translateX(-50%);
+    }
+    .size-picker button {
+        width: 26px;
+        height: 22px;
+        padding: 0;
+        border: 0;
+        border-radius: var(--radius-pill);
+        background: transparent;
+        color: var(--text-2);
+        font: inherit;
+        font-size: var(--font-2xs);
+        font-weight: var(--weight-semibold);
+        cursor: pointer;
+    }
+    .size-picker button:hover { background: var(--surface-2); color: var(--text-strong); }
+    .size-picker button.on {
+        background: var(--text-strong);
+        color: var(--bg);
     }
 
     .customize {
