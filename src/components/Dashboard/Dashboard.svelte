@@ -13,7 +13,9 @@
         for this visit. It stays mounted and keeps polling, so it comes back
         by itself if its feed recovers; a reload tries every widget afresh.
       - edit mode (lib/ui/editMode, shared with /running): where widgets are
-        shown, hidden and sized, and the only way to drag on a touch screen
+        shown, hidden and sized, auto-arranged (lib/autoArrange: the order
+        that leaves the least empty space), and the only way to drag on a
+        touch screen
 
     Widgets are listed in widgets/registry.js, with their sizes in
     widgets/sizes.js. They are
@@ -29,6 +31,7 @@
     import { createRearrangeable } from "../../lib/ui/editMode.svelte.js";
     import { WIDGETS, WIDGETS_BY_ID } from "./widgets/registry.js";
     import { chooseLayout } from "./lib/gridLayout.js";
+    import { autoArrange } from "./lib/autoArrange.js";
     import { createGridDrag } from "./lib/gridDrag.svelte.js";
     import {
         isShown, setShown, readVisibility, writeVisibility, clearVisibility,
@@ -132,6 +135,13 @@
         reorder.swap(failedId, altId);
         choices = setShown(setShown(choices, failedId, false), altId, true);
         writeVisibility(VISIBILITY_KEY, choices);
+    }
+
+    // Reorder what's on screen to leave the least empty space at the
+    // current column count; the glide (below) shows where things went.
+    function arrangeLayout() {
+        const order = autoArrange(asItems(placed), grid.cols);
+        if (order.join() !== placed.map((w) => w.id).join()) reorder.arrange(order);
     }
 
     function resetLayout() {
@@ -274,6 +284,12 @@
                     >{widget.title}{#if failed}<span class="chip-note"> · unavailable</span>{/if}</button>
                 {/each}
             </div>
+            <button
+                class="reset"
+                type="button"
+                title="Reorder the widgets to leave as little empty space as possible"
+                onclick={arrangeLayout}
+            >Auto-arrange</button>
             <button class="reset" type="button" onclick={resetLayout}>Reset layout</button>
             {#each suggestions as { failed, alt } (failed.id)}
                 <p class="suggest">

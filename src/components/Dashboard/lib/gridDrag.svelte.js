@@ -194,6 +194,14 @@ export function createGridDrag({
 			save([...defaults]);
 		},
 
+		/**
+		 * Put the visible widgets in a new order (auto-arrange). Hidden ones
+		 * keep their places in the saved order, as after a drag.
+		 */
+		arrange(visible) {
+			save(mergeOrder(layout, visible));
+		},
+
 		/** Trade two widgets' places in the saved order. */
 		swap(a, b) {
 			const ia = layout.indexOf(a);
