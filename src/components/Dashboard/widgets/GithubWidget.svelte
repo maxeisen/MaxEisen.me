@@ -229,4 +229,11 @@
     @container slot (max-width: 300px) {
         .github-graph-meta > span:last-child { display: none; }
     }
+    /* A one-row strip: the repo over a slimmer heatmap. */
+    @container slot (max-height: 120px) {
+        .github-graph-meta { display: none; }
+    }
+    @container slot (max-height: 100px) {
+        .github-heatmap-wrap { min-height: 16px; margin-top: var(--space-1); }
+    }
 </style>

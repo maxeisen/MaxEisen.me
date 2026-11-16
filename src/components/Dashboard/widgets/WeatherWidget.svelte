@@ -243,4 +243,11 @@
     @container slot (max-height: 130px) {
         .weather-meta { display: none; }
     }
+    /* A one-row tile: temperature and conditions side by side, and no
+       label, since the temperature says what this is. */
+    @container slot (max-height: 90px) {
+        :global(.widget-weather .widget-head) { display: none; }
+        .weather-left { flex-direction: row; align-items: center; gap: var(--space-3); }
+        .weather-temp { margin-top: 0; }
+    }
 </style>

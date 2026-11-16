@@ -51,11 +51,12 @@ test("a dragged widget lands where it's dropped, and stays there", async ({ page
 
 	await page.mouse.up();
 	await expect(placeholder).toHaveCount(0);
-	// Once the glide into place has finished, it's where the placeholder was.
-	await expect.poll(async () => {
-		const box = await clock.boundingBox();
-		return Math.max(Math.abs(box.x - landing.x), Math.abs(box.y - landing.y));
-	}).toBeLessThan(4);
+	// Once the glide into place has finished, it's in the placeholder's cell.
+	// Judged in cells, not pixels: while dragging, the grid drops its
+	// reserved scrollbar gutter (so a tile can leave it), which shifts every
+	// column but the first by the gutter's width with classic scrollbars.
+	await expect.poll(() => clock.evaluate((el) => el.getAnimations().length)).toBe(0);
+	expect(await cellOf(clock.locator("xpath=.."))).toEqual(now);
 	const dropped = await clock.boundingBox();
 
 	// After a reload it's there from the first frame: no glide in from the
@@ -165,6 +166,35 @@ test("hiding every widget leaves a way back", async ({ page }) => {
 	await expect(page.locator("#dashboard-grid .widget")).toHaveCount(12);
 });
 
+test("edit mode sizes a widget, and remembers it until a reset", async ({ page }) => {
+	await page.setViewportSize({ width: 1920, height: 1080 });
+	await mockDashboardFeeds(page);
+	await page.goto("/dashboard");
+	const hn = page.locator('#dashboard-grid [data-widget="hn"]');
+	await expect(hn.locator(".hn-item").first()).toBeVisible();
+	// Medium by default: wide enough for the vote scores.
+	await expect(hn.locator(".hn-score").first()).toBeVisible();
+	const before = await hn.boundingBox();
+
+	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
+	const picker = page.getByRole("group", { name: "Size of Hacker News" });
+	await expect(picker.getByRole("button", { name: "Medium" })).toHaveAttribute("aria-pressed", "true");
+	await picker.getByRole("button", { name: "Small" }).click();
+	await expect(picker.getByRole("button", { name: "Small" })).toHaveAttribute("aria-pressed", "true");
+	// A picked size is kept as is: one column wide, not grown into a gap.
+	const narrower = async () => (await hn.boundingBox()).width < before.width * 0.75;
+	await expect.poll(narrower).toBe(true);
+
+	await page.reload();
+	await expect(hn.locator(".hn-item").first()).toBeVisible();
+	expect(await narrower()).toBe(true);
+
+	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
+	await page.getByRole("button", { name: "Reset layout" }).click();
+	await expect(picker.getByRole("button", { name: "Medium" })).toHaveAttribute("aria-pressed", "true");
+	await expect.poll(narrower).toBe(false);
+});
+
 // The dashboard is often a window squeezed into part of a screen, so the
 // layout is checked at awkward sizes as well as common ones: every widget's
 // content has to stay inside its tile, and a grid that claims to fit the
@@ -175,16 +205,31 @@ const SIZES = [
 	[700, 900], [600, 1300], [390, 844],
 ];
 
-for (const [width, height] of SIZES) {
-	test(`widgets fit their tiles at ${width}×${height}`, async ({ page }) => {
+// Each window size runs with every widget at its default size, then all
+// picked Small, then all picked Large (World clocks has no Large; a size a
+// widget doesn't offer is ignored).
+const WIDGET_IDS = ["clock", "weather", "running", "cycling", "spotify", "forecast", "recovery", "week", "strava", "github", "gallery", "hn", "clocks"];
+const SIZE_SETS = [
+	["default sizes", null],
+	["all small", "s"],
+	["all large", "l"],
+];
+
+for (const [width, height] of SIZES) for (const [sizeName, sizeKey] of SIZE_SETS) {
+	test(`widgets fit their tiles at ${width}×${height}, ${sizeName}`, async ({ page }) => {
 		await page.setViewportSize({ width, height });
 		await mockDashboardFeeds(page);
+		if (sizeKey) {
+			await page.addInitScript((sizes) => {
+				localStorage.setItem("dashboard-sizes", JSON.stringify(sizes));
+			}, Object.fromEntries(WIDGET_IDS.map((id) => [id, sizeKey])));
+		}
 		await page.goto("/dashboard");
 		await expect(page.locator(".github-repo")).toBeVisible();
 		await expect(page.locator(".hn-item").first()).toBeVisible();
 		await expect(page.locator(".strava-row").first()).toBeVisible();
 		await expect(page.locator(".weather-temp")).toHaveText("21°");
-		await expect(page.locator('[data-widget="running"] .t-stat').first()).toBeVisible();
+		await expect(page.locator('[data-widget="running"] .t-last .t-title')).toBeVisible();
 		await expect(page.locator('[data-widget="forecast"] .hour').first()).toBeVisible();
 		await expect(page.locator('[data-widget="week"] .wk-day').first()).toBeVisible();
 		// List trimming runs a frame after a resize; give it a couple.

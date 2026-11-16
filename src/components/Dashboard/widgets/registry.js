@@ -12,11 +12,14 @@
 //                when there's nothing to show (its feed never loaded) and the
 //                dashboard takes the tile out of the grid; true once data
 //                arrives brings it back. A widget that always has something
-//                to show (the clock) can ignore it.
-//   size         {w, h} in grid units. The more a widget has to show, the
-//                bigger: 2×2 for the dense ones, 2×1 or 1×2 for the light.
-//                Widgets can end up larger than this (the grid grows them
-//                into gaps) and must cope with the grid's smallest rows, so
+//                to show (the clock) can ignore it. It also gets `size`,
+//                the size key ("s", "m" or "l") it's shown at, for the rare
+//                choice its container queries can't make alone.
+//   sizes,       the Small / Medium / Large sizes it offers and the one it
+//   defaultSize  starts at. These live in sizes.js, keyed by id, and are
+//                merged in below. A widget at its default can end up larger
+//                (the grid grows it into gaps); one someone has sized can't.
+//                Either way it must cope with the grid's smallest rows, so
 //                each one's compact tiers live in its own container queries.
 //   props        passed to the component, for a widget's settings.
 //   href         set for a widget that is one big link; the tile becomes an
@@ -38,23 +41,22 @@ import TrainingWeekWidget from "./TrainingWeekWidget.svelte";
 import GithubWidget from "./GithubWidget.svelte";
 import HackerNewsWidget from "./HackerNewsWidget.svelte";
 import WorldClocksWidget from "./WorldClocksWidget.svelte";
+import { WIDGET_SIZES } from "./sizes.js";
 
-// Ordered so the default set packs without gaps at the common column
-// counts: the 2×2s first, then the 2×1s in pairs, the narrow 1×2s together.
-export const WIDGETS = [
+// Widgets at their default size grow into any gaps the packing leaves, so
+// this order needn't tile perfectly.
+const ENTRIES = [
 	{
 		id: "clock",
 		title: "Clock",
 		description: "Time, date, and how far through the day, week and year",
 		component: ClockWidget,
-		size: { w: 2, h: 2 },
 	},
 	{
 		id: "weather",
 		title: "Weather",
 		description: "Current conditions, sun and moon",
 		component: WeatherWidget,
-		size: { w: 2, h: 2 },
 	},
 	{
 		id: "running",
@@ -62,7 +64,6 @@ export const WIDGETS = [
 		description: "Today's session, last run, fitness and form, race countdown",
 		component: TrainingWidget,
 		props: { sport: "run" },
-		size: { w: 2, h: 2 },
 	},
 	{
 		id: "cycling",
@@ -70,56 +71,48 @@ export const WIDGETS = [
 		description: "Last ride, this week, fitness and form",
 		component: TrainingWidget,
 		props: { sport: "ride" },
-		size: { w: 2, h: 2 },
 	},
 	{
 		id: "spotify",
 		title: "Spotify",
 		description: "What's playing, with a visualizer",
 		component: SpotifyWidget,
-		size: { w: 2, h: 1 },
 	},
 	{
 		id: "forecast",
 		title: "Forecast",
 		description: "The next hours and days, and whether it's a day for a ride",
 		component: ForecastWidget,
-		size: { w: 2, h: 1 },
 	},
 	{
 		id: "recovery",
 		title: "Recovery",
 		description: "Last night's sleep, HRV and resting heart rate from Oura",
 		component: RecoveryWidget,
-		size: { w: 2, h: 1 },
 	},
 	{
 		id: "week",
 		title: "This week",
 		description: "The week's plan against what was run and ridden",
 		component: TrainingWeekWidget,
-		size: { w: 2, h: 1 },
 	},
 	{
 		id: "strava",
 		title: "Activity",
 		description: "Recent activity of every kind from Strava",
 		component: StravaWidget,
-		size: { w: 2, h: 2 },
 	},
 	{
 		id: "github",
 		title: "Code",
 		description: "Latest GitHub push and a year of contributions",
 		component: GithubWidget,
-		size: { w: 2, h: 2 },
 	},
 	{
 		id: "gallery",
 		title: "Photos",
 		description: "A random shot from the gallery",
 		component: GalleryWidget,
-		size: { w: 1, h: 2 },
 		href: "/gallery",
 	},
 	{
@@ -127,7 +120,6 @@ export const WIDGETS = [
 		title: "Hacker News",
 		description: "Top stories right now",
 		component: HackerNewsWidget,
-		size: { w: 1, h: 2 },
 	},
 	{
 		id: "clocks",
@@ -141,10 +133,11 @@ export const WIDGETS = [
 				{ zone: "Asia/Tokyo", label: "Tokyo" },
 			],
 		},
-		size: { w: 2, h: 1 },
 		// Off until someone picks it: the zones above are a guess.
 		defaultShown: false,
 	},
 ];
+
+export const WIDGETS = ENTRIES.map((w) => ({ ...w, ...WIDGET_SIZES[w.id] }));
 
 export const WIDGETS_BY_ID = Object.fromEntries(WIDGETS.map((w) => [w.id, w]));

@@ -36,7 +36,10 @@ export const GRID_DEFAULTS = {
  * (like CSS `grid-auto-flow: dense`), then grow widgets sideways and down
  * into any cells left empty so the grid comes out as a full rectangle.
  *
- * @param {{id: string, w: number, h: number}[]} items in layout order.
+ * @param {{id: string, w: number, h: number, fixed?: boolean}[]} items in
+ *   layout order. A `fixed` widget keeps exactly its size: it isn't grown
+ *   into gaps (someone chose that size on purpose), so its neighbours are
+ *   grown instead, or the cells stay empty.
  * @param {number} cols
  * @param {{pin?: {id: string, x: number, y: number}}} [options] `pin` places
  *   one widget at an exact cell first (clamped to fit) and packs the rest
@@ -112,6 +115,7 @@ export function pack(items, cols, { pin = null } = {}) {
 	while (changed) {
 		changed = false;
 		for (const item of items) {
+			if (item.fixed) continue;
 			const p = placements[item.id];
 			while (p.x + p.w < cols && columnFree(p.x + p.w, p.y, p.h)) {
 				for (let rr = p.y; rr < p.y + p.h; rr += 1) grid[rr][p.x + p.w] = item.id;
@@ -120,6 +124,7 @@ export function pack(items, cols, { pin = null } = {}) {
 			}
 		}
 		for (const item of items) {
+			if (item.fixed) continue;
 			const p = placements[item.id];
 			while (p.y + p.h < rows && rowFree(p.y + p.h, p.x, p.w)) {
 				for (let cc = p.x; cc < p.x + p.w; cc += 1) grid[p.y + p.h][cc] = item.id;
