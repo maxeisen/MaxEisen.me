@@ -195,6 +195,52 @@ test("edit mode sizes a widget, and remembers it until a reset", async ({ page }
 	await expect.poll(narrower).toBe(false);
 });
 
+test("auto-arrange fills the gaps picked sizes leave, and is remembered", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await mockDashboardFeeds(page);
+	await page.addInitScript(() => {
+		if (sessionStorage.getItem("seeded")) return;
+		sessionStorage.setItem("seeded", "1");
+		localStorage.setItem("dashboard-sizes", JSON.stringify({
+			clock: "s", weather: "s", running: "l", cycling: "s", spotify: "s",
+			forecast: "m", recovery: "s", week: "m", strava: "l", github: "m", gallery: "s", hn: "m",
+		}));
+	});
+	await page.goto("/dashboard");
+	await expect(page.locator(".github-repo")).toBeVisible();
+
+	// Empty cells: the grid's area less what the tiles cover.
+	const holes = () => page.evaluate(() => {
+		const grid = document.querySelector("#dashboard-grid");
+		const cols = Number(grid.dataset.cols);
+		let covered = 0;
+		let rows = 0;
+		for (const slot of grid.querySelectorAll(".slot:not([hidden])")) {
+			// Inline as "start / span n".
+			const [, w] = slot.style.gridColumn.match(/span (\d+)/).map(Number);
+			const [y, h] = slot.style.gridRow.match(/(\d+) \/ span (\d+)/).slice(1).map(Number);
+			covered += w * h;
+			rows = Math.max(rows, y - 1 + h);
+		}
+		return rows * cols - covered;
+	});
+	const before = await holes();
+	expect(before).toBeGreaterThan(0);
+
+	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
+	await page.getByRole("button", { name: "Auto-arrange" }).click();
+	await expect.poll(holes).toBeLessThan(before);
+	const after = await holes();
+
+	const order = () => page.evaluate(() => [...document.querySelectorAll("#dashboard-grid .slot:not([hidden]) .widget")]
+		.map((el) => el.dataset.widget));
+	const arranged = await order();
+	await page.reload();
+	await expect(page.locator(".github-repo")).toBeVisible();
+	expect(await order()).toEqual(arranged);
+	expect(await holes()).toBe(after);
+});
+
 // The dashboard is often a window squeezed into part of a screen, so the
 // layout is checked at awkward sizes as well as common ones: every widget's
 // content has to stay inside its tile, and a grid that claims to fit the
