@@ -180,6 +180,30 @@ export function noteRateLimit(headers, now = Date.now()) {
 	return coolUntil;
 }
 
+/**
+ * Replace each `id` in a parsed Strava response with its `id_str`, when present.
+ *
+ * Strava is moving activity and athlete ids to 64-bit integers by Jun 2027.
+ * JSON.parse turns anything above 2^53 into a nearby but wrong number, with no
+ * error. Strava also sends the same value as a string in `id_str`, which
+ * stays exact. Objects without `id_str` keep their numeric `id`. Callers
+ * already compare ids with String(), so stored numeric ids still match.
+ *
+ * Changes the value in place and returns it.
+ *
+ * @param {any} value a parsed JSON response.
+ * @returns {any} the same value.
+ */
+export function preferIdStrings(value) {
+	if (Array.isArray(value)) {
+		for (const item of value) preferIdStrings(item);
+	} else if (value && typeof value === "object") {
+		if (typeof value.id_str === "string" && value.id_str !== "") value.id = value.id_str;
+		for (const child of Object.values(value)) preferIdStrings(child);
+	}
+	return value;
+}
+
 function standDown(message, overShare) {
 	const err = new Error(message);
 	// A 429 to every caller, so "stop asking" is one check whichever of the
@@ -250,7 +274,7 @@ export function createStravaClient({ token, share = {}, fetch: send = (...args) 
 			if (text) err.body = text;
 			throw err;
 		}
-		return res.json();
+		return preferIdStrings(await res.json());
 	}
 
 	return {
