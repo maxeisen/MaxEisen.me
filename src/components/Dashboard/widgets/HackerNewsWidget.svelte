@@ -135,4 +135,9 @@
     @container slot (max-width: 240px) {
         .hn-score { display: none; }
     }
+    /* Short tiles: one line per story, so even a strip shows one. */
+    @container slot (max-height: 160px) {
+        .hn-title { -webkit-line-clamp: 1; }
+        .hn-domain { display: none; }
+    }
 </style>
