@@ -172,6 +172,9 @@
         gap: 6px;
         min-width: 0;
         min-height: 28px;
+        /* In a tall tile, cells would stretch into bars: stop at about square
+           and leave the room below. */
+        max-height: 150px;
         margin-top: var(--space-3);
         overflow: hidden;
     }
@@ -229,11 +232,11 @@
     @container slot (max-width: 300px) {
         .github-graph-meta > span:last-child { display: none; }
     }
-    /* A one-row strip: the repo over a slimmer heatmap. */
+    /* A short strip: the repo over a slimmer heatmap. */
     @container slot (max-height: 120px) {
         .github-graph-meta { display: none; }
     }
-    @container slot (max-height: 100px) {
+    @container slot (max-height: 120px) {
         .github-heatmap-wrap { min-height: 16px; margin-top: var(--space-1); }
     }
 </style>

@@ -269,7 +269,7 @@
     @container slot (max-height: 160px) {
         .t-last .t-kicker { display: none; }
     }
-    /* A one-row strip: just the last session's name. */
+    /* A short strip: just the last session's name. */
     @container slot (max-height: 140px) {
         .t-form { display: none; }
     }

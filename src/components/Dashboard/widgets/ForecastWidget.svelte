@@ -106,12 +106,16 @@
     .fc-day-temp strong { font-weight: var(--weight-semibold); color: var(--text-strong); }
     .fc-day-rain { grid-column: 1 / -1; min-height: 1em; font-size: var(--font-2xs); color: var(--series-2); }
 
-    @container slot (min-height: 250px) {
+    @container slot (min-height: 270px) {
         .fc-days { display: grid; }
     }
     @container slot (max-width: 360px) {
         .fc-day:nth-child(n + 4) { display: none; }
         .fc-days { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @container slot (max-width: 260px) {
+        .fc-day:nth-child(n + 3) { display: none; }
+        .fc-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @container slot (max-height: 175px) {
         .fc :global(.hour-rain) { display: none; }

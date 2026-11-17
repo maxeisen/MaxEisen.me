@@ -12,22 +12,19 @@
 //                when there's nothing to show (its feed never loaded) and the
 //                dashboard takes the tile out of the grid; true once data
 //                arrives brings it back. A widget that always has something
-//                to show (the clock) can ignore it. It also gets `size`,
-//                the size key ("s", "m" or "l") it's shown at, for the rare
-//                choice its container queries can't make alone.
-//   sizes,       the Small / Medium / Large sizes it offers and the one it
-//   defaultSize  starts at. These live in sizes.js, keyed by id, and are
-//                merged in below. A widget at its default can end up larger
-//                (the grid grows it into gaps); one someone has sized can't.
-//                Either way it must cope with the grid's smallest rows, so
-//                each one's compact tiers live in its own container queries.
+//                to show (the clock) can ignore it.
+//                There are no set sizes: people drag widgets to whatever
+//                size suits them (lib/columnLayout), down to 200×64 px, so
+//                each widget's compact and roomy tiers live in its own
+//                container queries. Where it sits by default is
+//                DEFAULT_COLUMNS in lib/columnLayout.
 //   props        passed to the component, for a widget's settings.
 //   href         set for a widget that is one big link; the tile becomes an
 //                <a> to it.
 //   defaultShown false to ship a widget switched off until someone turns it
 //                on. Defaults to true.
 //
-// The order here is the default layout order.
+// Where each widget sits by default is DEFAULT_COLUMNS in lib/columnLayout.
 
 import ClockWidget from "./ClockWidget.svelte";
 import GalleryWidget from "./GalleryWidget.svelte";
@@ -41,11 +38,9 @@ import TrainingWeekWidget from "./TrainingWeekWidget.svelte";
 import GithubWidget from "./GithubWidget.svelte";
 import HackerNewsWidget from "./HackerNewsWidget.svelte";
 import WorldClocksWidget from "./WorldClocksWidget.svelte";
-import { WIDGET_SIZES } from "./sizes.js";
 
-// Widgets at their default size grow into any gaps the packing leaves, so
-// this order needn't tile perfectly.
-const ENTRIES = [
+// This order is the Customize list's.
+export const WIDGETS = [
 	{
 		id: "clock",
 		title: "Clock",
@@ -138,6 +133,5 @@ const ENTRIES = [
 	},
 ];
 
-export const WIDGETS = ENTRIES.map((w) => ({ ...w, ...WIDGET_SIZES[w.id] }));
 
 export const WIDGETS_BY_ID = Object.fromEntries(WIDGETS.map((w) => [w.id, w]));

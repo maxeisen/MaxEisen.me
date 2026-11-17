@@ -71,8 +71,7 @@ def instanced_font(weight: int) -> tuple[TTFont, Path]:
 
 
 def layout(font: TTFont, width_ratio: float):
-    """
-    Lay out TEXT as glyph placements in BOX units.
+    """Lay out TEXT as glyph placements in BOX units.
 
     The word is scaled to width_ratio of BOX, centred horizontally, with its
     x-height centred vertically.

@@ -243,7 +243,7 @@
     @container slot (max-height: 130px) {
         .weather-meta { display: none; }
     }
-    /* A one-row tile: temperature and conditions side by side, and no
+    /* A short strip: temperature and conditions side by side, and no
        label, since the temperature says what this is. */
     @container slot (max-height: 90px) {
         :global(.widget-weather .widget-head) { display: none; }

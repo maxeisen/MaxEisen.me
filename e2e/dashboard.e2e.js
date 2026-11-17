@@ -16,57 +16,61 @@ test("dashboard mounts its widget grid", async ({ page }) => {
 
 // Dragging previews where a widget will land and puts it there. The edit
 // mode that gates it on touch screens is shared with /running.
-test("a dragged widget lands where it's dropped, and stays there", async ({ page }) => {
+const box = (page, id) => page.locator(`[data-widget="${id}"]`).boundingBox();
+
+test("a dragged widget moves to another column, and stays there", async ({ page }) => {
 	await page.setViewportSize({ width: 1440, height: 900 });
 	await mockDashboardFeeds(page);
 	await page.goto("/dashboard");
 	await expect(page.locator(".github-repo")).toBeVisible();
 
-	const clock = page.locator('[data-widget="clock"]');
-	const github = page.locator('[data-widget="github"]');
-	const from = await clock.boundingBox();
-	const target = await github.boundingBox();
-	const cellOf = (locator) => locator.evaluate((el) => {
-		const style = getComputedStyle(el);
-		return { col: Number(style.gridColumnStart), row: Number(style.gridRowStart) };
-	});
-	const was = await cellOf(github.locator("xpath=.."));
-
-	// Pick the clock up near its top-left and carry that corner to GitHub's.
-	await page.mouse.move(from.x + 30, from.y + 30);
+	const from = await box(page, "clock");
+	const hn = await box(page, "hn");
+	// Carry the clock to the bottom of Hacker News, in the last column.
+	await page.mouse.move(from.x + 40, from.y + 40);
 	await page.mouse.down();
-	await page.mouse.move(target.x + 30, target.y + 30, { steps: 16 });
-
-	// Mid-drag, a placeholder shows the landing spot: GitHub's old cell, or
-	// one next to it. (Lifting the clock out moves everything after it, so
-	// an exact landing isn't always possible without leaving a gap.) Judged
-	// in grid cells, since a preview can change how tall the rows are.
+	await page.mouse.move(hn.x + hn.width / 2, hn.y + hn.height - 10, { steps: 16 });
 	const placeholder = page.locator(".drop-placeholder");
 	await expect(placeholder).toBeVisible();
-	const now = await cellOf(placeholder);
-	expect(Math.abs(now.col - was.col) + Math.abs(now.row - was.row)).toBeLessThanOrEqual(1);
-	const landing = await placeholder.boundingBox();
-	// …and it's somewhere new.
-	expect(Math.abs(landing.x - from.x) + Math.abs(landing.y - from.y)).toBeGreaterThan(50);
-
+	await expect.poll(async () => Math.round((await placeholder.boundingBox()).x)).toBe(Math.round(hn.x));
 	await page.mouse.up();
 	await expect(placeholder).toHaveCount(0);
-	// Once the glide into place has finished, it's in the placeholder's cell.
-	// Judged in cells, not pixels: while dragging, the grid drops its
-	// reserved scrollbar gutter (so a tile can leave it), which shifts every
-	// column but the first by the gutter's width with classic scrollbars.
-	await expect.poll(() => clock.evaluate((el) => el.getAnimations().length)).toBe(0);
-	expect(await cellOf(clock.locator("xpath=.."))).toEqual(now);
-	const dropped = await clock.boundingBox();
 
-	// After a reload it's there from the first frame: no glide in from the
-	// default layout.
+	// It's in Hacker News's column, under it.
+	await expect.poll(async () => Math.round((await box(page, "clock")).x)).toBe(Math.round(hn.x));
+	const dropped = await box(page, "clock");
+	expect(dropped.y).toBeGreaterThan((await box(page, "hn")).y);
+
+	// After a reload it's there from the first frame.
 	await page.reload();
 	await expect(page.locator(".github-repo")).toBeVisible();
-	const reloaded = await clock.boundingBox();
+	const reloaded = await box(page, "clock");
 	expect(Math.abs(reloaded.x - dropped.x)).toBeLessThan(4);
 	expect(Math.abs(reloaded.y - dropped.y)).toBeLessThan(4);
-	expect(await clock.evaluate((el) => el.getAnimations().length)).toBe(0);
+});
+
+test("a widget dropped at the edge starts a new column", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await mockDashboardFeeds(page);
+	await page.goto("/dashboard");
+	await expect(page.locator(".github-repo")).toBeVisible();
+
+	const grid = await page.locator("#dashboard-grid").boundingBox();
+	const columnsNow = () => page.evaluate(() => new Set(
+		[...document.querySelectorAll("#dashboard-grid .slot:not([hidden])")].map((el) => el.style.left),
+	).size);
+	expect(await columnsNow()).toBe(4);
+
+	const from = await box(page, "github");
+	await page.mouse.move(from.x + 40, from.y + 40);
+	await page.mouse.down();
+	await page.mouse.move(grid.x + grid.width - 4, from.y + 40, { steps: 16 });
+	await page.mouse.up();
+
+	await expect.poll(columnsNow).toBe(5);
+	// Alone in its column (once it's glided there), so as tall as the window allows.
+	await expect.poll(async () => (await box(page, "github")).height).toBeGreaterThan(grid.height - 4);
+	expect((await box(page, "github")).x).toBeGreaterThan((await box(page, "hn")).x);
 });
 
 test("Escape puts a drag back", async ({ page }) => {
@@ -166,80 +170,83 @@ test("hiding every widget leaves a way back", async ({ page }) => {
 	await expect(page.locator("#dashboard-grid .widget")).toHaveCount(12);
 });
 
-test("edit mode sizes a widget, and remembers it until a reset", async ({ page }) => {
-	await page.setViewportSize({ width: 1920, height: 1080 });
+test("dragging the gap between columns resizes them, and is remembered", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
 	await mockDashboardFeeds(page);
 	await page.goto("/dashboard");
-	const hn = page.locator('#dashboard-grid [data-widget="hn"]');
-	await expect(hn.locator(".hn-item").first()).toBeVisible();
-	// Medium by default: wide enough for the vote scores.
-	await expect(hn.locator(".hn-score").first()).toBeVisible();
-	const before = await hn.boundingBox();
+	await expect(page.locator(".github-repo")).toBeVisible();
 
-	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
-	const picker = page.getByRole("group", { name: "Size of Hacker News" });
-	await expect(picker.getByRole("button", { name: "Medium" })).toHaveAttribute("aria-pressed", "true");
-	await picker.getByRole("button", { name: "Small" }).click();
-	await expect(picker.getByRole("button", { name: "Small" })).toHaveAttribute("aria-pressed", "true");
-	// A picked size is kept as is: one column wide, not grown into a gap.
-	const narrower = async () => (await hn.boundingBox()).width < before.width * 0.75;
-	await expect.poll(narrower).toBe(true);
+	const clockBefore = await box(page, "clock");
+	const runningBefore = await box(page, "running");
+	const handle = page.getByRole("separator", { name: "Resize columns" }).first();
+	const h = await handle.boundingBox();
+
+	// Escape mid-drag puts it back.
+	await page.mouse.move(h.x + h.width / 2, h.y + 100);
+	await page.mouse.down();
+	await page.mouse.move(h.x + h.width / 2 + 150, h.y + 100, { steps: 8 });
+	await expect.poll(async () => (await box(page, "clock")).width).toBeGreaterThan(clockBefore.width + 100);
+	await page.keyboard.press("Escape");
+	await page.mouse.up();
+	await expect.poll(async () => Math.round((await box(page, "clock")).width)).toBe(Math.round(clockBefore.width));
+
+	// A real drag: one column grows by what its neighbour gives up, live.
+	await page.mouse.move(h.x + h.width / 2, h.y + 100);
+	await page.mouse.down();
+	await page.mouse.move(h.x + h.width / 2 + 150, h.y + 100, { steps: 8 });
+	await page.mouse.up();
+	const clock = await box(page, "clock");
+	const running = await box(page, "running");
+	expect(Math.abs(clock.width - clockBefore.width - 150)).toBeLessThan(3);
+	expect(Math.abs(running.width - runningBefore.width + 150)).toBeLessThan(3);
 
 	await page.reload();
-	await expect(hn.locator(".hn-item").first()).toBeVisible();
-	expect(await narrower()).toBe(true);
+	await expect(page.locator(".github-repo")).toBeVisible();
+	expect(Math.abs((await box(page, "clock")).width - clock.width)).toBeLessThan(2);
+});
+
+test("dragging the gap between two widgets resizes them, down to a minimum", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await mockDashboardFeeds(page);
+	await page.goto("/dashboard");
+	await expect(page.locator(".github-repo")).toBeVisible();
+
+	const hnBefore = await box(page, "hn");
+	const handle = page.getByRole("separator", { name: "Resize Hacker News and Code" });
+	const h = await handle.boundingBox();
+	await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2);
+	await page.mouse.down();
+	await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2 + 2000, { steps: 8 });
+	await page.mouse.up();
+
+	// Hacker News took everything Code could give, leaving Code at 64px.
+	const code = await box(page, "github");
+	expect(Math.round(code.height)).toBe(64);
+	expect((await box(page, "hn")).height).toBeGreaterThan(hnBefore.height);
+	await expect(page.locator(".hn-item:visible")).not.toHaveCount(0);
+
+	// The keyboard works too.
+	await handle.focus();
+	await page.keyboard.press("ArrowUp");
+	await expect.poll(async () => Math.round((await box(page, "github")).height)).toBe(80);
+});
+
+test("reset puts the default layout back", async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await mockDashboardFeeds(page);
+	await page.goto("/dashboard");
+	await expect(page.locator(".github-repo")).toBeVisible();
+	const before = await box(page, "clock");
+	await page.getByRole("separator", { name: "Resize columns" }).first().focus();
+	await page.keyboard.press("Shift+ArrowRight");
+	await expect.poll(async () => (await box(page, "clock")).width).toBeGreaterThan(before.width + 32);
 
 	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
 	await page.getByRole("button", { name: "Reset layout" }).click();
-	await expect(picker.getByRole("button", { name: "Medium" })).toHaveAttribute("aria-pressed", "true");
-	await expect.poll(narrower).toBe(false);
-});
-
-test("auto-arrange fills the gaps picked sizes leave, and is remembered", async ({ page }) => {
-	await page.setViewportSize({ width: 1440, height: 900 });
-	await mockDashboardFeeds(page);
-	await page.addInitScript(() => {
-		if (sessionStorage.getItem("seeded")) return;
-		sessionStorage.setItem("seeded", "1");
-		localStorage.setItem("dashboard-sizes", JSON.stringify({
-			clock: "s", weather: "s", running: "l", cycling: "s", spotify: "s",
-			forecast: "m", recovery: "s", week: "m", strava: "l", github: "m", gallery: "s", hn: "m",
-		}));
-	});
-	await page.goto("/dashboard");
-	await expect(page.locator(".github-repo")).toBeVisible();
-
-	// Empty cells: the grid's area less what the tiles cover.
-	const holes = () => page.evaluate(() => {
-		const grid = document.querySelector("#dashboard-grid");
-		const cols = Number(grid.dataset.cols);
-		let covered = 0;
-		let rows = 0;
-		for (const slot of grid.querySelectorAll(".slot:not([hidden])")) {
-			// Inline as "start / span n".
-			const [, w] = slot.style.gridColumn.match(/span (\d+)/).map(Number);
-			const [y, h] = slot.style.gridRow.match(/(\d+) \/ span (\d+)/).slice(1).map(Number);
-			covered += w * h;
-			rows = Math.max(rows, y - 1 + h);
-		}
-		return rows * cols - covered;
-	});
-	const before = await holes();
-	expect(before).toBeGreaterThan(0);
-
 	await page.getByRole("button", { name: "Toggle layout edit mode" }).click();
-	await page.getByRole("button", { name: "Auto-arrange" }).click();
-	await expect.poll(holes).toBeLessThan(before);
-	const after = await holes();
-
-	const order = () => page.evaluate(() => [...document.querySelectorAll("#dashboard-grid .slot:not([hidden]) .widget")]
-		.map((el) => el.dataset.widget));
-	const arranged = await order();
-	await page.reload();
-	await expect(page.locator(".github-repo")).toBeVisible();
-	expect(await order()).toEqual(arranged);
-	expect(await holes()).toBe(after);
+	await expect.poll(async () => Math.round((await box(page, "clock")).width)).toBe(Math.round(before.width));
 });
+
 
 // The dashboard is often a window squeezed into part of a screen, so the
 // layout is checked at awkward sizes as well as common ones: every widget's
@@ -251,24 +258,30 @@ const SIZES = [
 	[700, 900], [600, 1300], [390, 844],
 ];
 
-// Each window size runs with every widget at its default size, then all
-// picked Small, then all picked Large (World clocks has no Large; a size a
-// widget doesn't offer is ignored).
+// Each window size runs with the default layout and with some extreme
+// ones, since people can drag widgets to any size down to 200×64 px:
+// everything in one column (wide, short strips), six narrow columns (tall,
+// thin tiles), and lopsided weights (a mix of the smallest and the biggest).
 const WIDGET_IDS = ["clock", "weather", "running", "cycling", "spotify", "forecast", "recovery", "week", "strava", "github", "gallery", "hn", "clocks"];
-const SIZE_SETS = [
-	["default sizes", null],
-	["all small", "s"],
-	["all large", "l"],
+const column = (ids, weights = []) => ({ w: 1, items: ids.map((id, i) => ({ id, h: weights[i] ?? 1 })) });
+const LAYOUT_SETS = [
+	["default layout", null],
+	["one column", [column(WIDGET_IDS)]],
+	["six columns", [0, 2, 4, 6, 8, 10].map((i) => column(WIDGET_IDS.slice(i, i === 10 ? 13 : i + 2)))],
+	["lopsided", [
+		{ ...column(WIDGET_IDS.slice(0, 6), [1, 5, 1, 5, 1, 5]), w: 1 },
+		{ ...column(WIDGET_IDS.slice(6), [1, 6, 1, 6, 1, 6, 1]), w: 6 },
+	]],
 ];
 
-for (const [width, height] of SIZES) for (const [sizeName, sizeKey] of SIZE_SETS) {
-	test(`widgets fit their tiles at ${width}×${height}, ${sizeName}`, async ({ page }) => {
+for (const [width, height] of SIZES) for (const [layoutName, columns] of LAYOUT_SETS) {
+	test(`widgets fit their tiles at ${width}×${height}, ${layoutName}`, async ({ page }) => {
 		await page.setViewportSize({ width, height });
 		await mockDashboardFeeds(page);
-		if (sizeKey) {
-			await page.addInitScript((sizes) => {
-				localStorage.setItem("dashboard-sizes", JSON.stringify(sizes));
-			}, Object.fromEntries(WIDGET_IDS.map((id) => [id, sizeKey])));
+		if (columns) {
+			await page.addInitScript((saved) => {
+				localStorage.setItem("dashboard-columns", JSON.stringify({ columns: saved }));
+			}, columns);
 		}
 		await page.goto("/dashboard");
 		await expect(page.locator(".github-repo")).toBeVisible();

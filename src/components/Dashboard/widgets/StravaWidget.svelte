@@ -6,8 +6,7 @@
     the function isn't configured, 503). List is
     trimmed to whatever fits the slot, so no partial rows are shown; the
     year-to-date footer only appears when the slot is wide and tall enough
-    to spare it. At the Large size the point is more activities, so the
-    footer waits for a much taller slot.
+    to spare it.
 -->
 <script>
     import { onMount, onDestroy } from "svelte";
@@ -29,7 +28,7 @@
         routeToSvgPath,
     } from "../../../lib/strava.js";
 
-    let { onavailability = () => {}, size = "m" } = $props();
+    let { onavailability = () => {} } = $props();
 
     let listEl = $state();
     let activities = $state(null); // null = loading
@@ -119,7 +118,7 @@
 {#if ytd && (ytd.run || ytd.ride)}
     <!-- Year-to-date summary. Hidden in small slots via the container
          query below; shown when the slot has room to spare. -->
-    <div class="strava-ytd" class:large={size === "l"}>
+    <div class="strava-ytd">
         <span class="strava-ytd-label">{new Date().getFullYear()} to date</span>
         <div class="strava-ytd-stats">
             {#if ytd.run}
@@ -220,15 +219,20 @@
     @container slot (min-width: 420px) and (min-height: 280px) {
         .strava-ytd { display: flex; }
     }
-    @container slot (max-height: 479px) {
-        .strava-ytd.large { display: none; }
-    }
     @container slot (max-height: 240px) {
         .strava-row { padding: 6px 0; }
     }
     @container slot (max-width: 300px) {
         .strava-row-map,
         .strava-row-icon { display: none; }
+    }
+    /* Short tiles: one line per activity, so even a strip shows one. */
+    @container slot (max-height: 160px) {
+        .strava-row-map,
+        .strava-row-icon,
+        .strava-row-meta,
+        .strava-row-stats span { display: none; }
+        .strava-list li:first-child .strava-row { padding-top: 0; }
     }
     .strava-ytd-label { font-size: var(--font-xs); color: var(--text-2); }
     .strava-ytd-stats { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); }
