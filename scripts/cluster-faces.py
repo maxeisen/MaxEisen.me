@@ -244,7 +244,7 @@ def group_by_label(labels_sorted, pairs):
 
 
 def frac_of(face):
-    """A face's bbox as fractions of its photo: [x, y, w, h]."""
+    """Return a face's bbox as fractions of its photo: [x, y, w, h]."""
     x1, y1, x2, y2 = face["bbox"]
     w, h = face["dims"]
     return [round(x1 / w, 5), round(y1 / h, 5), round((x2 - x1) / w, 5), round((y2 - y1) / h, 5)]
