@@ -73,6 +73,7 @@ def find_images(src_dirs, limit=None):
 
 
 def downscale(img, max_dim):
+    """Shrink `img` so its longer side is at most `max_dim` px; smaller images are returned as is."""
     h, w = img.shape[:2]
     s = max_dim / max(h, w)
     if s < 1.0:
@@ -130,6 +131,7 @@ def montage(crops, cols=6, cell=160, pad=4, bg=30):
 
 
 def parse_args():
+    """Read the command-line options."""
     ap = argparse.ArgumentParser(description="Local face clustering POC")
     ap.add_argument("--src", nargs="*", default=[str(p) for p in DEFAULT_SRC], help="source image dirs")
     ap.add_argument("--out", default=str(DEFAULT_OUT), help="output dir for contact sheets + json")
@@ -272,6 +274,7 @@ def write_cluster(out, rank, idxs, clean_ids, faces, max_sheet):
 
 
 def main():
+    """Detect faces in the photos, cluster them into people, and write contact sheets and clusters.json."""
     args = parse_args()
 
     # Imported here so --help works without the heavy dep installed.
@@ -322,6 +325,7 @@ def main():
     recovered = sum(1 for i, lab in enumerate(assign) if lab >= 0 and not faces[i]["clean"])
 
     def clean_photo_count(lab):
+        """How many distinct photos a person's confident faces come from."""
         return len({faces[i]["stem"] for i in clean_members[lab]})
 
     ordered_labels = sorted(labels_sorted, key=clean_photo_count, reverse=True)

@@ -29,6 +29,7 @@ IMG_EXT = {".jpg", ".jpeg", ".png", ".heic", ".webp"}
 
 
 def index_files(src_dirs):
+    """Map each image's file stem to its path, across `src_dirs` (the first found wins)."""
     idx = {}
     for d in src_dirs:
         d = Path(d)
@@ -41,6 +42,7 @@ def index_files(src_dirs):
 
 
 def face_crop(img, frac, margin=0.45, size=220):
+    """Crop a padded square around a fractional face box and resize it to `size`; grey if empty."""
     h, w = img.shape[:2]
     fx, fy, fw, fh = frac
     x1, y1 = fx * w, fy * h
@@ -64,6 +66,7 @@ def stamp(cell, rank, nphotos):
 
 
 def main():
+    """Build numbered labeling sheets for the people in clusters.json."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--clusters", default=str(DEFAULT_DIR / "clusters.json"))
     ap.add_argument("--src", nargs="*", default=[str(p) for p in DEFAULT_SRC])
