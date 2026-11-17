@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-# Helper for scripts/set-chip.mjs: locate a specific person's face in a photo.
-# Args: <reference_image_url> <target_image_url>
-#   reference = a crop that is definitely the person (their current chip area)
-#   target    = the full photo to find them in
-# Prints "BOX x_y_w_h sim=<n>" (fractional bbox of the matching face) or
-# "NOMATCH:<reason>". Used by set-chip to crop the right face in a group shot.
+"""Helper for scripts/set-chip.mjs: locate a specific person's face in a photo.
+
+Args: <reference_image_url> <target_image_url>
+  reference = a crop that is definitely the person (their current chip area)
+  target    = the full photo to find them in
+Prints "BOX x_y_w_h sim=<n>" (fractional bbox of the matching face) or
+"NOMATCH:<reason>". Used by set-chip to crop the right face in a group shot.
+"""
 
 import sys, urllib.request, cv2, numpy as np
 from insightface.app import FaceAnalysis
@@ -14,6 +16,7 @@ app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
 app.prepare(ctx_id=0, det_size=(640, 640))
 
 def fetch(u):
+    """Download an http(s) image and decode it; anything else ends the script with NOMATCH."""
     # Only ever fetch web images; refuse file:// and other schemes.
     if not u.startswith(("https://", "http://")):
         print("NOMATCH:refusing non-http url"); sys.exit(0)

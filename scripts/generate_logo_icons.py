@@ -112,6 +112,7 @@ def svg_paths(font: TTFont, width_ratio: float) -> tuple[str, str]:
 
 
 def svg_document(letters: str, dot: str) -> str:
+    """Wrap the letter and dot paths in the mark's SVG: an ink square, paper letters, a sage dot."""
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {BOX} {BOX}">\n'
         f'    <rect width="{BOX}" height="{BOX}" rx="{RADIUS}" fill="{INK}"/>\n'
@@ -143,6 +144,7 @@ def raster(ttf_path: Path, font: TTFont, size: int, rounded: bool, width_ratio: 
 
 
 def main() -> int:
+    """Write every version of the mark (SVGs, glyph module, favicons, PNG icons); return an exit code."""
     if not WOFF2.exists():
         print(f"missing {WOFF2}", file=sys.stderr)
         return 1
