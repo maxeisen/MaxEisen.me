@@ -184,6 +184,30 @@ describe("the Strava client", () => {
 		expect(calls[0].init.headers.Authorization).toBe("Bearer tok");
 	});
 
+	// 2^53 + 1 can't be held exactly by a JavaScript number, so JSON.parse
+	// rounds the numeric id. The string copy must win, at any depth.
+	it("uses id_str so 64-bit ids come through exactly", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const raw =
+			'[{"id":9007199254740993,"id_str":"9007199254740993","name":"Run",' +
+			'"athlete":{"id":9007199254740995,"id_str":"9007199254740995"}}]';
+		const send = vi.fn(async () => new Response(raw, { status: 200 }));
+		const strava = createStravaClient({ token: "t", fetch: send });
+
+		const [activity] = await strava.get("/athlete/activities");
+		expect(activity.id).toBe("9007199254740993");
+		expect(activity.athlete.id).toBe("9007199254740995");
+		expect(activity.name).toBe("Run");
+	});
+
+	it("keeps the numeric id when Strava sends no id_str", async () => {
+		const { createStravaClient } = await import("./strava.js");
+		const { send } = transport([[200, [{ id: 42, gear: { id: "b123" } }]]]);
+		const strava = createStravaClient({ token: "t", fetch: send });
+
+		await expect(strava.get("/athlete/activities")).resolves.toEqual([{ id: 42, gear: { id: "b123" } }]);
+	});
+
 	// The widgets share this app's limit (60 of 100 here), so a job stops at its share and
 	// leaves the rest. Nothing is sent once the share is gone.
 	it("refuses to send once its share is spent, without asking Strava", async () => {
