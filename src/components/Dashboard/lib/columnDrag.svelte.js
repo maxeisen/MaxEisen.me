@@ -202,8 +202,6 @@ export function createColumnDrag({
 	}
 
 	return {
-		/** The full saved layout (hidden widgets included). */
-		get columns() { return columns; },
 		/** What to draw: the drop preview while dragging, else the layout. */
 		get shown() { return preview ?? columns; },
 		get draggingId() { return draggingId; },
@@ -223,10 +221,6 @@ export function createColumnDrag({
 			return Date.now() < suppressClickUntil;
 		},
 
-		restore() {
-			const stored = readColumns(storageKey, ids);
-			if (stored) columns = stored;
-		},
 		start,
 		startResize,
 

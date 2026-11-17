@@ -169,7 +169,6 @@
     }
 
     onMount(() => {
-        reorder.restore();
         edit.listen();
         observer = new ResizeObserver(measureBox);
         observer.observe(fitEl);
@@ -236,7 +235,6 @@
             class:glide
             bind:this={gridEl}
             id="dashboard-grid"
-            data-stacked={layout.stacked}
             data-fit={!scrolls}
             style:height="{layout.height}px"
         >

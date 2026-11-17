@@ -15,7 +15,7 @@
 //
 // Plain JS, no DOM: the page measures, this decides.
 
-export const LAYOUT_DEFAULTS = {
+const LAYOUT_DEFAULTS = {
 	gap: 16,
 	// Smallest a widget may be dragged to. Widgets have compact tiers down
 	// to here (e2e/dashboard.e2e.js checks them).
