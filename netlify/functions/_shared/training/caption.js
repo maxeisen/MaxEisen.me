@@ -26,10 +26,15 @@
 // loop retries once with the plain attribution rather than leaving the
 // activity uncaptioned.
 
-import { addDays, toDayKey } from "./dates.js";
+import { addDays, mondayOf, toDayKey } from "./dates.js";
 import { median } from "./stats.js";
+import { zoneMix } from "./zones.js";
 
 export const CAPTION_WINDOW_DAYS = 3;
+// How far back "typical" and "longest" look, and how many activities that
+// window needs before either means a habit rather than a sample.
+export const COMPARE_DAYS = 42;
+export const MIN_COMPARED = 3;
 // Per writer and per sync. Each caption is a read and a write.
 export const CAPTION_BUDGET = 2;
 
@@ -102,7 +107,7 @@ export function formAt(series, date) {
  * @param {number} [days]
  * @returns {object[]}
  */
-export function previousOfKind(record, records, isSameKind, days = 42) {
+export function previousOfKind(record, records, isSameKind, days = COMPARE_DAYS) {
 	const date = toDayKey(record?.startDateLocal);
 	if (!date) return [];
 	const from = addDays(date, -days);
@@ -116,17 +121,13 @@ export function previousOfKind(record, records, isSameKind, days = 42) {
 
 /**
  * This record's load as a percentage of the median over the last six weeks
- * of the same kind.
+ * of the same kind. Null on fewer than MIN_COMPARED earlier loads.
  *
  * @returns {number|null}
  */
 export function vsTypicalPct(record, records, isSameKind) {
-	if (!(Number(record?.load) > 0)) return null;
-	const previous = previousOfKind(record, records, isSameKind)
-		.map((r) => Number(r.load))
-		.filter((v) => v > 0);
-	const typical = median(previous);
-	return typical > 0 ? (Number(record.load) / typical) * 100 : null;
+	const earlier = previousOfKind(record, records, isSameKind).map((r) => Number(r.load));
+	return pctOfTypical(Number(record?.load), earlier);
 }
 
 /**
@@ -164,6 +165,95 @@ export function loadLine(load, typicalPct) {
 	if (!Number.isFinite(load) || !(load > 0)) return null;
 	const typical = Number.isFinite(typicalPct) ? `  ·  ${Math.round(typicalPct)}% of typical` : "";
 	return `Load     ${Math.round(load)}${typical}`;
+}
+
+/** 2h 05m, or 45m under an hour. */
+export function duration(sec) {
+	const total = Math.round(Number(sec) || 0);
+	const h = Math.floor(total / 3600);
+	const m = Math.round((total % 3600) / 60);
+	return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
+}
+
+/**
+ * A value as a percentage of the median of earlier ones, once there are
+ * enough of them.
+ *
+ * @param {number} value
+ * @param {number[]} earlier
+ * @returns {number|null}
+ */
+export function pctOfTypical(value, earlier) {
+	const usable = (earlier || []).filter((v) => v > 0);
+	if (!(value > 0) || usable.length < MIN_COMPARED) return null;
+	const typical = median(usable);
+	return typical > 0 ? (value / typical) * 100 : null;
+}
+
+/**
+ * Efficiency factor, against the same measure on earlier activities. What
+ * the factor is (watts or speed per beat) is the sport's business.
+ *
+ * @param {number|null} value
+ * @param {number[]} earlier
+ * @param {string} unit
+ * @returns {string|null}
+ */
+export function efficiencyLine(value, earlier, unit) {
+	if (!(value > 0)) return null;
+	const pct = pctOfTypical(value, earlier);
+	const vs = pct !== null ? `  ·  ${Math.round(pct)}% of typical` : "";
+	return `Efficiency  ${value.toFixed(2)} ${unit}${vs}`;
+}
+
+/** The zone mix the last-activity card draws, as one line. */
+export function intensityLine(zoneSeconds) {
+	const mix = zoneMix(zoneSeconds);
+	if (!mix) return null;
+	const pct = (v) => `${Math.round(v)}%`;
+	return `Intensity  ${pct(mix.easyPct)} easy  ·  ${pct(mix.moderatePct)} moderate  ·  ${pct(mix.hardPct)} hard`;
+}
+
+/**
+ * Count, distance and moving time so far this week (Monday start), up to and
+ * including this activity — and against the plan's kilometres when there are
+ * some.
+ *
+ * @param {object} record
+ * @param {object[]} sameKind every stored activity of the record's sport.
+ * @param {string} noun "run" or "ride".
+ * @param {{plannedKm?: number|null}} [options]
+ * @returns {string|null}
+ */
+export function weekLine(record, sameKind, noun, { plannedKm = null } = {}) {
+	const date = toDayKey(record?.startDateLocal);
+	if (!date) return null;
+	const monday = mondayOf(date);
+	const sofar = (sameKind || []).filter((r) => {
+		const day = toDayKey(r.startDateLocal);
+		return day && mondayOf(day) === monday && String(r.startDateLocal) <= String(record.startDateLocal);
+	});
+	if (!sofar.includes(record)) sofar.push(record);
+	const km = sofar.reduce((sum, r) => sum + (Number(r.distanceM) || 0), 0) / 1000;
+	const sec = sofar.reduce((sum, r) => sum + (Number(r.movingTimeSec) || 0), 0);
+	const count = `${sofar.length} ${noun}${sofar.length === 1 ? "" : "s"}`;
+	const distance = plannedKm > 0 ? `${km.toFixed(0)} of ${Math.round(plannedKm)} km` : `${km.toFixed(0)} km`;
+	return `Week     ${count}  ·  ${distance}  ·  ${duration(sec)}`;
+}
+
+/**
+ * A flag when this was the longest of its kind in the comparison window.
+ *
+ * @param {object} record
+ * @param {object[]} previous from previousOfKind().
+ * @param {string} noun
+ * @returns {string|null}
+ */
+export function longestLine(record, previous, noun) {
+	const distance = Number(record?.distanceM) || 0;
+	if ((previous || []).length < MIN_COMPARED || !(distance > 0)) return null;
+	const longest = Math.max(...previous.map((r) => Number(r.distanceM) || 0));
+	return distance > longest ? `Longest ${noun} in ${COMPARE_DAYS / 7} weeks` : null;
 }
 
 export function hasCaption(description) {

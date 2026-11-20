@@ -381,6 +381,7 @@ async function caption(merged, plan, today, strava, deadline) {
 		series,
 		efforts: collectBestEfforts(runs),
 		runs,
+		plan,
 		raceDistanceM: plan.race?.distanceM || 42195,
 	});
 	const ride = strava.coolingDown() ? { captioned: 0, urlRejected: false } : await captionRecentRides(io);

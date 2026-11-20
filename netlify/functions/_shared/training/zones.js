@@ -208,3 +208,31 @@ export function intensitySplit(activities, thresholds = {}) {
 		zoneSeconds,
 	};
 }
+
+const zoneSecondsAt = (zoneSeconds, i) => Number(zoneSeconds[i]) || 0;
+
+/**
+ * Time in zones 1–5 rolled up the way the intensity panel says it: zones 1–2
+ * easy, 3 moderate, 4–5 hard. The last-run card, the last-ride card and both
+ * Strava captions read this.
+ *
+ * @param {number[]|null} zoneSeconds
+ * @returns {object|null} null without any time in zone.
+ */
+export function zoneMix(zoneSeconds) {
+	if (!Array.isArray(zoneSeconds)) return null;
+	const easySec = zoneSecondsAt(zoneSeconds, 0) + zoneSecondsAt(zoneSeconds, 1);
+	const moderateSec = zoneSecondsAt(zoneSeconds, 2);
+	const hardSec = zoneSecondsAt(zoneSeconds, 3) + zoneSecondsAt(zoneSeconds, 4);
+	const totalSec = easySec + moderateSec + hardSec;
+	if (!(totalSec > 0)) return null;
+	return {
+		easySec,
+		moderateSec,
+		hardSec,
+		totalSec,
+		easyPct: (easySec / totalSec) * 100,
+		moderatePct: (moderateSec / totalSec) * 100,
+		hardPct: (hardSec / totalSec) * 100,
+	};
+}

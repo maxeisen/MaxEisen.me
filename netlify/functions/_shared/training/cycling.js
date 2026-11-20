@@ -5,7 +5,7 @@
 import { addDays, daysBetween, mondayOf, toDayKey } from "./dates.js";
 import { dailyLoads } from "./load.js";
 import { acwr, fitnessSeries, longRunShare, rampRate, weeklySummaries } from "./fitness.js";
-import { hrZoneFloors, intensitySplit } from "./zones.js";
+import { hrZoneFloors, intensitySplit, zoneMix } from "./zones.js";
 import { efficiencyTrend, rideEfficiency } from "./efficiency.js";
 import { publicRideDetail, publicRun } from "./shape.js";
 import { readiness } from "./readiness.js";
@@ -61,24 +61,6 @@ function formImpact(series, date) {
 	const cell = trainingOf(series, date);
 	if (!cell || cell.ctlDelta === null) return null;
 	return cell;
-}
-
-export function zoneMix(zoneSeconds) {
-	if (!Array.isArray(zoneSeconds)) return null;
-	const easySec = number(zoneSeconds[0]) + number(zoneSeconds[1]);
-	const moderateSec = number(zoneSeconds[2]);
-	const hardSec = number(zoneSeconds[3]) + number(zoneSeconds[4]);
-	const totalSec = easySec + moderateSec + hardSec;
-	if (!(totalSec > 0)) return null;
-	return {
-		easySec,
-		moderateSec,
-		hardSec,
-		totalSec,
-		easyPct: (easySec / totalSec) * 100,
-		moderatePct: (moderateSec / totalSec) * 100,
-		hardPct: (hardSec / totalSec) * 100,
-	};
 }
 
 export function effortFromMix(mix) {
