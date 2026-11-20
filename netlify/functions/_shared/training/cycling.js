@@ -20,8 +20,25 @@ const INTENSITY_WINDOW_DAYS = 28;
 
 const number = (value) => Number(value) || 0;
 
-function isRide(activity) {
+export function isRide(activity) {
 	return activity?.sport === "ride";
+}
+
+/**
+ * Rides oldest first, and their fitness series from the first ride to `day`.
+ * The dashboard and the Strava caption both read this, so a caption can't
+ * disagree with the page it links to.
+ *
+ * @param {object[]} activities any mix of sports.
+ * @param {string} day day key.
+ */
+export function rideSeries(activities, day) {
+	const rides = (activities || [])
+		.filter(isRide)
+		.sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)));
+	const loads = dailyLoads(rides);
+	const first = toDayKey(rides[0]?.startDateLocal) || day;
+	return { rides, loads, first, series: fitnessSeries(loads, { from: first, to: day }) };
 }
 
 function trainingOf(series, date) {
@@ -46,7 +63,7 @@ function formImpact(series, date) {
 	return cell;
 }
 
-function zoneMix(zoneSeconds) {
+export function zoneMix(zoneSeconds) {
 	if (!Array.isArray(zoneSeconds)) return null;
 	const easySec = number(zoneSeconds[0]) + number(zoneSeconds[1]);
 	const moderateSec = number(zoneSeconds[2]);
@@ -64,7 +81,7 @@ function zoneMix(zoneSeconds) {
 	};
 }
 
-function effortFromMix(mix) {
+export function effortFromMix(mix) {
 	if (!mix) return null;
 	if (mix.hardPct >= HARD_SHARE_PCT) return "hard";
 	if (mix.moderatePct >= MODERATE_SHARE_PCT) return "moderate";
@@ -141,12 +158,8 @@ function riskOf(weeks, today) {
 export function buildCyclingDashboard({ activities = [], today, recovery = [], thresholds = {} }) {
 	const day = toDayKey(today) || toDayKey(new Date());
 	const sorted = [...activities].sort((a, b) => String(a.startDateLocal).localeCompare(String(b.startDateLocal)));
-	const rides = sorted.filter(isRide);
 	const context = sorted.filter((a) => !isRide(a));
-
-	const loads = dailyLoads(rides);
-	const first = toDayKey(rides[0]?.startDateLocal) || day;
-	const series = fitnessSeries(loads, { from: first, to: day });
+	const { rides, loads, first, series } = rideSeries(sorted, day);
 	const latest = series.find((d) => d.date === day) || series.at(-1) || null;
 
 	const weeksRaw = weeklySummaries(rides, { from: first, to: day });

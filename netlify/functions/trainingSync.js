@@ -3,7 +3,8 @@
 // The /running page reads only from Blobs, so nothing here is in a user's
 // request path and it can afford to be slow and careful. The one exception is
 // a caption written back onto a new run's Strava description after the run
-// has been shaped — see caption.js.
+// has been shaped — see caption.js. Rides get one too, from the cycling
+// dashboard's numbers.
 //
 // Why a sync at all, rather than fetching on demand: the dashboard needs the
 // whole training block with per-activity detail and streams, which is hundreds
@@ -41,7 +42,8 @@ import {
 } from "./_shared/training/shape.js";
 import { shapeNotes } from "./_shared/training/notes.js";
 import { shapeRecovery } from "./_shared/training/recovery.js";
-import { captionRecentRuns } from "./_shared/training/caption.js";
+import { captionRecentRuns } from "./_shared/training/runCaption.js";
+import { captionRecentRides } from "./_shared/training/rideCaption.js";
 import { dailyLoads } from "./_shared/training/load.js";
 import { fitnessSeries } from "./_shared/training/fitness.js";
 import { combinePlans, loadPlan } from "./_shared/training/planFile.js";
@@ -352,18 +354,15 @@ async function refreshNotes(records, strava, today, deadline) {
 	return refreshed;
 }
 
-/** Caption the newest runs that have numbers and no caption yet. */
-function caption(merged, plan, today, strava, deadline) {
-	const runs = merged.filter(isRunActivity);
-	const range = blockRange(plan, runs, today);
-	const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
-	return captionRecentRuns({
+/**
+ * Caption the newest runs and rides that have numbers and no caption yet.
+ * Runs go first: they're what the quota guard was sized around, and a ride
+ * left for the next tick loses nothing.
+ */
+async function caption(merged, plan, today, strava, deadline) {
+	const io = {
 		records: merged,
 		today,
-		series,
-		efforts: collectBestEfforts(runs),
-		runs,
-		raceDistanceM: plan.race?.distanceM || 42195,
 		deadline,
 		getDescription: async (id) => {
 			// The read is only worth spending if the write can follow it.
@@ -372,7 +371,24 @@ function caption(merged, plan, today, strava, deadline) {
 			return detail?.description ?? "";
 		},
 		putDescription: (id, description) => strava.put(`/activities/${id}`, { description }),
+	};
+
+	const runs = merged.filter(isRunActivity);
+	const range = blockRange(plan, runs, today);
+	const series = range ? fitnessSeries(dailyLoads(runs), range) : [];
+	const run = await captionRecentRuns({
+		...io,
+		series,
+		efforts: collectBestEfforts(runs),
+		runs,
+		raceDistanceM: plan.race?.distanceM || 42195,
 	});
+	const ride = strava.coolingDown() ? { captioned: 0, urlRejected: false } : await captionRecentRides(io);
+	return {
+		captioned: run.captioned + ride.captioned,
+		bySport: { run: run.captioned, ride: ride.captioned },
+		urlRejected: run.urlRejected || ride.urlRejected,
+	};
 }
 
 async function fetchPublicGear(strava, id) {
@@ -490,6 +506,7 @@ export default async function handler(req) {
 			notesRefreshed: 0,
 			notesFresh: false,
 			captioned: 0,
+			captionedBySport: { run: 0, ride: 0 },
 			captionUrlRejected: false,
 			stored: (existing || []).length,
 			missing: cursor?.missing ?? 0,
@@ -589,12 +606,12 @@ export default async function handler(req) {
 		? await refreshNotes(merged, strava, today, deadline)
 		: 0;
 
-	// The one write. A new run that has numbers gets a fenced block on its
+	// The one write. A new run or ride that has numbers gets a fenced block on its
 	// Strava description; a later pass sees the stamp (or the fence) and
 	// leaves it.
 	const captions = settled.caption
 		? await caption(merged, plan, today, strava, deadline)
-		: { captioned: 0, urlRejected: false };
+		: { captioned: 0, bySport: { run: 0, ride: 0 }, urlRejected: false };
 
 	await Promise.all([
 		writeJson(store, INDEX_KEY, merged),
@@ -613,6 +630,7 @@ export default async function handler(req) {
 		// which is otherwise only visible as a read count in Strava's quota.
 		notesFresh: settled.notesFresh,
 		captioned: captions.captioned,
+		captionedBySport: captions.bySport,
 		captionUrlRejected: captions.urlRejected,
 		stored: merged.length,
 		missing: settled.missing,
