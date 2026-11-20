@@ -15,7 +15,7 @@
 import { addDays, daysBetween, toDayKey } from "./dates.js";
 import { publicLastRun, WHOLE_SPLIT_M } from "./shape.js";
 import { median } from "./stats.js";
-import { classifyByPace } from "./zones.js";
+import { classifyByPace, zoneMix } from "./zones.js";
 
 // How far back "a typical run for you" reaches. Six weeks holds a few long runs
 // and a down week without stretching into a different phase of the block.
@@ -180,36 +180,6 @@ function pacing(splits) {
 		secondHalfPaceSecPerKm,
 		fadePct: fadeBetween(firstHalfPaceSecPerKm, secondHalfPaceSecPerKm),
 		...edges(list),
-	};
-}
-
-/** Seconds spent in the given zones, counting from zone 1. */
-function secondsIn(zoneSeconds, ...zones) {
-	return sum(zones.map((zone) => zoneSeconds.at(zone - 1)));
-}
-
-/** Time in zones 1–5 rolled up the way the intensity panel says it. */
-function zoneMix(zoneSeconds) {
-	if (!Array.isArray(zoneSeconds)) {
-		return null;
-	}
-	const totalSec = sum(zoneSeconds);
-	if (!(totalSec > 0)) {
-		return null;
-	}
-
-	const easySec = secondsIn(zoneSeconds, 1, 2);
-	const moderateSec = secondsIn(zoneSeconds, 3);
-	const hardSec = secondsIn(zoneSeconds, 4, 5);
-
-	return {
-		easySec,
-		moderateSec,
-		hardSec,
-		totalSec,
-		easyPct: (easySec / totalSec) * 100,
-		moderatePct: (moderateSec / totalSec) * 100,
-		hardPct: (hardSec / totalSec) * 100,
 	};
 }
 
