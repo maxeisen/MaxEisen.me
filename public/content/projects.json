@@ -16,13 +16,14 @@
     },
     {
         "name": "Convoke",
-        "technologies": "Next.js, OpenAI GPT-3, Vercel",
+        "technologies": "Next.js, OpenAI API, Vercel",
         "year": "2022-Present",
         "shortDescription": "A web-based game designed to provoke abstract conversation and deep thought",
         "bullets": [
-            "A social party game built to spark abstract conversation, using <a href=\"https://openai.com/blog/openai-api/\" rel=\"noreferrer\" target=\"_blank\">OpenAI's GPT-3 API</a> to generate a thought-provoking question each round",
+            "A social party game built to spark abstract conversation, using the <a href=\"https://openai.com/blog/openai-api/\" rel=\"noreferrer\" target=\"_blank\">OpenAI API</a> to generate thought-provoking questions for each game",
             "Includes a <a href=\"https://convoke.app/daily\" rel=\"noreferrer\" target=\"_blank\">daily question</a> mode for solo reflection, with answers saved locally in the browser",
-            "Built and launched in two weeks, reaching #7 on <a href=\"https://www.producthunt.com/posts/convoke\" rel=\"noreferrer\" target=\"_blank\">Product Hunt</a> on launch day"
+            "Built and launched in two weeks, reaching #7 on <a href=\"https://www.producthunt.com/posts/convoke\" rel=\"noreferrer\" target=\"_blank\">Product Hunt</a> on launch day",
+            "Rebuilt in 2026 to move every OpenAI call to the server so no API key reaches the browser, batch each game's questions into a single request, and redesign the game for phones, tablets and desktops"
         ],
         "projectLink": "https://convoke.app",
         "screenshot": "convoke"
