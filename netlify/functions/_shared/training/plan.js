@@ -426,6 +426,9 @@ function asMatch(session, movedFrom = null) {
 		type: session.type || null,
 		detail: session.detail || null,
 		distanceKm: Number.isFinite(Number(session.distanceKm)) ? Number(session.distanceKm) : null,
+		// The reps the plan asked for, when Runna's description said (see
+		// repTarget in runna.js).
+		...(session.target ? { target: session.target } : {}),
 		...(movedFrom ? { movedFrom } : {}),
 	};
 }
@@ -466,8 +469,8 @@ function resembles(run, session) {
  * @param {object[]} runs shaped activities, ascending by start time.
  * @param {object} plan
  * @returns {{planned: boolean, type: string|null, detail: string|null,
- *   distanceKm: number|null, movedFrom?: string}[]} one entry per run, in the
- *   same order.
+ *   distanceKm: number|null, target?: object, movedFrom?: string}[]} one entry
+ *   per run, in the same order.
  */
 export function matchRunsToPlan(runs, plan) {
 	const byDay = plannedRunsByDay(plan);

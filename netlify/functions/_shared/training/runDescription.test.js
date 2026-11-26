@@ -201,3 +201,32 @@ describe("titles", () => {
 		expect(retitle("Afternoon Run", "")).toBeNull();
 	});
 });
+
+describe("describeRun with the plan's rep target", () => {
+	const match = {
+		planned: true,
+		type: "intervals",
+		detail: "400m Repeats",
+		distanceKm: 9,
+		target: { reps: 8, distanceM: 400, paceSecPerKm: [215, 215] },
+	};
+
+	it("says what the plan asked for beside what the laps show", () => {
+		const out = describeRun(run(), { match, laps: repeatLaps() });
+		expect(out.summary).toBe(
+			"Planned session: 400m Repeats (9 km), 8 × 400m at 3:35/km. " +
+				"8 × 400m at an average of 3:38/km, with about 1:30 between reps.",
+		);
+	});
+
+	it("gives a pace range as a range", () => {
+		const out = describeRun(run(), {
+			match: { ...match, target: { reps: 5, distanceM: 1000, paceSecPerKm: [250, 260] } },
+		});
+		expect(out.summary).toContain("5 × 1km at 4:10–4:20/km");
+	});
+
+	it("takes the rep count for the title from the plan when the laps don't show reps", () => {
+		expect(describeRun(run(), { match, laps: autoLaps(9) }).title).toBe("8 × 400m Repeats");
+	});
+});

@@ -6,7 +6,9 @@
 //
 //   The plan   the session the run was matched to (see matchRunsToPlan),
 //              including one moved by a day. Its name is what the athlete
-//              scheduled, so it's the title whenever there is one.
+//              scheduled, so it's the title whenever there is one. When
+//              Runna's description gave the reps and their pace, those come
+//              along as the session's `target`.
 //   The run    its laps, splits, climbing and heart-rate zones. Laps are the
 //              only place a structured workout shows up: per-kilometre splits
 //              smear a 400 m rep across two kilometres. They come from the
@@ -241,8 +243,10 @@ function plannedTitle(match, run, reps) {
 	let title = String(match.detail || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
 	if (!title) title = KIND_NAMES[match.type] || "Run";
 	title = title.replace(/^\d+(?:\.\d+)?\s?km\b/i, kmLabel(run.distanceM));
-	// "400m Repeats" becomes "8 × 400m Repeats" when the laps show eight.
-	const count = reps && reps.blocks.length > 1 ? /^(\d+) × (.+)$/.exec(reps.label) : null;
+	// "400m Repeats" becomes "8 × 400m Repeats" when the laps show eight, or,
+	// with no reps in the laps, when the plan asked for eight.
+	let count = reps && reps.blocks.length > 1 ? /^(\d+) × (.+)$/.exec(reps.label) : null;
+	if (!reps && match.target) count = [null, String(match.target.reps), repDistance(match.target.distanceM)];
 	if (count && !/\d+\s*[x×]/i.test(title) && title.includes(count[2])) {
 		title = `${count[1]} × ${title}`;
 	}
@@ -254,6 +258,14 @@ function unplannedTitle(kind, run, reps, hilly) {
 	if (kind === "tempo" && reps) return `${reps.label} Tempo`;
 	if (kind === "race") return `${kmLabel(run.distanceM)} Race`;
 	return `${kmLabel(run.distanceM)} ${hilly ? "Hilly " : ""}${KIND_NAMES[kind]}`;
+}
+
+// "8 × 400m at 3:35/km", or with a range "5 × 1km at 4:10–4:20/km".
+function targetLabel(target) {
+	if (!target?.reps || !target.distanceM) return null;
+	const [fast, slow] = target.paceSecPerKm || [];
+	const range = fast > 0 && slow > fast ? `${clock(fast)}–${pace(slow)}` : pace(fast);
+	return `${target.reps} × ${repDistance(target.distanceM)}${range ? ` at ${range}` : ""}`;
 }
 
 /**
@@ -286,7 +298,8 @@ export function describeRun(run, { match = null, laps = [], runs = [] } = {}) {
 		const plannedKm = Number(match.distanceKm) > 0 ? ` (${match.distanceKm} km)` : "";
 		const name = String(match.detail || KIND_NAMES[match.type] || "run").replace(/\s*\([^)]*\)\s*$/, "");
 		const moved = match.movedFrom ? `, moved from ${weekdayOf(match.movedFrom)}` : "";
-		sentences.push(`Planned session: ${name}${plannedKm}${moved}.`);
+		const asked = targetLabel(match.target);
+		sentences.push(`Planned session: ${name}${plannedKm}${moved}${asked ? `, ${asked}` : ""}.`);
 		const off = Number(match.distanceKm) > 0 ? km / match.distanceKm - 1 : 0;
 		if (Math.abs(off) > DISTANCE_OFF_PLAN) {
 			sentences.push(`Ran ${km.toFixed(1)} km, ${off > 0 ? "more" : "less"} than the ${match.distanceKm} km planned.`);

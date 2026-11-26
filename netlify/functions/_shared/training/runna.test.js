@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { completedSessions, mergeRunnaPlan, parseIcs, toPlanWeeks, upcomingPlan } from "./runna.js";
+import { completedSessions, mergeRunnaPlan, parseIcs, repTarget, toPlanWeeks, upcomingPlan } from "./runna.js";
 import { combinePlans } from "./planFile.js";
 import { comparePlan, plannedKm, plannedLongRunKm } from "./plan.js";
 
@@ -161,7 +161,14 @@ describe("toPlanWeeks + combinePlans", () => {
 
 	it("groups sessions into Monday weeks the way the plan file writes them", () => {
 		expect(weeks.map((w) => w.start)).toEqual(["2026-11-02", "2026-11-09", "2026-12-07", "2027-04-05"]);
-		expect(weeks[1].sessions[1]).toEqual({ day: "Wednesday", type: "intervals", detail: "400m Repeats", distanceKm: 7, durationMin: 45 });
+		expect(weeks[1].sessions[1]).toEqual({
+			day: "Wednesday",
+			type: "intervals",
+			detail: "400m Repeats",
+			distanceKm: 7,
+			durationMin: 45,
+			target: { reps: 8, distanceM: 400, paceSecPerKm: [215, 215] },
+		});
 		expect(weeks[1].key).toEqual([
 			{ type: "intervals", detail: "400m Repeats, 7km" },
 			{ type: "long run", detail: "13km Hilly Long Run" },
@@ -188,5 +195,31 @@ describe("toPlanWeeks + combinePlans", () => {
 		expect(combinePlans(stale, merged).race.name).toBe("Around The Bay 2027");
 		expect(combinePlans(stale, null)).toBe(stale);
 		expect(combinePlans(stale, { sessions: [] })).toBe(stale);
+	});
+});
+
+describe("repTarget", () => {
+	it("reads the reps, their distance and their pace", () => {
+		expect(repTarget("Intervals • 7km • 35m - 45m\n\n8 reps of:\n• 400m at 3:35/km")).toEqual({
+			reps: 8,
+			distanceM: 400,
+			paceSecPerKm: [215, 215],
+		});
+	});
+
+	it("skips a recovery bullet before the rep, and reads a pace range", () => {
+		const text = "Intervals • 9km\n\n1km warm up\n\n5 reps of:\n• 90s walking rest\n• 1km at 4:10-4:20/km\n\n1km cool down";
+		expect(repTarget(text)).toEqual({ reps: 5, distanceM: 1000, paceSecPerKm: [250, 260] });
+	});
+
+	it("reads nothing from reps set by time, or from no reps at all", () => {
+		expect(repTarget("Tempo • 5km\n\n4 reps of:\n• 3m at 4:20/km")).toBeNull();
+		expect(repTarget("Long Run • 13km • 1h0m - 1h10m")).toBeNull();
+		expect(repTarget("")).toBeNull();
+	});
+
+	it("puts the target on the upcoming session", () => {
+		const reps = upcomingPlan(parseIcs(FEED)).sessions.find((s) => s.type === "intervals");
+		expect(reps.target).toEqual({ reps: 8, distanceM: 400, paceSecPerKm: [215, 215] });
 	});
 });
