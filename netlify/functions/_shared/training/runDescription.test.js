@@ -85,6 +85,36 @@ describe("detectReps", () => {
 		expect(detectReps(laps).label).toBe("2km, 1km, 1km");
 	});
 
+	it("counts walking rests as rest, not the warm-up and cool-down as reps", () => {
+		// The real 25 November session: 2 sets of 5 × 400m at 3:45/km, with
+		// 90 s walks between reps and a 3 minute walk between the sets.
+		const laps = [lap(1500, 340)];
+		for (let set = 0; set < 2; set++) {
+			for (let i = 0; i < 5; i++) {
+				laps.push(lap(400, 225));
+				if (i < 4) laps.push({ distance: 110, moving_time: 90, elapsed_time: 90 });
+			}
+			if (set === 0) laps.push({ distance: 200, moving_time: 180, elapsed_time: 180 });
+		}
+		laps.push(lap(1500, 345));
+		const reps = detectReps(shapeLaps(laps));
+		expect(reps.label).toBe("10 × 400m");
+		expect(reps.sets).toMatchObject({ count: 2, perSet: 5 });
+		expect(reps.recoverySec).toBe(90);
+		expect(Math.round(reps.paceSecPerKm)).toBe(225);
+
+		const out = describeRun(run(), {
+			match: { planned: true, type: "intervals", detail: "400m Repeats", distanceKm: 9 },
+			laps: shapeLaps(laps),
+		});
+		expect(out.title).toBe("10 × 400m Repeats");
+		expect(out.summary).toContain("10 × 400m in 2 sets of 5 at an average of 3:45/km, with about 1:30 between reps.");
+	});
+
+	it("does not call reps with even rests sets", () => {
+		expect(detectReps(repeatLaps()).sets).toBeNull();
+	});
+
 	it("reads evenly paced auto-laps as no workout", () => {
 		expect(detectReps(autoLaps(8))).toBeNull();
 	});
@@ -199,6 +229,17 @@ describe("titles", () => {
 		expect(retitle("Afternoon Run", "6km Easy Run")).toBe("6km Easy Run");
 		expect(retitle("Easy shakeout", "6km Easy Run")).toBeNull();
 		expect(retitle("Afternoon Run", "")).toBeNull();
+	});
+
+	it("also replaces a title it wrote, or the plan's bare name, but not the athlete's", () => {
+		expect(retitle("400m Repeats", "10 × 400m Repeats", ["400m Repeats"])).toBe("10 × 400m Repeats");
+		expect(retitle("Track night", "10 × 400m Repeats", ["400m Repeats"])).toBeNull();
+	});
+
+	it("gives the plan's bare name for a planned run", () => {
+		const match = { planned: true, type: "intervals", detail: "400m Repeats", target: { reps: 8, distanceM: 400, paceSecPerKm: [215, 215] } };
+		expect(describeRun(run(), { match, laps: repeatLaps() }).planName).toBe("400m Repeats");
+		expect(describeRun(run()).planName).toBeNull();
 	});
 });
 

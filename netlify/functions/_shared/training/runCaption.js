@@ -181,13 +181,20 @@ export function runCaptionWriter({
 		attribution: ATTRIBUTION,
 		plainAttribution: ATTRIBUTION_PLAIN,
 		isEligible: isRunActivity,
+		// Raising this rewrites the last five runs' captions once.
 		// 2: the caption opens with what kind of run it was, and a default
-		// title is replaced. Raising this rewrites the last five runs once.
-		version: 2,
+		//    title is replaced.
+		// 3: walking rests count as rest, so a session with walks between
+		//    reps reads as its reps; reps split by a longer rest read as sets.
+		version: 3,
 		refreshLast: 5,
 		titleFor(record, detail) {
-			const { title } = describeRun(record, { match: matchFor(record), laps: shapeLaps(detail?.laps), runs: allRuns });
-			return retitle(detail?.name ?? record.name, title);
+			const { title, planName } = describeRun(record, {
+				match: matchFor(record),
+				laps: shapeLaps(detail?.laps),
+				runs: allRuns,
+			});
+			return retitle(detail?.name ?? record.name, title, [record.titledAs, planName].filter(Boolean));
 		},
 		linesFor(record, detail) {
 			const { summary } = describeRun(record, { match: matchFor(record), laps: shapeLaps(detail?.laps), runs: allRuns });

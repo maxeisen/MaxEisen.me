@@ -96,6 +96,7 @@ export function mergeActivities(existing, incoming) {
 						...a,
 						captionedAt: prev.captionedAt,
 						...(prev.captionVersion ? { captionVersion: prev.captionVersion } : {}),
+						...(prev.titledAs ? { titledAs: prev.titledAs } : {}),
 					}
 				: a;
 		byId.set(String(a.id), next);
