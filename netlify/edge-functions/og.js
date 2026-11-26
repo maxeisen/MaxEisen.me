@@ -12,6 +12,7 @@
 
 import { raceAhead } from "../functions/_shared/training/plan.js";
 import { trainingPageMeta } from "../../src/components/Training/lib/block.js";
+import { splitFrontMatter, toPostMeta } from "../../src/components/Blog/lib/frontMatter.js";
 
 const SITE_URL = "https://maxeisen.me";
 const CLOUD = "https://res.cloudinary.com/meisen-gallery/image/upload";
@@ -32,6 +33,7 @@ const META = {
 	"/cycling": { title: "Cycling — Max Eisen", desc: "A ride log: fitness, fatigue, and the last ride. Not a race plan.", card: "Cycling" },
 	"/bach": { title: "Bach — Max Eisen", desc: "An interactive party game.", card: "Bach" },
 	"/resume": { title: "Resume — Max Eisen", desc: "Max Eisen's résumé — software engineer in Toronto.", card: "Resume" },
+	"/blog": { title: "Blog — Max Eisen", desc: "Writing by Max Eisen on building this site, design, and whatever else.", card: "Blog" },
 	// Private + noindex: a neutral card so sharing the link never reveals photos.
 	"/gallery/wedding": { title: "Max and Lara's Wedding", desc: "A private gallery of Max and Lara's wedding photos.", card: "Max and Lara's Wedding" },
 };
@@ -108,6 +110,31 @@ async function trainingMeta(request) {
 	return trainingPageMeta({ inBlock: raceAhead(plan, today), race: plan.race });
 }
 
+// A post's preview comes from its own front matter: its title on the card,
+// or its cover image when it has one. The .md is a static file, fetched like
+// the plan above. A missing or broken post gets the default preview; the app
+// sends a missing one on to the 404 page anyway.
+const POST_PATH = /^\/blog\/([a-z0-9-]+)\/?$/;
+
+async function blogPostMeta(request, slug) {
+	try {
+		const res = await fetch(new URL(`/content/blog/${slug}.md`, request.url));
+		if (!res.ok) return DEFAULT;
+		const post = toPostMeta(slug, splitFrontMatter(await res.text()).data);
+		const cover = post.cover && (post.cover.startsWith("/") ? SITE_URL + post.cover : post.cover);
+		return { title: `${post.title} — Max Eisen`, desc: post.description, card: post.title, image: cover, type: "article" };
+	} catch {
+		return DEFAULT;
+	}
+}
+
+async function routeMeta(request, pathname) {
+	if (pathname === "/running") return trainingMeta(request);
+	const post = POST_PATH.exec(pathname);
+	if (post) return blogPostMeta(request, post[1]);
+	return META[pathname.replace(/\/$/, "") || "/"] || DEFAULT;
+}
+
 const escAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const escText = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -118,15 +145,19 @@ function setMeta(html, key, val, content) {
 	return re.test(html) ? html.replace(re, tag) : html.replace("</head>", `${tag}</head>`);
 }
 
+function removeMeta(html, key, val) {
+	return html.replace(new RegExp(`\\s*<meta ${key}="${val}"[^>]*>`, "gi"), "");
+}
+
 export default async function handler(request, context) {
 	const res = await context.next();
 	const ct = res.headers.get("content-type") || "";
 	if (!ct.includes("text/html")) return res;
 
 	const { pathname } = new URL(request.url);
-	const m = pathname === "/running" ? await trainingMeta(request) : (META[pathname] || DEFAULT);
+	const m = await routeMeta(request, pathname);
 	const url = SITE_URL + pathname;
-	const img = cardUrl(m.card);
+	const img = m.image || cardUrl(m.card);
 
 	let html = await res.text();
 	html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(m.title)}</title>`);
@@ -134,12 +165,19 @@ export default async function handler(request, context) {
 	html = setMeta(html, "property", "og:description", m.desc);
 	html = setMeta(html, "property", "og:url", url);
 	html = setMeta(html, "property", "og:image", img);
+	html = setMeta(html, "property", "og:type", m.type || "website");
 	html = setMeta(html, "name", "description", m.desc);
 
 	// Replaced, not appended: index.html already carries these, and a second
-	// copy leaves crawlers to pick between the stale tag and this one.
-	html = setMeta(html, "property", "og:image:width", "1200");
-	html = setMeta(html, "property", "og:image:height", "630");
+	// copy leaves crawlers to pick between the stale tag and this one. A
+	// post's own cover can be any size, so it drops them rather than lie.
+	if (m.image) {
+		html = removeMeta(html, "property", "og:image:width");
+		html = removeMeta(html, "property", "og:image:height");
+	} else {
+		html = setMeta(html, "property", "og:image:width", "1200");
+		html = setMeta(html, "property", "og:image:height", "630");
+	}
 	html = setMeta(html, "property", "og:image:alt", m.title);
 	html = setMeta(html, "name", "twitter:card", "summary_large_image");
 	html = setMeta(html, "name", "twitter:title", m.title);
@@ -152,5 +190,5 @@ export default async function handler(request, context) {
 }
 
 export const config = {
-	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/running", "/cycling", "/bach", "/resume"],
+	path: ["/", "/gallery", "/gallery/ride", "/gallery/run", "/gallery/wedding", "/dashboard", "/running", "/cycling", "/bach", "/resume", "/blog", "/blog/*"],
 };

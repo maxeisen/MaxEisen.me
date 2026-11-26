@@ -68,7 +68,17 @@
             {#if post.updated}
                 <p class="updated">Updated <time datetime={post.updated}>{formatDate(post.updated)}</time></p>
             {/if}
+            {#if post.tags.length}
+                <ul class="tags" aria-label="Tags">
+                    {#each post.tags as t}<li><a href="/blog?tag={t}">#{t}</a></li>{/each}
+                </ul>
+            {/if}
         </header>
+
+        {#if post.cover}
+            <!-- Decorative: the title above already says what the post is. -->
+            <img class="cover" src={post.cover} alt="" fetchpriority="high" decoding="async" />
+        {/if}
 
         {#if post.note}
             <p class="note">{post.note}</p>
@@ -156,6 +166,28 @@
         margin: var(--space-3) 0 0;
         font-size: var(--font-xs);
         color: var(--text-3);
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-1) var(--space-3);
+        margin: var(--space-4) 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: var(--font-xs);
+    }
+    .tags a { color: var(--text-2); }
+    .tags a:hover { color: var(--text-strong); }
+
+    .cover {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 0 0 var(--space-6);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface-2);
     }
 
     /* An aside from today about an older post, set apart from its text. */

@@ -6,7 +6,9 @@
 //   description: One or two lines for the post list and link previews.
 //   updated: 2021-05-14          (optional)
 //   note: Written in 2021. …     (optional; shown above the text)
-//   published: false             (optional; leaves it off the /blog list)
+//   draft: true                  (optional, default false; leaves it off the /blog list)
+//   tags: design, web-dev        (optional; lowercase words with dashes, comma-separated)
+//   cover: /img/blog/<slug>/cover.jpg   (optional; shown at the top and in link previews)
 //   ---
 //   ## First heading …
 //
@@ -16,7 +18,10 @@
 
 const FENCE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-const KNOWN = new Set(["title", "date", "updated", "description", "note", "published"]);
+const KNOWN = new Set(["title", "date", "updated", "description", "note", "draft", "tags", "cover"]);
+const TAG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+// A file under public/ ("/img/…") or a full https:// address.
+const COVER = /^(\/(?!\/)\S+|https:\/\/\S+)$/;
 
 /** Split a post file into its details and its Markdown text. */
 export function splitFrontMatter(text) {
@@ -47,10 +52,21 @@ export function toPostMeta(slug, data) {
 	for (const key of ["date", "updated"]) {
 		if (data[key] && !DATE.test(data[key])) fail(`"${key}" must look like 2021-04-14`);
 	}
-	if (data.published && !["true", "false"].includes(data.published)) fail(`"published" must be true or false`);
+	if (data.draft && !["true", "false"].includes(data.draft)) fail(`"draft" must be true or false`);
 
-	const meta = { slug, title: data.title, date: data.date, description: data.description, published: data.published !== "false" };
+	const tags = parseTags(data.tags);
+	for (const tag of tags) if (!TAG.test(tag)) fail(`tag "${tag}" must be lowercase letters, numbers and dashes`);
+	if (data.cover && !COVER.test(data.cover)) fail(`"cover" must be a path like /img/blog/${slug}/cover.jpg or an https:// address`);
+
+	const meta = { slug, title: data.title, date: data.date, description: data.description, draft: data.draft === "true", tags };
 	if (data.updated) meta.updated = data.updated;
 	if (data.note) meta.note = data.note;
+	if (data.cover) meta.cover = data.cover;
 	return meta;
+}
+
+/** "design, Web-Dev, design" → ["design", "web-dev"]: trimmed, lowercase, no repeats. */
+export function parseTags(value) {
+	if (!value) return [];
+	return [...new Set(value.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean))];
 }

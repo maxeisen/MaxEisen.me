@@ -41,6 +41,26 @@ test("a post opens from the list without a full reload and renders its Markdown"
 	await expect(page).toHaveURL("/blog");
 });
 
+test("a tag filters the list in place and links back from a post", async ({ page }) => {
+	await page.goto("/blog");
+	await page.evaluate(() => { window.__sameDocument = true; });
+	const titles = page.locator(".posts .title");
+	await page.getByRole("navigation", { name: "Filter by tag" }).getByRole("link", { name: /design/ }).click();
+	await expect(page).toHaveURL("/blog?tag=design");
+	await expect(titles).toHaveText(["My Sense of Design"]);
+	await page.goBack();
+	await expect(titles).toHaveText(["My Sense of Design", "Creating the Blog Component"]);
+	expect(await page.evaluate(() => window.__sameDocument)).toBe(true);
+
+	await page.goto("/blog/creating-the-blog-component");
+	await page.getByRole("list", { name: "Tags" }).getByRole("link", { name: "#web-dev" }).click();
+	await expect(page).toHaveURL("/blog?tag=web-dev");
+	await expect(titles).toHaveText(["Creating the Blog Component"]);
+
+	await page.goto("/blog?tag=no-such-tag");
+	await expect(page.getByText("No posts tagged “no-such-tag”.")).toBeVisible();
+});
+
 test("a post URL with no post goes to the 404 page", async ({ page }) => {
 	await page.goto("/blog/no-such-post");
 	await expect(page).toHaveURL(/\/404\.html$/);
