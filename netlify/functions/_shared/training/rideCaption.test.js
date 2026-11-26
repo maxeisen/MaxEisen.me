@@ -104,11 +104,11 @@ describe("captionRecentRides", () => {
 		const out = await captionRecentRides({
 			records,
 			today,
-			getDescription: async (id) => {
+			getActivity: async (id) => {
 				if (id === 10) throw new Error("should not read a run");
-				return "windy";
+				return { description: "windy" };
 			},
-			putDescription: async (id, description) => puts.push({ id, description }),
+			putActivity: async (id, { description }) => puts.push({ id, description }),
 		});
 		// The 18th is inside the three-day window too.
 		expect(out.captioned).toBe(2);
@@ -121,10 +121,10 @@ describe("captionRecentRides", () => {
 		const again = await captionRecentRides({
 			records,
 			today,
-			getDescription: async () => {
+			getActivity: async () => {
 				throw new Error("should not read again");
 			},
-			putDescription: async () => {
+			putActivity: async () => {
 				throw new Error("should not write again");
 			},
 		});
@@ -136,8 +136,8 @@ describe("captionRecentRides", () => {
 		const out = await captionRecentRides({
 			records: [ride(9, today)],
 			today,
-			getDescription: async () => "",
-			putDescription: async (id, description) => {
+			getActivity: async () => ({ description: "" }),
+			putActivity: async (id, { description }) => {
 				puts.push(description);
 				if (description.includes("maxeisen.me/cycling")) {
 					const err = new Error("invalid");

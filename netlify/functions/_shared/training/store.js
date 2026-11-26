@@ -91,7 +91,13 @@ export function mergeActivities(existing, incoming) {
 		// sync, not the shaper, so it has to survive that or every SHAPE_VERSION
 		// bump would rewrite Strava.
 		const next =
-			prev?.captionedAt && !a.captionedAt ? { ...a, captionedAt: prev.captionedAt } : a;
+			prev?.captionedAt && !a.captionedAt
+				? {
+						...a,
+						captionedAt: prev.captionedAt,
+						...(prev.captionVersion ? { captionVersion: prev.captionVersion } : {}),
+					}
+				: a;
 		byId.set(String(a.id), next);
 	}
 	return [...byId.values()].sort((a, b) =>

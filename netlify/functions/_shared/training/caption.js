@@ -18,7 +18,18 @@
 //     attribution:      line with the page's URL
 //     plainAttribution: the same without a URL, for when Strava rejects one
 //     isEligible(r):    whether a stored record is this writer's to caption
-//     linesFor(r):      the caption's lines; [] leaves the record alone
+//     linesFor(r, d):   the caption's lines; [] leaves the record alone. `d`
+//                       is the detailed activity read from Strava, or
+//                       undefined for the cheap check before that read.
+//     titleFor(r, d):   optional. A new title for the activity, or null to
+//                       leave the title alone.
+//     version:          optional, default 1. Stamped on each record captioned
+//                       as `captionVersion`.
+//     refreshLast:      optional, default 0. Raising `version` rewrites the
+//                       caption on this many of the most recent activities
+//                       once, if theirs was written by an older version. This
+//                       is how a change to the caption reaches the last few
+//                       activities on deploy rather than only new ones.
 //   }
 //
 // Attribution includes a URL because that's the point of the line. Strava has
@@ -275,27 +286,46 @@ export function applyCaption(description, lines, { attribution }) {
 	return stripped ? `${stripped}\n\n${block}` : block;
 }
 
-// The writer's newest uncaptioned activities in the window, up to the budget.
-function uncaptioned(writer, records, today) {
+const newestFirst = (a, b) => String(b.startDateLocal).localeCompare(String(a.startDateLocal));
+
+/**
+ * What this pass should caption, up to the budget: the writer's newest
+ * uncaptioned activities in the window first, then any of its most recent
+ * activities whose caption an older version wrote.
+ *
+ * @returns {{record: object, refresh: boolean}[]}
+ */
+function captionTargets(writer, records, today) {
 	const from = addDays(today, -CAPTION_WINDOW_DAYS);
-	return (records || [])
+	const eligible = (records || []).filter((a) => a && writer.isEligible(a)).sort(newestFirst);
+	const fresh = eligible
 		.filter((a) => {
-			if (!a || a.captionedAt || !writer.isEligible(a)) return false;
+			if (a.captionedAt) return false;
 			const day = toDayKey(a.startDateLocal);
 			return day && day >= from;
 		})
-		.sort((a, b) => String(b.startDateLocal).localeCompare(String(a.startDateLocal)))
-		.slice(0, CAPTION_BUDGET);
+		.map((record) => ({ record, refresh: false }));
+	const version = writer.version || 1;
+	const stale = eligible
+		.slice(0, writer.refreshLast || 0)
+		.filter((a) => a.captionedAt && (Number(a.captionVersion) || 1) < version)
+		.map((record) => ({ record, refresh: true }));
+	return [...fresh, ...stale].slice(0, CAPTION_BUDGET);
 }
 
 /**
- * One PUT, and one retry without the URL if Strava rejects the first.
+ * One PUT, and one retry without the URL if Strava rejects the first. The
+ * title, when there is one, goes in the same PUT.
  *
  * @returns {Promise<{written: boolean, urlRejected: boolean, stop: boolean}>}
  */
-async function writeCaption(writer, record, description, lines, putDescription) {
+async function writeCaption(writer, record, description, lines, title, putActivity) {
+	const fields = (attribution) => ({
+		description: applyCaption(description, lines, { attribution }),
+		...(title ? { name: title } : {}),
+	});
 	try {
-		await putDescription(record.id, applyCaption(description, lines, { attribution: writer.attribution }));
+		await putActivity(record.id, fields(writer.attribution));
 		return { written: true, urlRejected: false, stop: false };
 	} catch (err) {
 		if (err?.status === 429) return { written: false, urlRejected: false, stop: true };
@@ -305,7 +335,7 @@ async function writeCaption(writer, record, description, lines, putDescription) 
 		}
 	}
 	try {
-		await putDescription(record.id, applyCaption(description, lines, { attribution: writer.plainAttribution }));
+		await putActivity(record.id, fields(writer.plainAttribution));
 		return { written: true, urlRejected: true, stop: false };
 	} catch (err) {
 		console.error(`Failed to caption ${writer.sport} ${record.id} without URL`, err);
@@ -316,56 +346,70 @@ async function writeCaption(writer, record, description, lines, putDescription) 
 /**
  * Caption the writer's recent activities that don't have a stamp yet.
  *
- * Mutates records in place (`captionedAt`). One PUT per activity, and a retry
- * without the URL if Strava rejects the description.
+ * Mutates records in place (`captionedAt`, and `name` when the title changed).
+ * One PUT per activity, and a retry without the URL if Strava rejects the
+ * description.
  *
  * @param {object} writer see the top of this file.
  * @param {object} input
  * @param {object[]} input.records the merged index.
  * @param {string} input.today day key.
- * @param {(id: string|number) => Promise<string>} input.getDescription
- * @param {(id: string|number, description: string) => Promise<void>} input.putDescription
+ * @param {(id: string|number) => Promise<object>} input.getActivity the
+ *   detailed activity: description, name, laps.
+ * @param {(id: string|number, fields: {description: string, name?: string}) => Promise<void>} input.putActivity
  * @param {number} [input.deadline] epoch ms.
  * @returns {Promise<{captioned: number, urlRejected: boolean}>}
  */
 export async function captionRecent(
 	writer,
-	{ records = [], today, getDescription, putDescription, deadline = Infinity } = {},
+	{ records = [], today, getActivity, putActivity, deadline = Infinity } = {},
 ) {
-	const candidates = uncaptioned(writer, records, today);
+	const targets = captionTargets(writer, records, today);
 	let captioned = 0;
 	let urlRejected = false;
 	const stamp = (record) => {
 		record.captionedAt = new Date().toISOString();
+		record.captionVersion = writer.version || 1;
 		captioned += 1;
 	};
 
-	for (const record of candidates) {
+	for (const { record, refresh } of targets) {
 		if (Date.now() > deadline) break;
-		const lines = writer.linesFor(record);
-		if (!lines || lines.length === 0) continue;
+		const preview = writer.linesFor(record);
+		if (!preview || preview.length === 0) continue;
 
-		let description;
+		let detail;
 		try {
-			description = await getDescription(record.id);
+			detail = (await getActivity(record.id)) || {};
 		} catch (err) {
 			if (err?.status === 429) break;
-			console.error(`Failed to read description on ${writer.sport} ${record.id}`, err);
+			console.error(`Failed to read ${writer.sport} ${record.id}`, err);
 			continue;
 		}
 
-		if (typeof description !== "string") description = "";
+		const description = typeof detail.description === "string" ? detail.description : "";
 		// The attribution line is the lock. If it's already on the activity,
 		// a later pass must not write another copy — even when the blob stamp
 		// was lost, the fence changed, or Strava stored CRLF.
-		if (hasCaption(description)) {
+		//
+		// A refresh is the one pass that writes over it, and only when the
+		// whole fenced block is there to replace: applyCaption swaps that block
+		// in place, so the athlete's own text above it is kept. A caption the
+		// athlete deleted, or a block that's no longer intact, is left alone.
+		const replaceable = refresh && hasCaption(description) && FENCE_RE.test(normalizeDescription(description));
+		if (refresh ? !replaceable : hasCaption(description)) {
 			stamp(record);
 			continue;
 		}
 
-		const outcome = await writeCaption(writer, record, description, lines, putDescription);
+		const lines = writer.linesFor(record, detail);
+		const title = writer.titleFor?.(record, detail) ?? null;
+		const outcome = await writeCaption(writer, record, description, lines, title, putActivity);
 		if (outcome.urlRejected) urlRejected = true;
-		if (outcome.written) stamp(record);
+		if (outcome.written) {
+			stamp(record);
+			if (title) record.name = title;
+		}
 		if (outcome.stop) break;
 	}
 

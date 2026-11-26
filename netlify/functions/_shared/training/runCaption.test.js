@@ -53,7 +53,7 @@ describe("runDetailLines", () => {
 			zoneSeconds: [1200, 5000, 900, 300, 40],
 		});
 		const runs = [...earlier, target];
-		const lines = runDetailLines(target, { runs, plan, match: { planned: true, type: "long run", detail: "last 6 km at marathon pace" } });
+		const lines = runDetailLines(target, { runs, plan });
 
 		expect(lines).toEqual([
 			"Pace     5:10/km  ·  GAP 4:56/km",
@@ -61,7 +61,6 @@ describe("runDetailLines", () => {
 			"Efficiency  1.35 m/min/bpm  ·  103% of typical",
 			"Decoupling  3.2%  ·  under 5%",
 			"Intensity  83% easy  ·  12% moderate  ·  5% hard",
-			"Session  Long run  ·  last 6 km at marathon pace",
 			"Week     2 runs  ·  32 of 42 km  ·  2h 44m",
 			"Longest run in 6 weeks",
 		]);
@@ -71,7 +70,7 @@ describe("runDetailLines", () => {
 		const target = run(9, today, { averageHr: 170, decouplingPct: 8, movingTimeSec: 2700 });
 		const lines = runDetailLines(target, { runs: [...earlier, target], plan });
 		expect(lines[0]).toBe("Pace     5:00/km");
-		expect(lines.some((l) => /Efficiency|Decoupling|GAP|Session/.test(l))).toBe(false);
+		expect(lines.some((l) => /Efficiency|Decoupling|GAP/.test(l))).toBe(false);
 	});
 
 	it("leaves the plan out of the week line when there's no plan", () => {
@@ -91,9 +90,24 @@ describe("runCaptionWriter", () => {
 		];
 		const lines = runCaptionWriter({ records, series, plan }).linesFor(target);
 
-		expect(lines.slice(0, 4).map((l) => l.split(/\s/)[0])).toEqual(["Fitness", "Fatigue", "Form", "Load"]);
-		expect(lines).toContain("Session  Long run  ·  last 6 km at marathon pace");
+		// The sentence on what the run was, a blank line, then the figures.
+		expect(lines[0]).toBe("Planned session: last 6 km at marathon pace (24 km).");
+		expect(lines[1]).toBe("");
+		expect(lines.slice(2, 6).map((l) => l.split(/\s/)[0])).toEqual(["Fitness", "Fatigue", "Form", "Load"]);
 		// A ride the same week isn't a run.
 		expect(lines).toContain("Week     2 runs  ·  32 of 42 km  ·  2h 44m");
+	});
+});
+
+describe("runCaptionWriter titles", () => {
+	const target = run(9, today, { distanceM: 24000, movingTimeSec: 7440, paceSecPerKm: 310, name: "Morning Run" });
+	const writer = runCaptionWriter({ records: [...earlier, target], series: [], plan });
+
+	it("names a run that still has Strava's default title after its planned session", () => {
+		expect(writer.titleFor(target, { name: "Morning Run" })).toBe("Last 6 km at marathon pace");
+	});
+
+	it("leaves a title the athlete wrote alone", () => {
+		expect(writer.titleFor(target, { name: "Long one with Sam" })).toBeNull();
 	});
 });

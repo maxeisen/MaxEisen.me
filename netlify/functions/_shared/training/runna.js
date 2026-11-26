@@ -124,6 +124,40 @@ function detailFor(summary, durationSec, km) {
 	return name;
 }
 
+const toSec = (mmss) => {
+	const [m, sec] = mmss.split(":").map(Number);
+	return m * 60 + sec;
+};
+
+/**
+ * The reps a session's description asks for: how many, how far, and at what
+ * pace. Read from Runna's "8 reps of:" block, whose first bullet with both a
+ * distance and a pace is the rep ("• 400m at 3:35/km", or a range such as
+ * "• 1km at 4:10-4:20/km"). Anything else, including reps set by time, comes
+ * back null rather than guessed at.
+ *
+ * @param {string} description
+ * @returns {{reps: number, distanceM: number, paceSecPerKm: number[]}|null}
+ *   paceSecPerKm is [fastest, slowest]; the same number twice for one pace.
+ */
+export function repTarget(description) {
+	const block = /(\d+)\s*reps? of:\s*\n([\s\S]*?)(?:\n\s*\n|$)/i.exec(String(description || ""));
+	if (!block) return null;
+	const reps = Number(block[1]);
+	for (const line of block[2].split("\n")) {
+		const m = /^\s*•\s*(\d+(?:\.\d+)?)\s*(m|km)\b.*?(\d{1,2}:\d{2})(?:\s*[-–]\s*(\d{1,2}:\d{2}))?\s*\/km/i.exec(line);
+		if (!m) continue;
+		const distanceM = Number(m[1]) * (m[2].toLowerCase() === "km" ? 1000 : 1);
+		// "400m" is metres; a bare "3m" is Runna's minutes, which this
+		// doesn't read.
+		if (!(reps > 0) || distanceM < 100) return null;
+		const fast = toSec(m[3]);
+		const slow = m[4] ? toSec(m[4]) : fast;
+		return { reps, distanceM, paceSecPerKm: [Math.min(fast, slow), Math.max(fast, slow)] };
+	}
+	return null;
+}
+
 function sessionFrom(event, type) {
 	const km = type === "strength" ? null : distanceKm(event.summary, event.description);
 	const session = {
@@ -134,6 +168,8 @@ function sessionFrom(event, type) {
 	};
 	if (km != null) session.distanceKm = km;
 	if (event.durationSec) session.durationMin = Math.round(event.durationSec / 60);
+	const target = type === "strength" ? null : repTarget(event.description);
+	if (target) session.target = target;
 	return session;
 }
 
