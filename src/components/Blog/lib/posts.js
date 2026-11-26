@@ -2,8 +2,8 @@
 //
 // Each post is one file, public/content/blog/<slug>.md: its details in front
 // matter at the top (see frontMatter.js), then the Markdown text. A post
-// with `published: false` is left off the /blog list but still opens at its
-// own URL, so a draft can be read in place before it's listed.
+// with `draft: true` is left off the /blog list but still opens at its own
+// URL, so a draft can be read in place before it's listed.
 
 // Every post's details, checked at build time by postsPlugin.js. Small, so
 // they're bundled with the page.
@@ -14,12 +14,30 @@ const allPosts = Object.values(META);
 // others, and the list page downloads none of them.
 const BODIES = import.meta.glob("/public/content/blog/*.md", { query: "?body", import: "default" });
 
-/** Published posts, newest first. */
+/** Posts that aren't drafts, newest first. */
 export function listPosts(posts = allPosts) {
-	return posts.filter((p) => p.published).sort((a, b) => b.date.localeCompare(a.date));
+	return posts.filter((p) => !p.draft).sort((a, b) => b.date.localeCompare(a.date));
 }
 
-/** The post with this slug (published or not), or null. */
+/** Listed posts with this tag, newest first. */
+export function postsTagged(tag, posts = allPosts) {
+	return listPosts(posts).filter((p) => p.tags.includes(tag));
+}
+
+/** Every tag on a listed post, A to Z, with how many posts carry it. */
+export function allTags(posts = allPosts) {
+	const counts = new Map();
+	for (const p of listPosts(posts)) for (const t of p.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+	return [...counts].sort(([a], [b]) => a.localeCompare(b)).map(([tag, count]) => ({ tag, count }));
+}
+
+/** "?tag=design" → "design"; no tag, or one that isn't a valid tag → null. */
+export function tagFromSearch(search) {
+	const tag = new URLSearchParams(search).get("tag");
+	return tag && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(tag) ? tag : null;
+}
+
+/** The post with this slug (draft or not), or null. */
 export function findPost(slug, posts = allPosts) {
 	return posts.find((p) => p.slug === slug) ?? null;
 }

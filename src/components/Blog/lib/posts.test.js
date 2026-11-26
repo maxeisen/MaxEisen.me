@@ -1,16 +1,33 @@
 import { describe, it, expect } from "vitest";
-import { listPosts, findPost, neighbours, slugFromPath, formatDate, readingMinutes, loadPostBody } from "./posts.js";
+import { listPosts, findPost, neighbours, slugFromPath, formatDate, readingMinutes, loadPostBody, postsTagged, allTags, tagFromSearch } from "./posts.js";
 
 const POSTS = [
-	{ slug: "old", date: "2020-01-01", published: true },
-	{ slug: "draft", date: "2022-01-01", published: false },
-	{ slug: "new", date: "2021-06-01", published: true },
-	{ slug: "mid", date: "2021-01-01", published: true },
+	{ slug: "old", date: "2020-01-01", draft: false, tags: ["design"] },
+	{ slug: "draft", date: "2022-01-01", draft: true, tags: ["secret", "design"] },
+	{ slug: "new", date: "2021-06-01", draft: false, tags: ["web-dev", "design"] },
+	{ slug: "mid", date: "2021-01-01", draft: false, tags: [] },
 ];
 
 describe("listPosts", () => {
-	it("keeps published posts, newest first", () => {
+	it("leaves out drafts, newest first", () => {
 		expect(listPosts(POSTS).map((p) => p.slug)).toEqual(["new", "mid", "old"]);
+	});
+});
+
+describe("tags", () => {
+	it("filters listed posts by tag, leaving out drafts", () => {
+		expect(postsTagged("design", POSTS).map((p) => p.slug)).toEqual(["new", "old"]);
+		expect(postsTagged("secret", POSTS)).toEqual([]);
+	});
+
+	it("counts the tags on listed posts, A to Z", () => {
+		expect(allTags(POSTS)).toEqual([{ tag: "design", count: 2 }, { tag: "web-dev", count: 1 }]);
+	});
+
+	it("reads a valid tag from the query string", () => {
+		expect(tagFromSearch("?tag=web-dev")).toBe("web-dev");
+		expect(tagFromSearch("?tag=<b>")).toBeNull();
+		expect(tagFromSearch("")).toBeNull();
 	});
 });
 

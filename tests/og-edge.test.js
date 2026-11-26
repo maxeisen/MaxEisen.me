@@ -45,6 +45,48 @@ describe("og edge function", () => {
 	});
 });
 
+describe("og edge function on the blog", () => {
+	const POST = "---\ntitle: A Post\ndate: 2026-11-25\ndescription: What it's about.\n---\nText";
+	const serve = (files) => {
+		globalThis.fetch = async (url) => {
+			const body = files[new URL(url).pathname];
+			return body ? new Response(body) : new Response("not found", { status: 404 });
+		};
+	};
+
+	it("titles the list", async () => {
+		const html = await render("/blog");
+		expect(html).toContain("<title>Blog — Max Eisen</title>");
+		expect(html).toContain(`<meta property="og:image" content="${cardUrl("Blog")}"/>`);
+	});
+
+	it("draws a post's title on the card when it has no cover", async () => {
+		serve({ "/content/blog/a-post.md": POST });
+		const html = await render("/blog/a-post");
+		expect(html).toContain("<title>A Post — Max Eisen</title>");
+		expect(html).toContain('<meta property="og:description" content="What it\'s about."/>');
+		expect(html).toContain('<meta property="og:type" content="article"/>');
+		expect(html).toContain(`<meta property="og:image" content="${cardUrl("A Post")}"/>`);
+		expect(count(html, /og:image:width/g)).toBe(1);
+	});
+
+	it("uses a post's cover as its image, without a made-up size", async () => {
+		serve({ "/content/blog/a-post.md": POST.replace("---\nText", "cover: /img/blog/a-post/cover.jpg\n---\nText") });
+		const html = await render("/blog/a-post");
+		expect(html).toContain('<meta property="og:image" content="https://maxeisen.me/img/blog/a-post/cover.jpg"/>');
+		expect(html).toContain('<meta name="twitter:image" content="https://maxeisen.me/img/blog/a-post/cover.jpg"/>');
+		expect(count(html, /og:image:(width|height)/g)).toBe(0);
+	});
+
+	it("falls back to the default preview for a missing or broken post", async () => {
+		serve({ "/content/blog/broken.md": "---\ntitle: No date\n---\n" });
+		for (const path of ["/blog/no-such-post", "/blog/broken"]) {
+			const html = await render(path);
+			expect(html).toContain("<title>Max Eisen — Hi, I'm Max</title>");
+		}
+	});
+});
+
 describe("netlify/edge-functions", () => {
 	it("holds nothing but deployable edge functions", async () => {
 		const { readdirSync } = await import("node:fs");

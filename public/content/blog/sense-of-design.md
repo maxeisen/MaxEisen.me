@@ -3,6 +3,7 @@ title: My Sense of Design
 date: 2021-04-14
 updated: 2021-05-14
 description: Take a peek into the things that have influenced and currently define my sense of design.
+tags: design
 note: Written in 2021. The site has been redesigned since, so some of what this describes, like the memoji theme switcher, is no longer here.
 ---
 ## Foreword
