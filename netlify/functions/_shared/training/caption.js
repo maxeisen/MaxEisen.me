@@ -23,6 +23,13 @@
 //                       undefined for the cheap check before that read.
 //     titleFor(r, d):   optional. A new title for the activity, or null to
 //                       leave the title alone.
+//     version:          optional, default 1. Stamped on each record captioned
+//                       as `captionVersion`.
+//     refreshLast:      optional, default 0. Raising `version` rewrites the
+//                       caption on this many of the most recent activities
+//                       once, if theirs was written by an older version. This
+//                       is how a change to the caption reaches the last few
+//                       activities on deploy rather than only new ones.
 //   }
 //
 // Attribution includes a URL because that's the point of the line. Strava has
@@ -279,17 +286,31 @@ export function applyCaption(description, lines, { attribution }) {
 	return stripped ? `${stripped}\n\n${block}` : block;
 }
 
-// The writer's newest uncaptioned activities in the window, up to the budget.
-function uncaptioned(writer, records, today) {
+const newestFirst = (a, b) => String(b.startDateLocal).localeCompare(String(a.startDateLocal));
+
+/**
+ * What this pass should caption, up to the budget: the writer's newest
+ * uncaptioned activities in the window first, then any of its most recent
+ * activities whose caption an older version wrote.
+ *
+ * @returns {{record: object, refresh: boolean}[]}
+ */
+function captionTargets(writer, records, today) {
 	const from = addDays(today, -CAPTION_WINDOW_DAYS);
-	return (records || [])
+	const eligible = (records || []).filter((a) => a && writer.isEligible(a)).sort(newestFirst);
+	const fresh = eligible
 		.filter((a) => {
-			if (!a || a.captionedAt || !writer.isEligible(a)) return false;
+			if (a.captionedAt) return false;
 			const day = toDayKey(a.startDateLocal);
 			return day && day >= from;
 		})
-		.sort((a, b) => String(b.startDateLocal).localeCompare(String(a.startDateLocal)))
-		.slice(0, CAPTION_BUDGET);
+		.map((record) => ({ record, refresh: false }));
+	const version = writer.version || 1;
+	const stale = eligible
+		.slice(0, writer.refreshLast || 0)
+		.filter((a) => a.captionedAt && (Number(a.captionVersion) || 1) < version)
+		.map((record) => ({ record, refresh: true }));
+	return [...fresh, ...stale].slice(0, CAPTION_BUDGET);
 }
 
 /**
@@ -343,15 +364,16 @@ export async function captionRecent(
 	writer,
 	{ records = [], today, getActivity, putActivity, deadline = Infinity } = {},
 ) {
-	const candidates = uncaptioned(writer, records, today);
+	const targets = captionTargets(writer, records, today);
 	let captioned = 0;
 	let urlRejected = false;
 	const stamp = (record) => {
 		record.captionedAt = new Date().toISOString();
+		record.captionVersion = writer.version || 1;
 		captioned += 1;
 	};
 
-	for (const record of candidates) {
+	for (const { record, refresh } of targets) {
 		if (Date.now() > deadline) break;
 		const preview = writer.linesFor(record);
 		if (!preview || preview.length === 0) continue;
@@ -369,7 +391,13 @@ export async function captionRecent(
 		// The attribution line is the lock. If it's already on the activity,
 		// a later pass must not write another copy — even when the blob stamp
 		// was lost, the fence changed, or Strava stored CRLF.
-		if (hasCaption(description)) {
+		//
+		// A refresh is the one pass that writes over it, and only when the
+		// whole fenced block is there to replace: applyCaption swaps that block
+		// in place, so the athlete's own text above it is kept. A caption the
+		// athlete deleted, or a block that's no longer intact, is left alone.
+		const replaceable = refresh && hasCaption(description) && FENCE_RE.test(normalizeDescription(description));
+		if (refresh ? !replaceable : hasCaption(description)) {
 			stamp(record);
 			continue;
 		}

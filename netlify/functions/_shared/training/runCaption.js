@@ -181,6 +181,10 @@ export function runCaptionWriter({
 		attribution: ATTRIBUTION,
 		plainAttribution: ATTRIBUTION_PLAIN,
 		isEligible: isRunActivity,
+		// 2: the caption opens with what kind of run it was, and a default
+		// title is replaced. Raising this rewrites the last five runs once.
+		version: 2,
+		refreshLast: 5,
 		titleFor(record, detail) {
 			const { title } = describeRun(record, { match: matchFor(record), laps: shapeLaps(detail?.laps), runs: allRuns });
 			return retitle(detail?.name ?? record.name, title);
