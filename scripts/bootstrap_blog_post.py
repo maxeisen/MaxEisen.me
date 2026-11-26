@@ -21,7 +21,7 @@ best. Put it at the path the `cover` line suggests.
 
 Run:
     python3 scripts/bootstrap_blog_post.py "my new post"
-    npm run blog:new -- "my new post" --draft      (the same, from npm)
+    npm run blog:new -- "my new post"      (the same as the line above, from npm)
     python3 scripts/bootstrap_blog_post.py "my new post" --draft
     python3 scripts/bootstrap_blog_post.py "my new post" --draft --tags "design, web dev" --description "What it's about."
 
