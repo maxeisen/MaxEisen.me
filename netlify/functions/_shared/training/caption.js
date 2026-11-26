@@ -18,7 +18,11 @@
 //     attribution:      line with the page's URL
 //     plainAttribution: the same without a URL, for when Strava rejects one
 //     isEligible(r):    whether a stored record is this writer's to caption
-//     linesFor(r):      the caption's lines; [] leaves the record alone
+//     linesFor(r, d):   the caption's lines; [] leaves the record alone. `d`
+//                       is the detailed activity read from Strava, or
+//                       undefined for the cheap check before that read.
+//     titleFor(r, d):   optional. A new title for the activity, or null to
+//                       leave the title alone.
 //   }
 //
 // Attribution includes a URL because that's the point of the line. Strava has
@@ -289,13 +293,18 @@ function uncaptioned(writer, records, today) {
 }
 
 /**
- * One PUT, and one retry without the URL if Strava rejects the first.
+ * One PUT, and one retry without the URL if Strava rejects the first. The
+ * title, when there is one, goes in the same PUT.
  *
  * @returns {Promise<{written: boolean, urlRejected: boolean, stop: boolean}>}
  */
-async function writeCaption(writer, record, description, lines, putDescription) {
+async function writeCaption(writer, record, description, lines, title, putActivity) {
+	const fields = (attribution) => ({
+		description: applyCaption(description, lines, { attribution }),
+		...(title ? { name: title } : {}),
+	});
 	try {
-		await putDescription(record.id, applyCaption(description, lines, { attribution: writer.attribution }));
+		await putActivity(record.id, fields(writer.attribution));
 		return { written: true, urlRejected: false, stop: false };
 	} catch (err) {
 		if (err?.status === 429) return { written: false, urlRejected: false, stop: true };
@@ -305,7 +314,7 @@ async function writeCaption(writer, record, description, lines, putDescription) 
 		}
 	}
 	try {
-		await putDescription(record.id, applyCaption(description, lines, { attribution: writer.plainAttribution }));
+		await putActivity(record.id, fields(writer.plainAttribution));
 		return { written: true, urlRejected: true, stop: false };
 	} catch (err) {
 		console.error(`Failed to caption ${writer.sport} ${record.id} without URL`, err);
@@ -316,21 +325,23 @@ async function writeCaption(writer, record, description, lines, putDescription) 
 /**
  * Caption the writer's recent activities that don't have a stamp yet.
  *
- * Mutates records in place (`captionedAt`). One PUT per activity, and a retry
- * without the URL if Strava rejects the description.
+ * Mutates records in place (`captionedAt`, and `name` when the title changed).
+ * One PUT per activity, and a retry without the URL if Strava rejects the
+ * description.
  *
  * @param {object} writer see the top of this file.
  * @param {object} input
  * @param {object[]} input.records the merged index.
  * @param {string} input.today day key.
- * @param {(id: string|number) => Promise<string>} input.getDescription
- * @param {(id: string|number, description: string) => Promise<void>} input.putDescription
+ * @param {(id: string|number) => Promise<object>} input.getActivity the
+ *   detailed activity: description, name, laps.
+ * @param {(id: string|number, fields: {description: string, name?: string}) => Promise<void>} input.putActivity
  * @param {number} [input.deadline] epoch ms.
  * @returns {Promise<{captioned: number, urlRejected: boolean}>}
  */
 export async function captionRecent(
 	writer,
-	{ records = [], today, getDescription, putDescription, deadline = Infinity } = {},
+	{ records = [], today, getActivity, putActivity, deadline = Infinity } = {},
 ) {
 	const candidates = uncaptioned(writer, records, today);
 	let captioned = 0;
@@ -342,19 +353,19 @@ export async function captionRecent(
 
 	for (const record of candidates) {
 		if (Date.now() > deadline) break;
-		const lines = writer.linesFor(record);
-		if (!lines || lines.length === 0) continue;
+		const preview = writer.linesFor(record);
+		if (!preview || preview.length === 0) continue;
 
-		let description;
+		let detail;
 		try {
-			description = await getDescription(record.id);
+			detail = (await getActivity(record.id)) || {};
 		} catch (err) {
 			if (err?.status === 429) break;
-			console.error(`Failed to read description on ${writer.sport} ${record.id}`, err);
+			console.error(`Failed to read ${writer.sport} ${record.id}`, err);
 			continue;
 		}
 
-		if (typeof description !== "string") description = "";
+		const description = typeof detail.description === "string" ? detail.description : "";
 		// The attribution line is the lock. If it's already on the activity,
 		// a later pass must not write another copy — even when the blob stamp
 		// was lost, the fence changed, or Strava stored CRLF.
@@ -363,9 +374,14 @@ export async function captionRecent(
 			continue;
 		}
 
-		const outcome = await writeCaption(writer, record, description, lines, putDescription);
+		const lines = writer.linesFor(record, detail);
+		const title = writer.titleFor?.(record, detail) ?? null;
+		const outcome = await writeCaption(writer, record, description, lines, title, putActivity);
 		if (outcome.urlRejected) urlRejected = true;
-		if (outcome.written) stamp(record);
+		if (outcome.written) {
+			stamp(record);
+			if (title) record.name = title;
+		}
 		if (outcome.stop) break;
 	}
 

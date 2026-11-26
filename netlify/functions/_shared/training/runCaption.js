@@ -1,4 +1,7 @@
-// The running caption. The lines shared with rides — fitness, fatigue and
+// The running caption. It opens with a sentence or two on what kind of run
+// it was, against the planned session when there is one (see
+// runDescription.js), and a run still carrying Strava's default title gets a
+// short one naming the workout. The lines shared with rides — fitness, fatigue and
 // form, load against typical, efficiency, intensity, the week and a
 // longest-in-six-weeks flag — read exactly as a ride's do. Around them, what
 // only a run has:
@@ -10,7 +13,6 @@
 //               intensity, so it gets no line rather than a misleading one.
 //   Decoupling  how far pace per beat drifted between the halves, on runs of
 //               an hour or more, which is where it means anything.
-//   Session     the planned session the run fulfilled, when there's a plan.
 //   Week        against the plan's kilometres when the week has a target.
 //   Projected   the marathon projection, and how far this run moved it.
 //
@@ -20,6 +22,7 @@ import { mondayOf, toDayKey } from "./dates.js";
 import { activityEfficiency } from "./efficiency.js";
 import { projectMarathon, sessionProjectionDelta } from "./marathonProjection.js";
 import { matchRunsToPlan, plannedKm, plannedWeek } from "./plan.js";
+import { describeRun, retitle, shapeLaps } from "./runDescription.js";
 import { isRunActivity } from "./shape.js";
 import { hrZoneFloors } from "./zones.js";
 import {
@@ -125,13 +128,6 @@ function decouplingLine(run) {
 	return `Decoupling  ${pct.toFixed(1)}%${steady}`;
 }
 
-function sessionLine(match) {
-	if (!match?.planned || !match.type) return null;
-	const type = match.type.charAt(0).toUpperCase() + match.type.slice(1);
-	const detail = match.detail || (match.distanceKm > 0 ? `${match.distanceKm} km planned` : null);
-	return `Session  ${type}${detail ? `  ·  ${detail}` : ""}`;
-}
-
 /**
  * The lines a run has between its load and its projection.
  *
@@ -139,10 +135,9 @@ function sessionLine(match) {
  * @param {object} context
  * @param {object[]} context.runs every stored run, oldest first.
  * @param {object} [context.plan]
- * @param {object} [context.match] the plan session from matchRunsToPlan().
  * @returns {string[]}
  */
-export function runDetailLines(run, { runs = [], plan = null, match = null } = {}) {
+export function runDetailLines(run, { runs = [], plan = null } = {}) {
 	const previous = previousOfKind(run, runs, isRunActivity);
 	const ceilingHr = hrZoneFloors(plan?.thresholds || {})?.[3] ?? null;
 	const date = toDayKey(run?.startDateLocal);
@@ -152,7 +147,6 @@ export function runDetailLines(run, { runs = [], plan = null, match = null } = {
 		runEfficiencyLine(run, previous, ceilingHr),
 		decouplingLine(run),
 		intensityLine(run?.zoneSeconds),
-		sessionLine(match),
 		weekLine(run, runs, "run", { plannedKm: week ? plannedKm(week) : null }),
 		longestLine(run, previous, "run"),
 	].filter(Boolean);
@@ -187,7 +181,12 @@ export function runCaptionWriter({
 		attribution: ATTRIBUTION,
 		plainAttribution: ATTRIBUTION_PLAIN,
 		isEligible: isRunActivity,
-		linesFor(record) {
+		titleFor(record, detail) {
+			const { title } = describeRun(record, { match: matchFor(record), laps: shapeLaps(detail?.laps), runs: allRuns });
+			return retitle(detail?.name ?? record.name, title);
+		},
+		linesFor(record, detail) {
+			const { summary } = describeRun(record, { match: matchFor(record), laps: shapeLaps(detail?.laps), runs: allRuns });
 			const date = toDayKey(record.startDateLocal);
 			const form = formAt(series, date);
 			const predicted = projectMarathon({
@@ -197,14 +196,16 @@ export function runCaptionWriter({
 				targetDistanceM: raceDistanceM,
 				tsb: form?.tsb ?? null,
 			});
-			return formatCaptionLines({
+			const lines = formatCaptionLines({
 				...form,
 				load: record.load,
 				vsTypicalPct: vsTypicalPct(record, records, isRunActivity),
-				details: runDetailLines(record, { runs: allRuns, plan, match: matchFor(record) }),
+				details: runDetailLines(record, { runs: allRuns, plan }),
 				predictedSec: predicted?.predictedSec ?? null,
 				sessionDeltaSec: sessionDeltaSec(efforts, date, raceDistanceM, allRuns),
 			});
+			// A blank line keeps the sentence apart from the figures under it.
+			return summary ? [summary, "", ...lines] : lines;
 		},
 	};
 }

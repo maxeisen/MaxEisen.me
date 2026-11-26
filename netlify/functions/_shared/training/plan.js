@@ -414,6 +414,37 @@ export function plannedRunsByDay(plan) {
 	return byDay;
 }
 
+// How far a moved session's distance (or, without one, its time) may be from
+// the run's and still count as that session. Wide, because a moved session is
+// often cut short or run long, but narrow enough that a 5 km shakeout doesn't
+// claim the next day's long run.
+const MOVED_TOLERANCE = 0.3;
+
+function asMatch(session, movedFrom = null) {
+	return {
+		planned: true,
+		type: session.type || null,
+		detail: session.detail || null,
+		distanceKm: Number.isFinite(Number(session.distanceKm)) ? Number(session.distanceKm) : null,
+		...(movedFrom ? { movedFrom } : {}),
+	};
+}
+
+const NO_MATCH = { planned: false, type: null, detail: null, distanceKm: null };
+
+// Whether a run looks enough like a session to have been that session run on
+// another day. Without a planned distance or time there is nothing to check
+// against, so the answer is no.
+function resembles(run, session) {
+	const near = (actual, planned) =>
+		actual > 0 && planned > 0 && Math.abs(actual - planned) <= planned * MOVED_TOLERANCE;
+	const plannedKm = Number(session?.distanceKm);
+	if (plannedKm > 0) return near((Number(run?.distanceM) || 0) / 1000, plannedKm);
+	const plannedMin = Number(session?.durationMin);
+	if (plannedMin > 0) return near((Number(run?.movingTimeSec) || 0) / 60, plannedMin);
+	return false;
+}
+
 /**
  * Tag each run with the planned session it fulfilled, or as an extra.
  *
@@ -422,34 +453,54 @@ export function plannedRunsByDay(plan) {
  * therefore leaves the second unclaimed, and a second run on a single-session
  * day comes back as an extra — which is what a double is.
  *
- * Nothing here tries to check that the run resembles the session. A 6 km
- * shuffle on a day the plan wanted 6×800m is still the day's session, run
+ * Nothing here tries to check that a same-day run resembles the session. A
+ * 6 km shuffle on a day the plan wanted 6×800m is still the day's session, run
  * badly; calling it an extra because the distance disagreed would be a worse
  * lie than calling it planned.
+ *
+ * A session moved by a day is the one exception. A run with no session on its
+ * own day may take the session planned the day before or after, when nothing
+ * was run that day and the run is close to the session's distance (or time).
+ * That match carries `movedFrom`, the day the session was planned for.
  *
  * @param {object[]} runs shaped activities, ascending by start time.
  * @param {object} plan
  * @returns {{planned: boolean, type: string|null, detail: string|null,
- *   distanceKm: number|null}[]} one entry per run, in the same order.
+ *   distanceKm: number|null, movedFrom?: string}[]} one entry per run, in the
+ *   same order.
  */
 export function matchRunsToPlan(runs, plan) {
 	const byDay = plannedRunsByDay(plan);
 	const claimed = new Map();
+	const list = runs || [];
+	const days = list.map((run) => toDayKey(run?.startDateLocal));
+	const daysRun = new Set(days.filter(Boolean));
 
-	return (runs || []).map((run) => {
-		const day = toDayKey(run?.startDateLocal);
+	const matches = list.map((run, i) => {
+		const day = days[i];
 		const sessions = (day && byDay.get(day)) || [];
 		const used = claimed.get(day) || 0;
 		const session = sessions[used];
-		if (!session) return { planned: false, type: null, detail: null, distanceKm: null };
+		if (!session) return { ...NO_MATCH };
 		claimed.set(day, used + 1);
-		return {
-			planned: true,
-			type: session.type || null,
-			detail: session.detail || null,
-			distanceKm: Number.isFinite(Number(session.distanceKm)) ? Number(session.distanceKm) : null,
-		};
+		return asMatch(session);
 	});
+
+	list.forEach((run, i) => {
+		const day = days[i];
+		if (matches[i].planned || !day || byDay.has(day)) return;
+		for (const offset of [-1, 1]) {
+			const other = addDays(day, offset);
+			if (!other || daysRun.has(other) || claimed.has(other)) continue;
+			const session = byDay.get(other)?.[0];
+			if (!session || !resembles(run, session)) continue;
+			claimed.set(other, 1);
+			matches[i] = asMatch(session, other);
+			return;
+		}
+	});
+
+	return matches;
 }
 
 /**

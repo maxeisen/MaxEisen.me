@@ -364,13 +364,14 @@ async function caption(merged, plan, today, strava, deadline) {
 		records: merged,
 		today,
 		deadline,
-		getDescription: async (id) => {
+		getActivity: (id) => {
 			// The read is only worth spending if the write can follow it.
 			strava.reserve(CALLS_PER_ACTIVITY);
-			const detail = await strava.get(`/activities/${id}`);
-			return detail?.description ?? "";
+			return strava.get(`/activities/${id}`);
 		},
-		putDescription: (id, description) => strava.put(`/activities/${id}`, { description }),
+		// The description, and a new title when the run still has Strava's
+		// default one. One PUT either way.
+		putActivity: (id, fields) => strava.put(`/activities/${id}`, fields),
 	};
 
 	const runs = merged.filter(isRunActivity);

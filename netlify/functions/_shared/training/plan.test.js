@@ -485,6 +485,51 @@ describe("matchRunsToPlan", () => {
 		expect(matches.every((m) => m.planned === false)).toBe(true);
 	});
 
+	describe("a session moved by a day", () => {
+		// The real case: Friday's tempo, run on Saturday instead.
+		const WEEK = {
+			weeks: [
+				{
+					start: "2026-11-16",
+					sessions: [
+						{ day: "Wednesday", type: "easy run", distanceKm: 7.5, detail: "7.5km Easy Run" },
+						{ day: "Friday", type: "tempo", distanceKm: 7, detail: "Tempo 2-1-1" },
+						{ day: "Sunday", type: "long run", distanceKm: 12, detail: "12km Hilly Progressive Long Run" },
+					],
+				},
+			],
+		};
+		const ran = (startDateLocal, km) => ({ startDateLocal, distanceM: km * 1000 });
+
+		it("matches a run the day after to the session nobody ran", () => {
+			const [match] = matchRunsToPlan([ran("2026-11-21T16:45:40", 7.6)], WEEK);
+			expect(match).toEqual({
+				planned: true,
+				type: "tempo",
+				detail: "Tempo 2-1-1",
+				distanceKm: 7,
+				movedFrom: "2026-11-20",
+			});
+		});
+
+		it("leaves it an extra when the planned day was run", () => {
+			const matches = matchRunsToPlan([ran("2026-11-20T07:00:00", 7), ran("2026-11-21T16:45:40", 7.6)], WEEK);
+			expect(matches.map((m) => m.planned)).toEqual([true, false]);
+			expect(matches[0].movedFrom).toBeUndefined();
+		});
+
+		it("leaves it an extra when the distance is nothing like the session's", () => {
+			expect(matchRunsToPlan([ran("2026-11-21T16:45:40", 3)], WEEK)[0].planned).toBe(false);
+		});
+
+		it("does not move a session onto a day that has its own", () => {
+			// Saturday has nothing planned, but Sunday's own run takes Sunday.
+			const matches = matchRunsToPlan([ran("2026-11-22T09:00:00", 12)], WEEK);
+			expect(matches[0]).toMatchObject({ type: "long run" });
+			expect(matches[0].movedFrom).toBeUndefined();
+		});
+	});
+
 	it("treats a plan with no day-level sessions as no match, not as a crash", () => {
 		expect(matchRunsToPlan([run("2026-08-11T06:00:00")], PLAN)[0].planned).toBe(false);
 		expect(matchRunsToPlan([run("2026-08-11T06:00:00")], null)[0].planned).toBe(false);
