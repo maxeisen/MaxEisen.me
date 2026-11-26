@@ -186,7 +186,9 @@ export function runCaptionWriter({
 		//    title is replaced.
 		// 3: walking rests count as rest, so a session with walks between
 		//    reps reads as its reps; reps split by a longer rest read as sets.
-		version: 3,
+		// 4: reps are counted from the pace trace when the laps are plain
+		//    1 km auto-laps.
+		version: 4,
 		refreshLast: 5,
 		titleFor(record, detail) {
 			const { title, planName } = describeRun(record, {
