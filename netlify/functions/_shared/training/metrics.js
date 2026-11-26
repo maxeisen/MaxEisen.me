@@ -20,6 +20,7 @@ import {
 	dayOfWeek,
 	daysToRace,
 	matchRunsToPlan,
+	planStart,
 	raceAhead,
 	upcomingWeeks,
 	weekDays,
@@ -83,6 +84,41 @@ function planDays(week, runs, today) {
 	});
 }
 
+function sumRuns(runs) {
+	return runs.reduce(
+		(acc, a) => {
+			acc.distanceM += a.distanceM || 0;
+			acc.movingTimeSec += a.movingTimeSec || 0;
+			acc.runs += 1;
+			return acc;
+		},
+		{ distanceM: 0, movingTimeSec: 0, runs: 0 },
+	);
+}
+
+/**
+ * The year's running so far, from the Strava profile stats the sync stores.
+ *
+ * The stored runs can't give this: they only go back a few months before the
+ * block. Strava's own year-to-date figure resets on 1 January, but the sync
+ * only refreshes it when a new activity lands, so a figure fetched last year
+ * is dropped rather than shown under this year's label.
+ *
+ * @param {{run?: {count?: number, distance?: number}|null, updatedAt?: string}|null} ytd
+ * @param {string} day today's day key.
+ * @returns {{year: number, distanceM: number, runs: number}|null}
+ */
+function yearToDate(ytd, day) {
+	const run = ytd?.run;
+	if (!run || !ytd?.updatedAt) return null;
+	const fetched = new Date(ytd.updatedAt);
+	if (Number.isNaN(fetched.getTime())) return null;
+	const fetchedYear = fetched.toLocaleDateString("en-CA", { timeZone: "America/Toronto" }).slice(0, 4);
+	const year = String(day).slice(0, 4);
+	if (fetchedYear !== year) return null;
+	return { year: Number(year), distanceM: Number(run.distance) || 0, runs: Number(run.count) || 0 };
+}
+
 /** Latest runs (plus rides/strength across the same span, as context only). */
 function recentLog(runs, context, planMatches) {
 	const from = Math.max(0, runs.length - RUN_LOG_LIMIT);
@@ -111,9 +147,11 @@ function recentLog(runs, context, planMatches) {
  * @param {string} input.today day key.
  * @param {object[]} [input.recovery] shaped nights from the Oura ring. Optional
  *   throughout: the page predates it and reads the same without it.
+ * @param {object|null} [input.ytd] Strava's year-to-date totals as the sync
+ *   stored them ({ run, updatedAt }). Optional, like recovery.
  * @returns {object}
  */
-export function buildDashboard({ activities = [], plan = {}, today, recovery = [] }) {
+export function buildDashboard({ activities = [], plan = {}, today, recovery = [], ytd = null }) {
 	const day = toDayKey(today) || toDayKey(new Date());
 	const sorted = [...activities].sort((a, b) =>
 		String(a.startDateLocal).localeCompare(String(b.startDateLocal)),
@@ -237,15 +275,22 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 	};
 
 	const remainingDays = daysToRace(plan, day);
-	const totals = runs.reduce(
-		(acc, a) => {
-			acc.distanceM += a.distanceM || 0;
-			acc.movingTimeSec += a.movingTimeSec || 0;
-			acc.runs += 1;
-			return acc;
-		},
-		{ distanceM: 0, movingTimeSec: 0, runs: 0 },
-	);
+	// Every stored run, which includes the months of run-up history fetched
+	// ahead of the block. The run log counts against this.
+	const totals = sumRuns(runs);
+
+	// Just the block: runs from the Monday of the plan's first week. Null
+	// between blocks, or while the plan has no weeks to start from.
+	const blockStart = event ? planStart(plan) : null;
+	const blockTotals = blockStart
+		? {
+				from: blockStart,
+				...sumRuns(runs.filter((r) => {
+					const runDay = toDayKey(r.startDateLocal);
+					return runDay && runDay >= blockStart && runDay <= day;
+				})),
+			}
+		: null;
 
 	const summary = {
 		race: {
@@ -264,6 +309,8 @@ export function buildDashboard({ activities = [], plan = {}, today, recovery = [
 		daysToRace: remainingDays,
 		weeksToRace: weeksToRace(plan, day),
 		totals,
+		blockTotals,
+		yearTotals: yearToDate(ytd, day),
 		latest: latest
 			? {
 					date: latest.date,

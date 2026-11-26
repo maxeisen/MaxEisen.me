@@ -66,6 +66,48 @@ describe("buildDashboard", () => {
 		expect(out.summary.totals.distanceM).toBe(120000);
 	});
 
+	it("counts only runs from the plan's first week in the block total", () => {
+		// 20 runs every other day back from 2026-08-15: 3 fall on or after the
+		// Monday of the first plan week (2026-08-10), the rest are run-up.
+		const out = buildDashboard({
+			activities: block("2026-08-15", 20),
+			plan: PLAN,
+			today: "2026-08-15",
+		});
+		expect(out.summary.totals.runs).toBe(20);
+		expect(out.summary.blockTotals).toEqual({ from: "2026-08-10", distanceM: 36000, movingTimeSec: 36 * 330, runs: 3 });
+	});
+
+	it("has no block total between blocks", () => {
+		const out = buildDashboard({
+			activities: block("2026-10-20", 5),
+			plan: PLAN,
+			today: "2026-10-20",
+		});
+		expect(out.summary.blockTotals).toBeNull();
+	});
+
+	it("reports Strava's year-to-date running total for this year", () => {
+		const out = buildDashboard({
+			activities: block("2026-08-15", 3),
+			plan: PLAN,
+			today: "2026-08-15",
+			ytd: { run: { count: 120, distance: 1_250_000 }, updatedAt: "2026-08-15T12:00:00Z" },
+		});
+		expect(out.summary.yearTotals).toEqual({ year: 2026, distanceM: 1_250_000, runs: 120 });
+	});
+
+	it("drops a year-to-date total fetched last year", () => {
+		const out = buildDashboard({
+			activities: [],
+			plan: PLAN,
+			today: "2027-01-02",
+			// 03:00 UTC on 1 January is still 31 December in Toronto.
+			ytd: { run: { count: 300, distance: 3_000_000 }, updatedAt: "2027-01-01T03:00:00Z" },
+		});
+		expect(out.summary.yearTotals).toBeNull();
+	});
+
 	it("lays the current week out day by day against its sessions", () => {
 		// Tuesday of a week planning an easy run Tuesday and a long run Sunday,
 		// with the Tuesday run already done.
