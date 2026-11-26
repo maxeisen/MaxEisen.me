@@ -346,7 +346,8 @@ async function writeCaption(writer, record, description, lines, title, putActivi
 /**
  * Caption the writer's recent activities that don't have a stamp yet.
  *
- * Mutates records in place (`captionedAt`, and `name` when the title changed).
+ * Mutates records in place (`captionedAt`, `captionVersion`, and `name` and
+ * `titledAs` when the title changed).
  * One PUT per activity, and a retry without the URL if Strava rejects the
  * description.
  *
@@ -408,7 +409,11 @@ export async function captionRecent(
 		if (outcome.urlRejected) urlRejected = true;
 		if (outcome.written) {
 			stamp(record);
-			if (title) record.name = title;
+			if (title) {
+				record.name = title;
+				// So the next version can tell its own title from the athlete's.
+				record.titledAs = title;
+			}
 		}
 		if (outcome.stop) break;
 	}

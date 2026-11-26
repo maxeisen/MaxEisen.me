@@ -29,6 +29,13 @@ const MIN_LAP_SEC = 20;
 // before they read as reps and recoveries, rather than one run with some
 // variation in it. 1.12 means the slow group is at least 12% slower.
 const REP_PACE_GAP = 1.12;
+// Slower than this is walking or standing, not running. Those laps are always
+// rest. Left in, a walk is so much slower than the warm-up that the biggest
+// jump in pace falls between running and walking, and the warm-up and
+// cool-down get counted as reps.
+const WALK_PACE_SEC_PER_KM = 9 * 60;
+// A rest this many times the usual one separates two sets of reps.
+const SET_REST_FACTOR = 1.8;
 // A single fast block (no reps) has to be at least this long to be a tempo
 // effort rather than one quick kilometre.
 const MIN_TEMPO_BLOCK_M = 2000;
@@ -115,9 +122,11 @@ export function detectReps(laps) {
 		i,
 		pace: lap.distanceM > 0 && lap.movingTimeSec > 0 ? lap.movingTimeSec / (lap.distanceM / 1000) : null,
 	}));
-	// Short laps take no part in deciding what fast is, but they still count
-	// as the easy running between reps.
-	const usable = all.filter((lap) => lap.distanceM >= MIN_LAP_M && lap.movingTimeSec >= MIN_LAP_SEC);
+	// Short laps and walking laps take no part in deciding what fast is, but
+	// they still count as the rest between reps.
+	const usable = all.filter(
+		(lap) => lap.distanceM >= MIN_LAP_M && lap.movingTimeSec >= MIN_LAP_SEC && lap.pace < WALK_PACE_SEC_PER_KM,
+	);
 	if (usable.length < 3) return null;
 
 	const sorted = [...usable].sort((a, b) => a.pace - b.pace);
@@ -166,12 +175,30 @@ export function detectReps(laps) {
 
 	const distanceM = blocks.reduce((sum, b) => sum + b.distanceM, 0);
 	const movingTimeSec = blocks.reduce((sum, b) => sum + b.movingTimeSec, 0);
+	const sets = repSets(blocks.length, recoveries);
 	return {
 		blocks,
 		label: repsLabel(blocks),
+		sets,
 		paceSecPerKm: movingTimeSec / (distanceM / 1000),
-		recoverySec: recoveries.length ? median(recoveries) : null,
+		// The usual rest between reps, leaving out the longer rests between sets.
+		recoverySec: recoveries.length ? median(sets ? recoveries.filter((r, i) => !sets.breaks.has(i)) : recoveries) : null,
 	};
+}
+
+// Two sets of five: the rests between reps are all about the same, except one
+// (or more) clearly longer that splits the reps into equal groups.
+function repSets(count, recoveries) {
+	if (recoveries.length < 3) return null;
+	const usual = median(recoveries);
+	const breaks = new Set(recoveries.map((r, i) => (r >= usual * SET_REST_FACTOR ? i : -1)).filter((i) => i >= 0));
+	if (breaks.size === 0 || breaks.size === recoveries.length) return null;
+	const sets = breaks.size + 1;
+	const perSet = count / sets;
+	if (!Number.isInteger(perSet) || perSet < 2) return null;
+	// Rest i sits after rep i + 1, so set boundaries fall after every perSet reps.
+	for (const i of breaks) if ((i + 1) % perSet !== 0) return null;
+	return { count: sets, perSet, breaks };
 }
 
 // "8 × 400m" when the reps match by distance, "6 × 3 min" when they match by
@@ -290,8 +317,11 @@ export function describeRun(run, { match = null, laps = [], runs = [] } = {}) {
 	const recentMedianM = recent.length >= 3 ? median(recent) : null;
 
 	const kind = planned ? match.type || "easy run" : unplannedKind(run, reps, { recentMedianM, progressionSec });
-	const named = planned ? plannedTitle(match, run, reps) : unplannedTitle(kind, run, reps, hilly);
-	const title = named.charAt(0).toUpperCase() + named.slice(1);
+	const capital = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+	const title = capital(planned ? plannedTitle(match, run, reps) : unplannedTitle(kind, run, reps, hilly));
+	// The session's name from the plan alone, with no rep count: a title
+	// that's only this was taken from the plan, so a better one may replace it.
+	const planName = planned ? capital(plannedTitle({ ...match, target: null }, run, null)) : null;
 
 	const sentences = [];
 	if (planned) {
@@ -310,7 +340,8 @@ export function describeRun(run, { match = null, laps = [], runs = [] } = {}) {
 
 	if (reps) {
 		const recovery = reps.recoverySec > 0 ? `, with about ${clock(reps.recoverySec)} between reps` : "";
-		const what = reps.blocks.length === 1 ? reps.label : `${reps.label}${/×/.test(reps.label) ? "" : " reps"}`;
+		const inSets = reps.sets ? ` in ${reps.sets.count} sets of ${reps.sets.perSet}` : "";
+		const what = reps.blocks.length === 1 ? reps.label : `${reps.label}${/×/.test(reps.label) ? "" : " reps"}${inSets}`;
 		sentences.push(`${what.charAt(0).toUpperCase()}${what.slice(1)} at an average of ${pace(reps.paceSecPerKm)}${recovery}.`);
 	} else if (progressionSec >= PROGRESSIVE_SEC_PER_KM) {
 		sentences.push(`Picked up through the run: the last third was ${Math.round(progressionSec)} s/km faster than the first.`);
@@ -327,17 +358,24 @@ export function describeRun(run, { match = null, laps = [], runs = [] } = {}) {
 		}
 	}
 
-	return { kind, title, summary: sentences.join(" ") };
+	return { kind, title, planName, summary: sentences.join(" ") };
 }
 
 /**
  * The new Strava title for a run, or null to leave the current one alone.
  *
+ * A title is only replaced when it's Strava's default, or one of `replaceable`:
+ * the title this code wrote last time, or the plan's bare name for the
+ * session. Anything else was written by the athlete and is kept.
+ *
  * @param {string} currentName the title on Strava now.
  * @param {string} title from describeRun().
+ * @param {(string|null)[]} [replaceable]
  * @returns {string|null}
  */
-export function retitle(currentName, title) {
-	if (!title || !isDefaultTitle(currentName)) return null;
-	return title === currentName ? null : title;
+export function retitle(currentName, title, replaceable = []) {
+	if (!title) return null;
+	const current = String(currentName || "").trim();
+	if (!isDefaultTitle(current) && !replaceable.includes(current)) return null;
+	return title === current ? null : title;
 }
