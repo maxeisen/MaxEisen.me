@@ -7,6 +7,7 @@ import { combinePlans, loadPlan } from "./planFile.js";
 import {
 	CURSOR_KEY,
 	INDEX_KEY,
+	PUBLIC_KEY,
 	RECOVERY_KEY,
 	RUNNA_PLAN_KEY,
 	getTrainingStore,
@@ -40,11 +41,12 @@ export function syncState(cursor) {
  */
 export async function loadDashboard(today = torontoToday()) {
 	const store = getTrainingStore();
-	const [activities, cursor, recovery, runna] = await Promise.all([
+	const [activities, cursor, recovery, runna, profile] = await Promise.all([
 		readJson(store, INDEX_KEY, []),
 		readJson(store, CURSOR_KEY, null),
 		readJson(store, RECOVERY_KEY, []),
 		readJson(store, RUNNA_PLAN_KEY, null),
+		readJson(store, PUBLIC_KEY, null),
 	]);
 	return {
 		...buildDashboard({
@@ -52,6 +54,7 @@ export async function loadDashboard(today = torontoToday()) {
 			plan: combinePlans(loadPlan(), runna),
 			today,
 			recovery: Array.isArray(recovery) ? recovery : [],
+			ytd: profile?.ytd ? { run: profile.ytd.run, updatedAt: profile.updatedAt } : null,
 		}),
 		sync: syncState(cursor),
 	};

@@ -11,6 +11,13 @@
     const race = $derived(summary?.race || {});
     const prediction = $derived(summary?.prediction || null);
     const latest = $derived(summary?.latest || null);
+    // The block alone, from the plan's first week. The year comes from
+    // Strava's own year-to-date figure, so it isn't limited to the runs
+    // stored here.
+    const block = $derived(summary?.blockTotals || null);
+    const year = $derived(summary?.yearTotals || null);
+
+    const runsNote = (count) => `${count || 0} ${count === 1 ? "run" : "runs"}`;
 
     const countdown = $derived.by(() => {
         const days = summary?.daysToRace;
@@ -109,7 +116,14 @@
         {#if trend}<span class="trend {trend.tone}">{trend.value}</span>{/if}
     </Stat>
 
-    <Stat size="lg" label={event ? "Block total" : "Logged"} value={km(summary?.totals?.distanceM)} note={`${summary?.totals?.runs || 0} runs`} />
+    {#if event && block}
+        <Stat size="lg" label="Block total" value={km(block.distanceM)} note={runsNote(block.runs)} />
+    {/if}
+    {#if year}
+        <Stat size="lg" label={`${year.year} so far`} value={km(year.distanceM)} note={runsNote(year.runs)} />
+    {:else if !event}
+        <Stat size="lg" label="Logged" value={km(summary?.totals?.distanceM)} note={runsNote(summary?.totals?.runs)} />
+    {/if}
 </div>
 
 <style>

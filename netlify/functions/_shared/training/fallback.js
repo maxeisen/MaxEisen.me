@@ -187,7 +187,15 @@ function renderHeader(summary) {
 	const fitness = ["Fitness", latest
 		? (event ? `${Math.round(latest.ctl)}; ${trendNote}` : String(Math.round(latest.ctl)))
 		: "no data yet"];
-	const logged = [`${event ? "Block total" : "Logged"}`, `${kmLabel(summary?.totals?.distanceM)}; ${summary?.totals?.runs || 0} runs`];
+	const runsLabel = (count) => `${count || 0} ${count === 1 ? "run" : "runs"}`;
+	const block = summary?.blockTotals;
+	const year = summary?.yearTotals;
+	const blockRow = event && block ? ["Block total", `${kmLabel(block.distanceM)}; ${runsLabel(block.runs)}`] : null;
+	const yearRow = year
+		? [`${year.year} so far`, `${kmLabel(year.distanceM)}; ${runsLabel(year.runs)}`]
+		: event
+			? null
+			: ["Logged", `${kmLabel(summary?.totals?.distanceM)}; ${runsLabel(summary?.totals?.runs)}`];
 	if (!event) {
 		const last = lastRaceLine(summary);
 		const finished = lastRace(summary);
@@ -198,7 +206,7 @@ ${pairs([
 	["Form", latest ? signed(latest.tsb, 0) : "—"],
 	["Easy", pct(summary?.intensity?.easyPct)],
 	fitness,
-	logged,
+	yearRow,
 ])}`;
 	}
 
@@ -208,7 +216,8 @@ ${pairs([
 	["Goal", `${clock(race.goalTimeSec)} (${pace(race.goalPaceSecPerKm)})`],
 	["Projected", prediction ? `${clockMinutes(prediction.predictedSec)}; ${signedClock(prediction.deltaSec)}` : "needs a few weeks of running to project from"],
 	fitness,
-	logged,
+	blockRow,
+	yearRow,
 ])}`;
 }
 

@@ -184,6 +184,25 @@ describe("renderTrainingFallback", () => {
 		expect(html).not.toContain("training-fallback.css");
 	});
 
+	it("gives the block total and the year so far as separate rows", () => {
+		const html = renderTrainingFallback(payload({
+			summary: {
+				...payload().summary,
+				blockTotals: { from: "2026-06-01", distanceM: 180000, runs: 18 },
+				yearTotals: { year: 2026, distanceM: 1250000, runs: 120 },
+			},
+		}));
+		expect(html).toContain("<th scope=\"row\">Block total</th><td>180 km; 18 runs</td>");
+		expect(html).toContain("<th scope=\"row\">2026 so far</th><td>1250 km; 120 runs</td>");
+		expect(html).not.toContain(">Logged<");
+	});
+
+	it("leaves the block total out rather than showing every stored run", () => {
+		const html = renderTrainingFallback(payload());
+		expect(html).not.toContain(">Block total<");
+		expect(html).not.toContain("420 km");
+	});
+
 	it("escapes names so a run titled with markup cannot inject tags", () => {
 		const html = renderTrainingFallback(
 			payload({

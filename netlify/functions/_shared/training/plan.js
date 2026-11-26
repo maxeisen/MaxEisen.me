@@ -251,6 +251,21 @@ export function comparePlan(weeks, plan) {
 }
 
 /**
+ * The Monday of the plan's first week: where the training block itself
+ * starts, as opposed to the run-up history fetched ahead of it.
+ *
+ * @param {object} plan
+ * @returns {string|null} day key, or null for a plan with no weeks.
+ */
+export function planStart(plan) {
+	const starts = (plan?.weeks || [])
+		.map((w) => mondayOf(w?.start))
+		.filter(Boolean)
+		.sort();
+	return starts[0] || null;
+}
+
+/**
  * The training block's date range: from whichever came first, the plan or the
  * earliest run we know about, through to race day.
  *
@@ -266,17 +281,14 @@ export function comparePlan(weeks, plan) {
  * @returns {{from: string, to: string}|null}
  */
 export function blockRange(plan, activities, today) {
-	const planStarts = (plan?.weeks || [])
-		.map((w) => mondayOf(w?.start))
-		.filter(Boolean)
-		.sort();
+	const firstPlanWeek = planStart(plan);
 	const runDays = (activities || [])
 		.map((a) => toDayKey(a?.startDateLocal))
 		.filter(Boolean)
 		.sort();
 
 	const firstRunWeek = runDays[0] ? mondayOf(runDays[0]) : null;
-	const candidates = [planStarts[0], firstRunWeek].filter(Boolean).sort();
+	const candidates = [firstPlanWeek, firstRunWeek].filter(Boolean).sort();
 	const from = candidates[0];
 	if (!from) return null;
 
