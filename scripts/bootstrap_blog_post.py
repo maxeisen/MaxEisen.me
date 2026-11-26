@@ -59,7 +59,7 @@ def _cap(word: str) -> str:
 
 
 def title_case(text: str) -> str:
-    """'my sense of design' -> 'My Sense of Design'.
+    """Put a title in title case: 'my sense of design' -> 'My Sense of Design'.
 
     Words that already have a capital after their first letter (iPod, API,
     JavaScript) are kept exactly as typed. Each part of a hyphenated word is
@@ -81,7 +81,7 @@ def title_case(text: str) -> str:
 
 
 def slugify(title: str) -> str:
-    """'Don't Panic: Café Notes' -> 'dont-panic-cafe-notes'.
+    """Turn a title into a file name: 'Don't Panic: Café Notes' -> 'dont-panic-cafe-notes'.
 
     Only lowercase letters, numbers and dashes, which is what the site
     accepts as a post's file name.
@@ -92,7 +92,7 @@ def slugify(title: str) -> str:
 
 
 def parse_tags(text: str | None) -> list[str]:
-    """'Design, Web Dev, design' -> ['design', 'web-dev'].
+    """Split and clean tags: 'Design, Web Dev, design' -> ['design', 'web-dev'].
 
     The same shape the site checks for: lowercase letters, numbers and
     dashes, no repeats, in the order given.
@@ -106,6 +106,7 @@ def parse_tags(text: str | None) -> list[str]:
 
 
 def front_matter(title: str, slug: str, date: str, description: str, draft: bool, tags: list[str]) -> str:
+    """Build the start of a new post: its front matter and a first heading."""
     return "\n".join([
         "---",
         f"title: {title}",
@@ -124,6 +125,7 @@ def front_matter(title: str, slug: str, date: str, description: str, draft: bool
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Read the command line, write the new post, and return the exit code."""
     parser = argparse.ArgumentParser(description="Make a new blog post file with its front matter filled in.")
     parser.add_argument("title", help='the post title, in quotes, e.g. "my new post"')
     parser.add_argument("--draft", action="store_true", help="keep the post off the /blog list (default: listed)")
