@@ -33,9 +33,7 @@ const MIN_LAP_SEC = 20;
 // variation in it. 1.12 means the slow group is at least 12% slower.
 const REP_PACE_GAP = 1.12;
 // Slower than this is walking or standing, not running. Those laps are always
-// rest. Left in, a walk is so much slower than the warm-up that the biggest
-// jump in pace falls between running and walking, and the warm-up and
-// cool-down get counted as reps.
+// rest, and take no part in deciding what pace is fast.
 const WALK_PACE_SEC_PER_KM = 9 * 60;
 // A rest this many times the usual one separates two sets of reps.
 const SET_REST_FACTOR = 1.8;
@@ -144,17 +142,14 @@ export function detectReps(laps) {
 	);
 	if (usable.length < 3 || isAutoLaps(all)) return null;
 
+	// The reps are the laps faster than the first big enough jump in pace,
+	// counting up from the fastest lap. The biggest jump isn't the right
+	// one: jogged rests are often further from the warm-up's pace than the
+	// warm-up is from the reps, and splitting there counts the warm-up and
+	// cool-down as reps.
 	const sorted = [...usable].sort((a, b) => a.pace - b.pace);
-	let split = 0;
-	let widest = 0;
-	for (let k = 1; k < sorted.length; k++) {
-		const jump = sorted[k].pace / sorted[k - 1].pace;
-		if (jump > widest) {
-			widest = jump;
-			split = k;
-		}
-	}
-	if (widest < REP_PACE_GAP) return null;
+	const split = sorted.findIndex((lap, k) => k > 0 && lap.pace / sorted[k - 1].pace >= REP_PACE_GAP);
+	if (split < 0) return null;
 	const fast = new Set(sorted.slice(0, split).map((lap) => lap.i));
 
 	// Fast laps next to each other are one block; the slow laps between

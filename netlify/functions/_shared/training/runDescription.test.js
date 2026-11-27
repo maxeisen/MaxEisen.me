@@ -111,6 +111,44 @@ describe("detectReps", () => {
 		expect(out.summary).toContain("10 × 400m in 2 sets of 5 at an average of 3:45/km, with about 1:30 between reps.");
 	});
 
+	it("counts jogged rests as rest, not the warm-up and cool-down as reps", () => {
+		// The 25 November laps as Strava has them: a 2 km warm-up, 10 × 400m at
+		// 3:45/km with 59 s jogs of about 125 m, and a 1.6 km cool-down. The
+		// jogs are further from the warm-up's pace than the warm-up is from the
+		// reps, so splitting at the biggest jump called all twelve blocks reps.
+		const laps = [lap(2000, 313), { distance: 125, moving_time: 59, elapsed_time: 59 }];
+		for (let i = 0; i < 10; i++) {
+			laps.push(lap(400, 225));
+			laps.push({ distance: 125, moving_time: 59, elapsed_time: 59 });
+		}
+		laps.push(lap(1600, 313));
+		const reps = detectReps(shapeLaps(laps));
+		expect(reps.label).toBe("10 × 400m");
+		expect(Math.round(reps.paceSecPerKm)).toBe(225);
+		expect(reps.recoverySec).toBe(59);
+
+		const out = describeRun(run(), {
+			match: { planned: true, type: "intervals", detail: "400m Repeats", distanceKm: 7.5 },
+			laps: shapeLaps(laps),
+		});
+		expect(out.title).toBe("10 × 400m Repeats");
+		expect(out.summary).toContain("10 × 400m at an average of 3:45/km, with about 0:59 between reps.");
+	});
+
+	it("does not split reps a little apart in pace from each other", () => {
+		// Tempo 2-1-1 with each block a little quicker, and easy jogs between.
+		const laps = shapeLaps([
+			lap(2000, 330),
+			lap(2000, 265),
+			{ distance: 300, moving_time: 120, elapsed_time: 120 },
+			lap(1000, 255),
+			{ distance: 300, moving_time: 120, elapsed_time: 120 },
+			lap(1000, 245),
+			lap(1500, 335),
+		]);
+		expect(detectReps(laps).label).toBe("2km, 1km, 1km");
+	});
+
 	it("does not call reps with even rests sets", () => {
 		expect(detectReps(repeatLaps()).sets).toBeNull();
 	});
