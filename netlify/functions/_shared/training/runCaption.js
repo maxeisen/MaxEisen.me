@@ -188,7 +188,9 @@ export function runCaptionWriter({
 		//    reps reads as its reps; reps split by a longer rest read as sets.
 		// 4: reps are counted from the pace trace when the laps are plain
 		//    1 km auto-laps.
-		version: 4,
+		// 5: jogged rests count as rest, so the warm-up and cool-down are no
+		//    longer read as reps.
+		version: 5,
 		refreshLast: 5,
 		titleFor(record, detail) {
 			const { title, planName } = describeRun(record, {
