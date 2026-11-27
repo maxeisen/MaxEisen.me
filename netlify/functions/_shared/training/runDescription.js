@@ -10,10 +10,13 @@
 //              Runna's description gave the reps and their pace, those come
 //              along as the session's `target`.
 //   The run    its laps, splits, climbing and heart-rate zones. Laps are the
-//              only place a structured workout shows up: per-kilometre splits
+//              best record of a structured workout: per-kilometre splits
 //              smear a 400 m rep across two kilometres. They come from the
 //              detailed activity the caption already reads, and are never
-//              stored.
+//              stored. When the laps are plain 1 km auto-laps, the stored
+//              pace trace (a sample about every 150 m) is read instead: too
+//              coarse to measure a 400 m rep, but enough to count reps and
+//              average their pace.
 //
 // Everything here is a pure function of those inputs.
 
@@ -36,6 +39,18 @@ const REP_PACE_GAP = 1.12;
 const WALK_PACE_SEC_PER_KM = 9 * 60;
 // A rest this many times the usual one separates two sets of reps.
 const SET_REST_FACTOR = 1.8;
+// Laps all within this of one length (bar the last) are the watch's
+// auto-laps, every 1 km or mile. They say nothing about a workout's shape,
+// and a hilly kilometre among them can look like a rest.
+const AUTO_LAP_SPREAD = 0.05;
+// Reading reps from the pace trace. A sample this much faster than the run's
+// median running pace is part of a rep. Stretches of a single sample are
+// noise (a downhill, a GPS jump) and are dropped, and the rest must be about
+// the same length, at least TRACE_MIN_REPS of them, before they read as reps.
+const TRACE_FAST = 0.85;
+const TRACE_MIN_POINTS = 20;
+const TRACE_MIN_REPS = 3;
+const TRACE_MAX_SPREAD = 2;
 // A single fast block (no reps) has to be at least this long to be a tempo
 // effort rather than one quick kilometre.
 const MIN_TEMPO_BLOCK_M = 2000;
@@ -127,7 +142,7 @@ export function detectReps(laps) {
 	const usable = all.filter(
 		(lap) => lap.distanceM >= MIN_LAP_M && lap.movingTimeSec >= MIN_LAP_SEC && lap.pace < WALK_PACE_SEC_PER_KM,
 	);
-	if (usable.length < 3) return null;
+	if (usable.length < 3 || isAutoLaps(all)) return null;
 
 	const sorted = [...usable].sort((a, b) => a.pace - b.pace);
 	let split = 0;
@@ -199,6 +214,73 @@ function repSets(count, recoveries) {
 	// Rest i sits after rep i + 1, so set boundaries fall after every perSet reps.
 	for (const i of breaks) if ((i + 1) % perSet !== 0) return null;
 	return { count: sets, perSet, breaks };
+}
+
+function isAutoLaps(laps) {
+	const whole = laps.slice(0, -1).map((lap) => lap.distanceM);
+	if (whole.length < 2) return false;
+	const typical = median(whole);
+	return typical > 0 && whole.every((d) => Math.abs(d - typical) <= typical * AUTO_LAP_SPREAD);
+}
+
+/**
+ * Reps counted from the stored pace trace, for when the laps don't show them.
+ *
+ * The trace can count reps and average their pace, but its samples are too
+ * far apart to measure a rep's length, so the distance comes from the plan
+ * when it gives one ("400m Repeats").
+ *
+ * @param {{pace?: number[]}} trace the record's trace.
+ * @param {number|null} [planDistanceM] the rep distance the plan names.
+ * @returns {object|null} shaped like detectReps(), with `fromTrace: true`
+ *   and no rest time.
+ */
+export function traceReps(trace, planDistanceM = null) {
+	const paces = Array.isArray(trace?.pace) ? trace.pace : [];
+	if (paces.length < TRACE_MIN_POINTS) return null;
+	const running = paces.filter((p) => p > 0 && p < WALK_PACE_SEC_PER_KM);
+	if (running.length < TRACE_MIN_POINTS) return null;
+	const cut = median(running) * TRACE_FAST;
+
+	const stretches = [];
+	let current = null;
+	for (const p of paces) {
+		if (p > 0 && p <= cut) {
+			if (!current) {
+				current = [];
+				stretches.push(current);
+			}
+			current.push(p);
+		} else {
+			current = null;
+		}
+	}
+	const reps = stretches.filter((s) => s.length > 1);
+	if (reps.length < TRACE_MIN_REPS) return null;
+	const sizes = reps.map((s) => s.length);
+	if (Math.max(...sizes) > Math.min(...sizes) * TRACE_MAX_SPREAD) return null;
+
+	// Every sample covers the same distance, so the plain mean of the paces
+	// is the average pace over them.
+	const samples = reps.flat();
+	const distanceM = planDistanceM > 0 ? planDistanceM : null;
+	return {
+		blocks: reps.map(() => ({ distanceM })),
+		label: distanceM ? `${reps.length} × ${repDistance(distanceM)}` : `${reps.length} reps`,
+		sets: null,
+		paceSecPerKm: samples.reduce((sum, p) => sum + p, 0) / samples.length,
+		recoverySec: null,
+		fromTrace: true,
+	};
+}
+
+// The rep distance a planned interval session names: its target's, or a
+// distance in its name ("400m Repeats", "1km Repeats").
+function planRepDistance(match) {
+	if (!match?.planned || match.type !== "intervals") return null;
+	if (match.target?.distanceM > 0) return match.target.distanceM;
+	const m = /(\d+(?:\.\d+)?)\s?(m|km)\b/i.exec(String(match.detail || ""));
+	return m ? Number(m[1]) * (m[2].toLowerCase() === "km" ? 1000 : 1) : null;
 }
 
 // "8 × 400m" when the reps match by distance, "6 × 3 min" when they match by
@@ -281,6 +363,7 @@ function plannedTitle(match, run, reps) {
 }
 
 function unplannedTitle(kind, run, reps, hilly) {
+	if (kind === "intervals" && reps?.fromTrace && !/×/.test(reps.label)) return `${kmLabel(run.distanceM)} Intervals`;
 	if (kind === "intervals" && reps) return `${reps.label} ${/×/.test(reps.label) ? "Repeats" : "Intervals"}`;
 	if (kind === "tempo" && reps) return `${reps.label} Tempo`;
 	if (kind === "race") return `${kmLabel(run.distanceM)} Race`;
@@ -307,7 +390,7 @@ function targetLabel(target) {
  */
 export function describeRun(run, { match = null, laps = [], runs = [] } = {}) {
 	const planned = match?.planned === true;
-	const reps = detectReps(laps);
+	const reps = detectReps(laps) ?? traceReps(run?.trace, planRepDistance(match));
 	const km = (Number(run?.distanceM) || 0) / 1000;
 	const climbM = Number(run?.elevationGainM) || 0;
 	const hilly = km > 0 && climbM / km >= HILLY_M_PER_KM;
@@ -341,8 +424,12 @@ export function describeRun(run, { match = null, laps = [], runs = [] } = {}) {
 	if (reps) {
 		const recovery = reps.recoverySec > 0 ? `, with about ${clock(reps.recoverySec)} between reps` : "";
 		const inSets = reps.sets ? ` in ${reps.sets.count} sets of ${reps.sets.perSet}` : "";
-		const what = reps.blocks.length === 1 ? reps.label : `${reps.label}${/×/.test(reps.label) ? "" : " reps"}${inSets}`;
-		sentences.push(`${what.charAt(0).toUpperCase()}${what.slice(1)} at an average of ${pace(reps.paceSecPerKm)}${recovery}.`);
+		const named = reps.blocks.length === 1 || reps.fromTrace || /×/.test(reps.label);
+		const what = `${reps.label}${named ? "" : " reps"}${inSets}`;
+		// The trace's samples straddle the start and end of each rep, so its
+		// average is close but not exact.
+		const about = reps.fromTrace ? "about " : "";
+		sentences.push(`${what.charAt(0).toUpperCase()}${what.slice(1)} at an average of ${about}${pace(reps.paceSecPerKm)}${recovery}.`);
 	} else if (progressionSec >= PROGRESSIVE_SEC_PER_KM) {
 		sentences.push(`Picked up through the run: the last third was ${Math.round(progressionSec)} s/km faster than the first.`);
 	}

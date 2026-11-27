@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { describeRun, detectReps, isDefaultTitle, progression, retitle, shapeLaps } from "./runDescription.js";
+import { describeRun, detectReps, isDefaultTitle, progression, retitle, shapeLaps, traceReps } from "./runDescription.js";
 
 // A Strava lap: distance in metres, pace in seconds per km.
 const lap = (distance, paceSec, extra = {}) => ({
@@ -269,5 +269,45 @@ describe("describeRun with the plan's rep target", () => {
 
 	it("takes the rep count for the title from the plan when the laps don't show reps", () => {
 		expect(describeRun(run(), { match, laps: autoLaps(9) }).title).toBe("8 × 400m Repeats");
+	});
+});
+
+// Pace samples (s/km, about every 150 m) from two real runs: the 25 November
+// session of 2 sets of 5 × 400m at 3:45/km, and the hilly 22 November long run.
+const REPS_TRACE = [329, 309, 302, 325, 316, 329, 347, 321, 312, 305, 311, 297, 307, 509, 327, 230, 224, 449, 231, 232, 427, 259, 233, 283, 381, 225, 220, 461, 220, 222, 419, 522, 220, 228, 419, 273, 219, 241, 448, 212, 214, 449, 219, 215, 350, 349, 212, 227, 635, 388, 301, 314, 331, 272, 317, 315, 327, 321, 305, 333];
+const HILLY_TRACE = [389, 279, 314, 305, 315, 319, 279, 295, 308, 322, 320, 296, 301, 322, 364, 303, 322, 307, 317, 319, 303, 310, 312, 326, 340, 451, 506, 484, 570, 410, 331, 346, 346, 317, 324, 335, 321, 307, 317, 306, 327, 306, 319, 322, 318, 371, 305, 312, 312, 289, 297, 295, 309, 303, 322, 305, 320, 362, 285, 288, 284, 288, 295, 288, 288, 295];
+
+describe("reps from the pace trace", () => {
+	it("counts the 25 November reps and averages their pace", () => {
+		const reps = traceReps({ pace: REPS_TRACE }, 400);
+		expect(reps.label).toBe("10 × 400m");
+		expect(Math.round(reps.paceSecPerKm / 5) * 5).toBe(225);
+		expect(reps.fromTrace).toBe(true);
+	});
+
+	it("finds no reps in a hilly long run", () => {
+		expect(traceReps({ pace: HILLY_TRACE })).toBeNull();
+	});
+
+	it("names the reps from the plan when the laps are plain 1 km auto-laps", () => {
+		const out = describeRun(run({ trace: { pace: REPS_TRACE } }), {
+			match: { planned: true, type: "intervals", detail: "400m Repeats", distanceKm: 9 },
+			laps: autoLaps(9),
+		});
+		expect(out.title).toBe("10 × 400m Repeats");
+		expect(out.summary).toContain("10 × 400m at an average of about 3:4");
+	});
+
+	it("counts reps without a distance when the plan names none", () => {
+		const out = describeRun(run({ distanceM: 9000, trace: { pace: REPS_TRACE } }));
+		expect(out.title).toBe("9km Intervals");
+		expect(out.summary).toMatch(/^Not on the plan: an interval session\. 10 reps at an average of about 3:4\d\/km\.$/);
+	});
+});
+
+describe("auto-laps", () => {
+	it("reads nothing into 1 km auto-laps, even with slow hilly kilometres among them", () => {
+		const laps = shapeLaps([340, 310, 420, 300, 305, 430, 300, 295, 290, 330].map((p) => lap(1000, p)).concat([lap(400, 300)]));
+		expect(detectReps(laps)).toBeNull();
 	});
 });
